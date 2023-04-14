@@ -10,76 +10,73 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
-    <title>자재입고조회</title>
-    <link rel="stylesheet" href="/css/materialinputsearch.css">
-    <script type="text/javascript" src="jquery.min.js"></script>
-    <script type="text/javascript" src="qrcode.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"
+        integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
+        crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <title>원자재입고 조회</title>
+    <link rel="stylesheet" href="/css/accountinfo.css">
     <script src="/config.json" type="text/javascript"></script>
 </head>
 
 <body>
-    <div class="account-header">
+
+
+              
+    <!-- 상단 바 정보 -->
+    <div class="accountinfo-header">
         <div class="title">
-            <h3 class="title-htag">&nbsp&nbsp 자재입고조회
+            <h3 class="title-htag"> 자재입고조회
         </div>
 
     </div>
-    <div>
-        <table width="30%" height="100%">
-            <thead>
-                <tr>
-                    <th colspan="4">입고 기간 조회</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="a">시작날짜</td>
-                    <td><input type="date" id="datepicker1" value=""></td>
-                    <td class="a">종료날짜</td>
-                    <td><input type="date" id="datepicker2" value=""></td>
-                </tr>
-                <div style="height: 42px;">
+    <div class="open_search_div">
+        <div>
+            <p>자재명</p>
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="자재명을 입력해 주세요.">
+        </div>
+        <div style="float: right ;text-align: right; padding-top: 7px; margin-right: 4px;">
+           
+            <input type="button" value="EXCEL" class="sales-excel" id="excelFileExport" style="cursor: pointer;">
 
-                    <input type="button" value="선택삭제" class="sales-bottom-delete">
-                    <input type="button" value="EXCEL" class="sales-excel" id="excelFileExport">
-                </div>
 
-            </tbody>
-        </table>
+        </div>
     </div>
+  
+  
+    <table id="tableData" class="tablebody">
+        <thead>
+            <tr>
+                <th>    
+                    <div>
+                        <input id="select-all" type="checkbox" name="chk_header">
+                    </div>
+                </th>
 
-    <div class="account-body">
+                <th style="text-align: center;">거래처코드</th>
+                <th style="text-align: center;">거래처명</th>
+                <th style="text-align: center;">대표자명</th>
+                <th style="text-align: center;">전화번호</th>
+                <th style="text-align: center;">주소</th>
+                <th></th>
+          
+            </tr>
+        </thead>
+        <tbody class="accountinfo">
 
-        <table>
-            <thead>
-                <tr>
-                    <th>
-                        <div>
-                            <input type="checkbox">
-                        </div>
-                    </th>
-
-                    <th>입고날짜</th>
-                    <th>자재명</th>
-                    <th>코드번호</th>
-                    <th>LOT.</th>
-                    <th>제조일자</th>
-                    <th>만료일자</th>
-                    <th>자재폭</th>
-                    <th>수량</th>
-                    <th>롤</th>
-                    <th>합계</th>
-                    <th>가격</th>
-                    <th>인쇄</th>
-                </tr>
-            </thead>
-            <tbody class="accountinfo">
-
-            </tbody>
-        </table>
+        </tbody>
+    </table>
 
 
-    </div>
+    <!-- </div> -->
     <div class="account-table">
 
     </div>
@@ -87,11 +84,13 @@
 
     </div>
 
-    <div class="loading_pop">
+
+    <!-- <div class="loading_pop">
         <img src="/img/테크온로고.PNG"><br>
         <h3>잠시만 기다려주세요...</h3>
-    </div>
+    </div> -->
 </body>
+
 <script>
     var server = '';
 
@@ -111,48 +110,99 @@
         console.log(e)
     });
 
-    //시간 지나고 작동코드
 
-    function loading() {
-        setTimeout(() => $('.loading_pop').css("display", "block"), 1500);
+
+    //*************************엑셀 export(S)
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+        return buf;
     }
+    function exportExcel() {
+        // step 1. workbook 생성
+        var wb = XLSX.utils.book_new();
 
-    // const date = new Date();
+        // step 2. 시트 만들기 
+        var newWorksheet = excelHandler.getWorksheet();
 
-    // var day = date.getDate();
-    // var month = date.getMonth() + 1;
-    // var year = date.getFullYear();
+        // step 3. workbook에 새로만든 워크시트에 이름을 주고 붙인다.  
+        XLSX.utils.book_append_sheet(wb, newWorksheet, excelHandler.getSheetName());
 
-    // console.log((month).length, day.length)
+        // step 4. 엑셀 파일 만들기 
+        var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
 
-    // if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
-    //     month = '0' + month
-    //     // console.log(month)
-    // }
-
-    // if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
-    //     day = '0' + day
-    //     // console.log(day)
-    // }
-
-    // // This arrangement can be altered based on how we want the date's format to appear.
-    // let currentDate = `${year}-${month}-${day}`;
-    // // console.log(currentDate); // "17-6-2022"
-
-    // $('#datepicker1').val(currentDate);
-    // $('#datepicker2').val(currentDate);
-
-
-
-
+        // step 5. 엑셀 파일 내보내기 
+        saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), excelHandler.getExcelFileName());
+    }
+    var excelHandler = {
+        getExcelFileName: function () {
+            return '거래처정보.xlsx';
+        },
+        getSheetName: function () {
+            return 'Table Test Sheet';
+        },
+        getExcelData: function () {
+            return document.getElementById('tableData');
+        },
+        getWorksheet: function () {
+            return XLSX.utils.table_to_sheet(this.getExcelData());
+        }
+    }
+    $("#excelFileExport").click(function () {
+        exportExcel();
+    });
+    //*************************엑셀 export(F)   
     $(window).ready(function () {
 
-        $("#excelFileExport").click(function () {
-            exportExcel();
-        });
+
+
+        // $.ajax({
+        //     type: 'POST',
+        //     url: 'http://localhost:8001/api/accountmanagement',
+
+        //     dataType: 'json',
+        //     ///datatype text 인이유 : string
+        //     success: function (data) {
+
+        //         console.log(data)
+
+        //         for (var i = 0; i < data.length; i++) {
+        //             $('.accountinfo').append(
+        //                 '<tr>' +
+        //                 '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" id="user_CheckBox" style="border: 1px solid silver;"></td>' +
+
+        //                 '<td style="border: 1px solid silver; ">' + data[i].accountcode + '</td>' + //
+        //                 '<td style="border: 1px solid silver; ">' + data[i].accountname + '</td>' +
+        //                 '<td style="border: 1px solid silver; ">' + data[i].representativename + '</td>' +
+        //                 '<td style="border: 1px solid silver; ">' + data[i].phone + '</td>' + //
+        //                 '<td style="border: 1px solid silver; ">' + data[i].adress + '</td>' +
+        //                 '<td style="border: 1px solid silver; "> <input type="button"  value="수정" id="aa" class="sales-bottom-insert" data-bs-toggle="modal" data-bs-target="#exampleModal1" data-bs-whatever="@mdo" style="cursor: pointer;"></td>' +
+        //                 '<td style="border: 1px solid silver; " id="data-id">' + data[i].id + '</td>' +
+        //                 // '<td style="border: 1px solid silver;"><img src="/img/폴더이미지.PNG" style="width: 50px; height: 20px;"></td>' +
+        //                 // '<td style="border: 1px solid silver; "> <input type="button"  value="첨부파일" class="file-folder" style="cursor: pointer;"></td>' +
+
+        //                 '</tr>'
+
+        //             )
+        //             $("td#data-id").hide();
+
+        //         }
+        //         // paging();
+
+        //     }
+
+        // }
+        // )
+
+
+    })
+    //dtload
+    function dtload() {
+        $(".accountinfo").empty();
         $.ajax({
             type: 'POST',
-            url: 'http://localhost:8001/api/materialoption',
+            url: 'http://localhost:8001/api/accountmanagement',
 
             dataType: 'json',
             ///datatype text 인이유 : string
@@ -162,64 +212,328 @@
 
                 for (var i = 0; i < data.length; i++) {
                     $('.accountinfo').append(
-                        data[i].date !== '합계' && data[i].date !== '소계' ?
-                            '<tr>' +
-                            '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" style="border: 1px solid silver;"></td>' +
-                            '<td id="date' + i + '" style="border: 1px solid silver; ">' + data[i].date + '</td>' + //
-                            '<td id="materialname' + i + '" style="border: 1px solid silver; ">' + data[i].materialname + '</td>' +
-                            '<td id="codenumber' + i + '" style="border: 1px solid silver; ">' + data[i].codenumber + '</td>' +
-                            '<td id="lotno' + i + '" style="border: 1px solid silver; ">' + data[i].lotno + '</td>' + //
-                            '<td id="manufacturedate' + i + '" style="border: 1px solid silver; ">' + data[i].manufacturedate + '</td>' +
-                            '<td id="expirationdate' + i + '" style="border: 1px solid silver; ">' + data[i].expirationdate + '</td>' +
-                            '<td id="materialwidth' + i + '" style="border: 1px solid silver; ">' + data[i].materialwidth + '</td>' +
-                            '<td id="quantity' + i + '" style="border: 1px solid silver; ">' + data[i].quantity + '</td>' +
-                            '<td id="roll' + i + '" style="border: 1px solid silver; ">' + data[i].roll + '</td>' +
-                            '<td id="sum' + i + '" style="border: 1px solid silver; ">' + data[i].sum + '</td>' +
-                            '<td id="price' + i + '" style="border: 1px solid silver; ">' + data[i].price + '</td>' +
-                            '<td id="qrbutton' + i + '" style="border: 1px solid silver; "><button id="' + i + '"onclick="printqrcode1()">인쇄</button></td>' +
-                            '</tr>'
-                            :
-                            '<tr>' +
-                            // '<td style="border: 1px solid silver ;"></td>' +
-                            '<td style="border: 1px solid silver; text-align: center;" colspan = "9">' + data[i].date + '</td>' + //
-                            '<td style="border: 1px solid silver; ">' + data[i].roll + '</td>' +
-                            '<td style="border: 1px solid silver; ">' + data[i].sum + '</td>' +
-                            '<td style="border: 1px solid silver; ">' + data[i].price + '</td>' +
-                            '<td style="border: 1px solid silver; "></td>' +
-                            '</tr>'
+                        '<tr>' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" id="user_CheckBox" style="border: 1px solid silver;"></td>' +
+
+                        '<td style="border: 1px solid silver; ">' + data[i].accountcode + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].accountname + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].representativename + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].phone + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].adress + '</td>' +
+
+                        '<td style="border: 1px solid silver; "> <input type="button"  value="수정" id="aa" class="sales-bottom-insert" data-bs-toggle="modal" data-bs-target="#exampleModal1" data-bs-whatever="@mdo" style="cursor: pointer;"></td>' +
+                        '<td style="border: 1px solid silver; " id="data-id">' + data[i].id + '</td>' +
+                        '</tr>'
+
                     )
+                    $("td#data-id").hide();
                 }
             }
         })
-    })
-
-    $(document).ready(function () {
-        $(document).on('click', "td button", function (e) {
-
-            
-            
-            e.preventDefault();
-            id = $(this).attr('id')
-            date = $('#date1').val();
-            console.log(id)
-            console.log(date)
-        
-        });
-    });
-    function printqrcode1() {
-        date = $('date' + 1 + '').val();
-            
-            console.log(date)
-        // var win = window.open("http://localhost:3000/qrprint", "PopupWin", "width=500,height=600");
-    
-        
-        
     }
 
 </script>
 <script type="text/javascript">
+    // function allCheck() {
+    $('#select-all').click(function (event) {
+        console.log(this.checked)
+        if (this.checked) {
+            // Iterate each checkbox
+            $(':checkbox').each(function () {
+                this.checked = true;
+            });
+        } else {
+            $(':checkbox').each(function () {
+                this.checked = false;
+            });
+        }
+    });
+            // }
+
 
 
 </script>
+<script>
+    ///******************* 필터링************************
+    function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("tableData");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[2];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+
+
+    //체크박스 클릭 아이디찾기
+    $(document).on('click', "#user_CheckBox", function (e) {
+        var str = "";
+        var tdArr = new Array();// 배열 선언            
+        var checkBtn = $(this);
+
+        var tr = checkBtn.parent().parent();
+        var td = tr.children();
+
+        // tr.text()는 클릭된 Row 즉 tr에 있는 모든 값을 가져온다.
+
+        // 반복문을 이용해서 배열에 값을 담아 사용할 수 도 있다.
+        td.each(function (i) {
+            tdArr.push(td.eq(i).text());
+        });
+
+
+
+        // td.eq(index)를 통해 값을 가져올 수도 있다.
+        var id = td.eq(7).text();
+        console.log(id);
+
+
+
+    })
+
+
+    // 등록
+    function save_accountinfo() {
+
+        var accountcode = $('#accountcode-save').val();
+        var accountname = $('#accountname-save').val();
+        var representativename = $('#representativename-save').val();
+        var phone = $('#phone-save').val();
+        var adress = $('#adress-save').val();
+
+        if (confirm("거래처 정보를 등록 하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfoinsertdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "accountcode": accountcode,
+                    "accountname": accountname,
+                    "representativename": representativename,
+                    "phone": phone,
+                    "adress": adress,
+
+                }),
+                success: function (result) {
+
+                }
+            })
+
+
+            alert("등록이 완료 되었습니다.");
+
+       
+            dtload()
+
+        } else {
+            return false;
+        }
+    }
+    // 파일등록
+    function savefile() {
+
+        var filename = $('.filename').val();
+        var fileone = $('.filesave').val();
+
+        if (confirm("파일 정보를 등록 하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/inputfile',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "filenamed": filename,
+                    "fileone": filename,
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("등록이 완료 되었습니다.");
+
+
+
+
+        } else {
+            return false;
+        }
+    }
+    // 수정
+    function edit_accountinfo() {
+
+
+        var id = $('#edit-id').val();
+        var accountcode = $('#accountcode-edit').val();
+        var accountname = $('#accountname-edit').val();
+        var representativename = $('#representativename-edit').val();
+        var phone = $('#phone-edit').val();
+        var adress = $('#adress-edit').val();
+
+        if (confirm("선택된 정보를 수정하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfoupdatedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "id": id,
+                    "accountcode": accountcode,
+                    "accountname": accountname,
+                    "representativename": representativename,
+                    "phone": phone,
+                    "adress": adress,
+
+
+                }),
+                success: function (result) {
+
+                }
+            })
+
+
+            alert("수정이 완료 되었습니다.");
+
+            // $('#exampleModal1').modal('hide')
+            dtload()
+
+        } else {
+            return false;
+        }
+    }
+
+    //삭제
+    function removeCheck() {
+
+        var checkbox = $("input[name='user_CheckBox']:checked");//체크된거 가져오기
+
+        //체크가 되지도 않았는데 이벤트 실행되면 안되니
+
+        if (checkbox.length == 0) { //체크된게 0개 이니까 
+
+            alert('선택 항목이 없습니다.');
+
+        } else {
+            if (confirm("선택된 정보를 삭제하시겠습니까??") == true) {    //확인
+
+                for (var i = 0; i < checkbox.length; i++) {
+
+                    const table = document.getElementById('tableData');
+                    const totalRowCnt = table.rows.length;
+                    var count = totalRowCnt;
+
+
+                    var rowData = new Array();
+                    var tdArr = new Array();
+                    var checkbox = $("input[name=user_CheckBox]:checked");
+
+
+                    // 체크된 체크박스 값을 가져온다
+                    checkbox.each(function (i) {
+
+                        // checkbox.parent() : checkbox의 부모는 <td>이다.
+                        // checkbox.parent().parent() : <td>의 부모이므로 <tr>이다.
+                        var tr = checkbox.parent().parent().eq(i);
+                        // console.log('tr',tr)
+                        var td = tr.children();
+                        var addcount = count - 1;
+
+
+                        // 체크된 row의 모든 값을 배열에 담는다.
+                        rowData.push(tr.text());
+
+                        var id = td.eq(7).text();
+
+
+
+                        // 가져온 값을 배열에 담는다.
+                        tdArr.push(id);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://localhost:8001/api/accountinfodeletedata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": id
+
+                            }),
+                            success: function (result) {
+
+                            }
+                        })
+                    });
+                }
+                alert("삭제 완료 되었습니다.");
+                dtload()
+            } else {   //취소
+                return false;
+
+            }
+        }
+
+    }
+
+    //수정버튼 클릭시 데이터 수정창에 옮기기
+    $(document).on('click', "#aa", function (e) {
+
+        var str = "";
+        var tdArr = new Array();// 배열 선언            
+        var checkBtn = $(this);
+
+        var tr = checkBtn.parent().parent();
+        var td = tr.children();
+
+        var accountcode = td.eq(1).text();
+        var accountname = td.eq(2).text();
+        var representativename = td.eq(3).text();
+        var phone = td.eq(4).text();
+        var adress = td.eq(5).text();
+        var id = td.eq(7).text();
+
+        $('#accountcode-edit').val(accountcode);
+        $('#accountname-edit').val(accountname);
+        $('#representativename-edit').val(representativename);
+        $('#phone-edit').val(phone);
+        $('#adress-edit').val(adress);
+        $('#edit-id').val(id);
+    })
+
+
+    //창띄우기 클리어
+    function saveclear() {
+        $('#accountcode-save').val('');
+        $('#accountname-save').val('');
+        $('#representativename-save').val('');
+        $('#phone-save').val('');
+        $('#adress-save').val('');
+    }
+
+
+   
+
+
+</script>
+
 
 </html>

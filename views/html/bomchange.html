@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta charset="UTF-8">
+    <title>BOM이력관리</title>
+
+    <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.colVis.min.js"></script>
+
+
+
+
+</head>
+
+
+<body>
+
+    <div style="height:50px; border: 1px solid black;">
+        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
+            개발-BOM이력관리
+        </p>
+    </div>
+
+
+    <div style="border: 1px solid whitesmoke;">
+        <table id="fileinfo" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>등록날짜</th>
+                    <th>BOMNO.</th>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <th>자재명</th>
+                    <th>자재폭</th>
+                    <th>길이</th>
+                    <th>자재분류</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="color: black;">잠시만 기다려주세요...</p>
+    </div>
+    <script type="text/javascript">
+        // 시작부분
+        $(document).ready(function () {
+
+
+            // 로딩 창을 보이게 한다
+            const loadingScreen = document.getElementById("loading-screen");
+            loadingScreen.style.display = "block";
+
+
+
+
+
+
+            $.ajax({
+    url: 'http://localhost:8001/api/bomchange',
+    method: 'post',
+    dataType: 'json',
+    success: function (data) {
+        $('#fileinfo').DataTable({
+            deferLoading: [0, 10],
+            paging: true,
+            destroy: true,
+            sort: true,
+            pageLength: 30,
+            searching: true,
+            data: data,
+            responsive: true,
+            columnResize: true,
+            processing: true,
+            columns: [
+                { "data": "id" },
+                { "data": "savedate" },
+                { "data": "bomno" },
+                { "data": "model" },
+                { "data": "itemname" },
+                { "data": "materialname" },
+                { "data": "swidth" },
+                { "data": "mwidth" },
+                { "data": "classification" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0, visible: false, searchable: false
+                }
+            ],
+            language: {
+                emptyTable: "데이터가 없습니다.",
+                lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                info: "현재 _START_ - _END_ / _TOTAL_건",
+                infoEmpty: "데이터 없음",
+                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                search: "검색:",
+                zeroRecords: "일치하는 데이터가 없습니다.",
+                loadingRecords: "로딩중...",
+                processing: "잠시만 기다려 주세요.",
+                paginate: {
+                    next: "다음",
+                    previous: "이전"
+                }
+            },
+            drawCallback: function () {
+                var api = this.api();
+                var rows = api.rows({ page: 'current' }).nodes();
+                var last = null;
+                api.column(1, { page: 'current' }).data().each(function (group, i) {
+                    if (last !== group) {
+                        $(rows).eq(i).before(
+                            '<tr class="group"><td colspan="9">' + group + '</td></tr>'
+                        );
+                        last = group;
+                    }
+                });
+            },
+            order: [[1, 'asc']],
+            rowGroup: {
+                dataSrc: 'savedate'
+            },
+            // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+            columnDefs: [
+                { className: "dt-center", targets: "_all" }
+            ],
+            dom: 'flrtBip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+                        columnDefs: [
+                            {
+                                targets: [0], visible: false, searchable: false
+                            }
+                        ],
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        }
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
+        });
+
+
+
+
+
+
+
+
+
+    </script>
+
+</html>

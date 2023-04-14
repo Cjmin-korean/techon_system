@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta charset="UTF-8">
+    <title>원자재정보</title>
+
+    <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.colVis.min.js"></script>
+
+
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/qrcode.js"></script>
+</head>
+
+
+<body>
+
+
+
+
+
+
+    <!-- 모달등록창 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">거래처 신규등록</h4>
+
+
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label>원자재명:</label>
+                        <input type="text" class="form-control" id="materialname-save" required>
+                    </div>
+                    <div class="form-group">
+                        <label>원자재코드:</label>
+                        <input type="text" class="form-control" id="codenumber-save" required>
+                    </div>
+                    <div class="form-group">
+                        <label>종류:</label>
+                        <input type="text" class="form-control" id="classification-save" required>
+                    </div>
+                    <div class="form-group">
+                        <label>전폭규격(cm):</label>
+                        <input type="text" class="form-control" id="fullwidth-save" required>
+                    </div>
+                    <div class="form-group">
+                        <label>길이규격(M):</label>
+                        <input type="text" class="form-control" id="swidth-save" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>거래처:</label>
+                        <input type="text" class="form-control" id="customer-save" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>SQM단가(₩):</label>
+                        <input type="text" class="form-control" id="sqmprice-save" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>롤단가(₩):</label>
+                        <input type="text" class="form-control" id="rollprice-save" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>유수명(일):</label>
+                        <input type="text" class="form-control" id="day-save" required>
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                    <input type="button" data-dismiss="modal" id="add" class="btn btn-success" value="추가">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달수정창 -->
+    <div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">거래처 수정</h4>
+
+
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label>원자재명:</label>
+                        <input type="text" class="form-control" id="materialname-edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>원자재코드:</label>
+                        <input type="text" class="form-control" id="codenumber-edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>종류:</label>
+                        <input type="text" class="form-control" id="classification-edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>전폭규격(cm):</label>
+                        <input type="text" class="form-control" id="fullwidth-edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>길이규격(M):</label>
+                        <input type="text" class="form-control" id="swidth-edit" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>거래처:</label>
+                        <input type="text" class="form-control" id="customer-edit" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>SQM단가(₩):</label>
+                        <input type="text" class="form-control" id="sqmprice-edit" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>롤단가(₩):</label>
+                        <input type="text" class="form-control" id="rollprice-edit" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>유수명(일):</label>
+                        <input type="text" class="form-control" id="day-edit" required>
+
+                    </div>
+                    <div class="form-group">
+
+                        <input type="text" class="form-control" id="id-edit" style="visibility: hidden;" required>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                    <input type="button" data-dismiss="modal" id="dataedit" class="btn btn-success" value="수정">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달삭제창 -->
+    <div class="modal fade" id="datadelte" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h4 class="modal-title">원자재정보 삭제</h4>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>정말로 원자재정보를 삭제하시겠습니까?</p>
+                        <p class="text-warning"><small>이 작업은 취소할 수 없습니다.</small></p>
+                    </div>
+                    <input type="text" class="form-control" id="id-delete" style="visibility: hidden;" required>
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                        <input type="button" data-dismiss="modal" id="delete" class="btn btn-danger" value="삭제">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div style="height:50px; border: 1px solid black;">
+        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
+            자재-원자재정보
+        </p>
+    </div>
+
+    <div style="width:100%; height:40px; border: 1px solid black;">
+        <button type="button" class="btn btn-primary" id="openModal" style="margin-top:2px;">신규추가</button>
+        <!-- <button type="button" onclick="asum()" style="margin-top:2px;">신규추가</button> -->
+    </div>
+
+    <div style="border: 1px solid whitesmoke;">
+        <table id="fileinfo" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>원자재명</th>
+                    <th>원자재코드</th>
+                    <th>종류</th>
+                    <th>전폭규격(cm)</th>
+                    <th>길이규격(M)</th>
+                    <th>거래처</th>
+                    <th>SQM단가(₩)</th>
+                    <th>롤단가(₩)</th>
+                    <th>유수명(일)</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="color: black;">잠시만 기다려주세요...</p>
+    </div>
+
+    <div class="page" style="width:100px; height:100px; visibility: hidden;">
+        <div class="form-group">
+            <label>원자재명:</label>
+            <input type="text" class="form-control" id="materialname-save" style="border: none;" required>
+        </div>
+        <div class="form-group">
+            <label>원자재코드:</label>
+            <input type="text" class="form-control" id="materialname-save" style="border: none;" required>
+        </div>
+        <div class="form-group">
+            <label>제조일자:</label>
+            <input type="text" class="form-control" id="materialname-save" style="border: none;" required>
+        </div>
+        <div class="form-group">
+            <label>만료일자:</label>
+            <input type="text" class="form-control" id="materialname-save" style="border: none;" required>
+        </div>
+        <div id="qrcode"></div>
+    </div>
+    <script>
+        // 시작부분
+        $(document).ready(function () {
+            // 로딩 창을 보이게 한다
+            const loadingScreen = document.getElementById("loading-screen");
+            loadingScreen.style.display = "block";
+
+            $("#openModal").click(function () {
+
+
+                $("#materialname-save").val('');
+                $("#codenumber-save").val('');
+                $("#classification-save").val('');
+                $("#fullwidth-save").val('');
+                $("#swidth-save").val('');
+                $("#customer-save").val('');
+                $("#sqmprice-save").val('');
+                $("#rollprice-save").val('');
+                $("#day-save").val('');
+                $("#myModal").modal();
+            });
+
+            $('#fileinfo').on('click', '#openModaledit', function () {
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var materialname = td.eq(0).text();
+                var codenumber = td.eq(1).text();
+                var classification = td.eq(2).text();
+                var fullwidth = td.eq(3).text();
+                var swidth = td.eq(4).text();
+                var customer = td.eq(5).text();
+                var sqmprice = td.eq(6).text();
+                var rollprice = td.eq(7).text();
+                var day = td.eq(8).text();
+                table1 = $('#fileinfo').DataTable();
+                var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+                $('#materialname-edit').val(materialname);
+                $('#codenumber-edit').val(codenumber);
+                $('#classification-edit').val(classification);
+                $('#fullwidth-edit').val(fullwidth);
+                $('#swidth-edit').val(swidth);
+                $('#customer-edit').val(customer);
+                $('#sqmprice-edit').val(sqmprice);
+                $('#rollprice-edit').val(rollprice);
+                $('#day-edit').val(day);
+                $('#id-edit').val(data1.id);
+
+                $("#edit").modal();
+
+            });
+
+            $('#fileinfo').on('click', '#openModaldelete', function () {
+                table1 = $('#fileinfo').DataTable();
+                var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+                $('#id-delete').val(data1.id);
+                $("#datadelte").modal();
+
+            });
+            $.ajax({
+                url: 'http://localhost:8001/api/materialbase',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+
+                        deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "materialname" },
+                            { "data": "codenumber" },
+                            { "data": "classification" },
+                            { "data": "fullwidth" },
+                            { "data": "swidth" },
+                            { "data": "customer" },
+                            { "data": "sqmprice" },
+                            { "data": "rollprice" },
+                            { "data": "day" }
+
+                        ],
+
+                        dom: 'flrtBip',
+
+                        buttons: [
+                            'copy', 'csv', 'excel', 'pdf', 'print'
+                        ],
+                        // drawCallback: function () {
+                        //     var api = this.api();
+                        //     var sum = 0;
+                        //     var formated = 0;
+                        //     //to show first th
+                        //     $(api.column(1).footer()).html('Total');
+
+                        //     for (var i = 5; i <= 5; i++) {
+                        //         sum = api.column(i, { page: 'current' }).data().sum();
+
+                        //         //to format this sum
+                        //         formated = parseFloat(sum).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                        //         $(api.column(i).footer()).html('$' + formated);
+                        //     }
+
+                        // },
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 4, className: 'alRight'
+                            },
+                            {
+                                targets: 5, className: 'alRight',
+
+                            },
+                            {
+                                targets: 7, className: 'alRight'
+                            },
+                            {
+                                targets: 8, className: 'alRight'
+                            },
+                            {
+                                targets: 9, className: 'alRight'
+                            },
+                            {
+                                targets: 10,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
+                                width: 50
+                            },
+                            {
+                                targets: 11,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                width: 50
+                            },
+                            {
+                                targets: 12,
+                                data: null,
+                                defaultContent: '<a href="/down-excel/1">수입검사</a>',
+
+                                width: 50
+                            }
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
+        });
+
+        // 등록부분
+        document.getElementById("add").addEventListener('click', add);
+
+        function add() {
+            if (confirm("원자재 기초정보를 등록 하시겠습니까??") == true) {
+
+
+                var materialname = $('#materialname-save').val();
+                var codenumber = $('#codenumber-save').val();
+                var classification = $('#classification-save').val();
+                var fullwidth = $('#fullwidth-save').val();
+                var swidth = $('#swidth-save').val();
+                var customer = $('#customer-save').val();
+                var sqmprice = $('#sqmprice-save').val();
+                var rollprice = $('#rollprice-save').val();
+                var day = $('#day-save').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:8001/api/materialbaseinsertdata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "materialname": materialname,
+                        "codenumber": codenumber,
+                        "classification": classification,
+                        "fullwidth": fullwidth,
+                        "swidth": swidth,
+                        "customer": customer,
+                        "sqmprice": sqmprice,
+                        "rollprice": rollprice,
+                        "day": day
+
+
+
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                    }
+                })
+
+
+                alert("저장이 완료 되었습니다.");
+
+
+                $.ajax({
+                    url: 'http://localhost:8001/api/materialbase',
+                    method: 'post',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#fileinfo').DataTable({
+                            deferLoading: [0, 10],
+                            paging: true,
+                            destroy: true,
+                            sort: true,
+                            pageLength: 10,
+                            searching: true,
+                            data: data,
+                            responsive: true,
+                            columnResize: true,
+                            processing: true,
+                            columns: [
+                                { "data": "id" },
+                                { "data": "materialname" },
+                                { "data": "codenumber" },
+                                { "data": "classification" },
+                                { "data": "fullwidth" },
+                                { "data": "swidth" },
+                                { "data": "customer" },
+                                { "data": "sqmprice" },
+                                { "data": "rollprice" },
+                                { "data": "day" }
+
+                            ],
+
+                            dom: 'flrtBip',
+
+                            buttons: [
+                                'copy', 'csv', 'excel', 'pdf', 'print'
+                            ],
+
+                            columnDefs: [
+                                {
+                                    targets: 0, visible: false, searchable: false
+                                },
+                                {
+                                    targets: 10,
+                                    data: null,
+                                    defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
+                                    width: 50
+                                },
+                                {
+                                    targets: 11,
+                                    data: null,
+                                    defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                    width: 50
+                                }
+
+                            ],
+
+                            language: {
+                                emptyTable: "데이터가 없습니다.",
+                                lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                                info: "현재 _START_ - _END_ / _TOTAL_건",
+                                infoEmpty: "데이터 없음",
+                                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                                search: "검색:",
+                                zeroRecords: "일치하는 데이터가 없습니다.",
+                                loadingRecords: "로딩중...",
+                                processing: "잠시만 기다려 주세요.",
+                                paginate: {
+                                    next: "다음",
+                                    previous: "이전"
+                                }
+                            },
+
+
+                        });
+                        // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                        $('.sorting').css('text-align', 'center');
+                    },
+                    error: function () {
+                        alert("다시 시도해 주십시요.");
+                    },
+
+                    complete: setTimeout(function () {
+                        const loadingScreen = document.getElementById("loading-screen");
+                        loadingScreen.style.display = "none";
+                    }, 1500)
+                });
+            }
+        }
+
+
+
+
+        $(document).on('click', "#deleted", function (e) {
+
+            table1 = $('#fileinfo').DataTable();
+            var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+            $('#id-delete').val(data1.id);
+
+        })
+
+
+        // 삭제부분
+        document.getElementById("delete").addEventListener('click', deleted);
+
+        function deleted() {
+
+
+
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/materialbasedeletedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "id": $('#id-delete').val()
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("삭제가 완료 되었습니다.");
+
+
+            $.ajax({
+                url: 'http://localhost:8001/api/materialbase',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "materialname" },
+                            { "data": "codenumber" },
+                            { "data": "classification" },
+                            { "data": "fullwidth" },
+                            { "data": "swidth" },
+                            { "data": "customer" },
+                            { "data": "sqmprice" },
+                            { "data": "rollprice" },
+                            { "data": "day" }
+
+                        ],
+
+                        dom: 'flrtBip',
+
+                        buttons: [
+                            'copy', 'csv', 'excel', 'pdf', 'print'
+                        ],
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 10,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
+                                width: 50
+                            },
+                            {
+                                targets: 11,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                width: 50
+                            }
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+        }
+
+        // 수정부분
+        document.getElementById("dataedit").addEventListener('click', edtited);
+
+        function edtited() {
+
+
+
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/materialbaseupdatedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    id: $('#id-edit').val(),
+                    materialname: $('#materialname-edit').val(),
+                    codenumber: $('#codenumber-edit').val(),
+                    classification: $('#classification-edit').val(),
+                    fullwidth: $('#fullwidth-edit').val(),
+                    swidth: $('#swidth-edit').val(),
+                    customer: $('#customer-edit').val(),
+                    sqmprice: $('#sqmprice-edit').val(),
+                    rollprice: $('#rollprice-edit').val(),
+                    day: $('#day-edit').val()
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("수정이 완료 되었습니다.");
+
+
+            $.ajax({
+                url: 'http://localhost:8001/api/materialbase',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "materialname" },
+                            { "data": "codenumber" },
+                            { "data": "classification" },
+                            { "data": "fullwidth" },
+                            { "data": "swidth" },
+                            { "data": "customer" },
+                            { "data": "sqmprice" },
+                            { "data": "rollprice" },
+                            { "data": "day" }
+
+                        ],
+
+                        dom: 'flrtBip',
+
+                        buttons: [
+                            'copy', 'csv', 'excel', 'pdf', 'print'
+                        ],
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 10,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
+                                width: 50
+                            },
+                            {
+                                targets: 11,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                width: 50
+                            }
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+        }
+
+
+    </script>
+
+    <script type="text/javascript">
+
+        var qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: "안녕하세요",
+            width: 50,
+            height: 50,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        $("#qrcode > img").css({ "margin": "auto" });
+
+
+
+    </script>
+    <script>
+        function printpage() {
+            var content = document.getElementsByClassName("page")[0].innerHTML;
+            var newWindow = window.open();
+            newWindow.document.write(content);
+            newWindow.print();
+            newWindow.close();
+        }
+    </script>
+    <script>
+        function asum() {
+
+        }
+    </script>
+
+</html>

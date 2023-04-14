@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta charset="UTF-8">
+    <title>거래처정보</title>
+
+    <!-- <link rel="stylesheet" href="/css/salesinformation.css"> -->
+    <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.colVis.min.js"></script>
+
+
+
+
+</head>
+
+
+<body>
+
+
+
+    <!-- 모달등록창 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document" style="width: 1800px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">제품 검색</h4>
+
+
+                </div>
+                <table id="fileinfo3" class="display" style="width: 100%; table-layout: auto;">
+                    <thead style="width: 100%;">
+                        <tr>
+
+                            <th></th>
+                            <th>BOMNO.</th>
+                            <th>모델명</th>
+                            <th>제품명</th>
+                            <th>규격</th>
+                            <th>단가(₩)</th>
+
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="addEmployeeModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h4 class="modal-title">제품추가</h4>
+
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>모델명:</label>
+                            <input type="text" class="form-control" id="modelname" required>
+                        </div>
+                        <div class="form-group">
+                            <label>제품명:</label>
+                            <input type="text" class="form-control" id="itemname" required>
+                        </div>
+                        <div class="form-group">
+                            <label>단가:</label>
+                            <input type="text" class="form-control" id="price" required>
+                        </div>
+                        <div class="form-group">
+                            <label>PO수량:</label>
+                            <input type="text" class="form-control" onkeyup="inputNumberFormat(this)" id="count"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                        <input type="button" data-dismiss="modal" id="addbutton1" class="btn btn-success" value="추가">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 모달삭제창 -->
+    <div class="modal fade" id="datadelte" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h4 class="modal-title">거래처 삭제</h4>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>정말로 거래처를 삭제하시겠습니까?</p>
+                        <p class="text-warning"><small>이 작업은 취소할 수 없습니다.</small></p>
+                    </div>
+                    <input type="text" class="form-control" id="id-delete" style="visibility: hidden;" required>
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                        <input type="button" data-dismiss="modal" id="delete" class="btn btn-danger" value="삭제">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div style="height:50px; border: 1px solid black;">
+        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
+            영업-영업수주
+        </p>
+    </div>
+    <div class="open_search_div">
+        <div>
+            <p>고객사:</p>
+            <select id="accountname" style="width: 170px; height: 30px; margin-left:10px; font-weight: bold; ">
+                <option></option>
+
+                <option>글로플렉스</option>
+                <option>뉴플렉스</option>
+                <option>영풍전자</option>
+                <option>넥스플러스</option>
+                <option>대현에스티</option>
+                <option>베트남</option>
+                <option>비에이치플러스</option>
+                <option>비전스케이프</option>
+                <option>서울바이오시스</option>
+                <option>신성델타테크</option>
+                <option>써키트라인</option>
+                <option>현대플렉스</option>
+                <option>파인테크닉스</option>
+
+
+            </select>
+        </div>
+        <div>
+            <p>납기일자:</p>
+            <input type="date" id="datepicker1"
+                style="width: 170px; height: 30px; margin-top:-100px; margin-left:10px; font-weight: bold; text-align: center;">
+            <div>
+                <p>수량 합계(개):</p>
+                <input type="text" id="countsum" value="0" style="text-align: right;">
+                <input type="text" id="sumcount" value="0" style="text-align: right;">
+            </div>
+            <div>
+                <p>금액 합계(₩):</p>
+                <input type="text" id="pricesum" value="0" style="text-align: right;">
+            </div>
+            <button onclick="save_open()" style="width:80px; height: 30px;"> 저장</button>
+
+
+        </div>
+        <button type="button" class="btn btn-primary" id="openModal"
+            style="margin-top:5px; margin-right:5px; float: right;"> 제품추가 </button>
+    </div>
+
+
+    <div style="border: 1px solid whitesmoke;">
+        <table id="fileinfo" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <th>단가(₩)</th>
+                    <th>수량(개)</th>
+                    <th>금액(₩)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="color: black;">잠시만 기다려주세요...</p>
+    </div>
+
+    <script>
+        // 시작부분
+        $(document).ready(function () {
+
+            settingDate()
+            // 로딩 창을 보이게 한다
+            const loadingScreen = document.getElementById("loading-screen");
+            loadingScreen.style.display = "block";
+
+            $("#openModal").click(function () {
+                $("#accountcode-save").val('');
+                $("#accountname-save").val('');
+                $("#accountrepresentname-save").val('');
+                $("#phone-save").val('');
+                $("#adress-save").val('');
+                $("#myModal").modal();
+            });
+
+            $('#fileinfo').on('click', '#openModaledit', function () {
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var accountcode = td.eq(0).text();
+                var accountname = td.eq(1).text();
+                var accountrepresentname = td.eq(2).text();
+                var phone = td.eq(3).text();
+                var adress = td.eq(4).text();
+                table1 = $('#fileinfo').DataTable();
+                var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+                $('#accountcode-edit').val(accountcode);
+                $('#accountname-edit').val(accountname);
+                $('#accountrepresentname-edit').val(accountrepresentname);
+                $('#phone-edit').val(phone);
+                $('#adress-edit').val(adress);
+                $('#id-edit').val(data1.id);
+
+                $("#edit").modal();
+
+            });
+
+            $('#fileinfo3').on('click', '#addbutton1', function () {
+
+
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var modelname = td.eq(1).text();
+                var partname = td.eq(2).text();
+                var itemprice = td.eq(3).text();
+
+
+
+                $('#modelname').val(modelname);
+                $('#itemname').val(partname);
+                $('#price').val(itemprice);
+
+
+                $("#addEmployeeModal").modal();
+
+            });
+
+            $.ajax({
+                url: 'http://localhost:8001/api/iteminfo',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    // Create a second DataTable for the same data
+                    $('#fileinfo').dataTable({
+                        deferLender: true,
+                        paging: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        deferLoading: [0, 10],
+                        columns: [],
+                        columnDefs: [],
+                        destroy: true,
+                    });
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+
+
+            $.ajax({
+                url: 'http://localhost:8001/api/iteminfo',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo3').DataTable({
+                        deferLender: true,
+                        lengthMenu: false,
+                        autoWidth: false,
+                        paging: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        deferLoading: [0, 10],
+                        columns: [
+                            { "data": "id" },
+                            { "data": "bomno" },
+                            { "data": "modelname" },
+                            { "data": "itemname" },
+                            { "data": "size" },
+                            { "data": "itemprice" }
+
+                        ],
+
+
+
+
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 5, className: 'alRight'
+                            },
+
+                            {
+                                targets: 6,
+                                data: null,
+                                defaultContent: '<button id="addbutton1" class="btn btn-primary" > 추가 </button>',
+                                width: 50
+                            },
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+        });
+
+        document.getElementById("addbutton").addEventListener('click', hello);
+
+        function hello() {
+
+
+            var price = $('#price').val()
+            var count = $('#count').val()
+            var number = count.replace(/,/g, "");
+            var sum = comma(uncomma(price * number))
+
+            var a = $('#pricesum').val()
+            var pricesum = parseInt(uncomma(a)) + parseInt(uncomma(price * number))
+            $('#pricesum').val(comma(uncomma(pricesum)))
+
+
+            var b = $('#countsum').val()
+            var countsum = parseInt(uncomma(b)) + parseInt(uncomma(count))
+            $('#countsum').val(comma(uncomma(countsum)))
+
+            $('#fileinfo').append(
+
+                '<tr>' +
+                '<td >' + $('#modelname').val() + '</td>' +
+                '<td >' + $('#itemname').val() + '</td>' +
+                '<td >' + $('#price').val() + '</td>' +
+                '<td id="card">' + $('#count').val() + '</td>' +
+                '<td >' + sum + '</td>' +
+                // '<td> <a class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a></td>' +
+                '<td><button  id="deletbtn"onclick="SomeDeleteRowFunction(this)">delete</button></td>' +
+                '</tr>'
+
+            )
+            $('#addEmployeeModal').modal('hide');
+        }
+        // 등록부분
+        document.getElementById("add").addEventListener('click', add);
+
+        function add() {
+            if (confirm("고객사 정보를 등록 하시겠습니까??") == true) {
+
+
+                var accountcode = $('#accountcode-save').val();
+                var accountname = $('#accountname-save').val();
+                var accountrepresentname = $('#accountrepresentname-save').val();
+                var phone = $('#phone-save').val();
+                var adress = $('#adress-save').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:8001/api/accountinfoinsertdata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "accountcode": accountcode,
+                        "accountname": accountname,
+                        "representativename": accountrepresentname,
+                        "phone": phone,
+                        "adress": adress
+
+
+
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                    }
+                })
+
+
+                alert("저장이 완료 되었습니다.");
+
+
+                $.ajax({
+                    url: 'http://localhost:8001/api/accountmanagement',
+                    method: 'post',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#fileinfo').DataTable({
+                            deferLoading: [0, 10],
+                            paging: true,
+                            destroy: true,
+                            sort: true,
+                            pageLength: 10,
+                            searching: true,
+                            data: data,
+                            responsive: true,
+                            columnResize: true,
+                            processing: true,
+                            columns: [
+                                { "data": "id" },
+                                { "data": "accountcode" },
+                                { "data": "accountname" },
+                                { "data": "representativename" },
+                                { "data": "phone" },
+                                { "data": "adress" },
+
+                            ],
+
+                            dom: 'flrtBip',
+
+                            buttons: [
+                                'copy', 'csv', 'excel', 'pdf', 'print'
+                            ],
+
+                            columnDefs: [
+                                {
+                                    targets: 0, visible: false, searchable: false
+                                },
+                                {
+                                    targets: 6,
+                                    data: null,
+                                    defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
+                                    width: 50
+                                },
+                                {
+                                    targets: 7,
+                                    data: null,
+                                    defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                    width: 50
+                                }
+
+                            ],
+
+                            language: {
+                                emptyTable: "데이터가 없습니다.",
+                                lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                                info: "현재 _START_ - _END_ / _TOTAL_건",
+                                infoEmpty: "데이터 없음",
+                                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                                search: "검색:",
+                                zeroRecords: "일치하는 데이터가 없습니다.",
+                                loadingRecords: "로딩중...",
+                                processing: "잠시만 기다려 주세요.",
+                                paginate: {
+                                    next: "다음",
+                                    previous: "이전"
+                                }
+                            },
+
+
+                        });
+                        // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                        $('.sorting').css('text-align', 'center');
+                    },
+                    error: function () {
+                        alert("다시 시도해 주십시요.");
+                    },
+
+                    complete: setTimeout(function () {
+                        const loadingScreen = document.getElementById("loading-screen");
+                        loadingScreen.style.display = "none";
+                    }, 1500)
+                });
+
+            }
+        }
+
+
+        $(document).on('click', "#deleted", function (e) {
+
+            table1 = $('#fileinfo').DataTable();
+            var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+            $('#id-delete').val(data1.id);
+
+        })
+
+
+        // 삭제부분
+        document.getElementById("delete").addEventListener('click', deleted);
+
+        function deleted() {
+
+
+
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfodeletedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "id": $('#id-delete').val()
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("삭제가 완료 되었습니다.");
+
+
+            $.ajax({
+                url: 'http://localhost:8001/api/accountmanagement',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "accountcode" },
+                            { "data": "accountname" },
+                            { "data": "representativename" },
+                            { "data": "phone" },
+                            { "data": "adress" },
+
+                        ],
+
+                        dom: 'flrtBip',
+
+                        buttons: [
+                            'copy', 'csv', 'excel', 'pdf', 'print'
+                        ],
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 6,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
+                                width: 50
+                            },
+                            {
+                                targets: 7,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                width: 50
+                            }
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
+        }
+        // 수정부분
+        document.getElementById("dataedit").addEventListener('click', edtited);
+
+        function edtited() {
+
+
+
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountupdatedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    id: $('#id-edit').val(),
+                    accountcode: $('#accountcode-edit').val(),
+                    accountname: $('#accountname-edit').val(),
+                    representativename: $('#accountrepresentname-edit').val(),
+                    phone: $('#phone-edit').val(),
+                    adress: $('#adress-edit').val()
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("수정이 완료 되었습니다.");
+
+
+            $.ajax({
+                url: 'http://localhost:8001/api/accountmanagement',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "accountcode" },
+                            { "data": "accountname" },
+                            { "data": "representativename" },
+                            { "data": "phone" },
+                            { "data": "adress" },
+
+                        ],
+
+                        dom: 'flrtBip',
+
+                        buttons: [
+                            'copy', 'csv', 'excel', 'pdf', 'print'
+                        ],
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 6,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
+                                width: 50
+                            },
+                            {
+                                targets: 7,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                width: 50
+                            }
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
+        }
+
+    </script>
+
+    <script type="text/javascript">
+
+
+        // $('#fileinfo tbody').on('click', '#editbutton', function () {
+        //     table1 = $('#fileinfo').DataTable();
+        //     var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+        //     $('#accountcode-edit').val(data1.accountcode);
+        //     $('#accountname-edit').val(data1.accountname);
+        //     $('#representativename-edit').val(data1.representativename);
+        //     $('#phone-edit').val(data1.phone);
+        //     $('#adress-edit').val(data1.adress);
+
+
+        //     $("#edit").modal("show");
+
+        // });
+        function modalsave() {
+            $('#accountcode-save').val('');
+            $('#accountname-save').val('');
+            $('#representativename-save').val('');
+            $('#phone-save').val('');
+            $('#adress-save').val('');
+
+
+            $("#myModalsave").modal("show");
+        }
+
+        function settingDate() {
+            const date = new Date();
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+
+
+
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+
+            }
+
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+            console.log(year + month + day)
+
+            $('#datepicker1').val(currentDate);
+
+
+        }
+    </script>
+    <script>
+        var textbox = document.getElementById("sumcount");
+        textbox.style.border = "2px solid blue";
+        textbox.style.borderRadius = "5px";
+        textbox.style.padding = "10px";
+        textbox.style.fontSize = "16px";
+        textbox.style.color = "gray";
+    </script>
+
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>주문서입력</title>
+    <link rel="stylesheet" href="/css/open.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <!-- table 상하 -->
+    <script src="http://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="/config.json" type="text/javascript"></script>
+</head>
+
+
+<body>
+    <div class="title">
+        <h3 class="title-htag">&nbsp&nbsp BOM</h3>
+        <input type="button" onclick="tableadd()" value="add">
+        <input type="button" value="Delete" onclick="deleteRow()" />
+        <input type="button" value="console" onclick="a()" />
+    </div>
+
+    <div class="sales-table_div">
+        <table id='myTable' class="sales-table">
+
+            <!-- table header -->
+            <thead style="background-color:#000080;font-weight:bold;color:#FFFFFF;">
+                <tr>
+                    <th style="width: 30px;">Chk</th>
+               
+                    <th style="width: 300px;">BOMNO.</th>
+                    <th style="width: auto;">Width(mm)</th>
+                    <th style="width: auto;">단가(원)</th>
+                  
+                </tr>
+            </thead>
+
+            <!-- table content -->
+            <tbody class="bomrowtable" id="bomtable">
+                <tr>
+                    <td><input type="radio" class="chkRadio" name="chkRadio" onClick="checkeRowColorChange(this);"></td>
+                 
+                    <td>단S 그라싱지</td>
+                    <td style="text-align: right;">150</td>
+                    <td style="text-align: right;">112.0</td>
+                </tr>
+                <tr>
+                    <td><input type="radio" class="chkRadio" name="chkRadio" onClick="checkeRowColorChange(this);"></td>
+            
+                    <td>ZDST-150HKB</td>
+                    <td style="text-align: right;">167</td>
+                    <td style="text-align: right;">72.0</td>
+                </tr>
+                <tr>
+                    <td><input type="radio" class="chkRadio" name="chkRadio" onClick="checkeRowColorChange(this);"></td>
+             
+                    <td>YT 6710SRH</td>
+                    <td style="text-align: right;">600</td>
+                    <td style="text-align: right;">92.0</td>
+                </tr>
+                <tr>
+                    <td><input type="radio" class="chkRadio" name="chkRadio" onClick="checkeRowColorChange(this);"></td>
+            
+                    <td>WP-150C</td>
+                    <td style="text-align: right;">700</td>
+                    <td style="text-align: right;">144.0</td>
+                </tr>
+
+                <tr>
+                    <td><input type="radio" class="chkRadio" name="chkRadio" onClick="checkeRowColorChange(this);"></td>
+          
+                    <td>YT 6710SRH</td>
+                    <td style="text-align: right;">600</td>
+                    <td style="text-align: right;">51.0</td>
+                </tr>
+                <tr>
+                    <td><input type="radio" class="chkRadio" name="chkRadio" onClick="checkeRowColorChange(this);"></td>
+               
+                    <td>WP-150C</td>
+                    <td style="text-align: right;">700</td>
+                    <td style="text-align: right;">91.0</td>
+                </tr>
+            </tbody>
+
+            <!-- table tfoot -->
+            <tfoot style="background-color:#d4d4d4;">
+                <tr>
+                    <td colspan="4" style="text-align:center;">
+
+                        <input type="button" onClick="rowMoveEvent('up');" value="▲" style="width:50px;" />
+
+                        &nbsp;&nbsp;
+
+                        <input type="button" onClick="rowMoveEvent('down');" value="▼" style="width:50px;" />
+
+                    </td>
+
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+
+
+
+</body>
+<script>
+    var server = '';
+
+    $.getJSON("config.json", function (data) {
+        console.log(data[0].Ipconfig)
+
+        server = data[0].Ipconfig;
+        if (server == 'techonmes.cafe24app.com') {
+            server = '';
+        } else {
+            server = 'http://localhost:8001';
+        }
+
+
+    }).fail(function (e) {
+        console.log("An error has occurred.");
+        console.log(e)
+    });
+
+
+
+
+
+
+    function tableadd() {
+        const table = document.getElementById('myTable');
+        const totalRowCnt = table.rows.length;
+        var count = totalRowCnt;
+
+
+        $('.bomrowtable').append(
+            '<tr>' +
+            '<td><input type="radio" class="chkRadio" name="chkRadio" onClick="checkeRowColorChange(this);"></td>' +
+   
+            '<td >ZDST-50HKB</td>' +
+            '<td style="text-align: right;">178</td>' +
+            '<td style="text-align: right;">101.0</td>' +
+            '</tr>'
+
+        )
+    }
+
+    function modalClose() {
+        $('.popup').css("display", "none");
+    }
+    function customerclose() {
+        $('.popup-customer').css("display", "none");
+    }
+
+
+
+    function deleteRow() {
+        $('input:checked').parents("tr").remove();
+    }
+
+    function checkeRowColorChange(obj) {
+
+        // 체크된 라디오 박스의 행(row)에 강조색깔로 바꾸기 전 모든 행(row)의 백그라운드를 흰색으로 변경한다.
+        jQuery("#bomtable > tr").css("background-color", "#FFFFFF");
+
+        // 체크된 라디오 박스의 행이 몇번째에 위치하는지 파악한다.
+        var row = jQuery(".chkRadio").index(obj);
+
+        // 체크된 라디오 박스의 행(row)의 색깔을 변경한다.
+        jQuery("#bomtable > tr").eq(row).css("background-color", "#FAF4C0");
+
+    }
+    function a() {
+        var checkbox1 = $("input[name=chkradio]:checked");
+        //체크박스 중 체크된 체크박스만 가져와서 Loop 합니다.
+        $("input:checkbox[name=chkradio]:checked").each(function (i, elements) {
+            //해당 index(순서)값을 가져옵니다.
+            index = $(elements).index("input:checkbox[name=chkradio]");
+            //해당 index에 해당하는 체크박스의 ID 속성을 가져옵니다.        
+            alert($("input:checkbox[name=chkradio]").eq(index).attr("num"));
+            //해당 index에 해당하는 체크박스의 값을 가져옵니다.        
+            alert($("input:checkbox[name=chkradio]").eq(index), val());
+        });
+    }
+    function rowMoveEvent(direction) {
+
+
+        var checkbox1 = $("input[name=chkradio]:checked");
+
+        // 체크된 행(row)의 존재 여부를 파악한다.
+
+        if (jQuery(".chkRadio:checked").val()) {
+
+
+
+            // 체크된 라디오 박스의 행(row)을 변수에 담는다.
+
+            var row = jQuery(".chkRadio:checked").parent().parent();
+
+
+
+            // 체크된 행(row)의 이동 한계점을 파악하기 위해 인덱스를 파악한다.
+
+            var num = row.index();
+
+
+
+            // 전체 행의 개수를 구한다.
+
+            var max = (jQuery(".chkRadio").length - 1);	   // index는 0부터 시작하기에 -1을 해준다.
+
+
+
+            if (direction == "up") {
+                if (num == 0) {
+                    // 체크된 행(row)의 위치가 최상단에 위치해 있을경우 더이상 올라갈 수 없게 막는다.
+                    alert("첫번째로 지정되어 있습니다.\n더이상 순서를 변경할 수 없습니다.");
+                    return false;
+                } else {
+                    // 체크된 행(row)을 한칸 위로 올린다.
+                    row.prev().before(row);
+                }
+            } else if (direction == "down") {
+                if (num >= max) {
+                    // 체크된 행(row)의 위치가 최하단에 위치해 있을경우 더이상 내려갈 수 없게 막는다.
+
+                    alert("마지막으로 지정되어 있습니다.\n더이상 순서를 변경할 수 없습니다.");
+
+                    return false;
+
+                } else {
+
+
+
+                    // 체크된 행(row)을 한칸 아래로 내린다.
+
+                    row.next().after(row);
+
+                }
+
+            }
+
+
+
+        } else {
+
+            alert("선택된 행이 존재하지 않습니다\n위치를 이동시킬 행을 하나 선택해 주세요.");
+
+        }
+
+    }
+</script>
+
+
+</html>

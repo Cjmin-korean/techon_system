@@ -1,87 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Techon Mes</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <link rel="stylesheet" href="/css/login.css">
+    <script src="/config.json" type="text/javascript"></script>
 </head>
+
 <body>
-    <br><br>
 
-	<div class="row">
-		<table id="example-table-1" width="100%" class="table table-bordered table-hover text-center">
-			<thead>
-				<tr>
-					<th>No. </th>
-					<th>아이디</th>
-					<th>이름</th>
-					<th>이메일</th>
-				</tr>
-			</thead>
-			<tbody>				
-				<tr>
-					<td>1</td>
-					<td>user01</td>
-					<td>홍길동</td>
-					<td>hong@gmail.com</td>
-				</tr>
-				<tr>
-					<td>2</td>
-					<td>user02</td>
-					<td>김사부</td>
-					<td>kim@naver.com</td>
-				</tr>
-				<tr>
-					<td>3</td>
-					<td>user03</td>
-					<td>존</td>
-					<td>John@gmail.com</td>
-				</tr>
-			</tbody>
-		</table>
-		<div class="col-lg-12" id="ex1_Result1" ></div> 
-		<div class="col-lg-12" id="ex1_Result2" ></div> 
-	</div>
-</body>
-<script>
-    // 테이블의 Row 클릭시 값 가져오기
-    $("#example-table-1 tr").dblclick(function(){ 	
+    <body>
+        <div class="header">
+            <a>Techon Mes System</a>
+        </div>
+        <div class="login_main">
+            <div class="login_main_div">
+                <div class="login_main_logo_div">
+                    <p>Techon Mes Login</p>
+                </div>
+                <div class="login_main_id_div">
+                    <input type="text" placeholder="아이디" id="login_id" onkeydown="login()">
+                </div>
+                <br>
+                <div class="login_main_password_div">
+                    <input type="password" placeholder="비밀번호" id="login_password" onkeydown="login()">
+                </div>
 
-        var str = ""
-        var tdArr = new Array();	// 배열 선언
+                <p id="passwordchkid" class="passwordchk"></p>
 
-        // 현재 클릭된 Row(<tr>)
-        var tr = $(this);
-        var td = tr.children();
+                <div class="login_main_button">
+                    <button onclick="loginclick()" class="login_button"> 로그인 </button>
+                    <br>
+                    <br>
+                    <button onclick="join_btn()" class="join_button"> 회원가입 </button>
+                </div>
+                <!-- <input type="text" onkeydown="onenter()"> -->
+            </div>
+            <div class="login_sub_div">
+                <a>아이디 찾기</a>
+                <a>|</a>
+                <a>비밀번호 찾기</a>
+            </div>
+        </div>
+        <div id='wrap'>
+            <section>
+                <!-- 대충 뭐 요소들이 가득차있음 -->
+            </section>
+            <footer>
+                <p>
+                    <span>저자 : 피스웰</span><br />
+                    <span>이메일 : Pswel@naver.com</span><br /><br />
+                    <span>Copyright 2022. PSWEL. All Rights Reserved.</span>
+                </p>
+            </footer>
+        </div>
+    </body>
+    <script>
 
-        // tr.text()는 클릭된 Row 즉 tr에 있는 모든 값을 가져온다.
-        console.log("클릭한 Row의 모든 데이터 : "+tr.text());
+        var server = 'techonmes.cafe24app.com';
 
-        // 반복문을 이용해서 배열에 값을 담아 사용할 수 도 있다.
-        td.each(function(i){
-            tdArr.push(td.eq(i).text());
+        $.getJSON("config.json", function (data) {
+            console.log(data[0].Ipconfig)
+            server = data[0].Ipconfig;
+            if (server == 'techonmes.cafe24app.com') {
+                server = '';
+            } else {
+                server = 'http://localhost:8001';
+            }
+
+
+        }).fail(function (e) {
+            console.log("An error has occurred.");
+            console.log(e)
         });
 
-        console.log("배열에 담긴 값 : "+tdArr);
+        // let testData = JSON.parse(JSON.stringify(Ipconfig));
+        // console.log(testData);
 
-        // td.eq(index)를 통해 값을 가져올 수도 있다.
-        var no = td.eq(0).text();
-        var userid = td.eq(1).text();
-        var name = td.eq(2).text();
-        var email = td.eq(3).text();
+        function onenter() {
+            if (window.event.keyCode == 13) {
+                console.log("enter")
+            }
+        }
+
+        function login() {
 
 
-        str +=	" * 클릭된 Row의 td값 = No. : <font color='red'>" + no + "</font>" +
-                ", 아이디 : <font color='red'>" + userid + "</font>" +
-                ", 이름 : <font color='red'>" + name + "</font>" +
-                ", 이메일 : <font color='red'>" + email + "</font>";		
+            //
 
-        $("#ex1_Result1").html(" * 클릭한 Row의 모든 데이터 = " + tr.text());		
-        // $("#ex1_Result2").html(str);
-    });
+            if (window.event.keyCode == 13) {
+                //var idvalue = $('.id').val()
+                var nameid = $("#login_id").val();
+                var password = $("#login_password").val();
 
-</script>
+                if (nameid !== '' && password !== '') {
+                  
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/users',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "nameid": nameid,
+                            "password": password,
+                        }),
+                        dataType: 'text',
+                        ///datatype text 인이유 : string
+                        success: function (data) {
+                            const obj = JSON.parse(data)
+                            console.log(data[0].name)
+
+                            if (obj.judgment == 'NG') {
+                                // alert('실패')
+                                $(".passwordchk").text('비밀번호가 맞지 않습니다.   ');
+                                $(".passwordchk").css("color", "red");
+
+                            } else {
+                                setCookie(nameid,data[0].name);
+                                loginpage_move()
+                                // alert('성공')
+                            }
+
+                        }
+                    })
+                    // alert('성공하였습니다.')
+                    //  loginpage_move()
+                } else {
+                    alert('누락되였습니다')
+                }
+            }
+
+
+
+
+
+        }
+        function setCookie(userName, partName) {
+            // const exdate = new Date();
+            // exdate.setMinutes(exdate.getMinutes() + minutes);
+
+            // const cookie_value = escape(value) + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString());
+            document.cookie = 'userName=' + userName;
+            document.cookie = 'partName=' + partName;
+
+
+
+        }
+
+
+        function loginclick() {
+
+
+            //
+
+
+            //var idvalue = $('.id').val()
+            var nameid = $("#login_id").val();
+            var password = $("#login_password").val();
+
+            if (nameid !== '' && password !== '') {
+                console.log(nameid)
+                console.log(password)
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/users',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "nameid": nameid,
+                        "password": password,
+                    }),
+                    dataType: 'text',
+                    ///datatype text 인이유 : string
+                    success: function (data) {
+                        const obj = JSON.parse(data)
+
+
+                        if (obj.judgment == 'NG') {
+                            // alert('실패')
+                            $(".passwordchk").text('비밀번호가 맞지 않습니다.   ');
+                            $(".passwordchk").css("color", "red");
+
+                        } else {
+                            setCookie('login_user');
+                            loginpage_move()
+                            // alert('성공')
+                        }
+
+                    }
+                })
+                // alert('성공하였습니다.')
+                //  loginpage_move()
+            } else {
+                alert('누락되였습니다')
+            }
+            
+
+
+
+
+        }
+        function join_btn() {
+            location.href = "/html/join.html"
+        }
+        function loginpage_move() {
+
+            location.href = "/main"
+        }
+    </script>
+
+
+</body>
+
 </html>

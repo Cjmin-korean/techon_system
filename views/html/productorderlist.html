@@ -10,91 +10,151 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
-    <title>생산발주리스트(출고대기)</title>
-    <link rel="stylesheet" href="/css/productorderlist.css">
-      <script src="/config.json" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"
+        integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
+        crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <title>거래처정보</title>
+    <link rel="stylesheet" href="/css/accountinfo.css">
+    <script src="/config.json" type="text/javascript"></script>
 </head>
 
 <body>
-    <div class="account-header">
-        <div class="title" ><h3 class="title-htag">&nbsp&nbsp 생산발주리스트(출고대기) </div>
-        
-    </div>
-    <div style="height: 40px;">
-        <input type="button" value="신규추가" class="sales-bottom-insert" onclick="save_material()">
-        <input type="button" value="선택삭제" class="sales-bottom-delete">
-        <input type="button" value="EXCEL" class="sales-excel" id="excelFileExport">
-    </div>
-    <div class="account-body" >
-      
-        <table>
-            <thead>
-                <tr>
-                    <th>
-                        <div>
-                            <input type="checkbox">
-                        </div>
-                    </th>
 
-                    <th>발주날짜</th>
-                    <th>모델명</th>
-                    <th>제품명</th>
-                    <th>BOMNO.</th>
-                    <th>LOTNO.</th>
-                    <th>발주번호</th>
-                    <th>발주수량</th>
-                    <th>상태</th>
-                </tr>
-            </thead>
-            <tbody class="accountinfo">
-
-            </tbody>
-        </table>
-        
+    <!-- 상단 바 정보 -->
+    <div class="accountinfo-header">
+        <div class="title">
+            <h3 class="title-htag"> 생산발주리스트1
+        </div>
 
     </div>
+    <div class="open_search_div">
+        <div>
+            <p>BOMNO.</p>
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="BOMno.을 입력해 주세요.">
+        </div>
+       
+    </div>
+  
+  
+    <table id="tableData" class="tablebody">
+        <thead>
+            <tr>
+                <th>    
+                    <div>
+                        <input id="select-all" type="checkbox" name="chk_header">
+                    </div>
+                </th>
+
+                <th style="text-align: center;">생산발주날짜</th>
+                <th style="text-align: center;">모델명</th>
+                <th style="text-align: center;">제품명</th>
+                <th style="text-align: center;">BOMNO.</th>
+                <th style="text-align: center;">LOTNO.</th>
+                <th style="text-align: center;">발주번호</th>
+                <th style="text-align: center;">발주수량</th>
+               
+          
+            </tr>
+        </thead>
+        <tbody class="accountinfo">
+
+        </tbody>
+    </table>
+
+
+    <!-- </div> -->
     <div class="account-table">
 
     </div>
     <div class="account-bottom">
 
     </div>
-   
-    <div class="loading_pop">
+
+
+    <!-- <div class="loading_pop">
         <img src="/img/테크온로고.PNG"><br>
         <h3>잠시만 기다려주세요...</h3>
-    </div>
+    </div> -->
 </body>
+
 <script>
-     var server = '';
+    var server = '';
 
-$.getJSON("config.json", function (data) {
-    console.log(data[0].Ipconfig)
-   
-    server = data[0].Ipconfig;
-    if (server == 'techonmes.cafe24app.com') {
-        server = '';
-    } else {
-        server = 'http://localhost:8001';
+    $.getJSON("config.json", function (data) {
+        console.log(data[0].Ipconfig)
+
+        server = data[0].Ipconfig;
+        if (server == 'techonmes.cafe24app.com') {
+            server = '';
+        } else {
+            server = 'http://localhost:8001';
+        }
+
+
+    }).fail(function (e) {
+        console.log("An error has occurred.");
+        console.log(e)
+    });
+
+
+
+    //*************************엑셀 export(S)
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+        return buf;
     }
+    function exportExcel() {
+        // step 1. workbook 생성
+        var wb = XLSX.utils.book_new();
 
+        // step 2. 시트 만들기 
+        var newWorksheet = excelHandler.getWorksheet();
 
-}).fail(function (e) {
-    console.log("An error has occurred.");
-    console.log(e)
-});
+        // step 3. workbook에 새로만든 워크시트에 이름을 주고 붙인다.  
+        XLSX.utils.book_append_sheet(wb, newWorksheet, excelHandler.getSheetName());
 
-//시간 지나고 작동코드
+        // step 4. 엑셀 파일 만들기 
+        var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
 
-    function loading() {
-        setTimeout(() => $('.loading_pop').css("display", "block") , 1500);
+        // step 5. 엑셀 파일 내보내기 
+        saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), excelHandler.getExcelFileName());
     }
-
-
+    var excelHandler = {
+        getExcelFileName: function () {
+            return '거래처정보.xlsx';
+        },
+        getSheetName: function () {
+            return 'Table Test Sheet';
+        },
+        getExcelData: function () {
+            return document.getElementById('tableData');
+        },
+        getWorksheet: function () {
+            return XLSX.utils.table_to_sheet(this.getExcelData());
+        }
+    }
+    $("#excelFileExport").click(function () {
+        exportExcel();
+    });
+    //*************************엑셀 export(F)   
     $(window).ready(function () {
+
+
+        $('.accountinfo').empty()
         $.ajax({
             type: 'POST',
-            url: 'http://localhost:8001/api/productorder',
+            url: 'http://localhost:8001/api/productorder1',
 
             dataType: 'json',
             ///datatype text 인이유 : string
@@ -105,30 +165,116 @@ $.getJSON("config.json", function (data) {
                 for (var i = 0; i < data.length; i++) {
                     $('.accountinfo').append(
                         '<tr>' +
-                        '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" style="border: 1px solid silver;"></td>' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" id="user_CheckBox" style="border: 1px solid silver;"></td>' +
+
                         '<td style="border: 1px solid silver; ">' + data[i].productdate + '</td>' + //
                         '<td style="border: 1px solid silver; ">' + data[i].modelname + '</td>' +
                         '<td style="border: 1px solid silver; ">' + data[i].productname + '</td>' +
                         '<td style="border: 1px solid silver; ">' + data[i].bomno + '</td>' + //
                         '<td style="border: 1px solid silver; ">' + data[i].lotno + '</td>' +
-                        '<td style="border: 1px solid silver; ">' + data[i].productnumber + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].productnumber + '</td>' + //
                         '<td style="border: 1px solid silver; ">' + data[i].productcount + '</td>' +
-                        '<td style="border: 1px solid silver; ">' + data[i].status + '</td>' +
+
+                
+                       
+
                         '</tr>'
+
                     )
-                    if(data[i].status="자재출고대기" ){
-                        $('.status'+i).css("background-color","red")
-                        $('.status'+i).css("color","white")
-                        
-                    }else{
-                        
-                    }
+                    $("td#data-id").hide();
+
                 }
+                // paging();
+
             }
-        })
+
+        }
+        )
+
+
     })
 
-  
 </script>
+<script type="text/javascript">
+    // function allCheck() {
+    $('#select-all').click(function (event) {
+        console.log(this.checked)
+        if (this.checked) {
+            // Iterate each checkbox
+            $(':checkbox').each(function () {
+                this.checked = true;
+            });
+        } else {
+            $(':checkbox').each(function () {
+                this.checked = false;
+            });
+        }
+    });
+            // }
+
+
+
+</script>
+<script>
+    ///******************* 필터링************************
+    function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("tableData");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[2];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+
+
+    //체크박스 클릭 아이디찾기
+    $(document).on('click', "#user_CheckBox", function (e) {
+        var str = "";
+        var tdArr = new Array();// 배열 선언            
+        var checkBtn = $(this);
+
+        var tr = checkBtn.parent().parent();
+        var td = tr.children();
+
+        // tr.text()는 클릭된 Row 즉 tr에 있는 모든 값을 가져온다.
+
+        // 반복문을 이용해서 배열에 값을 담아 사용할 수 도 있다.
+        td.each(function (i) {
+            tdArr.push(td.eq(i).text());
+        });
+
+
+
+        // td.eq(index)를 통해 값을 가져올 수도 있다.
+        var id = td.eq(7).text();
+        console.log(id);
+
+
+
+    })
+
+
+ 
+
+
+   
+
+
+</script>
+
 
 </html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.colVis.min.js"></script>
+
+
+    <link rel="stylesheet" href="/css/test2.css">
+</head>
+
+<body>
+    <div style="height:50px; border: 1px solid black;">
+        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
+            영업-영업수주(완료)
+        </p>
+    </div>
+<!-- 
+    <div style="width:100%; height:50px; border: 1px solid black;">
+        <button onclick="removerow()">추가</button>
+    </div> -->
+
+
+    <table id="fileinfo" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>납기일자</th>
+                <th>고객사</th>
+                <th>모델명</th>
+                <th>제품명</th>
+                <th>수량</th>
+                <th>영업수주</th>
+                <th>생산발주</th>
+                <th>자재출고</th>
+                <th>생산현장</th>
+                <th>검사현장</th>
+                <th>출하</th>
+                <th>영업-출하(일)</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</body>
+
+
+
+
+<script>
+    // var editor;
+    var table;
+    $.ajax({
+        type: 'POST',
+        url: "http://localhost:8001/api/accountend"
+    }).done(function (d) {
+
+        table = $('#fileinfo').DataTable({
+            data: d,
+            lengthMenu: [10, 20, 30, 40, 50],
+            // dom: 'Bfrtip',
+
+            "columns": [
+
+                { "data": "id" },
+                { "data": "deliverydate" },
+                { "data": "customer" },
+                { "data": "modelname" },
+                { "data": "itemname" },
+                { "data": "quantity" },
+                { "data": "salesorder" },
+                { "data": "productionorder" },
+                { "data": "material" },
+                { "data": "production" },
+                { "data": "test" },
+                { "data": "shipment" },
+                { "data": "difference" }
+
+            ],
+            columnDefs: [
+
+                {
+                    targets: 0,
+                    visible: false
+                },
+                {
+                    targets: 6,
+                    orderable: false
+                },
+                {
+                    targets: 7,
+                    orderable: false
+                },
+                {
+                    targets: 8,
+                    orderable: false
+                },
+                {
+                    targets: 9,
+                    orderable: false
+                },
+                {
+                    targets: 10,
+                    orderable: false
+                },
+                {
+                    targets: 11,
+                    orderable: false
+                }
+
+
+                // {
+                //     targets: 6,
+                //     data: null,
+                //     defaultContent: '<button>수정</button>',
+                //     width: 70
+                // },
+                // {
+                //     targets: 7,
+                //     data: null,
+                //     defaultContent: '<button>삭제</button>',
+                //     width: 70
+                // }
+
+            ],
+            createdRow: function (row, data, index) {
+
+                // Updated Schedule Week 1 - 07 Mar 22
+
+                if (data.salesorder == null || data.salesorder == '') {
+                    $('td:eq(5)', row).css('background-color', 'RED');  //Original Date\
+                } else {
+                    $('td:eq(5)', row).css('background-color', 'lime');  //Original Date\
+                }
+
+                if (data.productionorder == null || data.productionorder == '') {
+                    $('td:eq(6)', row).css('background-color', 'RED');  //Original Date\
+                } else {
+                    $('td:eq(6)', row).css('background-color', 'lime');  //Original Date\
+                }
+
+                if (data.material == null || data.material == '') {
+                    $('td:eq(7)', row).css('background-color', 'RED');  //Original Date\
+                } else {
+                    $('td:eq(7)', row).css('background-color', 'lime');  //Original Date\
+                }
+
+                if (data.production == null || data.production == '') {
+                    $('td:eq(8)', row).css('background-color', 'RED');  //Original Date\
+                } else {
+                    $('td:eq(8)', row).css('background-color', 'lime');  //Original Date\
+                }
+
+                if (data.test == null || data.test == '') {
+                    $('td:eq(9)', row).css('background-color', 'RED');  //Original Date\
+                } else {
+                    $('td:eq(9)', row).css('background-color', 'lime');  //Original Date\
+                }
+
+                if (data.shipment == null || data.shipment == '') {
+                    $('td:eq(10)', row).css('background-color', 'RED');  //Original Date\
+                } else {
+                    $('td:eq(10)', row).css('background-color', 'lime');  //Original Date\
+                }
+                    
+            },
+            destroy: true, // 이 부분 체크해 주세요!
+
+            //언어 변경
+            "language": {
+                emptyTable: "데이터가 없습니다.",
+                lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                info: "현재 _START_ - _END_ / _TOTAL_건",
+                infoEmpty: "데이터 없음",
+                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                search: "검색:",
+                zeroRecords: "일치하는 데이터가 없습니다.",
+                loadingRecords: "로딩중...",
+                processing: "잠시만 기다려 주세요.",
+                paginate: {
+                    next: "다음",
+                    previous: "이전",
+                },
+            },
+
+        }
+        );
+
+
+
+
+    });
+    function save_accountinfo() {
+
+        var accountcode = $('#accountcode-save').val();
+        var accountname = $('#accountname-save').val();
+        var representativename = $('#representativename-save').val();
+        var phone = $('#phone-save').val();
+        var adress = $('#adress-save').val();
+
+        if (confirm("거래처 정보를 등록 하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfoinsertdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "accountcode": accountcode,
+                    "accountname": accountname,
+                    "representativename": representativename,
+                    "phone": phone,
+                    "adress": adress,
+
+                }),
+                success: function (result) {
+                    // tableInsert();
+
+                }
+            })
+
+
+            alert("등록이 완료 되었습니다.");
+
+
+
+
+        } else {
+            return false;
+        }
+
+        var table;
+        $.ajax({
+            type: 'POST',
+            url: "http://localhost:8001/api/accountmanagement"
+        }).done(function (d) {
+
+            table = $('#fileinfo').DataTable({
+                data: d,
+                lengthMenu: [10, 20, 30, 40, 50],
+                // dom: 'Bfrtip',
+
+                "columns": [
+
+                    { "data": "id" },
+                    { "data": "accountcode" },
+                    { "data": "accountname" },
+                    { "data": "representativename" },
+                    { "data": "adress" },
+                    { "data": "phone" }
+                ],
+                columnDefs: [
+
+                    {
+                        targets: 0,
+                        visible: false
+                    }
+                ],
+                destroy: true, // 이 부분 체크해 주세요!
+
+                //언어 변경
+                "language": {
+                    emptyTable: "데이터가 없습니다.",
+                    lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                    info: "현재 _START_ - _END_ / _TOTAL_건",
+                    infoEmpty: "데이터 없음",
+                    infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                    search: "검색:",
+                    zeroRecords: "일치하는 데이터가 없습니다.",
+                    loadingRecords: "로딩중...",
+                    processing: "잠시만 기다려 주세요.",
+                    paginate: {
+                        next: "다음",
+                        previous: "이전",
+                    },
+                },
+
+            }
+            );
+
+
+
+
+        });
+    }
+    //삭제
+    $('#fileinfo tbody').on('click', 'button', function () {
+
+        table1 = $('#fileinfo').DataTable();
+        var data1 = table1.row($(this).parents('tr')).data(); // getting 
+        id = data1.id
+        if (confirm("거래처 정보를 삭제 하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfodeletedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "id": id
+                }),
+                success: function (result) {
+                    // tableInsert();
+
+                }
+            })
+            alert("삭제가 완료 되었습니다.");
+        } else {
+            return false;
+        }
+
+
+        var table;
+        $.ajax({
+            type: 'POST',
+            url: "http://localhost:8001/api/accountmanagement"
+        }).done(function (d) {
+
+            table = $('#fileinfo').DataTable({
+                data: d,
+                lengthMenu: [10, 20, 30, 40, 50],
+                // dom: 'Bfrtip',
+
+                "columns": [
+
+                    { "data": "id" },
+                    { "data": "accountcode" },
+                    { "data": "accountname" },
+                    { "data": "representativename" },
+                    { "data": "adress" },
+                    { "data": "phone" }
+                ],
+                columnDefs: [
+
+                    {
+                        targets: 0,
+                        visible: false
+                    }
+                ],
+                destroy: true, // 이 부분 체크해 주세요!
+
+                //언어 변경
+                "language": {
+                    emptyTable: "데이터가 없습니다.",
+                    lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                    info: "현재 _START_ - _END_ / _TOTAL_건",
+                    infoEmpty: "데이터 없음",
+                    infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                    search: "검색:",
+                    zeroRecords: "일치하는 데이터가 없습니다.",
+                    loadingRecords: "로딩중...",
+                    processing: "잠시만 기다려 주세요.",
+                    paginate: {
+                        next: "다음",
+                        previous: "이전",
+                    },
+                },
+
+            }
+            );
+
+
+
+
+        });
+
+
+    });
+</script>
+
+
+</html>

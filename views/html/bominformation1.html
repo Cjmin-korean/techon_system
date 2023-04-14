@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta charset="UTF-8">
+    <title>BOM관리</title>
+    <link rel="stylesheet" href="/css/bompopup.css">
+    <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.colVis.min.js"></script>
+
+
+
+
+</head>
+<style>
+
+</style>
+
+<body>
+
+
+
+    <div class="popup" id="pop1">
+        <a class="popup_title">자재 선택</a>
+        <!-- <input type="button" class="close_button" value="닫기" onclick="modalClose()"> -->
+        <button class="btn btn-primary" style="background-color: red; float: right; margin-top: -10px;"
+            id="close_button" onclick="modalClose()"> 닫기 </button>
+        <button class="btn btn-primary" style="background-color: blue; float: right; margin-top: -10px;"
+            id="close_button" onclick="addd()"> 저장 </button>
+        <!-- <hr> -->
+        <hr>
+        <div class="pop_content" id="pop2" style="width:50%; float: left;">
+            <div class="bomleft" style="width:100%; height: 500px; ">
+                <table id="abcd" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>자재명</th>
+                            <th>자재채번</th>
+                            <th>분류</th>
+                            <th>전폭</th>
+                            <!-- <th>세로폭</th> -->
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div class="pop_content" id="pop2" style="width:50%; margin-top: 39px; float :right;">
+            <div class="bomleft" style="width:100%; height: 500px; ">
+                <table id="abcd1" class="display" style="width:100%">
+                    <thead style="background-color:#000080;font-weight:bold;color:#FFFFFF;">
+                        <tr>
+                            <th style="width: 20px;"></th>
+                            <th style="text-align: center;">BOMNO.</th>
+                            <th style="text-align: center;">자재명</th>
+                            <th style="text-align: center;">자재폭(mm)</th>
+                            <th style="text-align: center;">소요량(M)</th>
+                            <th></th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                    <!-- table tfoot -->
+                    <tfoot style="background-color:#d4d4d4;">
+                        <tr>
+                            <td colspan="6" style="text-align:center;">
+
+                                <input type="button" onClick="rowMoveEvent('up');" value="▲" style="width:50px;" />
+
+                                &nbsp;&nbsp;
+
+                                <input type="button" onClick="rowMoveEvent('down');" value="▼" style="width:50px;" />
+
+                            </td>
+
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+
+        </div>
+
+    </div>
+    
+
+    <!-- 모달수정창 -->
+    <div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">상세입력</h4>
+
+
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>BOMNO.:</label>
+                        <input type="text" class="form-control" id="bomnum" required>
+                    </div>
+                    <div class="form-group">
+                        <label>자재명:</label>
+                        <input type="text" class="form-control" id="materialname" required>
+                    </div>
+                    <div class="form-group">
+                        <label>자재폭:</label>
+                        <input type="text" class="form-control" id="materialwidth" required>
+                    </div>
+                    <div class="form-group">
+                        <label>소요량(M):</label>
+                        <input type="text" class="form-control" id="soyo" required>
+                    </div>
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                    <input type="button" data-dismiss="modal" id="add" class="btn btn-success" value="추가">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달삭제창 -->
+    <div class="modal fade" id="datadelte" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h4 class="modal-title">거래처 삭제</h4>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>정말로 거래처를 삭제하시겠습니까?</p>
+                        <p class="text-warning"><small>이 작업은 취소할 수 없습니다.</small></p>
+                    </div>
+                    <input type="text" class="form-control" id="id-delete" style="visibility: hidden;" required>
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                        <input type="button" data-dismiss="modal" id="delete" class="btn btn-danger" value="삭제">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div style="height:50px; border: 1px solid black;">
+        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
+            개발-BOM관리
+        </p>
+    </div>
+
+
+    <div style="border: 1px solid whitesmoke;">
+        <table id="fileinfo" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>BOMNO.</th>
+                    <th>구분</th>
+                    <th>모델명</th>
+                    <th>품목명</th>
+                    <th>납품처</th>
+                    <th>PCS</th>
+                    <th>작업방식</th>
+                    <th>Cavity</th>
+                    <th>1차피딩</th>
+                    <th>2차피딩</th>
+                    <th>고객사코드</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="color: black;">잠시만 기다려주세요...</p>
+    </div>
+    <script type="text/javascript">
+        // 시작부분
+        $(document).ready(function () {
+
+
+            // 로딩 창을 보이게 한다
+            const loadingScreen = document.getElementById("loading-screen");
+            loadingScreen.style.display = "block";
+
+            $("#openModal").click(function () {
+                $("#accountcode-save").val('');
+                $("#accountname-save").val('');
+                $("#accountrepresentname-save").val('');
+                $("#phone-save").val('');
+                $("#adress-save").val('');
+                $("#myModal").modal();
+            });
+
+
+
+            $('#fileinfo').on('click', '#openModaldelete', function () {
+                table1 = $('#fileinfo').DataTable();
+                var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+                $('#id-delete').val(data1.id);
+                $("#datadelte").modal();
+
+            });
+            $.ajax({
+                url: 'http://localhost:8001/api/iteminfobom',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "bomno" },
+                            { "data": "marchine" },
+                            { "data": "modelname" },
+                            { "data": "itemname" },
+                            { "data": "customer" },
+                            { "data": "pcs" },
+                            { "data": "working" },
+                            { "data": "cavity" },
+                            { "data": "onepidding" },
+                            { "data": "twopidding" },
+                            { "data": "rev" }
+
+
+                        ],
+
+                        dom: 'flrtBip',
+
+                        buttons: [
+                            'copy', 'csv', 'excel', 'pdf', 'print'
+                        ],
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 12,
+                                data: null,
+                                defaultContent: '<button id="openModaledit1" class="btn btn-primary" > 상세 </button>',
+                                width: 50
+                            },
+                            {
+                                targets: 13,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="btn btn-primary" style="background-color:green;"  > 수정 </button>',
+
+                                width: 50
+                            },
+                            {
+                                targets: 14,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                width: 50
+                            }
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
+        });
+
+        // 등록부분
+        document.getElementById("add").addEventListener('click', add);
+     
+        function add() {
+            $('#abcd1').append(
+                '<tr>' +
+
+                '<td><input type="radio" class="chkRadio" name="chkRadio"  onClick="checkeRowColorChange(this);"></td>' +
+                '<td>' + $('#bomnum').val() + '</td>' + //
+                '<td>' + $('#materialname').val() + '</td>' +
+                '<td class="alRight">' + $('#materialwidth').val() + '</td>' + //
+                '<td class="alRight">' + $('#soyo').val() + '</td>' +
+                '<td style="text-align:center width:100px;"> <button class="btn btn-primary" style="background-color:red;"> 삭제 </button></td>' +
+
+                '</tr>'
+            )
+            // $('#abcd').css("display", "none");
+
+            
+        }
+
+
+        $(document).on('click', "#deleted", function (e) {
+
+            table1 = $('#fileinfo').DataTable();
+            var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+            $('#id-delete').val(data1.id);
+
+        })
+
+
+        // 삭제부분
+        document.getElementById("delete").addEventListener('click', deleted);
+
+        function deleted() {
+
+
+
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfodeletedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "id": $('#id-delete').val()
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("삭제가 완료 되었습니다.");
+
+
+            $.ajax({
+                url: 'http://localhost:8001/api/accountmanagement',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "accountcode" },
+                            { "data": "accountname" },
+                            { "data": "representativename" },
+                            { "data": "phone" },
+                            { "data": "adress" },
+
+                        ],
+
+                        dom: 'flrtBip',
+
+                        buttons: [
+                            'copy', 'csv', 'excel', 'pdf', 'print'
+                        ],
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 6,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
+                                width: 50
+                            },
+                            {
+                                targets: 7,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                width: 50
+                            }
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
+        }
+      
+    </script>
+
+    <script type="text/javascript">
+
+
+        // $('#fileinfo tbody').on('click', '#editbutton', function () {
+        //     table1 = $('#fileinfo').DataTable();
+        //     var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+        //     $('#accountcode-edit').val(data1.accountcode);
+        //     $('#accountname-edit').val(data1.accountname);
+        //     $('#representativename-edit').val(data1.representativename);
+        //     $('#phone-edit').val(data1.phone);
+        //     $('#adress-edit').val(data1.adress);
+
+
+        //     $("#edit").modal("show");
+
+        // });
+        function modalsave() {
+            $('#accountcode-save').val('');
+            $('#accountname-save').val('');
+            $('#representativename-save').val('');
+            $('#phone-save').val('');
+            $('#adress-save').val('');
+
+
+            $("#myModalsave").modal("show");
+        }
+
+
+        $('#abcd').on('click', '#openModaledit2', function () {
+            // var str = "";
+            // var tdArr = new Array();// 배열 선언            
+            // var checkBtn = $(this);
+
+            // var tr = checkBtn.parent().parent();
+            // var td = tr.children();
+
+            // var mateiralname = td.eq(1).text();
+
+            table1 = $('#abcd').DataTable();
+            var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+            $('#materialname').val(data1.materialname);
+
+
+            $("#edit").modal();
+
+        });
+
+        $('#fileinfo').on('click', '#openModaledit1', function () {
+            table1 = $('#fileinfo').DataTable();
+            var data1 = table1.row($(this).parents('tr')).data(); // getting 
+            $('#bomnum').val(data1.bomno);
+
+            $('.popup').css("display", "block");
+            var editor; // use a global for the submit and return data rendering in the examples
+
+            var table;
+
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
+
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
+
+            var bomno1 = td.eq(0).text();
+
+
+            console.log(bomno1)
+
+
+            $.ajax({
+                type: 'POST',
+                url: "http://localhost:8001/api/materialbase"
+            }).done(function (d) {
+
+                table = $('#abcd').DataTable({
+                    deferLoading: [0, 10],
+                    paging: true,
+                    destroy: true,
+                    sort: true,
+                    pageLength: 10,
+                    searching: true,
+                    data: d,
+                    responsive: true,
+                    columnResize: true,
+
+                    processing: true,
+
+                    // dom: 'Bfrtip',
+
+                    "columns": [
+
+                        { "data": "materialname" },
+                        { "data": "codenumber" },
+                        { "data": "classification" },
+                        { "data": "fullwidth" },
+
+                    ],
+                    columnDefs: [
+
+                        {
+                            targets: 4,
+                            data: null,
+                            defaultContent: '<button id="openModaledit2" class="btn btn-primary" > 추가 </button>',
+                            className: 'alCenter'
+
+                        },
+                        {
+                            targets: 0,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 1,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 2,
+                            className: 'alLeft'
+                        },
+
+                    ],
+                    rowCallback: function (row, data) {
+                        $(row).find('td:eq(4)').addClass('text-center');
+                    },
+
+                    //언어 변경
+                    "language": {
+                        emptyTable: "데이터가 없습니다.",
+                        lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                        info: "현재 _START_ - _END_ / _TOTAL_건",
+                        infoEmpty: "데이터 없음",
+                        infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                        search: "검색:",
+                        zeroRecords: "일치하는 데이터가 없습니다.",
+                        loadingRecords: "로딩중...",
+                        processing: "잠시만 기다려 주세요.",
+                        paginate: {
+                            next: "다음",
+                            previous: "이전",
+                        },
+                    },
+
+                }
+                );
+            })
+
+
+
+
+
+
+            $('#abcd1 > tbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/bommanagement1',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+
+                    bomno: bomno1
+
+                }),
+
+                success: function (data) {
+
+                    console.log(data)
+
+
+                    for (var i = 0; i < data.length; i++) {
+
+                        $('#abcd1').append(
+                            '<tr>' +
+
+                            '<td><input type="radio" class="chkRadio" name="chkRadio"  onClick="checkeRowColorChange(this);"></td>' +
+                            '<td>' + data[i].bomno + '</td>' + //
+                            '<td>' + data[i].materialname + '</td>' +
+                            '<td class="alRight">' + data[i].swidth + '</td>' + //
+                            '<td class="alRight">' + data[i].mwidth + '</td>' +
+                            '<td style="text-align:center width:100px;"> <button class="btn btn-primary" style="background-color:red;"> 삭제 </button></td>' +
+
+                            '</tr>'
+
+                        )
+
+
+                    }
+                    // paging();
+
+                }
+
+            }
+            )
+
+        })
+
+
+
+        function modalShow() {
+
+
+
+
+
+
+        };
+        function modalClose() {
+            $('.popup').css("display", "none");
+        }
+
+        function rowMoveEvent(direction) {
+
+
+            var checkbox1 = $("input[name=chkradio]:checked");
+
+            // 체크된 행(row)의 존재 여부를 파악한다.
+
+            if (jQuery(".chkRadio:checked").val()) {
+
+
+
+                // 체크된 라디오 박스의 행(row)을 변수에 담는다.
+
+                var row = jQuery(".chkRadio:checked").parent().parent();
+
+
+
+                // 체크된 행(row)의 이동 한계점을 파악하기 위해 인덱스를 파]악한다.
+
+                var num = row.index();
+
+
+
+                // 전체 행의 개수를 구한다.
+
+                var max = (jQuery(".chkRadio").length - 1);	   // index는 0부터 시작하기에 -1을 해준다.
+
+
+
+                if (direction == "up") {
+                    if (num == 0) {
+                        // 체크된 행(row)의 위치가 최상단에 위치해 있을경우 더이상 올라갈 수 없게 막는다.
+                        alert("첫번째로 지정되어 있습니다.\n더이상 순서를 변경할 수 없습니다.");
+                        return false;
+                    } else {
+                        // 체크된 행(row)을 한칸 위로 올린다.
+                        row.prev().before(row);
+                    }
+                } else if (direction == "down") {
+                    if (num >= max) {
+                        // 체크된 행(row)의 위치가 최하단에 위치해 있을경우 더이상 내려갈 수 없게 막는다.
+
+                        alert("마지막으로 지정되어 있습니다.\n더이상 순서를 변경할 수 없습니다.");
+
+                        return false;
+
+                    } else {
+
+
+
+                        // 체크된 행(row)을 한칸 아래로 내린다.
+
+                        row.next().after(row);
+
+                    }
+
+                }
+
+
+
+            } else {
+
+                alert("선택된 행이 존재하지 않습니다\n위치를 이동시킬 행을 하나 선택해 주세요.");
+
+            }
+
+        }
+    </script>
+    <script>
+        function addd() {
+
+        }
+    </script>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  // DataTable 생성
+  var dataTable = new DataTable();
+
+  // column 추가
+  dataTable.columns.add("ColumnA", typeof (string));
+  dataTable.columns.add("ColumnB", typeof (int));
+
+  // DataTable에 데이터 추가
+  dataTable.rows.add(["DataA1", 123]);
+  dataTable.rows.add(["DataA2", 456]);
+
+  // HTML Table 생성
+  var table = document.createElement("table");
+
+  // HTML Table에 DataTable 데이터를 바인딩
+  for (var i = 0; i < dataTable.rows.count; i++) {
+    var row = table.insertRow(-1);
+    for (var j = 0; j < dataTable.columns.count; j++) {
+      var cell = row.insertCell(-1);
+      cell.innerHTML = dataTable.rows[i][j];
+    }
+  }
+
+  // 각 column의 너비를 저장하는 배열
+  var colWidths = [100, 200];
+
+  // column의 style
+  var headers = table.getElementsByTagName("th");
+  for (var i = 0; i < headers.length; i++) {
+    headers[i].style.width = colWidths[i] + "px";
+
+    // 마우스 이벤트 처리 - column 너비 조절
+    headers[i].onmousedown = function (event) {
+      var columnIndex = Array.from(headers).indexOf(event.target);
+      var startX = event.pageX;
+      var startWidth = parseInt(window.getComputedStyle(headers[columnIndex]).width);
+
+      function onMouseMove(event) {
+        var diffX = event.pageX - startX;
+        headers[columnIndex].style.width = (startWidth + diffX) + "px";
+      }
+
+      function onMouseUp() {
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+
+        // 조절된 column 너비를 저장
+        colWidths[columnIndex] = parseInt(headers[columnIndex].style.width);
+      }
+
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp);
+    }
+  }
+
+  var cells = table.getElementsByTagName("td");
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].style.width = colWidths[i % colWidths.length] + "px";
+  }
+</script>
+
+</html>

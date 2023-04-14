@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css" />
+        <!-- charset="utf-8" defer -->
+    <!-- HTML -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" charset="utf-8" ></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"  ></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.1.min.js" charset="utf-8" defer ></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js" charset="utf-8" defer ></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js" charset="utf-8" defer></script>
+
+</head>
+
+<body>
+
+
+
+    <div style="height:50px; border: 1px solid black;">
+        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">기초정보-창고정보</p>
+
+    </div>
+
+    <div style="width:100%; height:34px; border: 1px solid black;">
+        <button style="margin-top: 1px;" onclick="modalsave()">추가</button>
+
+    </div>
+
+    <table id="fileinfo" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>창고코드</th>
+                <th>창고명</th>
+                <th>파트</th>
+                <th>파트명</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <!-- Modal등록 -->
+    <div class="modal fade" id="myModalsave" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">창고 등록</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="housecode">
+                        <p>창고코드: </p><span></span>
+                        <input type="text" style="width: 350px;" id="housecode-save">
+                    </div>
+                    <div class="housename">
+                        <p>창고명: </p><span></span>
+                        <input type="text" style="width: 350px;" id="housename-save">
+                    </div>
+                    <div class="part">
+                        <p>파트: </p><span></span>
+                        <input type="text" style="width: 350px;" id="part-save">
+                    </div>
+                    <div class="partname">
+                        <p>파트명: </p><span></span>
+                        <input type="text" style="width: 350px;" id="partname-save">
+                    </div>
+                  
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button">닫기</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal수정 -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">창고 수정</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="housecode">
+                        <p>창고코드: </p><span></span>
+                        <input type="text" style="width: 350px;" id="housecode-edit">
+                    </div>
+                    <div class="housename">
+                        <p>창고명: </p><span></span>
+                        <input type="text" style="width: 350px;" id="housename-edit">
+                    </div>
+                    <div class="part">
+                        <p>파트: </p><span></span>
+                        <input type="text" style="width: 350px;" id="part-edit">
+                    </div>
+                    <div class="partname">
+                        <p>파트명: </p><span></span>
+                        <input type="text" style="width: 350px;" id="partname-edit">
+                    </div>
+                    
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button">닫기</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</body>
+
+
+
+
+<script>
+
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.ajax({
+            url: 'http://localhost:8001/api/house',
+            method: 'post',
+            dataType: 'json',
+            success: function (data) {
+                $('#fileinfo').dataTable({
+                    deferLender: true,
+                    paging: true,
+                    sort: true,
+                    pageLength: 10,
+                    searching: true,
+                    data: data,
+                    responsive: true,
+                    deferLoading: [0, 10],
+                    columns: [
+
+                        { "data": "id" },
+                        { "data": "housecode" },
+                        { "data": "housename" },
+                        { "data": "part" },
+                        { "data": "partname" }
+
+                    ],
+                    columnDefs: [
+
+                        {
+                            targets: 0,
+                            visible: false
+                        },
+                        {
+                            targets: 5,
+                            data: null,
+                            defaultContent: '<button>수정</button>',
+                            width: 70
+                        },
+                        {
+                            targets: 6,
+                            data: null,
+                            defaultContent: '<button>삭제</button>',
+                            width: 70
+                        }
+
+                    ],
+                    "language": {
+                        emptyTable: "데이터가 없습니다.",
+                        lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                        info: "현재 _START_ - _END_ / _TOTAL_건",
+                        infoEmpty: "데이터 없음",
+                        infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                        search: "검색:",
+                        zeroRecords: "일치하는 데이터가 없습니다.",
+                        loadingRecords: "로딩중...",
+                        processing: "잠시만 기다려 주세요.",
+                        paginate: {
+                            next: "다음",
+                            previous: "이전",
+                        },
+                    },
+                    destroy: true,
+                });
+            }, error: function (response) {
+                alert(response.responseText);
+            }
+        });
+
+
+    });
+
+    $('#fileinfo tbody').on('click', 'button', function () {
+        table1 = $('#fileinfo').DataTable();
+        var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+        $('#housecode-edit').val(data1.housecode);
+        $('#housename-edit').val(data1.housename);
+        $('#part-edit').val(data1.part);
+        $('#partname-edit').val(data1.partname);
+        $("#myModal").modal("show");
+
+    });
+    function modalsave() {
+        $('#housecode-save').val('');
+        $('#housename-save').val('');
+        $('#part-save').val('');
+        $('#partname-save').val('');
+        $("#myModalsave").modal("show");
+    }
+
+</script>
+
+</html>

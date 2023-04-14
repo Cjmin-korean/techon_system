@@ -175,14 +175,14 @@
                     <thead>
                         <tr">
                             <th>선택</th>
-                            <th>제품코드</th>
-                            <th>BOMNO.</th>
-                            <th>모델명</th>
-                            <th>제품명</th>
-                            <th>규격</th>
+                            <th style="width:200px;">납기일자</th>
+                            <th style="width:200px;">고객사</th>
+                            <th style="width:200px;">BOMNO.</th>
+                            <th style="width:200px;">모델명</th>
+                            <th style="width:200px;">제품명</th>
+                            <th style="width:200px;">수량</th>
 
-
-                            </tr>
+                        </tr>
 
                     </thead>
                     <tbody class="abcd">
@@ -263,11 +263,12 @@
 
     ////SQL 서버데이터 불러오기
     function modalShow() {
-
+   
         $('.popup').css("display", "block");
+        $(".abcd").empty();
         $.ajax({
             type: 'POST',
-            url: 'http://localhost:8001/api/iteminfo',
+            url: 'http://localhost:8001/api/accountmaterial',
 
             dataType: 'json',
             ///datatype text 인이유 : string
@@ -278,11 +279,12 @@
                     $('.abcd').append(
                         '<tr >' +
                         '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" onclick="add1()" style="border: 1px solid silver;"></td>' +
-                        '<td style="border: 1px solid silver; ">' + data[i].modelname + '</td>' + //
-                        '<td style="border: 1px solid silver; ">' + data[i].bomno + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].deliverydate + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].customer + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].bomno + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].modelname + '</td>' +
                         '<td style="border: 1px solid silver; ">' + data[i].itemname + '</td>' + //
-
-
+                        '<td style="border: 1px solid silver; ">' + data[i].quantity + '</td>' + //
                         '</tr>'
                     )
                 }
@@ -344,30 +346,19 @@
             // console.log('td', td.eq(1).text())
 
             // td.eq(0)은 체크박스 이므로  td.eq(1)의 값부터 가져온다.
-            var modelname = td.eq(1).text();
-            var bomno = td.eq(2).text();
-            var itemname = td.eq(3).text();
-            var productnumber = td.eq(4).text();
-            var lotno = td.eq(5).text();
-            var productcount = td.eq(6).text();
+            var modelname = td.eq(4).text();
+            var bomno = td.eq(3).text();
+            var itemname = td.eq(5).text();
+        
 
 
             // 가져온 값을 배열에 담는다.
             tdArr.push(modelname);
             tdArr.push(bomno);
             tdArr.push(itemname);
-            tdArr.push(productnumber);
-            tdArr.push(lotno);
-            tdArr.push(productcount);
+     
 
 
-            console.log(totalRowCnt)
-            console.log("modelname : " + modelname);
-            console.log("bomno : " + bomno);
-            console.log("itemname : " + itemname);
-            console.log("productnumber : " + productnumber);
-            console.log("lotno : " + lotno);
-            console.log("productcount : " + productcount);
 
 
             // document.getElementById('InputCusomerID').value = this.cells[0].innerHTML
@@ -378,9 +369,7 @@
             $('#row_modelname' + addcount + '').val(modelname);
             $('#row_bomno' + addcount + '').val(bomno);
             $('#row_itemname' + addcount + '').val(itemname);
-            $('#row_productnumber' + addcount + '').val(productnumber);
-            $('#row_lotno' + addcount + '').val(lotno);
-            $('#row_productcount' + addcount + '').val(productcount);
+    
 
 
         });
@@ -447,8 +436,25 @@
         }
         alert("저장이 완료 되었습니다.");
 
+        $(".table_first").empty();
+        $('.table_first').append(
+                '<tr>' +
+                '<td>' +
+                '<div>' +
+                '<input type="checkbox">' +
+                '</div>' +
+                '</td>' +
+              
 
-
+                '<td><input type="text" class="tdTextStyle" ondblclick="modalShow()" id="row_modelname' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" id="row_bom' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" id="row_itemname' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" id="row_productnumber' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" style="text-align: right" id="row_lot' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" style="text-align: right" id="row_productcount' + 1 + '"></td>' +
+             
+                '</tr>'
+            )
     }
 </script>
 

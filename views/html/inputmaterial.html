@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"
+        integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
+        crossorigin="anonymous"></script>
+
+    <title>원자재 입고</title>
+    <link rel="stylesheet" href="/css/materialinput.css">
+    <script src="/config.json" type="text/javascript"></script>
+    <script type="text/javascript" src="/jquery.min.js"></script>
+    <script type="text/javascript" src="/qrcode.js"></script>
+    <script type="text/javascript" src="/qrcode.min.js"></script>
+</head>
+
+<body>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel" style="font-size: 17px; font-weight: bold;">
+                        원자재 입고 등록</h1>
+
+                </div>
+
+                <div class="modal-body">
+                    <!-- <input type="button" value="reset" onclick="reset()"> -->
+                    <form>
+
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">자재명</label>
+                            <br>
+                            <select class="materialgroup" id="itemname-save" class="form-control" onchange="itemnamechange()">
+
+                            </select>
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">자재폭(M)</label>
+                            <!-- <datalist >
+
+                            </select> -->
+                            <br>
+                            <select class="materialwidthgroup"  id="materialwidth-save"
+                                class="form-control" onchange="tablerow()">
+
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">자재채번</label>
+                            <input type="text" class="form-control" id="codenumber-save">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">분류</label>
+                            <input type="text" class="form-control" id="classfication-save">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">가로폭(M)</label>
+                            <input type="text" class="form-control" id="fullwidth-save">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">세로폭(M)</label>
+                            <input type="text" class="form-control" id="length-save">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">거래처</label>
+                            <input type="text" class="form-control" id="koreancustomer-save">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">SQM단가</label>
+                            <input type="text" class="form-control" id="sqmprice-save">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">롤단가</label>
+                            <input type="text" class="form-control" id="rollprice-save">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">전폭구분</label>
+                            <input type="text" class="form-control" id="widthclassfication-save">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">유수명</label>
+                            <input type="text" class="form-control" id="day-save">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" onclick="save_materialinput()">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 수정 -->
+    <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel" style="font-size: 17px; font-weight: bold;">
+                        거래처수정</h1>
+                    <a id="edit-id" style="color: white;">202</a>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">거래처코드</label>
+                            <input type="text" class="form-control" id="accountcode-edit">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">거래처명</label>
+                            <input type="text" class="form-control" id="accountname-edit">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">대표자명</label>
+                            <input type="text" class="form-control" id="representativename-edit">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">전화번호</label>
+                            <input type="text" class="form-control" id="phone-edit">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">주소</label>
+                            <input type="text" class="form-control" id="adress-edit">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label">비고</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" onclick="edit_accountinfo()">수정</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- print -->
+
+    <!-- <div class="modal fade" id="qrprint" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel" style="font-size: 17px; font-weight: bold;">
+                        자재 정보 용지 인쇄</h1>
+                    <a id="edit-id" style="color: white;">202</a>
+                </div>
+                <input id="text" type="text" value="https://jh91.tistory.com/" style="width:100%" /><br />
+
+                <input type="button" value="print" onclick="printqrcode()">
+                <div class="modal-body">
+                    <label class="aa"></label>
+
+                    <div id="printdiv" style="width:400px; height:300px; margin-left:40px; margin-top: 10px;">
+                        <table id="paper_div" style="border: 1px;">
+                            <tr>
+                                <td style="height:50px; text-align: center;">자재</td>
+                                <td colspan="5" style="width: 300px; text-align: center;" id="materialname">1111</td>
+
+                            </tr>
+                            <tr>
+                                <td style="height:50px; text-align: center">규격</td>
+                                <td colspan="3" style="text-align: center">1,080</td>
+                                <td colspan="2" rowspan="2">
+                                    <div id="qrcode"
+                                        style="width:5px; height:4px; margin-top: -50px; margin-right: 30px;"></div>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td style="height:50px; text-align: center">LOT</td>
+                                <td colspan="3" style="text-align: center">202210</td>
+
+
+                            </tr>
+                            <tr>
+                                <td style="height:50px; text-align: center">제조일자</td>
+                                <td colspan="2" style="width: 100px; text-align: center">2022-10-02</td>
+                                <td style="text-align: center; width: 70px;">요청자</td>
+                                <td colspan="2" style="text-align: center; width: 100px;"></td>
+                            </tr>
+                            <tr>
+                                <td style="height:50px; text-align: center">만료일자</td>
+                                <td colspan="2" style="width: 100px; text-align: center">2022-11-01</td>
+                                <td style="text-align: center; width: 70px;">작업자</td>
+                                <td colspan="2" style="text-align: center; width: 100px;">김경민</td>
+
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary">인쇄</button>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <!-- 상단 바 정보 -->
+    <div class="inputmaterial-header">
+        <div class="title">
+            <h3 class="title-htag"> 원자재 입고
+        </div>
+
+    </div>
+    <div class="open_search_div">
+        <div>
+            <p>원자재명</p>
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="원자재명을 입력해 주세요.">
+        </div>
+        <div style="float: right ;text-align: right; padding-top: 7px; margin-right: 4px;">
+            <input type="button" value="신규추가" class="sales-bottom-insert" onclick="saveclear()" data-bs-toggle="modal"
+                data-bs-target="#exampleModal" data-bs-whatever="@mdo" style="cursor: pointer;">
+            <input type="button" value="선택삭제" onclick="removeCheck()" class="sales-bottom-delete"
+                style="cursor: pointer;">
+            <input type="button" value="EXCEL" class="sales-excel" id="excelFileExport" style="cursor: pointer;">
+        
+
+        </div>
+    </div>
+
+
+    <!-- <div class="account-body"> -->
+
+    <table id="tableData" class="tablebody">
+        <thead style="background-color:#5151a1; font-weight:bold;color:white;">
+            <tr>
+                <th>
+                    <div>
+                        <input id="select-all" type="checkbox" name="chk_header">
+                    </div>
+                </th>
+
+                <th style="width:auto; text-align: center;">입고날짜</th>
+                <th style="width:auto; text-align: center;">입고</th>
+                <th style="width:auto; text-align: center;">자재명</th>
+                <th style="width:auto; text-align: center;">자재채번</th>
+                <th style="width:auto; text-align: center;">LOT</th>
+                <th style="width:auto; text-align: center;">제조일자</th>
+                <th style="width:auto; text-align: center;">만료일자</th>
+                <th style="width:auto; text-align: center;">자재폭</th>
+                <th style="width:auto; text-align: center;">수량</th>
+                <th style="width:auto; text-align: center;">롤</th>
+                <th style="width:auto; text-align: center;">합계</th>
+                <th style="width:auto; text-align: center;">가격</th>
+                <th style="width:auto; text-align: center;"></th>
+            </tr>
+        </thead>
+        <tbody class="inputmaterial">
+
+        </tbody>
+    </table>
+
+
+    <!-- </div> -->
+    <div class="inputmaterial-table">
+
+    </div>
+    <div class="inputmaterial-bottom">
+
+    </div>
+
+
+    <!-- <div class="loading_pop">
+        <img src="/img/테크온로고.PNG"><br>
+        <h3>잠시만 기다려주세요...</h3>
+    </div> -->
+</body>
+
+<script>
+    var server = '';
+
+    $.getJSON("config.json", function (data) {
+        console.log(data[0].Ipconfig)
+
+        server = data[0].Ipconfig;
+        if (server == 'techonmes.cafe24app.com') {
+            server = '';
+        } else {
+            server = 'http://localhost:8001';
+        }
+
+
+    }).fail(function (e) {
+        console.log("An error has occurred.");
+        console.log(e)
+    });
+
+
+
+    //*************************엑셀 export(S)
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+        return buf;
+    }
+    function exportExcel() {
+        // step 1. workbook 생성
+        var wb = XLSX.utils.book_new();
+
+        // step 2. 시트 만들기 
+        var newWorksheet = excelHandler.getWorksheet();
+
+        // step 3. workbook에 새로만든 워크시트에 이름을 주고 붙인다.  
+        XLSX.utils.book_append_sheet(wb, newWorksheet, excelHandler.getSheetName());
+
+        // step 4. 엑셀 파일 만들기 
+        var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+        // step 5. 엑셀 파일 내보내기 
+        saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), excelHandler.getExcelFileName());
+    }
+    var excelHandler = {
+        getExcelFileName: function () {
+            return '거래처정보.xlsx';
+        },
+        getSheetName: function () {
+            return 'Table Test Sheet';
+        },
+        getExcelData: function () {
+            return document.getElementById('tableData');
+        },
+        getWorksheet: function () {
+            return XLSX.utils.table_to_sheet(this.getExcelData());
+        }
+    }
+    $("#excelFileExport").click(function () {
+        exportExcel();
+    });
+    //*************************엑셀 export(F)   
+    $(window).ready(function () {
+
+
+
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/materialoption',
+
+            dataType: 'json',
+            ///datatype text 인이유 : string
+            success: function (data) {
+
+                console.log(data)
+
+                for (var i = 0; i < data.length; i++) {
+                    $('.inputmaterial').append(
+                        '<tr>' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" id="user_CheckBox" style="border: 1px solid silver;"></td>' +
+
+                        '<td style="border: 1px solid silver; ">' + data[i].date + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].input + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].materialname + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].codenumber + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].lotno + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].manufacturedate + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].expirationdate + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].materialwidth + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].quantity + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].roll + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].sum + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].price + '</td>' +
+
+                        '<td  style="border: 1px solid silver; "> <input type="button"  value="수정" id="aa" class="sales-bottom-insert" data-bs-toggle="modal" data-bs-target="#exampleModal1" data-bs-whatever="@mdo" style="cursor: pointer;"></td>' +
+                        '<td style="border: 1px solid silver; " id="data-id">' + data[i].id + '</td>' +
+                        '</tr>'
+
+                    )
+                    $("td#data-id").hide();
+
+                }
+                // paging();
+
+            }
+
+        })
+
+        //combobox group 쿼리 ajax
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/materialgroup',
+
+            dataType: 'json',
+
+            success: function (data) {
+
+
+                for (var i = 0; i < data.length; i++) {
+                    $('.materialgroup').append(
+                        '<option>' + data[i].itemname + '</option>'
+                    )
+
+                }
+            }
+        })
+
+    })
+    //dtload
+    function dtload() {
+        $(".accountinfo").empty();
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/materialoption',
+
+            dataType: 'json',
+            ///datatype text 인이유 : string
+            success: function (data) {
+
+                console.log(data)
+
+                for (var i = 0; i < data.length; i++) {
+                    $('.accountinfo').append(
+                        '<tr>' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" id="user_CheckBox" style="border: 1px solid silver;"></td>' +
+
+                        '<td style="border: 1px solid silver; ">' + data[i].accountcode + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].accountname + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].representativename + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].phone + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].adress + '</td>' +
+
+                        '<td  style="border: 1px solid silver; "> <input type="button"  value="수정" id="aa" class="sales-bottom-insert" data-bs-toggle="modal" data-bs-target="#exampleModal1" data-bs-whatever="@mdo" style="cursor: pointer;"></td>' +
+                        '<td style="border: 1px solid silver; " id="data-id">' + data[i].id + '</td>' +
+                        '</tr>'
+
+                    )
+                    $("td#data-id").hide();
+                }
+            }
+        })
+    }
+
+</script>
+<script type="text/javascript">
+    // function allCheck() {
+    $('#select-all').click(function (event) {
+        console.log(this.checked)
+        if (this.checked) {
+            // Iterate each checkbox
+            $(':checkbox').each(function () {
+                this.checked = true;
+            });
+        } else {
+            $(':checkbox').each(function () {
+                this.checked = false;
+            });
+        }
+    });
+            // }
+
+
+
+</script>
+<script>
+    ///******************* 필터링************************
+    function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("tableData");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[2];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+
+
+    //체크박스 클릭 아이디찾기
+    $(document).on('click', "#user_CheckBox", function (e) {
+        var str = "";
+        var tdArr = new Array();// 배열 선언            
+        var checkBtn = $(this);
+
+        var tr = checkBtn.parent().parent();
+        var td = tr.children();
+
+        // tr.text()는 클릭된 Row 즉 tr에 있는 모든 값을 가져온다.
+
+        // 반복문을 이용해서 배열에 값을 담아 사용할 수 도 있다.
+        td.each(function (i) {
+            tdArr.push(td.eq(i).text());
+        });
+
+
+
+        // td.eq(index)를 통해 값을 가져올 수도 있다.
+        var id = td.eq(7).text();
+        console.log(id);
+
+
+
+    })
+
+
+    // 등록
+    function save_materialinput() {
+        if (confirm("원자재 입고를 등록 하시겠습니까??") == true) {
+            var itemname = $('#itemname-save').val();
+            var materialwidth = $('#codenumber-save').val();
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/materialinputchk',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "itemname": itemname,
+                    "materialwidth": materialwidth,
+
+
+                }),
+                success: function (result) {
+
+                    //만약 chk=Y일경우 품질 수입검사 table에도 등록
+                    if (result[0].chk === 'Y') {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://localhost:8001/api/materialinputinsertdata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "date": "성공",
+                                "input": "입고",
+                                "materialname": "성공",
+                                "codenumber": "성공",
+                                "lotno": "성공",
+                                "manufacturedate": "성공",
+                                "expirationdate": "성공",
+                                "materialwidth": "성공",
+                                "quantity": '1',
+                                "roll": '1',
+                                "sum": '1',
+                                "price": '1',
+                                "accountnumber": '1',
+                                "contents": '1',
+
+
+                            }),
+                            success: function (result) {
+
+
+                            }
+                        })
+                        //품질테이블
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://localhost:8001/api/quality',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "date": "2022-11-15",
+                                "materialname": "materialname",
+                                "status": "품질검사대기",
+
+
+
+                            }),
+                            success: function (result) {
+
+                                console.log(result)
+                            }
+                        })
+                        alert("등록이 완료 되었습니다.");
+
+                        $('#exampleModal').modal('hide')
+                        // dtload()
+
+                    }
+
+                    //만약 chk=N일경우 materialinpt table에만 등록
+                    else {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://localhost:8001/api/materialinputinsertdata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "date": "성공",
+                                "input": "입고",
+                                "materialname": "성공",
+                                "codenumber": "성공",
+                                "lotno": "성공",
+                                "manufacturedate": "성공",
+                                "expirationdate": "성공",
+                                "materialwidth": "성공",
+                                "quantity": '1',
+                                "roll": '1',
+                                "sum": '1',
+                                "price": '1',
+                                "accountnumber": '1',
+                                "contents": '1',
+
+
+                            }),
+                            success: function (result) {
+
+                                console.log(result)
+                            }
+                        })
+                    }
+                }
+            })
+
+
+            alert("등록이 완료 되었습니다.");
+
+            $('#exampleModal').modal('hide')
+            // dtload()
+
+        } else {
+            return false;
+        }
+    }
+    // 수정
+    function edit_accountinfo() {
+
+
+        var id = $('#edit-id').val();
+        var accountcode = $('#accountcode-edit').val();
+        var accountname = $('#accountname-edit').val();
+        var representativename = $('#representativename-edit').val();
+        var phone = $('#phone-edit').val();
+        var adress = $('#adress-edit').val();
+
+        if (confirm("선택된 정보를 수정하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfoupdatedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "id": id,
+                    "accountcode": accountcode,
+                    "accountname": accountname,
+                    "representativename": representativename,
+                    "phone": phone,
+                    "adress": adress,
+
+
+                }),
+                success: function (result) {
+
+                }
+            })
+
+
+            alert("수정이 완료 되었습니다.");
+
+            $('#exampleModal1').modal('hide')
+            dtload()
+
+        } else {
+            return false;
+        }
+    }
+
+    //삭제
+    function removeCheck() {
+
+        var checkbox = $("input[name='user_CheckBox']:checked");//체크된거 가져오기
+
+        //체크가 되지도 않았는데 이벤트 실행되면 안되니
+
+        if (checkbox.length == 0) { //체크된게 0개 이니까 
+
+            alert('선택 항목이 없습니다.');
+
+        } else {
+            if (confirm("선택된 정보를 삭제하시겠습니까??") == true) {    //확인
+
+                for (var i = 0; i < checkbox.length; i++) {
+
+                    const table = document.getElementById('tableData');
+                    const totalRowCnt = table.rows.length;
+                    var count = totalRowCnt;
+
+
+                    var rowData = new Array();
+                    var tdArr = new Array();
+                    var checkbox = $("input[name=user_CheckBox]:checked");
+
+
+                    // 체크된 체크박스 값을 가져온다
+                    checkbox.each(function (i) {
+
+                        // checkbox.parent() : checkbox의 부모는 <td>이다.
+                        // checkbox.parent().parent() : <td>의 부모이므로 <tr>이다.
+                        var tr = checkbox.parent().parent().eq(i);
+                        // console.log('tr',tr)
+                        var td = tr.children();
+                        var addcount = count - 1;
+
+
+                        // 체크된 row의 모든 값을 배열에 담는다.
+                        rowData.push(tr.text());
+
+                        var id = td.eq(7).text();
+
+
+
+                        // 가져온 값을 배열에 담는다.
+                        tdArr.push(id);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://localhost:8001/api/accountinfodeletedata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": id
+
+                            }),
+                            success: function (result) {
+
+                            }
+                        })
+                    });
+                }
+                alert("삭제 완료 되었습니다.");
+                dtload()
+            } else {   //취소
+                return false;
+
+            }
+        }
+
+    }
+    //창띄우기 클리어
+    function saveclear() {
+        $('#itemname-save').val('');
+    }
+    function tablerow(){
+        var itemname = $('#itemname-save').val();
+        var materialwidth = $('#materialwidth-save').val();
+
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/materialwidthtablerow',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "itemname": itemname,
+                "materialwidth": materialwidth,
+            }),
+            success: function (result) {
+                console.log(result)
+                $('#codenumber-save').val(result[0].codenumber);
+                $('#classfication-save').val(result[0].classfication);
+                $('#length-save').val(result[0].length);
+                $('#fullwidth-save').val(result[0].fullwidth);
+                $('#koreancustomer-save').val(result[0].koreancustomer);
+                $('#sqmprice-save').val(result[0].sqmprice);
+                $('#rollprice-save').val(result[0].rollprice);
+                $('#widthclassfication-save').val(result[0].widthclassfication);
+                $('#day-save').val(result[0].day);
+            }
+        })
+    }
+    function reset(){
+      
+        $('#materialwidth-save').val('');
+   
+        $('#materialwidth-save').empty('');
+    }
+    function itemnamechange(){
+        $('#codenumber-save').val('');
+         $('#classfication-save').val('');
+        $('#fullwidth-save').val('');
+        $('#length-save').val('');
+        $('#koreancustomer-save').val('');
+        $('#sqmprice-save').val('');
+
+        $('#rollprice-save').val('');
+        $('#widthclassfication-save').val('');
+        $('#day-save').val('');
+        var itemname = $('#itemname-save').val();
+       
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/itemnamematerialwidthgroup',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "itemname": itemname,
+
+            }),
+            success: function (result) {
+                console.log(result)
+                for (var i = 0; i < result.length; i++) {
+                    $('.materialwidthgroup').append(
+                        '<option>' + result[i].materialwidth + '</option>'
+                    )
+
+                }
+                // $('#materialwidth-save').val('');
+            }
+        })
+       
+    }
+    //itemnamematerialwidthgroup
+    $(document).on('click', "#materialwidth-save", function (e) {
+       
+        
+    })
+    //수정버튼 클릭시 데이터 수정창에 옮기기
+    $(document).on('click', "#aa", function (e) {
+
+        var str = "";
+        var tdArr = new Array();// 배열 선언            
+        var checkBtn = $(this);
+
+        var tr = checkBtn.parent().parent();
+        var td = tr.children();
+
+        var accountcode = td.eq(1).text();
+        var accountname = td.eq(2).text();
+        var representativename = td.eq(3).text();
+        var phone = td.eq(4).text();
+        var adress = td.eq(5).text();
+        var id = td.eq(7).text();
+
+        $('#accountcode-edit').val(accountcode);
+        $('#accountname-edit').val(accountname);
+        $('#representativename-edit').val(representativename);
+        $('#phone-edit').val(phone);
+        $('#adress-edit').val(adress);
+        $('#edit-id').val(id);
+    })
+
+
+
+
+
+
+</script>
+<!-- print -->
+<script type="text/javascript">
+
+    function printqrcode() {
+
+        // window.print('#paper_div');
+        var divToPrint = document.getElementById("paper_div");
+        newWin = window.open("");
+        newWin.document.write(divToPrint.outerHTML);
+        newWin.print();
+        newWin.close();
+
+    }
+    var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width: 100,
+        height: 100
+    });
+
+    function makeCode() {
+        var elText = document.getElementById("text");
+
+        if (!elText.value) {
+            // alert("Input a text");
+            elText.focus();
+            return;
+        }
+
+        qrcode.makeCode(elText.value);
+    }
+
+    makeCode();
+
+    $("#text").
+        on("blur", function () {
+            makeCode();
+        }).
+        on("keydown", function (e) {
+            // if (e.keyCode == 13) {
+            makeCode();
+            // }
+        });
+
+
+
+</script>
+
+</html>

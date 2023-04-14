@@ -14,95 +14,44 @@
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+
     <script src="/config.json" type="text/javascript"></script>
 </head>
-<style>
-    table,
-    td,
-    th {
-        border: 1px solid gray;
-        border-collapse: collapse;
-        border-spacing: 2px;
-        padding: 10px;
-    }
 
-    tfoot {
-        text-align: center;
-    }
-
-    .a {
-
-        width: 10%;
-    }
-
-    thead {
-        background-color: whitesmoke;
-    }
-
-    #datepicker1,
-    #datepicker2,
-    #cusotmer {
-
-        width: 200px;
-        height: 22px;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .addbutton,
-    .sales-bottom-insert,
-    .sales-bottom-delete {
-        width: 100px;
-        height: 100%;
-
-    }
-</style>
 
 <body>
     <div class="title">
         <h3 class="title-htag">&nbsp&nbsp 영업수주등록</h3>
     </div>
-    <div class="sales-body">
-
-        <!-- <form name="frm1" method="POST"> -->
+    <div class="open_search_div">
         <div>
-            <table width="50%" height="100%">
-                <thead>
-                    <tr>
-                        <th colspan="2">주문서 입력</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="a">등록일자</td>
-                        <td><input type="date" id="datepicker1" value=""></td>
-
-                    </tr>
-                    <tr>
-                        <td>납기일자</td>
-                        <td><input type="date" id="datepicker2"></td>
-                    </tr>
-                    <tr>
-                        <td>거래처</td>
-                        <td>
-                            <input type="text" id="customer" style="width: 200px;">
-                            <input  style="cursor: pointer;" class="searchButton" type="button" value="검색" onclick="customerShow()">
-                        </td>
-                    </tr>
-
-                </tbody>
-            </table>
+            <p>등록일자</p>
+            <input class="input_date" type="date" id="datepicker1" value="">
         </div>
-        <!-- </form> -->
+        <div>
+            <p>납기일자</p>
+            <input class="input_date" type="date" id="datepicker2">
+        </div>
+        <div>
+            <p>거래처</p>
+            <input class="input_customer" type="text" id="customer">
+            <input type="button" value="검색" class="customer_search" onclick="modalShow1()"
+                style="width: 80px; height: 30px; border-radius: 3px; ">
+        </div>
+
+        <div style="float: right ;text-align: right; padding-top: 7px; margin-right: 4px;">
+
+            <input type="button" value="저장" class="sales-bottom-insert" onclick="save_open()" style="cursor: pointer;">
+            <input type="button" value="선택삭제" onclick="removeCheck()" class="sales-bottom-delete"
+                style="cursor: pointer;">
+        </div>
 
     </div>
-    <div class="sales-bottom">
-        <input type="button" value="저장" class="sales-bottom-insert" onclick="save_open()">
-        <input type="button" value="선택삭제" class="sales-bottom-delete">
-        <input type="button" value="EXCEL" class="sales-excel">
-    </div>
-    <div>
+
+    <div class="sales-table_div">
         <table id='myTable' class="sales-table">
             <thead>
                 <tr>
@@ -111,16 +60,17 @@
                             <input type="checkbox">
                         </div>
                     </th>
-                    <th>제품코드</th>
-                    <th>BOMNO</th>
-                    <th>모델명</th>
-                    <th>제품명</th>
-                    <th>사이즈</th>
-                    <th>제품가격(￦)</th>
-                    <th style="color: blue;">수량(개)</th>
+                    <th style="width: 100px;">제품코드</th>
+                    <th style="width: 100px;">BOMNO.</th>
+                    <th style="width: 500px;">모델명</th>
+                    <th style="width: 500px;">제품명</th>
+                    <th style="width: 100px;">사이즈</th>
+                    <th style="width: 100px;">제품가격(₩)</th>
+                    <th style="width: 100px;">수량(개)</th>
+                    <th style="width: 100px;">금액(₩)</th>
                 </tr>
             </thead>
-            <tbody class="table_first">
+            <tbody class="table_first" id="accounttable">
                 <tr>
                     <td>
                         <!-- <input type="checkbox"> -->
@@ -144,10 +94,15 @@
                         <input type="text" id="row_size1" class="tdTextStyle">
                     </td>
                     <td class="colresize">
-                        <input type="text" id="row_itemprice1" class="tdTextStyle">
+                        <input type="text" id="row_itemprice1" style="text-align: right" class="tdTextStyle">
                     </td>
                     <td class="colresize">
-                        <input type="text" id="row_quantity1" class="tdTextStyle">
+                        <input type="text" id="row_quantity1" style="text-align: right" class="tdTextStyle"
+                            onchange="valuechange()" onkeyup="inputNumberFormat(this)">
+                    </td>
+                    <td class="colresize">
+                        <input type="text" id="row_price1" style="text-align: right" class="tdTextStyle"
+                            onkeyup="inputNumberFormat(this)">
                     </td>
                 </tr>
 
@@ -166,7 +121,7 @@
 
     <div class="popup" id="pop1">
 
-        <a class="popup_title">품목검색</a>
+        <a class="popup_title">제품 선택</a>
 
 
         <input type="button" class="close_button" value="닫기" onclick="modalClose()">
@@ -183,12 +138,12 @@
                         <tr">
 
                             <th>선택</th>
-                            <th>제품코드</th>
-                            <th>BOMNO</th>
-                            <th>모델명</th>
-                            <th>제품명</th>
-                            <th>사이즈</th>
-                            <th>제품가격</th>
+                            <th style="width:150px;">제품코드</th>
+                            <th style="width:150px;">BOMNO</th>
+                            <th style="width:400px;">모델명</th>
+                            <th style="width:400px;">제품명</th>
+                            <th style="width:150px;">사이즈</th>
+                            <th style="width:150px;">제품가격</th>
                             </tr>
 
                     </thead>
@@ -214,16 +169,17 @@
 
         <div class="pop_content" id="pop2">
             <div class="search">
-                <input type="text" class="search_textbox" placeholder="거래처검색">
-                <input type="button" class="search_button" value="Search">
+                <input type="text" style="width: 310px;" id="searchcustomer" onkeyup="myFunction()"
+                    class="search_textbox" placeholder="거래처검색">
+
             </div>
             <div class="content" style=" height: 95%; overflow-x:scroll; overflow: auto">
                 <table>
                     <thead>
                         <tr">
 
-                            <th>거래처코드</th>
-                            <th>거래처명</th>
+                            <th style="width : 35px; text-align : center;">선택</th>
+                            <th style="width : 250px; text-align : center;">거래처명</th>
                             </tr>
 
                     </thead>
@@ -239,10 +195,10 @@
 
     </div>
 
-    <div class="loading_pop">
+    <!-- <div class="loading_pop">
         <img src="/img/테크온로고.PNG"><br>
         <h3>잠시만 기다려주세요...</h3>
-    </div>
+    </div> -->
 
 
 
@@ -272,33 +228,78 @@
     }
 
 
+    ///******************* 필터링************************
+    function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchcustomer");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("table-customer");
+        tr = table.getElementsByTagName("popup-customer tr");
 
-    const date = new Date();
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("popup-customer td")[1];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+    function settingDate() {
+        const date = new Date();
 
-    var day = date.getDate();
-    var month = date.getMonth() + 1;
-    var year = date.getFullYear();
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
 
-    console.log((month).length, day.length)
+        console.log((month).length, day.length)
 
-    if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
-        month = '0' + month
-        console.log(month)
+        if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+            month = '0' + month
+            console.log(month)
+        }
+
+        if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+            day = '0' + day
+            console.log(day)
+        }
+
+
+        // This arrangement can be altered based on how we want the date's format to appear.
+        let currentDate = `${year}-${month}-${day}`;
+        console.log(currentDate); // "17-6-2022"
+
+        $('#datepicker1').val(currentDate);
+        $('#datepicker2').val(currentDate);
+        $('#pop1').css("display", "none");
+        $('#pop-customer').css("display", "none");
     }
 
-    if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
-        day = '0' + day
-        console.log(day)
+    settingDate()
+
+
+    // 숫자 컴마표시
+    function inputNumberFormat(obj) {
+        obj.value = comma(uncomma(obj.value));
     }
 
-    // This arrangement can be altered based on how we want the date's format to appear.
-    let currentDate = `${year}-${month}-${day}`;
-    console.log(currentDate); // "17-6-2022"
+    // 숫자 컴마 제거후 int 변경
+    function comma(str) {
+        str = String(str);
+        return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+    }
 
-    $('#datepicker1').val(currentDate);
-    $('#datepicker2').val(currentDate);
-    $('#pop1').css("display", "none");
-    $('#pop-customer').css("display", "none");
+    function uncomma(str) {
+        str = String(str);
+        return str.replace(/[^\d]+/g, '');
+    }
+    ///////=====================
+
 
 
     function modalShow() {
@@ -320,7 +321,7 @@
                         '<td class="no1" style="border: 1px solid silver;">' + data[i].itemcode + '</td>' + //
                         '<td style="border: 1px solid silver; ">' + data[i].bomno + '</td>' +
                         '<td style="border: 1px solid silver; ">' + data[i].modelname + '</td>' +
-                        '<td style="border: 1px solid silver; text-align : right;">' + data[i].itemname + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].itemname + '</td>' +
                         '<td style="border: 1px solid silver; ">' + data[i].size + '</td>' +
                         '<td style="border: 1px solid silver; text-align : right;">' + data[i].itemprice + '</td>' +
 
@@ -332,27 +333,37 @@
     }
 
 
+    function modalShow1() {
+
+        $('.popup-customer').css("display", "block");
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/accountmanagement',
+
+            dataType: 'json',
+            ///datatype text 인이유 : string
+            success: function (data) {
+
+                $('.table-customer tr').remove()
+                for (var i = 0; i < data.length; i++) {
+                    $('.table-customer').append(
+                        '<tr >' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" class="' + i + '" name="user_CheckBox1" onclick="add2()" style="border: 1px solid silver;"></td>' +
+                        '<td class="no1" style="border: 1px solid silver; text-align : center;">' + data[i].accountname + '</td>' + //
+                        '</tr>'
+                    )
+                }
+            }
+        })
+    }
 
     function add1(cb, value) {
-        // console.log('this',cb.checked,cb)
-        // if(cb.checked === true) {
-        // console.log('cb.className',cb.className)
 
-        // const CN = cb.className;
 
         const table = document.getElementById('myTable');
         const totalRowCnt = table.rows.length;
-        // result.innerText = '전체 행 개수: ' + totalRowCnt + '\n'
-
         var count = totalRowCnt;
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        var yyyy = today.getFullYear();
 
-        let date = new Date(yyyy, mm, dd);
-
-        today = yyyy + '-' + mm + '-' + dd
         $('.table_first').append(
             '<tr>' +
             '<td>' +
@@ -360,14 +371,15 @@
             '<input type="checkbox">' +
             '</div>' +
             '</td>' +
-            '<td><input ondblclick="modalShow()" class="tdTextStyle" type="text" id="row_codenumber' + count + '"></td>' +
-            '<td><input type="text" class="tdTextStyle" id="row_itemcode' + count + '"></td>' +
+            '<td><input ondblclick="modalShow()" class="tdTextStyle" type="text" id="row_itemcode' + count + '"></td>' +
+
             '<td><input type="text" class="tdTextStyle" id="row_bomno' + count + '"></td>' +
             '<td><input type="text" class="tdTextStyle" id="row_modelname' + count + '"></td>' +
             '<td><input type="text" class="tdTextStyle" id="row_itemname' + count + '"></td>' +
             '<td><input type="text" class="tdTextStyle" id="row_size' + count + '"></td>' +
-            '<td><input type="text" class="tdTextStyle" id="row_itemprice' + count + '"></td>' +
-
+            '<td><input type="text" class="tdTextStyle" style="text-align: right" id="row_itemprice' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle"  onchange="valuechange() onkeyup="inputNumberFormat(this)" style="text-align: right" id="row_quantity' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle"  onkeyup="inputNumberFormat(this)" style="text-align: right" id="row_price' + count + '"></td>' +
             '</tr>'
         )
 
@@ -379,20 +391,12 @@
         // 체크된 체크박스 값을 가져온다
         checkbox.each(function (i) {
 
-            // checkbox.parent() : checkbox의 부모는 <td>이다.
-            // checkbox.parent().parent() : <td>의 부모이므로 <tr>이다.
             var tr = checkbox.parent().parent().eq(i);
-            // console.log('tr',tr)
             var td = tr.children();
             var addcount = count - 1;
 
-
-            // 체크된 row의 모든 값을 배열에 담는다.
             rowData.push(tr.text());
 
-            // console.log('td', td.eq(1).text())
-
-            // td.eq(0)은 체크박스 이므로  td.eq(1)의 값부터 가져온다.
             var itemcode = td.eq(1).text();
             var bomno = td.eq(2).text();
             var modelname = td.eq(3).text();
@@ -400,8 +404,6 @@
             var size = td.eq(5).text();
             var itemprice = td.eq(6).text();
 
-
-            // 가져온 값을 배열에 담는다.
             tdArr.push(itemcode);
             tdArr.push(bomno);
             tdArr.push(modelname);
@@ -410,31 +412,6 @@
             tdArr.push(itemprice);
 
 
-            var sumdate = new Date(Date.parse(today) + parseInt(day) * 1000 * 60 * 60 * 24);
-            var sumdd = String(sumdate.getDate()).padStart(2, '0');
-            var summm = String(sumdate.getMonth() + 1).padStart(2, '0'); //January is 0!
-            var sumyyyy = sumdate.getFullYear();
-
-            var resultdate = sumyyyy + '-' + summm + '-' + sumdd
-
-            console.log('결과1', new Date(Date.parse(today) + parseInt(day) * 1000 * 60 * 60 * 24))
-
-
-
-            console.log(totalRowCnt)
-            console.log("itemcode : " + itemcode);
-            console.log("bomno : " + bomno);
-            console.log("modelname : " + modelname);
-            console.log("itemname : " + itemname);
-            console.log("size : " + size);
-            console.log("itemprice : " + itemprice);
-
-            // document.getElementById('InputCusomerID').value = this.cells[0].innerHTML
-            // document.getElementById('InputCusomerName').value = this.cells[1].innerHTML
-            // document.getElementById('InputItemID').value = this.cells[2].innerHTML
-
-
-            // for (var i = 0; i < 1; i++) {
             $('#row_itemcode' + addcount + '').val(itemcode);
             $('#row_bomno' + addcount + '').val(bomno);
             $('#row_modelname' + addcount + '').val(modelname);
@@ -447,6 +424,33 @@
 
     };
     //
+    function add2(cb1, value1) {
+
+
+        var rowData1 = new Array();
+        var tdArr1 = new Array();
+        var checkbox1 = $("input[name=user_CheckBox1]:checked");
+
+
+
+        checkbox1.each(function (i) {
+
+
+            var tr = checkbox1.parent().parent().eq(i);
+            var td = tr.children();
+
+
+            rowData1.push(tr.text());
+            var accountname = td.eq(1).text();
+            tdArr1.push(accountname);
+            $('.input_customer').val(accountname);
+
+
+        });
+        $('#pop-customer').css("display", "none");
+
+    };
+
 
     function modalClose() {
         $('.popup').css("display", "none");
@@ -550,26 +554,139 @@
         } catch (e) { return true; }
     }
 
-    // $(function () {
-    //     //input을 datepicker로 선언
-    //     $("#datepicker1").datepicker({
-    //         dateFormat: 'yy-mm-dd' //달력 날짜 형태
-    //     });
 
-    //     //초기값을 오늘 날짜로 설정해줘야 합니다.
-    //     $('#datepicker1').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
-    // });
-    // $(function () {
-    //     //input을 datepicker로 선언
-    //     $("#datepicker2").datepicker({
-    //         dateFormat: 'yy-mm-dd' //달력 날짜 형태
-    //     });
-
-    //     //초기값을 오늘 날짜로 설정해줘야 합니다.
-    //     $('#datepicker2').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
-    // });
 
     function save_open() {
+        if ($('#row_itemcode1').val() === '') {
+
+            alert("수주항목이 누락되었습니다.");
+            return
+        }
+
+        if ($('.input_customer').val() === '') {
+
+            alert("거래처가 누락되었습니다.");
+            return
+        }
+
+        var deliverydate = $('#datepicker2').val();
+
+        if (confirm("납기일 :" + $('#datepicker2').val() + " 영업 수주 정보를 등록 하시겠습니까??") == true) {
+
+
+
+            const table = document.getElementById('myTable');
+            const totalRowCnt = table.rows.length;
+
+
+
+            var count = totalRowCnt;
+            var addcount = count - 1;
+            var addcount1 = count - 3;
+
+            for (var i = 1; i < addcount; i++) {
+
+                var accountdate = $('#datepicker1').val();
+
+                var customer = $('#customer').val();
+                var itemcode = $('#row_itemcode' + i + '').val();
+                var bomno = $('#row_bomno' + i + '').val();
+                var modelname = $('#row_modelname' + i + '').val();
+                var itemname = $('#row_itemname' + i + '').val();
+                var size = $('#row_size' + i + '').val();
+                var itemprice = $('#row_itemprice' + i + '').val();
+                var number = itemprice.replace(/,/g, "");
+
+                var quantity = $('#row_quantity' + i + '').val()
+                var number2 = quantity.replace(/,/g, "");
+
+                var price = $('#row_price' + i + '').val();
+                var number3 = price.replace(/,/g, "");
+
+                //개별 품목 저장 
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:8001/api/openinsertdata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "accountdate": accountdate,
+                        "deliverydate": deliverydate,
+                        "customer": customer,
+                        "itemcode": itemcode,
+                        "bomno": bomno,
+                        "modelname": modelname,
+                        "itemname": itemname,
+                        "size": size,
+                        "itemprice": itemprice,
+                        "quantity": number2,
+                        "price": number3
+
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                    }
+                })
+
+            }
+
+            // 외 몇건 영업수주 네임 저장
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/purchaseorder',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "orderdate": accountdate,
+                    "deliverydate": deliverydate,
+                    "purchaseordername": $('#row_itemname1').val() + ' 외' + addcount1 + '건',
+                    "customer": customer,
+                    "managementno": accountdate,
+                    "count": number2,
+                    "employee": '관리자',
+                    "status": '영업등록완료'
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+            alert("저장이 완료 되었습니다.");
+
+            $('.table_first').empty();
+            $('.input_customer').val('')
+            $('.table_first').append(
+                '<tr>' +
+                '<td>' +
+                '<div>' +
+                '<input type="checkbox">' +
+                '</div>' +
+                '</td>' +
+                '<td><input ondblclick="modalShow()" class="tdTextStyle" type="text" id="row_itemcode' + 1 + '"></td>' +
+
+                '<td><input type="text" class="tdTextStyle" id="row_bomno' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" id="row_modelname' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" id="row_itemname' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" id="row_size' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle" style="text-align: right" id="row_itemprice' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle"  onchange="valuechange() onkeyup="inputNumberFormat(this)" style="text-align: right" id="row_quantity' + 1 + '"></td>' +
+                '<td><input type="text" class="tdTextStyle"  onkeyup="inputNumberFormat(this)" style="text-align: right" id="row_price' + 1 + '"></td>' +
+                '</tr>'
+            )
+
+
+
+
+        } else {
+            return false;
+        }
+
+
+    }
+    function valuechange() {
         const table = document.getElementById('myTable');
         const totalRowCnt = table.rows.length;
 
@@ -577,52 +694,32 @@
 
         var count = totalRowCnt;
         var addcount = count - 1;
-        var addcount1 = count - 3;
-        // console.log(addcount);
-        // console.log(addcount1);
-
-
-
-
         for (var i = 1; i < addcount; i++) {
-
-            var accountdate = $('#datepicker1').val();
-            var deliverydate = $('#datepicker2').val();
-            var customer = $('#customer').val();
-            var itemcode = $('#row_itemcode' + i + '').val();
-            var bomno = $('#row_bomno' + i + '').val();
-            var modelname = $('#row_modelname' + i + '').val();
-            var itemname = $('#row_itemname' + i + '').val();
-            var size = $('#row_size' + i + '').val();
             var itemprice = $('#row_itemprice' + i + '').val();
+            var quantity = $('#row_quantity' + i + '').val()
+            var number1 = itemprice.replace(/,/g, "");
+            var number = quantity.replace(/,/g, "");
 
-            $.ajax({
-                type: 'POST',
-                url: 'http://localhost:8001/api/openinsertdata',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "accountdate": accountdate,
-                    "deliverydate": deliverydate,
-                    "customer": customer,
-                    "itemcode": itemcode,
-                    "bomno": bomno,
-                    "modelname": modelname,
-                    "itemname": itemname,
-                    "size": size,
-                    "itemprice": itemprice,
-                    "quantity": $('#row_quantity' + i + '').val()
-                }),
-                success: function (result) {
-                    console.log(result)
-                }
-            })
-
+            $('#row_price' + i + '').val(number1 * number)
         }
-        alert("저장이 완료 되었습니다.");
+
+    }
 
 
 
+
+    var eventTarget = document.getElementsByClassName('sales-bottom-delete')
+
+    for (var i = 0; i < eventTarget.length; i++) {
+        eventTarget[i].addEventListener('click', function () {
+            var parent = document.querySelector('#accounttable')
+            if (i > 1) {
+                parent.removeChild(this.parentElement.parentElement)
+                i--
+            } else {
+                alert('마지막 행은 삭제 불가합니다.')
+            }
+        })
     }
 </script>
 

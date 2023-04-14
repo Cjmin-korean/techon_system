@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"
+        integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
+        crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <title>생산 필요자재 현황</title>
+    <link rel="stylesheet" href="/css/productmaterial.css">
+    <script src="/config.json" type="text/javascript"></script>
+</head>
+
+<body>
+
+
+    <!-- 상단 바 정보 -->
+    <div class="accountinfo-header">
+        <div class="title">
+            <h3 class="title-htag"> 생산확정-자재 현황
+        </div>
+
+    </div>
+    <div class="open_search_div" style="float: left;">
+        <p>생산 확정 발주현황</p>
+    </div>
+    <div class="open_search_div1">
+        <p>제품 자재 소요량</p>
+    </div>
+
+    <table id="tableData" class="tablebody" style="float: left;">
+        <thead>
+            <tr>
+
+
+                <th style="text-align: center;  width:150px;">납기일자</th>
+                <th style="text-align: center; width:200px;">제품코드</th>
+                <th style="text-align: center; width:100px;">BOMNO.</th>
+                <th style="text-align: center; width:550px;">제품명</th>
+                <th style="text-align: center; width:150px;">수주대기수량(개)</th>
+                <th style="text-align: center; width:150px;">상세</th>
+
+            </tr>
+        </thead>
+        <tbody class="accountmaterialtable1">
+
+        </tbody>
+    </table>
+
+
+    <table id="tableData" class="tablebody" style="float: right;">
+        <thead>
+            <tr>
+
+
+                <th style="text-align: center;  width:190px;">자재명</th>
+                <th style="text-align: center; width:70px;">자재폭</th>
+                <th style="text-align: center; width:100px;">소요량</th>
+                <th style="text-align: center; width:100px;">현재고</th>
+                <th style="text-align: center; width:95px;">가능여부</th>
+
+            </tr>
+        </thead>
+        <tbody class="accountmaterialtable2">
+
+        </tbody>
+    </table>
+
+
+    <!-- </div> -->
+    <div class="account-table">
+
+    </div>
+    <div class="account-bottom">
+
+    </div>
+
+
+    <!-- <div class="loading_pop">
+        <img src="/img/테크온로고.PNG"><br>
+        <h3>잠시만 기다려주세요...</h3>
+    </div> -->
+</body>
+
+<script>
+    var server = '';
+
+    $.getJSON("config.json", function (data) {
+        console.log(data[0].Ipconfig)
+
+        server = data[0].Ipconfig;
+        if (server == 'techonmes.cafe24app.com') {
+            server = '';
+        } else {
+            server = 'http://localhost:8001';
+        }
+
+
+    }).fail(function (e) {
+        console.log("An error has occurred.");
+        console.log(e)
+    });
+
+    $(window).ready(function () {
+
+
+
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/accountmaterial',
+
+            dataType: 'json',
+         
+            success: function (data) {
+
+                console.log(data)
+
+                for (var i = 0; i < data.length; i++) {
+                    $('.accountmaterialtable1').append(
+                        '<tr>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].deliverydate + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].itemcode + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].bomno + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].itemname + '</td>' + //
+                        '<td style="border: 1px solid silver; text-align: right;">' + data[i].quantity + '</td>' +
+                        '<td style="border: 1px solid silver; "> <input type="button"  value="상세" id="aa" class="sales-bottom-insert" data-bs-toggle="modal" data-bs-target="#exampleModal1" data-bs-whatever="@mdo" style="cursor: pointer;"></td>' +
+                        '<td style="border: 1px solid silver; " id="data-id">' + data[i].id + '</td>' +
+                        '</tr>'
+
+                    )
+                    $("td#data-id").hide();
+                   
+                }
+                // paging();
+
+            }
+
+        }
+        )
+
+
+    })
+    //dtload
+    function dtload() {
+        $(".accountinfo").empty();
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/accountmanagement',
+
+            dataType: 'json',
+            ///datatype text 인이유 : string
+            success: function (data) {
+
+                console.log(data)
+
+                for (var i = 0; i < data.length; i++) {
+                    $('.accountinfo').append(
+                        '<tr>' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" id="user_CheckBox" style="border: 1px solid silver;"></td>' +
+
+                        '<td style="border: 1px solid silver; ">' + data[i].accountcode + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].accountname + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].representativename + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].phone + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].adress + '</td>' +
+
+                        '<td style="border: 1px solid silver; "> <input type="button"  value="수정" id="aa" class="sales-bottom-insert" data-bs-toggle="modal" data-bs-target="#exampleModal1" data-bs-whatever="@mdo" style="cursor: pointer;"></td>' +
+                        '<td style="border: 1px solid silver; " id="data-id">' + data[i].id + '</td>' +
+                        '</tr>'
+
+                    )
+                    $("td#data-id").hide();
+                }
+            }
+        })
+    }
+
+</script>
+<script type="text/javascript">
+    // function allCheck() {
+    $('#select-all').click(function (event) {
+        console.log(this.checked)
+        if (this.checked) {
+            // Iterate each checkbox
+            $(':checkbox').each(function () {
+                this.checked = true;
+            });
+        } else {
+            $(':checkbox').each(function () {
+                this.checked = false;
+            });
+        }
+    });
+            // }
+
+
+
+</script>
+<script>
+    ///******************* 필터링************************
+    function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("tableData");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[2];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+
+
+    //체크박스 클릭 아이디찾기
+    $(document).on('click', "#user_CheckBox", function (e) {
+        var str = "";
+        var tdArr = new Array();// 배열 선언            
+        var checkBtn = $(this);
+
+        var tr = checkBtn.parent().parent();
+        var td = tr.children();
+
+        // tr.text()는 클릭된 Row 즉 tr에 있는 모든 값을 가져온다.
+
+        // 반복문을 이용해서 배열에 값을 담아 사용할 수 도 있다.
+        td.each(function (i) {
+            tdArr.push(td.eq(i).text());
+        });
+
+
+
+        // td.eq(index)를 통해 값을 가져올 수도 있다.
+        var id = td.eq(7).text();
+        console.log(id);
+
+
+
+    })
+
+
+    // 등록
+    function save_accountinfo() {
+
+        var accountcode = $('#accountcode-save').val();
+        var accountname = $('#accountname-save').val();
+        var representativename = $('#representativename-save').val();
+        var phone = $('#phone-save').val();
+        var adress = $('#adress-save').val();
+
+        if (confirm("거래처 정보를 등록 하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfoinsertdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "accountcode": accountcode,
+                    "accountname": accountname,
+                    "representativename": representativename,
+                    "phone": phone,
+                    "adress": adress,
+
+                }),
+                success: function (result) {
+
+                }
+            })
+
+
+            alert("등록이 완료 되었습니다.");
+
+
+            dtload()
+
+        } else {
+            return false;
+        }
+    }
+    // 파일등록
+    function savefile() {
+
+        var filename = $('.filename').val();
+        var fileone = $('.filesave').val();
+
+        if (confirm("파일 정보를 등록 하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/inputfile',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "filenamed": filename,
+                    "fileone": filename,
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("등록이 완료 되었습니다.");
+
+
+
+
+        } else {
+            return false;
+        }
+    }
+    // 수정
+    function edit_accountinfo() {
+
+
+        var id = $('#edit-id').val();
+        var accountcode = $('#accountcode-edit').val();
+        var accountname = $('#accountname-edit').val();
+        var representativename = $('#representativename-edit').val();
+        var phone = $('#phone-edit').val();
+        var adress = $('#adress-edit').val();
+
+        if (confirm("선택된 정보를 수정하시겠습니까??") == true) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/accountinfoupdatedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "id": id,
+                    "accountcode": accountcode,
+                    "accountname": accountname,
+                    "representativename": representativename,
+                    "phone": phone,
+                    "adress": adress,
+
+
+                }),
+                success: function (result) {
+
+                }
+            })
+
+
+            alert("수정이 완료 되었습니다.");
+
+            // $('#exampleModal1').modal('hide')
+            dtload()
+
+        } else {
+            return false;
+        }
+    }
+
+    //삭제
+    function removeCheck() {
+
+        var checkbox = $("input[name='user_CheckBox']:checked");//체크된거 가져오기
+
+        //체크가 되지도 않았는데 이벤트 실행되면 안되니
+
+        if (checkbox.length == 0) { //체크된게 0개 이니까 
+
+            alert('선택 항목이 없습니다.');
+
+        } else {
+            if (confirm("선택된 정보를 삭제하시겠습니까??") == true) {    //확인
+
+                for (var i = 0; i < checkbox.length; i++) {
+
+                    const table = document.getElementById('tableData');
+                    const totalRowCnt = table.rows.length;
+                    var count = totalRowCnt;
+
+
+                    var rowData = new Array();
+                    var tdArr = new Array();
+                    var checkbox = $("input[name=user_CheckBox]:checked");
+
+
+                    // 체크된 체크박스 값을 가져온다
+                    checkbox.each(function (i) {
+
+                        // checkbox.parent() : checkbox의 부모는 <td>이다.
+                        // checkbox.parent().parent() : <td>의 부모이므로 <tr>이다.
+                        var tr = checkbox.parent().parent().eq(i);
+                        // console.log('tr',tr)
+                        var td = tr.children();
+                        var addcount = count - 1;
+
+
+                        // 체크된 row의 모든 값을 배열에 담는다.
+                        rowData.push(tr.text());
+
+                        var id = td.eq(7).text();
+
+
+
+                        // 가져온 값을 배열에 담는다.
+                        tdArr.push(id);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://localhost:8001/api/accountinfodeletedata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": id
+
+                            }),
+                            success: function (result) {
+
+                            }
+                        })
+                    });
+                }
+                alert("삭제 완료 되었습니다.");
+                dtload()
+            } else {   //취소
+                return false;
+
+            }
+        }
+
+    }
+
+    //수정버튼 클릭시 데이터 수정창에 옮기기
+    $(document).on('click', "#aa", function (e) {
+
+        var str = "";
+        var tdArr = new Array();// 배열 선언            
+        var checkBtn = $(this);
+
+        var tr = checkBtn.parent().parent();
+        var td = tr.children();
+
+        var accountcode = td.eq(1).text();
+        var accountname = td.eq(2).text();
+        var representativename = td.eq(3).text();
+        var phone = td.eq(4).text();
+        var adress = td.eq(5).text();
+        var id = td.eq(7).text();
+
+        $('#accountcode-edit').val(accountcode);
+        $('#accountname-edit').val(accountname);
+        $('#representativename-edit').val(representativename);
+        $('#phone-edit').val(phone);
+        $('#adress-edit').val(adress);
+        $('#edit-id').val(id);
+    })
+
+
+    //창띄우기 클리어
+    function saveclear() {
+        $('#accountcode-save').val('');
+        $('#accountname-save').val('');
+        $('#representativename-save').val('');
+        $('#phone-save').val('');
+        $('#adress-save').val('');
+    }
+
+
+    function uploadFile() {
+        var form = $('#FILE_FORM')[0];
+        var formData = new FormData(form);
+        formData.append("fileObj", $("#FILE_TAG")[0].files[0]);
+        formData.append("fileObj2", $("#FILE_TAG2")[0].files[0]);
+
+        $.ajax({
+            url: 'http://localhost:8001/api/inputfile',
+            processData: false,
+            contentType: false,
+
+            type: 'POST',
+            data: JSON.stringify({
+                "filenamed": "11",
+                "fileone": $("#FILE_TAG")[0].files[0]
+            }),
+            success: function (result) {
+                alert("업로드 성공!!");
+            }
+        });
+    }
+
+
+</script>
+
+
+</html>
