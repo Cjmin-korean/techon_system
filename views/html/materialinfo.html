@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <title>거래처정보</title>
+    <link rel="stylesheet" href="/css/materialinfo.css">
+    <script src="/config.json" type="text/javascript"></script>
+</head>
+
+<body>
+    <div class="account-header">
+        <div class="title">
+            <h3 class="title-htag">&nbsp&nbsp 원자재정보
+        </div>
+
+    </div>
+    <div style="height: 40px;">
+        <input type="button" value="신규추가" class="sales-bottom-insert" onclick="save_material()">
+        <input type="button" value="선택삭제" class="sales-bottom-delete">
+        <input type="button" value="EXCEL" class="sales-excel" id="excelFileExport">
+    </div>
+    <div class="account-body">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        <div>
+                            <input type="checkbox">
+                        </div>
+                    </th>
+
+                    <th>
+                        품목코드
+                    </th>
+                    <th>
+                        품목명
+                    </th>
+                    <th>
+                        분류
+                    </th>
+                    <th>
+                        자재폭<br>
+                        (mm)
+                    </th>
+                    <th>
+                        가로<br>
+                        (폭)<br>
+                        (mm)
+                    </th>
+                    <th>
+                        세로<br>
+                        (길이)<br>
+                        (M)
+                    </th>
+                    <th>
+                        거래처
+                    </th>
+                    <th>
+                        SQM단가<br>
+                        (￦)
+                    </th>
+                    <th>
+                        롤단가<br>
+                        (￦)
+                    </th>
+                    <th>
+                        전폭<br>구분
+                    </th>
+                    <!-- <th>
+                        ERP<br>품목코드
+                    </th>
+                    <th>
+                        상세분류   
+                    </th>
+                    <th>
+                        총두께
+                        (µm)   
+                    </th>
+                    <th>
+                        기재(BASE)<br>
+                        두께<br>
+                        (µm)   
+                    </th>
+                    <th>
+                        라이너두께<br>
+                        (µm)   
+                    </th>
+                    <th>
+                        TDS 단면기준<br>
+                        점착코팅 두께<br>
+                        (µm)   
+                    </th>
+                    <th>
+                        단면기준<br>
+                        점착력<br>
+                        (g/f)   
+                    </th>
+                    <th>
+                        TDS 양면기준<br>
+                        (상면)<br>
+                        점착코팅 두께<br>
+                        (µm)   
+                    </th>
+                    <th>
+                        TDS 양면기준<br>
+                        (하면)<br>
+                        점착두께<br>
+                        (um)   
+                    </th>
+                    <th>
+                        TDS 양면기준<br>
+                        (상면)<br>
+                        점착력<br>
+                        (g/f)   
+                    </th>
+                    <th>
+                        TDS 양면기준<br>
+                        (하면)<br>
+                        점착력<br>
+                        (g/f)   
+                    </th>
+                    <th>
+                        점착타입<br>(실리콘 or 아크릴)   
+                    </th>
+
+                    <th>
+                        이형력   
+                    </th>
+                    <th>
+                        색상   
+                    </th>
+                    <th>
+                        제조사   
+                    </th>
+                    <th>
+                        첨부<br>파일   
+                    </th>
+                    <th>
+                        창고<br>내<br>로케이션   
+                    </th> -->
+                </tr>
+            </thead>
+            <tbody class="accountinfo">
+
+            </tbody>
+        </table>
+
+
+    </div>
+    <div class="account-table">
+
+    </div>
+    <div class="account-bottom">
+
+    </div>
+
+    <div class="loading_pop">
+        <img src="/img/테크온로고.PNG"><br>
+        <h3>잠시만 기다려주세요...</h3>
+    </div>
+</body>
+<script>
+    var server = '';
+
+$.getJSON("config.json", function (data) {
+    console.log(data[0].Ipconfig)
+   
+    server = data[0].Ipconfig;
+    if (server == 'techonmes.cafe24app.com') {
+        server = '';
+    } else {
+        server = 'http://localhost:8001';
+    }
+
+
+}).fail(function (e) {
+    console.log("An error has occurred.");
+    console.log(e)
+});
+
+//시간 지나고 작동코드
+
+    function loading() {
+        setTimeout(() => $('.loading_pop').css("display", "block"), 1500);
+    }
+
+
+
+
+    //function usergridload(){
+    $(window).ready(function () {
+
+        // $('table').floatThead({
+        //     position: 'absolute',
+        //     scrollContainer: true
+        // });
+        $.ajax({
+            type: 'POST',
+            url:'http://localhost:8001/api/materialinfo',
+            // dataType: 'json',
+            // contentType: 'application/json',
+            // data: JSON.stringify({
+            //     "nameid": nameid,
+            //     "password": password,
+            // }),
+            dataType: 'json',
+            ///datatype text 인이유 : string
+            success: function (data) {
+                console.log(data)
+
+                for (var i = 0; i < 50; i++) {
+                    $('.accountinfo').append(
+                        '<tr>' +
+                        '<td style="border: 1px solid silver ; zoom : 1.4;"><input type="checkbox" style="border: 1px solid silver;"></td>' +
+
+                        '<td class="no1" style="border: 1px solid silver;">' + data[i].Codenumber + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].Itemname + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].Classfication + '</td>' +
+                        '<td style="border: 1px solid silver; text-align : right;">' + data[i].Materialwidth + '</td>' +
+                        '<td style="border: 1px solid silver; text-align : right;">' + data[i].Fullwidth + '</td>' +
+                        '<td style="border: 1px solid silver; text-align : right;">' + data[i].Length + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].Koreancustomer + '</td>' +
+                        '<td style="border: 1px solid silver; text-align : right;">' + data[i].Sqmprice + '</td>' +
+                        '<td style="border: 1px solid silver; text-align : right;">' + data[i].Rollprice + '</td>' +
+                        '<td class="aa" style="border: 1px solid silver; ">' + data[i].Widthclassficaiton + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].ErpCode + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].Detailedclassification + '</td>' +
+                        // '<td style="border: 1px solid silver; text-align : right;">' + data[i].Totalthickness + '</td>' +
+                        // '<td style="border: 1px solid silver; text-align : right;">' + data[i].Descriptionthickness + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].Linerthickness + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].TDSthickness + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].adhesiveforce + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].TDSupperthickness + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].TDSdownthickness + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].TDSupperadhesiveforce + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].TDSdownadhesiveforce + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].Adhesivetype + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].Heterozygousforce + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].Color + '</td>' +
+                        // '<td style="border: 1px solid silver; ">' + data[i].Manufacturer + '</td>' +
+                        // '<td style="border: 1px solid silver; "></td>' +
+                        // '<td style="border: 1px solid silver; "></td>' +
+
+                        '</tr>'
+                    )
+                }
+
+
+                // $(".jh_table").find("tr").each(function () {
+                //     var wvalue = ($(this).find(".aa").html())
+                //     if (wvalue === 'FUL') {
+
+                //         $(this).css("background-color", "rgb(171, 171, 171)");
+                //     }
+                // })
+
+                // for(var i=0; i<data.length; i++ ){
+
+
+                // }
+
+            }
+        })
+    })
+
+</script>
+
+</html>

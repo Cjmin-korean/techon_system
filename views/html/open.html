@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>주문서입력</title>
+    <link rel="stylesheet" href="/css/open.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/config.json" type="text/javascript"></script>
+</head>
+<style>
+    table,
+    td,
+    th {
+        border: 1px solid gray;
+        border-collapse: collapse;
+        border-spacing: 2px;
+        padding: 10px;
+    }
+
+    tfoot {
+        text-align: center;
+    }
+
+    .a {
+
+        width: 10%;
+    }
+
+    thead {
+        background-color: whitesmoke;
+    }
+
+    #datepicker1,
+    #datepicker2,
+    #cusotmer {
+
+        width: 200px;
+        height: 22px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .addbutton,
+    .sales-bottom-insert,
+    .sales-bottom-delete {
+        width: 100px;
+        height: 100%;
+
+    }
+</style>
+
+<body>
+    <div class="title">
+        <h3 class="title-htag">&nbsp&nbsp 영업수주등록</h3>
+    </div>
+    <div class="sales-body">
+
+        <!-- <form name="frm1" method="POST"> -->
+        <div>
+            <table width="50%" height="100%">
+                <thead>
+                    <tr>
+                        <th colspan="2">주문서 입력</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="a">등록일자</td>
+                        <td><input type="date" id="datepicker1" value=""></td>
+
+                    </tr>
+                    <tr>
+                        <td>납기일자</td>
+                        <td><input type="date" id="datepicker2"></td>
+                    </tr>
+                    <tr>
+                        <td>거래처</td>
+                        <td>
+                            <input type="text" id="customer" style="width: 200px;">
+                            <input  style="cursor: pointer;" class="searchButton" type="button" value="검색" onclick="customerShow()">
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <!-- </form> -->
+
+    </div>
+    <div class="sales-bottom">
+        <input type="button" value="저장" class="sales-bottom-insert" onclick="save_open()">
+        <input type="button" value="선택삭제" class="sales-bottom-delete">
+        <input type="button" value="EXCEL" class="sales-excel">
+    </div>
+    <div>
+        <table id='myTable' class="sales-table">
+            <thead>
+                <tr>
+                    <th>
+                        <div>
+                            <input type="checkbox">
+                        </div>
+                    </th>
+                    <th>제품코드</th>
+                    <th>BOMNO</th>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <th>사이즈</th>
+                    <th>제품가격(￦)</th>
+                    <th style="color: blue;">수량(개)</th>
+                </tr>
+            </thead>
+            <tbody class="table_first">
+                <tr>
+                    <td>
+                        <!-- <input type="checkbox"> -->
+                        <input type="checkbox" id="cb1" class="cb">
+                        <!-- <label for="cb1">1</label> -->
+                    </td>
+                    <td width="170" class="colresize1" ondblclick="modalShow()">
+                        <input onchange="cellChange()" id="row_itemcode1" type="text" class="tdTextStyle"
+                            style="outline: none">
+                    </td>
+                    <td class="colresize">
+                        <input type="text" id="row_bomno1" class="tdTextStyle">
+                    </td>
+                    <td class="colresize">
+                        <input type="text" id="row_modelname1" class="tdTextStyle">
+                    </td>
+                    <td class="colresize">
+                        <input type="text" id="row_itemname1" class="tdTextStyle">
+                    </td>
+                    <td class="colresize">
+                        <input type="text" id="row_size1" class="tdTextStyle">
+                    </td>
+                    <td class="colresize">
+                        <input type="text" id="row_itemprice1" class="tdTextStyle">
+                    </td>
+                    <td class="colresize">
+                        <input type="text" id="row_quantity1" class="tdTextStyle">
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="sales-table1" id="myTable1">
+        <table width="1000" cellpadding="3" cellspacing="1" backcolor="#B8B8B8">
+        </table>
+    </div>
+
+
+
+
+
+    <div class="popup" id="pop1">
+
+        <a class="popup_title">품목검색</a>
+
+
+        <input type="button" class="close_button" value="닫기" onclick="modalClose()">
+        <hr>
+
+        <div class="pop_content" id="pop2">
+            <div class="search">
+                <input type="text" class="search_textbox" placeholder="품목검색">
+                <input type="button" class="search_button" value="Search">
+            </div>
+            <div class="content" style=" height: 95%; overflow-x:scroll; overflow: auto">
+                <table>
+                    <thead>
+                        <tr">
+
+                            <th>선택</th>
+                            <th>제품코드</th>
+                            <th>BOMNO</th>
+                            <th>모델명</th>
+                            <th>제품명</th>
+                            <th>사이즈</th>
+                            <th>제품가격</th>
+                            </tr>
+
+                    </thead>
+                    <tbody class="abcd">
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <div class="popup-customer" id="pop-customer">
+
+        <a class="popup_customer">거래처검색</a>
+
+
+        <input type="button" class="customer-close" value="닫기" onclick="customerclose()">
+        <hr>
+
+        <div class="pop_content" id="pop2">
+            <div class="search">
+                <input type="text" class="search_textbox" placeholder="거래처검색">
+                <input type="button" class="search_button" value="Search">
+            </div>
+            <div class="content" style=" height: 95%; overflow-x:scroll; overflow: auto">
+                <table>
+                    <thead>
+                        <tr">
+
+                            <th>거래처코드</th>
+                            <th>거래처명</th>
+                            </tr>
+
+                    </thead>
+                    <tbody class="table-customer">
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <div class="loading_pop">
+        <img src="/img/테크온로고.PNG"><br>
+        <h3>잠시만 기다려주세요...</h3>
+    </div>
+
+
+
+</body>
+<script>
+    var server = '';
+
+    $.getJSON("config.json", function (data) {
+        console.log(data[0].Ipconfig)
+
+        server = data[0].Ipconfig;
+        if (server == 'techonmes.cafe24app.com') {
+            server = '';
+        } else {
+            server = 'http://localhost:8001';
+        }
+
+
+    }).fail(function (e) {
+        console.log("An error has occurred.");
+        console.log(e)
+    });
+
+    //시간 지나고 작동코드
+    function loading() {
+        setTimeout(() => $('.loading_pop').css("display", "block"), 1500);
+    }
+
+
+
+    const date = new Date();
+
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+
+    console.log((month).length, day.length)
+
+    if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+        month = '0' + month
+        console.log(month)
+    }
+
+    if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+        day = '0' + day
+        console.log(day)
+    }
+
+    // This arrangement can be altered based on how we want the date's format to appear.
+    let currentDate = `${year}-${month}-${day}`;
+    console.log(currentDate); // "17-6-2022"
+
+    $('#datepicker1').val(currentDate);
+    $('#datepicker2').val(currentDate);
+    $('#pop1').css("display", "none");
+    $('#pop-customer').css("display", "none");
+
+
+    function modalShow() {
+
+        $('.popup').css("display", "block");
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/iteminfo',
+
+            dataType: 'json',
+            ///datatype text 인이유 : string
+            success: function (data) {
+
+                $('.abcd tr').remove()
+                for (var i = 0; i < data.length; i++) {
+                    $('.abcd').append(
+                        '<tr >' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" class="' + i + '" name="user_CheckBox" onclick="add1()" style="border: 1px solid silver;"></td>' +
+                        '<td class="no1" style="border: 1px solid silver;">' + data[i].itemcode + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].bomno + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].modelname + '</td>' +
+                        '<td style="border: 1px solid silver; text-align : right;">' + data[i].itemname + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].size + '</td>' +
+                        '<td style="border: 1px solid silver; text-align : right;">' + data[i].itemprice + '</td>' +
+
+                        '</tr>'
+                    )
+                }
+            }
+        })
+    }
+
+
+
+    function add1(cb, value) {
+        // console.log('this',cb.checked,cb)
+        // if(cb.checked === true) {
+        // console.log('cb.className',cb.className)
+
+        // const CN = cb.className;
+
+        const table = document.getElementById('myTable');
+        const totalRowCnt = table.rows.length;
+        // result.innerText = '전체 행 개수: ' + totalRowCnt + '\n'
+
+        var count = totalRowCnt;
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+
+        let date = new Date(yyyy, mm, dd);
+
+        today = yyyy + '-' + mm + '-' + dd
+        $('.table_first').append(
+            '<tr>' +
+            '<td>' +
+            '<div>' +
+            '<input type="checkbox">' +
+            '</div>' +
+            '</td>' +
+            '<td><input ondblclick="modalShow()" class="tdTextStyle" type="text" id="row_codenumber' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_itemcode' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_bomno' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_modelname' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_itemname' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_size' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_itemprice' + count + '"></td>' +
+
+            '</tr>'
+        )
+
+        var rowData = new Array();
+        var tdArr = new Array();
+        var checkbox = $("input[name=user_CheckBox]:checked");
+
+
+        // 체크된 체크박스 값을 가져온다
+        checkbox.each(function (i) {
+
+            // checkbox.parent() : checkbox의 부모는 <td>이다.
+            // checkbox.parent().parent() : <td>의 부모이므로 <tr>이다.
+            var tr = checkbox.parent().parent().eq(i);
+            // console.log('tr',tr)
+            var td = tr.children();
+            var addcount = count - 1;
+
+
+            // 체크된 row의 모든 값을 배열에 담는다.
+            rowData.push(tr.text());
+
+            // console.log('td', td.eq(1).text())
+
+            // td.eq(0)은 체크박스 이므로  td.eq(1)의 값부터 가져온다.
+            var itemcode = td.eq(1).text();
+            var bomno = td.eq(2).text();
+            var modelname = td.eq(3).text();
+            var itemname = td.eq(4).text();
+            var size = td.eq(5).text();
+            var itemprice = td.eq(6).text();
+
+
+            // 가져온 값을 배열에 담는다.
+            tdArr.push(itemcode);
+            tdArr.push(bomno);
+            tdArr.push(modelname);
+            tdArr.push(itemname);
+            tdArr.push(size);
+            tdArr.push(itemprice);
+
+
+            var sumdate = new Date(Date.parse(today) + parseInt(day) * 1000 * 60 * 60 * 24);
+            var sumdd = String(sumdate.getDate()).padStart(2, '0');
+            var summm = String(sumdate.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var sumyyyy = sumdate.getFullYear();
+
+            var resultdate = sumyyyy + '-' + summm + '-' + sumdd
+
+            console.log('결과1', new Date(Date.parse(today) + parseInt(day) * 1000 * 60 * 60 * 24))
+
+
+
+            console.log(totalRowCnt)
+            console.log("itemcode : " + itemcode);
+            console.log("bomno : " + bomno);
+            console.log("modelname : " + modelname);
+            console.log("itemname : " + itemname);
+            console.log("size : " + size);
+            console.log("itemprice : " + itemprice);
+
+            // document.getElementById('InputCusomerID').value = this.cells[0].innerHTML
+            // document.getElementById('InputCusomerName').value = this.cells[1].innerHTML
+            // document.getElementById('InputItemID').value = this.cells[2].innerHTML
+
+
+            // for (var i = 0; i < 1; i++) {
+            $('#row_itemcode' + addcount + '').val(itemcode);
+            $('#row_bomno' + addcount + '').val(bomno);
+            $('#row_modelname' + addcount + '').val(modelname);
+            $('#row_itemname' + addcount + '').val(itemname);
+            $('#row_size' + addcount + '').val(size);
+            $('#row_itemprice' + addcount + '').val(itemprice);
+
+        });
+
+
+    };
+    //
+
+    function modalClose() {
+        $('.popup').css("display", "none");
+    }
+    function customerclose() {
+        $('.popup-customer').css("display", "none");
+    }
+
+
+    // <p class="chk_box">
+    //                             <input type="checkbox" id="chk_top"/>
+    //                             <label for="chk_top"></label>
+    //                           </p>
+
+    var mousedown = false;
+    var td = "";
+    var td_width;
+    var x = 0;
+
+    function TCstartColResize(obj) {
+        mousedown = true;
+        td = obj;
+        td_width = td.width;
+        x = event.clientX;
+    }
+    function TCColResize() {
+        if (mousedown) {
+            var distX = event.x - x;
+            td.width = parseInt(td_width) + parseInt(distX);
+        }
+    }
+    function TCstopColResize() {
+        mousedown = false;
+        td = '';
+    }
+
+    function cell_left(obj) {
+        if (event.offsetX < 5 && obj.cellIndex != 0)
+            return true;
+        else
+            return false;
+    }
+    function cell_right(obj) {
+        if (event.offsetX > obj.width - 4)
+            return true;
+        else
+            return false;
+    }
+
+
+    document.onmousedown = function () {
+        try {
+            var now_mousedown = window.event.srcElement;
+            if (now_mousedown.className.toUpperCase() == "COLRESIZE") {
+                if (cell_left(now_mousedown)) {
+                    now_mousedown = now_mousedown.parentNode.childNodes[now_mousedown.cellIndex - 1];
+                } else if (!cell_right(now_mousedown)) {
+                    return true;
+                }
+                TCstartColResize(now_mousedown);
+            }
+        } catch (e) { return true; }
+    }
+
+
+    document.onmousemove = function () {
+        try {
+            var now_mousemove = window.event.srcElement;
+            if (now_mousemove.className.toUpperCase() == "COLRESIZE" || td != "") {
+
+
+                if (cell_left(now_mousemove) || cell_right(now_mousemove)) {
+                    now_mousemove.style.cursor = "col-resize";
+                } else {
+                    now_mousemove.style.cursor = "";
+                }
+
+                TCColResize(now_mousemove);
+            } else {
+                now_mousemove.style.cursor = "";
+            }
+        } catch (e) { return true; }
+    }
+
+
+    document.onmouseup = function () {
+        try {
+            var now_mouseup = window.event.srcElement;
+            //if(now_mouseup.className=="colResize"){
+            TCstopColResize(now_mouseup);
+            //}
+        } catch (e) { return true; }
+    }
+
+
+    document.onselectstart = function () {
+        try {
+            if (td != "") {
+                return false;
+            }
+        } catch (e) { return true; }
+    }
+
+    // $(function () {
+    //     //input을 datepicker로 선언
+    //     $("#datepicker1").datepicker({
+    //         dateFormat: 'yy-mm-dd' //달력 날짜 형태
+    //     });
+
+    //     //초기값을 오늘 날짜로 설정해줘야 합니다.
+    //     $('#datepicker1').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+    // });
+    // $(function () {
+    //     //input을 datepicker로 선언
+    //     $("#datepicker2").datepicker({
+    //         dateFormat: 'yy-mm-dd' //달력 날짜 형태
+    //     });
+
+    //     //초기값을 오늘 날짜로 설정해줘야 합니다.
+    //     $('#datepicker2').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+    // });
+
+    function save_open() {
+        const table = document.getElementById('myTable');
+        const totalRowCnt = table.rows.length;
+
+        // result.innerText = '전체 행 개수: ' + totalRowCnt + '\n'
+
+        var count = totalRowCnt;
+        var addcount = count - 1;
+        var addcount1 = count - 3;
+        // console.log(addcount);
+        // console.log(addcount1);
+
+
+
+
+        for (var i = 1; i < addcount; i++) {
+
+            var accountdate = $('#datepicker1').val();
+            var deliverydate = $('#datepicker2').val();
+            var customer = $('#customer').val();
+            var itemcode = $('#row_itemcode' + i + '').val();
+            var bomno = $('#row_bomno' + i + '').val();
+            var modelname = $('#row_modelname' + i + '').val();
+            var itemname = $('#row_itemname' + i + '').val();
+            var size = $('#row_size' + i + '').val();
+            var itemprice = $('#row_itemprice' + i + '').val();
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/openinsertdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "accountdate": accountdate,
+                    "deliverydate": deliverydate,
+                    "customer": customer,
+                    "itemcode": itemcode,
+                    "bomno": bomno,
+                    "modelname": modelname,
+                    "itemname": itemname,
+                    "size": size,
+                    "itemprice": itemprice,
+                    "quantity": $('#row_quantity' + i + '').val()
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+        }
+        alert("저장이 완료 되었습니다.");
+
+
+
+    }
+</script>
+
+
+</html>

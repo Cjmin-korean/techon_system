@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Tablesorter: required -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/globalize/1.0.0/globalize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/globalize/1.0.0/globalize/currency.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/globalize/1.0.0/globalize/number.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/globalize/1.0.0/globalize/date.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/globalize/1.0.0/globalize/message.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/globalize/1.0.0/globalize/plural.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/globalize/1.0.0/globalize/relative-time.min.js"></script>
+
+<!-- Grouping widget -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cldrjs/0.4.3/cldr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cldrjs/0.4.3/cldr/event.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cldrjs/0.4.3/cldr/supplemental.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cldrjs/0.4.3/cldr/unresolved.min.js"></script>
+</head>
+<head>
+    <style>
+        /* CSS from widget.grouping.css (added v2.28.4) */
+tr.group-header td {
+  background: #eee;
+}
+.group-name {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.group-count {
+  color: #999;
+}
+.group-hidden {
+  display: none;
+}
+.group-header, .group-header td {
+  user-select: none;
+  -moz-user-select: none;
+}
+/* collapsed arrow */
+tr.group-header td i {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid #888;
+  border-right: 4px solid #888;
+  border-left: 4px solid transparent;
+  margin-right: 7px;
+  user-select: none;
+  -moz-user-select: none;
+}
+tr.group-header.collapsed td i {
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #888;
+  border-right: 0;
+  margin-right: 10px;
+}
+        </style>
+  
+  </head>
+  
+  <body>
+    <table id="groups">
+        <thead>
+          <tr>
+            <th class="group-word"></th> <!-- checkbox status -->
+            <th class="group-number">Quality (number)</th> <!-- notice this uses the same class name as the Numeric column, it's just left at 1 -->
+            <th class="group-number-10">Numeric (every <span>10</span>)</th>
+            <th class="group-letter-1">Priority (letter)</th>
+            <th class="group-letter-1">Animals (first <span>letter</span>)</th>
+            <th class="group-word-1">Natural Sort (first word)</th>
+            <th class="group-word-2">Inputs (second word)</th>
+            <!-- try "group-date", "group-date-year", "group-date-month", "group-data-monthyear", "group-date-day", "group-date-week" or "group-date-time" -->
+            <th class="group-date">Date (<span>Full</span>)</th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th></th>
+            <th>Quality</th>
+            <th>Numeric</th>
+            <th>Priority</th>
+            <th>Animals</th>
+            <th>Natural Sort</th>
+            <th>Inputs</th>
+            <th>Date</th>
+          </tr>
+        </tfoot>
+        <tbody>
+            <tr class="row1 head1">
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+            <tr class="row1 head2 closed">
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+            <tr class="row1 head3">
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+            <tr class="row1 head4">
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+            <tr class="row1 head5">
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+            <tr class="row2 head1">
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+        
+            <tr class="row2 head4">
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+            <tr class="row2 head5">
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+            <tr>
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+            <tr>
+                <td>Cash and Equivalents</td>
+                <td>000,000</td>
+                <td>000,000</td>
+        
+            </tr>
+        
+        </tbody>
+      </table>
+  </body>
+  <script>holdingsTree: function(that){
+    var stack = '',
+        classes = ba.splitClasses(that.attr('class')),
+        nextRow = ba.getClassNumber(classes[1], "head");
+
+    if (that.next().hasClass('head'+nextRow)){
+        if (that.next().hasClass(classes[0]) && that.next().hasClass('open')){
+            that.nextUntil('.head1').hide().addClass('closed').removeClass('open');
+        } else if (that.next().hasClass(classes[0])){
+            stack = that.nextUntil('.head1');
+            $.each(stack, function(i, item){ if ($(item).hasClass('head' + (nextRow))){ $(this).show().addClass('open').removeClass('closed'); } });
+        }
+    } else if (that.next().hasClass('head'+ (nextRow+1))){
+        if (that.next().hasClass(classes[0]) && that.next().hasClass('open')){
+            that.nextUntil('.head1').hide().addClass('closed').removeClass('open');
+        } else if (that.next().hasClass(classes[0])){
+            stack = that.nextUntil('.head1');
+            $.each(stack, function(i, item){ if ($(item).hasClass('head' + (nextRow+1))){ $(this).show().addClass('open').removeClass('closed'); } });
+        }
+    } else if (that.next().hasClass('head'+ (nextRow+2))){
+        if (that.next().hasClass(classes[0]) && that.next().hasClass('open')){
+            that.nextUntil('.head1').hide().addClass('closed').removeClass('open');
+            return;
+        } else if (that.next().hasClass(classes[0])){
+            stack = that.nextUntil('.head'+ (nextRow+3));
+            $.each(stack, function(i, item){ if ($(item).hasClass('head' + (nextRow+2))){ $(this).show().addClass('open').removeClass('closed'); } });
+            //stack.find('.head'+(nextRow+2)).show().addClass('open').removeClass('closed');
+        }
+    } else if (that.next().hasClass('head'+ (nextRow+3))){
+        if (that.next().hasClass(classes[0]) && that.next().hasClass('open')){
+            that.nextUntil('.head1').hide().addClass('closed').removeClass('open');
+        } else if (that.next().hasClass(classes[0])){
+            stack = that.nextUntil('.head1');
+            $.each(stack, function(i, item){ if ($(item).hasClass('head' + (nextRow+3))){ $(this).show().addClass('open').removeClass('closed'); } });
+        }
+    } else if (that.next().hasClass('head'+ (nextRow+4))){
+        if (that.next().hasClass(classes[0]) && that.next().hasClass('open')){
+            that.nextUntil('.head1').hide().addClass('closed').removeClass('open');
+        } else if (that.next().hasClass(classes[0])){
+            that.nextUntil('.head1').show().addClass('open').removeClass('closed');
+        }
+    } 
+
+},
+
+splitClasses: function(names){
+    var names = names.split(' ');
+    return names;
+},
+
+getClassNumber: function(name, pretext){
+    var result = name.split(pretext);
+    console.log(parseInt(result[1]) + 1);
+    return parseInt(result[1]) + 1;
+}
+  </script>
+</html>

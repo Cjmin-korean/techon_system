@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <title>거래처정보</title>
+    <link rel="stylesheet" href="/css/accountinfo.css">
+    <script src="/config.json" type="text/javascript"></script>
+</head>
+
+<body>
+    <div class="account-header">
+        <div class="title">
+            <h3 class="title-htag">&nbsp&nbsp 거래처정보
+        </div>
+
+    </div>
+    <div style="height: 40px;">
+
+        <input type="button" value="체크아이디찾기" onclick="add1()">
+        <input type="button" value="신규추가" class="sales-bottom-insert" onclick="save_material()"
+            style="cursor: pointer;">
+        <input type="button" value="선택삭제" class="sales-bottom-delete" style="cursor: pointer;">
+        <input type="button" value="EXCEL" class="sales-excel" id="excelFileExport" style="cursor: pointer;">
+    </div>
+    <div class="account-body">
+
+        <table id="tableData">
+            <thead>
+                <tr>
+                    <th>
+                        <div>
+                            <input type="checkbox" id="chk_header" name="chk_header" onchange="selects1()">
+                        </div>
+                    </th>
+
+                    <th>거래처코드</th>
+                    <th>거래처명</th>
+                    <th>대표자명</th>
+                    <th>전화번호</th>
+                    <th>주소</th>
+
+                </tr>
+            </thead>
+            <tbody class="accountinfo">
+
+            </tbody>
+        </table>
+
+
+    </div>
+    <div class="account-table">
+
+    </div>
+    <div class="account-bottom">
+
+    </div>
+
+    <div class="loading_pop">
+        <img src="/img/테크온로고.PNG"><br>
+        <h3>잠시만 기다려주세요...</h3>
+    </div>
+</body>
+<script>
+    var server = '';
+
+    $.getJSON("config.json", function (data) {
+        console.log(data[0].Ipconfig)
+
+        server = data[0].Ipconfig;
+        if (server == 'techonmes.cafe24app.com') {
+            server = '';
+        } else {
+            server = 'http://localhost:8001';
+        }
+
+
+    }).fail(function (e) {
+        console.log("An error has occurred.");
+        console.log(e)
+    });
+
+    //시간 지나고 작동코드
+
+    function loading() {
+        setTimeout(() => $('.loading_pop').css("display", "block"), 1500);
+    }
+
+    //*************************엑셀 export(S)
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+        return buf;
+    }
+    function exportExcel() {
+        // step 1. workbook 생성
+        var wb = XLSX.utils.book_new();
+
+        // step 2. 시트 만들기 
+        var newWorksheet = excelHandler.getWorksheet();
+
+        // step 3. workbook에 새로만든 워크시트에 이름을 주고 붙인다.  
+        XLSX.utils.book_append_sheet(wb, newWorksheet, excelHandler.getSheetName());
+
+        // step 4. 엑셀 파일 만들기 
+        var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+        // step 5. 엑셀 파일 내보내기 
+        saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), excelHandler.getExcelFileName());
+    }
+    var excelHandler = {
+        getExcelFileName: function () {
+            return 'table-test.xlsx';
+        },
+        getSheetName: function () {
+            return 'Table Test Sheet';
+        },
+        getExcelData: function () {
+            return document.getElementById('tableData');
+        },
+        getWorksheet: function () {
+            return XLSX.utils.table_to_sheet(this.getExcelData());
+        }
+    }
+    //*************************엑셀 export(F)   
+    $(window).ready(function () {
+
+        $("#excelFileExport").click(function () {
+            exportExcel();
+        });
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/accountmanagement',
+
+            dataType: 'json',
+            ///datatype text 인이유 : string
+            success: function (data) {
+
+                console.log(data)
+
+                for (var i = 0; i < data.length; i++) {
+                    $('.accountinfo').append(
+                        '<tr>' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" id="chk_header'+i+'" style="border: 1px solid silver;"></td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].accountcode + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].accountname + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].representativename + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].phone + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].adress + '</td>' +
+                        '</tr>'
+                    )
+                }
+            }
+        })
+    })
+
+
+</script>
+<script type="text/javascript">
+    function selects() {
+        var ele = document.getElementsByName('user_CheckBox');
+        for (var i = 0; i < ele.length; i++) {
+            if (ele[i].type == 'checkbox')
+                ele[i].checked = true;
+        }
+    }
+    function deSelect() {
+        var ele = document.getElementsByName('user_CheckBox');
+        for (var i = 0; i < ele.length; i++) {
+            if (ele[i].type == 'checkbox')
+                ele[i].checked = false;
+
+        }
+    }
+    function selects1() {
+        if (chk_header.checked === true) {
+
+            selects()
+        } else {
+
+            deSelect()
+        }
+    }
+    function selects1() {
+        if (chk_header.checked === true) {
+
+            selects()
+        } else {
+
+            deSelect()
+        }
+    }
+    // function GetSelected() {
+    //     //Reference the Table.
+    //     var grid = document.getElementById("tableData");
+ 
+    //     //Reference the CheckBoxes in Table.
+    //     var checkBoxes = grid.getElementsByTagName("input");
+    //     var message = "Id Name                  Country\n";
+ 
+    //     //Loop through the CheckBoxes.
+    //     for (var i = 0; i < checkBoxes.length; i++) {
+    //         if (checkBoxes[i].checked) {
+    //             var row = checkBoxes[i].parentNode.parentNode;
+    //             message += row.cells[1].innerHTML;
+    //             message += row.cells[2].innerHTML;
+    //             message += row.cells[3].innerHTML;
+    //             console.log("codenumber : " + row.cells[1].innerHTML);
+    //         }
+    //     }
+ 
+    //     ////Display selected Row data in Alert Box.
+    //     // alert(message);
+    // }
+    function add1(cb, value) {
+       
+       
+        const table = document.getElementById('tableData');
+        const totalRowCnt = table.rows.length;
+        var count = totalRowCnt;
+         
+
+        var rowData = new Array();
+        var tdArr = new Array();
+        var checkbox = $("input[name=user_CheckBox]:checked");
+
+
+        // 체크된 체크박스 값을 가져온다
+        checkbox.each(function (i) {
+
+            // checkbox.parent() : checkbox의 부모는 <td>이다.
+            // checkbox.parent().parent() : <td>의 부모이므로 <tr>이다.
+            var tr = checkbox.parent().parent().eq(i);
+            // console.log('tr',tr)
+            var td = tr.children();
+            var addcount = count - 1;
+
+
+            // 체크된 row의 모든 값을 배열에 담는다.
+            rowData.push(tr.text());
+
+            // console.log('td', td.eq(1).text())
+
+            // td.eq(0)은 체크박스 이므로  td.eq(1)의 값부터 가져온다.
+            var codenumber = td.eq(1).text();
+            var Itemname = td.eq(2).text();
+    
+
+            // 가져온 값을 배열에 담는다.
+            tdArr.push(codenumber);
+            tdArr.push(Itemname);
+                     
+       
+            console.log("codenumber : " + codenumber);
+            console.log("Itemname : " + Itemname);
+            console.log("count : " + i +tr);
+        
+
+     
+        });
+       
+
+    };
+    function delBoxes(){
+    var boxes = document.getElementsByClassName('chk');
+    var texts = document.getElementsByClassName('txt');
+    for(var i = 0; i<boxes.length; i++){
+        box = boxes[i];
+        txt = texts[i];
+        if(box.checked){
+            box.parentNode.removeChild(box);
+            txt.parentNode.removeChild(txt);
+        }
+    }
+}
+</script>
+
+
+</html>

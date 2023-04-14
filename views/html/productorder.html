@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>생산발주</title>
+    <link rel="stylesheet" href="/css/productorder.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/config.json" type="text/javascript"></script>
+</head>
+<style>
+    table,
+    td,
+    th {
+        border: 1px solid gray;
+        border-collapse: collapse;
+        border-spacing: 2px;
+        padding: 10px;
+    }
+
+    tfoot {
+        text-align: center;
+    }
+
+    .a {
+
+        width: 10%;
+    }
+
+    thead {
+        background-color: whitesmoke;
+    }
+
+    #datepicker1,
+    #datepicker2,
+    #datepicker3,
+    #cusotmer {
+
+        width: 200px;
+        height: 22px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .addbutton,
+    .sales-bottom-insert,
+    .sales-bottom-delete {
+        width: 100px;
+        height: 100%;
+
+    }
+</style>
+
+<body>
+    <div class="title">
+        <h3 class="title-htag">&nbsp&nbsp 생산발주</h3>
+    </div>
+    <div class="sales-body">
+
+        <!-- <form name="frm1" method="POST"> -->
+        <div>
+            <table width="50%" height="100%">
+                <thead>
+                    <tr>
+                        <th colspan="2">생산 발주 정보</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="a">등록일자</td>
+                        <td><input type="date" id="datepicker1" value=""></td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- </form> -->
+
+    </div>
+    <div class="sales-bottom">
+        <input type="button" value="저장" class="sales-bottom-insert" onclick="save_material()">
+        <input type="button" value="선택삭제" class="sales-bottom-delete">
+        <input type="button" value="EXCEL" class="sales-excel">
+    </div>
+    <div>
+        <table id='myTable' class="sales-table">
+            <thead>
+                <tr>
+                    <th>
+                        <div>
+                            <input type="checkbox">
+                        </div>
+                    </th>
+                    <th>모델명</th>
+                    <th>BOMNO.</th>
+                    <th>제품명</th>
+                    <th>발주번호</th>
+                    <th>LOTNO.</th>
+                    <th>발주수량</th>
+
+                </tr>
+            </thead>
+            <tbody class="table_first">
+                <tr>
+                    <td>
+                        <input type="checkbox" id="cb1" class="cb">
+                        <!--  -->
+                    </td>
+                    <td width="170" class="colresize1" ondblclick="modalShow()">
+                        <input ondblclick="modalShow()" id="row_modelname1" type="text" class="tdTextStyle"
+                            style="outline: none;">
+                    </td>
+                    <td class="colresize">
+                        <input type="text" id="row_bomno1" class="tdTextStyle">
+                    </td>
+
+                    <td class="colresize">
+                        <input type="text" id="row_itemname1" class="tdTextStyle">
+                    </td>
+
+                    <td class="colresize">
+                        <input type="text" id="row_productnumber1" class="tdTextStyle">
+                    </td>
+
+                    <td class="colresize">
+                        <input type="text" id="row_lotno1" class="tdTextStyle">
+                    </td>
+
+                    <td class="colresize">
+                        <input type="text" id="row_productcount1" class="tdTextStyle">
+                    </td>
+
+                </tr>
+
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="sales-table1" id="myTable1">
+        <table width="1000" cellpadding="3" cellspacing="1" backcolor="#B8B8B8">
+        </table>
+    </div>
+
+
+
+
+
+    <div class="popup" id="pop1">
+
+        <a class="popup_title">제품검색</a>
+
+
+        <input type="button" class="close_button" value="닫기" onclick="modalClose()">
+        <hr>
+
+        <div class="pop_content" id="pop2">
+            <div class="search">
+                <input type="text" class="search_textbox" placeholder="제품검색">
+                <input type="button" class="search_button" value="Search">
+            </div>
+            <div class="content" style=" height: 95%; overflow-x:scroll; overflow: auto">
+                <table>
+                    <thead>
+                        <tr">
+                            <th>선택</th>
+                            <th>제품코드</th>
+                            <th>BOMNO.</th>
+                            <th>모델명</th>
+                            <th>제품명</th>
+                            <th>규격</th>
+
+
+                            </tr>
+
+                    </thead>
+                    <tbody class="abcd">
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- <div class="loading_pop">
+        <img src="/img/테크온로고.PNG"><br>
+        <h3>잠시만 기다려주세요...</h3>
+    </div> -->
+
+
+
+</body>
+<script>
+    var server = '';
+
+    $.getJSON("config.json", function (data) {
+        console.log(data[0].Ipconfig)
+
+        server = data[0].Ipconfig;
+        if (server == 'techonmes.cafe24app.com') {
+            server = '';
+        } else {
+            server = 'http://localhost:8001';
+        }
+
+
+    }).fail(function (e) {
+        console.log("An error has occurred.");
+        console.log(e)
+    });
+
+    //시간 지나고 작동코드
+
+    // function loading() {
+    //     setTimeout(() => $('.loading_pop').css("display", "block"), 1500);
+    // }
+
+
+
+    const date = new Date();
+
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+
+    console.log((month).length, day.length)
+
+    if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+        month = '0' + month
+        // console.log(month)
+    }
+
+    if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+        day = '0' + day
+        // console.log(day)
+    }
+
+    // This arrangement can be altered based on how we want the date's format to appear.
+    let currentDate = `${year}-${month}-${day}`;
+    // console.log(currentDate); // "17-6-2022"
+
+    $('#datepicker1').val(currentDate);
+
+    $('#pop1').css("display", "none");
+    $('#pop-customer').css("display", "none");
+
+    ////SQL 서버데이터 불러오기
+    function modalShow() {
+
+        $('.popup').css("display", "block");
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8001/api/iteminfo',
+
+            dataType: 'json',
+            ///datatype text 인이유 : string
+            success: function (data) {
+
+
+                for (var i = 0; i < data.length; i++) {
+                    $('.abcd').append(
+                        '<tr >' +
+                        '<td style="border: 1px solid silver ;"><input type="checkbox" name="user_CheckBox" onclick="add1()" style="border: 1px solid silver;"></td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].modelname + '</td>' + //
+                        '<td style="border: 1px solid silver; ">' + data[i].bomno + '</td>' +
+                        '<td style="border: 1px solid silver; ">' + data[i].itemname + '</td>' + //
+
+
+                        '</tr>'
+                    )
+                }
+            }
+        })
+    }
+
+
+    function add1(cb, value) {
+        // console.log('this',cb.checked,cb)
+        // if(cb.checked === true) {
+        // console.log('cb.className',cb.className)
+
+        // const CN = cb.className;
+
+        const table = document.getElementById('myTable');
+        const totalRowCnt = table.rows.length;
+        // result.innerText = '전체 행 개수: ' + totalRowCnt + '\n'
+
+        var count = totalRowCnt;
+        $('.table_first').append(
+            '<tr>' +
+            '<td>' +
+            '<div>' +
+            '<input type="checkbox">' +
+            '</div>' +
+            '</td>' +
+
+            '<td><input ondblclick="modalShow()" type="text" class="tdTextStyle" id="row_modelname' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_bomno' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_itemname' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_productnumber' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_lotno' + count + '"></td>' +
+            '<td><input type="text" class="tdTextStyle" id="row_productcount' + count + '"></td>' +
+
+
+            '</tr>'
+        )
+
+        var rowData = new Array();
+        var tdArr = new Array();
+        var checkbox = $("input[name=user_CheckBox]:checked");
+
+
+        // 체크된 체크박스 값을 가져온다
+        checkbox.each(function (i) {
+
+            // checkbox.parent() : checkbox의 부모는 <td>이다.
+            // checkbox.parent().parent() : <td>의 부모이므로 <tr>이다.
+            var tr = checkbox.parent().parent().eq(i);
+            // console.log('tr',tr)
+            var td = tr.children();
+            var addcount = count - 1;
+
+
+            // 체크된 row의 모든 값을 배열에 담는다.
+            rowData.push(tr.text());
+
+            // console.log('td', td.eq(1).text())
+
+            // td.eq(0)은 체크박스 이므로  td.eq(1)의 값부터 가져온다.
+            var modelname = td.eq(1).text();
+            var bomno = td.eq(2).text();
+            var itemname = td.eq(3).text();
+            var productnumber = td.eq(4).text();
+            var lotno = td.eq(5).text();
+            var productcount = td.eq(6).text();
+
+
+            // 가져온 값을 배열에 담는다.
+            tdArr.push(modelname);
+            tdArr.push(bomno);
+            tdArr.push(itemname);
+            tdArr.push(productnumber);
+            tdArr.push(lotno);
+            tdArr.push(productcount);
+
+
+            console.log(totalRowCnt)
+            console.log("modelname : " + modelname);
+            console.log("bomno : " + bomno);
+            console.log("itemname : " + itemname);
+            console.log("productnumber : " + productnumber);
+            console.log("lotno : " + lotno);
+            console.log("productcount : " + productcount);
+
+
+            // document.getElementById('InputCusomerID').value = this.cells[0].innerHTML
+            // document.getElementById('InputCusomerName').value = this.cells[1].innerHTML
+            // document.getElementById('InputItemID').value = this.cells[2].innerHTML
+
+            // for (var i = 0; i < 1; i++) {
+            $('#row_modelname' + addcount + '').val(modelname);
+            $('#row_bomno' + addcount + '').val(bomno);
+            $('#row_itemname' + addcount + '').val(itemname);
+            $('#row_productnumber' + addcount + '').val(productnumber);
+            $('#row_lotno' + addcount + '').val(lotno);
+            $('#row_productcount' + addcount + '').val(productcount);
+
+
+        });
+
+
+    };
+
+
+
+    function modalClose() {
+        $('.popup').css("display", "none");
+    }
+    function customerclose() {
+        $('.popup-customer').css("display", "none");
+    }
+
+
+
+
+    function save_material() {
+        const table = document.getElementById('myTable');
+        const totalRowCnt = table.rows.length;
+        // result.innerText = '전체 행 개수: ' + totalRowCnt + '\n'
+
+        var count = totalRowCnt;
+        var addcount = count - 1;
+        var addcount1 = count - 3;
+        // console.log(addcount);
+        // console.log(addcount1);
+        for (var i = 1; i < addcount; i++) {
+            var date = $('#datepicker1').val();
+            var modelname = $('#row_modelname' + i + '').val();
+            var productname = $('#row_itemname' + i + '').val();
+            var bomno = $('#row_bomno' + i + '').val();
+            var lotno = $('#row_lotno' + i + '').val();
+            var ordernumber = $('#row_productnumber' + i + '').val();
+            var ordercount = $('#row_productcount' + i + '').val();
+
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8001/api/productorderinsertdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "productdate": date,
+                    "modelname": modelname,
+                    "productname": productname,
+                    "bomno": bomno,
+                    "lotno": lotno,
+                    "productnumber": ordernumber,
+                    "productcount": ordercount,
+                    "status": "자재출고대기"
+
+                }),
+                success: function (result) {
+
+
+
+
+
+                }
+            })
+        }
+        alert("저장이 완료 되었습니다.");
+
+
+
+    }
+</script>
+
+
+</html>
