@@ -7,7 +7,7 @@ module.exports = function (app) {
     var config = {
         user: 'pswel1',
         password: '1234',
-        server: '221.154.8.88',
+        server: '118.46.215.214',
         database: 'Techon',
         // connectTimeout: 10000,
         // stream: false,
