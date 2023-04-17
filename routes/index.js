@@ -854,8 +854,8 @@ module.exports = function (app) {
                     "lotno," +
                     "manufacturedate," +
                     "expirationdate," +
-                    "materialwidth," +
-                    "quantity," +
+                    "format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth'," +
+                    "format(convert(int,Isnull(quantity,0)),'##,##0')'quantity'," +
                     "roll," +
                     "sum" +
 
