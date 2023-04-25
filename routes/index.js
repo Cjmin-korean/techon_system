@@ -625,7 +625,12 @@ module.exports = function (app) {
                     "cavity," +
                     "onepidding," +
                     "twopidding," +
-                    "rev" +
+                    "dpidding," +
+                    "one," +
+                    "two," +
+                    "rev," +
+                    "insertdate," +
+                    "updatedate" +
                     " FROM iteminfo ")
 
                 .then(result => {
@@ -849,6 +854,7 @@ module.exports = function (app) {
 
                     "SELECT " +
                     "id," +
+                    "input," +
                     "date," +
                     "materialname," +
                     "lotno," +

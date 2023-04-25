@@ -190,6 +190,7 @@
             <thead>
                 <tr>
                     <th> </th>
+                    <th>구분</th>
                     <th>입고날짜</th>
                     <th>자재명</th>
                     <th>LOTNO.</th>
@@ -270,44 +271,7 @@
         <div class="spinner"></div>
         <p style="color: black;">잠시만 기다려주세요...</p>
     </div>
-    <!-- visibility: hidden; -->
-    <!-- <div class="page" style="width:600px; height:400px; border: 1px solid silver  ;">
-        <label style="font-size: 18px;">입고날짜:</label>
-        <input type="text" class="form-control" id="qrcode-date" style="border: none; width:200px; font-size: 18px; "
-            required>
-        <br>
 
-        <label style="font-size: 18px;">원자재명:</label>
-        <input type="text" class="form-control" id="qrcode-materialname"
-            style="border: none;  width:200px; font-size: 18px;" required>
-        <br>
-
-        <label style="font-size: 18px;">자재폭:</label>
-        <input type="text" class="form-control" id="qrcode-materialwidth"
-            style="border: none;  width:200px; font-size: 18px;" required>
-        <br>
-
-        <label style="font-size: 18px;">수량:</label>
-        <input type="text" class="form-control" id="qrcode-quantity"
-            style="border: none;  width:200px; font-size: 18px;" required>
-        <br>
-
-        <label style="font-size: 18px;">제조일자:</label>
-        <input type="text" class="form-control" id="qrcode-manufacturedate"
-            style="border: none;  width:200px; font-size: 18px;" required>
-        <br>
-
-        <label style="font-size: 18px;">만료일자:</label>
-        <input type="text" class="form-control" id="qrcode-expirationdate"
-            style="border: none; width:200px; font-size: 18px;" required>
-        <br>
-
-        <label style="font-size: 18px;">LOTNO:</label>
-        <input type="text" class="form-control" id="qrcode-lot" style="border: none; width:200px; font-size: 18px;"
-            required>
-
-        <div id="qrcode" style="margin-left: 120px; width: 500px; margin-top: -160px; "></div>
-    </div> -->
     <script>
 
         var qrcode = new QRCode(document.getElementById("qrcode"), {
@@ -404,7 +368,7 @@
 
             });
             $.ajax({
-                url: 'http://localhost:8001/api/materialoption',
+                url: 'http://localhost:8080/api/materialoption',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -421,6 +385,7 @@
                         processing: true,
                         columns: [
                             { "data": "id" },
+                            { "data": "input" },
                             { "data": "date" },
                             { "data": "materialname" },
                             { "data": "lotno" },
@@ -442,19 +407,119 @@
                                 targets: 0, visible: false, searchable: false
                             },
                             {
-                                targets: 6, className: 'alRight'
-                            },
-                            {
                                 targets: 7, className: 'alRight'
                             },
                             {
-                                targets: 8,
+                                targets: 8, className: 'alRight'
+                            },
+                            {
+                                targets: 9,
                                 data: null,
                                 defaultContent: '<button id="openModaledit" class="btn btn-primary" > 인쇄 </button>',
                                 width: 50
                             },
                             {
+                                targets: 10,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
+
+                                width: 50
+                            }
+
+                        ],
+                        // createdRow: function (row, data, index) {
+
+                        //     if (data.input === '원자재입고') {
+                        //         $('td:eq(0)', row).css('background-color', 'orange');  //Original Date\
+                        //     } else {
+                               
+                        //     }
+
+                           
+                        // },
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+            $.ajax({
+                url: 'http://localhost:8080/api/materialoption',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "input" },
+                            { "data": "date" },
+                            { "data": "materialname" },
+                            { "data": "lotno" },
+                            { "data": "manufacturedate" },
+                            { "data": "expirationdate" },
+                            { "data": "materialwidth" },
+                            { "data": "quantity" }
+
+                        ],
+
+                        dom: 'flrtBip',
+
+                        buttons: [
+                            'copy', 'csv', 'excel', 'pdf', 'print'
+                        ],
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 7, className: 'alRight'
+                            },
+                            {
+                                targets: 8, className: 'alRight'
+                            },
+                            {
                                 targets: 9,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 인쇄 </button>',
+                                width: 50
+                            },
+                            {
+                                targets: 10,
                                 data: null,
                                 defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
 
@@ -494,97 +559,7 @@
                 }, 1500)
             });
             $.ajax({
-                url: 'http://localhost:8001/api/materialoption',
-                method: 'post',
-                dataType: 'json',
-                success: function (data) {
-                    $('#fileinfo').DataTable({
-                        deferLoading: [0, 10],
-                        paging: true,
-                        destroy: true,
-                        sort: true,
-                        pageLength: 10,
-                        searching: true,
-                        data: data,
-                        responsive: true,
-                        columnResize: true,
-                        processing: true,
-                        columns: [
-                            { "data": "id" },
-                            { "data": "date" },
-                            { "data": "materialname" },
-                            { "data": "lotno" },
-                            { "data": "manufacturedate" },
-                            { "data": "expirationdate" },
-                            { "data": "materialwidth" },
-                            { "data": "quantity" }
-
-                        ],
-
-                        dom: 'flrtBip',
-
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
-
-                        columnDefs: [
-                            {
-                                targets: 0, visible: false, searchable: false
-                            },
-                            {
-                                targets: 6, className: 'alRight'
-                            },
-                            {
-                                targets: 7, className: 'alRight'
-                            },
-                            {
-                                targets: 8,
-                                data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 인쇄 </button>',
-                                width: 50
-                            },
-                            {
-                                targets: 9,
-                                data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
-                            }
-
-                        ],
-
-                        language: {
-                            emptyTable: "데이터가 없습니다.",
-                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                            info: "현재 _START_ - _END_ / _TOTAL_건",
-                            infoEmpty: "데이터 없음",
-                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                            search: "검색:",
-                            zeroRecords: "일치하는 데이터가 없습니다.",
-                            loadingRecords: "로딩중...",
-                            processing: "잠시만 기다려 주세요.",
-                            paginate: {
-                                next: "다음",
-                                previous: "이전"
-                            }
-                        },
-
-
-                    });
-                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
-                    $('.sorting').css('text-align', 'center');
-                },
-                error: function () {
-                    alert("다시 시도해 주십시요.");
-                },
-
-                complete: setTimeout(function () {
-                    const loadingScreen = document.getElementById("loading-screen");
-                    loadingScreen.style.display = "none";
-                }, 1500)
-            });
-            $.ajax({
-                url: 'http://localhost:8001/api/materialbase',
+                url: 'http://localhost:8080/api/materialbase',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -713,7 +688,7 @@
                 for (i = 0; i < roll; i++) {
                     $.ajax({
                         type: 'POST',
-                        url: 'http://localhost:8001/api/materialinputsave',
+                        url: 'http://localhost:8080/api/materialinputsave',
                         dataType: 'json',
                         contentType: 'application/json',
                         data: JSON.stringify({
@@ -742,7 +717,7 @@
             }
 
             $.ajax({
-                url: 'http://localhost:8001/api/materialoption',
+                url: 'http://localhost:8080/api/materialoption',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -855,7 +830,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'http://localhost:8001/api/materialinputdeletedata',
+                url: 'http://localhost:8080/api/materialinputdeletedata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -876,7 +851,7 @@
 
 
             $.ajax({
-                url: 'http://localhost:8001/api/materialoption',
+                url: 'http://localhost:8080/api/materialoption',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -978,7 +953,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'http://localhost:8001/api/accountupdatedata',
+                url: 'http://localhost:8080/api/accountupdatedata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -1004,7 +979,7 @@
 
 
             $.ajax({
-                url: 'http://localhost:8001/api/accountmanagement',
+                url: 'http://localhost:8080/api/accountmanagement',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -1145,7 +1120,7 @@
             console.log(11)
             $.ajax({
                 type: 'POST',
-                url: 'http://localhost:8001/api/materialoptiondate',
+                url: 'http://localhost:8080/api/materialoptiondate',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({

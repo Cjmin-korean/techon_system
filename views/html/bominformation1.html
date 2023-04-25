@@ -57,8 +57,23 @@
             id="close_button" onclick="addd()"> 저장 </button>
         <!-- <hr> -->
         <hr>
+        <div class="modal-header">
+            <!-- <input type="button" onclick="sumsum()"> -->
+            <a>Cavity</a>
+            <input type="text" value="" id="cavity" style="text-align: right;">
+            <a>1차피딩</a>
+            <input type="text" value="" id="onepid" style="text-align: right;">
+            <a>2차피딩</a>
+            <input type="text" value="" id="twopid" style="text-align: right;">
+            <a>D피딩</a>
+            <input type="text" value="" id="dpid" style="text-align: right;">
+            <a>1차계산</a>
+            <input type="text" value="" id="one" style="text-align: right;">
+            <a>2차계산</a>
+            <input type="text" value="" id="two" style="text-align: right;">
+        </div>
         <div class="pop_content" id="pop2" style="width:50%; float: left;">
-            <div class="bomleft" style="width:100%; height: 500px; ">
+            <div class="bomleft" style="width:100%; height: 00px; ">
                 <table id="abcd" class="display" style="width:100%">
                     <thead>
                         <tr>
@@ -66,7 +81,7 @@
                             <th>자재채번</th>
                             <th>분류</th>
                             <th>전폭</th>
-                            <!-- <th>세로폭</th> -->
+                  
                             <th></th>
                         </tr>
                     </thead>
@@ -81,8 +96,8 @@
                             <th style="width: 20px;"></th>
                             <th style="text-align: center;">BOMNO.</th>
                             <th style="text-align: center;">자재명</th>
-                            <th style="text-align: center;">자재폭(mm)</th>
-                            <th style="text-align: center;">소요량(M)</th>
+                            <th style="text-align: center;">원단폭(mm)</th>
+                            <th style="text-align: center;">1개소요량(M)</th>
                             <th></th>
 
                         </tr>
@@ -112,7 +127,7 @@
         </div>
 
     </div>
-    
+
 
     <!-- 모달수정창 -->
     <div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -123,6 +138,7 @@
 
 
                 </div>
+
                 <div class="modal-body">
                     <div class="form-group">
                         <label>BOMNO.:</label>
@@ -133,14 +149,10 @@
                         <input type="text" class="form-control" id="materialname" required>
                     </div>
                     <div class="form-group">
-                        <label>자재폭:</label>
+                        <label>원단폭:</label>
                         <input type="text" class="form-control" id="materialwidth" required>
                     </div>
-                    <div class="form-group">
-                        <label>소요량(M):</label>
-                        <input type="text" class="form-control" id="soyo" required>
-                    </div>
-
+               
 
 
                 </div>
@@ -197,7 +209,12 @@
                     <th>Cavity</th>
                     <th>1차피딩</th>
                     <th>2차피딩</th>
+                    <th>D피딩</th>
+                    <th>1차계산</th>
+                    <th>2차계산</th>
                     <th>고객사코드</th>
+                    <th>최초등록날짜</th>
+                    <th>수정날짜</th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -241,7 +258,7 @@
 
             });
             $.ajax({
-                url: 'http://localhost:8001/api/iteminfobom',
+                url: 'http://localhost:8080/api/iteminfobom',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -269,7 +286,12 @@
                             { "data": "cavity" },
                             { "data": "onepidding" },
                             { "data": "twopidding" },
-                            { "data": "rev" }
+                            { "data": "dpidding" },
+                            { "data": "one" },
+                            { "data": "two" },
+                            { "data": "rev" },
+                            { "data": "insertdate" },
+                            { "data": "updatedate" }
 
 
                         ],
@@ -284,21 +306,46 @@
                             {
                                 targets: 0, visible: false, searchable: false
                             },
+                         
                             {
-                                targets: 12,
+                                targets: 6, visible: false, searchable: false
+                            },
+                            {
+                                targets: 7, visible: false, searchable: false
+                            },
+                            {
+                                targets: 8, visible: false, searchable: false
+                            },
+                            {
+                                targets: 9, visible: false, searchable: false
+                            },
+                            {
+                                targets: 10, visible: false, searchable: false
+                            },
+                            {
+                                targets: 11, visible: false, searchable: false
+                            },
+                            {
+                                targets: 12, visible: false, searchable: false
+                            },
+                            {
+                                targets: 13, visible: false, searchable: false
+                            },
+                            {
+                                targets: 17,
                                 data: null,
                                 defaultContent: '<button id="openModaledit1" class="btn btn-primary" > 상세 </button>',
                                 width: 50
                             },
                             {
-                                targets: 13,
+                                targets: 18,
                                 data: null,
                                 defaultContent: '<button id="openModaledit" class="btn btn-primary" style="background-color:green;"  > 수정 </button>',
 
                                 width: 50
                             },
                             {
-                                targets: 14,
+                                targets: 19,
                                 data: null,
                                 defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
 
@@ -342,8 +389,18 @@
 
         // 등록부분
         document.getElementById("add").addEventListener('click', add);
-     
+
         function add() {
+
+            var one = parseInt($('#one').val())
+            var two = parseInt($('#two').val())
+            var cavity = parseInt($('#cavity').val())
+            var onepid = parseInt($('#onepid').val())
+            var twopid = parseInt($('#twopid').val())
+            var dpid = parseInt($('#dpid').val())
+            var soyo = 1/(one + cavity)*(onepid+dpid+two)*0.001*1.03    
+            var soyodata = soyo.toFixed(4);
+
             $('#abcd1').append(
                 '<tr>' +
 
@@ -351,14 +408,14 @@
                 '<td>' + $('#bomnum').val() + '</td>' + //
                 '<td>' + $('#materialname').val() + '</td>' +
                 '<td class="alRight">' + $('#materialwidth').val() + '</td>' + //
-                '<td class="alRight">' + $('#soyo').val() + '</td>' +
+                '<td class="alRight">' + soyodata + '</td>' +
                 '<td style="text-align:center width:100px;"> <button class="btn btn-primary" style="background-color:red;"> 삭제 </button></td>' +
 
                 '</tr>'
             )
             // $('#abcd').css("display", "none");
 
-            
+
         }
 
 
@@ -382,7 +439,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'http://localhost:8001/api/accountinfodeletedata',
+                url: 'http://localhost:8080/api/accountinfodeletedata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -403,7 +460,7 @@
 
 
             $.ajax({
-                url: 'http://localhost:8001/api/accountmanagement',
+                url: 'http://localhost:8080/api/accountmanagement',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -486,7 +543,7 @@
             });
 
         }
-      
+
     </script>
 
     <script type="text/javascript">
@@ -556,14 +613,26 @@
             var td = tr.children();
 
             var bomno1 = td.eq(0).text();
+            var onepid = td.eq(8).text();
+            var twopid = td.eq(9).text();
+            var dpid = td.eq(10).text();
+            var one = td.eq(11).text();
+            var two = td.eq(12).text();
+            var cavity = td.eq(7).text();
 
+            $('#onepid').val(onepid);
+            $('#twopid').val(twopid);
+            $('#dpid').val(dpid);
+            $('#one').val(one);
+            $('#two').val(two);
+            $('#cavity').val(cavity);
 
             console.log(bomno1)
 
 
             $.ajax({
                 type: 'POST',
-                url: "http://localhost:8001/api/materialbase"
+                url: "http://localhost:8080/api/materialbase"
             }).done(function (d) {
 
                 table = $('#abcd').DataTable({
@@ -645,7 +714,7 @@
             $('#abcd1 > tbody').empty();
             $.ajax({
                 type: 'POST',
-                url: 'http://localhost:8001/api/bommanagement1',
+                url: 'http://localhost:8080/api/bommanagement1',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -770,8 +839,19 @@
         }
     </script>
     <script>
-        function addd() {
-
+        function sumsum() {
+            var one = parseInt($('#one').val())
+            var two = parseInt($('#two').val())
+            var cavity = parseInt($('#cavity').val())
+            var onepid = parseInt($('#onepid').val())
+            var twopid = parseInt($('#twopid').val())
+            var dpid = parseInt($('#dpid').val())
+            var soyo = 1/(one + cavity)*(onepid+dpid+two)*0.001*1.03    
+            var data = soyo.toFixed(4);
+          
+       
+         
+            console.log(data)
         }
     </script>
 
