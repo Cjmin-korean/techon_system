@@ -22,6 +22,7 @@ const corsOptions = {
     credentials: true,
 };
 console.log('corsOptions',corsOptions)
+console.log('process.env' ,process.env.PORT)
 app.use(cors(corsOptions));
 // 정적 파일 불러오기
 app.use(express.static(__dirname + "/views"));
