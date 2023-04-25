@@ -232,6 +232,6 @@ app.get("/qrprint", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/print.html");
 });
 // 서버 실행
-app.listen(PORT, () => {
-    console.log(`Listen : ${PORT}`);
-});
+// app.listen(PORT, () => {
+//     console.log(`Listen : ${PORT}`);
+// });
