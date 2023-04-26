@@ -75,7 +75,7 @@
             <thead>
                 <tr>
 
-
+                    <th>PONO.</th>
                     <th>납기일자</th>
                     <th>고객사</th>
                     <th>모델명</th>
@@ -171,10 +171,19 @@
 
 </script>
 <script type="text/javascript">
+
+
     $(document).ready(function () {
 
 
-
+        var server = '';
+        console.log(window.location.hostname)
+      
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
         $('#fileinfo').on('click', '#openModaledit', function () {
             var str = "";
             var tdArr = new Array();// 배열 선언            
@@ -199,7 +208,8 @@
 
         settingDate()
         $.ajax({
-            url: 'http://techonmes.co.kr/api/accountordering',
+
+            url: server + '/api/accountordering',
             method: 'post',
             dataType: 'json',
             success: function (data) {
@@ -214,9 +224,7 @@
                     responsive: true,
                     deferLoading: [0, 10],
                     columns: [
-
-
-
+                        { "data": "orderid" },
                         { "data": "deliverydate" },
                         { "data": "customer" },
                         { "data": "modelname" },
@@ -226,24 +234,24 @@
                         { "data": "possible" }
                     ],
                     columnDefs: [
-
                         {
-                            targets: 6,
+                            targets: 5, className: 'alRight'
+                        },
+                        {
+                            targets: 6, className: 'alRight'
+                        },
+                        {
+                            targets: 7,
                             width: 80,
                             className: 'alCenter'
                         },
                         {
-                            targets: 7,
+                            targets: 8,
                             data: null,
                             defaultContent: '<button id="openModaledit" class="btn btn-primary" > 자재발주 </button>',
                             width: 70
-                        },
-                        {
-                            targets: 4, className: 'alRight'
-                        },
-                        {
-                            targets: 5, className: 'alRight'
                         }
+
 
                     ],
                     createdRow: function (row, data, index) {
@@ -251,11 +259,11 @@
                         // Updated Schedule Week 1 - 07 Mar 22
 
                         if (data.possible == '가능') {
-                            $('td:eq(6)', row).css('background-color', 'lime');  //Original Date\
-                            $('td:eq(6)', row).css('color', 'black');  //Original Date\
+                            $('td:eq(7)', row).css('background-color', 'lime');  //Original Date\
+                            $('td:eq(7)', row).css('color', 'black');  //Original Date\
                         } else {
-                            $('td:eq(6)', row).css('background-color', 'Red');  //Original Date\
-                            $('td:eq(6)', row).css('color', 'white');  //Original Date\
+                            $('td:eq(7)', row).css('background-color', 'Red');  //Original Date\
+                            $('td:eq(7)', row).css('color', 'white');  //Original Date\
                         }
 
 
@@ -492,7 +500,7 @@
 
                     "id": 138,
                     "productionorder": '2023-04-04(1,000)'
-                    
+
 
 
 
@@ -667,7 +675,6 @@
         };
     }
 
- 
 
 
 
@@ -675,7 +682,8 @@
 
 
 
-    
+
+
 
 
 

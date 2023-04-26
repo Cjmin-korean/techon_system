@@ -50,7 +50,7 @@
 
     .box2 {
         display: inline-block;
-        width: 800px;
+        width: 1000px;
         height: 100%;
         background-color: white;
         border: 0.5px rgb(177, 173, 173) solid;
@@ -66,6 +66,7 @@
 
     <div style="height:50px; border: 1px solid black;">
         <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">영업-영업수주</p>
+        <button onclick="now()">now</button>
     </div>
     <div class="open_search_div">
         <div>
@@ -114,8 +115,8 @@
                     <th>BOM NO.</th>
                     <th>모델명</th>
                     <th>제품명</th>
-                    <th>규격</th>
-                    <th>단가</th>
+                    <th>단가(₩)</th>
+                    <th>원가(₩)</th>
                     <th></th>
                 </tr>
             </thead>
@@ -143,6 +144,7 @@
                     <th>BOMNO.</th>
                     <th>모델명</th>
                     <th>제품명</th>
+                    <th>원가(₩)</th>
                     <th>단가(₩)</th>
                     <th>수량(개)</th>
                     <th>금액(₩)</th>
@@ -181,6 +183,10 @@
                             <input type="text" class="form-control" id="price" required>
                         </div>
                         <div class="form-group">
+                            <label>원가:</label>
+                            <input type="text" class="form-control" id="cost" required>
+                        </div>
+                        <div class="form-group">
                             <label>제품수량:</label>
                             <input type="text" class="form-control" onkeyup="inputNumberFormat(this)" id="count"
                                 required>
@@ -209,6 +215,19 @@
 
 </script>
 <script type="text/javascript">
+
+    // 시작부분
+    var server = '';
+    console.log(window.location.hostname)
+
+    if (window.location.hostname == 'localhost') {
+        server = 'http://localhost:8080';
+        // server = 'http://techonmes.co.kr';
+
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
     // This code runs when the document is ready
     $(document).ready(function () {
 
@@ -229,6 +248,7 @@
             $('#modelname').val(data1.modelname);
             $('#itemname').val(data1.itemname);
             $('#price').val(data1.itemprice);
+            $('#cost').val(data1.cost);
             $('#count').val('');
             $('#addEmployeeModal').modal();
 
@@ -244,7 +264,7 @@
 
         // Load data from the server using AJAX
         $.ajax({
-            url: 'http://techonmes.co.kr/api/iteminfo',
+            url: server + '/api/iteminfo',
             method: 'post',
             dataType: 'json',
             success: function (data) {
@@ -264,8 +284,8 @@
                         { "data": "bomno" },
                         { "data": "modelname" },
                         { "data": "itemname" },
-                        { "data": "size" },
-                        { "data": "itemprice" }
+                        { "data": "itemprice" },
+                        { "data": "cost" }
                     ],
                     columnDefs: [
                         {
@@ -476,12 +496,41 @@
 
         // This arrangement can be altered based on how we want the date's format to appear.
         let currentDate = `${year}-${month}-${day}`;
-        console.log(year + month + day)
+        // console.log(year + month + day)
 
         $('#datepicker1').val(currentDate);
 
 
     }
+
+    function now() {
+        const date = new Date();
+
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        var hours = date.getHours();
+        var second = date.getSeconds();
+
+
+        if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+            month = '0' + month
+
+        }
+
+        if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+            day = '0' + day
+
+        }
+
+
+        let currentnow = `${year}${month}${day}${hours}${second}`;
+        console.log(currentnow)
+
+
+    }
+
+
     document.getElementById("addbutton").addEventListener('click', hello);
 
     function hello() {
@@ -507,6 +556,7 @@
             '<td >' + $('#bomno').val() + '</td>' +
             '<td >' + $('#modelname').val() + '</td>' +
             '<td >' + $('#itemname').val() + '</td>' +
+            '<td >' + $('#cost').val() + '</td>' +
             '<td >' + $('#price').val() + '</td>' +
             '<td id="card">' + $('#count').val() + '</td>' +
             '<td >' + sum + '</td>' +
@@ -559,12 +609,14 @@
 
                 var accountdate = $('#datepicker1').val();
                 var customer = $('#accountname').val();
+                var bomno = textGroup[i + 1][0];
                 var modelname = textGroup[i + 1][1];
                 var itemname = textGroup[i + 1][2];
-                var itemprice = textGroup[i + 1][3];
-                var quantity = textGroup[i + 1][4];
+                var itemcost = textGroup[i + 1][3];
+                var itemprice = textGroup[i + 1][4];
+                var quantity = textGroup[i + 1][5];
                 var number2 = quantity.replace(/,/g, "");
-                var price = textGroup[i + 1][5];
+                var price = textGroup[i + 1][6];
                 var number3 = price.replace(/,/g, "");
 
                 var C = $('#countsum').val();
@@ -573,7 +625,7 @@
                 var P = $('#pricesum').val();
                 var pricesum = P.replace(/,/g, "");
 
-                var bomno = $('#bomno').val();
+                // var bomno = $('#bomno').val();
                 // let currentDate = `${year}${month}${date}${hours}${minutes}${seconds}`;
                 $.ajax({
                     type: 'POST',
@@ -589,11 +641,11 @@
                         "itemprice": itemprice,
                         "quantity": number2,
                         "price": number3,
-                        "contentname": year + '-' + month + '-' + day,
+                        "contentname": year + month + day + hours + minutes + seconds,
                         "countsum": countsum,
                         "pricesum": pricesum,
                         "bomno": bomno,
-
+                        "itemcost": itemcost
 
 
 

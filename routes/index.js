@@ -208,6 +208,49 @@ module.exports = function (app) {
     });
     // **** finish
 
+      // **** start       
+      sql.connect(config).then(pool => {
+        app.post('/api/all', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+
+                .query(
+
+                    " select "+
+                    " a.orderid, "+
+                    " a.accountdate, "+
+                    " a.deliverydate, "+
+                    " a.customer, "+
+                    " a.bomno, "+
+                    " a.modelname, "+
+                    " a.itemname, "+
+                    " a.itemprice,  "+
+                    " a.quantity as accountinputquantity, "+
+                    " a.price, "+
+                    " o.productdate, "+
+                    " o.lotno, "+
+                    " o.marchine, "+
+                    " o.quantity as orderlistquantity "+
+                    " from orderlist o, "+
+                    " accountinput a "+
+                    " where a.orderid = o.orderid")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
+
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/house', function (req, res) {
@@ -475,10 +518,10 @@ module.exports = function (app) {
                     "   modelname," +
                     "   itemname," +
                     "   customer," +
-                    "   size," +
-                    "   format(convert(int,Isnull(itemprice,0)),'##,##0')'itemprice'," +
+                    "   format(convert(float,Isnull(itemprice,0)),'##,##0')'itemprice'," +
+                    "   format(convert(float,Isnull(cost,0)),'##,##0')'cost'," +
                     "   quantity" +
-                    "    from iteminfo"
+                    "   from iteminfo"
                 )
 
                 .then(result => {
@@ -1079,16 +1122,17 @@ module.exports = function (app) {
                 .input('modelname', sql.NVarChar, req.body.modelname)
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('size', sql.NVarChar, req.body.size)
-                .input('itemprice', sql.NVarChar, req.body.itemprice)
+                .input('itemprice', sql.Float, req.body.itemprice)
+                .input('itemcost', sql.Float, req.body.itemcost)
                 .input('quantity', sql.Int, req.body.quantity)
-                .input('price', sql.Int, req.body.price)
+                .input('price', sql.Float, req.body.price)
                 .input('salesorder', sql.NVarChar, req.body.accountdate)
                 .input('contentname', sql.NVarChar, req.body.contentname)
                 .input('countsum', sql.NVarChar, req.body.countsum)
                 .input('pricesum', sql.NVarChar, req.body.pricesum)
                 .query(
-                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum)' +
-                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum)'
+                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost)' +
+                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost)'
                 )
                 .then(result => {
 
@@ -1584,66 +1628,28 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/accountordering', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            console.log("11", req)
+ 
             return pool.request()
-                // .query(
-
-
-
-                //     " 	SELECT " +
-                //     "    T.deliverydate, " +
-                //     "    T.customer, " +
-                //     "    T.modelname, " +
-                //     "    T.itemname, " +
-                //     "    T.aQuantity, " +
-                //     "    T.iQuantity, " +
-                //     "    sum(T.oQuantity)'oQuantity', " +
-                //     "    T.possible " +
-                //     "    FROM " +
-                //     "    (SELECT " +
-                //     "    TB.deliverydate, " +
-                //     "    TB.customer, " +
-                //     "    tb.modelname, " +
-                //     "    tb.itemname, " +
-                //     "    tb.quantity as aQuantity, " +
-                //     "    case when tb.iQuantity is null then 0 else tb.iQuantity end as iQuantity, " +
-                //     "    case when o.quantity is null then 0 else o.quantity end as oQuantity, " +
-                //     "    case when (tb.QUANTITY)<=(tb.iQuantity+ o.quantity)  then '가능' else '부족' end as possible  " +
-                //     "    FROM " +
-                //     "        (	 " +
-                //     "            SELECT A.id, " +
-                //     "                   A.deliverydate, " +
-                //     "                   A.customer, " +
-                //     "                   A.MODELNAME, " +
-                //     "                   A.ITEMNAME, " +
-                //     "                   A.QUANTITY, " +
-                //     "                   i.quantity as iQuantity " +
-                //     "            FROM ITEMINPUT AS I " +
-                //     "                     RIGHT OUTER JOIN ACCOUNTINPUT AS A " +
-                //     "                                      ON I.itemname = A.itemname " +
-
-                //     "    )TB LEFT JOIN ORDERLIST AS O " +
-                //     "                                  ON TB.itemname = O.itemname) as T " +
-                //     "                                  group by 	T.deliverydate,	T.customer,	T.modelname,T.itemname,T.aQuantity,T.iQuantity,T.possible")
+             
                 .query(
                     "  WITH cte AS ( " +
                     "      SELECT " +
-                    "        a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno, " +
+                    "        a.orderid,a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno, " +
                     "        SUM(i.quantity) AS total_quantity, " +
                     "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num " +
                     "      FROM accountinput a " +
                     "      JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname  " +
-                    "      GROUP BY a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno " +
+                    "      GROUP BY a.orderid, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno " +
                     "    ), recursive_cte AS ( " +
                     "      SELECT " +
-                    "       deliverydate,customer,modelname, itemname, quantity, total_quantity, " +
+                    "       orderid,deliverydate,customer,modelname, itemname, quantity, total_quantity, " +
                     "          total_quantity - quantity AS difference, " +
                     "        row_num " +
                     "      FROM cte " +
                     "      WHERE row_num = 1 " +
                     "      UNION ALL  " +
                     "      SELECT " +
-                    "        c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity, " +
+                    "       c.orderid,c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity, " +
                     "        rc.difference - c.quantity AS difference, " +
                     "        c.row_num " +
                     "      FROM cte c " +
@@ -1652,7 +1658,7 @@ module.exports = function (app) {
                     "        AND c.itemname = rc.itemname  " +
                     "        AND c.row_num = rc.row_num + 1 " +
                     "    ) " +
-                    "    SELECT deliverydate,customer,modelname, itemname, quantity, difference, " +
+                    "    SELECT orderid,deliverydate,customer,modelname, itemname, quantity, difference, " +
                     "     case when (difference)>=0  then '가능' else '부족' end as possible  " +
                     "    FROM recursive_cte  "
                 )
@@ -2244,7 +2250,7 @@ module.exports = function (app) {
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('customer', sql.NVarChar, req.body.customer)
                 .input('size', sql.NVarChar, req.body.size)
-                .input('itemprice', sql.Int, req.body.itemprice)
+                .input('itemprice', sql.Float, req.body.itemprice)
 
 
 
@@ -2390,7 +2396,7 @@ module.exports = function (app) {
                 .input('modelname', sql.NVarChar, req.body.modelname)
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('size', sql.NVarChar, req.body.size)
-                .input('itemprice', sql.Int, req.body.itemprice)
+                .input('itemprice', sql.Float, req.body.itemprice)
 
 
 
