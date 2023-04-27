@@ -50,27 +50,37 @@
 
     <div class="popup" id="pop1">
         <a class="popup_title">자재 선택</a>
+        <!-- bomno,model,itemname,materialname,swidth,mwidth,savedate,status -->
+        <!-- <a  style="margin-right: 1400px;">모델명</a> -->
+        <input type="text" value="" id="amodel" style="text-align: center; width:500px">
+        <input type="text" value="" id="aitemname" style="text-align: center; margin-right: 900px;">
+
+
         <!-- <input type="button" class="close_button" value="닫기" onclick="modalClose()"> -->
         <button class="btn btn-primary" style="background-color: red; float: right; margin-top: -10px;"
             id="close_button" onclick="modalClose()"> 닫기 </button>
         <button class="btn btn-primary" style="background-color: blue; float: right; margin-top: -10px;"
-            id="close_button" onclick="addd()"> 저장 </button>
+            id="close_button" onclick="bomsave()"> 저장 </button>
         <!-- <hr> -->
         <hr>
         <div class="modal-header">
+
             <!-- <input type="button" onclick="sumsum()"> -->
+            <a>불량율(%)</a>
+            <input type="text" value="3" id="minus" style="text-align: center;">
             <a>Cavity</a>
-            <input type="text" value="" id="cavity" style="text-align: right;">
+            <input type="text" value="" id="cavity" style="text-align: center;">
             <a>1차피딩</a>
-            <input type="text" value="" id="onepid" style="text-align: right;">
+            <input type="text" value="" id="onepid" style="text-align: center;">
             <a>2차피딩</a>
-            <input type="text" value="" id="twopid" style="text-align: right;">
+            <input type="text" value="" id="twopid" style="text-align: center;">
             <a>D피딩</a>
-            <input type="text" value="" id="dpid" style="text-align: right;">
+            <input type="text" value="" id="dpid" style="text-align: center;">
             <a>1차계산</a>
-            <input type="text" value="" id="one" style="text-align: right;">
+            <input type="text" value="" id="one" style="text-align: center;">
             <a>2차계산</a>
-            <input type="text" value="" id="two" style="text-align: right;">
+            <input type="text" value="" id="two" style="text-align: center;">
+
         </div>
         <div class="pop_content" id="pop2" style="width:50%; float: left;">
             <div class="bomleft" style="width:100%; height: 00px; ">
@@ -81,7 +91,7 @@
                             <th>자재채번</th>
                             <th>분류</th>
                             <th>전폭</th>
-                  
+
                             <th></th>
                         </tr>
                     </thead>
@@ -152,7 +162,7 @@
                         <label>원단폭:</label>
                         <input type="text" class="form-control" id="materialwidth" required>
                     </div>
-               
+
 
 
                 </div>
@@ -231,6 +241,17 @@
     </div>
     <script type="text/javascript">
         // 시작부분
+        // 시작부분
+        var server = '';
+        console.log(window.location.hostname)
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+            // server = 'http://techonmes.co.kr';
+
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
         $(document).ready(function () {
 
 
@@ -258,7 +279,7 @@
 
             });
             $.ajax({
-                url: 'http://techonmes.co.kr/api/iteminfobom',
+                url: server + '/api/iteminfobom',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -306,7 +327,7 @@
                             {
                                 targets: 0, visible: false, searchable: false
                             },
-                         
+
                             {
                                 targets: 6, visible: false, searchable: false
                             },
@@ -398,7 +419,7 @@
             var onepid = parseInt($('#onepid').val())
             var twopid = parseInt($('#twopid').val())
             var dpid = parseInt($('#dpid').val())
-            var soyo = 1/(one + cavity)*(onepid+dpid+two)*0.001*1.03    
+            var soyo = 1 / (one + cavity) * (onepid + dpid + two) * 0.001 * 1.03
             var soyodata = soyo.toFixed(4);
 
             $('#abcd1').append(
@@ -459,88 +480,7 @@
             alert("삭제가 완료 되었습니다.");
 
 
-            $.ajax({
-                url: 'http://techonmes.co.kr/api/accountmanagement',
-                method: 'post',
-                dataType: 'json',
-                success: function (data) {
-                    $('#fileinfo').DataTable({
-                        deferLoading: [0, 10],
-                        paging: true,
-                        destroy: true,
-                        sort: true,
-                        pageLength: 10,
-                        searching: true,
-                        data: data,
-                        responsive: true,
-                        columnResize: true,
-                        processing: true,
-                        columns: [
-                            { "data": "id" },
-                            { "data": "accountcode" },
-                            { "data": "accountname" },
-                            { "data": "representativename" },
-                            { "data": "phone" },
-                            { "data": "adress" },
-
-                        ],
-
-                        dom: 'flrtBip',
-
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
-
-                        columnDefs: [
-                            {
-                                targets: 0, visible: false, searchable: false
-                            },
-                            {
-                                targets: 6,
-                                data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                width: 50
-                            },
-                            {
-                                targets: 7,
-                                data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
-                            }
-
-                        ],
-
-                        language: {
-                            emptyTable: "데이터가 없습니다.",
-                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                            info: "현재 _START_ - _END_ / _TOTAL_건",
-                            infoEmpty: "데이터 없음",
-                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                            search: "검색:",
-                            zeroRecords: "일치하는 데이터가 없습니다.",
-                            loadingRecords: "로딩중...",
-                            processing: "잠시만 기다려 주세요.",
-                            paginate: {
-                                next: "다음",
-                                previous: "이전"
-                            }
-                        },
-
-
-                    });
-                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
-                    $('.sorting').css('text-align', 'center');
-                },
-                error: function () {
-                    alert("다시 시도해 주십시요.");
-                },
-
-                complete: setTimeout(function () {
-                    const loadingScreen = document.getElementById("loading-screen");
-                    loadingScreen.style.display = "none";
-                }, 1500)
-            });
+           
 
         }
 
@@ -595,6 +535,7 @@
 
         });
 
+
         $('#fileinfo').on('click', '#openModaledit1', function () {
             table1 = $('#fileinfo').DataTable();
             var data1 = table1.row($(this).parents('tr')).data(); // getting 
@@ -620,19 +561,22 @@
             var two = td.eq(12).text();
             var cavity = td.eq(7).text();
 
-            $('#onepid').val(onepid);
-            $('#twopid').val(twopid);
-            $('#dpid').val(dpid);
-            $('#one').val(one);
-            $('#two').val(two);
-            $('#cavity').val(cavity);
+            $('#onepid').val(data1.onepidding);
+            $('#twopid').val(data1.twopidding);
+            $('#dpid').val(data1.dpidding);
+            $('#one').val(data1.one);
+            $('#two').val(data1.two);
+            $('#cavity').val(data1.cavity);
+            $('#amodel').val(data1.modelname);
+            $('#aitemname').val(data1.itemname);
+            // $('#minus').val(data1.minus);
 
             console.log(bomno1)
 
 
             $.ajax({
                 type: 'POST',
-                url: "http://techonmes.co.kr/api/materialbase"
+                url: server + '/api/materialbase'
             }).done(function (d) {
 
                 table = $('#abcd').DataTable({
@@ -714,7 +658,7 @@
             $('#abcd1 > tbody').empty();
             $.ajax({
                 type: 'POST',
-                url: 'http://techonmes.co.kr/api/bommanagement1',
+                url: server + '/api/bommanagement1',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -846,12 +790,107 @@
             var onepid = parseInt($('#onepid').val())
             var twopid = parseInt($('#twopid').val())
             var dpid = parseInt($('#dpid').val())
-            var soyo = 1/(one + cavity)*(onepid+dpid+two)*0.001*1.03    
+            var soyo = 1 / (one + cavity) * (onepid + dpid + two) * 0.001 * 1.03
             var data = soyo.toFixed(4);
-          
-       
-         
+
+
+
             console.log(data)
+        }
+    </script>
+    <script>
+        function bomsave() {
+            if (confirm("BOM 정보를 저장 하시겠습니까??") == true) {
+
+
+               
+
+
+                const $table = document.getElementById('abcd1'); // table 엘리먼트 취득
+
+                console.log($table.rows.length);  // 3, 행 갯수 출력
+
+                const trGroup = Array.from(document.querySelectorAll('#abcd1 tr'));
+
+                const textGroup = trGroup.map(tr => {
+                    return Array.from(tr.children).map(input => input.textContent);
+                });
+                var today = new Date();
+                var now = new Date();	// 현재 날짜 및 시간
+                var year = today.getFullYear();
+                var month = ('0' + (today.getMonth() + 1)).slice(-2);
+                var day = ('0' + today.getDate()).slice(-2);
+                var hours = now.getHours();	// 시간
+                var minutes = now.getMinutes();	// 분
+                var seconds = now.getSeconds();	// 초
+
+                var bomno = textGroup[1][1];
+                $.ajax({
+                    // bomno,,,,,,,
+                    type: 'POST',
+                    url: server + '/api/falsebom',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "bomno": bomno,
+                        "status": 'false',
+                  
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                    }
+                })
+
+
+                for (var i = 0; i < $table.rows.length - 2; i++) {
+
+
+
+                    var model = $('#amodel').val();
+                    var itemname = $('#aitemname').val();
+                    var bomno = textGroup[i + 1][1];
+                    var materialname = textGroup[i + 1][2];
+                    var swidth = textGroup[i + 1][3];
+                    var mwidth = textGroup[i + 1][4];
+
+
+                    $.ajax({
+                        // bomno,,,,,,,
+                        type: 'POST',
+                        url: server + '/api/updatebom',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+
+                            "bomno": bomno,
+                            "model": model,
+                            "itemname": itemname,
+                            "materialname": materialname,
+                            "swidth": swidth,
+                            "mwidth": mwidth,
+                            "savedate": year + '-' + month + '-' + day,
+                            "status": "true"
+
+                        }),
+                        success: function (result) {
+                            console.log(result)
+                        }
+                    })
+
+                }
+
+                alert("저장이 완료 되었습니다.");
+
+                $('#pop1').css("display", "none");
+
+
+
+
+            } else {
+                return false;
+            }
         }
     </script>
 

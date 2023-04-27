@@ -217,6 +217,9 @@ app.get("/finalpercent", cors(), (req, res) => {
 app.get("/bomchange", cors(), (req, res) => {
     res.sendFile(__dirname + "/bomchange.html");
 });
+app.get("/productorderlist3", cors(), (req, res) => {
+    res.sendFile(__dirname + "/startproduct.html");
+});
 
 
 app.get("/jquery.min.js", cors(), (req, res) => {
