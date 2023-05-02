@@ -10,11 +10,12 @@
     <title>BOM관리</title>
     <link rel="stylesheet" href="/css/bompopup.css">
     <link rel="stylesheet" href="/css/accountinformation.css">
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <!-- <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css"> -->
     <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
@@ -41,12 +42,39 @@
 
 </head>
 <style>
+    /* 모달 창 스타일 */
+
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 90%;
+        height: 80%;
+        border-radius: 10px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
     #myInput {
         padding: 10px;
         border: 2px solid #ccc;
         border-radius: 4px;
         font-size: 16px;
-        height: 20px;
+        height: 10px;
     }
 
     .myLink {
@@ -56,18 +84,50 @@
         text-decoration: none;
         font-size: 16px;
         border-radius: 4px;
-    }
-    table {
-        border-collapse: collapse;
+
     }
 
-    td {
+    /* 모달 창 스타일 */
+    .modal3 {
+        display: none;
+        /* 초기에는 모달 창을 숨깁니다. */
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .dataTables_length {
+        display: none;
+    }
+
+    .modal3-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%;
+        height: 30%;
+        border-radius: 10px;
+        border-color: black;
+    }
+
+    /* table {
+        border-collapse: collapse;
+    } */
+
+    /* td {
         border: 0.1px solid black;
         padding: 10px;
         text-align: center;
         vertical-align: middle;
         width: 190px;
-    }
+    } */
 
     td:nth-child(2) {
         position: relative;
@@ -85,108 +145,268 @@
         bottom: 0;
         right: 0;
         width: 95%;
-    /* } */}
+        /* } */
+    }
+
+    #tool {
+        width: 100%;
+        padding: 4px 4px;
+        border: none;
+        border-radius: 4px;
+        background-color: white;
+    }
 </style>
+
 
 
 <body>
 
-
-
     <div class="popup" id="pop1">
         <a class="popup_title">자재 선택</a>
-        <!-- bomno,model,itemname,materialname,swidth,mwidth,savedate,status -->
-        <!-- <a  style="margin-right: 1400px;">모델명</a> -->
-        <input type="text" value="" id="amodel" style="text-align: center; width:500px">
-        <input type="text" value="" id="aitemname" style="text-align: center; margin-right: 900px;">
+        <!-- <button onclick="calcSum()"></button> -->
 
 
         <!-- <input type="button" class="close_button" value="닫기" onclick="modalClose()"> -->
-        <button class="btn btn-primary" style="background-color: red; float: right; margin-top: -10px;"
-            id="close_button" onclick="modalClose()"> 닫기 </button>
-        <button class="btn btn-primary" style="background-color: blue; float: right; margin-top: -10px;"
-            id="close_button" onclick="bomsave()"> 저장 </button>
+        <button class="btn btn-primary"
+            style="background-color: red; float: right; margin-top: -10px; margin-right:10px;" id="close_button"
+            onclick="modalClose()"> 닫기 </button>
+        <!-- <button class="btn btn-primary"
+            style="background-color: blue; float: right; margin-top: -10px; margin-left:10px;" id="close_button"
+            onclick="bomsave()"> 저장 </button> -->
         <!-- <hr> -->
         <hr>
-        <div class="modal-header">
-            <a class="myLink">모델명</a>
-            <input type="text" id="myInput">
 
-            <a class="myLink">제품명</a>
-            <input type="text" id="myInput">
 
-            <!-- <input type="button" onclick="sumsum()"> -->
-            <a>불량율(%)</a>
-            <input type="text" value="3" id="minus" style="text-align: center;">
-            <a>Cavity</a>
-            <input type="text" value="" id="cavity" style="text-align: center;">
-            <a>1차피딩</a>
-            <input type="text" value="" id="onepid" style="text-align: center;">
-            <a>2차피딩</a>
-            <input type="text" value="" id="twopid" style="text-align: center;">
-            <a>D피딩</a>
-            <input type="text" value="" id="dpid" style="text-align: center;">
-            <a>1차계산</a>
-            <input type="text" value="" id="one" style="text-align: center;">
-            <a>2차계산</a>
-            <input type="text" value="" id="two" style="text-align: center;">
+        <div style="width: 99%; height: 86px; margin-top: 0px; border: 1px solid navy; ">
 
-        </div>
-        <div class="pop_content" id="pop2" style="width:50%; float: left;">
-            <div class="bomleft" style="width:100%; height: 00px; ">
-                <table id="abcd" class="display" style="width:100%">
-                    <thead>
+
+            <div style="width: 99.9%; height: 100%;">
+                <div style="width: 50%; height: 100%;  float: left;">
+                    <table id="">
                         <tr>
-                            <th>자재명</th>
-                            <th>자재채번</th>
-                            <th>분류</th>
-                            <th>전폭</th>
-
-                            <th></th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
-        <div class="pop_content" id="pop2" style="width:50%; margin-top: 39px; float :right;">
-            <div class="bomleft" style="width:100%; height: 500px; ">
-                <table id="abcd1" class="display" style="width:100%">
-                    <thead style="background-color:#000080;font-weight:bold;color:#FFFFFF;">
-                        <tr>
-                            <th style="width: 20px;"></th>
-                            <th style="text-align: center;">BOMNO.</th>
-                            <th style="text-align: center;">자재명</th>
-                            <th style="text-align: center;">원단폭(mm)</th>
-                            <th style="text-align: center;">1개소요량(M)</th>
-                            <th></th>
+                            <td style="width:200px">모델명:</td>
+                            <td><input type="text" id="modelname"></td>
 
                         </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                    <!-- table tfoot -->
-                    <tfoot style="background-color:#d4d4d4;">
                         <tr>
-                            <td colspan="6" style="text-align:center;">
-
-                                <input type="button" onClick="rowMoveEvent('up');" value="▲" style="width:50px;" />
-
-                                &nbsp;&nbsp;
-
-                                <input type="button" onClick="rowMoveEvent('down');" value="▼" style="width:50px;" />
-
-                            </td>
+                            <td>품목명:</td>
+                            <td><input type="text" id="partname"></td>
 
                         </tr>
-                    </tfoot>
-                </table>
+                    </table>
+
+                </div>
+                <div style="width: 50%; height: 100%;  float: right;">
+                    <table id="">
+                        <tr>
+                            <td style="width:200px">원가(원):</td>
+                            <td><input type="text" id="cost"></td>
+
+                        </tr>
+                        <tr>
+                            <td>재료비(%):</td>
+                            <td><input type="text" id="percent"></td>
+
+                        </tr>
+                    </table>
+
+                </div>
+
             </div>
 
-
         </div>
 
+        <div style="width: 25%; height: 535px;  border: 1px solid navy;  float: left; ">
+            <div style="width: 100%; height: 6%;  border: 1px solid rgb(112, 112, 112);  background-color: #4d4a4a;">
+                <a
+                    style="margin-top:5px; font-size:20px; display: flex; justify-content: center; align-items: center; color: white;">제품상세정보</a>
+            </div>
+            <table>
+                <tr>
+                    <td>Customer</td>
+                    <td><input type="text" id="customer"></td>
+                </tr>
+                <tr>
+                    <td>BOM NO.</td>
+                    <td><input type="text" id="bomno"></td>
+                </tr>
+                <tr>
+                    <td>Customer Code</td>
+                    <td><input type="text" id="customercode"></td>
+                </tr>
+                <tr>
+                    <td>공용 Code</td>
+                    <td><input type="text" id="allcode"></td>
+                </tr>
+                <tr>
+                    <td>작업차수</td>
+                    <td>
+                        <select name="workOrder" style="width: 100%;" id="tool">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                        </select>
+                        <!-- <select name="workOrder" size="1">
+                            <option value="1">1차 작업</option>
+                            <option value="2">2차 작업</option>
+                            <option value="3">3차 작업</option>
+                            <optgroup label="기타">
+                              <option value="4">직접 입력</option>
+                            </optgroup>
+                          </select>
+                          <input type="text" name="workOrderInput" style="display:none;"> -->
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>작업방식</td>
+                    <td><input type="text" id="toolmain"></td>
+                </tr>
+                <tr>
+                    <td>Cavity</td>
+                    <td><input type="text" id="cavity"></td>
+                </tr>
+                <tr>
+                    <td>1차피딩(mm)</td>
+                    <td><input type="text" id="onepid"></td>
+                </tr>
+                <tr>
+                    <td>2차피딩(mm)</td>
+                    <td><input type="text" id="twopid"></td>
+                </tr>
+                <tr>
+                    <td>Loss율(%)</td>
+                    <td><input type="text" id="loss"></td>
+                </tr>
+                <tr>
+                    <td>2차피딩계산용1</td>
+                    <td><input type="text" id="twopid1"></td>
+                </tr>
+                <tr>
+                    <td>2차피딩계산용1</td>
+                    <td><input type="text" id="twopid2"></td>
+                </tr>
+
+            </table>
+        </div>
+        <div style="width: 20%; height: 535px;  border: 1px solid navy;  float: left; ">
+            <div style="width: 100%; height: 6%;  border: 1px solid rgb(112, 112, 112);  background-color: #4d4a4a;">
+                <a
+                    style="margin-top:5px; font-size:20px; display: flex; justify-content: center; align-items: center; color: white;">원자재기초정보</a>
+            </div>
+            <table id="abcd" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>자재명</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div style="width: 54%; height: 535px;  border: 1px solid navy;  float: left; ">
+            <div style="width: 100%; height: 6%;  border: 1px solid rgb(112, 112, 112);  background-color: #4d4a4a;">
+                <a
+                    style="margin-top:5px; font-size:20px; display: flex; justify-content: center; align-items: center; color: white;">BOM소요정보</a>
+            </div>
+            <table id="abcd1" class="display" style="width:100%">
+                <thead style="background-color:#0b0b0e;font-weight:bold;color:#FFFFFF;">
+                    <tr>
+                        <th style="width: 20px;"></th>
+                        <!-- <th style="text-align: center;">BOMNO.</th> -->
+                        <th style="text-align: center; width: 400px;">자재명</th>
+                        <th style="text-align: center;">원단폭(mm)</th>
+                        <th style="text-align: center;">소요량(SQM)</th>
+                        <th style="text-align: center;">D피딩(mm)</th>
+                        <th style="text-align: center;">원가(원)</th>
+                        <th></th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+                <!-- table tfoot -->
+                <tfoot style="background-color:#d4d4d4;">
+                    <tr>
+                        <td colspan="8" style="text-align:center;">
+
+                            <input type="button" onClick="rowMoveEvent('up');" value="▲" style="width:50px;" />
+
+                            &nbsp;&nbsp;
+
+                            <input type="button" onClick="rowMoveEvent('down');" value="▼" style="width:50px;" />
+
+                        </td>
+
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <!-- <div style="width: 99%; height: 330px;  border: 1px solid navy;  float: left; ">
+            <div style="width: 100%; height: 40px;  border: 1px solid rgb(112, 112, 112);  background-color: #4d4a4a;">
+                <a
+                    style="margin-top:5px; font-size:20px; display: flex; justify-content: center; align-items: center; color: white;">제품상세정보2</a>
+            </div>
+            <table>
+                <tr style="height: 10px; width: 200px;">
+                    <td >작업차수</td>
+                    <td style="width: 20px;">1차</td>
+                    <td>2차</td>
+                    <td>3차</td>
+                    <td>4차</td>
+                    <td>5차</td>    
+                    <td>6차</td>
+                </tr>
+                <tr>
+                    <td style="height: 10px;">TOOL1</td>
+                    <td><input type="text" id="customer"></td>
+                </tr>
+                <tr>
+                    <td style="height: 10px;">TOOL NO.</td>
+                    <td><input type="text" id="customer"></td>
+                    
+                </tr>
+                <tr>
+                    <td style="height: 10px;">TOOL2</td>
+                    <td><input type="text" id="customer"></td>
+                </tr>
+                <tr>
+                    <td style="height: 10px;">TOOL NO.</td>
+                    <td><input type="text" id="customer"></td>
+                </tr>
+                <tr>
+                    <td style="height: 10px;">Equipment</td>
+                    <td><input type="text" id="customer"></td>
+                </tr>
+                <tr>
+                    <td style="height: 10px;">function</td>
+                    <td><input type="text" id="customer"></td>
+                </tr>
+             
+            </table>
+        </div> -->
     </div>
+
+
+
 
 
     <!-- 모달수정창 -->
@@ -194,12 +414,12 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">상세입력</h4>
+                    <h4 class="modal-title" id="myModalLabel">소요 자재 추가</h4>
 
 
                 </div>
-
-                <div class="modal-body">
+                <!-- <input type="text" id="sqmprice-save" > -->
+                <!-- <div class="modal-body">
                     <div class="form-group">
                         <label>BOMNO.:</label>
                         <input type="text" class="form-control" id="bomnum" required>
@@ -215,7 +435,26 @@
 
 
 
-                </div>
+                </div> -->
+                <table>
+                    <tr>
+                        <td style="width:150px">자재명</td>
+                        <td><input type="text" id="materialname-save"></td>
+                    </tr>
+                    <tr>
+                        <td>자재폭(mm)</td>
+                        <td><input type="text" id="materialwidth-save"></td>
+                    </tr>
+                    <tr>
+                        <td>D피딩(mm)</td>
+                        <td><input type="text" id="dpidding-save" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>SQM단가(원)</td>
+                        <td><input type="text" id="sqmprice-save" readonly></td>
+                    </tr>
+
+                </table>
                 <div class="modal-footer">
                     <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
                     <input type="button" data-dismiss="modal" id="add" class="btn btn-success" value="추가">
@@ -253,8 +492,11 @@
         </p>
     </div>
     <div style="width:100%; height:40px; border: 1px solid black;">
-        <button type="button" class="btn btn-primary" id="openModal" style="margin-top:2px; width: 100px; height: 90%;">
+        <button type="button" class="btn btn-primary" id="newbtn" onclick="newbtn()"
+            style="margin-top:2px; width: 100px; height: 90%;">
             신규등록 </button>
+        <!-- <button type="button" class="btn btn-primary" id="ss" style="margin-top:2px; width: 100px; height: 90%;">
+                신규등록 </button> -->
     </div>
 
     <div style="border: 1px solid whitesmoke;">
@@ -280,7 +522,7 @@
                     <th>수정날짜</th>
                     <th></th>
                     <th></th>
-                    <th></th>
+                    <!-- <th></th> -->
                 </tr>
             </thead>
             <tbody>
@@ -308,18 +550,24 @@
         $(document).ready(function () {
 
 
+            // $('#abcd').on('click', '#openModaledit2', function () {
+
+            //     table1 = $('#abcd').DataTable();
+            //     var data1 = table1.row($(this).parents('tr')).data(); // getting 
+            //     $('#bomnum').val('#bomno');
+            //     $('#materialname').val(data1.materialname);
+
+
+            //     // $("#edit").modalShow()
+            //     // $("#edit").modal();
+
+            // });
+
             // 로딩 창을 보이게 한다
             const loadingScreen = document.getElementById("loading-screen");
             loadingScreen.style.display = "block";
 
-            $("#openModal").click(function () {
-                $("#accountcode-save").val('');
-                $("#accountname-save").val('');
-                $("#accountrepresentname-save").val('');
-                $("#phone-save").val('');
-                $("#adress-save").val('');
-                $("#myModal").modal();
-            });
+
 
 
 
@@ -411,15 +659,9 @@
                                 defaultContent: '<button id="openModaledit1" class="btn btn-primary" > 상세 </button>',
                                 width: 50
                             },
+
                             {
                                 targets: 18,
-                                data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" style="background-color:green;"  > 수정 </button>',
-
-                                width: 50
-                            },
-                            {
-                                targets: 19,
                                 data: null,
                                 defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
 
@@ -466,30 +708,44 @@
 
         function add() {
 
-            var one = parseInt($('#one').val())
-            var two = parseInt($('#two').val())
+            var one = parseInt($('#onepid').val())
+            var two = parseInt($('#twopid').val())
             var cavity = parseInt($('#cavity').val())
-            var onepid = parseInt($('#onepid').val())
-            var twopid = parseInt($('#twopid').val())
-            var dpid = parseInt($('#dpid').val())
-            var soyo = 1 / (one + cavity) * (onepid + dpid + two) * 0.001 * 1.03
-            var soyodata = soyo.toFixed(4);
+            var onepid = parseInt($('#twopid1').val())
+            var twopid = parseInt($('#twopid2').val())
+            var dpid = parseInt($('#dpidding-save').val())
+            var sqm = parseInt($('#sqmprice-save').val())
 
+
+            // 1/(CV+2차계산1)*((1차피딩+D피딩)+2차계산2)*0.001*1.03
+            var soyo = 1 / (cavity + onepid) * (one + dpid + twopid) * 0.001 * 1.03
+            var soyodata = soyo.toFixed(2);
+            var costdata = soyodata * sqm
+            var cost = costdata.toFixed(2);
             $('#abcd1').append(
                 '<tr>' +
 
+                // <tr>
+                //         <td style="width:200px">원가(원):</td>
+                //         <td><input type="text" id="cost"></td>
+
+                //     </tr>
+
                 '<td><input type="radio" class="chkRadio" name="chkRadio"  onClick="checkeRowColorChange(this);"></td>' +
-                '<td>' + $('#bomnum').val() + '</td>' + //
-                '<td>' + $('#materialname').val() + '</td>' +
-                '<td class="alRight">' + $('#materialwidth').val() + '</td>' + //
+                // '<td>' + $('#bomnum').val() + '</td>' + //
+                '<td>' + $('#materialname-save').val() + '</td>' +
+                '<td class="alRight">' + $('#materialwidth-save').val() + '</td>' + //
                 '<td class="alRight">' + soyodata + '</td>' +
-                '<td style="text-align:center width:100px;"> <button class="btn btn-primary" style="background-color:red;"> 삭제 </button></td>' +
+                '<td class="alRight">' + $('#dpidding-save').val() + '</td>' +
+                '<td class="alRight" id="costsum">' + cost + '</td>' +
+                '<td style="text-align:center width:80px;"> <button class="btn btn-primary" style="background-color:red;"> 삭제 </button></td>' +
 
                 '</tr>'
             )
             // $('#abcd').css("display", "none");
-
-
+            var costa =  $('#cost').val()
+            var costsum = parseFloat($('#cost').val()) + parseFloat(cost)
+                $('#cost').val(costsum)
         }
 
 
@@ -568,31 +824,114 @@
         }
 
 
-        $('#abcd').on('click', '#openModaledit2', function () {
-            // var str = "";
-            // var tdArr = new Array();// 배열 선언            
-            // var checkBtn = $(this);
+        function newbtn() {
+            $("#modelname").val('');
+            $("#partname").val('');
+            $("#cost").val('');
+            $("#percent").val('');
+            $("#customer").val('');
+            $("#bomno").val('');
+            $("#customercode").val('');
+            $("#allcode").val('');
+            $("#tool").val('1');
+            $("#toolmain").val('');
+            $("#cavity").val('');
+            $("#onepid").val('');
+            $("#twopid").val('');
+            $("#loss").val('3');
+            $("#twopid1").val('');
+            $("#twopid2").val('');
 
-            // var tr = checkBtn.parent().parent();
-            // var td = tr.children();
+            $('#abcd1 > tbody').empty();
+            $('.popup').css("display", "block");
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/materialbase'
+            }).done(function (d) {
 
-            // var mateiralname = td.eq(1).text();
+                table = $('#abcd').DataTable({
+                    deferLoading: [0, 10],
+                    paging: true,
+                    destroy: true,
+                    sort: true,
+                    pageLength: 6,
+                    searching: true,
+                    data: d,
+                    responsive: true,
+                    columnResize: true,
 
-            table1 = $('#abcd').DataTable();
-            var data1 = table1.row($(this).parents('tr')).data(); // getting 
+                    processing: true,
 
-            $('#materialname').val(data1.materialname);
+                    // dom: 'Bfrtip',
+
+                    "columns": [
+
+                        { "data": "materialname" },
+                        { "data": "sqmprice" }
+
+                    ],
+                    columnDefs: [
+
+                        {
+                            targets: 1,
+                            data: null,
+                            defaultContent: '<button id="btnadd" class="btn btn-primary" > 추가 </button>',
+                            className: 'alCenter',
+                            // width: 50
+
+                        },
+                        {
+                            targets: 0,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 2,
+                            visible: false
+                        },
 
 
-            $("#edit").modal();
+                    ],
+                    rowCallback: function (row, data) {
+                        $(row).find('td:eq(4)').addClass('text-center');
+                    },
 
-        });
+                    //언어 변경
+                    "language": {
+                        emptyTable: "데이터가 없습니다.",
+                        lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                        info: "현재 _START_ - _END_ / _TOTAL_건",
+                        infoEmpty: "데이터 없음",
+                        infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                        search: "검색:",
+                        zeroRecords: "일치하는 데이터가 없습니다.",
+                        loadingRecords: "로딩중...",
+                        processing: "잠시만 기다려 주세요.",
+                        paginate: {
+                            next: "다음",
+                            previous: "이전",
+                        },
+                    },
 
+                }
+                );
+            })
+        }
 
         $('#fileinfo').on('click', '#openModaledit1', function () {
             table1 = $('#fileinfo').DataTable();
             var data1 = table1.row($(this).parents('tr')).data(); // getting 
-            $('#bomnum').val(data1.bomno);
+            // $('#bomnum').val(data1.bomno);
+            $('#bomno').val(data1.bomno);
+            $('#modelname').val(data1.modelname);
+            $('#partname').val(data1.itemname);
+            $('#customer').val(data1.customer);
+            $('#customercode').val(data1.rev);
+            $('#twopid1').val(data1.one);
+            $('#twopid2').val(data1.two);
+            $('#toolmain').val(data1.working);
+            $('#loss').val('3');
+            $('#cost').val('0');
+            $('#percent').val('0');
 
             $('.popup').css("display", "block");
             var editor; // use a global for the submit and return data rendering in the examples
@@ -637,7 +976,7 @@
                     paging: true,
                     destroy: true,
                     sort: true,
-                    pageLength: 10,
+                    pageLength: 6,
                     searching: true,
                     data: d,
                     responsive: true,
@@ -650,17 +989,16 @@
                     "columns": [
 
                         { "data": "materialname" },
-                        { "data": "codenumber" },
-                        { "data": "classification" },
-                        { "data": "fullwidth" },
+                        { "data": "sqmprice" }
+
 
                     ],
                     columnDefs: [
 
                         {
-                            targets: 4,
+                            targets: 2,
                             data: null,
-                            defaultContent: '<button id="openModaledit2" class="btn btn-primary" > 추가 </button>',
+                            defaultContent: '<button id="btnadd" class="btn btn-primary" > 추가 </button>',
                             className: 'alCenter'
 
                         },
@@ -669,13 +1007,9 @@
                             className: 'alLeft'
                         },
                         {
-                            targets: 1,
-                            className: 'alLeft'
+                            targets: 1, visible: false, searchable: false
                         },
-                        {
-                            targets: 2,
-                            className: 'alLeft'
-                        },
+
 
                     ],
                     rowCallback: function (row, data) {
@@ -732,11 +1066,12 @@
                             '<tr>' +
 
                             '<td><input type="radio" class="chkRadio" name="chkRadio"  onClick="checkeRowColorChange(this);"></td>' +
-                            '<td>' + data[i].bomno + '</td>' + //
                             '<td>' + data[i].materialname + '</td>' +
                             '<td class="alRight">' + data[i].swidth + '</td>' + //
                             '<td class="alRight">' + data[i].mwidth + '</td>' +
-                            '<td style="text-align:center width:100px;"> <button class="btn btn-primary" style="background-color:red;"> 삭제 </button></td>' +
+                            '<td class="alRight">' + 0 + '</td>' +
+                            '<td class="alRight">' + data[i].cost + '</td>' +
+                            '<td style="text-align:center width:100px;"> <button class="btn btn-primary" id="alCenter" style="background-color:red;"> 삭제 </button></td>' +
 
                             '</tr>'
 
@@ -944,6 +1279,50 @@
             } else {
                 return false;
             }
+        }
+    </script>
+    <script>
+        $('#abcd').on('click', '#btnadd', function () {
+            // var str = "";
+            // var tdArr = new Array();// 배열 선언            
+            // var checkBtn = $(this);
+
+            // var tr = checkBtn.parent().parent();
+            // var td = tr.children();
+
+            // var mateiralname = td.eq(1).text();
+            // if ($('.bomno').text().trim() !== '') {
+            //     table1 = $('#abcd').DataTable();
+            //     var data1 = table1.row($(this).parents('tr')).data();
+            //     $('#materialname').val(data1.materialname);
+            //     $("#edit").modal();
+            // } else {
+            //     alert('BOMNO.를 입력바랍니다.');
+            // }
+
+            table1 = $('#abcd').DataTable();
+            var data1 = table1.row($(this).parents('tr')).data();
+
+            $('#sqmprice-save').val(data1.sqmprice);
+            $('#materialname-save').val(data1.materialname);
+            $('#materialwidth-save').val('');
+
+            $("#edit").modal();
+
+            $('#materialwidth-save').focus();
+
+        });
+    </script>
+    <script>
+        function calcSum() {
+            var table = document.getElementById("abcd1"), sumVal = 0;
+
+            for (var i = 1; i < table.rows.length; i++) {
+                sumVal = sumVal + parseInt(table.rows[i].cells[4]);
+            }
+
+
+            console.log(sumVal);
         }
     </script>
 

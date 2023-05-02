@@ -461,7 +461,7 @@ module.exports = function (app) {
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .query(
 
-                    " SELECT  bomno,materialname,swidth,mwidth " +
+                    " SELECT  bomno,materialname,swidth,mwidth,cost " +
                     "  FROM bommanagement " +
                     "  WHERE  bomno=@bomno and status='true' ")
 
