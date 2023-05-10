@@ -148,6 +148,9 @@ app.get("/materialsoyo", cors(), (req, res) => {
 app.get("/materialoptiongroup", cors(), (req, res) => {
     res.sendFile(__dirname + "/materialsoyo.html");
 });
+app.get("/materialoptiongroup", cors(), (req, res) => {
+    res.sendFile(__dirname + "/materialstock.html");
+});
 app.get("/houseupdatedata", cors(), (req, res) => {
     res.sendFile(__dirname + "/house.html");
 });
@@ -219,6 +222,42 @@ app.get("/bomchange", cors(), (req, res) => {
 });
 app.get("/productorderlist3", cors(), (req, res) => {
     res.sendFile(__dirname + "/startproduct.html");
+});
+app.get("/iteminfoinsertdata", cors(), (req, res) => {
+    res.sendFile(__dirname + "/bominformation2.html");
+});
+app.get("/updatebominput", cors(), (req, res) => {
+    res.sendFile(__dirname + "/bominformation2.html");
+});
+app.get("/updateinspectionmaterial", cors(), (req, res) => {
+    res.sendFile(__dirname + "/inspection.html");
+});
+app.get("/startproduct", cors(), (req, res) => {
+    res.sendFile(__dirname + "/startproduct.html");
+});
+app.get("/finishproduct", cors(), (req, res) => {
+    res.sendFile(__dirname + "/startproduct.html");
+});
+app.get("/inspectionset", cors(), (req, res) => {
+    res.sendFile(__dirname + "/inspection.html");
+});
+app.get("/inputalltest", cors(), (req, res) => {
+    res.sendFile(__dirname + "/startproduct.html");
+});
+app.get("/selectalltest", cors(), (req, res) => {
+    res.sendFile(__dirname + "/finalinspection.html");
+});
+app.get("/startinspection", cors(), (req, res) => {
+    res.sendFile(__dirname + "/finalinspection.html");
+});
+app.get("/finishinspection", cors(), (req, res) => {
+    res.sendFile(__dirname + "/finalinspection.html");
+});
+app.get("/insertalltest", cors(), (req, res) => {
+    res.sendFile(__dirname + "/alltest.html");
+});
+app.get("/inputitemstock", cors(), (req, res) => {
+    res.sendFile(__dirname + "/finalinspection.html");
 });
 
 

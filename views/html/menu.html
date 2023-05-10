@@ -7,136 +7,253 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<link rel="stylesheet" href="/css/menu.css">
+<!-- <link rel="stylesheet" href="/css/menu.css"> -->
 
 
 <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+<style>
+    /* 전체 스타일 */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* 바디 스타일 */
+    body {
+        background-color: #f2f2f2;
+    }
+
+    /* 메뉴 스타일 */
+    #menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 200px;
+        padding: 10px;
+        background-color: #fff;
+        box-shadow: 5px 0 5px -5px rgba(0, 0, 0, 0.5);
+
+
+    }
+
+    /* 메뉴 타이틀 스타일 */
+    .menu-title {
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: navy;
+        margin-bottom: 10px;
+    }
+
+    /* 메뉴 목록 스타일 */
+    .menu-list {
+        list-style: none;
+        margin-bottom: 10px;
+    }
+
+    /* 메뉴 아이템 스타일 */
+    .menu-item {
+        padding: 10px;
+        /* transition: background-color 0.1s ease-in-out; */
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    /* 메뉴 아이템 호버 스타일 */
+    .menu-item:hover {
+        background-color: navy;
+        color: #fff;
+    }
+
+    /* 서브메뉴 스타일 */
+    .submenu {
+        list-style: none;
+        padding: 0;
+        margin-left: 20px;
+        display: none;
+    }
+
+    /* 서브메뉴 아이템 스타일 */
+    .submenu-item {
+        padding: 5px 10px;
+        /* transition: background-color 0.3s ease-in-out; */
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    /* 서브메뉴 아이템 호버 스타일 */
+    .submenu-item:hover {
+        background-color: rgb(98, 98, 177);
+        color: #fff;
+    }
+
+    /* 서브메뉴 보이기 스타일 */
+    .show {
+        display: block;
+    }
+
+    .mainbar {
+        position: relative;
+        width: 100%;
+        height: 40px;
+        background-color: #bcd6f8;
+        left: 200px;
+        text-align: left;
+        color: black;
+        font-size: 14px;
+        font-family: 'Noto Sans KR', sans-serif;
+        /* border: 1px solid black;  */
+    }
+
+    #loadHtml {
+        position: relative;
+        width: 90.5%;
+        height: 100%;
+        left: 205px;
+    }
+
+   
+</style>
 
 <body>
-    <div
+    <div>
+        <div class="mainbar">
+            <img src="/img/테크온로고.PNG" style="width: 100px; height: 40px; float: left; ;" id="img_logo"
+                onclick="mainHtml()">
+            <a id="mainname" style="margin-left: 20px; font-size: 25px;">Techon Mes System</a>
+        </div>
+        <div id="menu">
+            <div class="menu-title">Techon MES MENU</div>
+            <ul class="menu-list">
+                <li class="menu-item" onclick="toggleSubMenu('submenu-1')">
+                    <img src="/img/폴더이미지.PNG" style="width:15px;" class="folder-icon">
+                    기초정보 ▶
+                </li>
+                <ul class="submenu" id="submenu-1">
+                    <li class="submenu-item" onclick="accountHtml()">거래처정보</li>
+                    <li class="submenu-item" onclick="houseHtml()">창고정보</li>
+                    <li class="submenu-item" onclick="equipmentHtml()">생산설비정보</li>
+
+                </ul>
+                <li class="menu-item" onclick="toggleSubMenu('submenu-2')">
+                    <img src="/img/폴더이미지.PNG" style="width:15px;" class="folder-icon">
+                    영업TEAM ▶
+                </li>
+                <ul class="submenu" id="submenu-2">
+                    <li class="submenu-item" onclick="accountHtml()">품목정보</li>
+                    <li class="submenu-item" onclick="salesHtml()">영업수주등록</li>
+                    <li class="submenu-item" onclick="salessearchHtml()">영업공정현황</li>
+                    <li class="submenu-item" onclick="salesfinishHtml()">영업완료조회</li>
+                    <li class="submenu-item" onclick="finalHtml()">FINAL PROCESS</li>
+                </ul>
+                <li class="menu-item" onclick="toggleSubMenu('submenu-3')">
+                    <img src="/img/폴더이미지.PNG" style="width:15px;" class="folder-icon">
+                    개발TEAM ▶
+                </li>
+                <ul class="submenu" id="submenu-3">
+                    <li class="submenu-item" onclick="bomHtml()">BOM관리</li>
+                    <li class="submenu-item" onclick="bomchangeHtml()">BOM이력관리</li>
+                </ul>
+                <li class="menu-item" onclick="toggleSubMenu('submenu-4')">
+                    <img src="/img/폴더이미지.PNG" style="width:15px;" class="folder-icon">
+                    자재TEAM ▶
+                </li>
+                <ul class="submenu" id="submenu-4">
+                    <li class="submenu-item" onclick="materialinfoHtml()">원자재정보</li>
+                    <li class="submenu-item" onclick="materialinput1Html()">원자재입고</li>
+                    <li class="submenu-item" onclick="materialsoyoHtml()">자재발주대기</li>
+                    <li class="submenu-item" onclick="">자재출고조회</li>
+                    <li class="submenu-item" onclick="materialstockHtml()">자재재고정보</li>
+                    <li class="submenu-item" onclick="itemstockHtml1()">제품재고정보</li>
+                </ul>
+                <li class="menu-item" onclick="toggleSubMenu('submenu-5')">
+                    <img src="/img/폴더이미지.PNG" style="width:15px;" class="folder-icon">
+                    생산TEAM ▶
+                </li>
+                <ul class="submenu" id="submenu-5">
+                    <li class="submenu-item" onclick="productorderlistHtml()">생산발주대기</li>
+                    <li class="submenu-item" onclick="operatingrateHtml()">생산설비가동율</li>
+                    <li class="submenu-item" onclick="transferenceHtml()">생산수율관리</li>
+                    <li class="submenu-item" onclick="startproductHtml()">생산현황</li>
+                    <li class="submenu-item" onclick="alltestHtml()">최종검사</li>
+                    <li class="submenu-item" onclick="alltest2Html()">최종검사2</li>
+
+                </ul>
+                <li class="menu-item" onclick="toggleSubMenu('submenu-6')">
+                    <img src="/img/폴더이미지.PNG" style="width:15px;" class="folder-icon">
+                    품질TEAM ▶
+                </li>
+                <ul class="submenu" id="submenu-6">
+                    <li class="submenu-item" onclick="inspectionHtml()">
+                        수입검사
+                    </li>
+                    <li class="submenu-item" onclick="">공정검사</li>
+                </ul>
+                <li class="menu-item" onclick="toggleSubMenu('submenu-7')">
+                    <img src="/img/폴더이미지.PNG" style="width:15px;" class="folder-icon"> 관리TEAM ▶
+                </li>
+                <ul class="submenu" id="submenu-7">
+                    <li class="submenu-item" onclick="employeeHtml()">사원관리</li>
+                </ul>
+            </ul>
+        </div>
+        <div id="loadHtml">
+            <!-- 123123123 -->
+        </div>
+
+    </div>
+
+
+    <!-- <div
         style="width: 100%; background-color:#1a1a1c; height:76px; padding-top: 5px; padding-left: 20px; padding-bottom: 7px;">
         <img src="/img/테크온로고.PNG" style="width: 100px; height: 30px; margin-right: 10px; margin-top: 20px;"
             id="img_logo" onclick="mainHtml()">
         <div style="text-align: center; margin-top: -30px;">
             <a style="color: white; text-align: center; font-size: 22px; padding-bottom: 10px;">Techon
                 Mes System</a>
-            <!-- <button onclick="accountHtml()">menu</button> -->
+     
         </div>
 
 
         <div style="float: right; margin-top: -40px; padding-right: -100px;">
-         
+
 
         </div>
 
-    </div>
-    <div style="width: 100%;">
+    </div> -->
 
 
-        <div
-            style="float: left; width:261px; height: 90vh; box-shadow: 1px 0px 0px rgb(216, 216, 216); background-color: white;">
-            <ul class="menu">
-                <li class="list"><a style="font-weight: bold; color: navy;">기초정보</a>
-                    <ul class="items">
-
-                        <li><a onclick="accountHtml()"> 거래처정보</a></li>
-                        <li><a onclick="houseHtml()"> 창고정보</a></li>
-                        <li><a onclick="iteminfoHtml()"> 품목정보</a></li>
-                        <li><a onclick="equipmentHtml()"> 생산설비정보</a></li>
-                   
-                    </ul>
-                </li>
-                <li class="list"><a style="font-weight: bold; color: navy;">영업TEAM</a>
-                    <ul class="items">
-
-                        <li><a onclick="salesHtml()"> 영업수주등록</a></li>
-                        <li><a onclick="salessearchHtml()"> 영업공정현황(진행)</a></li>
-                        <li><a onclick="salesfinishHtml()"> 영업완료조회</a></li>
-                        <li><a onclick="finalHtml()"> FINAL PROCESS</a></li>
-                    </ul>
-                </li>
-                <li class="list"><a style="font-weight: bold; color: navy;">개발TEAM</a>
-                    <ul class="items">
-                        <li><a onclick="bomHtml()"> BOM관리</a></li>
-                        <li><a onclick="bomchangeHtml()"> BOM이력관리</a></li>
-               
-                    </ul>
-                </li>
-              
-                <li class="list"><a style="font-weight: bold; color: navy;">자재TEAM</a>
-                    <ul class="items">
-                        <li><a onclick="materialinfoHtml()"> 원자재정보</a></li>
-
-                        <li><a onclick="materialinput1Html()"> 원자재입고</a></li>
-                      
-                        <li><a onclick="materialsoyoHtml()"> 자재발주대기리스트</a></li>
-
-                  
-                        <li><a> 자재출고조회</a></li>
-                        <li><a onclick="materialstockHtml()"> 자재재고정보</a></li>
-                        <li><a onclick="itemstockHtml1()"> 제품재고정보</a></li>
-                      
-                    </ul>
-                </li>
-                <li class="list"><a style="font-weight: bold; color: navy;">생산TEAM</a>
-                    <ul class="items">
-                        <li><a onclick="productorderlistHtml()"> 생산발주 대기리스트</a></li>
-                        <!-- <li><a onclick="productorderHtml()"> 생산발주정보</a></li> -->
-                        <!-- <li><a> 생산발주현황</a></li> -->
-                        <!-- <li><a> 생산지시</a></li> -->
-                        <li><a onclick="operatingrateHtml()"> 생산설비가동율</a></li>
-                        <li><a onclick="transferenceHtml()"> 생산수율관리</a></li>
-                        <li><a onclick="alltestHtml()"> 최종검사</a></li>
-                        <li><a onclick="startproductHtml()"> 생산현황</a></li>
-                    </ul>
-                </li>
-                <li class="list"><a style="font-weight: bold; color: navy;">품질TEAM</a>
-                    <ul class="items">
-                        <li><a> 수입검사</a></li>
-                        <li><a> 공정검사</a></li>
 
 
-                    </ul>
-                </li>
-                <li class="list"><a style="font-weight: bold; color: navy;">관리TEAM</a>
-                    <ul class="items">
-                        <li><a onclick="employeeHtml()"> 사원관리</a></li>
-
-
-                    </ul>
-                </li>
-                <!-- <li class="list"><a style="font-weight: bold; color: navy;">데이터 집계</a>
-                    <ul class="items">
-                        <li><a onclick="testHtml()"> 단가-원가 Graph</a></li>
-                        <li><a onclick="test1Html()">설비가동율 Graph</a></li>
-
-                    </ul>
-                </li> -->
-
-            </ul>
-
-        </div>
-        <div>
+    <!-- <div>
 
             <div id="loadHtml" style=" height: 88vh; overflow-x:scroll; overflow: auto;">
                 <img src="/img/테크온로고.PNG" style="margin-left: 40%; margin-top: 15%; opacity: 0.9;">
-                <br><br><br><br>
-                <a style="margin-left: 43%; margin-top: 20%; font-size: 30px; font-weight: bold;">Techon MES System</a>
-                <footer id="footer_main">
-                    <p>
-                        <span>저자 : 피스웰</span><br />
-                        <span>이메일 : Pswel@naver.com</span><br /><br />
-                        <span>Copyright 2023. PSWEL. All Rights Reserved.</span>
-                    </p>
-                </footer>
-
             </div>
 
-        </div>
-    </div>
+        </div> -->
+
 </body>
+<script>
+    function toggleSubMenu(submenuId) {
+        var submenu = document.getElementById(submenuId);
+        if (submenu.classList.contains('show')) {
+            submenu.classList.remove('show');
+        } else {
+            submenu.classList.add('show');
+        }
+        var submenus = document.querySelectorAll('.submenu');
+        submenus.forEach(function (sub) {
+            if (sub.getAttribute('id') !== submenuId) {
+                sub.classList.remove('show');
+            }
+        });
+    }
+</script>
 <script>
     function getCookie(cookie_name) {
         var x, y;
@@ -183,31 +300,13 @@
         $("#loadHtml").removeClass();
         $("#loadHtml").load("/html/open.html");
     }
-    // function accountHtml() {
-    //     $("#loadHtml").removeClass();
-    //     $("#loadHtml").load("/html/accountinformation.html");
-    // }
 
     // function accountHtml() {
-    //     $.ajax({
-    //         url: '/html/accountinformation.html',
-    //         type: 'GET',
-    //         success: function (data) {
-    //             $('#loadHtml').html(data);
-    //         },
-    //         error: function (xhr, status, error) {
-    //             console.error(error);
-    //         }
-    //     });
+    //     fetch("/html/accountinformation.html")
+    //         .then(response => response.text())
+    //         .then(data => $("#loadHtml").html(data))
+    //         .catch(error => console.log(error));
     // }
-
-
-    function accountHtml() {
-        fetch("/html/accountinformation.html")
-            .then(response => response.text())
-            .then(data => $("#loadHtml").html(data))
-            .catch(error => console.log(error));
-    }
     function houseHtml() {
         fetch("/html/house.html")
             .then(response => response.text())
@@ -226,14 +325,14 @@
             .then(data => $("#loadHtml").html(data))
             .catch(error => console.log(error));
     }
-   
+
     function iteminfoHtml() {
         fetch("/html/iteminfo.html")
             .then(response => response.text())
             .then(data => $("#loadHtml").html(data))
             .catch(error => console.log(error));
     }
- 
+
     function mainHtml() {
         $("#loadHtml").removeClass();
         $("#loadHtml").load("loadHtml");
@@ -347,6 +446,10 @@
         $("#loadHtml").removeClass();
         $("#loadHtml").load("/html/alltest.html");
     }
+    function alltest2Html() {
+        $("#loadHtml").removeClass();
+        $("#loadHtml").load("/html/finalinspection.html");
+    }
     function bomchangeHtml() {
         $("#loadHtml").removeClass();
         $("#loadHtml").load("/html/bomchange.html");
@@ -364,6 +467,26 @@
         $("#loadHtml").removeClass();
         $("#loadHtml").load("/html/startproduct.html");
     }
+    function inspectionHtml() {
+        $("#loadHtml").removeClass();
+        $("#loadHtml").load("/html/inspection.html");
+    }
+
+    function accountHtml() {
+        $.ajax({
+            url: '/html/accountinformation.html',
+            type: 'GET',
+            dataType: 'html',
+            success: function (data) {
+                $('#loadHtml').html(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus, errorThrown);
+            }
+        });
+    }
+
+
 
 
     // 로딩 창을 표시하는 함수

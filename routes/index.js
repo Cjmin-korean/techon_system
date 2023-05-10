@@ -208,8 +208,8 @@ module.exports = function (app) {
     });
     // **** finish
 
-      // **** start       
-      sql.connect(config).then(pool => {
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/all', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -219,26 +219,26 @@ module.exports = function (app) {
 
                 .query(
 
-                    "   select "+
-                    "    a.contentname, "+
-                    "    a.accountdate, "+
-                    "    a.deliverydate, "+
-                    "    a.customer, "+
-                    "    a.bomno, "+
-                    "    a.modelname, "+
-                    "    a.itemname, "+
-                    "    a.itemprice, "+
-                    "    a.itemcost, "+
-                    "    ROUND(a.itemprice/a.itemcost * 100,1) as 'costpc', "+
-                    "    format(convert(int,Isnull(a.quantity,0)),'##,##0')'accountinputquantity', "+
-                    "    format(convert(int,Isnull(a.price,0)),'##,##0')'price', "+
-                    "    o.productdate, "+
-                    "    o.lotno, "+
-                    "    o.marchine, "+
-                    "    format(convert(int,Isnull(o.quantity,0)),'##,##0')'orderlistquantity' "+
-           
-                    "    from orderlist o, "+
-                    "    accountinput a "+
+                    "   select " +
+                    "    a.contentname, " +
+                    "    a.accountdate, " +
+                    "    a.deliverydate, " +
+                    "    a.customer, " +
+                    "    a.bomno, " +
+                    "    a.modelname, " +
+                    "    a.itemname, " +
+                    "    a.itemprice, " +
+                    "    a.itemcost, " +
+                    "    ROUND(a.itemprice/a.itemcost * 100,1) as 'costpc', " +
+                    "    format(convert(int,Isnull(a.quantity,0)),'##,##0')'accountinputquantity', " +
+                    "    format(convert(int,Isnull(a.price,0)),'##,##0')'price', " +
+                    "    o.productdate, " +
+                    "    o.lotno, " +
+                    "    o.marchine, " +
+                    "    format(convert(int,Isnull(o.quantity,0)),'##,##0')'orderlistquantity' " +
+
+                    "    from orderlist o, " +
+                    "    accountinput a " +
                     "    where a.contentname = o.contentname ")
 
                 .then(result => {
@@ -368,7 +368,8 @@ module.exports = function (app) {
                     "   customer," +
                     "   format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'," +
                     "   format(convert(int,Isnull(rollprice,0)),'##,##0')'rollprice'," +
-                    "   day " +
+                    "   day, " +
+                    "   inspection " +
                     "   from materialbase order by materialname asc")
 
                 .then(result => {
@@ -522,7 +523,7 @@ module.exports = function (app) {
                     "   itemname," +
                     "   customer," +
                     "   format(convert(float,Isnull(itemprice,0)),'##,##0')'itemprice'," +
-                    "   format(convert(float,Isnull(cost,0)),'##,##0')'cost'," +
+                    "   cost," +
                     "   quantity" +
                     "   from iteminfo"
                 )
@@ -662,21 +663,23 @@ module.exports = function (app) {
                     "SELECT " +
                     "id," +
                     "bomno," +
-                    "marchine," +
+                    "part," +
                     "modelname," +
                     "itemname," +
                     "customer," +
-                    "pcs," +
+                    "itemcode," +
                     "working," +
                     "cavity," +
                     "onepidding," +
                     "twopidding," +
-                    "dpidding," +
                     "one," +
                     "two," +
                     "rev," +
                     "insertdate," +
-                    "updatedate" +
+                    "updatedate," +
+                    "cost," +
+                    "minus," +
+                    "itemprice" +
                     " FROM iteminfo ")
 
                 .then(result => {
@@ -909,7 +912,7 @@ module.exports = function (app) {
                     "format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth'," +
                     "format(convert(int,Isnull(quantity,0)),'##,##0')'quantity'," +
                     "roll," +
-                    "sum" +
+                    "sum,part" +
 
                     " FROM materialinput ")
 
@@ -978,7 +981,7 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "select materialname,lotno,manufacturedate,expirationdate,materialwidth,sum(quantity)'quantity' from materialinput group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
+                    "select materialname,lotno,manufacturedate,expirationdate,materialwidth,sum(quantity)'quantity' from materialinput where part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
 
 
                 .then(result => {
@@ -1147,6 +1150,34 @@ module.exports = function (app) {
     });
     // **** finish
 
+     // **** start       
+     sql.connect(config).then(pool => {
+        app.post('/api/inputitemstock', function (req, res) {
+
+        
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('quantity', sql.Int, req.body.quantity)
+             
+                .query(
+                    'insert into iteminput(modelname,itemname,quantity)' +
+                    ' values(@modelname,@itemname,@quantity)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+
 
     // **** start   영업수주 네임건 등록
     sql.connect(config).then(pool => {
@@ -1283,19 +1314,19 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                       " select "+
-                       " id, "+
-                       " bomno, "+
+                    " select " +
+                    " id, " +
+                    " bomno, " +
 
-                       " contentname, "+
-                       " productdate, "+
-                       " modelname, "+
-                       " itemname, "+
-                       " lotno, "+
-                       " quantity, "+
-                       " orderid "+
-                       " from  "+
-                       " orderlist ")
+                    " contentname, " +
+                    " productdate, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " lotno, " +
+                    " quantity, " +
+                    " orderid " +
+                    " from  " +
+                    " orderlist ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -1306,27 +1337,28 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start       
-     sql.connect(config).then(pool => {
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/productorderlist3', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
                 .query(
-                       " select "+
-                       " id, "+
-                       " productdate, "+
-                       " modelname, "+
-                       " itemname, "+
-                       " lotno, "+
-                       " quantity, "+
-                       " startdate, "+
-                       " starttime, "+
-                       " finaltime, "+
-                       " marchine "+
-                     
-                       " from  "+
-                       " orderlist ")
+                    " select " +
+                    " id, " +
+                    " productdate, " +
+                    " bomno, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " lotno, " +
+                    " quantity, " +
+                    " startdate, " +
+                    " starttime, " +
+                    " finaltime, " +
+                    " marchine " +
+
+                    " from  " +
+                    " orderlist ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -1370,11 +1402,11 @@ module.exports = function (app) {
                 .input('quantity', sql.Int, req.body.quantity)
                 .input('productdate', sql.NVarChar, req.body.productdate)
                 .input('status', sql.NVarChar, req.body.status)
-                // .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('orderid', sql.NVarChar, req.body.orderid)
 
                 .query(
-                    'insert into orderlist(modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno)' +
-                    ' values(@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno)'
+                    'insert into orderlist(modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid)' +
+                    ' values(@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid)'
                 )
                 .then(result => {
 
@@ -1491,55 +1523,55 @@ module.exports = function (app) {
                     // "         GROUP BY  " +
                     // "             itemname,productdate " +
                     // "     ) AS OL ON BOM.itemname = OL.itemname "
-                            "                     SELECT "+
-                            "     orderid, "+
-                            "     OL.productdate, "+
-                            "     OL.lotno, "+
-                            "     BOM.bomno, "+
-                            "     BOM.model, "+
-                            "     BOM.itemname, "+
-                            "     BOM.materialname, "+
-                            "     BOM.swidth, "+
-                            "     FORMAT(BOM.mwidth * OL.quantity, 'N0') AS soyo, "+
-                            "     FORMAT(COALESCE(MI.quantity, 0), 'N0') AS materialnum, "+
-                            "     FORMAT( "+
-                            "         CASE "+
-                            "             WHEN BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth "+
-                            "             THEN COALESCE(MI.quantity, 0) - BOM.mwidth * OL.quantity "+
-                            "             ELSE -BOM.mwidth * OL.quantity "+
-                            "         END, "+
-                            "         'N0' "+
-                            "     ) AS diff, "+
-                            "     CASE "+
-                            "         WHEN BOM.mwidth * OL.quantity > COALESCE(MI.quantity, 0) THEN '부족' "+
-                            "         WHEN BOM.mwidth * OL.quantity <= COALESCE(MI.quantity, 0) THEN '가능' "+
-                            "         ELSE NULL "+
-                            "     END AS condition "+
-                            " FROM  "+
-                            "     bommanagement AS BOM "+
-                            "     INNER JOIN ( "+
-                            "         SELECT  "+
-                            "             orderid, "+
-                            "             productdate, "+
-                            "             lotno, "+
-                            "             itemname,  "+
-                            "             SUM(CASE WHEN [status] = 'true' THEN [quantity] ELSE 0 END) AS quantity "+
-                            "         FROM "+
-                            "             orderlist  "+
-                            "         GROUP BY "+
-                            "             lotno, itemname, productdate ,orderid  "+
-                            "     ) AS OL ON BOM.itemname = OL.itemname "+
-                            "     LEFT JOIN ( "+
-                            "         SELECT "+
-                            "             materialname, "+
-                            "             materialwidth, "+
-                            "             SUM(quantity) AS quantity "+
-                            "         FROM "+
-                            "             materialinput "+
-                            "         GROUP BY "+
-                            "             materialname, "+
-                            "             materialwidth "+
-                            "     ) AS MI ON BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth order by orderid asc"
+                    "                     SELECT " +
+                    "     orderid, " +
+                    "     OL.productdate, " +
+                    "     OL.lotno, " +
+                    "     BOM.bomno, " +
+                    "     BOM.model, " +
+                    "     BOM.itemname, " +
+                    "     BOM.materialname, " +
+                    "     BOM.swidth, " +
+                    "     FORMAT(BOM.mwidth * OL.quantity, 'N0') AS soyo, " +
+                    "     FORMAT(COALESCE(MI.quantity, 0), 'N0') AS materialnum, " +
+                    "     FORMAT( " +
+                    "         CASE " +
+                    "             WHEN BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth " +
+                    "             THEN COALESCE(MI.quantity, 0) - BOM.mwidth * OL.quantity " +
+                    "             ELSE -BOM.mwidth * OL.quantity " +
+                    "         END, " +
+                    "         'N0' " +
+                    "     ) AS diff, " +
+                    "     CASE " +
+                    "         WHEN BOM.mwidth * OL.quantity > COALESCE(MI.quantity, 0) THEN '부족' " +
+                    "         WHEN BOM.mwidth * OL.quantity <= COALESCE(MI.quantity, 0) THEN '가능' " +
+                    "         ELSE NULL " +
+                    "     END AS condition " +
+                    " FROM  " +
+                    "     bommanagement AS BOM " +
+                    "     INNER JOIN ( " +
+                    "         SELECT  " +
+                    "             orderid, " +
+                    "             productdate, " +
+                    "             lotno, " +
+                    "             itemname,  " +
+                    "             SUM(CASE WHEN [status] = 'true' THEN [quantity] ELSE 0 END) AS quantity " +
+                    "         FROM " +
+                    "             orderlist  " +
+                    "         GROUP BY " +
+                    "             lotno, itemname, productdate ,orderid  " +
+                    "     ) AS OL ON BOM.itemname = OL.itemname " +
+                    "     LEFT JOIN ( " +
+                    "         SELECT " +
+                    "             materialname, " +
+                    "             materialwidth, " +
+                    "             SUM(quantity) AS quantity " +
+                    "         FROM " +
+                    "             materialinput " +
+                    "         GROUP BY " +
+                    "             materialname, " +
+                    "             materialwidth " +
+                    "     ) AS MI ON BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth WHERE BOM.status = 'true' order by orderid asc"
                 )
                 // .query(
 
@@ -1679,39 +1711,70 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/accountordering', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
- 
+
             return pool.request()
-             
+
                 .query(
-                    "  WITH cte AS ( " +
-                    "      SELECT " +
-                    "        a.contentname,a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno, " +
-                    "        SUM(i.quantity) AS total_quantity, " +
-                    "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num " +
-                    "      FROM accountinput a " +
-                    "      JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname  " +
-                    "      GROUP BY a.contentname, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno " +
-                    "    ), recursive_cte AS ( " +
-                    "      SELECT " +
-                    "      bomno, contentname,deliverydate,customer,modelname, itemname, quantity, total_quantity, " +
-                    "          total_quantity - quantity AS difference, " +
-                    "        row_num " +
-                    "      FROM cte " +
-                    "      WHERE row_num = 1 " +
-                    "      UNION ALL  " +
-                    "      SELECT " +
-                    "      c.bomno, c.contentname,c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity, " +
-                    "        rc.difference - c.quantity AS difference, " +
-                    "        c.row_num " +
-                    "      FROM cte c " +
-                    "      JOIN recursive_cte rc " +
-                    "        ON c.modelname = rc.modelname  " +
-                    "        AND c.itemname = rc.itemname  " +
-                    "        AND c.row_num = rc.row_num + 1 " +
-                    "    ) " +
-                    "    SELECT contentname,bomno,deliverydate,customer,modelname, itemname, quantity, difference, " +
-                    "     case when (difference)>=0  then '가능' else '부족' end as possible  " +
-                    "    FROM recursive_cte  "
+                    // "  WITH cte AS ( " +
+                    // "      SELECT " +
+                    // "        a.contentname,a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno, " +
+                    // "        SUM(i.quantity) AS total_quantity, " +
+                    // "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num " +
+                    // "      FROM accountinput a " +
+                    // "      JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname  " +
+                    // "      GROUP BY a.contentname, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno " +
+                    // "    ), recursive_cte AS ( " +
+                    // "      SELECT " +
+                    // "      bomno, contentname,deliverydate,customer,modelname, itemname, quantity, total_quantity, " +
+                    // "          total_quantity - quantity AS difference, " +
+                    // "        row_num " +
+                    // "      FROM cte " +
+                    // "      WHERE row_num = 1 " +
+                    // "      UNION ALL  " +
+                    // "      SELECT " +
+                    // "      c.bomno, c.contentname,c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity, " +
+                    // "        rc.difference - c.quantity AS difference, " +
+                    // "        c.row_num " +
+                    // "      FROM cte c " +
+                    // "      JOIN recursive_cte rc " +
+                    // "        ON c.modelname = rc.modelname  " +
+                    // "        AND c.itemname = rc.itemname  " +
+                    // "        AND c.row_num = rc.row_num + 1 " +
+                    // "    ) " +
+                    // "    SELECT contentname,bomno,deliverydate,customer,modelname, itemname, quantity, difference, " +
+                    // "     case when (difference)>=0  then '가능' else '부족' end as possible  " +
+                    // "    FROM recursive_cte  "
+                    "  WITH cte AS (  " +
+                    "      SELECT  " +
+                    "          a.contentname,a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno,  " +
+                    "          SUM(ISNULL(i.quantity, 0)) AS total_quantity,  " +
+                    "          ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num  " +
+                    "      FROM accountinput a  " +
+                    "      LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname   " +
+                    "      GROUP BY a.contentname, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno  " +
+                    "  ), recursive_cte AS (  " +
+                    "      SELECT  " +
+                    "          bomno, contentname,deliverydate,customer,modelname, itemname, quantity, total_quantity,  " +
+                    "          total_quantity - quantity AS difference,  " +
+                    "          row_num  " +
+                    "      FROM cte  " +
+                    "      WHERE row_num = 1  " +
+                    "      UNION ALL   " +
+                    "      SELECT  " +
+                    "          c.bomno, c.contentname,c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity,  " +
+                    "          rc.difference - c.quantity AS difference,  " +
+                    "          c.row_num  " +
+                    "      FROM cte c  " +
+                    "      JOIN recursive_cte rc  " +
+                    "          ON c.modelname = rc.modelname   " +
+                    "          AND c.itemname = rc.itemname   " +
+                    "          AND c.row_num = rc.row_num + 1  " +
+                    "  )  " +
+                    "  SELECT " +
+                    "      contentname,bomno,deliverydate,customer,modelname, itemname, quantity, difference,  " +
+                    "      CASE WHEN (difference)>=0  THEN '가능' ELSE '부족' END AS possible   " +
+                    "  FROM recursive_cte"
+
                 )
                 .then(result => {
 
@@ -1982,6 +2045,54 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/insertalltest', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('bom', sql.NVarChar, req.body.bom)
+                .input('testdate', sql.NVarChar, req.body.testdate)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('productdate', sql.NVarChar, req.body.productdate)
+                .input('productno', sql.NVarChar, req.body.productno)
+                .input('count', sql.Float, req.body.count)
+                .input('okcount', sql.Float, req.body.okcount)
+                .input('ngcount', sql.Float, req.body.ngcount)
+                .input('ng1', sql.Int, req.body.ng1)
+                .input('ng2', sql.Int, req.body.ng2)
+                .input('ng3', sql.Int, req.body.ng3)
+                .input('ng4', sql.Int, req.body.ng4)
+                .input('ng5', sql.Int, req.body.ng5)
+                .input('ng6', sql.Int, req.body.ng6)
+                .input('ng7', sql.Int, req.body.ng7)
+                .input('ng8', sql.Int, req.body.ng8)
+                .input('ng9', sql.Int, req.body.ng9)
+                .input('ng10', sql.Int, req.body.ng10)
+                .input('ng11', sql.Int, req.body.ng11)
+                .input('ng12', sql.Int, req.body.ng12)
+                .input('ng13', sql.Int, req.body.ng13)
+                .input('ng14', sql.Int, req.body.ng14)
+                .input('ng15', sql.Int, req.body.ng15)
+                .input('ng16', sql.Int, req.body.ng16)
+
+
+                .query(
+                    'insert into alltest(bom,testdate,modelname,itemname,lotno,productdate,productno,count,okcount,ngcount,ng1,ng2,ng3,ng4,ng5,ng6,ng7,ng8,ng9,ng10,ng11,ng12,ng13,ng14,ng15,ng16)' +
+                    ' values(@bom,@testdate,@modelname,@itemname,@lotno,@productdate,@productno,@count,@okcount,@ngcount,@ng1,@ng2,@ng3,@ng4,@ng5,@ng6,@ng7,@ng8,@ng9,@ng10,@ng11,@ng12,@ng13,@ng14,@ng15,@ng16)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -2014,8 +2125,167 @@ module.exports = function (app) {
     });
     // **** finish
 
-      // **** start       
-      sql.connect(config).then(pool => {
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/startproduct', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+                .input('startdate', sql.NVarChar, req.body.startdate)
+                .input('marchine', sql.NVarChar, req.body.marchine)
+                .input('starttime', sql.NVarChar, req.body.starttime)
+
+
+
+                .query(
+                    'update orderlist set startdate=@startdate,marchine=@marchine,starttime=@starttime where id=@id'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+     // **** start       
+     sql.connect(config).then(pool => {
+        app.post('/api/startinspection', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+                .input('inspectiondate', sql.NVarChar, req.body.inspectiondate)
+                .input('start', sql.NVarChar, req.body.start)
+
+
+
+                .query(
+                    "update allteststatus set inspectiondate=@inspectiondate,start=@start,status='검사중' where id=@id "
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/finishproduct', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+                .input('finaltime', sql.NVarChar, req.body.finaltime)
+                .input('touch', sql.NVarChar, req.body.touch)
+
+
+
+
+                .query(
+                    'update orderlist set finaltime=@finaltime,touch=@touch where id=@id'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/finishinspection', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+                .input('finish', sql.NVarChar, req.body.finish)
+          
+
+
+
+
+                .query(
+                    "update allteststatus set finish=@finish,status='검사완료' where id=@id"
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updatebominput', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('working', sql.NVarChar, req.body.working)
+                .input('cost', sql.Float, req.body.cost)
+                .input('cavity', sql.Int, req.body.cavity)
+                .input('onepidding', sql.Float, req.body.onepidding)
+                .input('twopidding', sql.Float, req.body.twopidding)
+                .input('one', sql.Float, req.body.one)
+                .input('two', sql.Float, req.body.two)
+                .input('rev', sql.NVarChar, req.body.rev)
+                .input('updatedate', sql.NVarChar, req.body.updatedate)
+                .input('minus', sql.Float, req.body.minus)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('itemprice', sql.Float, req.body.itemprice)
+
+
+                .query(
+                    'update iteminfo set modelname=@modelname,itemname=@itemname,itemcode=@itemcode,bomno=@bomno,customer=@customer,working=@working,cost=@cost,cavity=@cavity,onepidding=@onepidding,twopidding=@twopidding,one=@one,two=@two,rev=@rev,updatedate=@updatedate,minus=@minus,part=@part,itemprice=@itemprice where bomno=@bomno'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/updateing', function (req, res) {
             console.log("res", res)
             console.log("req", req)
@@ -2025,7 +2295,7 @@ module.exports = function (app) {
                 //.input('변수',값 형식, 값)
                 .input('id', sql.Int, req.body.id)
                 .input('productionorder', sql.NVarChar, req.body.productionorder)
-           
+
 
 
                 .query(
@@ -2072,6 +2342,62 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateinspection', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+
+
+
+                .query(
+                    "update inspection set final='수입검사완료' where id=@id "
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateinspectionmaterial', function (req, res) {
+            console.log(req.body.materialname)
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+
+
+
+
+                .query(
+                    "update materialinput set part='입고완료' where materialname=@materialname and input='원자재입고' and lotno=@lotno"
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -2294,26 +2620,29 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-                //.input('변수',값 형식, 값)
                 .input('itemcode', sql.NVarChar, req.body.itemcode)
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .input('modelname', sql.NVarChar, req.body.modelname)
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('customer', sql.NVarChar, req.body.customer)
-                // .input('size', sql.NVarChar, req.body.size)
-                .input('itemprice', sql.Float, req.body.itemprice)
                 .input('cost', sql.Float, req.body.cost)
                 .input('rev', sql.NVarChar, req.body.rev)
                 .input('insertdate', sql.NVarChar, req.body.insertdate)
                 .input('minus', sql.Float, req.body.minus)
-
-
+                .input('working', sql.NVarChar, req.body.working)
+                .input('cavity', sql.Int, req.body.cavity)
+                .input('onepidding', sql.NVarChar, req.body.onepidding)
+                .input('twopidding', sql.NVarChar, req.body.twopidding)
+                .input('one', sql.Float, req.body.one)
+                .input('two', sql.Float, req.body.two)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('itemprice', sql.Float, req.body.itemprice)
 
 
 
                 .query(
-                    'insert into iteminfo(itemcode,bomno,modelname,itemname,customer,itemprice,cost,rev,insertdate,minus)' +
-                    ' values(@itemcode,@bomno,@modelname,@itemname,@customer,@itemprice,@cost,@rev,@insertdate,@minus)'
+                    'insert into iteminfo(itemcode,bomno,modelname,itemname,customer,cost,rev,insertdate,minus,working,cavity,onepidding,twopidding,one,two,part,itemprice)' +
+                    ' values(@itemcode,@bomno,@modelname,@itemname,@customer,@cost,@rev,@insertdate,@minus,@working,@cavity,@onepidding,@twopidding,@one,@two,@part,@itemprice)'
                 )
                 .then(result => {
 
@@ -2325,8 +2654,8 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start  품목등록    
-     sql.connect(config).then(pool => {
+    // **** start  품목등록    
+    sql.connect(config).then(pool => {
         app.post('/api/updatebom', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
@@ -2340,14 +2669,15 @@ module.exports = function (app) {
                 .input('mwidth', sql.Float, req.body.mwidth)
                 .input('savedate', sql.NVarChar, req.body.savedate)
                 .input('status', sql.NVarChar, req.body.status)
-
+                .input('cost', sql.Float, req.body.cost)
+                .input('dpid', sql.Float, req.body.dpid)
 
 
 
 
                 .query(
-                    'insert into bommanagement(bomno,model,itemname,materialname,swidth,mwidth,savedate,status)' +
-                    ' values(@bomno,@model,@itemname,@materialname,@swidth,@mwidth,@savedate,@status)'
+                    'insert into bommanagement(bomno,model,itemname,materialname,swidth,mwidth,savedate,status,cost,dpid)' +
+                    ' values(@bomno,@model,@itemname,@materialname,@swidth,@mwidth,@savedate,@status,@cost,@dpid)'
                 )
                 .then(result => {
 
@@ -2413,17 +2743,17 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start  부서수정쿼리
-     sql.connect(config).then(pool => {
+    // **** start  부서수정쿼리
+    sql.connect(config).then(pool => {
         app.post('/api/falsebom', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
-              
+
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .input('status', sql.NVarChar, req.body.status)
-               
+
 
 
 
@@ -2515,13 +2845,13 @@ module.exports = function (app) {
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .input('modelname', sql.NVarChar, req.body.modelname)
                 .input('itemname', sql.NVarChar, req.body.itemname)
-                .input('size', sql.NVarChar, req.body.size)
+                // .input('size', sql.NVarChar, req.body.size)
                 .input('itemprice', sql.Float, req.body.itemprice)
 
 
 
                 .query(
-                    'update iteminfo set itemcode=@itemcode,bomno=@bomno,modelname=@modelname,itemname=@itemname,size=@size,itemprice=@itemprice where id=@id'
+                    'update iteminfo set itemcode=@itemcode,bomno=@bomno,modelname=@modelname,itemname=@itemname,itemprice=@itemprice where id=@id'
 
                 )
                 .then(result => {
@@ -3014,12 +3344,14 @@ module.exports = function (app) {
                 .input('roll', sql.NVarChar, req.body.roll)
                 .input('sum', sql.NVarChar, req.body.sum)
                 .input('price', sql.NVarChar, req.body.price)
+                .input('input', sql.NVarChar, req.body.input)
+                .input('part', sql.NVarChar, req.body.part)
 
 
 
                 .query(
-                    'insert into materialinput(date,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price)' +
-                    ' values(@date,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price)'
+                    'insert into materialinput(date,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,input,part)' +
+                    ' values(@date,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@input,@part)'
                 )
                 .then(result => {
 
@@ -3031,7 +3363,40 @@ module.exports = function (app) {
     });
     // **** finish
 
+    // **** start 수입검사등록쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/inspection', function (req, res) {
 
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('inputdate', sql.NVarChar, req.body.inputdate)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('manufacturedate', sql.NVarChar, req.body.manufacturedate)
+                .input('expirationdate', sql.NVarChar, req.body.expirationdate)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .input('quantity', sql.Float, req.body.quantity)
+                // .input('final', sql.NVarChar, req.body.fianl)
+
+
+
+
+                .query(
+                    "insert into inspection(inputdate,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,final)" +
+                    " values(@inputdate,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,'수입검사대기')"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
 
     // **** start  파일등록쿼리    
@@ -3092,6 +3457,59 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/inspectionset', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    " Select" +
+                    "  *" +
+                    "  from inspection order by final asc"
+
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+     // **** start itemname,materialwidth변수로  chk확인 쿼리      
+     sql.connect(config).then(pool => {
+        app.post('/api/selectalltest', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    " Select" +
+                    "  *" +
+                    "  from allteststatus"
+
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
     // **** start  품질검사 등록 쿼리    
     sql.connect(config).then(pool => {
         app.post('/api/quality', function (req, res) {
@@ -3120,6 +3538,39 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/inputalltest', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('startdate', sql.NVarChar, req.body.startdate)
+                .input('quantity', sql.NVarChar, req.body.quantity)
+
+
+
+                .query(
+                    "insert into allteststatus(bomno,modelname,itemname,lotno,startdate,quantity,status)" +
+                    " values(@bomno,@modelname,@itemname,@lotno,@startdate,@quantity,'검사대기')"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    
     var express = require('express');
 
 

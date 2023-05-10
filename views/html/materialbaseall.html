@@ -53,7 +53,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">거래처 신규등록</h4>
+                    <h4 class="modal-title" id="myModalLabel">원자재 기초정보 등록</h4>
 
 
                 </div>
@@ -224,10 +224,10 @@
                     <th>전폭규격(cm)</th>
                     <th>길이규격(M)</th>
                     <th>거래처</th>
-                    <th>SQM단가(₩)</th>
-                    <th>롤단가(₩)</th>
+                    <th>SQM단가(원)</th>
+                    <th>롤단가(원)</th>
                     <th>유수명(일)</th>
-                    <th></th>
+                    <th>수입검사유무</th>
                     <th></th>
                     <th></th>
                 </tr>
@@ -262,6 +262,18 @@
         <div id="qrcode"></div>
     </div>
     <script>
+
+        var server = '';
+        console.log(window.location.hostname)
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+            // server = 'http://techonmes.co.kr';
+
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
         // 시작부분
         $(document).ready(function () {
             // 로딩 창을 보이게 한다
@@ -327,7 +339,7 @@
 
             });
             $.ajax({
-                url: 'http://techonmes.co.kr/api/materialbase',
+                url: server + '/api/materialbase',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -353,7 +365,8 @@
                             { "data": "customer" },
                             { "data": "sqmprice" },
                             { "data": "rollprice" },
-                            { "data": "day" }
+                            { "data": "day" },
+                            { "data": "inspection" }
 
                         ],
 
@@ -362,22 +375,7 @@
                         buttons: [
                             'copy', 'csv', 'excel', 'pdf', 'print'
                         ],
-                        // drawCallback: function () {
-                        //     var api = this.api();
-                        //     var sum = 0;
-                        //     var formated = 0;
-                        //     //to show first th
-                        //     $(api.column(1).footer()).html('Total');
 
-                        //     for (var i = 5; i <= 5; i++) {
-                        //         sum = api.column(i, { page: 'current' }).data().sum();
-
-                        //         //to format this sum
-                        //         formated = parseFloat(sum).toLocaleString(undefined, { minimumFractionDigits: 2 });
-                        //         $(api.column(i).footer()).html('$' + formated);
-                        //     }
-
-                        // },
                         columnDefs: [
                             {
                                 targets: 0, visible: false, searchable: false
@@ -399,22 +397,15 @@
                                 targets: 9, className: 'alRight'
                             },
                             {
-                                targets: 10,
+                                targets: 11,
                                 data: null,
                                 defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
                                 width: 50
                             },
                             {
-                                targets: 11,
-                                data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
-                            },
-                            {
                                 targets: 12,
                                 data: null,
-                                defaultContent: '<a href="/down-excel/1">수입검사</a>',
+                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
 
                                 width: 50
                             }
@@ -527,7 +518,8 @@
                                 { "data": "customer" },
                                 { "data": "sqmprice" },
                                 { "data": "rollprice" },
-                                { "data": "day" }
+                                { "data": "day" },
+                                { "data": "inspection" }
 
                             ],
 
@@ -542,13 +534,13 @@
                                     targets: 0, visible: false, searchable: false
                                 },
                                 {
-                                    targets: 10,
+                                    targets: 11,
                                     data: null,
                                     defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
                                     width: 50
                                 },
                                 {
-                                    targets: 11,
+                                    targets: 12,
                                     data: null,
                                     defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
 

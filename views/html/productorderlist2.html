@@ -76,6 +76,7 @@
                 <tr>
 
                     <th>PONO.</th>
+                    <th>BOMNO.</th>
                     <th>납기일자</th>
                     <th>고객사</th>
                     <th>모델명</th>
@@ -101,6 +102,7 @@
                 <tr>
                     <th></th>
                     <th>PONO.</th>
+                    <th>BOMNO.</th>
                     <th>생산계획날짜</th>
                     <th>모델명</th>
                     <th>제품명</th>
@@ -131,7 +133,10 @@
                         <label>PONO.</label>
                         <input type="text" class="form-control" id="pono" required>
                     </div>
-
+                    <div class="form-group">
+                        <label>BOMNO.</label>
+                        <input type="text" class="form-control" id="bomno" required>
+                    </div>
                     <div class="form-group">
                         <label>생산계획날짜:</label>
                         <input type="date" class="form-control" id="datepicker1" required>
@@ -206,9 +211,10 @@
             var data1 = table1.row($(this).parents('tr')).data(); // getting 
 
             $('#pono').val(pono);
-            $('#modelname').val(modelname);
-            $('#lotno').val('20230427-1');
-            $('#itemname').val(itemname);
+            $('#modelname').val(data1.modelname);
+            $('#bomno').val(data1.bomno);
+            $('#lotno').val('20230504-1');
+            $('#itemname').val(data1.itemname);
             $('#count').val('');
 
             $("#edit").modal();
@@ -234,6 +240,7 @@
                     deferLoading: [0, 10],
                     columns: [
                         { "data": "contentname" },
+                        { "data": "bomno" },
                         { "data": "deliverydate" },
                         { "data": "customer" },
                         { "data": "modelname" },
@@ -244,18 +251,18 @@
                     ],
                     columnDefs: [
                         {
-                            targets: 5, className: 'alRight'
-                        },
-                        {
                             targets: 6, className: 'alRight'
                         },
                         {
-                            targets: 7,
+                            targets: 7, className: 'alRight'
+                        },
+                        {
+                            targets: 8,
                             width: 80,
                             className: 'alCenter'
                         },
                         {
-                            targets: 8,
+                            targets: 9,
                             data: null,
                             defaultContent: '<button id="openModaledit" class="btn btn-primary" > 자재발주 </button>',
                             width: 70
@@ -268,11 +275,11 @@
                         // Updated Schedule Week 1 - 07 Mar 22
 
                         if (data.possible == '가능') {
-                            $('td:eq(7)', row).css('background-color', 'lime');  //Original Date\
-                            $('td:eq(7)', row).css('color', 'black');  //Original Date\
+                            $('td:eq(8)', row).css('background-color', 'lime');  //Original Date\
+                            $('td:eq(8)', row).css('color', 'black');  //Original Date\
                         } else {
-                            $('td:eq(7)', row).css('background-color', 'Red');  //Original Date\
-                            $('td:eq(7)', row).css('color', 'white');  //Original Date\
+                            $('td:eq(8)', row).css('background-color', 'Red');  //Original Date\
+                            $('td:eq(8)', row).css('color', 'white');  //Original Date\
                         }
 
 
@@ -322,6 +329,7 @@
 
                         { "data": "id" },
                         { "data": "contentname" },
+                        { "data": "bomno" },
                         { "data": "productdate" },
                         { "data": "modelname" },
                         { "data": "itemname" },
@@ -337,7 +345,7 @@
                             visible: false
                         },
                         {
-                            targets: 8,
+                            targets: 9,
                             data: null,
                             defaultContent: '<a href="#addEmployeeModal"  class="edit" data-toggle="modal"><i class="material-icons"  data-toggle="tooltip" title="추가">&#xE254;</i></a>',
                             width: 70
@@ -460,6 +468,7 @@
             var customer = $('#customer').val();
             var lotno = $('#lotno').val();
             var marchine = $('#marchine').val();
+            var bomno = $('#bomno').val();
             var quantity = $('#count').val();
             var number = quantity.replace(/,/g, "");
             var productdate = $('#datepicker1').val();
@@ -473,6 +482,7 @@
                 data: JSON.stringify({
 
                     "modelname": modelname,
+                    "bomno": bomno,
                     "contentname": contentname,
                     "itemname": itemname,
                     "customer": customer,
@@ -480,8 +490,9 @@
                     "marchine": marchine,
                     "quantity": number,
                     "productdate": productdate,
-                    "status": status
-
+                    "status": status,
+                    "orderid": contentname + lotno,
+                    
 
 
                 }),
@@ -498,7 +509,7 @@
                 data: JSON.stringify({
 
                     "id": 138,
-                    "productionorder": '2023-04-04(1,000)'
+                    "productionorder": '2023-05-04(1,000)'
 
 
 
@@ -527,6 +538,7 @@
                         deferLoading: [0, 10],
                         columns: [
                             { "data": "contentname" },
+                            { "data": "bomno" },
                             { "data": "deliverydate" },
                             { "data": "customer" },
                             { "data": "modelname" },
@@ -537,18 +549,18 @@
                         ],
                         columnDefs: [
                             {
-                                targets: 5, className: 'alRight'
-                            },
-                            {
                                 targets: 6, className: 'alRight'
                             },
                             {
-                                targets: 7,
+                                targets: 7, className: 'alRight'
+                            },
+                            {
+                                targets: 8,
                                 width: 80,
                                 className: 'alCenter'
                             },
                             {
-                                targets: 8,
+                                targets: 9,
                                 data: null,
                                 defaultContent: '<button id="openModaledit" class="btn btn-primary" > 자재발주 </button>',
                                 width: 70
@@ -561,11 +573,11 @@
                             // Updated Schedule Week 1 - 07 Mar 22
 
                             if (data.possible == '가능') {
-                                $('td:eq(7)', row).css('background-color', 'lime');  //Original Date\
-                                $('td:eq(7)', row).css('color', 'black');  //Original Date\
+                                $('td:eq(8)', row).css('background-color', 'lime');  //Original Date\
+                                $('td:eq(8)', row).css('color', 'black');  //Original Date\
                             } else {
-                                $('td:eq(7)', row).css('background-color', 'Red');  //Original Date\
-                                $('td:eq(7)', row).css('color', 'white');  //Original Date\
+                                $('td:eq(8)', row).css('background-color', 'Red');  //Original Date\
+                                $('td:eq(8)', row).css('color', 'white');  //Original Date\
                             }
 
 
@@ -593,7 +605,7 @@
                 }
             });
 
-
+            alert("생산지시가 등록되었습니다.");
             $.ajax({
                 url: server + '/api/productorderlist',
                 method: 'post',
@@ -615,11 +627,11 @@
 
                             { "data": "id" },
                             { "data": "contentname" },
+                            { "data": "bomno" },
                             { "data": "productdate" },
                             { "data": "modelname" },
                             { "data": "itemname" },
                             { "data": "lotno" },
-                            // { "data": "marchine" },
                             { "data": "quantity" },
                             { "data": "orderid" }
                         ],
@@ -630,13 +642,13 @@
                                 visible: false
                             },
                             {
-                                targets: 8,
+                                targets: 9,
                                 data: null,
                                 defaultContent: '<a href="#addEmployeeModal"  class="edit" data-toggle="modal"><i class="material-icons"  data-toggle="tooltip" title="추가">&#xE254;</i></a>',
                                 width: 70
                             }
 
-                        ],
+                        ],  
 
                         "language": {
                             emptyTable: "데이터가 없습니다.",
