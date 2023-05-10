@@ -10,6 +10,7 @@
     <title>생산설비정보</title>
 
     <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="/css/css.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
@@ -128,14 +129,24 @@
         </div>
     </div>
 
-    <div style="height:50px; border: 1px solid black;">
-        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
-            기초정보-생산설비정보
-        </p>
-    </div>
+    <div style="height:50px; ">
+        <p style="margin-left:20px; margin-top:20px; font-size: 20px; font-weight: bold;">
+            생산설비정보
 
-    <div style="width:100%; height:40px; border: 1px solid black;">
-        <button type="button" class="btn btn-primary" id="openModal" style="margin-top:2px;"> 신규등록 </button>
+            <button type="button" class="btn btn-primary" id="openModal"
+                style="float: right; width: 150px; margin-right: 10px; background-color: navy;"> 신규등록 </button>
+            <button type="button" class="btn btn-primary" id="openModal"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(96, 96, 168);"> 인쇄
+            </button>
+            <button type="button" class="btn btn-primary" id="openModal"
+                style="float: right; width: 150px; margin-right: 10px; background-color: green;"> Excel </button>
+            <button type="button" class="btn btn-primary" id="openModal"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(216, 24, 24);"> Pdf
+            </button>
+
+        </p>
+
+
     </div>
 
     <div style="border: 1px solid whitesmoke;">
@@ -160,6 +171,16 @@
 
     <script>
         // 시작부분
+        var server = '';
+        console.log(window.location.hostname)
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+            // server = 'http://techonmes.co.kr';
+
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
         $(document).ready(function () {
             // 로딩 창을 보이게 한다
             const loadingScreen = document.getElementById("loading-screen");
@@ -167,7 +188,8 @@
 
             $("#openModal").click(function () {
                 $("#equipmentname-save").val('');
-          
+                $("#myModal").modal();
+
             });
 
             $('#fileinfo').on('click', '#openModaledit', function () {
@@ -179,12 +201,12 @@
                 var td = tr.children();
 
                 var equipmentname = td.eq(0).text();
-        
+
                 table1 = $('#fileinfo').DataTable();
                 var data1 = table1.row($(this).parents('tr')).data(); // getting 
 
                 $('#equipmentname-edit').val(equipmentname);
-          
+
                 $('#id-edit').val(data1.id);
 
                 $("#edit").modal();
@@ -200,7 +222,7 @@
 
             });
             $.ajax({
-                url: 'http://techonmes.co.kr/api/equipment',
+                url: server + '/api/equipment',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -209,7 +231,7 @@
                         paging: true,
                         destroy: true,
                         sort: true,
-                        pageLength: 10,
+                        pageLength: 18,
                         searching: true,
                         data: data,
                         responsive: true,
@@ -221,11 +243,6 @@
 
                         ],
 
-                        dom: 'flrtBip',
-
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
 
                         columnDefs: [
                             {
@@ -234,15 +251,14 @@
                             {
                                 targets: 2,
                                 data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                width: 50
+                                defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                width: 65
                             },
                             {
                                 targets: 3,
                                 data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
+                                defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                width: 65
                             }
 
                         ],
@@ -288,17 +304,17 @@
 
 
                 var equipmentname = $('#equipmentname-save').val();
-        
+
 
                 $.ajax({
                     type: 'POST',
-                    url: 'http://techonmes.co.kr/api/equipmentinsertdata',
+                    url: server + '/api/equipmentinsertdata',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
 
                         "equipmentname": equipmentname
-                        
+
 
 
 
@@ -314,7 +330,7 @@
 
 
                 $.ajax({
-                    url: 'http://techonmes.co.kr/api/equipment',
+                    url: server + '/api/equipment',
                     method: 'post',
                     dataType: 'json',
                     success: function (data) {
@@ -323,7 +339,7 @@
                             paging: true,
                             destroy: true,
                             sort: true,
-                            pageLength: 10,
+                            pageLength: 18,
                             searching: true,
                             data: data,
                             responsive: true,
@@ -335,11 +351,6 @@
 
                             ],
 
-                            dom: 'flrtBip',
-
-                            buttons: [
-                                'copy', 'csv', 'excel', 'pdf', 'print'
-                            ],
 
                             columnDefs: [
                                 {
@@ -348,17 +359,15 @@
                                 {
                                     targets: 2,
                                     data: null,
-                                    defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                    width: 50
+                                    defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                    width: 65
                                 },
                                 {
                                     targets: 3,
                                     data: null,
-                                    defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                    width: 50
+                                    defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                    width: 65
                                 }
-
                             ],
 
                             language: {
@@ -416,7 +425,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'http://techonmes.co.kr/api/equipmentdeletedata',
+                url: server + '/api/equipmentdeletedata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -437,7 +446,7 @@
 
 
             $.ajax({
-                url: 'http://techonmes.co.kr/api/equipment',
+                url: server + '/api/equipment',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -446,7 +455,7 @@
                         paging: true,
                         destroy: true,
                         sort: true,
-                        pageLength: 10,
+                        pageLength: 18,
                         searching: true,
                         data: data,
                         responsive: true,
@@ -457,11 +466,6 @@
                             { "data": "equipmentname" }
                         ],
 
-                        dom: 'flrtBip',
-
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
 
                         columnDefs: [
                             {
@@ -470,15 +474,14 @@
                             {
                                 targets: 2,
                                 data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                width: 50
+                                defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                width: 65
                             },
                             {
                                 targets: 3,
                                 data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
+                                defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                width: 65
                             }
 
                         ],
@@ -525,14 +528,14 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'http://techonmes.co.kr/api/equipmentupdatedata',
+                url: server + '/api/equipmentupdatedata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
 
                     id: $('#id-edit').val(),
                     equipmentname: $('#equipmentname-edit').val()
-             
+
 
 
 
@@ -547,7 +550,7 @@
 
 
             $.ajax({
-                url: 'http://techonmes.co.kr/api/equipment',
+                url: server + '/api/equipment',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -556,7 +559,7 @@
                         paging: true,
                         destroy: true,
                         sort: true,
-                        pageLength: 10,
+                        pageLength: 18,
                         searching: true,
                         data: data,
                         responsive: true,
@@ -568,11 +571,7 @@
 
                         ],
 
-                        dom: 'flrtBip',
 
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
 
                         columnDefs: [
                             {
@@ -581,17 +580,15 @@
                             {
                                 targets: 2,
                                 data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                width: 50
+                                defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                width: 65
                             },
                             {
                                 targets: 3,
                                 data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
+                                defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                width: 65
                             }
-
                         ],
 
                         language: {
@@ -629,5 +626,5 @@
 
     </script>
 
-  
+
 </html>
