@@ -10,6 +10,8 @@
     <title>창고정보</title>
 
     <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="/css/css.css">
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
@@ -150,15 +152,24 @@
             </div>
         </div>
     </div>
+    <div style="height:50px; ">
+        <p style="margin-left:20px; margin-top:20px; font-size: 20px; font-weight: bold;">
+            창고정보
 
-    <div style="height:50px; border: 1px solid black;">
-        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
-            기초정보-창고정보
+            <button type="button" class="btn btn-primary" id="openModal"
+                style="float: right; width: 150px; margin-right: 10px; background-color: navy;"> 신규등록 </button>
+            <button type="button" class="btn btn-primary" id="openModal"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(96, 96, 168);"> 인쇄
+            </button>
+            <button type="button" class="btn btn-primary" id="openModal"
+                style="float: right; width: 150px; margin-right: 10px; background-color: green;"> Excel </button>
+            <button type="button" class="btn btn-primary" id="openModal"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(216, 24, 24);"> Pdf
+            </button>
+
         </p>
-    </div>
 
-    <div style="width:100%; height:40px; border: 1px solid black;">
-        <button type="button" class="btn btn-primary" id="openModal" style="margin-top:2px;"> 신규등록 </button>
+
     </div>
 
     <div style="border: 1px solid whitesmoke;">
@@ -186,6 +197,17 @@
 
     <script>
         // 시작부분
+        var server = '';
+        // console.log(window.location.hostname)
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+            // server = 'http://techonmes.co.kr';
+
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
         $(document).ready(function () {
             // 로딩 창을 보이게 한다
             const loadingScreen = document.getElementById("loading-screen");
@@ -235,88 +257,92 @@
                 $("#datadelte").modal();
 
             });
-            $.ajax({
-                url: 'http://techonmes.co.kr/api/house',
-                method: 'post',
-                dataType: 'json',
-                success: function (data) {
-                    $('#fileinfo').DataTable({
-                        deferLoading: [0, 10],
-                        paging: true,
-                        destroy: true,
-                        sort: true,
-                        pageLength: 10,
-                        searching: true,
-                        data: data,
-                        responsive: true,
-                        columnResize: true,
-                        processing: true,
-                        columns: [
-                            { "data": "id" },
-                            { "data": "housecode" },
-                            { "data": "housename" },
-                            { "data": "part" },
-                            { "data": "partname" }
 
 
-                        ],
+            setTimeout(function () {
+                $.ajax({
+                    url: server + '/api/house',
+                    method: 'post',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#fileinfo').DataTable({
+                            deferLoading: [0, 10],
+                            paging: true,
+                            destroy: true,
+                            sort: true,
+                            pageLength: 15,
+                            searching: true,
+                            data: data,
+                            responsive: true,
+                            columnResize: true,
+                            processing: true,
+                            columns: [
+                                { "data": "id" },
+                                { "data": "housecode" },
+                                { "data": "housename" },
+                                { "data": "part" },
+                                { "data": "partname" }
 
-                        dom: 'flrtBip',
 
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
+                            ],
 
-                        columnDefs: [
-                            {
-                                targets: 0, visible: false, searchable: false
+
+
+                            columnDefs: [
+                                {
+                                    targets: 0,
+                                    visible: false,
+                                    searchable: false
+                                },
+                                {
+                                    targets: 5,
+                                    data: null,
+                                    defaultContent: '<button id="openModaledit" class="edit-button" style="text-align: center;">수정</button>',
+                                    width: 72,
+                                },
+                                {
+                                    targets: 6,
+                                    data: null,
+                                    defaultContent: '<button id="openModaldelete" class="delete-button" style="text-align: center;">삭제</button>',
+                                    width: 72
+                                }
+
+                            ],
+
+                            language: {
+                                emptyTable: "데이터가 없습니다.",
+                                lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                                info: "현재 _START_ - _END_ / _TOTAL_건",
+                                infoEmpty: "데이터 없음",
+                                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                                search: "검색:",
+                                zeroRecords: "일치하는 데이터가 없습니다.",
+                                loadingRecords: "로딩중...",
+                                processing: "잠시만 기다려 주세요.",
+                                paginate: {
+                                    next: "다음",
+                                    previous: "이전"
+                                }
                             },
-                            {
-                                targets: 5,
-                                data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                width: 50
-                            },
-                            {
-                                targets: 6,
-                                data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
-                            }
-
-                        ],
-
-                        language: {
-                            emptyTable: "데이터가 없습니다.",
-                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                            info: "현재 _START_ - _END_ / _TOTAL_건",
-                            infoEmpty: "데이터 없음",
-                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                            search: "검색:",
-                            zeroRecords: "일치하는 데이터가 없습니다.",
-                            loadingRecords: "로딩중...",
-                            processing: "잠시만 기다려 주세요.",
-                            paginate: {
-                                next: "다음",
-                                previous: "이전"
-                            }
-                        },
 
 
-                    });
-                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
-                    $('.sorting').css('text-align', 'center');
-                },
-                error: function () {
-                    alert("다시 시도해 주십시요.");
-                },
+                        });
+                        // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                        $('.sorting').css('text-align', 'center');
+                    },
+                    error: function () {
+                        alert("다시 시도해 주십시요.");
+                    },
 
-                complete: setTimeout(function () {
-                    const loadingScreen = document.getElementById("loading-screen");
-                    loadingScreen.style.display = "none";
-                }, 1500)
-            });
+                    complete: setTimeout(function () {
+                        const loadingScreen = document.getElementById("loading-screen");
+                        loadingScreen.style.display = "none";
+                    }, 1500)
+                });
+            }, 100); // 2초 지연
+
+
+
 
         });
 
@@ -335,7 +361,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: 'http://techonmes.co.kr/api/houseinsertdata',
+                    url: server + '/api/houseinsertdata',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -359,7 +385,7 @@
 
 
                 $.ajax({
-                    url: 'http://techonmes.co.kr/api/house',
+                    url: server + '/api/house',
                     method: 'post',
                     dataType: 'json',
                     success: function (data) {
@@ -384,11 +410,6 @@
 
                             ],
 
-                            dom: 'flrtBip',
-
-                            buttons: [
-                                'copy', 'csv', 'excel', 'pdf', 'print'
-                            ],
 
                             columnDefs: [
                                 {
@@ -397,15 +418,14 @@
                                 {
                                     targets: 5,
                                     data: null,
-                                    defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                    width: 50
+                                    defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                    width: 80
                                 },
                                 {
                                     targets: 6,
                                     data: null,
-                                    defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                    width: 50
+                                    defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                    width: 80
                                 }
 
                             ],
@@ -465,7 +485,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'http://techonmes.co.kr/api/housedeletedata',
+                url: server + '/api/housedeletedata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -486,7 +506,7 @@
 
 
             $.ajax({
-                url: 'http://techonmes.co.kr/api/house',
+                url: server + '/api/house',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -511,11 +531,6 @@
 
                         ],
 
-                        dom: 'flrtBip',
-
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
 
                         columnDefs: [
                             {
@@ -524,15 +539,14 @@
                             {
                                 targets: 5,
                                 data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                width: 50
+                                defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                width: 80
                             },
                             {
                                 targets: 6,
                                 data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
+                                defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                width: 80
                             }
 
                         ],
@@ -580,7 +594,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'http://techonmes.co.kr/api/houseupdatedata',
+                url: server + '/api/houseupdatedata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -606,7 +620,7 @@
 
 
             $.ajax({
-                url: 'http://techonmes.co.kr/api/house',
+                url: server + '/api/house',
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
@@ -631,11 +645,6 @@
 
                         ],
 
-                        dom: 'flrtBip',
-
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
 
                         columnDefs: [
                             {
@@ -644,15 +653,15 @@
                             {
                                 targets: 5,
                                 data: null,
-                                defaultContent: '<button id="openModaledit" class="btn btn-primary" > 수정 </button>',
-                                width: 50
+                                defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                width: 80,
+
                             },
                             {
                                 targets: 6,
                                 data: null,
-                                defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
-
-                                width: 50
+                                defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                width: 80
                             }
 
                         ],
@@ -701,7 +710,7 @@
             $('#housename-save').val('');
             $('#part-save').val('');
             $('#partname-save').val('');
-    
+
 
 
             $("#myModalsave").modal("show");
