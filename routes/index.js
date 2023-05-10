@@ -1150,11 +1150,11 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start       
-     sql.connect(config).then(pool => {
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/inputitemstock', function (req, res) {
 
-        
+
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
@@ -1162,7 +1162,7 @@ module.exports = function (app) {
                 .input('modelname', sql.NVarChar, req.body.modelname)
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('quantity', sql.Int, req.body.quantity)
-             
+
                 .query(
                     'insert into iteminput(modelname,itemname,quantity)' +
                     ' values(@modelname,@itemname,@quantity)'
@@ -2154,8 +2154,8 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start       
-     sql.connect(config).then(pool => {
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/startinspection', function (req, res) {
 
 
@@ -2220,7 +2220,7 @@ module.exports = function (app) {
                 //.input('변수',값 형식, 값)
                 .input('id', sql.Int, req.body.id)
                 .input('finish', sql.NVarChar, req.body.finish)
-          
+
 
 
 
@@ -3171,12 +3171,7 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " Select" +
-                    "  accountname" +
-                    "  from accountmanagement" +
-                    "  WHERE accountname not in ('Null','')" +
-                    "  group by accountname " +
-                    " order by accountname asc "
+                'select accountname from accountmanagement group by accountname'
                 )
                 .then(result => {
 
@@ -3186,6 +3181,11 @@ module.exports = function (app) {
         });
 
     });
+    // **** finish
+
+
+    // **** start material combobox group 쿼리      
+ 
     // **** finish
 
 
@@ -3484,8 +3484,8 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start itemname,materialwidth변수로  chk확인 쿼리      
-     sql.connect(config).then(pool => {
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
         app.post('/api/selectalltest', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
@@ -3570,7 +3570,7 @@ module.exports = function (app) {
 
     });
     // **** finish
-    
+
     var express = require('express');
 
 

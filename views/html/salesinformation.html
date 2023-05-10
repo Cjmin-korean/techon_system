@@ -6,8 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="/css/salesinformation.css">
     <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="/css/css.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
@@ -35,27 +35,31 @@
 
 </head>
 <style>
-    .box1 {
-        float: left;
-        width: 800px;
-        height: 100%;
-        background-color: white;
-        border: 0.5px rgb(177, 173, 173) solid;
-        text-align: center;
-
-
-
-
+    .dataTables_length {
+        display: none;
     }
 
-    .box2 {
-        display: inline-block;
-        width: 1000px;
-        height: 100%;
-        background-color: white;
-        border: 0.5px rgb(177, 173, 173) solid;
-        text-align: center;
-        margin-left: 10px;
+    .open_search_div {
+        display: flex;
+        align-items: center;
+    }
+
+    p {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    select {
+        /* padding: 10px; */
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    hr {
+        height: 2px;
+        border: none;
+        background-color: #ccc;
     }
 </style>
 
@@ -64,20 +68,22 @@
 
 
 
-    <div style="height:50px; border: 1px solid black;">
-        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">영업-영업수주</p>
-        <!-- <button onclick="now()">now</button> -->
+    <div style="height:50px; ">
+        <p style="margin-left:20px; margin-top:20px; font-size: 20px; font-weight: bold;">
+            영업수주
+            <hr>
+        </p>
+
+
     </div>
     <div class="open_search_div">
+        <br>
         <div>
-            <p>고객사:</p>
-            <select id="accountname" style="width: 170px; height: 30px; margin-left:10px; font-weight: bold; ">
+            <p style="font-weight: bold; display: inline-block; margin-top: 20px; margin-left: 20px;">고객사명 :</p>
+            <select id="accountname" style="width: 200px; height: 35px; display: inline-block; margin-top: 20px;">
                 <option></option>
-
-                <option>글로플렉스</option>
-                <option>뉴플렉스</option>
-                <option>영풍전자</option>
                 <option>넥스플러스</option>
+                <option>뉴플렉스</option>
                 <option>대현에스티</option>
                 <option>베트남</option>
                 <option>비에이치플러스</option>
@@ -85,26 +91,81 @@
                 <option>서울바이오시스</option>
                 <option>신성델타테크</option>
                 <option>써키트라인</option>
+                <option>영풍전자</option>
                 <option>현대플렉스</option>
-                <option>파인테크닉스</option>
-
-
+                <option>Jcode</option>
             </select>
-        </div>
-        <div>
-            <p>납기일자:</p>
-            <input type="date" id="datepicker1"
-                style="text-align:center; width: 170px; height: 30px; margin-top:-100px; margin-left:10px; font-weight: bold;">
-            <!-- <button onclick="save_open()" style="width:80px; height: 30px;"> 저장</button> -->
-            <button onclick="save_open()" id="addbtn" style="width:80px; background-color: green;"
-                class="btn btn-primary"> 영업저장 </button>
-            <!-- <button onclick="aaa()"> console</button> -->
 
+            <p style="font-weight: bold; display: inline-block; margin-left: 20px;">납기일자 :</p>
+            <input type="date" id="datepicker1"
+                style="display: inline-block; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            <p style="font-weight: bold; display: inline-block; margin-left: 20px; ">영업수량 :</p>
+            <input type="text" id="countsum" readonly value="0"
+                style="width: 200px; height: 35px; text-align:right; display: inline-block; margin-top: 20px; border-radius: 5px; padding: 5px; margin-right: 20px; border: 1px solid silver;">
+
+            <p style="font-weight: bold; display: inline-block; margin-left: 20px; ">금액합계 :</p>
+            <input type="text" id="pricesum" readonly value="0"
+                style="width: 200px; height: 35px; text-align:right;  display: inline-block; margin-top: 20px; border-radius: 5px; padding: 5px; margin-right: 20px; border: 1px solid silver;">
+
+            <button onclick="save_open()" id="addbtn"
+                style="display: inline-block; width: 100px; height: 35px; background-color: green;"
+                class="btn btn-primary">저장</button>
+        </div>
+
+
+
+    </div>
+    <hr>
+
+    <div style="display: flex; flex-direction: row; width: 100%; ">
+        <div style="flex-grow: 1;  text-align: center; font-family: sans-serif; font-size: 16px; font-weight: bold;">
+            품목정보
+        </div>
+        <div style="flex-grow: 1; text-align: center; font-family: sans-serif; font-size: 16px; font-weight: bold;">
+            영업제품정보</div>
+    </div>
+
+    <hr>
+    <div style="display: flex; flex-direction: row; width: 100%; height: 800px; ">
+        <div style="flex-grow: 1; border-right: 1.5px solid whitesmoke; width: 55%; margin-top: -90px;">
+            <table id="fileinfo" class="display" style="width: 100%; table-layout: fixed;">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th style="text-align: left;">BOM NO.</th>
+                        <th style="text-align: left;">모델명</th>
+                        <th style="text-align: left;">제품명</th>
+                        <th style="text-align: left;">단가(₩)</th>
+                        <th style="text-align: left;">원가(₩)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+            </table>
+        </div>
+        <div style="flex-grow: 1; border-left: 1.5px solid whitesmoke; width: 50%; margin-top: -20px;">
+            <table id="fileinfo1" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>BOMNO.</th>
+                        <th>모델명</th>
+                        <th>제품명</th>
+                        <th>원가(₩)</th>
+                        <th>단가(₩)</th>
+                        <th>수량(개)</th>
+                        <th>금액(₩)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="fileinfobody">
+                </tbody>
+            </table>
         </div>
     </div>
 
 
-    <div class="box1">
+
+    <!-- <div class="box1">
         <div class="box1-1" style="width: 100%; height:30px; background-color:navy;">
             <a style="color: white; text-align:center; font-size: 24px;">제품정보</a>
         </div>
@@ -154,7 +215,7 @@
             <tbody id="fileinfobody">
             </tbody>
         </table>
-    </div>
+    </div> -->
 
 
     <div id="addEmployeeModal" class="modal fade">
@@ -218,7 +279,7 @@
 
     // 시작부분
     var server = '';
-    console.log(window.location.hostname)
+    // console.log(window.location.hostname)
 
     if (window.location.hostname == 'localhost') {
         server = 'http://localhost:8080';
@@ -231,15 +292,7 @@
     // This code runs when the document is ready
     $(document).ready(function () {
 
-        // $('#fileinfo tbody').on('click', 'button', function () {
-        //     table1 = $('#fileinfo').DataTable();
-        //     var data1 = table1.row($(this).parents('tr')).data(); // getting 
 
-        //     $('#modelname').val(data1.modelname);
-        //     $('#itemname').val(data1.itemname);
-        //     $('#price').val(data1.itemprice);
-        //     $('#count').val('');
-        // });
 
         $('#fileinfo').on('click', '#addbtn', function () {
             table1 = $('#fileinfo').DataTable();
@@ -258,70 +311,94 @@
         // Call settingDate() function (not defined in this code)
         settingDate()
 
-        // Set two input fields to read-only
-        document.getElementById('countsum').readOnly = true;
-        document.getElementById('pricesum').readOnly = true;
+        setTimeout(function () {
+            $.ajax({
+                url: server + '/api/iteminfo',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    // Create a DataTable for the data received from the server
+                    $('#fileinfo').dataTable({
+                        deferLender: true,
+                        lengthMenu: [2, 4, 6, 8, 10],
+                        paging: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        deferLoading: [0, 10],
+                        columns: [
+                            { "data": "id" },
+                            { "data": "bomno" },
+                            { "data": "modelname" },
+                            { "data": "itemname" },
+                            { "data": "itemprice" },
+                            { "data": "cost" }
+                        ],
+                        columnDefs: [
+                            {
+                                targets: 0,
+                                visible: false
+                            },
+                            {
+                                targets: 1,
+                                width: 70,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 2,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 3,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 4,
+                                width: 45,
+                                className: 'alRight'
+                            },
+                            {
+                                targets: 5,
+                                width: 45,
+                                className: 'alRight'
+                            },
+
+
+                            {
+                                targets: 6,
+                                data: null,
+                                defaultContent: '<button id="addbtn" class="edit-button">추가</button>',
+                                width: 65
+                            },
+                        ],
+                        "language": {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전",
+                            },
+                        },
+                        destroy: true,
+                    });
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        }, 100); // 2초 지연
 
         // Load data from the server using AJAX
-        $.ajax({
-            url: server + '/api/iteminfo',
-            method: 'post',
-            dataType: 'json',
-            success: function (data) {
-                // Create a DataTable for the data received from the server
-                $('#fileinfo').dataTable({
-                    deferLender: true,
-                    lengthMenu: [2, 4, 6, 8, 10],
-                    paging: true,
-                    sort: true,
-                    pageLength: 10,
-                    searching: true,
-                    data: data,
-                    responsive: true,
-                    deferLoading: [0, 10],
-                    columns: [
-                        { "data": "id" },
-                        { "data": "bomno" },
-                        { "data": "modelname" },
-                        { "data": "itemname" },
-                        { "data": "itemprice" },
-                        { "data": "cost" }
-                    ],
-                    columnDefs: [
-                        {
-                            targets: 0,
-                            visible: false
-                        },
-                        {
-                            targets: 6,
-                            data: null,
-                            // defaultContent: '<a href="#addEmployeeModal"  class="edit" data-toggle="modal"><i class="material-icons"  data-toggle="tooltip" title="추가">&#xE254;</i></a>',
-                            defaultContent: '<button id="addbtn" class="btn btn-primary" > 추가 </button>',
-                            width: 70
-                        }
-                    ],
-                    "language": {
-                        emptyTable: "데이터가 없습니다.",
-                        lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                        info: "현재 _START_ - _END_ / _TOTAL_건",
-                        infoEmpty: "데이터 없음",
-                        infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                        search: "검색:",
-                        zeroRecords: "일치하는 데이터가 없습니다.",
-                        loadingRecords: "로딩중...",
-                        processing: "잠시만 기다려 주세요.",
-                        paginate: {
-                            next: "다음",
-                            previous: "이전",
-                        },
-                    },
-                    destroy: true,
-                });
-            },
-            error: function (response) {
-                alert(response.responseText);
-            }
-        });
+
 
         // Load data from the server using AJAX (identical to previous call)
         $.ajax({
@@ -348,8 +425,29 @@
                 alert(response.responseText);
             }
         });
+
+        // $.ajax({
+        //     type: 'POST',
+        //     url: server + '/api/accountnamegroup',
+        //     dataType: 'json',
+        //     contentType: 'application/json',
+        //     success: function (result) {
+
+        //         const selectElement = document.getElementById("accountname");
+
+        //         for (let i = 0; i < result.length; i++) {
+        //             const option = document.createElement("option");
+        //             option.text = result[i].name;
+        //             option.value = result[i].value;
+        //             selectElement.add(option);
+        //         }
+        //     },
+        // });
+
+
     });
 </script>
+
 <script type="text/javascript">
 
 
@@ -577,7 +675,8 @@
 <script type="text/javascript">
 
     function save_open() {
-        if ($('#accountname').val() === '') {
+        const accountname = document.getElementById("accountname");
+        if (accountname.value === "") {
 
             alert("거래처가 누락되었습니다.");
             return
@@ -723,21 +822,6 @@
         console.log(month)
     }
 
-</script>
-<script>
-    var textbox = document.getElementById("countsum");
-    textbox.style.border = "2px solid blue";
-    textbox.style.borderRadius = "5px";
-    textbox.style.padding = "10px";
-    textbox.style.height = "20px";
-    textbox.style.color = "black";
-
-    var textbox1 = document.getElementById("pricesum");
-    textbox1.style.border = "2px solid blue";
-    textbox1.style.borderRadius = "5px";
-    textbox1.style.padding = "10px";
-    textbox1.style.height = "20px";
-    textbox1.style.color = "black";
 </script>
 
 </html>

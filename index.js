@@ -259,6 +259,9 @@ app.get("/insertalltest", cors(), (req, res) => {
 app.get("/inputitemstock", cors(), (req, res) => {
     res.sendFile(__dirname + "/finalinspection.html");
 });
+app.get("/accountnamegroup", cors(), (req, res) => {
+    res.sendFile(__dirname + "/salesinformation.html");
+});
 
 
 app.get("/jquery.min.js", cors(), (req, res) => {
