@@ -1820,7 +1820,7 @@ module.exports = function (app) {
                     " customer, " +
                     " modelname, " +
                     " itemname, " +
-                    " quantity, " +
+                    " format(convert(int,Isnull(quantity,0)),'##,##0')  as 'quantity', " +
                     " salesorder, " +
                     " productionorder, " +
                     " material, " +

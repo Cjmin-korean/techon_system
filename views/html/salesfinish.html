@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="/css/css.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
@@ -37,12 +38,25 @@
 </head>
 
 <body>
-    <div style="height:50px; border: 1px solid black;">
-        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
-            영업-영업수주(완료)
+    <div style="height:50px; ">
+        <p style="margin-left:20px; margin-top:20px; font-size: 20px; font-weight: bold;">
+            영업완료현황
+
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(96, 96, 168);"> 인쇄
+            </button>
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: green;"> Excel </button>
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(216, 24, 24);"> Pdf
+            </button>
+
         </p>
+
+
     </div>
-<!-- 
+
+    <!-- 
     <div style="width:100%; height:50px; border: 1px solid black;">
         <button onclick="removerow()">추가</button>
     </div> -->
@@ -76,148 +90,151 @@
 
 
 <script>
-    // var editor;
-    var table;
-    $.ajax({
-        type: 'POST',
-        url: "http://techonmes.co.kr/api/accountend"
-    }).done(function (d) {
+    // 시작부분
+    var server = '';
+    console.log(window.location.hostname)
 
-        table = $('#fileinfo').DataTable({
-            data: d,
-            lengthMenu: [10, 20, 30, 40, 50],
-            // dom: 'Bfrtip',
+    if (window.location.hostname == 'localhost') {
+        server = 'http://localhost:8080';
+        // server = 'http://techonmes.co.kr';
 
-            "columns": [
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
 
-                { "data": "id" },
-                { "data": "deliverydate" },
-                { "data": "customer" },
-                { "data": "modelname" },
-                { "data": "itemname" },
-                { "data": "quantity" },
-                { "data": "salesorder" },
-                { "data": "productionorder" },
-                { "data": "material" },
-                { "data": "production" },
-                { "data": "test" },
-                { "data": "shipment" },
-                { "data": "difference" }
 
-            ],
-            columnDefs: [
+    setTimeout(function () {
+        var table;
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/accountend'
+        }).done(function (d) {
 
-                {
-                    targets: 0,
-                    visible: false
+            table = $('#fileinfo').DataTable({
+                data: d,
+                lengthMenu: [10, 20, 30, 40, 50],
+                // dom: 'Bfrtip',
+
+                "columns": [
+
+                    { "data": "id" },
+                    { "data": "deliverydate" },
+                    { "data": "customer" },
+                    { "data": "modelname" },
+                    { "data": "itemname" },
+                    { "data": "quantity" },
+                    { "data": "salesorder" },
+                    { "data": "productionorder" },
+                    { "data": "material" },
+                    { "data": "production" },
+                    { "data": "test" },
+                    { "data": "shipment" },
+                    { "data": "difference" }
+
+                ],
+                columnDefs: [
+
+                    {
+                        targets: 0,
+                        visible: false
+                    },
+                    {
+                        targets: 6,
+                        orderable: false
+                    },
+                    {
+                        targets: 7,
+                        orderable: false
+                    },
+                    {
+                        targets: 8,
+                        orderable: false
+                    },
+                    {
+                        targets: 9,
+                        orderable: false
+                    },
+                    {
+                        targets: 10,
+                        orderable: false
+                    },
+                    {
+                        targets: 11,
+                        orderable: false
+                    }
+
+
+                ],
+                createdRow: function (row, data, index) {
+
+                    // Updated Schedule Week 1 - 07 Mar 22
+
+                    if (data.salesorder == null || data.salesorder == '') {
+                        $('td:eq(5)', row).css('background-color', 'RED');  //Original Date\
+                    } else {
+                        $('td:eq(5)', row).css('background-color', 'lime');  //Original Date\
+                    }
+
+                    if (data.productionorder == null || data.productionorder == '') {
+                        $('td:eq(6)', row).css('background-color', 'RED');  //Original Date\
+                    } else {
+                        $('td:eq(6)', row).css('background-color', 'lime');  //Original Date\
+                    }
+
+                    if (data.material == null || data.material == '') {
+                        $('td:eq(7)', row).css('background-color', 'RED');  //Original Date\
+                    } else {
+                        $('td:eq(7)', row).css('background-color', 'lime');  //Original Date\
+                    }
+
+                    if (data.production == null || data.production == '') {
+                        $('td:eq(8)', row).css('background-color', 'RED');  //Original Date\
+                    } else {
+                        $('td:eq(8)', row).css('background-color', 'lime');  //Original Date\
+                    }
+
+                    if (data.test == null || data.test == '') {
+                        $('td:eq(9)', row).css('background-color', 'RED');  //Original Date\
+                    } else {
+                        $('td:eq(9)', row).css('background-color', 'lime');  //Original Date\
+                    }
+
+                    if (data.shipment == null || data.shipment == '') {
+                        $('td:eq(10)', row).css('background-color', 'RED');  //Original Date\
+                    } else {
+                        $('td:eq(10)', row).css('background-color', 'lime');  //Original Date\
+                    }
+
                 },
-                {
-                    targets: 6,
-                    orderable: false
+                destroy: true, // 이 부분 체크해 주세요!
+
+                //언어 변경
+                "language": {
+                    emptyTable: "데이터가 없습니다.",
+                    lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                    info: "현재 _START_ - _END_ / _TOTAL_건",
+                    infoEmpty: "데이터 없음",
+                    infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                    search: "검색:",
+                    zeroRecords: "일치하는 데이터가 없습니다.",
+                    loadingRecords: "로딩중...",
+                    processing: "잠시만 기다려 주세요.",
+                    paginate: {
+                        next: "다음",
+                        previous: "이전",
+                    },
                 },
-                {
-                    targets: 7,
-                    orderable: false
-                },
-                {
-                    targets: 8,
-                    orderable: false
-                },
-                {
-                    targets: 9,
-                    orderable: false
-                },
-                {
-                    targets: 10,
-                    orderable: false
-                },
-                {
-                    targets: 11,
-                    orderable: false
-                }
 
-
-                // {
-                //     targets: 6,
-                //     data: null,
-                //     defaultContent: '<button>수정</button>',
-                //     width: 70
-                // },
-                // {
-                //     targets: 7,
-                //     data: null,
-                //     defaultContent: '<button>삭제</button>',
-                //     width: 70
-                // }
-
-            ],
-            createdRow: function (row, data, index) {
-
-                // Updated Schedule Week 1 - 07 Mar 22
-
-                if (data.salesorder == null || data.salesorder == '') {
-                    $('td:eq(5)', row).css('background-color', 'RED');  //Original Date\
-                } else {
-                    $('td:eq(5)', row).css('background-color', 'lime');  //Original Date\
-                }
-
-                if (data.productionorder == null || data.productionorder == '') {
-                    $('td:eq(6)', row).css('background-color', 'RED');  //Original Date\
-                } else {
-                    $('td:eq(6)', row).css('background-color', 'lime');  //Original Date\
-                }
-
-                if (data.material == null || data.material == '') {
-                    $('td:eq(7)', row).css('background-color', 'RED');  //Original Date\
-                } else {
-                    $('td:eq(7)', row).css('background-color', 'lime');  //Original Date\
-                }
-
-                if (data.production == null || data.production == '') {
-                    $('td:eq(8)', row).css('background-color', 'RED');  //Original Date\
-                } else {
-                    $('td:eq(8)', row).css('background-color', 'lime');  //Original Date\
-                }
-
-                if (data.test == null || data.test == '') {
-                    $('td:eq(9)', row).css('background-color', 'RED');  //Original Date\
-                } else {
-                    $('td:eq(9)', row).css('background-color', 'lime');  //Original Date\
-                }
-
-                if (data.shipment == null || data.shipment == '') {
-                    $('td:eq(10)', row).css('background-color', 'RED');  //Original Date\
-                } else {
-                    $('td:eq(10)', row).css('background-color', 'lime');  //Original Date\
-                }
-                    
-            },
-            destroy: true, // 이 부분 체크해 주세요!
-
-            //언어 변경
-            "language": {
-                emptyTable: "데이터가 없습니다.",
-                lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                info: "현재 _START_ - _END_ / _TOTAL_건",
-                infoEmpty: "데이터 없음",
-                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                search: "검색:",
-                zeroRecords: "일치하는 데이터가 없습니다.",
-                loadingRecords: "로딩중...",
-                processing: "잠시만 기다려 주세요.",
-                paginate: {
-                    next: "다음",
-                    previous: "이전",
-                },
-            },
-
-        }
-        );
+            }
+            );
 
 
 
 
-    });
+        });
+    }, 100); // 2초 지연
+
+
     function save_accountinfo() {
 
         var accountcode = $('#accountcode-save').val();
@@ -259,7 +276,7 @@
         var table;
         $.ajax({
             type: 'POST',
-            url: "http://techonmes.co.kr/api/accountmanagement"
+            url: server + '/api/accountmanagement'
         }).done(function (d) {
 
             table = $('#fileinfo').DataTable({

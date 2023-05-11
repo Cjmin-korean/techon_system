@@ -36,10 +36,23 @@
 </head>
 
 <body>
-    <div style="height:50px; border: 1px solid black;">
-        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
-            영업-영업수주(진행)
+    <div style="height:50px; ">
+        <p style="margin-left:20px; margin-top:20px; font-size: 20px; font-weight: bold;">
+            영업공정현황
+
+        
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(96, 96, 168);"> 인쇄
+            </button>
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: green;"> Excel </button>
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(216, 24, 24);"> Pdf
+            </button>
+
         </p>
+
+
     </div>
 
 
@@ -73,11 +86,21 @@
 
 
 <script>
-    // var editor;
-    var table;
+    // 시작부분
+    var server = '';
+    console.log(window.location.hostname)
+
+    if (window.location.hostname == 'localhost') {
+        server = 'http://localhost:8080';
+        // server = 'http://techonmes.co.kr';
+
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
     $.ajax({
         type: 'POST',
-        url: "http://techonmes.co.kr/api/accounting"
+        url: server + '/api/accounting'
     }).done(function (d) {
 
         table = $('#fileinfo').DataTable({
@@ -88,11 +111,11 @@
             "columns": [
 
                 { "data": "id" },
-                { "data": "deliverydate"},
-                { "data": "customer"},
-                { "data": "modelname"},
-                { "data": "itemname"},
-                { "data": "quantity"},
+                { "data": "deliverydate" },
+                { "data": "customer" },
+                { "data": "modelname" },
+                { "data": "itemname" },
+                { "data": "quantity" },
                 { "data": "salesorder" },
                 { "data": "productionorder" },
                 { "data": "material" },
@@ -107,6 +130,27 @@
                     targets: 0,
                     visible: false
                 },
+                {
+                    targets: 1,
+                    className : 'alLeft'
+                },
+                {
+                    targets: 2,
+                    className : 'alLeft'
+                },
+                {
+                    targets: 3,
+                    className : 'alLeft'
+                },
+                {
+                    targets: 4,
+                    className : 'alLeft'
+                },
+                {
+                    targets: 5,
+                    className : 'alRight'
+                },
+
                 {
                     targets: 6,
                     orderable: false
@@ -144,8 +188,8 @@
 
                 // Updated Schedule Week 1 - 07 Mar 22
 
-                
-               
+
+
 
                 if (data.salesorder == null || data.salesorder == '') {
                     $('td:eq(5)', row).css('background-color', 'RED');  //Original Date\
@@ -183,10 +227,10 @@
                     $('td:eq(10)', row).css('background-color', 'lime');  //Original Date\
                 }
                 if (data.difference1 === '납기일이 지났습니다') {
-                        $('td:eq(11)', row).css('color', 'RED');  
-                    } else {
-                        $('td:eq(11)', row).css('color', 'black'); 
-                    }
+                    $('td:eq(11)', row).css('color', 'RED');
+                } else {
+                    $('td:eq(11)', row).css('color', 'black');
+                }
             },
             destroy: true, // 이 부분 체크해 주세요!
 
@@ -225,7 +269,7 @@
         if (confirm("거래처 정보를 등록 하시겠습니까??") == true) {
             $.ajax({
                 type: 'POST',
-                url: 'http://techonmes.co.kr/api/accountinfoinsertdata',
+                url: server + '/api/accountinfoinsertdata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -255,7 +299,7 @@
         var table;
         $.ajax({
             type: 'POST',
-            url: "http://techonmes.co.kr/api/accountmanagement"
+            url: server + '/api/accountmanagement'
         }).done(function (d) {
 
             table = $('#fileinfo').DataTable({
@@ -315,7 +359,7 @@
         if (confirm("거래처 정보를 삭제 하시겠습니까??") == true) {
             $.ajax({
                 type: 'POST',
-                url: 'http://techonmes.co.kr/api/accountinfodeletedata',
+                url: server + '/api/accountinfodeletedata',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -335,7 +379,7 @@
         var table;
         $.ajax({
             type: 'POST',
-            url: "http://techonmes.co.kr/api/accountmanagement"
+            url: server + '/api/accountmanagement'
         }).done(function (d) {
 
             table = $('#fileinfo').DataTable({
