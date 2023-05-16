@@ -524,7 +524,8 @@ module.exports = function (app) {
                     "   customer," +
                     "   format(convert(float,Isnull(itemprice,0)),'##,##0')'itemprice'," +
                     "   cost," +
-                    "   quantity" +
+                    "   quantity, " +
+                    "   FORMAT(cost/itemprice*100, '##,##0.00') AS 'costpg'" +
                     "   from iteminfo"
                 )
 
@@ -1645,6 +1646,38 @@ module.exports = function (app) {
 
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/salescontent', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .query(
+                    "   select " +
+                    "    contentname, " +
+                    "    accountdate, " +
+                    "    deliverydate, " +
+                    "    customer, " +
+                    "    bomno, " +
+                    "    modelname, " +
+                    "    itemname, " +
+                    "    FORMAT(itemcost, '#,##0.00') AS itemcost, "+
+                    "    FORMAT(itemprice, '#,##0.00') AS itemprice, "+
+                    "    FORMAT(quantity, '#,##0.##') AS quantity, "+
+                    "    productok, " +
+                    "    materialok " +
+                    "    from " +
+                    "    accountinput ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/accountmaterialstock2', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             console.log("11", req)
@@ -1771,7 +1804,7 @@ module.exports = function (app) {
                     "          AND c.row_num = rc.row_num + 1  " +
                     "  )  " +
                     "  SELECT " +
-                    "      contentname,bomno,deliverydate,customer,modelname, itemname, quantity, difference,  " +
+                    "      contentname,bomno,deliverydate,customer,modelname, itemname, FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference, " +
                     "      CASE WHEN (difference)>=0  THEN '가능' ELSE '부족' END AS possible   " +
                     "  FROM recursive_cte"
 
@@ -3171,7 +3204,7 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                'select accountname from accountmanagement group by accountname'
+                    'select accountname from accountmanagement group by accountname'
                 )
                 .then(result => {
 
@@ -3185,7 +3218,7 @@ module.exports = function (app) {
 
 
     // **** start material combobox group 쿼리      
- 
+
     // **** finish
 
 

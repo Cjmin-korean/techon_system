@@ -10,6 +10,7 @@
     <title>BOM이력관리</title>
 
     <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="/css/css.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
@@ -41,13 +42,31 @@
 
 </head>
 
+<style>
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>
 
 <body>
 
-    <div style="height:50px; border: 1px solid black;">
-        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">
-            개발-BOM이력관리
+    <div style="height:50px; ">
+        <p style="margin-left:20px; margin-top:20px; font-size: 20px; font-weight: bold;">
+            BOM이력관리
+
+
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(96, 96, 168);"> 인쇄
+            </button>
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: green;"> Excel </button>
+            <button type="button" class="btn btn-primary"
+                style="float: right; width: 150px; margin-right: 10px; background-color: rgb(216, 24, 24);"> Pdf
+            </button>
+
         </p>
+
+
     </div>
 
 
@@ -85,114 +104,142 @@
             loadingScreen.style.display = "block";
 
 
-
-
-
-
-            $.ajax({
-                url: 'http://techonmes.co.kr/api/bomchange',
-                method: 'post',
-                dataType: 'json',
-                success: function (data) {
-                    $('#fileinfo').DataTable({
-                        deferLoading: [0, 10],
-                        paging: true,
-                        destroy: true,
-                        sort: true,
-                        pageLength: 30,
-                        searching: true,
-                        data: data,
-                        responsive: true,
-                        columnResize: true,
-                        processing: true,
-                        columns: [
-                            { "data": "id" },
-                            { "data": "savedate" },
-                            { "data": "bomno" },
-                            { "data": "model" },
-                            { "data": "itemname" },
-                            { "data": "materialname" },
-                            { "data": "swidth" },
-                            { "data": "mwidth" },
-                            { "data": "classification" }
-                        ],
-                        columnDefs: [
-                            {
-                                targets: 0, visible: false, searchable: false
-                            }
-                        ],
-                        language: {
-                            emptyTable: "데이터가 없습니다.",
-                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                            info: "현재 _START_ - _END_ / _TOTAL_건",
-                            infoEmpty: "데이터 없음",
-                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                            search: "검색:",
-                            zeroRecords: "일치하는 데이터가 없습니다.",
-                            loadingRecords: "로딩중...",
-                            processing: "잠시만 기다려 주세요.",
-                            paginate: {
-                                next: "다음",
-                                previous: "이전"
-                            }
-                        },
-                        drawCallback: function () {
-                            var api = this.api();
-                            var rows = api.rows({ page: 'current' }).nodes();
-                            var last = null;
-                            api.column(1, { page: 'current' }).data().each(function (group, i) {
-                                if (last !== group) {
-                                    $(rows).eq(i).before(
-                                        '<tr class="group"><td colspan="9">' + group + '</td></tr>'
-                                    );
-                                    last = group;
+            setTimeout(function () {
+                $.ajax({
+                    url: 'http://techonmes.co.kr/api/bomchange',
+                    method: 'post',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#fileinfo').DataTable({
+                            deferLoading: [0, 10],
+                            paging: true,
+                            destroy: true,
+                            sort: true,
+                            pageLength: 30,
+                            searching: true,
+                            data: data,
+                            responsive: true,
+                            columnResize: true,
+                            processing: true,
+                            columns: [
+                                { "data": "id" },
+                                { "data": "savedate" },
+                                { "data": "bomno" },
+                                { "data": "model" },
+                                { "data": "itemname" },
+                                { "data": "materialname" },
+                                { "data": "swidth" },
+                                { "data": "mwidth" },
+                                { "data": "classification" }
+                            ],
+                            columnDefs: [
+                                {
+                                    targets: 0, visible: false, searchable: false
                                 }
-                            });
-                        },
-                        order: [[1, 'asc']],
-                        rowGroup: {
-                            dataSrc: 'savedate'
-                        },
+                            ],
+                            language: {
+                                emptyTable: "데이터가 없습니다.",
+                                lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                                info: "현재 _START_ - _END_ / _TOTAL_건",
+                                infoEmpty: "데이터 없음",
+                                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                                search: "검색:",
+                                zeroRecords: "일치하는 데이터가 없습니다.",
+                                loadingRecords: "로딩중...",
+                                processing: "잠시만 기다려 주세요.",
+                                paginate: {
+                                    next: "다음",
+                                    previous: "이전"
+                                }
+                            },
+                            drawCallback: function () {
+                                var api = this.api();
+                                var rows = api.rows({ page: 'current' }).nodes();
+                                var last = null;
+                                api.column(1, { page: 'current' }).data().each(function (group, i) {
+                                    if (last !== group) {
+                                        $(rows).eq(i).before(
+                                            '<tr class="group"><td colspan="9">' + group + '</td></tr>'
+                                        );
+                                        last = group;
+                                    }
+                                });
+                            },
+                            order: [[1, 'asc']],
+                            rowGroup: {
+                                dataSrc: 'savedate'
+                            },
+                            // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+
+                            // dom: 'flrtBip',
+                            // buttons: [
+                            //     'copy', 'csv', 'excel', 'pdf', 'print'
+                            // ],
+                            columnDefs: [
+                                {
+                                    targets: 0, visible: false, searchable: false
+                                },
+                                {
+                                    targets: 1,
+                                    className: 'alLeft'
+                                },
+                                {
+                                    targets: 2,
+                                    className: 'alLeft'
+                                },
+                                {
+                                    targets: 3,
+                                    className: 'alLeft'
+                                },
+                                {
+                                    targets: 4,
+                                    className: 'alLeft'
+                                },
+                                {
+                                    targets: 5,
+                                    className: 'alLeft'
+                                },
+                                {
+                                    targets: 6,
+                                    className: 'alRight'
+                                },
+                                {
+                                    targets: 7,
+                                    className: 'alRight'
+                                }
+                            ],
+                            language: {
+                                emptyTable: "데이터가 없습니다.",
+                                lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                                info: "현재 _START_ - _END_ / _TOTAL_건",
+                                infoEmpty: "데이터 없음",
+                                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                                search: "검색:",
+                                zeroRecords: "일치하는 데이터가 없습니다.",
+                                loadingRecords: "로딩중...",
+                                processing: "잠시만 기다려 주세요.",
+                                paginate: {
+                                    next: "다음",
+                                    previous: "이전"
+                                }
+                            }
+                        });
                         // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
-                        columnDefs: [
-                            { className: "dt-center", targets: "_all" }
-                        ],
-                        dom: 'flrtBip',
-                        buttons: [
-                            'copy', 'csv', 'excel', 'pdf', 'print'
-                        ],
-                        columnDefs: [
-                            {
-                                targets: [0], visible: false, searchable: false
-                            }
-                        ],
-                        language: {
-                            emptyTable: "데이터가 없습니다.",
-                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                            info: "현재 _START_ - _END_ / _TOTAL_건",
-                            infoEmpty: "데이터 없음",
-                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                            search: "검색:",
-                            zeroRecords: "일치하는 데이터가 없습니다.",
-                            loadingRecords: "로딩중...",
-                            processing: "잠시만 기다려 주세요.",
-                            paginate: {
-                                next: "다음",
-                                previous: "이전"
-                            }
-                        }
-                    });
-                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
-                    $('.sorting').css('text-align', 'center');
-                },
-                error: function () {
-                    alert("다시 시도해 주십시요.");
-                },
-                complete: setTimeout(function () {
-                    const loadingScreen = document.getElementById("loading-screen");
-                    loadingScreen.style.display = "none";
-                }, 1500)
-            });
+                        $('.sorting').css('text-align', 'center');
+                    },
+                    error: function () {
+                        alert("다시 시도해 주십시요.");
+                    },
+                    complete: setTimeout(function () {
+                        const loadingScreen = document.getElementById("loading-screen");
+                        loadingScreen.style.display = "none";
+                    }, 1500)
+                });
+            }, 100); // 2초 지연
+
+
+
+
 
         });
 

@@ -262,6 +262,9 @@ app.get("/inputitemstock", cors(), (req, res) => {
 app.get("/accountnamegroup", cors(), (req, res) => {
     res.sendFile(__dirname + "/salesinformation.html");
 });
+app.get("/salescontent", cors(), (req, res) => {
+    res.sendFile(__dirname + "/salescontent.html");
+});
 
 
 app.get("/jquery.min.js", cors(), (req, res) => {

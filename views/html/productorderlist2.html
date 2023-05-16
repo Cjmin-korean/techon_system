@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
-    <link rel="stylesheet" href="/css/salesinformation.css">
+    <!-- <link rel="stylesheet" href="/css/salesinformation.css"> -->
     <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="/css/css.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
@@ -52,7 +53,7 @@
         background-color: white;
         border: 0.5px rgb(177, 173, 173) solid;
         /* text-align: center; */
-        /* margin-left: 10px; */
+        margin-top: 10px;
     }
 </style>
 
@@ -61,15 +62,20 @@
 
 
 
-    <div style="height:50px; border: 1px solid black;">
-        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">생산-생산발주</p>
+    <div style="height:50px; ">
+        <p style="margin-left:20px; margin-top:20px; font-size: 20px; font-weight: bold;">
+            생산발주
+        </p>
+        <hr>
+
+
     </div>
 
 
 
     <div class="box1">
-        <div class="box1-1" style="width: 100%; height:40px; background-color:navy; text-align:center;">
-            <a style="color: white;  font-size: 24px;">영업PO대기</a>
+        <div class="box1-1" style="width: 100%; height:40px; background-color:rgb(187, 187, 187); text-align:center;">
+            <a style="color: rgb(31, 29, 29);  font-weight:bold; font-size: 24px;">영업PO대기</a>
         </div>
         <table id="fileinfo" class="display" style="width:100%; height:200px;">
             <thead>
@@ -85,6 +91,7 @@
                     <th>창고:발주</th>
                     <th>영업:생산</th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="fileinfo">
@@ -92,9 +99,12 @@
             </tbody>
         </table>
     </div>
+
+    <hr>
+    <!-- <button id="export-btn">Export</button> -->
     <div class="box2">
-        <div class="box1-1" style="width: 100%; height:40px; background-color:navy; text-align:center;">
-            <a style="color: white;  font-size: 24px;">생산지시현황</a>
+        <div class="box1-1" style="width: 100%; height:40px; background-color:rgb(187, 187, 187); text-align:center;">
+            <a style="color: rgb(31, 29, 29); font-weight:bold;  font-size: 24px;">생산지시현황</a>
             <!-- <button onclick="aaa()">add</button> -->
         </div>
         <table id="fileinfo1" class="display" style="width:1    00%">
@@ -171,6 +181,55 @@
     </div>
 
 
+    <!-- 수주확인창 -->
+    <div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">생산발주 & 지시</h4>
+
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>PONO.</label>
+                        <input type="text" class="form-control" id="pono" required>
+                    </div>
+                    <div class="form-group">
+                        <label>BOMNO.</label>
+                        <input type="text" class="form-control" id="bomno" required>
+                    </div>
+                    <div class="form-group">
+                        <label>생산계획날짜:</label>
+                        <input type="date" class="form-control" id="datepicker1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>모델명:</label>
+                        <input type="text" class="form-control" id="modelname" required>
+                    </div>
+                    <div class="form-group">
+                        <label>제품명:</label>
+                        <input type="text" class="form-control" id="itemname" required>
+                    </div>
+                    <div class="form-group">
+                        <label>생산LOT NO.:</label>
+                        <input type="text" class="form-control" id="lotno" required>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>발주수량:</label>
+                        <input type="text" class="form-control" onkeyup="inputNumberFormat(this)" id="count" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                    <input type="button" data-dismiss="modal" id="addbutton" class="btn btn-success" value="저장">
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -222,91 +281,119 @@
         });
 
         settingDate()
-        $.ajax({
+        setTimeout(function () {
 
-            url: server + '/api/accountordering',
-            method: 'post',
-            dataType: 'json',
-            success: function (data) {
-                $('#fileinfo').dataTable({
-                    deferLender: true,
-                    lengthMenu: [2, 4, 6],
-                    paging: true,
-                    sort: true,
-                    pageLength: 5,
-                    searching: true,
-                    data: data,
-                    responsive: true,
-                    deferLoading: [0, 10],
-                    columns: [
-                        { "data": "contentname" },
-                        { "data": "bomno" },
-                        { "data": "deliverydate" },
-                        { "data": "customer" },
-                        { "data": "modelname" },
-                        { "data": "itemname" },
-                        { "data": "quantity" },
-                        { "data": "difference" },
-                        { "data": "possible" }
-                    ],
-                    columnDefs: [
-                        {
-                            targets: 6, className: 'alRight'
+
+            $.ajax({
+
+                url: server + '/api/accountordering',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').dataTable({
+                        deferLender: true,
+                        lengthMenu: [2, 4, 6],
+                        paging: true,
+                        sort: true,
+                        pageLength: 10,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        deferLoading: [0, 10],
+                        columns: [
+                            { "data": "contentname" },
+                            { "data": "bomno" },
+                            { "data": "deliverydate" },
+                            { "data": "customer" },
+                            { "data": "modelname" },
+                            { "data": "itemname" },
+                            { "data": "quantity" },
+                            { "data": "difference" },
+                            { "data": "possible" }
+                        ],
+                        columnDefs: [
+                            {
+                                targets: 0, className: 'alLeft'
+                            },
+                            {
+                                targets: 1, className: 'alLeft'
+                            },
+                            {
+                                targets: 2, className: 'alLeft'
+                            },
+                            {
+                                targets: 3, className: 'alLeft'
+                            },
+                            {
+                                targets: 4, className: 'alLeft'
+                            },
+                            {
+                                targets: 5, className: 'alLeft'
+                            },
+                            {
+                                targets: 6, className: 'alRight'
+                            },
+                            {
+                                targets: 7, className: 'alRight'
+                            },
+                            {
+                                targets: 8,
+                                width: 80,
+                                className: 'alCenter'
+                            },
+                            {
+                                targets: 9,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="close-button" style="font-size:11px;"> 수주확인 </button>',
+                                width: 70
+                            }
+                            ,
+                            {
+                                targets: 10,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="save-button" style="font-size:11px;"> 자재발주 </button>',
+                                width: 70
+                            }
+
+
+                        ],
+                        createdRow: function (row, data, index) {
+
+                            // Updated Schedule Week 1 - 07 Mar 22
+
+                            if (data.possible == '가능') {
+                                $('td:eq(8)', row).css('background-color', 'lime');  //Original Date\
+                                $('td:eq(8)', row).css('color', 'black');  //Original Date\
+                            } else {
+                                $('td:eq(8)', row).css('background-color', 'Red');  //Original Date\
+                                $('td:eq(8)', row).css('color', 'white');  //Original Date\
+                            }
+
+
+
                         },
-                        {
-                            targets: 7, className: 'alRight'
+                        "language": {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전",
+                            },
                         },
-                        {
-                            targets: 8,
-                            width: 80,
-                            className: 'alCenter'
-                        },
-                        {
-                            targets: 9,
-                            data: null,
-                            defaultContent: '<button id="openModaledit" class="btn btn-primary" > 자재발주 </button>',
-                            width: 70
-                        }
-
-
-                    ],
-                    createdRow: function (row, data, index) {
-
-                        // Updated Schedule Week 1 - 07 Mar 22
-
-                        if (data.possible == '가능') {
-                            $('td:eq(8)', row).css('background-color', 'lime');  //Original Date\
-                            $('td:eq(8)', row).css('color', 'black');  //Original Date\
-                        } else {
-                            $('td:eq(8)', row).css('background-color', 'Red');  //Original Date\
-                            $('td:eq(8)', row).css('color', 'white');  //Original Date\
-                        }
-
-
-
-                    },
-                    "language": {
-                        emptyTable: "데이터가 없습니다.",
-                        lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                        info: "현재 _START_ - _END_ / _TOTAL_건",
-                        infoEmpty: "데이터 없음",
-                        infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                        search: "검색:",
-                        zeroRecords: "일치하는 데이터가 없습니다.",
-                        loadingRecords: "로딩중...",
-                        processing: "잠시만 기다려 주세요.",
-                        paginate: {
-                            next: "다음",
-                            previous: "이전",
-                        },
-                    },
-                    destroy: true,
-                });
-            }, error: function (response) {
-                alert(response.responseText);
-            }
-        });
-
+                        destroy: true,
+                    });
+                }, error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        }, 100); // 2초 지연
 
         $.ajax({
             url: server + '/api/productorderlist',
@@ -492,7 +579,7 @@
                     "productdate": productdate,
                     "status": status,
                     "orderid": contentname + lotno,
-                    
+
 
 
                 }),
@@ -648,7 +735,7 @@
                                 width: 70
                             }
 
-                        ],  
+                        ],
 
                         "language": {
                             emptyTable: "데이터가 없습니다.",
@@ -830,6 +917,9 @@
     })
 
 
+</script>
+<script>
+ 
 </script>
 
 </html>

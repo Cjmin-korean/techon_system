@@ -82,7 +82,7 @@
             <p style="font-weight: bold; display: inline-block; margin-top: 20px; margin-left: 20px;">고객사명 :</p>
             <select id="accountname" style="width: 200px; height: 35px; display: inline-block; margin-top: 20px;">
                 <option></option>
-                <option>넥스플러스</option>
+                <!-- <option>넥스플러스</option>
                 <option>뉴플렉스</option>
                 <option>대현에스티</option>
                 <option>베트남</option>
@@ -93,7 +93,7 @@
                 <option>써키트라인</option>
                 <option>영풍전자</option>
                 <option>현대플렉스</option>
-                <option>Jcode</option>
+                <option>Jcode</option> -->
             </select>
 
             <p style="font-weight: bold; display: inline-block; margin-left: 20px;">납기일자 :</p>
@@ -126,7 +126,7 @@
     </div>
 
     <hr>
-    <div style="display: flex; flex-direction: row; width: 100%; height: 800px; ">
+    <div style="display: flex; flex-direction: row; width: 90%; height: 800px; ">
         <div style="flex-grow: 1; border-right: 1.5px solid whitesmoke; width: 55%; margin-top: -90px;">
             <table id="fileinfo" class="display" style="width: 100%; table-layout: fixed;">
                 <thead>
@@ -143,7 +143,7 @@
 
             </table>
         </div>
-        <div style="flex-grow: 1; border-left: 1.5px solid whitesmoke; width: 50%; margin-top: -20px;">
+        <div style="flex-grow: 1; border-left: 1.5px solid whitesmoke; width: 70%; margin-top: -20px;">
             <table id="fileinfo1" class="display" style="width:100%">
                 <thead>
                     <tr>
@@ -164,60 +164,6 @@
     </div>
 
 
-
-    <!-- <div class="box1">
-        <div class="box1-1" style="width: 100%; height:30px; background-color:navy;">
-            <a style="color: white; text-align:center; font-size: 24px;">제품정보</a>
-        </div>
-        <table id="fileinfo" class="display" style="width:100%">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>BOM NO.</th>
-                    <th>모델명</th>
-                    <th>제품명</th>
-                    <th>단가(₩)</th>
-                    <th>원가(₩)</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-    <div class="box2">
-        <div class="box1-1" style="width: 100%; height:30px; background-color:navy;">
-            <a style="color: white; text-align:center; font-size: 24px;">영업 제품 정보 </a>
-        </div>
-        <div class="open_search_div">
-            <div>
-                <p>수량 합계(개):</p>
-                <input type="text" id="countsum" value="0" style="text-align: right;">
-            </div>
-            <div>
-                <p>금액 합계(₩):</p>
-                <input type="text" id="pricesum" value="0" style="text-align: right;">
-            </div>
-        </div>
-        <table id="fileinfo1" class="display" style="width:100%">
-            <thead>
-                <tr>
-                    <th>BOMNO.</th>
-                    <th>모델명</th>
-                    <th>제품명</th>
-                    <th>원가(₩)</th>
-                    <th>단가(₩)</th>
-                    <th>수량(개)</th>
-                    <th>금액(₩)</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="fileinfobody">
-            </tbody>
-        </table>
-    </div> -->
-
-
     <div id="addEmployeeModal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -229,23 +175,28 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>BOMNO.:</label>
-                            <input type="text" class="form-control" id="bomno" style="background-color: white;" required readonly>
+                            <input type="text" class="form-control" id="bomno" style="background-color: white;" required
+                                readonly>
                         </div>
                         <div class="form-group">
                             <label>모델명:</label>
-                            <input type="text" class="form-control" id="modelname" style="background-color: white;" required readonly>
+                            <input type="text" class="form-control" id="modelname" style="background-color: white;"
+                                required readonly>
                         </div>
                         <div class="form-group">
                             <label>제품명:</label>
-                            <input type="text" class="form-control" id="itemname" style="background-color: white;" required readonly>
+                            <input type="text" class="form-control" id="itemname" style="background-color: white;"
+                                required readonly>
                         </div>
                         <div class="form-group">
                             <label>단가:</label>
-                            <input type="text" class="form-control" id="price" style="background-color: white;" required readonly>
+                            <input type="text" class="form-control" id="price" style="background-color: white;" required
+                                readonly>
                         </div>
                         <div class="form-group">
                             <label>원가:</label>
-                            <input type="text" class="form-control" id="cost" style="background-color: white;" required readonly>
+                            <input type="text" class="form-control" id="cost" style="background-color: white;" required
+                                readonly>
                         </div>
                         <div class="form-group">
                             <label>제품수량:</label>
@@ -291,7 +242,25 @@
 
     // This code runs when the document is ready
     $(document).ready(function () {
+        // $('#fileinfo').dataTable()
+        const selectElement = document.getElementById("accountname");
+        if (selectElement) {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/accountnamegroup',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (result) {
+                    for (let i = 0; i < result.length; i++) {
+                        const option = document.createElement("option");
+                        option.text = result[i].accountname;
+                        option.value = result[i].accountname;
+                        selectElement.add(option);
 
+                    }
+                },
+            });
+        }
 
 
         $('#fileinfo').on('click', '#addbtn', function () {
@@ -317,6 +286,7 @@
                 method: 'post',
                 dataType: 'json',
                 success: function (data) {
+
                     // Create a DataTable for the data received from the server
                     $('#fileinfo').dataTable({
                         deferLender: true,
@@ -395,7 +365,7 @@
                     alert(response.responseText);
                 }
             });
-        }, 100); // 2초 지연
+        }, 150); // 2초 지연
 
         // Load data from the server using AJAX
 
@@ -425,24 +395,6 @@
                 alert(response.responseText);
             }
         });
-
-        // $.ajax({
-        //     type: 'POST',
-        //     url: server + '/api/accountnamegroup',
-        //     dataType: 'json',
-        //     contentType: 'application/json',
-        //     success: function (result) {
-
-        //         const selectElement = document.getElementById("accountname");
-
-        //         for (let i = 0; i < result.length; i++) {
-        //             const option = document.createElement("option");
-        //             option.text = result[i].name;
-        //             option.value = result[i].value;
-        //             selectElement.add(option);
-        //         }
-        //     },
-        // });
 
 
     });
@@ -632,8 +584,13 @@
     document.getElementById("addbutton").addEventListener('click', hello);
 
     function hello() {
+        var count = $('#count').val()
+        if (count === "") {
 
-
+            alert("제품수량 항목이 누락되었습니다.");
+            // $('#addEmployeeModal').modal('show');
+            return
+        }
         var price = $('#price').val()
         var count = $('#count').val()
         var number = count.replace(/,/g, "");
