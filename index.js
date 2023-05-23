@@ -18,7 +18,7 @@ var server = app.listen(port, function () { console.log("Express server has star
 const PORT = 3001;
 
 const corsOptions = {
-    origin: 'http://localhost:3001',
+    origin: '*',
     credentials: true,
 };
 console.log('corsOptions', corsOptions)
