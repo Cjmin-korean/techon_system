@@ -192,9 +192,42 @@ module.exports = function (app) {
 
                 .query(
 
-                    'SELECT ' +
-                    '* ' +
-                    'FROM finalpercent')
+                    " SELECT "+
+                    " a.contentname, "+
+                    " a.bomno, "+
+                    " a.accountdate, "+
+                    " c.startdate, "+
+                    " c.lotno, "+
+                    " c.marchine, "+
+                    " a.customer, "+
+                    " a.modelname, "+
+                    " a.itemname, "+
+                    " a.quantity, "+
+                    " c.quantity as productquantity, "+
+                    " a.itemprice, "+
+                    " b.onepidding, "+
+                    " b.cavity, "+
+                    " (c.quantity / CAST(b.cavity AS FLOAT) * CAST(b.onepidding AS FLOAT)) * 0.001 as P, "+
+                    " (c.materialinput) as Q, "+
+                    " (c.materialinput) as R, "+
+                    " (c.materialinput - c.materialoutput) as S, "+
+                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)) as T, "+
+                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)* a.itemprice) as U, "+
+                    " (c.touch) as V, "+
+                    " (c.touch * b.cavity) as W, "+
+                    " (c.touch * b.cavity * a.itemprice) as X, "+
+                    " (CEILING((c.touch * b.cavity)/((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000) *100)) as Y, "+
+                    " d.ngcount as Z, "+
+                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)-d.okcount)*a.itemprice as AA, "+
+                    " d.okcount as AB, "+
+                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)- d.okcount) as AC, "+
+                    " (CEILING((c.touch * b.cavity - d.ngcount)/((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)*100)) as AD "+
+                    " FROM accountinput a "+
+                    " LEFT OUTER JOIN iteminfo b ON a.bomno = b.bomno "+
+                    " LEFT OUTER JOIN orderlist c ON a.contentname = c.contentname "+
+                    " LEFT OUTER JOIN alltest d ON c.lotno = d.lotno "
+
+                    )
 
                 .then(result => {
                     res.json(result.recordset);
@@ -930,6 +963,39 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialouput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+
+                .query(
+
+
+                    "   select "+
+                    "    orderid,productdate,lotno,bomno,modelname,itemname,materialstatus "+
+                    "    from "+
+                    "    orderlist "+
+                    "    group by "+
+                    "    bomno,orderid,productdate,modelname,itemname,lotno,materialstatus "
+                    )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
@@ -974,15 +1040,15 @@ module.exports = function (app) {
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
-        app.post('/api/materialoptiongroup', function (req, res) {
+        app.post('/api/materialoptiongroup1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
 
             return pool.request()
-
+            
                 .query(
-                    "select materialname,lotno,manufacturedate,expirationdate,materialwidth,sum(quantity)'quantity' from materialinput where part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
+                    "select materialname,lotno,manufacturedate,expirationdate,format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth',format(convert(int,Isnull(sum(quantity),0)),'##,##0')'quantity' from materialinput where part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
 
 
                 .then(result => {
@@ -998,6 +1064,34 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+      // **** start  생산설비창 띄우기  
+      sql.connect(config).then(pool => {
+        app.post('/api/materialoptiongroup1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+            .input('materialname', sql.NVarChar, req.body.materialname)
+                .query(
+                    "select materialname,lotno,manufacturedate,expirationdate,format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth',format(convert(int,Isnull(sum(quantity),0)),'##,##0')'quantity' from materialinput where materialname=@materialname and part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/iteminputgroup', function (req, res) {
@@ -1503,28 +1597,7 @@ module.exports = function (app) {
             return pool.request()
                 .query(
 
-                    // "     SELECT " +
-                    // "      OL.productdate, " +
-                    // "     BOM.bomno, " +
-                    // "     BOM.model, " +
-                    // "     BOM.itemname, " +
-                    // "     BOM.materialname, " +
-                    // "     BOM.swidth, " +
-                    // "     BOM.mwidth * OL.quantity AS soyo " +
-                    // " FROM  " +
-                    // "     bommanagement AS BOM " +
-                    // " INNER JOIN " +
-                    // "     ( " +
-                    // "         SELECT  " +
-                    // "             productdate, " +
-                    // "             itemname, " +
-                    // "         SUM(CASE WHEN[status] = 'true' THEN[quantity] ELSE 0 END) AS quantity " +
-                    // "         FROM  " +
-                    // "             orderlist  " +
-                    // "         GROUP BY  " +
-                    // "             itemname,productdate " +
-                    // "     ) AS OL ON BOM.itemname = OL.itemname "
-                    "                     SELECT " +
+                    "     SELECT " +
                     "     orderid, " +
                     "     OL.productdate, " +
                     "     OL.lotno, " +
@@ -2157,6 +2230,32 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    sql.connect(config).then(pool => {
+        app.post('/api/updateorderlist', function (req, res) {
+          
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+            
+
+                .input('materialinput', sql.Float, req.body.materialinput)
+                .input('materialoutput', sql.Float, req.body.materialoutput)
+                .query(
+                    "update orderlist set materialinput=@materialinput,materialoutput=@materialoutput "
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -3379,7 +3478,6 @@ module.exports = function (app) {
                 .input('price', sql.NVarChar, req.body.price)
                 .input('input', sql.NVarChar, req.body.input)
                 .input('part', sql.NVarChar, req.body.part)
-
 
 
                 .query(

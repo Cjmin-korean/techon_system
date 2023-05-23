@@ -86,6 +86,7 @@
                     <tbody>
                     </tbody>
                 </table>
+             
                 <div class="modal-footer">
                     <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
                 </div>
@@ -317,16 +318,6 @@
 
         }
 
-        // var qrcode = new QRCode(document.getElementById("qrcode"), {
-        //     text: "안녕하세요",
-        //     width: 120,
-        //     height: 120,
-
-        //     colorDark: "#000000",
-        //     colorLight: "#ffffff",
-        //     url: "",
-        //     correctLevel: QRCode.CorrectLevel.H
-        // });
 
         $("#qrcode > img").css({ "margin": "auto" });
 
@@ -342,34 +333,7 @@
             });
 
             $('#fileinfo').on('click', '#openModaledit', function () {
-                // var str = "";
-                // var tdArr = new Array();// 배열 선언            
-                // var checkBtn = $(this);
 
-                // var tr = checkBtn.parent().parent();
-                // var td = tr.children();
-
-                // var date = td.eq(0).text();
-                // var materialname = td.eq(1).text();
-                // var lot = td.eq(2).text();
-                // var manufacturedate = td.eq(3).text();
-                // var expirationdate = td.eq(4).text();
-                // var materialwidth = td.eq(5).text();
-                // var quantity = td.eq(6).text();
-                // table1 = $('#fileinfo').DataTable();
-                // var data1 = table1.row($(this).parents('tr')).data(); // getting 
-
-
-                // $('#qrcode-materialname').val(data1.materialname);
-                // $('#qrcode-date').val(date);
-                // $('#qrcode-materialwidth').val(materialwidth);
-                // $('#qrcode-quantity').val(quantity);
-                // $('#qrcode-manufacturedate').val(manufacturedate);
-                // $('#qrcode-expirationdate').val(expirationdate);
-                // $('#qrcode-lot').val(lot);
-
-                // // console.log(11)
-                // $("#editt").modal();
 
             });
 
@@ -448,24 +412,7 @@
                         ],
                         createdRow: function (row, data, index) {
 
-                            // Updated Schedule Week 1 - 07 Mar 22
 
-                            // if (data.input == "원자재입고") {
-                            //     $('td:eq(0)', row).css('background-color', 'lime');  //Original Date\
-                            //     $('td:eq(0)', row).css('color', 'black');  //Original Date
-                            // }
-                            // if (data.input == "슬리팅입고") {
-                            //     $('td:eq(0)', row).css('background-color', 'yellow');  //Original Date\
-                            //     $('td:eq(0)', row).css('color', 'black');  //Original Date
-                            // }
-                            // if (data.input == "생산반품입고") {
-                            //     $('td:eq(0)', row).css('background-color', 'skyblue');  //Original Date\
-                            //     $('td:eq(0)', row).css('color', 'black');  //Original Date
-                            // }
-                            // if (data.input == "기타입고") {
-                            //     $('td:eq(0)', row).css('background-color', 'orange');  //Original Date\
-                            //     $('td:eq(0)', row).css('color', 'black');  //Original Date
-                            // }
 
                         },
                         columnDefs: [
@@ -493,16 +440,7 @@
                             }
 
                         ],
-                        // createdRow: function (row, data, index) {
 
-                        //     if (data.input === '원자재입고') {
-                        //         $('td:eq(0)', row).css('background-color', 'orange');  //Original Date\
-                        //     } else {
-
-                        //     }
-
-
-                        // },
                         language: {
                             emptyTable: "데이터가 없습니다.",
                             lengthMenu: "페이지당 _MENU_ 개씩 보기",
@@ -703,6 +641,21 @@
             });
         });
 
+        // 숫자 컴마표시
+        function inputNumberFormat(obj) {
+            obj.value = comma(uncomma(obj.value));
+        }
+        // 숫자 컴마 제거후 int 변경
+        function comma(str) {
+            str = String(str);
+            return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+        }
+        function uncomma(str) {
+            str = String(str);
+            return str.replace(/[^\d]+/g, '');
+        }
+        ///////=====================
+
         // 등록부분
         document.getElementById("dataadd").addEventListener('click', add);
 
@@ -734,6 +687,8 @@
                 var materialname = $('#materialname').val();
                 var materialcode = $('#materialcode').val();
                 var materialwidth = $('#materialwidth').val();
+                var materialwidthcomma = materialwidth.replace(/,/g, "");
+
                 var manufacturedate = $('#datepicker1').val();
                 var input = $('#input').val();
                 var materialday = $('#day').val();
@@ -741,6 +696,7 @@
                 var lotno = $('#lotno').val();
                 var roll = $('#roll').val();
                 var quantity = $('#quantity').val();
+                var sum = $('#quantity').val() * $('#roll').val();;
 
                 var today = new Date();
                 var dd = String(today.getDate()).padStart(2, '0');
@@ -754,7 +710,7 @@
                 var summm = String(sumdate.getMonth() + 1).padStart(2, '0'); //January is 0!
                 var sumyyyy = sumdate.getFullYear();
 
-                var resultdate = sumyyyy + '-' + summm + '-' + sumdd
+                var expirationdate = sumyyyy + '-' + summm + '-' + sumdd
 
 
                 if ($('#input').val() == "원자재입고" && $('#inspection').val() == "Y") {
@@ -768,8 +724,8 @@
                             "inputdate": currentDate,
                             "materialname": materialname,
                             "manufacturedate": manufacturedate,
-                            "expirationdate": resultdate,
-                            "materialwidth": materialwidth,
+                            "expirationdate": expirationdate,
+                            "materialwidth": materialwidthcomma,
                             "lotno": lotno,
                             "quantity": quantity,
 
@@ -795,7 +751,7 @@
                                 "codenumber": materialcode,
                                 "manufacturedate": manufacturedate,
                                 "expirationdate": resultdate,
-                                "materialwidth": materialwidth,
+                                "materialwidth": materialwidthcomma,
                                 "date": currentDate,
                                 "lotno": lotno,
                                 "quantity": quantity,
@@ -803,12 +759,13 @@
 
                             }),
                             success: function (result) {
-                                // tableInsert();
+
 
                             }
                         })
 
                     }
+                    alert("입고가 완료 되었습니다.");
                 } else {
                     for (i = 0; i < roll; i++) {
                         $.ajax({
@@ -822,17 +779,19 @@
                                 "input": input,
                                 "codenumber": materialcode,
                                 "manufacturedate": manufacturedate,
-                                "expirationdate": resultdate,
-                                "materialwidth": materialwidth,
+                                "expirationdate": expirationdate,
+                                "materialwidth": materialwidthcomma,
                                 "date": currentDate,
                                 "lotno": lotno,
                                 "quantity": quantity,
+                                "roll": roll,
+                                "sum": sum,
                                 "part": '입고완료'
 
 
                             }),
                             success: function (result) {
-                                // tableInsert();
+
 
                             }
                         })
@@ -842,7 +801,7 @@
 
 
 
-                alert("저장이 완료 되었습니다.");
+                alert("입고가 완료 되었습니다.");
             } else {
                 return false;
             }
@@ -884,24 +843,6 @@
                         ],
                         createdRow: function (row, data, index) {
 
-                            // Updated Schedule Week 1 - 07 Mar 22
-
-                            // if (data.input == "원자재입고") {
-                            //     $('td:eq(0)', row).css('background-color', 'lime');  //Original Date\
-                            //     $('td:eq(0)', row).css('color', 'black');  //Original Date
-                            // }
-                            // if (data.input == "슬리팅입고") {
-                            //     $('td:eq(0)', row).css('background-color', 'yellow');  //Original Date\
-                            //     $('td:eq(0)', row).css('color', 'black');  //Original Date
-                            // }
-                            // if (data.input == "생산반품입고") {
-                            //     $('td:eq(0)', row).css('background-color', 'skyblue');  //Original Date\
-                            //     $('td:eq(0)', row).css('color', 'black');  //Original Date
-                            // }
-                            // if (data.input == "기타입고") {
-                            //     $('td:eq(0)', row).css('background-color', 'orange');  //Original Date\
-                            //     $('td:eq(0)', row).css('color', 'black');  //Original Date
-                            // }
 
                         },
                         columnDefs: [
@@ -1031,13 +972,15 @@
                         processing: true,
                         columns: [
                             { "data": "id" },
+                            { "data": "input" },
                             { "data": "date" },
                             { "data": "materialname" },
                             { "data": "lotno" },
                             { "data": "manufacturedate" },
                             { "data": "expirationdate" },
                             { "data": "materialwidth" },
-                            { "data": "quantity" }
+                            { "data": "quantity" },
+                            { "data": "part" }
 
                         ],
 
@@ -1046,26 +989,28 @@
                         buttons: [
                             'copy', 'csv', 'excel', 'pdf', 'print'
                         ],
+                        createdRow: function (row, data, index) {
 
+
+                        },
                         columnDefs: [
                             {
                                 targets: 0, visible: false, searchable: false
-                            },
-
-                            {
-                                targets: 6, className: 'alRight'
                             },
                             {
                                 targets: 7, className: 'alRight'
                             },
                             {
-                                targets: 8,
+                                targets: 8, className: 'alRight'
+                            },
+                            {
+                                targets: 10,
                                 data: null,
                                 defaultContent: '<button id="openModaledit" class="btn btn-primary" > 인쇄 </button>',
                                 width: 50
                             },
                             {
-                                targets: 9,
+                                targets: 11,
                                 data: null,
                                 defaultContent: '<button id="openModaldelete" class="btn btn-primary" style="background-color:red;"  > 삭제 </button>',
 
@@ -1073,7 +1018,16 @@
                             }
 
                         ],
+                        // createdRow: function (row, data, index) {
 
+                        //     if (data.input === '원자재입고') {
+                        //         $('td:eq(0)', row).css('background-color', 'orange');  //Original Date\
+                        //     } else {
+
+                        //     }
+
+
+                        // },
                         language: {
                             emptyTable: "데이터가 없습니다.",
                             lengthMenu: "페이지당 _MENU_ 개씩 보기",

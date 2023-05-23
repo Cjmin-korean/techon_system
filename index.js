@@ -21,8 +21,8 @@ const corsOptions = {
     origin: 'http://localhost:3001',
     credentials: true,
 };
-console.log('corsOptions',corsOptions)
-console.log('process.env' ,process.env.PORT)
+console.log('corsOptions', corsOptions)
+console.log('process.env', process.env.PORT)
 app.use(cors(corsOptions));
 // 정적 파일 불러오기
 app.use(express.static(__dirname + "/views"));
@@ -79,7 +79,7 @@ app.get("/materialwidthtablerow", cors(), (req, res) => {
     res.sendFile(__dirname + "/materialinfo.html");
 });
 app.get("/equipment", cors(), (req, res) => {
-    res.sendFile(__dirname + "/equipmentinformation.html");    
+    res.sendFile(__dirname + "/equipmentinformation.html");
 });
 app.get("/abcd", cors(), (req, res) => {
     res.sendFile(__dirname + "/test1.html");
@@ -264,6 +264,12 @@ app.get("/accountnamegroup", cors(), (req, res) => {
 });
 app.get("/salescontent", cors(), (req, res) => {
     res.sendFile(__dirname + "/salescontent.html");
+});
+app.get("/materialoptiongroup1", cors(), (req, res) => {
+    res.sendFile(__dirname + "/materialoutput.html");
+});
+app.get("/updateorderlist", cors(), (req, res) => {
+    res.sendFile(__dirname + "/materialoutput.html");
 });
 
 
