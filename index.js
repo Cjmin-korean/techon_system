@@ -271,6 +271,20 @@ app.get("/materialoptiongroup1", cors(), (req, res) => {
 app.get("/updateorderlist", cors(), (req, res) => {
     res.sendFile(__dirname + "/materialoutput.html");
 });
+app.get("/shipment", cors(), (req, res) => {
+    res.sendFile(__dirname + "/shipment.html");
+});
+app.get("/modelnamegroup", cors(), (req, res) => {
+    res.sendFile(__dirname + "/shipment.html");
+});
+app.get("/modelnameitemname", cors(), (req, res) => {
+    res.sendFile(__dirname + "/shipment.html");
+});
+app.get("/shipmentinsert", cors(), (req, res) => {
+    res.sendFile(__dirname + "/shipment.html");
+});
+
+
 
 
 app.get("/jquery.min.js", cors(), (req, res) => {

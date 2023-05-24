@@ -192,42 +192,42 @@ module.exports = function (app) {
 
                 .query(
 
-                    " SELECT "+
-                    " a.contentname, "+
-                    " a.bomno, "+
-                    " a.accountdate, "+
-                    " c.startdate, "+
-                    " c.lotno, "+
-                    " c.marchine, "+
-                    " a.customer, "+
-                    " a.modelname, "+
-                    " a.itemname, "+
-                    " a.quantity, "+
-                    " c.quantity as productquantity, "+
-                    " a.itemprice, "+
-                    " b.onepidding, "+
-                    " b.cavity, "+
-                    " (c.quantity / CAST(b.cavity AS FLOAT) * CAST(b.onepidding AS FLOAT)) * 0.001 as P, "+
-                    " (c.materialinput) as Q, "+
-                    " (c.materialinput) as R, "+
-                    " (c.materialinput - c.materialoutput) as S, "+
-                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)) as T, "+
-                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)* a.itemprice) as U, "+
-                    " (c.touch) as V, "+
-                    " (c.touch * b.cavity) as W, "+
-                    " (c.touch * b.cavity * a.itemprice) as X, "+
-                    " (CEILING((c.touch * b.cavity)/((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000) *100)) as Y, "+
-                    " d.ngcount as Z, "+
-                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)-d.okcount)*a.itemprice as AA, "+
-                    " d.okcount as AB, "+
-                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)- d.okcount) as AC, "+
-                    " (CEILING((c.touch * b.cavity - d.ngcount)/((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)*100)) as AD "+
-                    " FROM accountinput a "+
-                    " LEFT OUTER JOIN iteminfo b ON a.bomno = b.bomno "+
-                    " LEFT OUTER JOIN orderlist c ON a.contentname = c.contentname "+
+                    " SELECT " +
+                    " a.contentname, " +
+                    " a.bomno, " +
+                    " a.accountdate, " +
+                    " c.startdate, " +
+                    " c.lotno, " +
+                    " c.marchine, " +
+                    " a.customer, " +
+                    " a.modelname, " +
+                    " a.itemname, " +
+                    " a.quantity, " +
+                    " c.quantity as productquantity, " +
+                    " a.itemprice, " +
+                    " b.onepidding, " +
+                    " b.cavity, " +
+                    " (c.quantity / CAST(b.cavity AS FLOAT) * CAST(b.onepidding AS FLOAT)) * 0.001 as P, " +
+                    " (c.materialinput) as Q, " +
+                    " (c.materialinput) as R, " +
+                    " (c.materialinput - c.materialoutput) as S, " +
+                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)) as T, " +
+                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)* a.itemprice) as U, " +
+                    " (c.touch) as V, " +
+                    " (c.touch * b.cavity) as W, " +
+                    " (c.touch * b.cavity * a.itemprice) as X, " +
+                    " (CEILING((c.touch * b.cavity)/((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000) *100)) as Y, " +
+                    " d.ngcount as Z, " +
+                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)-d.okcount)*a.itemprice as AA, " +
+                    " d.okcount as AB, " +
+                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)- d.okcount) as AC, " +
+                    " (CEILING((c.touch * b.cavity - d.ngcount)/((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)*100)) as AD " +
+                    " FROM accountinput a " +
+                    " LEFT OUTER JOIN iteminfo b ON a.bomno = b.bomno " +
+                    " LEFT OUTER JOIN orderlist c ON a.contentname = c.contentname " +
                     " LEFT OUTER JOIN alltest d ON c.lotno = d.lotno "
 
-                    )
+                )
 
                 .then(result => {
                     res.json(result.recordset);
@@ -273,6 +273,74 @@ module.exports = function (app) {
                     "    from orderlist o, " +
                     "    accountinput a " +
                     "    where a.contentname = o.contentname ")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/shipment', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+            .input('START', sql.NVarChar, req.body.start)
+            .input('FINISH', sql.NVarChar, req.body.finish)
+                .query(
+
+                    "   SELECT " +
+                    "     S.SHIPMENTDATE, " +
+                    "     I.REV, " +
+                    "     I.CUSTOMER, " +
+                    "     I.MODELNAME, " +
+                    "     I.ITEMNAME, " +
+                    " format(convert(int,Isnull(S.SHIPMENTCOUNT,0)),'##,##0') AS SHIPMENT, " +
+                    " format(convert(int,Isnull(T.TOTAL_QUANTITY,0)),'##,##0') AS TOTALQUANTITY, " +
+                    " format(convert(int,Isnull(T.TOTAL_QUANTITY - S.SHIPMENTCOUNT,0)),'##,##0') AS DIFFER, " +
+                    " format(convert(int,Isnull(I.ITEMPRICE,0)),'##,##0') AS ITEMPRICE, " +
+                    " format(convert(int,Isnull(I.ITEMPRICE * S.SHIPMENTCOUNT,0)),'##,##0') AS ALLPRICE, " +
+                    "  CASE " +
+                    "     WHEN S.SHIPMENTCOUNT > T.TOTAL_QUANTITY THEN '부족' " +
+                    "     ELSE '가능' " +
+                    " END AS STATUS " +
+
+                    " FROM " +
+                    "     ITEMINFO I " +
+                    " JOIN " +
+                    "     SHIPMENT S " +
+                    " ON " +
+                    "      I.MODELNAME = S.MODELNAME " +
+                    "     AND I.ITEMNAME = S.ITEMNAME " +
+                    " JOIN " +
+                    "     ( " +
+                    "         SELECT " +
+                    "             MODELNAME, " +
+                    "             ITEMNAME, " +
+                    "             ITEMPRICE, " +
+                    "             SUM(QUANTITY) AS TOTAL_QUANTITY " +
+                    "         FROM " +
+                    "             ITEMINPUT " +
+                    "         GROUP BY " +
+                    "             MODELNAME, " +
+                    "             ITEMNAME, " +
+                    "             ITEMPRICE " +
+                    "     ) T " +
+                    " ON " +
+                    "     I.MODELNAME = T.MODELNAME " +
+                    "     AND I.ITEMNAME = T.ITEMNAME " +
+                    "     AND I.ITEMPRICE = T.ITEMPRICE "+
+                    "     AND SHIPMENTDATE BETWEEN '2023-05-23' AND '2023-05-24' ")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -975,13 +1043,13 @@ module.exports = function (app) {
                 .query(
 
 
-                    "   select "+
-                    "    orderid,productdate,lotno,bomno,modelname,itemname,materialstatus "+
-                    "    from "+
-                    "    orderlist "+
-                    "    group by "+
+                    "   select " +
+                    "    orderid,productdate,lotno,bomno,modelname,itemname,materialstatus " +
+                    "    from " +
+                    "    orderlist " +
+                    "    group by " +
                     "    bomno,orderid,productdate,modelname,itemname,lotno,materialstatus "
-                    )
+                )
 
                 .then(result => {
 
@@ -1046,7 +1114,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            
+
                 .query(
                     "select materialname,lotno,manufacturedate,expirationdate,format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth',format(convert(int,Isnull(sum(quantity),0)),'##,##0')'quantity' from materialinput where part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
 
@@ -1065,15 +1133,15 @@ module.exports = function (app) {
     });
     // **** finish
 
-      // **** start  생산설비창 띄우기  
-      sql.connect(config).then(pool => {
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/materialoptiongroup1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
 
             return pool.request()
-            .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('materialname', sql.NVarChar, req.body.materialname)
                 .query(
                     "select materialname,lotno,manufacturedate,expirationdate,format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth',format(convert(int,Isnull(sum(quantity),0)),'##,##0')'quantity' from materialinput where materialname=@materialname and part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
 
@@ -1731,9 +1799,9 @@ module.exports = function (app) {
                     "    bomno, " +
                     "    modelname, " +
                     "    itemname, " +
-                    "    FORMAT(itemcost, '#,##0.00') AS itemcost, "+
-                    "    FORMAT(itemprice, '#,##0.00') AS itemprice, "+
-                    "    FORMAT(quantity, '#,##0.##') AS quantity, "+
+                    "    FORMAT(itemcost, '#,##0.00') AS itemcost, " +
+                    "    FORMAT(itemprice, '#,##0.00') AS itemprice, " +
+                    "    FORMAT(quantity, '#,##0.##') AS quantity, " +
                     "    productok, " +
                     "    materialok " +
                     "    from " +
@@ -2233,12 +2301,12 @@ module.exports = function (app) {
 
     sql.connect(config).then(pool => {
         app.post('/api/updateorderlist', function (req, res) {
-          
+
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
-            
+
 
                 .input('materialinput', sql.Float, req.body.materialinput)
                 .input('materialoutput', sql.Float, req.body.materialoutput)
@@ -3315,6 +3383,48 @@ module.exports = function (app) {
     });
     // **** finish
 
+      // **** start material combobox group 쿼리      
+      sql.connect(config).then(pool => {
+        app.post('/api/modelnamegroup', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .query(
+                    'select modelname from iteminfo group by modelname'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+     // **** start material combobox group 쿼리      
+     sql.connect(config).then(pool => {
+        app.post('/api/modelnameitemname', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('modelname', sql.NVarChar, req.body.modelname)
+
+                .query(
+                    'select itemname from iteminfo where modelname=@modelname'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start material combobox group 쿼리      
 
@@ -3493,6 +3603,38 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+     // **** start  원자재입고등록쿼리    
+     sql.connect(config).then(pool => {
+        app.post('/api/shipmentinsert', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('shipmentdate', sql.NVarChar, req.body.shipmentdate)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('shipmentcount', sql.NVarChar, req.body.shipmentcount)
+   
+
+
+                .query(
+                    'insert into shipment(shipmentdate,customer,modelname,itemname,shipmentcount)' +
+                    ' values(@shipmentdate,@customer,@modelname,@itemname,@shipmentcount)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     // **** start 수입검사등록쿼리    
     sql.connect(config).then(pool => {

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techon Mes</title>
+    <meta charset="UTF-8">
+    <title>출하계획</title>
+
+    <link rel="stylesheet" href="/css/accountinformation.css">
+    <link rel="stylesheet" href="/css/css.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js" defer></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" defer></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js" defer></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"
+        defer></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"
+        defer></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js" defer></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"
+        defer></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"
+        defer></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"
+        defer></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.colVis.min.js"
+        defer></script>
+
+
+
+
+
+</head>
+<style>
+    #accountname,
+    #itemname,
+    #modelname {
+        /* padding: 20px; */
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 200px;
+        height: 30px;
+        appearance: none;
+        background-color: #fff;
+        background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%3E%3Cpath%20d%3D%22M1%201L6%206%2011%201%22%20fill%3D%22none%22%20stroke%3D%22%23000000%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E');
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 10px;
+    }
+</style>
+
+<body>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">출하계획</h4>
+
+
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>출하날짜:</label>
+                        <input type="date" class="form-control" id="datepicker1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>고객사:</label>
+                        <select id="accountname">
+                            <option></option>
+
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label>모델명:</label>
+                        <select id="modelname" onchange="modelnameitemname()">
+                            <option></option>
+
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label>제품명:</label>
+                        <select id="itemname">
+                            <option></option>
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label>출하수량:</label>
+                        <input type="text" class="form-control" id="shipmentcount" required>
+                    </div>
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                    <input type="button" data-dismiss="modal" id="add" class="btn btn-success" value="저장">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달수정창 -->
+    <div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">거래처 수정</h4>
+
+
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label>거래처코드:</label>
+                        <input type="text" class="form-control" id="accountcode-edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>거래처명:</label>
+                        <input type="text" class="form-control" id="accountname-edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>대표자:</label>
+                        <input type="text" class="form-control" id="accountrepresentname-edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>전화번호:</label>
+                        <input type="text" class="form-control" id="phone-edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>주소:</label>
+                        <textarea class="form-control" id="adress-edit" required></textarea>
+                    </div>
+                    <div class="form-group">
+
+                        <input type="text" class="form-control" id="id-edit" style="visibility: hidden;" required>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                    <input type="button" data-dismiss="modal" id="dataedit" class="btn btn-success" value="수정">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달삭제창 -->
+    <div class="modal fade" id="datadelte" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h4 class="modal-title">거래처 삭제</h4>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>정말로 거래처를 삭제하시겠습니까?</p>
+                        <p class="text-warning"><small>이 작업은 취소할 수 없습니다.</small></p>
+                    </div>
+                    <input type="text" class="form-control" id="id-delete" style="visibility: hidden;" required>
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-default" data-dismiss="modal" value="취소">
+                        <input type="button" data-dismiss="modal" id="delete" class="btn btn-danger" value="삭제">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div style="height: 100px;">
+        <p style="margin-left: 20px; margin-top: 20px; font-size: 20px; font-weight: bold;">
+            출하계획
+        </p>
+
+        <div style="display: flex; align-items: center; margin-left: 20px;">
+            <label for="datepicker1" style="margin-right: 10px;">출하계획날짜:</label>
+            <input type="date" class="form-control" id="datepicker2" style="width: 150px;" required>
+            <input type="date" class="form-control" id="datepicker3" style="width: 150px;" required>
+            <button onclick="searching()" type="button" class="btn btn-primary" id="searchButton"
+                style="margin-left: 10px; width: 80px;;">조회</button>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="openModal"
+            style="float: right; width: 150px; margin-right: 10px; background-color: navy;">신규등록</button>
+        <button type="button" class="btn btn-primary"
+            style="float: right; width: 150px; margin-right: 10px; background-color: rgb(96, 96, 168);">인쇄</button>
+        <button type="button" class="btn btn-primary"
+            style="float: right; width: 150px; margin-right: 10px; background-color: green;">Excel</button>
+        <button type="button" class="btn btn-primary"
+            style="float: right; width: 150px; margin-right: 10px; background-color: rgb(216, 24, 24);">Pdf</button>
+    </div>
+
+
+    <!-- <button id="myButton" onclick="openNewWindow()">다른 HTML 열기</button> -->
+    <!-- <button onclick="qq()">12312</button> -->
+    <div style="border: 1px solid whitesmoke;">
+        <table id="fileinfo" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>출하일자</th>
+                    <th>고객사코드</th>
+                    <th>고객사명</th>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <th>수량</th>
+                    <th>현재고</th>
+                    <th>차이</th>
+                    <th>제품단가</th>
+                    <th>판매금액</th>
+                    <th>상태</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="color: black;">잠시만 기다려주세요...</p>
+    </div>
+    <script type="text/javascript">
+
+        var server = '';
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+
+        $(document).ready(function () {
+            settingDate()
+
+            const selectElement = document.getElementById("accountname");
+            if (selectElement) {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/accountnamegroup',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (result) {
+                        console.log(result)
+                        for (let i = 0; i < result.length; i++) {
+                            const option = document.createElement("option");
+                            option.text = result[i].accountname;
+                            option.value = result[i].accountname;
+                            selectElement.add(option);
+                        }
+                    },
+                });
+            }
+
+            const selectElement1 = document.getElementById("modelname");
+            if (selectElement1) {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/modelnamegroup',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (result1) {
+                        console.log(result1)
+                        for (let i = 0; i < result1.length; i++) {
+                            const option1 = document.createElement("option");
+                            option1.text = result1[i].modelname;
+                            option1.value = result1[i].modelname;
+                            selectElement1.add(option1);
+                        }
+                    },
+                });
+            }
+            // 로딩 창을 보이게 한다
+            const loadingScreen = document.getElementById("loading-screen");
+            loadingScreen.style.display = "block";
+
+
+            $("#openModal").click(function () {
+                $("#accountcode-save").val('');
+                $("#accountname-save").val('');
+                $("#accountrepresentname-save").val('');
+                $("#phone-save").val('');
+                $("#adress-save").val('');
+                $("#myModal").modal();
+            });
+
+            $('#fileinfo').on('click', '#openModaledit', function () {
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var accountcode = td.eq(0).text();
+                var accountname = td.eq(1).text();
+                var accountrepresentname = td.eq(2).text();
+                var phone = td.eq(3).text();
+                var adress = td.eq(4).text();
+                table1 = $('#fileinfo').DataTable();
+                var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+                $('#accountcode-edit').val(accountcode);
+                $('#accountname-edit').val(accountname);
+                $('#accountrepresentname-edit').val(accountrepresentname);
+                $('#phone-edit').val(phone);
+                $('#adress-edit').val(adress);
+                $('#id-edit').val(data1.id);
+
+                $("#edit").modal();
+
+            });
+
+            $('#fileinfo').on('click', '#openModaldelete', function () {
+                table1 = $('#fileinfo').DataTable();
+                var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+                $('#id-delete').val(data1.id);
+                $("#datadelte").modal();
+
+            });
+            setTimeout(function () {
+                var start = $('#datepicker2').val();
+                var finish = $('#datepicker3').val();
+                $('#fileinfo').DataTable();
+                $.ajax({
+                    url: server + '/api/shipment',
+                    method: 'post',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        start: '2023-05-24',
+                        finish: '2023-05-24'
+                    })
+
+                    ,
+                    success: function (result) {
+              
+                        $('#fileinfo').DataTable({
+
+
+                            paging: true,
+                            destroy: true,
+                            sort: true,
+                            pageLength: 18,
+                            searching: true,
+                            data: result,
+                            responsive: true,
+                            columnResize: true,
+                            deferloading: [0, 10],
+                            processing: true,
+                            columns: [
+                                { "data": "SHIPMENTDATE" },
+                                { "data": "REV" },
+                                { "data": "CUSTOMER" },
+                                { "data": "MODELNAME" },
+                                { "data": "ITEMNAME" },
+                                { "data": "SHIPMENT" },
+                                { "data": "TOTALQUANTITY" },
+                                { "data": "DIFFER" },
+                                { "data": "ITEMPRICE" },
+                                { "data": "ALLPRICE" },
+                                { "data": "STATUS" }
+
+
+                            ],
+
+                            columnDefs: [
+
+
+                                {
+                                    targets: 11,
+                                    data: null,
+                                    defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                    width: 70
+                                },
+                                {
+                                    targets: 12,
+                                    data: null,
+                                    defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                    width: 70
+                                }
+
+                            ],
+
+                            language: {
+                                emptyTable: "데이터가 없습니다.",
+                                lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                                info: "현재 _START_ - _END_ / _TOTAL_건",
+                                infoEmpty: "데이터 없음",
+                                infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                                search: "검색:",
+                                zeroRecords: "일치하는 데이터가 없습니다.",
+                                loadingRecords: "로딩중...",
+                                processing: "잠시만 기다려 주세요.",
+                                paginate: {
+                                    next: "다음",
+                                    previous: "이전"
+                                }
+                            },
+
+
+                        });
+                        // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                        $('.sorting').css('text-align', 'center');
+                    },
+                    error: function () {
+                        alert("다시 시도해 주십시요.");
+                    },
+
+                    complete: setTimeout(function () {
+                        const loadingScreen = document.getElementById("loading-screen");
+                        loadingScreen.style.display = "none";
+                    }, 1500)
+                });
+            }, 100); // 2초 지연
+
+
+        });
+
+        // 등록부분
+        document.getElementById("add").addEventListener('click', add);
+
+        function add() {
+            if (confirm("출하계획 정보를 등록 하시겠습니까??") == true) {
+
+
+                var shipmentdate = $('#datepicker1').val();
+                var customer = $('#accountname').val();
+                var itemname = $('#itemname').val();
+                var modelname = $('#modelname').val();
+                var shipmentcount = $('#shipmentcount').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/shipmentinsert',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "shipmentdate": shipmentdate,
+                        "customer": customer,
+                        "itemname": itemname,
+                        "modelname": modelname,
+                        "shipmentcount": shipmentcount
+
+
+
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                    }
+                })
+
+
+                alert("저장이 완료 되었습니다.");
+
+
+
+
+            }
+        }
+        function settingDate() {
+            const date = new Date();
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+
+
+
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+
+            }
+
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+            console.log(year + month + day)
+
+            $('#datepicker1').val(currentDate);
+            $('#datepicker2').val(currentDate);
+            $('#datepicker3').val(currentDate);
+
+
+        }
+
+        $(document).on('click', "#deleted", function (e) {
+
+            table1 = $('#fileinfo').DataTable();
+            var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+            $('#id-delete').val(data1.id);
+
+        })
+
+
+        // 삭제부분
+        document.getElementById("delete").addEventListener('click', deleted);
+
+        function deleted() {
+
+
+
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/accountinfodeletedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    "id": $('#id-delete').val()
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("삭제가 완료 되었습니다.");
+
+
+            $.ajax({
+                url: server + '/api/accountmanagement',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        // deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 18,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "accountcode" },
+                            { "data": "accountname" },
+                            { "data": "representativename" },
+                            { "data": "phone" },
+                            { "data": "adress" },
+
+                        ],
+
+
+
+
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 1,
+                                width: 200
+                            },
+                            {
+                                targets: 2,
+                                width: 200
+                            },
+                            {
+                                targets: 3,
+                                width: 200
+                            },
+                            {
+                                targets: 4,
+                                width: 300
+                            },
+                            {
+                                targets: 6,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                width: 65
+                            },
+                            {
+                                targets: 7,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                width: 65
+                            }
+
+
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
+        }
+        // 수정부분
+        document.getElementById("dataedit").addEventListener('click', edtited);
+
+        function edtited() {
+
+
+
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/accountupdatedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    id: $('#id-edit').val(),
+                    accountcode: $('#accountcode-edit').val(),
+                    accountname: $('#accountname-edit').val(),
+                    representativename: $('#accountrepresentname-edit').val(),
+                    phone: $('#phone-edit').val(),
+                    adress: $('#adress-edit').val()
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+
+            alert("수정이 완료 되었습니다.");
+
+
+            $.ajax({
+                url: server + '/api/accountmanagement',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo').DataTable({
+                        // deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 18,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        processing: true,
+                        columns: [
+                            { "data": "id" },
+                            { "data": "accountcode" },
+                            { "data": "accountname" },
+                            { "data": "representativename" },
+                            { "data": "phone" },
+                            { "data": "adress" },
+
+                        ],
+
+
+
+                        columnDefs: [
+                            {
+                                targets: 0, visible: false, searchable: false
+                            },
+                            {
+                                targets: 1,
+                                width: 200
+                            },
+                            {
+                                targets: 2,
+                                width: 200
+                            },
+                            {
+                                targets: 3,
+                                width: 200
+                            },
+                            {
+                                targets: 4,
+                                width: 300
+                            },
+                            {
+                                targets: 6,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                width: 65
+                            },
+                            {
+                                targets: 7,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                width: 65
+                            }
+
+
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
+        }
+
+    </script>
+
+    <script type="text/javascript">
+
+
+        // $('#fileinfo tbody').on('click', '#editbutton', function () {
+        //     table1 = $('#fileinfo').DataTable();
+        //     var data1 = table1.row($(this).parents('tr')).data(); // getting 
+
+        //     $('#accountcode-edit').val(data1.accountcode);
+        //     $('#accountname-edit').val(data1.accountname);
+        //     $('#representativename-edit').val(data1.representativename);
+        //     $('#phone-edit').val(data1.phone);
+        //     $('#adress-edit').val(data1.adress);
+
+
+        //     $("#edit").modal("show");
+
+        // });
+        function modalsave() {
+            $('#accountcode-save').val('');
+            $('#accountname-save').val('');
+            $('#representativename-save').val('');
+            $('#phone-save').val('');
+            $('#adress-save').val('');
+
+
+            $("#myModalsave").modal("show");
+        }
+
+        $('#find').click(function () {
+
+
+        });
+    </script>
+
+    <script>
+        //var tables = document.getElementsByClassName('flexiCol');
+        var tables = document.getElementsByTagName('table');
+        for (var i = 0; i < tables.length; i++) {
+            resizableGrid(tables[i]);
+        }
+
+        function resizableGrid(table) {
+            var row = table.getElementsByTagName('tr')[0],
+                cols = row ? row.children : undefined;
+            if (!cols) return;
+
+            table.style.overflow = 'hidden';
+
+            var tableHeight = table.offsetHeight;
+
+            for (var i = 0; i < cols.length; i++) {
+                var div = createDiv(tableHeight);
+                cols[i].appendChild(div);
+                cols[i].style.position = 'relative';
+                setListeners(div);
+            }
+
+            function setListeners(div) {
+                var pageX, curCol, nxtCol, curColWidth, nxtColWidth;
+
+                div.addEventListener('mousedown', function (e) {
+                    curCol = e.target.parentElement;
+                    nxtCol = curCol.nextElementSibling;
+                    pageX = e.pageX;
+
+                    var padding = paddingDiff(curCol);
+
+                    curColWidth = curCol.offsetWidth - padding;
+                    if (nxtCol)
+                        nxtColWidth = nxtCol.offsetWidth - padding;
+                });
+
+                div.addEventListener('mouseover', function (e) {
+                    e.target.style.borderRight = '2px solid #0000ff';
+                })
+
+                div.addEventListener('mouseout', function (e) {
+                    e.target.style.borderRight = '';
+                })
+
+                document.addEventListener('mousemove', function (e) {
+                    if (curCol) {
+                        var diffX = e.pageX - pageX;
+
+                        if (nxtCol)
+                            nxtCol.style.width = (nxtColWidth - (diffX)) + 'px';
+
+                        curCol.style.width = (curColWidth + diffX) + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', function (e) {
+                    curCol = undefined;
+                    nxtCol = undefined;
+                    pageX = undefined;
+                    nxtColWidth = undefined;
+                    curColWidth = undefined
+                });
+            }
+
+            function createDiv(height) {
+                var div = document.createElement('div');
+                div.style.top = 0;
+                div.style.right = 0;
+                div.style.width = '5px';
+                div.style.position = 'absolute';
+                div.style.cursor = 'col-resize';
+                div.style.userSelect = 'none';
+                div.style.height = height + 'px';
+                return div;
+            }
+
+            function paddingDiff(col) {
+
+                if (getStyleVal(col, 'box-sizing') == 'border-box') {
+                    return 0;
+                }
+
+                var padLeft = getStyleVal(col, 'padding-left');
+                var padRight = getStyleVal(col, 'padding-right');
+                return (parseInt(padLeft) + parseInt(padRight));
+
+            }
+
+            function getStyleVal(elm, css) {
+                return (window.getComputedStyle(elm, null).getPropertyValue(css))
+            }
+        };
+    </script>
+
+    <script>
+        function modelnameitemname() {
+            $('#itemname').val('');
+            const selectElement = document.getElementById("itemname");
+            selectElement.innerHTML = ""
+            if (selectElement) {
+
+
+
+                modelname = $('#modelname').val();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/modelnameitemname',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        modelname: modelname
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                        for (let i = 0; i < result.length; i++) {
+                            const option = document.createElement("option");
+                            option.text = result[i].itemname;
+                            option.value = result[i].itemname;
+                            selectElement.add(option);
+                        }
+                    },
+                });
+            }
+        }
+
+        function searching() {
+            var start = $('#datepicker2').val();
+            var finish = $('#datepicker3').val();
+            $('#fileinfo').DataTable();
+            $.ajax({
+                url: server + '/api/shipment',
+                method: 'post',
+                dataType: 'json',
+                data: JSON.stringify({
+                    start: start,
+                    finish: finish
+                })
+
+                ,
+                success: function (data) {
+                    console.log(start)
+                    $('#fileinfo').DataTable({
+
+
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 18,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+                        deferloading: [0, 10],
+                        processing: true,
+                        columns: [
+                            { "data": "SHIPMENTDATE" },
+                            { "data": "REV" },
+                            { "data": "CUSTOMER" },
+                            { "data": "MODELNAME" },
+                            { "data": "ITEMNAME" },
+                            { "data": "SHIPMENT" },
+                            { "data": "TOTALQUANTITY" },
+                            { "data": "DIFFER" },
+                            { "data": "ITEMPRICE" },
+                            { "data": "ALLPRICE" },
+                            { "data": "STATUS" }
+
+
+                        ],
+
+                        columnDefs: [
+
+
+                            {
+                                targets: 11,
+                                data: null,
+                                defaultContent: '<button id="openModaledit" class="edit-button">수정</button>',
+                                width: 70
+                            },
+                            {
+                                targets: 12,
+                                data: null,
+                                defaultContent: '<button id="openModaldelete" class="delete-button"  > 삭제 </button>',
+                                width: 70
+                            }
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+        }
+    </script>
+
+</html>
