@@ -209,7 +209,7 @@ module.exports = function (app) {
                     " b.cavity, " +
                     " (c.quantity / CAST(b.cavity AS FLOAT) * CAST(b.onepidding AS FLOAT)) * 0.001 as P, " +
                     " (c.materialinput) as Q, " +
-                    " (c.materialinput) as R, " +
+                    " (c.materialoutput) as R, " +
                     " (c.materialinput - c.materialoutput) as S, " +
                     " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)) as T, " +
                     " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)* a.itemprice) as U, " +
@@ -295,8 +295,8 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('START', sql.NVarChar, req.body.start)
-            .input('FINISH', sql.NVarChar, req.body.finish)
+                .input('START', sql.NVarChar, req.body.start)
+                .input('FINISH', sql.NVarChar, req.body.finish)
                 .query(
 
                     "   SELECT " +
@@ -339,8 +339,8 @@ module.exports = function (app) {
                     " ON " +
                     "     I.MODELNAME = T.MODELNAME " +
                     "     AND I.ITEMNAME = T.ITEMNAME " +
-                    "     AND I.ITEMPRICE = T.ITEMPRICE "+
-                    "     AND SHIPMENTDATE BETWEEN '2023-05-23' AND '2023-05-24' ")
+                    "     AND I.ITEMPRICE = T.ITEMPRICE " +
+                    "     AND SHIPMENTDATE BETWEEN @START AND @FINISH ")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -354,6 +354,103 @@ module.exports = function (app) {
     });
     // **** finish
 
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/searchingaccount', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('START', sql.NVarChar, req.body.start)
+                .input('FINISH', sql.NVarChar, req.body.finish)
+                .query(
+
+                    "  SELECT " +
+                    " * " +
+                    " FROM " +
+                    " (SELECT " +
+                    "     ITEMNAME, " +
+                    "     CASE WHEN PART='1' THEN '발주' WHEN PART='2' THEN '계획' WHEN PART='3' THEN '실적' END PART, " +
+                    "       ISNULL([1], '') AS ONE1, " +
+                    "         ISNULL([2], '') AS ONE2, " +
+                    "         ISNULL([3], '') AS ONE3, " +
+                    "         ISNULL([4], '') AS ONE4, " +
+                    "         ISNULL([5], '') AS ONE5, " +
+                    "         ISNULL([6], '') AS ONE6, " +
+                    "         ISNULL([7], '') AS ONE7, " +
+                    "         ISNULL([8], '') AS ONE8, " +
+                    "         ISNULL([9], '') AS ONE9, " +
+                    "         ISNULL([10], '') AS ONE10," +
+                    "         ISNULL([11], '') AS ONE11," +
+                    "         ISNULL([12], '') AS ONE12," +
+                    "         ISNULL([13], '') AS ONE13," +
+                    "         ISNULL([14], '') AS ONE14," +
+                    "         ISNULL([15], '') AS ONE15," +
+                    "         ISNULL([16], '') AS ONE16," +
+                    "         ISNULL([17], '') AS ONE17," +
+                    "         ISNULL([18], '') AS ONE18," +
+                    "         ISNULL([19], '') AS ONE19," +
+                    "         ISNULL([20], '') AS ONE20," +
+                    "         ISNULL([21], '') AS ONE21," +
+                    "         ISNULL([22], '') AS ONE22," +
+                    "         ISNULL([23], '') AS ONE23," +
+                    "         ISNULL([24], '') AS ONE24," +
+                    "         ISNULL([25], '') AS ONE25," +
+                    "         ISNULL([26], '') AS ONE26," +
+                    "         ISNULL([27], '') AS ONE27," +
+                    "         ISNULL([28], '') AS ONE28," +
+                    "         ISNULL([29], '') AS ONE29," +
+                    "         ISNULL([30], '') AS ONE30," +
+                    "         ISNULL([31], '') AS ONE31 " +
+                    " FROM " +
+                    " ( " +
+                    "     SELECT " +
+                    "         PART, " +
+                    "         ITEMNAME, " +
+                    "         DAY(ASDATE) AS DAY_OF_MONTH, " +
+                    "         QUANTITY " +
+                    "     FROM " +
+                    "     ( " +
+                    "         SELECT " +
+                    "             '1' AS PART, " +
+                    "             ITEMNAME, " +
+                    "             ACCOUNTDATE AS ASDATE, " +
+                    "             QUANTITY " +
+                    "         FROM " +
+                    "             ACCOUNTINPUT  " +
+                    "         WHERE " +
+                    "             ACCOUNTDATE BETWEEN '2023-05-01' AND '2023-05-31' " +
+                    "         UNION ALL " +
+                    "         SELECT " +
+                    "             '2' AS PART, " +
+                    "             ITEMNAME, " +
+                    "             SHIPMENTDATE AS ASDATE, " +
+                    "             SHIPMENTCOUNT AS QUANTITY " +
+                    "         FROM " +
+                    "             SHIPMENT " +
+                    "         WHERE " +
+                    "             SHIPMENTDATE BETWEEN '2023-05-01' AND '2023-05-31' " +
+                    "     ) AS TB " +
+                    " ) AS SourceTable " +
+
+                    " PIVOT " +
+                    " ( " +
+                    "     SUM(QUANTITY) " +
+                    "     FOR DAY_OF_MONTH IN ([1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12], [13], [14], [15], [16], [17], [18], [19], [20], [21], [22], [23], [24], [25], [26], [27], [28], [29], [30], [31]) " +
+                    " ) AS PivotTable) IB")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -544,6 +641,27 @@ module.exports = function (app) {
                     " SELECT " +
                     " * " +
                     " FROM accountmanagement where accountname like '%스%' ")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start  거래처정보 조회 쿼리  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialinputwhere', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .query(
+
+                    " SELECT " +
+                    " * " +
+                    " FROM materialinput where materialname=@materialname ")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -1802,6 +1920,7 @@ module.exports = function (app) {
                     "    FORMAT(itemcost, '#,##0.00') AS itemcost, " +
                     "    FORMAT(itemprice, '#,##0.00') AS itemprice, " +
                     "    FORMAT(quantity, '#,##0.##') AS quantity, " +
+                    "    FORMAT((itemprice * quantity), '#,##0.##') AS totalprice, " +
                     "    productok, " +
                     "    materialok " +
                     "    from " +
@@ -2298,6 +2417,61 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/orderlistupdate', function (req, res) {
+            console.log("res", res)
+            console.log("req", req)
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+         
+                .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('materialinput', sql.Float, req.body.materialinput)
+       
+
+
+                .query(
+                    'update orderlist set materialinput=@materialinput where orderid=@orderid'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+     // **** start       
+     sql.connect(config).then(pool => {
+        app.post('/api/orderlistmaterialoutput', function (req, res) {
+       
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+         
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('materialoutput', sql.Float, req.body.materialoutput)
+       
+
+
+                .query(
+                    'update orderlist set materialoutput=@materialoutput where lotno=@lotno'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     sql.connect(config).then(pool => {
         app.post('/api/updateorderlist', function (req, res) {
@@ -2889,6 +3063,44 @@ module.exports = function (app) {
     });
     // **** finish
 
+
+    // **** start  품목등록    
+    sql.connect(config).then(pool => {
+        app.post('/api/outputmaterialinput', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('date', sql.NVarChar, req.body.date)
+                .input('input', sql.NVarChar, req.body.input)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('manufacturedate', sql.NVarChar, req.body.manufacturedate)
+                .input('expirationdate', sql.NVarChar, req.body.expirationdate)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .input('quantity', sql.Int, req.body.quantity)
+                .input('roll', sql.Int, req.body.roll)
+                .input('sum', sql.Int, req.body.sum)
+                .input('contents', sql.NVarChar, req.body.contents)
+                .input('part', sql.NVarChar, req.body.part)
+
+
+
+
+                .query(
+                    'insert into materialinput(date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,contents,part)' +
+                    ' values(@date,@input,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@contents,@part)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
     // **** start  관리항목등록    
     sql.connect(config).then(pool => {
         app.post('/api/managementtopicsinsertdata', function (req, res) {
@@ -3361,6 +3573,27 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start material combobox group 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/productcontent', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('contents', sql.NVarChar, req.body.contents)
+
+                .query(
+                    " select materialname,materialwidth,lotno,quantity from materialinput where contents=@contents "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start material combobox group 쿼리      
     sql.connect(config).then(pool => {
@@ -3383,8 +3616,8 @@ module.exports = function (app) {
     });
     // **** finish
 
-      // **** start material combobox group 쿼리      
-      sql.connect(config).then(pool => {
+    // **** start material combobox group 쿼리      
+    sql.connect(config).then(pool => {
         app.post('/api/modelnamegroup', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
@@ -3404,14 +3637,14 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start material combobox group 쿼리      
-     sql.connect(config).then(pool => {
+    // **** start material combobox group 쿼리      
+    sql.connect(config).then(pool => {
         app.post('/api/modelnameitemname', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('modelname', sql.NVarChar, req.body.modelname)
 
                 .query(
                     'select itemname from iteminfo where modelname=@modelname'
@@ -3604,8 +3837,8 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start  원자재입고등록쿼리    
-     sql.connect(config).then(pool => {
+    // **** start  원자재입고등록쿼리    
+    sql.connect(config).then(pool => {
         app.post('/api/shipmentinsert', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
@@ -3618,7 +3851,7 @@ module.exports = function (app) {
                 .input('modelname', sql.NVarChar, req.body.modelname)
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('shipmentcount', sql.NVarChar, req.body.shipmentcount)
-   
+
 
 
                 .query(

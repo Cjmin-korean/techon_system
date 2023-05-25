@@ -133,9 +133,18 @@ app.get("/productorderinstruction", cors(), (req, res) => {
 app.get("/productorderlist", cors(), (req, res) => {
     res.sendFile(__dirname + "/productlist2.html");
 });
+app.get("/outputmaterialinput", cors(), (req, res) => {
+    res.sendFile(__dirname + "/materialouput.html");
+});
 
 app.get("/bommanagement1", cors(), (req, res) => {
     res.sendFile(__dirname + "/bominformation1.html");
+});
+app.get("/productcontent", cors(), (req, res) => {
+    res.sendFile(__dirname + "/startproduct.html");
+});
+app.get("/orderlistmaterialoutput", cors(), (req, res) => {
+    res.sendFile(__dirname + "/startproduct.html");
 });
 app.get("/upload-excel", cors(), (req, res) => {
     res.sendFile(__dirname + "/test13.html");

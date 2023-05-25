@@ -113,16 +113,17 @@
     <hr>
 
     <div style="display: flex; flex-direction: row; width: 100%; ">
-        <div style="flex-grow: 1;  text-align: center; font-family: sans-serif; font-size: 16px; font-weight: bold;">
+        <div style="flex-grow: 1;  margin-left: 20px; font-family: sans-serif; font-size: 16px; font-weight: bold;">
             품목정보
         </div>
-        <div style="flex-grow: 1; text-align: center; font-family: sans-serif; font-size: 16px; font-weight: bold;">
+        <div style="flex-grow: 1;  font-family: sans-serif; font-size: 16px; font-weight: bold;">
             영업제품정보</div>
     </div>
 
     <hr>
-    <div style="display: flex; flex-direction: row; width: 90%; height: 800px; ">
-        <div style="flex-grow: 1; border-right: 1.5px solid whitesmoke; width: 55%; margin-top: -90px;">
+    <div
+        style="display: flex; background-color : rgb(247, 247, 247); flex-direction: row; width: 100%; height: 300px; ">
+        <div style="flex-grow: 1; border-right: 1.5px solid rgb(5, 5, 5); width: 55%; margin-top: -85px;">
             <table id="fileinfo" class="display" style="width: 100%; table-layout: fixed;">
                 <thead>
                     <tr>
@@ -138,7 +139,7 @@
 
             </table>
         </div>
-        <div style="flex-grow: 1; border-left: 1.5px solid whitesmoke; width: 70%; margin-top: -20px;">
+        <div style="flex-grow: 1; border-left: 1.5px solid whitesmoke; width: 60%; margin-top: -20px;">
             <table id="fileinfo1" class="display" style="width:100%">
                 <thead>
                     <tr>
@@ -157,7 +158,29 @@
             </table>
         </div>
     </div>
+    <hr>
+    <p style="text-align:center ;">영업등록현황</p>
+    <hr>
+    <table id="fileinfo2" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th style="background-color:black">PONO.</th>
+                <th style="background-color:black">수주일자</th>
+                <th style="background-color:black">납기일자</th>
+                <th style="background-color:black">고객사</th>
+                <th style="background-color:black">BOMNO.</th>
+                <th style="background-color:black">모델명</th>
+                <th style="background-color:black">제품명</th>
+                <th style="background-color:black">제품원가</th>
+                <th style="background-color:black">제품단가</th>
+                <th style="background-color:black">영업수량</th>
+                <th style="background-color:black">가격합계</th>
 
+            </tr>
+        </thead>
+        <tbody id="fileinfobody">
+        </tbody>
+    </table>
 
     <div id="addEmployeeModal" class="modal fade">
         <div class="modal-dialog">
@@ -391,6 +414,125 @@
             }
         });
 
+        $.ajax({
+            url: server + '/api/salescontent',
+            method: 'post',
+            dataType: 'json',
+            success: function (data) {
+                $('#fileinfo2').DataTable({
+                    // deferLoading: [0, 10],
+                    paging: true,
+                    destroy: true,
+                    sort: true,
+                    pageLength: 18,
+                    searching: true,
+                    data: data,
+                    responsive: true,
+                    columnResize: true,
+
+                    processing: true,
+                    columns: [
+
+                        { "data": "contentname" },
+                        { "data": "accountdate" },
+                        { "data": "deliverydate" },
+                        { "data": "customer" },
+                        { "data": "bomno" },
+                        { "data": "modelname" },
+                        { "data": "itemname" },
+                        { "data": "itemcost" },
+                        { "data": "itemprice" },
+                        { "data": "quantity" },
+                        { "data": "totalprice" }
+
+
+
+                    ],
+
+                    columnDefs: [
+                        {
+                            targets: 0,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 1,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 2,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 3,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 4,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 5,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 6,
+                            className: 'alLeft'
+                        },
+                        {
+                            targets: 7,
+                            className: 'alRight'
+                        },
+                        {
+                            targets: 8,
+                            className: 'alRight'
+
+                        },
+                        {
+                            targets: 9,
+                            className: 'alRight'
+
+                        },
+                        {
+                            targets: 10,
+                            className: 'alRight'
+
+                        },
+
+
+
+
+                    ],
+
+                    language: {
+                        emptyTable: "데이터가 없습니다.",
+                        lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                        info: "현재 _START_ - _END_ / _TOTAL_건",
+                        infoEmpty: "데이터 없음",
+                        infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                        search: "검색:",
+                        zeroRecords: "일치하는 데이터가 없습니다.",
+                        loadingRecords: "로딩중...",
+                        processing: "잠시만 기다려 주세요.",
+                        paginate: {
+                            next: "다음",
+                            previous: "이전"
+                        }
+                    },
+
+
+                });
+                // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                $('.sorting').css('text-align', 'center');
+            },
+            error: function () {
+                alert("다시 시도해 주십시요.");
+            },
+
+            complete: setTimeout(function () {
+                const loadingScreen = document.getElementById("loading-screen");
+                loadingScreen.style.display = "none";
+            }, 1500)
+        });
 
     });
 </script>
@@ -709,6 +851,127 @@
             $('#countsum').val('0');
             settingDate()
             $('#fileinfobody').empty()
+
+            $.ajax({
+                url: server + '/api/salescontent',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $('#fileinfo2').DataTable({
+                        // deferLoading: [0, 10],
+                        paging: true,
+                        destroy: true,
+                        sort: true,
+                        pageLength: 18,
+                        searching: true,
+                        data: data,
+                        responsive: true,
+                        columnResize: true,
+
+                        processing: true,
+                        columns: [
+
+                            { "data": "contentname" },
+                            { "data": "accountdate" },
+                            { "data": "deliverydate" },
+                            { "data": "customer" },
+                            { "data": "bomno" },
+                            { "data": "modelname" },
+                            { "data": "itemname" },
+                            { "data": "itemcost" },
+                            { "data": "itemprice" },
+                            { "data": "quantity" },
+                            { "data": "totalprice" }
+
+
+
+                        ],
+
+                        columnDefs: [
+                            {
+                                targets: 0,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 1,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 2,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 3,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 4,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 5,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 6,
+                                className: 'alLeft'
+                            },
+                            {
+                                targets: 7,
+                                className: 'alRight'
+                            },
+                            {
+                                targets: 8,
+                                className: 'alRight'
+
+                            },
+                            {
+                                targets: 9,
+                                className: 'alRight'
+
+                            },
+                            {
+                                targets: 10,
+                                className: 'alRight'
+
+                            },
+
+
+
+
+                        ],
+
+                        language: {
+                            emptyTable: "데이터가 없습니다.",
+                            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+                            info: "현재 _START_ - _END_ / _TOTAL_건",
+                            infoEmpty: "데이터 없음",
+                            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+                            search: "검색:",
+                            zeroRecords: "일치하는 데이터가 없습니다.",
+                            loadingRecords: "로딩중...",
+                            processing: "잠시만 기다려 주세요.",
+                            paginate: {
+                                next: "다음",
+                                previous: "이전"
+                            }
+                        },
+
+
+                    });
+                    // 컬럼 헤더 셀을 가운데 정렬하는 CSS를 추가
+                    $('.sorting').css('text-align', 'center');
+                },
+                error: function () {
+                    alert("다시 시도해 주십시요.");
+                },
+
+                complete: setTimeout(function () {
+                    const loadingScreen = document.getElementById("loading-screen");
+                    loadingScreen.style.display = "none";
+                }, 1500)
+            });
+
             alert("저장이 완료 되었습니다.");
 
 
