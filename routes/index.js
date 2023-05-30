@@ -595,9 +595,14 @@ module.exports = function (app) {
 
                 .query(
 
-                    'SELECT ' +
-                    '* ' +
-                    'FROM accountmanagement')
+                    "    SELECT " +
+                    "    id, " +
+                    "    ISNULL(accountcode, '') AS accountcode, " +
+                    "    ISNULL(accountname, '') AS accountname, " +
+                    "    ISNULL(representativename, '') AS representativename, " +
+                    "    ISNULL(phone, '') AS phone, " +
+                    "    ISNULL(adress, '') AS adress " +
+                    "    FROM Accountmanagement")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -1226,7 +1231,7 @@ module.exports = function (app) {
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
-        app.post('/api/materialoptiongroup1', function (req, res) {
+        app.post('/api/materialoptiongroup', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
@@ -1259,9 +1264,9 @@ module.exports = function (app) {
 
 
             return pool.request()
-                .input('materialname', sql.NVarChar, req.body.materialname)
+                // .input('materialname', sql.NVarChar, req.body.materialname)
                 .query(
-                    "select materialname,lotno,manufacturedate,expirationdate,format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth',format(convert(int,Isnull(sum(quantity),0)),'##,##0')'quantity' from materialinput where materialname=@materialname and part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
+                    "select materialname,lotno,manufacturedate,expirationdate,format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth',format(convert(int,Isnull(sum(quantity),0)),'##,##0')'quantity' from materialinput where part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
 
 
                 .then(result => {
@@ -1411,15 +1416,16 @@ module.exports = function (app) {
                 .input('size', sql.NVarChar, req.body.size)
                 .input('itemprice', sql.Float, req.body.itemprice)
                 .input('itemcost', sql.Float, req.body.itemcost)
-                .input('quantity', sql.Int, req.body.quantity)
+                .input('quantity', sql.Float, req.body.quantity)
                 .input('price', sql.Float, req.body.price)
                 .input('salesorder', sql.NVarChar, req.body.accountdate)
                 .input('contentname', sql.NVarChar, req.body.contentname)
-                .input('countsum', sql.NVarChar, req.body.countsum)
-                .input('pricesum', sql.NVarChar, req.body.pricesum)
+                .input('ponum', sql.NVarChar, req.body.ponum)
+                .input('countsum', sql.Float, req.body.countsum)
+                .input('pricesum', sql.Float, req.body.pricesum)
                 .query(
-                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost)' +
-                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost)'
+                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum)' +
+                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum)'
                 )
                 .then(result => {
 
@@ -2426,10 +2432,10 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-         
+
                 .input('orderid', sql.NVarChar, req.body.orderid)
                 .input('materialinput', sql.Float, req.body.materialinput)
-       
+
 
 
                 .query(
@@ -2446,16 +2452,16 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start       
-     sql.connect(config).then(pool => {
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/orderlistmaterialoutput', function (req, res) {
-       
+
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-         
+
                 .input('lotno', sql.NVarChar, req.body.lotno)
                 .input('materialoutput', sql.Float, req.body.materialoutput)
-       
+
 
 
                 .query(
@@ -3580,7 +3586,7 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('contents', sql.NVarChar, req.body.contents)
+                .input('contents', sql.NVarChar, req.body.contents)
 
                 .query(
                     " select materialname,materialwidth,lotno,quantity from materialinput where contents=@contents "
@@ -3594,6 +3600,75 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start material combobox group 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/POaccountinput', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+
+                .query(
+                    "   select " +
+                    "    accountdate, " +
+                    "    deliverydate, " +
+                    "    customer, " +
+                    "    ponum, " +
+                    "    contentname " +
+                    "    from " +
+                    "    accountinput " +
+                    "    where accountdate between @start and @finish " +
+                    "    group by " +
+                    "    accountdate,deliverydate,ponum,customer,contentname order by accountdate asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start material combobox group 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/POaccountinputponum', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('ponum', sql.NVarChar, req.body.ponum)
+
+
+                .query(
+                    "   select "+
+                    "   itemcode, "+
+                    "   bomno, "+
+                    "   modelname, "+
+                    "   itemname, "+
+                    "   customer, "+
+                    "   itemcost, "+
+                    "   itemprice, "+
+                    "   quantity, "+
+                    "   price  "+
+                    "   from "+
+                    "   accountinput "+
+                    "   where "+
+                    "   ponum = @ponum"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     // **** start material combobox group 쿼리      
     sql.connect(config).then(pool => {

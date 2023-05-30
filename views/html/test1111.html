@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>생산발주</title>
+    <title>원자재입고</title>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/main.css">
@@ -52,7 +52,7 @@
 
 <body>
     <div class="main_header">
-        <a>최종검사결과</a>
+        <a>원자재정보</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -69,41 +69,29 @@
         </table>
     </div> -->
 
-    <div id="datatable-container" style="height: 300px;">
-
-        <table class="styled-table" id="datatable">
-            <thead>
-                <tr>
-                    <th>BOM</th>
-                    <th>검사일</th>
-                    <th>모델명</th>
-                    <th>제품명</th>
-                    <th>LOTNO.</th>
-                    <th>생산일자</th>
-                    <th>작업수량</th>
-                    <th>양품수량</th>
-                    <th>불량수량</th>
-                    <th>이물</th>
-                    <th>Burr</th>
-                    <th>Burr</th>
-                    <th>구김</th>
-                    <th>찐</th>
-                    <th>기호</th>
-                    <th>누락</th>
-                    <th>펜싱</th>
-                    <th>홀찍힘</th>
-                    <th>이음배</th>
-                    <th>잘림</th>
-                    <th>컬</th>
-                    <th>홀막힘</th>
-                    <th>스크래치</th>
-                    <th>원단</th>
-                    <th style="width:100px;"></th>
-                </tr>
-            </thead>
-            <tbody id="Datatbody">
-            </tbody>
-        </table>
+    <div style="height: 1000px; width:100%; overflow: auto;">
+        <div id="datatable-container">
+            <table class="styled-table" id="datatable">
+                <thead>
+                    <tr>
+                        <th>원자재명</th>
+                        <th>원자재코드</th>
+                        <th>종류</th>
+                        <th>전폭규격(cm)</th>
+                        <th>길이규격(M)</th>
+                        <th>거래처</th>
+                        <th>SQM단가(원)</th>
+                        <th>롤단가(원)</th>
+                        <th>유수명(일)</th>
+                        <th>수입검사유무</th>
+                        <th style="width:100px;"></th>
+                        <th style="width:100px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="Datatbody">
+                </tbody>
+            </table>
+        </div>
     </div>
 
 
@@ -250,141 +238,79 @@
             settingDate()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/alltest',
+                url: server + '/api/materialbase',
                 dataType: 'json',
                 success: function (data) {
-                    var ngTotal = Array(15).fill(0); // 각 ng의 합계를 저장할 배열
+
 
                     for (var i = 0; i < data.length; i++) {
-                        // 각 ng 값을 더하여 합계 계산
-                        for (var j = 0; j < ngTotal.length; j++) {
-                            ngTotal[j] += data[i]['ng' + (j + 1)];
-                        }
 
                         $('#datatable').append(
                             '<tr>' +
-                            '<td>' + data[i].bom + '</td>' +
-                            '<td>' + data[i].testdate + '</td>' +
-                            '<td>' + data[i].modelname + '</td>' +
-                            '<td>' + data[i].itemname + '</td>' +
-                            '<td>' + data[i].lotno + '</td>' +
-                            '<td>' + data[i].count + '</td>' +
-                            '<td>' + data[i].productdate + '</td>' +
-                            '<td style="background-color: blue; color: white;">' + data[i].okcount + '</td>' +
-                            '<td style="background-color: red; color: white;">' + data[i].ngcount + '</td>' +
-                            '<td>' + data[i].ng1 + '</td>' +
-                            '<td>' + data[i].ng2 + '</td>' +
-                            '<td>' + data[i].ng3 + '</td>' +
-                            '<td>' + data[i].ng4 + '</td>' +
-                            '<td>' + data[i].ng5 + '</td>' +
-                            '<td>' + data[i].ng6 + '</td>' +
-                            '<td>' + data[i].ng7 + '</td>' +
-                            '<td>' + data[i].ng8 + '</td>' +
-                            '<td>' + data[i].ng9 + '</td>' +
-                            '<td>' + data[i].ng10 + '</td>' +
-                            '<td>' + data[i].ng11 + '</td>' +
-                            '<td>' + data[i].ng12 + '</td>' +
-                            '<td>' + data[i].ng13 + '</td>' +
-                            '<td>' + data[i].ng14 + '</td>' +
-                            '<td>' + data[i].ng15 + '</td>' +
-                            '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
-                            '</tr>'
-                        );
-                    }
+                            '<td>' + data[i].materialname + '</td>' +
+                            '<td>' + data[i].codenumber + '</td>' +
+                            '<td>' + data[i].classification + '</td>' +
+                            '<td>' + data[i].fullwidth + '</td>' +
+                            '<td>' + data[i].swidth + '</td>' +
+                            '<td>' + data[i].customer + '</td>' +
+                            '<td>' + data[i].sqmprice + '</td>' +
+                            '<td>' + data[i].rollprice + '</td>' +
+                            '<td>' + data[i].day + '</td>' +
+                            '<td>' + data[i].inspection + '</td>' +
+                            '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
+                            '<td><a class="data-delte" style="cursor:pointer; color:red;">삭제</a></td>' +
 
-                    // 합계를 표시하는 tfoot 요소 추가
-                    $('#datatable').append(
-                        '<tfoot>' +
-                        '<tr>' +
-                        '<td colspan="9">합계</td>' +
-                        '<td>' + ngTotal[0] + '</td>' +
-                        '<td>' + ngTotal[1] + '</td>' +
-                        '<td>' + ngTotal[2] + '</td>' +
-                        '<td>' + ngTotal[3] + '</td>' +
-                        '<td>' + ngTotal[4] + '</td>' +
-                        '<td>' + ngTotal[5] + '</td>' +
-                        '<td>' + ngTotal[6] + '</td>' +
-                        '<td>' + ngTotal[7] + '</td>' +
-                        '<td>' + ngTotal[8] + '</td>' +
-                        '<td>' + ngTotal[9] + '</td>' +
-                        '<td>' + ngTotal[10] + '</td>' +
-                        '<td>' + ngTotal[11] + '</td>' +
-                        '<td>' + ngTotal[12] + '</td>' +
-                        '<td>' + ngTotal[13] + '</td>' +
-                        '<td>' + ngTotal[14] + '</td>' +
-
-                        '<td></td>' +
-                        '</tr>' +
-                        '</tfoot>'
-                    );
-                }
-            });
-
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/productorderlist',
-                dataType: 'json',
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        var possibleColor = data[i].possible === '가능' ? 'background-color: green; color: white;' : '';
-                        var possibleColor = data[i].possible === '부족' ? 'background-color: red; color: white;' : '';
-                        $('#orderdatatable').append(
-                            '<tr>' +
-                            '<td>' + data[i].contentname + '</td>' +
-                            '<td>' + data[i].bomno + '</td>' +
-                            '<td>' + data[i].productdate + '</td>' +
-                            '<td>' + data[i].modelname + '</td>' +
-                            '<td>' + data[i].itemname + '</td>' +
-                            '<td>' + data[i].lotno + '</td>' +
-                            '<td>' + data[i].quantity + '</td>' +
-                            '<td>' + data[i].orderid + '</td>' +
-
-                            '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
                             '<td id="data-id">' + data[i].id + '</td>' +
                             '</tr>'
                         );
+
                         $("td#data-id").hide();
                     }
+
                 }
             });
 
+            '</tr>'
 
-
-            $('#datatable').on('click', '.data-edit', function () {
-                var str = "";
-                var tdArr = new Array();// 배열 선언            
-                var checkBtn = $(this);
-
-                var tr = checkBtn.parent().parent();
-                var td = tr.children();
-
-                var pono = td.eq(0).text();
-                var bomno = td.eq(1).text();
-                var modelname = td.eq(4).text();
-                var itemname = td.eq(5).text();
-                $('#pono').val(pono)
-                $('#bomno').val(bomno)
-                // $('#datepicker1').val(datepicker1)
-                $('#modelname').val(modelname)
-                $('#itemname').val(itemname)
-                // $('#lotno').val(lotno)
-                // $('#count').val(count)
-                $('#popupOverlay1').fadeIn();
-                $('#count').focus()
-            });
+         
 
 
 
-            $('#popupCloseBtn-save-close').click(function () {
-                $('#popupOverlay').fadeOut();
-            });
-            $('#popupCloseBtn-edit-close').click(function () {
-                $('#popupOverlay1').fadeOut();
-            });
-            $('#popupCloseBtn-delete-close').click(function () {
-                $('#popupOverlay2').fadeOut();
-            });
+
+        $('#datatable').on('click', '.data-edit', function () {
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
+
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
+
+            var pono = td.eq(0).text();
+            var bomno = td.eq(1).text();
+            var modelname = td.eq(4).text();
+            var itemname = td.eq(5).text();
+            $('#pono').val(pono)
+            $('#bomno').val(bomno)
+            // $('#datepicker1').val(datepicker1)
+            $('#modelname').val(modelname)
+            $('#itemname').val(itemname)
+            // $('#lotno').val(lotno)
+            // $('#count').val(count)
+            $('#popupOverlay1').fadeIn();
+            $('#count').focus()
+        });
+
+
+
+        $('#popupCloseBtn-save-close').click(function () {
+            $('#popupOverlay').fadeOut();
+        });
+        $('#popupCloseBtn-edit-close').click(function () {
+            $('#popupOverlay1').fadeOut();
+        });
+        $('#popupCloseBtn-delete-close').click(function () {
+            $('#popupOverlay2').fadeOut();
+        });
 
 
         });

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>거래처정보</title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<style>
+    #datatable-container {
+        max-height: 1000px;
+        /* Adjust the maximum height as needed */
+        overflow-y: auto;
+        /* Add vertical scrollbars if the content exceeds the container height */
+    }
+
+    #datatable {
+        width: 100%;
+        /* Other table styles */
+    }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+    }
+
+    .notification img {
+        width: 100px;
+        height: 50px;
+        margin-right: 10px;
+    }
+
+    .notification-message {
+        font-size: 16px;
+        color: #333;
+    }
+</style>
+
+<body>
+    <div class="main_header">
+        <a>최종검사(현장)</a>
+
+
+    </div>
+    <div id="loadingOverlay">
+        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
+
+    </div>
+    <div class="form-group">
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 200px; background-color: whitesmoke;">검색</td>
+                <td><input type="text" id="myInput" onclick="search()" class="data" autocomplete="off"
+                        style="width:100%; border:1px solid silver;"></td>
+
+            </tr>
+        </table>
+    </div>
+
+    <div id="datatable-container">
+
+        <table class="styled-table" id="datatable">
+            <thead>
+                <tr>
+                    <th>BOMNO.</th>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <th>생산LOT</th>
+                    <th>생산날짜</th>
+                    <th>생산수량</th>
+                    <th>검사날짜</th>
+                    <th>시작시간</th>
+                    <th>종료시간</th>
+                    <th>상태</th>
+                    <th style="width:100px;"></th>
+                    <th style="width:100px;"></th>
+                </tr>
+            </thead>
+            <tbody id="Datatbody">
+            </tbody>
+        </table>
+    </div>
+    <!-- 등록창 -->
+    <div id="popupOverlay" style="display: none;">
+        <div id="popupContent" style="width: 700px; height: auto;">
+            <div class="form-group">
+                <table style="width:100%;">
+                    <tr>
+                        <td colspan="2" style="background-color: whitesmoke;">거래처 정보 추가</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">거래처코드</td>
+                        <td><input type="text" id="accountcode-save" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">거래처명</td>
+                        <td><input type="text" id="accountname-save" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">대표자</td>
+                        <td><input type="text" id="representativename-save" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">전화번호</td>
+                        <td><input type="text" id="phone-save" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">주소</td>
+                        <td><input type="text" id="adress-save" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                </table>
+            </div>
+            <button id="popupCloseBtn-save-close">취소</button>
+            <button id="popupCloseBtn-save" onclick="Datasave()">저장</button>
+        </div>
+    </div>
+
+    <!-- 수정창 -->
+    <div id="popupOverlay1" style="display: none;">
+        <div id="popupContent1" style="width: 700px; height: auto;">
+            <div class="form-group">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="background-color: black; color: white;">검사시작</td>
+                        <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+
+                    </tr>
+
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">모델명</td>
+                        <td><input type="text" id="modelname" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">제품명</td>
+                        <td><input type="text" id="itemname" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">생산LOT</td>
+                        <td><input type="text" id="lotno" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+
+
+                </table>
+            </div>
+            <button id="popupCloseBtn-edit-close">취소</button>
+            <button id="popupCloseBtn-edit" onclick="Dataedit()">검사시작</button>
+        </div>
+    </div>
+
+
+    <!-- 삭제창 -->
+    <div id="popupOverlay2" style="display: none;">
+        <div id="popupContent2" style="width: 700px; height: auto;">
+            <div class="form-group">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="background-color: black; color: white;">검사종료</td>
+                        <td style="visibility: hidden;"><input type="text" id="id-final" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">BOMNO.</td>
+                        <td><input type="text" id="bomno-final" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">모델명</td>
+                        <td><input type="text" id="modelname-final" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">제품명</td>
+                        <td><input type="text" id="itemname-final" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">생산LOT</td>
+                        <td><input type="text" id="lot-final" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">생산날짜</td>
+                        <td><input type="text" id="startdate-final" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">생산수량</td>
+                        <td><input type="text" id="quantity-final" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+
+                    </tr>
+                    <div style="width:50%">
+                        <div class="form-group" style="width: 50%;float: left;">
+                            <table>
+                                <tr>
+                                    <td>이물</td>
+                                    <td><input type="text" id="ng1" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>BURR</td>
+                                    <td><input type="text" id="ng2" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>구김</td>
+                                    <td><input type="text" id="ng3" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>찜</td>
+                                    <td><input type="text" id="ng4" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>기호</td>
+                                    <td><input type="text" id="ng5" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>누락</td>
+                                    <td><input type="text" id="ng6" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>펜싱</td>
+                                    <td><input type="text" id="ng7" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>홀찍힘</td>
+                                    <td><input type="text" id="ng8" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>이음배</td>
+                                    <td><input type="text" id="ng9" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>잘림</td>
+                                    <td><input type="text" id="ng10" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>컬</td>
+                                    <td><input type="text" id="ng11" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>홀막힘</td>
+                                    <td><input type="text" id="ng12" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>스크래치</td>
+                                    <td><input type="text" id="ng13" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>원단</td>
+                                    <td><input type="text" id="ng14" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>수명누락</td>
+                                    <td><input type="text" id="ng15" class="data" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td>기타</td>
+                                    <td><input type="text" id="ng16" class="data" value="0"></td>
+                                </tr>
+                            </table>
+                        </div>
+
+
+                        <button id="popupCloseBtn-delete-close">취소</button>
+                        <button id="popupCloseBtn-delete" onclick="Datadelte()">검사종료</button>
+                    </div>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        $(document).ready(function () {
+            showLoading()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectalltest',
+                dataType: 'json',
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        var status = data[i].status;
+                        var backgroundColor = '';
+                        var textColor = 'white';
+
+                        if (status === '검사대기') {
+                            backgroundColor = 'blue';
+                        } else if (status === '검사완료') {
+                            backgroundColor = 'red';
+                        } else if (status === '검사중') {
+                            backgroundColor = 'green';
+                        }
+
+                        $('#datatable').append(
+                            '<tr>' +
+                            '<td>' + data[i].bomno + '</td>' +
+                            '<td>' + data[i].modelname + '</td>' +
+                            '<td>' + data[i].itemname + '</td>' +
+                            '<td>' + data[i].lotno + '</td>' +
+                            '<td>' + data[i].startdate + '</td>' +
+
+                            '<td>' + data[i].quantity + '</td>' +
+                            '<td>' + data[i].inspectiondate + '</td>' +
+                            '<td>' + data[i].start + '</td>' +
+                            '<td>' + data[i].finish + '</td>' +
+                            '<td style="background-color: ' + backgroundColor + '; color: ' + textColor + ';">' + status + '</td>' +
+                            '<td><a class="data-edit" style="cursor:pointer; color:navy;">검사시작</a></td>' +
+                            '<td><a class="data-delete" style="cursor:pointer; color:red;">검사종료</a></td>' +
+                            '<td id="data-id">' + data[i].id + '</td>' +
+                            '</tr>'
+
+
+
+                        );
+
+                        $("td#data-id").hide();
+                    }
+                }
+            });
+
+
+            $('#datatable').on('click', '.data-edit', function () {
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+
+                var modelname = td.eq(1).text();
+                var itemname = td.eq(2).text();
+                var lotno = td.eq(3).text();
+                var id = td.eq(12).text();
+                $('#modelname').val(modelname)
+                $('#itemname').val(itemname)
+                $('#lotno').val(lotno)
+
+                $('#id-edit').val(id)
+                $('#popupOverlay1').fadeIn();
+            });
+            $('#datatable').on('click', '.data-delete', function () {
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var bomno = td.eq(0).text();
+                var modelname = td.eq(1).text();
+                var itemname = td.eq(2).text();
+                var lotno = td.eq(3).text();
+                var startdate = td.eq(4).text();
+                var quantity = td.eq(5).text();
+                var id = td.eq(12).text();
+                $('#bomno-final').val(bomno)
+                $('#modelname-final').val(modelname)
+                $('#itemname-final').val(itemname)
+                $('#lot-final').val(lotno)
+                $('#startdate-final').val(startdate)
+                $('#quantity-final').val(quantity)
+
+                $('#id-final').val(id)
+                $('#popupOverlay2').fadeIn();
+            });
+
+
+            $('#popupCloseBtn-save-close').click(function () {
+                $('#popupOverlay').fadeOut();
+            });
+            $('#popupCloseBtn-edit-close').click(function () {
+                $('#popupOverlay1').fadeOut();
+            });
+            $('#popupCloseBtn-delete-close').click(function () {
+                $('#popupOverlay2').fadeOut();
+            });
+
+
+        });
+
+
+
+        //오름차순 내림차순
+        function sortTable(columnIndex) {
+            var table, rows, switching, i, x, y, shouldSwitch, direction, switchcount = 0;
+            table = document.getElementById("datatable");
+            switching = true;
+            direction = "asc"; // 기본 정렬 방향은 오름차순
+
+            while (switching) {
+                switching = false;
+                rows = table.getElementsByTagName("tr");
+
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("td")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+
+                    if (direction == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (direction == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && direction == "asc") {
+                        direction = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+
+        //검색
+        function search() {
+            console.log("11")
+            const searchInput = document.getElementById('myInput');
+            const dataTable = document.getElementById('datatable');
+            const tableRows = dataTable.getElementsByTagName('tr');
+
+            searchInput.addEventListener('input', function () {
+                const searchValue = this.value.toLowerCase();
+
+                for (let i = 1; i < tableRows.length; i++) {
+                    const rowData = tableRows[i].getElementsByTagName('td');
+
+                    let found = false;
+
+                    for (let j = 0; j < rowData.length; j++) {
+                        const cellData = rowData[j].textContent.toLowerCase();
+
+                        if (cellData.includes(searchValue)) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found) {
+                        tableRows[i].style.display = '';
+                    } else {
+                        tableRows[i].style.display = 'none';
+                    }
+
+                }
+            });
+        }
+        function showLoading() {
+            var loadingOverlay = document.getElementById("loadingOverlay");
+            loadingOverlay.style.display = "flex";
+
+            // 로딩 완료 후 일정 시간 후 로딩 창 숨기기 (테스트용)
+            setTimeout(function () {
+                loadingOverlay.style.display = "none";
+            }, 1000);
+        }
+
+        function New() {
+            $('#accountcode-save').val('')
+            $('#accountname-save').val('')
+            $('#representativename-save').val('')
+            $('#phone-save').val('')
+            $('#adress-save').val('')
+            $('#popupOverlay').fadeIn();
+        }
+
+        function Datasave() {
+            if (confirm("고객사 정보를 등록 하시겠습니까??") == true) {
+
+
+                var accountcode = $('#accountcode-save').val();
+                var accountname = $('#accountname-save').val();
+                var representativename = $('#representativename-save').val();
+                var phone = $('#phone-save').val();
+                var adress = $('#adress-save').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/accountinfoinsertdata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "accountcode": accountcode,
+                        "accountname": accountname,
+                        "representativename": representativename,
+                        "phone": phone,
+                        "adress": adress
+
+
+
+
+                    }),
+                    success: function (result) {
+
+
+                    }
+                })
+
+                alert("저장이 완료 되었습니다.");
+                $('#popupOverlay').fadeOut();
+                $('#Datatbody').empty()
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/accountmanagement',
+                    dataType: 'json',
+                    success: function (data) {
+                        for (var i = 0; i < data.length; i++) {
+                            $('#datatable').append(
+                                '<tr>' +
+                                '<td>' + data[i].accountcode + '</td>' +
+                                '<td>' + data[i].accountname + '</td>' +
+                                '<td>' + data[i].representativename + '</td>' +
+                                '<td>' + data[i].phone + '</td>' +
+                                '<td>' + data[i].adress + '</td>' +
+                                '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
+                                '<td><a class="data-delete"style="cursor:pointer; color:red;">삭제</a></td>' +
+                                '<td id="data-id">' + data[i].id + '</td>' +
+                                '</tr>'
+
+                            )
+                            $("td#data-id").hide();
+
+                        }
+                    }
+
+                })
+            } else {
+                return false;
+            }
+        }
+
+        function Dataedit() {
+            var today = new Date();
+            var now = new Date();	// 현재 날짜 및 시간
+            var year = today.getFullYear();
+            var month = ('0' + (today.getMonth() + 1)).slice(-2);
+            var day = ('0' + today.getDate()).slice(-2);
+            var hours = now.getHours();	// 시간
+            var minutes = now.getMinutes();	// 분
+            var seconds = now.getSeconds();	// 초
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/startinspection',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    id: $('#id-edit').val(),
+                    inspectiondate: year + "-" + month + "-" + day,
+                    start: hours + ":" + minutes + ":" + seconds
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="color:navy;" class="notification-message">검사시작</span></div>');
+            $('body').append(notification);
+            setTimeout(function () {
+                notification.fadeOut(function () {
+                    $(this).remove();
+                });
+            }, 3000); // 3초 후에 알림을 사라지게 설정
+
+            $('#popupOverlay1').fadeOut();
+            $('#Datatbody').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectalltest',
+                dataType: 'json',
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        var status = data[i].status;
+                        var backgroundColor = '';
+                        var textColor = 'white';
+
+                        if (status === '검사대기') {
+                            backgroundColor = 'green';
+                        } else if (status === '검사완료') {
+                            backgroundColor = 'red';
+                        } else if (status === '검사중') {
+                            backgroundColor = 'green';
+                        }
+
+                        $('#datatable').append(
+                            '<tr>' +
+                            '<td>' + data[i].bomno + '</td>' +
+                            '<td>' + data[i].modelname + '</td>' +
+                            '<td>' + data[i].itemname + '</td>' +
+                            '<td>' + data[i].lotno + '</td>' +
+                            '<td>' + data[i].startdate + '</td>' +
+
+                            '<td>' + data[i].quantity + '</td>' +
+                            '<td>' + data[i].inspectiondate + '</td>' +
+                            '<td>' + data[i].start + '</td>' +
+                            '<td>' + data[i].finish + '</td>' +
+                            '<td style="background-color: ' + backgroundColor + '; color: ' + textColor + ';">' + status + '</td>' +
+                            '<td><a class="data-edit" style="cursor:pointer; color:navy;">검사시작</a></td>' +
+                            '<td><a class="data-delete" style="cursor:pointer; color:red;">검사종료</a></td>' +
+                            '<td id="data-id">' + data[i].id + '</td>' +
+                            '</tr>'
+
+
+
+                        );
+
+                        $("td#data-id").hide();
+                    }
+                }
+            });
+
+        }
+
+
+        function Datadelte() {
+
+            var today = new Date();
+            var now = new Date();	// 현재 날짜 및 시간
+            var year = today.getFullYear();
+            var month = ('0' + (today.getMonth() + 1)).slice(-2);
+            var day = ('0' + today.getDate()).slice(-2);
+            var hours = now.getHours();	// 시간
+            var minutes = now.getMinutes();	// 분
+            var seconds = now.getSeconds();	// 초
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/finishinspection',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    id: $('#id-final').val(),
+                    touch: $('#touch-final').val(),
+                    finish: hours + ":" + minutes + ":" + seconds
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/insertalltest',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+
+
+                    bom: $('#bomno-final').val(),
+                    testdate: year + "-" + month + "-" + day,
+                    modelname: $('#modelname-final').val(),
+                    itemname: $('#itemname-final').val(),
+                    lotno: $('#lot-final').val(),
+                    productdate: $('#startdate-final').val(),
+                    productno: $('#lot-final').val(),
+                    count: $('#quantity-final').val(),
+                    okcount: parseInt($('#quantity-final').val()) - parseInt($('#ng1').val()) - parseInt($('#ng2').val()) - parseInt($('#ng3').val()) - parseInt($('#ng4').val()) - parseInt($('#ng5').val()) - parseInt($('#ng6').val()) - parseInt($('#ng7').val()) - parseInt($('#ng8').val()) - parseInt($('#ng9').val()) - parseInt($('#ng10').val()) - parseInt($('#ng11').val()) - parseInt($('#ng12').val()) - parseInt($('#ng13').val()) - parseInt($('#ng14').val()) - parseInt($('#ng15').val()) - parseInt($('#ng16').val()),
+                    ngcount: parseInt($('#ng1').val()) + parseInt($('#ng2').val()) + parseInt($('#ng3').val()) + parseInt($('#ng4').val()) + parseInt($('#ng5').val()) + parseInt($('#ng6').val()) + parseInt($('#ng7').val()) + parseInt($('#ng8').val()) + parseInt($('#ng9').val()) + parseInt($('#ng10').val()) + parseInt($('#ng11').val()) + parseInt($('#ng12').val()) + parseInt($('#ng13').val()) + parseInt($('#ng14').val()) + parseInt($('#ng15').val()) + parseInt($('#ng16').val()),
+                    ng1: $('#ng1').val(),
+                    ng2: $('#ng2').val(),
+                    ng3: $('#ng3').val(),
+                    ng4: $('#ng4').val(),
+                    ng5: $('#ng5').val(),
+                    ng6: $('#ng6').val(),
+                    ng7: $('#ng7').val(),
+                    ng8: $('#ng8').val(),
+                    ng9: $('#ng9').val(),
+                    ng10: $('#ng10').val(),
+                    ng11: $('#ng11').val(),
+                    ng12: $('#ng12').val(),
+                    ng13: $('#ng13').val(),
+                    ng14: $('#ng14').val(),
+                    ng15: $('#ng15').val(),
+                    ng16: $('#ng16').val()
+
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/inputitemstock',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    modelname: $('#modelname-final').val(),
+                    itemname: $('#itemname-final').val(),
+                    quantity: parseInt($('#quantity-final').val()) - parseInt($('#ng1').val()) - parseInt($('#ng2').val()) - parseInt($('#ng3').val()) - parseInt($('#ng4').val()) - parseInt($('#ng5').val()) - parseInt($('#ng6').val()) - parseInt($('#ng7').val()) - parseInt($('#ng8').val()) - parseInt($('#ng9').val()) - parseInt($('#ng10').val()) - parseInt($('#ng11').val()) - parseInt($('#ng12').val()) - parseInt($('#ng13').val()) - parseInt($('#ng14').val()) - parseInt($('#ng15').val()) - parseInt($('#ng16').val()),
+
+
+
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                }
+            })
+
+            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="color:red;" class="notification-message">검사종료</span></div>');
+            $('body').append(notification);
+            setTimeout(function () {
+                notification.fadeOut(function () {
+                    $(this).remove();
+                });
+            }, 3000); // 3초 후에 알림을 사라지게 설정
+            $('#popupOverlay2').fadeOut();
+            $('#Datatbody').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectalltest',
+                dataType: 'json',
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        var status = data[i].status;
+                        var backgroundColor = '';
+                        var textColor = 'white';
+
+                        if (status === '검사대기') {
+                            backgroundColor = 'blue';
+                        } else if (status === '검사완료') {
+                            backgroundColor = 'red';
+                        } else if (status === '검사중') {
+                            backgroundColor = 'green';
+                        }
+
+                        $('#datatable').append(
+                            '<tr>' +
+                            '<td>' + data[i].bomno + '</td>' +
+                            '<td>' + data[i].modelname + '</td>' +
+                            '<td>' + data[i].itemname + '</td>' +
+                            '<td>' + data[i].lotno + '</td>' +
+                            '<td>' + data[i].startdate + '</td>' +
+
+                            '<td>' + data[i].quantity + '</td>' +
+                            '<td>' + data[i].inspectiondate + '</td>' +
+                            '<td>' + data[i].start + '</td>' +
+                            '<td>' + data[i].finish + '</td>' +
+                            '<td style="background-color: ' + backgroundColor + '; color: ' + textColor + ';">' + status + '</td>' +
+                            '<td><a class="data-edit" style="cursor:pointer; color:navy;">검사시작</a></td>' +
+                            '<td><a class="data-delete" style="cursor:pointer; color:red;">검사종료</a></td>' +
+                            '<td id="data-id">' + data[i].id + '</td>' +
+                            '</tr>'
+
+
+
+                        );
+
+                        $("td#data-id").hide();
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>

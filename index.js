@@ -146,6 +146,10 @@ app.get("/productcontent", cors(), (req, res) => {
 app.get("/orderlistmaterialoutput", cors(), (req, res) => {
     res.sendFile(__dirname + "/startproduct.html");
 });
+app.get("/accountmanagement", cors(), (req, res) => {
+    res.sendFile(__dirname + "/test1.html");
+});
+
 app.get("/upload-excel", cors(), (req, res) => {
     res.sendFile(__dirname + "/test13.html");
 });
@@ -291,6 +295,18 @@ app.get("/modelnameitemname", cors(), (req, res) => {
 });
 app.get("/shipmentinsert", cors(), (req, res) => {
     res.sendFile(__dirname + "/shipment.html");
+});
+app.get("/POaccountinput", cors(), (req, res) => {
+    res.sendFile(__dirname + "/salesinformation.html");
+});
+app.get("/openinsertdata", cors(), (req, res) => {
+    res.sendFile(__dirname + "/salesinformation.html");
+});
+app.get("/POaccountinputponum", cors(), (req, res) => {
+    res.sendFile(__dirname + "/salesinformation.html");
+});
+app.get("/bomchange", cors(), (req, res) => {
+    res.sendFile(__dirname + "/test1111.html");
 });
 
 
