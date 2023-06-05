@@ -471,7 +471,6 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
-            showLoading()
             settingDate()
             $('#count-edit').on('input', function () {
                 var value = $(this).val().replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
@@ -482,6 +481,7 @@
                 }
             });
 
+            showLoading()
             const date = new Date();
 
             var day = date.getDate();
@@ -503,74 +503,138 @@
 
 
 
+        
+                $('#materialinputtbody').empty()
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/materialinputsearch',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        start: '1990-01-01',
+                        finish: currentDate
+                    }),
+                    success: function (data) {
+                        var groupedData = {}; // Object to store grouped data
+                        var totalQuantity = 0; // Variable to store the total quantity
 
-            $('#materialinputtbody').empty()
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/materialinputsearch',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    start: '1990-01-01',
-                    finish: currentDate
-                }),
-                success: function (data) {
-                    var totalQuantity = 0; // Variable to store the total quantity
+                        for (var i = 0; i < data.length; i++) {
+                            var date = data[i].date; // Extract the date from the data
 
-                    for (var i = 0; i < data.length; i++) {
-                        var part = data[i].part;
-                        var backgroundColor = '';
+                            // Check if the date group already exists, create a new group if it doesn't exist
+                            if (!groupedData[date]) {
+                                groupedData[date] = {
+                                    sumquantity: 0,
+                                    totalQuantity: 0,
+                                    items: []
+                                };
+                            }
 
-                        if (part === '입고완료') {
-                            backgroundColor = 'blue';
-                        } else if (part === '출고대기') {
-                            backgroundColor = 'red';
-                        } else if (part === '수입검사대기') {
-                            backgroundColor = 'green';
+                            var part = data[i].part;
+                            var backgroundColor = '';
+
+                            if (part === '입고완료') {
+                                backgroundColor = 'blue';
+                            } else if (part === '출고대기') {
+                                backgroundColor = 'red';
+                            } else if (part === '수입검사대기') {
+                                backgroundColor = 'green';
+                            }
+
+                            // Convert the quantity from string to number
+                            var quantity = parseFloat(data[i].quantity.replace(/,/g, ''));
+                            var materialWidth = parseFloat(data[i].materialwidth.replace(/,/g, ''));
+                            var multipliedValue = quantity * materialWidth; // Calculate the multiplied value
+
+                            groupedData[date].sumquantity += quantity; // Add the quantity to the date group's sumquantity
+                            groupedData[date].totalQuantity += multipliedValue; // Add the multiplied value to the date group's totalQuantity
+                            totalQuantity += multipliedValue; // Add the multiplied value to the total
+
+                            // Check for null values and display empty string if null
+                            var classification = data[i].classification !== null ? data[i].classification : '';
+                            var lotno = data[i].lotno !== null ? data[i].lotno : '';
+                            var manufacturedate = data[i].manufacturedate !== null ? data[i].manufacturedate : '';
+                            var expirationdate = data[i].expirationdate !== null ? data[i].expirationdate : '';
+
+                            // Add the data to the date group's items
+                            groupedData[date].items.push({
+                                input: data[i].input,
+                                date: date,
+                                materialname: data[i].materialname,
+                                classification: classification,
+                                lotno: lotno,
+                                manufacturedate: manufacturedate,
+                                expirationdate: expirationdate,
+                                materialwidth: data[i].materialwidth,
+                                quantity: quantity,
+                                multipliedValue: multipliedValue,
+                                part: part,
+                                id: data[i].id
+                            });
                         }
 
-                        // Convert the quantity from string to number
-                        var quantity = parseFloat(data[i].quantity.replace(/,/g, ''));
-                        var materialWidth = parseFloat(data[i].materialwidth.replace(/,/g, ''));
-                        var multipliedValue = quantity * materialWidth; // Calculate the multiplied value
+                        // Generate the table using the grouped data
+                        for (var date in groupedData) {
+                            if (groupedData.hasOwnProperty(date)) {
+                                var group = groupedData[date];
 
-                        totalQuantity += multipliedValue; // Add the multiplied value to the total
+                                // Add the group header row
+                                $('#materialdatatable').append(
+                                    '<tr>' +
+                                    '<td colspan="14" style="background-color: lightgray;"><strong>' + date + '</strong></td>' +
+                                    '</tr>'
+                                );
 
-                        // Check for null values and display empty string if null
-                        var classification = data[i].classification !== null ? data[i].classification : '';
-                        var lotno = data[i].lotno !== null ? data[i].lotno : '';
-                        var manufacturedate = data[i].manufacturedate !== null ? data[i].manufacturedate : '';
-                        var expirationdate = data[i].expirationdate !== null ? data[i].expirationdate : '';
+                                // Add the items within the group
+                                for (var j = 0; j < group.items.length; j++) {
+                                    var item = group.items[j];
 
-                        // Add the data to the table
+                                    $('#materialdatatable').append(
+                                        '<tr>' +
+                                        '<td>' + item.input + '</td>' +
+                                        '<td>' + item.date + '</td>' +
+                                        '<td>' + item.materialname + '</td>' +
+                                        '<td>' + item.classification + '</td>' +
+                                        '<td>' + item.lotno + '</td>' +
+                                        '<td>' + item.manufacturedate + '</td>' +
+                                        '<td>' + item.expirationdate + '</td>' +
+                                        '<td style="text-align:right;">' + item.materialwidth.toLocaleString() + '</td>' +
+                                        '<td style="text-align:right;">' + item.quantity.toLocaleString() + '</td>' +
+                                        '<td style="text-align:right;">' + item.multipliedValue.toLocaleString() + '</td>' + // Display the multiplied value
+                                        '<td style="color:white; background-color: ' + backgroundColor + ';">' + item.part + '</td>' +
+
+                                        '<td class="data-id">' + item.id + '</td>' +
+                                        '</tr>'
+                                    );
+                                    $('.data-id').hide();
+                                }
+
+                                // Add the group sum row
+                                $('#materialdatatable').append(
+                                    '<tr>' +
+                                    '<td colspan="8">합계</td>' +
+                                    '<td style="text-align:right;"><strong>' + group.sumquantity.toLocaleString() + '</strong></td>' +
+                                    '<td style="text-align:right;"><strong>' + group.totalQuantity.toLocaleString() + '</strong></td>' +
+                                    '</tr>'
+                                );
+                            }
+                        }
+
+                        // Add the total quantity row at the end
                         $('#materialdatatable').append(
                             '<tr>' +
-                            '<td>' + data[i].input + '</td>' +
-                            '<td>' + data[i].date + '</td>' +
-                            '<td>' + data[i].materialname + '</td>' +
-                            '<td>' + classification + '</td>' +
-                            '<td>' + lotno + '</td>' +
-                            '<td>' + manufacturedate + '</td>' +
-                            '<td>' + expirationdate + '</td>' +
-                            '<td style="text-align:right;">' + data[i].materialwidth.toLocaleString() + '</td>' +
-                            '<td style="text-align:right;">' + quantity.toLocaleString() + '</td>' +
-                            '<td style="text-align:right;">' + multipliedValue.toLocaleString() + '</td>' + // Display the multiplied value
-                            '<td class="data-id">' + data[i].id + '</td>' +
+                            '<td colspan="8">전체 합계</td>' +
+                            '<td style="text-align:right;"><strong>' + sumquantity.toLocaleString() + '</strong></td>' +
+                            '<td style="text-align:right;"><strong>' + totalQuantity.toLocaleString() + '</strong></td>' +
                             '</tr>'
                         );
 
-                        $('.data-id').hide();
-                    }
 
-                    // Add the total quantity row at the end
-                    $('#materialdatatable').append(
-                        '<tr>' +
-                        '<td colspan="8">전체 합계</td>' +
-                        '<td style="text-align:right;"><strong>' + totalQuantity.toLocaleString() + '</strong></td>' +
-                        '</tr>'
-                    );
-                }
-            });
+                    }
+                });
+
+
+
 
 
 
@@ -1442,15 +1506,10 @@
     </script>
     <script>
         function POsearching() {
-            showLoading()
+           
+            }
 
-
-
-
-
-        }
-
-
+        
 
     </script>
 

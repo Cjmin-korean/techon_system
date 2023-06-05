@@ -78,23 +78,6 @@
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
-    <!-- <div class="form-group">
-    <table style="width:30%;">
-      <tr>
-        <td style="width: 100px; background-color: whitesmoke;">수주일자</td>
-        <td style="width: 100px;"> <input type="date" id="datepicker1"
-            style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-        </td>
-        <td style="width: 100px;"> <input type="date" id="datepicker2"
-            style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-        </td>
-        <td style="width: 50px;"> <input type="button" value="조회" onclick="POsearching()"
-            style="width:100%; cursor: pointer; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: navy; color: white;">
-        </td>
-      </tr>
-    </table>
-
-  </div> -->
 
 
     <!-- 등록창 -->
@@ -275,11 +258,15 @@
 
 
 
-    <div>
+    <div id="datatable-container" style="height:500px; max-height: 500px; border: 1px solid silver;">
         <table class="styled-table" id="POdatatable">
 
             <thead>
-
+                <tr>
+                    <th style="background-color: rgb(107, 104, 104); color:white;" colspan="8  ">
+                        자재발주 대기 현황
+                    </th>
+                </tr>
                 <tr>
                     <th>자재주문번호</th>
                     <th>생산계획날짜</th>
@@ -295,6 +282,29 @@
             </tbody>
         </table>
     </div>
+    <div id="datatable-container" style="height:500px; max-height: 500px; border: 1px solid silver;">
+        <table class="styled-table" id="POdatatable1">
+
+            <thead>
+                <th style="background-color: rgb(107, 104, 104); color:white;" colspan="8  ">
+                    자재출고 대기 현황
+                </th>
+                <tr>
+                    <th>자재주문번호</th>
+                    <th>생산계획날짜</th>
+                    <th>생산lot</th>
+                    <th>BOMNO.</th>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <!-- <th>상태</th> -->
+                    <th style="background-color:rgb(82, 80, 80); color:white; width:100px;"></th>
+                </tr>
+            </thead>
+            <tbody id="PODatatbody1">
+            </tbody>
+        </table>
+    </div>
+
     <!-- 품목조회창 -->
 
 
@@ -388,6 +398,35 @@
                 }
 
             })
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/materialouput1',
+                dataType: 'json',
+                contentType: 'application/json',
+
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        $('#POdatatable-tbody1').empty()
+                        $('#POdatatable1').append(
+                            '<tr>' +
+                            '<td>' + result[i].orderid + '</td>' +
+                            '<td>' + result[i].productdate + '</td>' +
+                            '<td>' + result[i].lotno + '</td>' +
+                            '<td>' + result[i].bomno + '</td>' +
+                            '<td>' + result[i].modelname + '</td>' +
+                            '<td>' + result[i].itemname + '</td>' +
+                            // '<td>' + result[i].materialstatus + '</td>' +
+                            '<td><a class="data-content"  style="cursor:pointer; color:blue;">상세</a></td>' +
+                            '</tr>'
+
+                        )
+
+                    }
+                }
+
+            })
+
 
             $('#POdatatable').on('click', '.data-content', function () {
                 var str = "";
@@ -986,147 +1025,105 @@
         function Datasave() {
 
 
-            const $table = document.getElementById('Podatatable'); // table 엘리먼트 취득
-            const trGroup = Array.from(document.querySelectorAll('#Podatatable tr'));
 
-            const textGroup = trGroup.map(tr => {
-                return Array.from(tr.children).map(input => input.textContent);
-            });
-            if ($table.rows.length - 2 === 0) {
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:red;" class="notification-message">제품항목 확인 바랍니다</span></div>');
+            if (confirm("출고정보를 등록 하시겠습니까??") == true) {
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:navy;" class="notification-message">출고대기저장</span></div>');
                 $('body').append(notification);
                 setTimeout(function () {
                     notification.fadeOut(function () {
                         $(this).remove();
                     });
                 }, 3000);
-            } else {
-                if ($('#customer-select').val() === '') {
-                    var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:red;" class="notification-message">고객사 확인 바랍니다</span></div>');
-                    $('body').append(notification);
-                    setTimeout(function () {
-                        notification.fadeOut(function () {
-                            $(this).remove();
-                        });
-                    }, 3000);
-                } else {
-                    if (confirm("고객사 :" + $('#customer-select').val() + ", 납기일 :" + $('#datepicker').val() + " 영업 수주 정보를 등록 하시겠습니까??") == true) {
-                        const $table = document.getElementById('Podatatable'); // table 엘리먼트 취득
-                        const trGroup = Array.from(document.querySelectorAll('#Podatatable tr'));
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/materialoutputsave',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        orderid: $('#orderid').val(),
+                        materialstatus: 'true1'
 
-                        const textGroup = trGroup.map(tr => {
-                            return Array.from(tr.children).map(input => input.textContent);
-                        });
+                    }),
+                    success: function (result) {
+                       
 
-                        var today = new Date();
-                        var now = new Date();	// 현재 날짜 및 시간
-                        var year = today.getFullYear();
-                        var month = ('0' + (today.getMonth() + 1)).slice(-2);
-                        var day = ('0' + today.getDate()).slice(-2);
-                        var hours = now.getHours();	// 시간
-                        var minutes = now.getMinutes();	// 분
-                        var seconds = now.getSeconds();	// 초
-
-                        var tfoot = $('#Podatatable tfoot');
-                        var aData = tfoot.find('td:nth-child(2)').text();
-                        var bData = tfoot.find('td:nth-child(3)').text();
-
-
-                        for (var i = 0; i < $table.rows.length - 2; i++) {
-
-                            var itemcost = textGroup[i + 1][5]
-                            var itemcostvalue = parseFloat(itemcost.replace(/,/g, ''));
-                            var itemprice = textGroup[i + 1][6]
-                            var itempricevalue = parseFloat(itemprice.replace(/,/g, ''));
-                            var quantity = textGroup[i + 1][7]
-                            var quantityvalue = parseFloat(quantity.replace(/,/g, ''));
-                            var price = textGroup[i + 1][8]
-                            var pricevalue = parseFloat(price.replace(/,/g, ''));
-                            var aDatavalue = parseFloat(aData.replace(/,/g, ''));
-                            var bDatavalue = parseFloat(bData.replace(/,/g, ''));
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/openinsertdata',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "accountdate": year + '-' + month + '-' + day,
-                                    "deliverydate": $('#datepicker').val(),
-                                    "customer": $('#customer-select').val(),
-                                    "itemcode": textGroup[i + 1][0],
-                                    "bomno": textGroup[i + 1][1],
-                                    "modelname": textGroup[i + 1][2],
-                                    "itemname": textGroup[i + 1][3],
-                                    "itemcost": itemcostvalue,
-                                    "itemprice": itempricevalue,
-                                    "quantity": quantityvalue,
-                                    "price": pricevalue,
-                                    "contentname": textGroup[i + 1][3] + " 외 " + ($table.rows.length - 3) + "건",
-                                    "countsum": aDatavalue,
-                                    "pricesum": bDatavalue,
-                                    "ponum": year + month + day + hours + minutes + seconds
-
-                                }),
-                                success: function (data) {
-
-                                }
-                            })
-
-
-                            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:blue;" class="notification-message">PO정보 등록 완료</span></div>');
-                            $('body').append(notification);
-                            setTimeout(function () {
-                                notification.fadeOut(function () {
-                                    $(this).remove();
-                                });
-                            }, 3000);
-
-                            $('#PODatatbody').empty()
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/POaccountinput',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    start: $('#datepicker1').val(),
-                                    finish: $('#datepicker2').val()
-                                }),
-                                success: function (result) {
-                                    for (var i = 0; i < result.length; i++) {
-
-                                        $('#POdatatable').append(
-                                            '<tr>' +
-                                            '<td>' + result[i].accountdate + '</td>' +
-                                            '<td>' + result[i].deliverydate + '</td>' +
-                                            '<td>' + result[i].customer + '</td>' +
-                                            '<td>' + result[i].ponum + '</td>' +
-                                            '<td>' + result[i].contentname + '</td>' +
-                                            '<td><a class="data-edit"  style="cursor:pointer; color:blue;">상세</a></td>' +
-                                            '<td><a class="data-edit"  style="cursor:pointer; color:red;">삭제</a></td>' +
-                                            '</tr>'
-
-                                        )
-
-                                    }
-
-                                }
-
-                            })
-                            $('#popupOverlay').fadeOut();
-                        }
-
-
-                    } else {
-                        return false;
                     }
 
-                }
+                })
+
+
+                setTimeout(function () {
+                    $('#PODatatbody').empty()
+                    $('#PODatatbody1').empty()
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/materialouput',
+                        dataType: 'json',
+                        contentType: 'application/json',
+
+                        success: function (result) {
+                            for (var i = 0; i < result.length; i++) {
+                                $('#POdatatable').append(
+                                    '<tr>' +
+                                    '<td>' + result[i].orderid + '</td>' +
+                                    '<td>' + result[i].productdate + '</td>' +
+                                    '<td>' + result[i].lotno + '</td>' +
+                                    '<td>' + result[i].bomno + '</td>' +
+                                    '<td>' + result[i].modelname + '</td>' +
+                                    '<td>' + result[i].itemname + '</td>' +
+                                    // '<td>' + result[i].materialstatus + '</td>' +
+                                    '<td><a class="data-content"  style="cursor:pointer; color:blue;">상세</a></td>' +
+                                    '</tr>'
+
+                                )
+
+                            }
+                        }
+
+                    })
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/materialouput1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+
+                        success: function (result) {
+                            for (var i = 0; i < result.length; i++) {
+                                $('#POdatatable1').append(
+                                    '<tr>' +
+                                    '<td>' + result[i].orderid + '</td>' +
+                                    '<td>' + result[i].productdate + '</td>' +
+                                    '<td>' + result[i].lotno + '</td>' +
+                                    '<td>' + result[i].bomno + '</td>' +
+                                    '<td>' + result[i].modelname + '</td>' +
+                                    '<td>' + result[i].itemname + '</td>' +
+                                    // '<td>' + result[i].materialstatus + '</td>' +
+                                    '<td><a class="data-content"  style="cursor:pointer; color:blue;">상세</a></td>' +
+                                    '</tr>'
+
+                                )
+
+                            }
+                        }
+
+                    })
+                }, 50);
+
+
+            } else {
+
+
+                return false;
             }
 
-
-
-
+            $('#popupOverlaycontent').fadeOut()
         }
+
+
+
+
+
         function PODataedit() {
 
 

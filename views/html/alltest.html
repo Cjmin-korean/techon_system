@@ -254,85 +254,119 @@
                 dataType: 'json',
                 success: function (data) {
                     var itemGroups = {}; // itemname을 기준으로 그룹화된 데이터를 저장할 객체
+                    var tableBody = $('#datatable');
+                    if (data.length === 0) {
+                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
+                        tableBody.append('<tr><td colspan="25">데이터가 없습니다.</td></tr>');
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
+                            var itemname = data[i].itemname;
 
-                    for (var i = 0; i < data.length; i++) {
-                        var itemname = data[i].itemname;
-
-                        // itemname으로 그룹화된 데이터가 없으면 초기화
-                        if (!itemGroups[itemname]) {
-                            itemGroups[itemname] = {
-                                rows: [],
-                                ngTotals: Array(15).fill(0),
-                                okCountTotal: 0,
-                                ngCountTotal: 0
-                            };
-                        }
-
-                        // 각 ng 값을 더하여 합계 계산
-                        for (var j = 0; j < itemGroups[itemname].ngTotals.length; j++) {
-                            itemGroups[itemname].ngTotals[j] += data[i]['ng' + (j + 1)];
-                        }
-
-                        // okcount와 ngcount 합계 계산
-                        itemGroups[itemname].okCountTotal += parseInt(data[i].okcount);
-                        itemGroups[itemname].ngCountTotal += parseInt(data[i].ngcount);
-
-                        // 그룹에 속하는 행 추가
-                        itemGroups[itemname].rows.push(data[i]);
-                    }
-
-                    for (var item in itemGroups) {
-                        var itemGroup = itemGroups[item];
-                        var rows = itemGroup.rows;
-                        var ngTotals = itemGroup.ngTotals;
-                        var okCountTotal = itemGroup.okCountTotal;
-                        var ngCountTotal = itemGroup.ngCountTotal;
-
-                        // item 그룹 표시
-                        $('#datatable').append('<tr><td colspan="25" style="font-weight: bold;">' + item + '</td></tr>');
-
-                        // item 그룹 내 행 표시
-                        for (var k = 0; k < rows.length; k++) {
-                            var rowData = rows[k];
-                            var rowHtml = '<tr>' +
-                                '<td>' + rowData.bom + '</td>' +
-                                '<td>' + rowData.testdate + '</td>' +
-                                '<td>' + rowData.modelname + '</td>' +
-                                '<td>' + rowData.itemname + '</td>' +
-                                '<td>' + rowData.lotno + '</td>' +
-                                '<td style="text-align:right;">' + rowData.count.toLocaleString() + '</td>' +
-                                '<td>' + rowData.productdate + '</td>' +
-                                '<td style="text-align:right; background-color: blue; color: white;">' + rowData.okcount.toLocaleString() + '</td>' +
-                                '<td style="text-align:right; background-color: red; color: white;">' + rowData.ngcount.toLocaleString() + '</td>';
-
-                            for (var l = 1; l <= 15; l++) {
-                                if (rowData['ng' + l] !== 0) {
-                                    rowHtml += '<td style="color: red; text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
-                                } else {
-                                    rowHtml += '<td style="text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
-                                }
+                            // itemname으로 그룹화된 데이터가 없으면 초기화
+                            if (!itemGroups[itemname]) {
+                                itemGroups[itemname] = {
+                                    rows: [],
+                                    ngTotals: Array(15).fill(0),
+                                    okCountTotal: 0,
+                                    ngCountTotal: 0
+                                };
                             }
 
-                            rowHtml += '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
+                            // 각 ng 값을 더하여 합계 계산
+                            for (var j = 0; j < itemGroups[itemname].ngTotals.length; j++) {
+                                itemGroups[itemname].ngTotals[j] += data[i]['ng' + (j + 1)];
+                            }
+
+                            // okcount와 ngcount 합계 계산
+                            itemGroups[itemname].okCountTotal += parseInt(data[i].okcount);
+                            itemGroups[itemname].ngCountTotal += parseInt(data[i].ngcount);
+
+                            // 그룹에 속하는 행 추가
+                            itemGroups[itemname].rows.push(data[i]);
+                        }
+
+                        for (var item in itemGroups) {
+                            var itemGroup = itemGroups[item];
+                            var rows = itemGroup.rows;
+                            var ngTotals = itemGroup.ngTotals;
+                            var okCountTotal = itemGroup.okCountTotal;
+                            var ngCountTotal = itemGroup.ngCountTotal;
+
+                            // item 그룹 표시
+                            $('#datatable').append('<tr><td colspan="25" style="font-weight: bold;">' + item + '</td></tr>');
+
+                            // item 그룹 내 행 표시
+                            for (var k = 0; k < rows.length; k++) {
+                                var rowData = rows[k];
+                                var rowHtml = '<tr>' +
+                                    '<td>' + rowData.bom + '</td>' +
+                                    '<td>' + rowData.testdate + '</td>' +
+                                    '<td>' + rowData.modelname + '</td>' +
+                                    '<td>' + rowData.itemname + '</td>' +
+                                    '<td>' + rowData.lotno + '</td>' +
+                                    '<td style="text-align:right;">' + rowData.count.toLocaleString() + '</td>' +
+                                    '<td>' + rowData.productdate + '</td>' +
+                                    '<td style="text-align:right; background-color: blue; color: white;">' + rowData.okcount.toLocaleString() + '</td>' +
+                                    '<td style="text-align:right; background-color: red; color: white;">' + rowData.ngcount.toLocaleString() + '</td>';
+
+                                for (var l = 1; l <= 15; l++) {
+                                    if (rowData['ng' + l] !== 0) {
+                                        rowHtml += '<td style="color: red; text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
+                                    } else {
+                                        rowHtml += '<td style="text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
+                                    }
+                                }
+
+                                rowHtml += '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
+                                    '</tr>';
+                                $('#datatable').append(rowHtml);
+                            }
+
+                            // 그룹 합계 표시
+                            var ngTotalHtml = '<tr>' +
+                                '<td colspan="7">합계</td>' +
+                                '<td style="color: blue; text-align:right;">' + okCountTotal.toLocaleString() + '</td>' +
+                                '<td style="color: red; text-align:right;">' + ngCountTotal.toLocaleString() + '</td>';
+
+                            for (var m = 0; m < ngTotals.length; m++) {
+                                ngTotalHtml += '<td style="text-align:right;">' + ngTotals[m].toLocaleString() + '</td>';
+                            }
+
+                            ngTotalHtml += '<td></td>' +
                                 '</tr>';
-                            $('#datatable').append(rowHtml);
+
+                            $('#datatable').append(ngTotalHtml);
                         }
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/productorderlist',
+                            dataType: 'json',
+                            success: function (data) {
+                                for (var i = 0; i < data.length; i++) {
+                                    var possibleColor = data[i].possible === '가능' ? 'background-color: green; color: white;' : '';
+                                    var possibleColor = data[i].possible === '부족' ? 'background-color: red; color: white;' : '';
+                                    $('#orderdatatable').append(
+                                        '<tr>' +
+                                        '<td>' + data[i].contentname + '</td>' +
+                                        '<td>' + data[i].bomno + '</td>' +
+                                        '<td>' + data[i].productdate + '</td>' +
+                                        '<td>' + data[i].modelname + '</td>' +
+                                        '<td>' + data[i].itemname + '</td>' +
+                                        '<td>' + data[i].lotno + '</td>' +
+                                        '<td>' + data[i].quantity + '</td>' +
+                                        '<td>' + data[i].orderid + '</td>' +
 
-                        // 그룹 합계 표시
-                        var ngTotalHtml = '<tr>' +
-                            '<td colspan="7">합계</td>' +
-                            '<td style="color: blue; text-align:right;">' + okCountTotal.toLocaleString() + '</td>' +
-                            '<td style="color: red; text-align:right;">' + ngCountTotal.toLocaleString() + '</td>';
+                                        '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
+                                        '<td id="data-id">' + data[i].id + '</td>' +
+                                        '</tr>'
+                                    );
+                                    $("td#data-id").hide();
+                                }
+                            }
+                        });
 
-                        for (var m = 0; m < ngTotals.length; m++) {
-                            ngTotalHtml += '<td style="text-align:right;">' + ngTotals[m].toLocaleString() + '</td>';
-                        }
-
-                        ngTotalHtml += '<td></td>' +
-                            '</tr>';
-
-                        $('#datatable').append(ngTotalHtml);
                     }
+
                 }
             });
 
@@ -344,33 +378,6 @@
 
 
 
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/productorderlist',
-                dataType: 'json',
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        var possibleColor = data[i].possible === '가능' ? 'background-color: green; color: white;' : '';
-                        var possibleColor = data[i].possible === '부족' ? 'background-color: red; color: white;' : '';
-                        $('#orderdatatable').append(
-                            '<tr>' +
-                            '<td>' + data[i].contentname + '</td>' +
-                            '<td>' + data[i].bomno + '</td>' +
-                            '<td>' + data[i].productdate + '</td>' +
-                            '<td>' + data[i].modelname + '</td>' +
-                            '<td>' + data[i].itemname + '</td>' +
-                            '<td>' + data[i].lotno + '</td>' +
-                            '<td>' + data[i].quantity + '</td>' +
-                            '<td>' + data[i].orderid + '</td>' +
-
-                            '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
-                            '<td id="data-id">' + data[i].id + '</td>' +
-                            '</tr>'
-                        );
-                        $("td#data-id").hide();
-                    }
-                }
-            });
 
 
 

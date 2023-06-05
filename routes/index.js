@@ -1217,6 +1217,36 @@ module.exports = function (app) {
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/itemstockfianl1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+         
+                .query(
+
+
+                    "SELECT i.modelname, ii.itemname, i.quantity, ii.itemprice, (i.quantity * ii.itemprice) AS total "+
+                   " FROM iteminput i "+
+                   " JOIN iteminfo ii ON i.itemname = ii.itemname;")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/materialinputsearch', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -1274,7 +1304,40 @@ module.exports = function (app) {
                     "   select " +
                     "    orderid,productdate,lotno,bomno,modelname,itemname,materialstatus " +
                     "    from " +
-                    "    orderlist " +
+                    "    orderlist where materialstatus='true' " +
+                    "    group by " +
+                    "    bomno,orderid,productdate,modelname,itemname,lotno,materialstatus "
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialouput1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+
+                .query(
+
+
+                    "   select " +
+                    "    orderid,productdate,lotno,bomno,modelname,itemname,materialstatus " +
+                    "    from " +
+                    "    orderlist where materialstatus='true1' " +
                     "    group by " +
                     "    bomno,orderid,productdate,modelname,itemname,lotno,materialstatus "
                 )
@@ -1854,7 +1917,7 @@ module.exports = function (app) {
                     " quantity, " +
                     " orderid " +
                     " from  " +
-                    " orderlist ")
+                    " orderlist where status='true' ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -1915,7 +1978,7 @@ module.exports = function (app) {
                     " status " +
                     " from  " +
                     " orderlist  " +
-                    " where status='생산대기' ")
+                    " where status='true' ")
 
                 .then(result => {
 
@@ -1962,7 +2025,7 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('orderid', sql.NVarChar, req.body.orderid)
 
                 .query(
                     " SELECT " +
@@ -2019,10 +2082,11 @@ module.exports = function (app) {
                 .input('productdate', sql.NVarChar, req.body.productdate)
                 .input('status', sql.NVarChar, req.body.status)
                 .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('materialstatus', sql.NVarChar, req.body.materialstatus)
 
                 .query(
-                    'insert into orderlist(modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid)' +
-                    ' values(@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid)'
+                    'insert into orderlist(modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus)' +
+                    ' values(@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus)'
                 )
                 .then(result => {
 
@@ -2849,11 +2913,41 @@ module.exports = function (app) {
                 .input('marchine', sql.NVarChar, req.body.marchine)
                 .input('starttime', sql.NVarChar, req.body.starttime)
                 .input('status', sql.NVarChar, req.body.status)
+                .input('materialstatus', sql.NVarChar, req.body.materialstatus)
+                .input('materialinput', sql.Float, req.body.materialinput)
 
 
                 .query(
-                    'update orderlist set startdate=@startdate,marchine=@marchine,starttime=@starttime,status=@status where id=@id'
+                    'update orderlist set startdate=@startdate,marchine=@marchine,starttime=@starttime,status=@status,materialstatus=@materialstatus,materialinput=@materialinput where id=@id'
 
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/finishinproduct', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+
+                .input('materialoutput', sql.Float, req.body.materialoutput)
+                .input('finaltime', sql.NVarChar, req.body.finaltime)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('touch', sql.Float, req.body.touch)
+
+
+                .query(
+                    'update orderlist set finaltime=@finaltime,touch=@touch,materialoutput=@materialoutput,status=@status where id=@id'
                 )
                 .then(result => {
 
@@ -3918,6 +4012,30 @@ module.exports = function (app) {
                 .query(
                     'update member set name=@name,nameid=@nameid,password=@password,part=@part,birth=@birth,gender=@gender,email=@email,salary=@salary' +
                     'phone=@phone where id=@id'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  사원정보수정쿼리
+    sql.connect(config).then(pool => {
+        app.post('/api/materialoutputsave', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('materialstatus', sql.NVarChar, req.body.materialstatus)
+
+
+
+                .query(
+                    "update orderlist set materialstatus=@materialstatus where orderid=@orderid"
 
                 )
                 .then(result => {
