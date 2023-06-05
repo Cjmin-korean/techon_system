@@ -65,7 +65,13 @@
             </thead>
             <tbody id="Datatbody">
             </tbody>
+            <tfoot>
+                <tr>
+                    <td style="border: 1px solid silver;" colspan="7" id="dataCount"></td>
+                </tr>
+            </tfoot>
         </table>
+
     </div>
     <!-- 등록창 -->
     <div id="popupOverlay" style="display: none;">
@@ -194,31 +200,7 @@
         }
         $(document).ready(function () {
             showLoading()
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/accountmanagement',
-                dataType: 'json',
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        $('#datatable').append(
-                            '<tr>' +
-                            '<td>' + data[i].accountcode + '</td>' +
-                            '<td>' + data[i].accountname + '</td>' +
-                            '<td>' + data[i].representativename + '</td>' +
-                            '<td>' + data[i].phone + '</td>' +
-                            '<td>' + data[i].adress + '</td>' +
-                            '<td><a class="data-edit"  style="cursor:pointer; color:navy;">수정</a></td>' +
-                            '<td><a class="data-delete"style="cursor:pointer; color:red;">삭제</a></td>' +
-                            '<td id="data-id">' + data[i].id + '</td>' +
-                            '</tr>'
-
-                        )
-                        $("td#data-id").hide();
-
-                    }
-                }
-
-            })
+            load()
 
             $('#datatable').on('click', '.data-edit', function () {
                 var str = "";
@@ -241,6 +223,8 @@
                 $('#adress-edit').val(adress)
                 $('#id-edit').val(id)
                 $('#popupOverlay1').fadeIn();
+                $('#accountcode-edit').focus()
+
             });
             $('#datatable').on('click', '.data-delete', function () {
                 var str = "";
@@ -316,17 +300,17 @@
 
         //검색
         function search() {
-            console.log("11")
             const searchInput = document.getElementById('myInput');
             const dataTable = document.getElementById('datatable');
             const tableRows = dataTable.getElementsByTagName('tr');
+            const dataCountCell = document.getElementById('dataCount');
 
             searchInput.addEventListener('input', function () {
                 const searchValue = this.value.toLowerCase();
+                let count = 0;
 
                 for (let i = 1; i < tableRows.length; i++) {
                     const rowData = tableRows[i].getElementsByTagName('td');
-
                     let found = false;
 
                     for (let j = 0; j < rowData.length; j++) {
@@ -340,13 +324,16 @@
 
                     if (found) {
                         tableRows[i].style.display = '';
+                        count++;
                     } else {
                         tableRows[i].style.display = 'none';
                     }
-
                 }
+
+                dataCountCell.textContent = `검색 결과 개수: ${count - 1}`;
             });
         }
+
         function showLoading() {
             var loadingOverlay = document.getElementById("loadingOverlay");
             loadingOverlay.style.display = "flex";
@@ -364,6 +351,8 @@
             $('#phone-save').val('')
             $('#adress-save').val('')
             $('#popupOverlay').fadeIn();
+            $('#accountcode-save').focus()
+
         }
 
         function Datasave() {
@@ -399,34 +388,17 @@
                     }
                 })
 
-                alert("저장이 완료 되었습니다.");
                 $('#popupOverlay').fadeOut();
-                $('#Datatbody').empty()
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/accountmanagement',
-                    dataType: 'json',
-                    success: function (data) {
-                        for (var i = 0; i < data.length; i++) {
-                            $('#datatable').append(
-                                '<tr>' +
-                                '<td>' + data[i].accountcode + '</td>' +
-                                '<td>' + data[i].accountname + '</td>' +
-                                '<td>' + data[i].representativename + '</td>' +
-                                '<td>' + data[i].phone + '</td>' +
-                                '<td>' + data[i].adress + '</td>' +
-                                '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
-                                '<td><a class="data-delete"style="cursor:pointer; color:red;">삭제</a></td>' +
-                                '<td id="data-id">' + data[i].id + '</td>' +
-                                '</tr>'
-
-                            )
-                            $("td#data-id").hide();
-
-                        }
-                    }
-
-                })
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 등록 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
             } else {
                 return false;
             }
@@ -458,15 +430,73 @@
                     }
                 })
 
-                alert("수정이 완료 되었습니다.");
                 $('#popupOverlay1').fadeOut();
-                $('#Datatbody').empty()
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+        }
+
+
+        function Datadelte() {
+            if (confirm("고객사 정보를 삭제 하시겠습니까??") == true) {
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/accountmanagement',
+                    url: server + '/api/accountinfodeletedata',
                     dataType: 'json',
-                    success: function (data) {
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        id: $('#id-edit').val(),
+
+                    }),
+                    success: function (result) {
+                    }
+
+                })
+                $('#popupOverlay2').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 삭제 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+
+
+
+
+
+        }
+        function load() {
+            $('#Datatbody').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/accountmanagement',
+                dataType: 'json',
+                success: function (data) {
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
                         for (var i = 0; i < data.length; i++) {
+
                             $('#datatable').append(
                                 '<tr>' +
                                 '<td>' + data[i].accountcode + '</td>' +
@@ -482,62 +512,14 @@
                             )
                             $("td#data-id").hide();
 
+                            tableFoot.text('총 데이터 개수: ' + data.length);
                         }
                     }
-
-                })
-            } else {
-                return false;
-            }
-        }
-
-
-        function Datadelte() {
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/accountinfodeletedata',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-
-                    id: $('#id-edit').val(),
-
-                }),
-                success: function (result) {
                 }
-            })
 
-            alert("삭제가 완료 되었습니다.");
-            $('#popupOverlay2').fadeOut();
-            $('#Datatbody').empty()
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/accountmanagement',
-                dataType: 'json',
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        $('#datatable').append(
-                            '<tr>' +
-                            '<td>' + data[i].accountcode + '</td>' +
-                            '<td>' + data[i].accountname + '</td>' +
-                            '<td>' + data[i].representativename + '</td>' +
-                            '<td>' + data[i].phone + '</td>' +
-                            '<td>' + data[i].adress + '</td>' +
-                            '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
-                            '<td><a class="data-delete"style="cursor:pointer; color:red;">삭제</a></td>' +
-                            '<td id="data-id">' + data[i].id + '</td>' +
-                            '</tr>'
-
-                        )
-                        $("td#data-id").hide();
-
-                    }
-                }
 
             })
         }
-
     </script>
 </body>
 

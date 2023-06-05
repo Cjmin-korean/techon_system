@@ -69,18 +69,18 @@
         </table>
     </div> -->
 
-    <div id="datatable-container" style="height: 300px;">
+    <div id="datatable-container" style="height: 100%;">
 
         <table class="styled-table" id="datatable">
             <thead>
                 <tr>
-                    <th>BOM</th>
+                    <th>BOMNO.</th>
                     <th>검사일</th>
                     <th>모델명</th>
                     <th>제품명</th>
                     <th>LOTNO.</th>
-                    <th>생산일자</th>
                     <th>작업수량</th>
+                    <th>생산날짜</th>
                     <th>양품수량</th>
                     <th>불량수량</th>
                     <th>이물</th>
@@ -253,72 +253,95 @@
                 url: server + '/api/alltest',
                 dataType: 'json',
                 success: function (data) {
-                    var ngTotal = Array(15).fill(0); // 각 ng의 합계를 저장할 배열
+                    var itemGroups = {}; // itemname을 기준으로 그룹화된 데이터를 저장할 객체
 
                     for (var i = 0; i < data.length; i++) {
-                        // 각 ng 값을 더하여 합계 계산
-                        for (var j = 0; j < ngTotal.length; j++) {
-                            ngTotal[j] += data[i]['ng' + (j + 1)];
+                        var itemname = data[i].itemname;
+
+                        // itemname으로 그룹화된 데이터가 없으면 초기화
+                        if (!itemGroups[itemname]) {
+                            itemGroups[itemname] = {
+                                rows: [],
+                                ngTotals: Array(15).fill(0),
+                                okCountTotal: 0,
+                                ngCountTotal: 0
+                            };
                         }
 
-                        $('#datatable').append(
-                            '<tr>' +
-                            '<td>' + data[i].bom + '</td>' +
-                            '<td>' + data[i].testdate + '</td>' +
-                            '<td>' + data[i].modelname + '</td>' +
-                            '<td>' + data[i].itemname + '</td>' +
-                            '<td>' + data[i].lotno + '</td>' +
-                            '<td>' + data[i].count + '</td>' +
-                            '<td>' + data[i].productdate + '</td>' +
-                            '<td style="background-color: blue; color: white;">' + data[i].okcount + '</td>' +
-                            '<td style="background-color: red; color: white;">' + data[i].ngcount + '</td>' +
-                            '<td>' + data[i].ng1 + '</td>' +
-                            '<td>' + data[i].ng2 + '</td>' +
-                            '<td>' + data[i].ng3 + '</td>' +
-                            '<td>' + data[i].ng4 + '</td>' +
-                            '<td>' + data[i].ng5 + '</td>' +
-                            '<td>' + data[i].ng6 + '</td>' +
-                            '<td>' + data[i].ng7 + '</td>' +
-                            '<td>' + data[i].ng8 + '</td>' +
-                            '<td>' + data[i].ng9 + '</td>' +
-                            '<td>' + data[i].ng10 + '</td>' +
-                            '<td>' + data[i].ng11 + '</td>' +
-                            '<td>' + data[i].ng12 + '</td>' +
-                            '<td>' + data[i].ng13 + '</td>' +
-                            '<td>' + data[i].ng14 + '</td>' +
-                            '<td>' + data[i].ng15 + '</td>' +
-                            '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
-                            '</tr>'
-                        );
+                        // 각 ng 값을 더하여 합계 계산
+                        for (var j = 0; j < itemGroups[itemname].ngTotals.length; j++) {
+                            itemGroups[itemname].ngTotals[j] += data[i]['ng' + (j + 1)];
+                        }
+
+                        // okcount와 ngcount 합계 계산
+                        itemGroups[itemname].okCountTotal += parseInt(data[i].okcount);
+                        itemGroups[itemname].ngCountTotal += parseInt(data[i].ngcount);
+
+                        // 그룹에 속하는 행 추가
+                        itemGroups[itemname].rows.push(data[i]);
                     }
 
-                    // 합계를 표시하는 tfoot 요소 추가
-                    $('#datatable').append(
-                        '<tfoot>' +
-                        '<tr>' +
-                        '<td colspan="9">합계</td>' +
-                        '<td>' + ngTotal[0] + '</td>' +
-                        '<td>' + ngTotal[1] + '</td>' +
-                        '<td>' + ngTotal[2] + '</td>' +
-                        '<td>' + ngTotal[3] + '</td>' +
-                        '<td>' + ngTotal[4] + '</td>' +
-                        '<td>' + ngTotal[5] + '</td>' +
-                        '<td>' + ngTotal[6] + '</td>' +
-                        '<td>' + ngTotal[7] + '</td>' +
-                        '<td>' + ngTotal[8] + '</td>' +
-                        '<td>' + ngTotal[9] + '</td>' +
-                        '<td>' + ngTotal[10] + '</td>' +
-                        '<td>' + ngTotal[11] + '</td>' +
-                        '<td>' + ngTotal[12] + '</td>' +
-                        '<td>' + ngTotal[13] + '</td>' +
-                        '<td>' + ngTotal[14] + '</td>' +
+                    for (var item in itemGroups) {
+                        var itemGroup = itemGroups[item];
+                        var rows = itemGroup.rows;
+                        var ngTotals = itemGroup.ngTotals;
+                        var okCountTotal = itemGroup.okCountTotal;
+                        var ngCountTotal = itemGroup.ngCountTotal;
 
-                        '<td></td>' +
-                        '</tr>' +
-                        '</tfoot>'
-                    );
+                        // item 그룹 표시
+                        $('#datatable').append('<tr><td colspan="25" style="font-weight: bold;">' + item + '</td></tr>');
+
+                        // item 그룹 내 행 표시
+                        for (var k = 0; k < rows.length; k++) {
+                            var rowData = rows[k];
+                            var rowHtml = '<tr>' +
+                                '<td>' + rowData.bom + '</td>' +
+                                '<td>' + rowData.testdate + '</td>' +
+                                '<td>' + rowData.modelname + '</td>' +
+                                '<td>' + rowData.itemname + '</td>' +
+                                '<td>' + rowData.lotno + '</td>' +
+                                '<td style="text-align:right;">' + rowData.count.toLocaleString() + '</td>' +
+                                '<td>' + rowData.productdate + '</td>' +
+                                '<td style="text-align:right; background-color: blue; color: white;">' + rowData.okcount.toLocaleString() + '</td>' +
+                                '<td style="text-align:right; background-color: red; color: white;">' + rowData.ngcount.toLocaleString() + '</td>';
+
+                            for (var l = 1; l <= 15; l++) {
+                                if (rowData['ng' + l] !== 0) {
+                                    rowHtml += '<td style="color: red; text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
+                                } else {
+                                    rowHtml += '<td style="text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
+                                }
+                            }
+
+                            rowHtml += '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
+                                '</tr>';
+                            $('#datatable').append(rowHtml);
+                        }
+
+                        // 그룹 합계 표시
+                        var ngTotalHtml = '<tr>' +
+                            '<td colspan="7">합계</td>' +
+                            '<td style="color: blue; text-align:right;">' + okCountTotal.toLocaleString() + '</td>' +
+                            '<td style="color: red; text-align:right;">' + ngCountTotal.toLocaleString() + '</td>';
+
+                        for (var m = 0; m < ngTotals.length; m++) {
+                            ngTotalHtml += '<td style="text-align:right;">' + ngTotals[m].toLocaleString() + '</td>';
+                        }
+
+                        ngTotalHtml += '<td></td>' +
+                            '</tr>';
+
+                        $('#datatable').append(ngTotalHtml);
+                    }
                 }
             });
+
+
+
+
+
+
+
 
 
             $.ajax({

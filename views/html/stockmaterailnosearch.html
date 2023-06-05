@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>영업수주등록</title>
+    <title>원자재재고정보</title>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/main.css">
@@ -68,9 +68,8 @@
 
 
     <div class="main_header">
-        <a>영업수주등록</a>
+        <a>원자재재공재고</a>
         <div class="buttons" style="display: flex; justify-content: flex-end;">
-            <button onclick="New()">PO추가</button>
         </div>
 
     </div>
@@ -78,14 +77,14 @@
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
-    <div class="form-group">
+    <!-- <div class="form-group">
         <table style="width:30%;">
             <tr>
-                <td style="width: 100px; background-color: whitesmoke;">수주일자</td>
-                <td style="width: 100px;"> <input type="date" id="datepicker1"
+                <td style="width: 100px; background-color: whitesmoke;">기간조회</td>
+                <td style="width: 100px;"> <input type="date" id="datepicker2"
                         style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
                 </td>
-                <td style="width: 100px;"> <input type="date" id="datepicker2"
+                <td style="width: 100px;"> <input type="date" id="datepicker3"
                         style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
                 </td>
                 <td style="width: 50px;"> <input type="button" value="조회" onclick="POsearching()"
@@ -94,33 +93,18 @@
             </tr>
         </table>
 
-    </div>
+    </div> -->
 
 
     <!-- 등록창 -->
     <div id="popupOverlay" style="display: none;">
         <div id="popupContent" style="width: 70%; height: auto;">
             <div class="form-group">
-                <table style="width: 85%;">
+                <table style="width: 100%;">
                     <tr>
-                        <td colspan="4" style="width: 200px; background-color: black; color: white;">영업수주등록</td>
+                        <td colspan="4" style="width: 200px; background-color: black; color: white;">원자재입고등록</td>
                     </tr>
-                    <tr>
-                        <td style="width: 25%; background-color: whitesmoke;">고객사</td>
-                        <td style="width: 25%; background-color: whitesmoke;">
-                            <select id="customer-select"
-                                style="padding: 8px; font-size: 15px; font-weight:bold; border: none; background-color: #f2f2f2; border-radius: 4px; width: 100%; box-sizing: border-box;">
-                                <option></option>
 
-                            </select>
-                        </td>
-                        <td style="width: 25%; background-color: whitesmoke;">납기일자</td>
-                        <td style="width: 25%; background-color: whitesmoke;">
-
-                            <input type="date" id="datepicker"
-                                style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-                        </td>
-                    </tr>
 
 
 
@@ -129,7 +113,7 @@
 
             </div>
             <div>
-                <button style="float: right;" id="popupCloseBtn-search">품목조회</button>
+                <button style="float: right;" id="popupCloseBtn-search">원자재조회</button>
             </div>
 
             <br>
@@ -138,15 +122,13 @@
                 <table class="styled-table" id="Podatatable">
                     <thead>
                         <tr>
-                            <th>품목코드</th>
-                            <th>BOMNO</th>
-                            <th>모델명</th>
-                            <th>품목명</th>
-                            <th>고객사</th>
-                            <th>원가(원)</th>
-                            <th>단가(원)</th>
-                            <th>PO수량(개)</th>
-                            <th>판매금액(원)</th>
+                            <th>자재명</th>
+                            <th>LOTNO</th>
+                            <th>자재폭(mm)</th>
+                            <th>제조일자</th>
+                            <th>만료일자</th>
+                            <th>수량(M)</th>
+                            <th>수입검사</th>
                             <th style="width:100px;"></th>
                             <th style="width:100px;"></th>
                         </tr>
@@ -221,7 +203,7 @@
                             <th style="width:100px;"></th>
                         </tr>
                     </thead>
-                    <tbody id="POdatatbody-content-tbody">
+                    <tbody id="POtable-tbody">
                     </tbody>
                     <tfoot>
                         <tr>
@@ -245,35 +227,32 @@
 
 
     <div class="main_header" style="background-color:rgb(0, 0, 0); color:white; width: 100%;">
-        <a>영업수주 정보</a>
+        <a>재고정보</a>
 
     </div>
     <div>
-        <table class="styled-table" id="POdatatable">
+        <table class="styled-table" id="materialdatatable">
 
             <thead>
 
                 <tr>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:10%;" onclick="sortTable(0)">수주일자
-                    </th>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:10%;" onclick="sortTable(1)">납기일자
-                    </th>
-                    <th style="background-color:rgb(82, 80, 80); color:white;" onclick="sortTable(2)">고객사
-                    </th>
-                    <th style="background-color:rgb(82, 80, 80); color:white;" onclick="sortTable(3)">제목
-                    </th>
-                    <th style="background-color:rgb(82, 80, 80); color:white;" onclick="sortTable(4)">PONO</th>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:100px;"></th>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:100px;"></th>
+
+                    <th>자재명</th>
+                    <th>LOTNO</th>
+                    <th>자재코드</th>
+                    <th>분류</th>
+                    <th>제조일자</th>
+                    <th>만료일자</th>
+                    <th>자재폭(mm)</th>
+                    <th>SQM단가(원)</th>
+                    <th>롤(roll)</th>
+                    <th>수량(M)</th>
+                    <th>입고금액(원)</th>
+
                 </tr>
             </thead>
-            <tbody id="PODatatbody">
+            <tbody id="materialinputtbody">
             </tbody>
-            <tfoot>
-                <tr>
-                    <td style="border: 1px solid silver;" colspan="7" id="dataCount"></td>
-                </tr>
-            </tfoot>
         </table>
     </div>
     <!-- 품목조회창 -->
@@ -285,22 +264,23 @@
 
                     <thead>
                         <tr>
-                            <td colspan="9" style="width: 200px; background-color: black; color: white;">품목(Item)정보</td>
+                            <td colspan="9" style="width: 200px; background-color: black; color: white;">원자재 (Material)
+                                정보
+                            </td>
                         </tr>
                         <tr>
-                            <td colspan="3" style="width: 200px; background-color: whitesmoke; color: black;">품목검색</td>
+                            <td colspan="3" style="width: 200px; background-color: whitesmoke; color: black;">자재검색</td>
                             <td colspan="6"><input type="text" id="myInput" onclick="search()" class="data"
                                     autocomplete="off" style="width:100%; border:1px solid silver;"></td>
                         </tr>
                         <tr>
-                            <th style="background-color: silver; color:black;" onclick="sortTable(0)">품목코드</th>
-                            <th style="background-color: silver; color:black;" onclick="sortTable(1)">BOMNO</th>
-                            <th style="background-color: silver; color:black;" onclick="sortTable(2)">모델명</th>
-                            <th style="background-color: silver; color:black;" onclick="sortTable(3)">품목명</th>
-                            <th style="background-color: silver; color:black;" onclick="sortTable(4)">고객사</th>
-                            <th style="background-color: silver; color:black;" onclick="sortTable(5)">단가(원)</th>
-                            <th style="background-color: silver; color:black;" onclick="sortTable(6)">원가(원)</th>
-                            <th style="background-color: silver; color:black;" onclick="sortTable(7)">재료비(%)</th>
+                            <th>원자재명</th>
+                            <th>원자재코드</th>
+                            <th>분류</th>
+                            <th>자재폭(mm)</th>
+                            <th>고객사</th>
+                            <th>유수명</th>
+                            <th>수입검사</th>
                             <th style="background-color: silver; color:black;" style="width:100px;"></th>
                         </tr>
                     </thead>
@@ -319,61 +299,76 @@
 
     <!-- 수정창 -->
     <div id="popupOverlay1" style="display: none;">
-        <div id="popupContent1" style="width: 700px; height: 550px;">
+        <div id="popupContent1" style="width: 700px; height: auto;">
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td style="background-color: black; color: white;">PO Item 등록</td>
+                        <td style="background-color: black; color: white;">원자재 입고 추가</td>
                         <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
                                 style="width:100%; border:1px solid silver; "></td>
 
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">품목코드</td>
-                        <td><input type="text" id="itemcode-edit" class="data" autocomplete="off" readonly
-                                style="font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke;">자재명</td>
+                        <td><input type="text" id="input" class="data" autocomplete="off" readonly
+                                style="width:100%; border:1px solid silver;" value="원자재입고"></td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">BOMNO</td>
-                        <td><input type="text" id="bomno-edit" class="data" autocomplete="off" readonly
-                                style="font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke;">자재명</td>
+                        <td><input type="text" id="materialname" class="data" autocomplete="off" readonly
+                                style="width:100%; border:1px solid silver;"></td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">모델명</td>
-                        <td><input type="text" id="modelname-edit" class="data" autocomplete="off" readonly
-                                style="font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke;">원자재코드</td>
+                        <td><input type="text" id="materialcode" class="data" autocomplete="off" readonly
+                                style="width:100%; border:1px solid silver;"></td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">제품명</td>
-                        <td><input type="text" id="itemname-edit" class="data" autocomplete="off" readonly
-                                style=" font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke;">분류</td>
+                        <td><input type="text" id="classification" class="data" autocomplete="off" readonly
+                                style="width:100%; border:1px solid silver;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">자재폭</td>
+                        <td><input type="text" id="materialwidth" class="data" autocomplete="off" readonly
+                                style="width:100%; border:1px solid silver;"></td>
                     </tr>
                     <tr>
                         <td style="width: 200px; background-color: whitesmoke;">고객사</td>
-                        <td><input type="text" id="customer-edit" class="data" autocomplete="off" readonly
-                                style="font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td><input type="text" id="customer" class="data" autocomplete="off" readonly
+                                style="width:100%; border:1px solid silver;"></td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">단가(원)</td>
-                        <td><input type="text" id="itemprice-edit" class="data" autocomplete="off" readonly
-                                style="font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke;">유수명</td>
+                        <td><input type="text" id="day" class="data" autocomplete="off" readonly
+                                style="width:100%; border:1px solid silver;"></td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke; ">원가(원)</td>
-                        <td><input type="text" id="cost-edit" class="data" autocomplete="off" readonly
-                                style="font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke; ">수입검사</td>
+                        <td><input type="text" id="inspection" class="data" autocomplete="off" readonly
+                                style="width:100%; border:1px solid silver;"></td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">재료비(%)</td>
-                        <td><input type="text" id="costpg-edit" class="data" autocomplete="off" readonly
-                                style="font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke; color: blue;">롤</td>
+                        <td><input type="text" id="roll" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke; color: blue;">PO수량</td>
-                        <td><input type="text" id="count-edit" class="data" autocomplete="off"
-                                style="font:16px; font-weight:bold; width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke; color: blue;">수량</td>
+                        <td><input type="text" id="quantity" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
                     </tr>
-
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; color: blue;">LOT</td>
+                        <td><input type="text" id="lotno" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; color: blue;">제조일자</td>
+                        <td style="width: 100px;"> <input type="date" id="datepicker1"
+                                style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </td>
+                    </tr>
 
                 </table>
             </div>
@@ -487,73 +482,133 @@
                 }
             });
 
+            const date = new Date();
 
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+
+
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+            }
+
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+
+
+
+
+            $('#materialinputtbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/POaccountinput',
+                url: server + '/api/materialinputsearch',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    start: $('#datepicker1').val(),
-                    finish: $('#datepicker2').val()
+                    start: '1990-01-01',
+                    finish: currentDate
                 }),
-                success: function (result) {
-                    var tableBody = $('#PODatatbody');
-                    var tableFoot = $('#dataCount');
-                    tableBody.empty();
+                success: function (data) {
+                    var totalQuantity = 0; // Variable to store the total quantity
 
-                    if (result.length === 0) {
-                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
-                        tableFoot.text('총 데이터 개수: 0');
-                    } else {
-                        for (var i = 0; i < result.length; i++) {
-                            tableBody.append(
-                                '<tr>' +
-                                '<td style="font-weight:bold;">' + result[i].accountdate + '</td>' +
-                                '<td style="font-weight:bold;">' + result[i].deliverydate + '</td>' +
-                                '<td>' + result[i].customer + '</td>' +
-                                '<td>' + result[i].ponum + '</td>' +
-                                '<td>' + result[i].contentname + '</td>' +
-                                '<td><a class="data-content" style="cursor:pointer; color:blue;">상세</a></td>' +
-                                '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
-                                '</tr>'
-                            );
+                    for (var i = 0; i < data.length; i++) {
+                        var part = data[i].part;
+                        var backgroundColor = '';
+
+                        if (part === '입고완료') {
+                            backgroundColor = 'blue';
+                        } else if (part === '출고대기') {
+                            backgroundColor = 'red';
+                        } else if (part === '수입검사대기') {
+                            backgroundColor = 'green';
                         }
-                        tableFoot.text('총 데이터 개수: ' + result.length);
+
+                        // Convert the quantity from string to number
+                        var quantity = parseFloat(data[i].quantity.replace(/,/g, ''));
+                        var materialWidth = parseFloat(data[i].materialwidth.replace(/,/g, ''));
+                        var multipliedValue = quantity * materialWidth; // Calculate the multiplied value
+
+                        totalQuantity += multipliedValue; // Add the multiplied value to the total
+
+                        // Check for null values and display empty string if null
+                        var classification = data[i].classification !== null ? data[i].classification : '';
+                        var lotno = data[i].lotno !== null ? data[i].lotno : '';
+                        var manufacturedate = data[i].manufacturedate !== null ? data[i].manufacturedate : '';
+                        var expirationdate = data[i].expirationdate !== null ? data[i].expirationdate : '';
+
+                        // Add the data to the table
+                        $('#materialdatatable').append(
+                            '<tr>' +
+                            '<td>' + data[i].input + '</td>' +
+                            '<td>' + data[i].date + '</td>' +
+                            '<td>' + data[i].materialname + '</td>' +
+                            '<td>' + classification + '</td>' +
+                            '<td>' + lotno + '</td>' +
+                            '<td>' + manufacturedate + '</td>' +
+                            '<td>' + expirationdate + '</td>' +
+                            '<td style="text-align:right;">' + data[i].materialwidth.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + quantity.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + multipliedValue.toLocaleString() + '</td>' + // Display the multiplied value
+                            '<td class="data-id">' + data[i].id + '</td>' +
+                            '</tr>'
+                        );
+
+                        $('.data-id').hide();
+                    }
+
+                    // Add the total quantity row at the end
+                    $('#materialdatatable').append(
+                        '<tr>' +
+                        '<td colspan="8">전체 합계</td>' +
+                        '<td style="text-align:right;"><strong>' + totalQuantity.toLocaleString() + '</strong></td>' +
+                        '</tr>'
+                    );
+                }
+            });
+
+
+
+
+
+
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/materialbase',
+                dataType: 'json',
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+
+
+                        $('#datatable').append(
+                            '<tr>' +
+                            '<td>' + data[i].materialname + '</td>' +
+                            '<td>' + data[i].codenumber + '</td>' +
+                            '<td>' + data[i].classification + '</td>' +
+                            '<td>' + data[i].fullwidth + '</td>' +
+                            '<td>' + data[i].customer + '</td>' +
+                            '<td>' + data[i].day + '</td>' +
+                            '<td>' + data[i].inspection + '</td>' +
+
+                            '<td><a class="data-edit" style="cursor:pointer; color:navy;">추가</a></td>' +
+
+
+                            '</tr>'
+
+                        );
+
                     }
                 }
             });
 
 
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/iteminfo',
-                dataType: 'json',
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
 
-                        $('#datatable').append(
-                            '<tr>' +
-                            '<td>' + data[i].itemcode + '</td>' +
-                            '<td>' + data[i].bomno + '</td>' +
-                            '<td>' + data[i].modelname + '</td>' +
-                            '<td>' + data[i].itemname + '</td>' +
-                            '<td>' + data[i].customer + '</td>' +
-                            '<td style="text-align: right;">' + data[i].itemprice + '</td>' +
-                            '<td style="text-align: right;">' + data[i].cost + '</td>' +
-                            '<td style="text-align: right;">' + data[i].costpg + '</td>' +
-
-                            '<td><a class="data-edit"  style="cursor:pointer; color:navy;">추가</a></td>' +
-                            '<td id="data-id">' + data[i].id + '</td>' +
-                            '</tr>'
-
-                        )
-                        $("td#data-id").hide();
-
-                    }
-                }
-
-            })
 
             $('#POdatatable').on('click', '.data-content', function () {
                 var str = "";
@@ -641,25 +696,27 @@
                 var tr = checkBtn.parent().parent();
                 var td = tr.children();
 
-                var itemcode = td.eq(0).text();
-                var bomno = td.eq(1).text();
-                var modelname = td.eq(2).text();
-                var itemname = td.eq(3).text();
+                var materialname = td.eq(0).text();
+                var materialcode = td.eq(1).text();
+                var classification = td.eq(2).text();
+                var materialwidth = td.eq(3).text();
                 var customer = td.eq(4).text();
-                var itemprice = td.eq(5).text();
-                var cost = td.eq(6).text();
+                var day = td.eq(5).text();
+
+                var inspection = td.eq(6).text();
                 var costpg = td.eq(7).text();
                 var id = td.eq(10).text();
 
-                $('#itemcode-edit').val(itemcode)
-                $('#bomno-edit').val(bomno)
-                $('#modelname-edit').val(modelname)
-                $('#itemname-edit').val(itemname)
-                $('#customer-edit').val(customer)
-                $('#itemprice-edit').val(itemprice)
-                $('#cost-edit').val(cost)
-                $('#costpg-edit').val(costpg)
-                $('#id-edit').val(id)
+                $('#materialname').val(materialname)
+                $('#materialcode').val(materialcode)
+                $('#classification').val(classification)
+                $('#materialwidth').val(materialwidth)
+                $('#customer').val(customer)
+                $('#day').val(day)
+
+
+                $('#inspection').val(inspection)
+
                 $('#count-edit').val('')
 
                 $('#popupOverlay1').fadeIn();
@@ -848,57 +905,35 @@
         }
 
         function New() {
-            const date = new Date();
+            // $('#POdatatbody').empty();
+            // var total8 = 0;
+            // var total9 = 0;
+            // $('#Podatatable td:nth-child(8)').each(function () {
+            //     var count8 = parseFloat($(this).text().replace(/,/g, ''));
+            //     if (!isNaN(count8)) {
+            //         total8 += count8;
+            //     }
+            // });
 
-            var day = date.getDate();
-            var month = date.getMonth() + 1;
-            var year = date.getFullYear();
-
-
-            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
-                month = '0' + month
-            }
-
-            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
-                day = '0' + day
-            }
-
-
-            // This arrangement can be altered based on how we want the date's format to appear.
-            let currentDate = `${year}-${month}-${day}`;
-
-         
-            $('#datepicker').val(currentDate);
-            $('#customer-select').val('')
-            $('#POdatatbody').empty();
-            var total8 = 0;
-            var total9 = 0;
-            $('#Podatatable td:nth-child(8)').each(function () {
-                var count8 = parseFloat($(this).text().replace(/,/g, ''));
-                if (!isNaN(count8)) {
-                    total8 += count8;
-                }
-            });
-
-            $('#Podatatable td:nth-child(9)').each(function () {
-                var count9 = parseFloat($(this).text().replace(/,/g, ''));
-                if (!isNaN(count9)) {
-                    total9 += count9;
-                }
-            });
-            // 합계 표시
-            $('#Podatatable tfoot').remove(); // 기존의 tfoot 제거
-            $('#Podatatable').append(
-                '<tfoot>' +
-                '<tr>' +
-                '<td style="border:1px solid silver; background-color:whitesmoke;"colspan="7">합계</td>' +
-                '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total8.toFixed(0)) + '</strong></td>' +
-                '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total9.toFixed(0)) + '</strong></td>' +
-                '<td style="border:1px solid silver; background-color:whitesmoke; "colspan="2"></td>' +
-                '</tr>' +
-                '</tfoot>'
-            );
-            $('#popupOverlay').fadeIn();
+            // $('#Podatatable td:nth-child(9)').each(function () {
+            //     var count9 = parseFloat($(this).text().replace(/,/g, ''));
+            //     if (!isNaN(count9)) {
+            //         total9 += count9;
+            //     }
+            // });
+            // // 합계 표시
+            // $('#Podatatable tfoot').remove(); // 기존의 tfoot 제거
+            // $('#Podatatable').append(
+            //     '<tfoot>' +
+            //     '<tr>' +
+            //     '<td style="border:1px solid silver; background-color:whitesmoke;"colspan="7">합계</td>' +
+            //     '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total8.toFixed(0)) + '</strong></td>' +
+            //     '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total9.toFixed(0)) + '</strong></td>' +
+            //     '<td style="border:1px solid silver; background-color:whitesmoke; "colspan="2"></td>' +
+            //     '</tr>' +
+            //     '</tfoot>'
+            // );
+            $('#popupOverlay3').fadeIn();
         }
 
         function Datasave() {
@@ -979,10 +1014,10 @@
                                     "itemprice": itempricevalue,
                                     "quantity": quantityvalue,
                                     "price": pricevalue,
-                                    "ponum": textGroup[i + 1][3] + " 외 " + ($table.rows.length - 3) + "건",
+                                    "contentname": textGroup[i + 1][3] + " 외 " + ($table.rows.length - 3) + "건",
                                     "countsum": aDatavalue,
                                     "pricesum": bDatavalue,
-                                    "contentname": year + month + day + hours + minutes + seconds
+                                    "ponum": year + month + day + hours + minutes + seconds
 
                                 }),
                                 success: function (data) {
@@ -990,11 +1025,7 @@
                                 }
                             })
 
-                            $('#popupOverlay').fadeOut();
 
-                            setTimeout(function () {
-                                load()
-                            }, 50);
                             var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:blue;" class="notification-message">PO정보 등록 완료</span></div>');
                             $('body').append(notification);
                             setTimeout(function () {
@@ -1003,8 +1034,38 @@
                                 });
                             }, 3000);
 
+                            $('#PODatatbody').empty()
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/POaccountinput',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    start: $('#datepicker1').val(),
+                                    finish: $('#datepicker2').val()
+                                }),
+                                success: function (result) {
+                                    for (var i = 0; i < result.length; i++) {
 
+                                        $('#POdatatable').append(
+                                            '<tr>' +
+                                            '<td>' + result[i].accountdate + '</td>' +
+                                            '<td>' + result[i].deliverydate + '</td>' +
+                                            '<td>' + result[i].customer + '</td>' +
+                                            '<td>' + result[i].ponum + '</td>' +
+                                            '<td>' + result[i].contentname + '</td>' +
+                                            '<td><a class="data-edit"  style="cursor:pointer; color:blue;">상세</a></td>' +
+                                            '<td><a class="data-edit"  style="cursor:pointer; color:red;">삭제</a></td>' +
+                                            '</tr>'
 
+                                        )
+
+                                    }
+
+                                }
+
+                            })
+                            $('#popupOverlay').fadeOut();
                         }
 
 
@@ -1084,8 +1145,8 @@
         }
 
         function Dataedit() {
-            if ($('#count-edit').val() === '' || $('#count-edit').val() === '0') {
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:red;" class="notification-message">PO수량 확인바랍니다</span></div>');
+            if ($('#quantity').val() === '' || $('#roll').val() === '0') {
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:red;" class="notification-message">공란 확인바랍니다</span></div>');
                 $('body').append(notification);
                 setTimeout(function () {
                     notification.fadeOut(function () {
@@ -1094,58 +1155,195 @@
                 }, 3000); // 3초 후에 알림을 사라지게 설정
 
             } else {
-                var count = $('#count-edit').val().replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
-                var item = $('#itemprice-edit').val().replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
-                var total = count * item;
 
-                $('#Podatatable').append(
-                    '<tr>' +
-                    '<td>' + $('#itemcode-edit').val() + '</td>' +
-                    '<td>' + $('#bomno-edit').val() + '</td>' +
-                    '<td>' + $('#modelname-edit').val() + '</td>' +
-                    '<td>' + $('#itemname-edit').val() + '</td>' +
-                    '<td>' + $('#customer-edit').val() + '</td>' +
-                    '<td style="text-align:right;">' + $('#cost-edit').val() + '</td>' +
-                    '<td style="text-align:right;">' + addCommas($('#itemprice-edit').val()) + '</td>' +
-                    '<td style="text-align:right;">' + addCommas($('#count-edit').val()) + '</td>' +
-                    '<td style="text-align:right;">' + addCommas(total.toLocaleString()) + '</td>' +
-                    '<td><a class="POdata-edit"  style="cursor:pointer; color:navy;">수정</a></td>' +
-                    '<td><a class="data-delete" style="cursor:pointer; color:red;">삭제</a></td>' +
-                    '</tr>'
+                if (confirm("원자재입고를 등록 하시겠습니까??") == true) {
+                    // printpage()
+                    const date = new Date();
 
-                )
-                // 합계 계산
-                var total8 = 0;
-                var total9 = 0;
-                $('#Podatatable td:nth-child(8)').each(function () {
-                    var count8 = parseFloat($(this).text().replace(/,/g, ''));
-                    if (!isNaN(count8)) {
-                        total8 += count8;
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+
+                    console.log((month).length, day.length)
+
+                    if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                        month = '0' + month
+                        console.log(month)
+                    }
+
+                    if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                        day = '0' + day
+                        console.log(day)
+                    }
+
+
+                    // This arrangement can be altered based on how we want the date's format to appear.
+                    let currentDate = `${year}-${month}-${day}`;
+
+                    var materialname = $('#materialname').val();
+                    var materialcode = $('#materialcode').val();
+                    var materialwidth = $('#materialwidth').val();
+                    var materialwidthcomma = materialwidth.replace(/,/g, "");
+
+                    var manufacturedate = $('#datepicker1').val();
+                    var input = $('#input').val();
+                    var materialday = $('#day').val();
+                    var customer = $('#customer').val();
+                    var lotno = $('#lotno').val();
+                    var roll = $('#roll').val();
+                    var quantity = $('#quantity').val();
+                    var classification = $('#classification').val();
+                    var sum = $('#quantity').val() * $('#roll').val();;
+
+                    var today = new Date();
+                    var dd = String(today.getDate()).padStart(2, '0');
+                    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                    var yyyy = today.getFullYear();
+
+                    today = yyyy + '-' + mm + '-' + dd
+
+                    var sumdate = new Date(Date.parse(manufacturedate) + parseInt(materialday) * 1000 * 60 * 60 * 24);
+                    var sumdd = String(sumdate.getDate()).padStart(2, '0');
+                    var summm = String(sumdate.getMonth() + 1).padStart(2, '0'); //January is 0!
+                    var sumyyyy = sumdate.getFullYear();
+
+                    var expirationdate = sumyyyy + '-' + summm + '-' + sumdd
+                    var resultdate = sumyyyy + '-' + summm + '-' + sumdd
+
+                    if ($('#input').val() == "원자재입고" && $('#inspection').val() == "Y") {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/inspection',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+
+                                "inputdate": currentDate,
+                                "materialname": materialname,
+                                "manufacturedate": manufacturedate,
+                                "expirationdate": expirationdate,
+                                "materialwidth": materialwidthcomma,
+                                "lotno": lotno,
+                                "quantity": quantity,
+
+
+
+                            }),
+                            success: function (result) {
+                                // tableInsert();
+
+                            }
+                        })
+
+                        for (i = 0; i < roll; i++) {
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/ㅊ',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+
+                                    "materialname": materialname,
+                                    "input": input,
+                                    "codenumber": materialcode,
+                                    "manufacturedate": manufacturedate,
+                                    "expirationdate": resultdate,
+                                    "materialwidth": materialwidthcomma,
+                                    "date": currentDate,
+                                    "lotno": lotno,
+                                    "quantity": quantity,
+                                    "part": '수입검사대기'
+
+                                }),
+                                success: function (result) {
+
+
+                                }
+                            })
+
+                        }
+                    } else {
+                        for (i = 0; i < roll; i++) {
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/materialinputsave',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+
+                                    "materialname": materialname,
+                                    "input": input,
+                                    "codenumber": materialcode,
+                                    "manufacturedate": manufacturedate,
+                                    "expirationdate": expirationdate,
+                                    "materialwidth": materialwidthcomma,
+                                    "date": currentDate,
+                                    "lotno": lotno,
+                                    "quantity": quantity,
+                                    "roll": roll,
+                                    "sum": sum,
+                                    "classification": classification,
+                                    "part": '입고완료'
+
+
+                                }),
+                                success: function (result) {
+
+
+                                }
+                            })
+
+                        }
+                    }
+
+
+
+
+                } else {
+                    return false;
+                }
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/materialoption',
+                    dataType: 'json',
+                    success: function (data) {
+                        for (var i = 0; i < data.length; i++) {
+                            var part = data[i].part;
+                            var backgroundColor = '';
+
+                            if (part === '입고완료') {
+                                backgroundColor = 'blue';
+                            } else if (part === '출고대기') {
+                                backgroundColor = 'red';
+                            }
+                            else if (part === '수입검사대기') {
+                                backgroundColor = 'green';
+                            }
+
+                            $('#materialdatatable').append(
+                                '<tr>' +
+                                '<td>' + data[i].input + '</td>' +
+                                '<td>' + data[i].date + '</td>' +
+                                '<td>' + data[i].materialname + '</td>' +
+                                '<td>' + data[i].lotno + '</td>' +
+                                '<td>' + data[i].manufacturedate + '</td>' +
+                                '<td>' + data[i].expirationdate + '</td>' +
+                                '<td style="text-align:right;">' + data[i].materialwidth.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
+                                '<td style="color:white; background-color: ' + backgroundColor + ';">' + part + '</td>' +
+                                '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
+                                '<td><a class="data-delete" style="cursor:pointer; color:red;">삭제</a></td>' +
+                                '<td id="data-id">' + data[i].id + '</td>' +
+                                '</tr>'
+                            );
+                            $("td#data-id").hide();
+                        }
                     }
                 });
 
-                $('#Podatatable td:nth-child(9)').each(function () {
-                    var count9 = parseFloat($(this).text().replace(/,/g, ''));
-                    if (!isNaN(count9)) {
-                        total9 += count9;
-                    }
-                });
-                // 합계 표시
-                $('#Podatatable tfoot').remove(); // 기존의 tfoot 제거
-                $('#Podatatable').append(
-                    '<tfoot>' +
-                    '<tr>' +
-                    '<td style="border:1px solid silver; background-color:whitesmoke;"colspan="7">합계</td>' +
-                    '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total8.toFixed(0)) + '</strong></td>' +
-                    '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total9.toFixed(0)) + '</strong></td>' +
-                    '<td style="border:1px solid silver; background-color:whitesmoke; "colspan="2"></td>' +
-                    '</tr>' +
-                    '</tfoot>'
-                );
-
-
-
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message">' + $('#itemname-edit').val() + '(' + $('#count-edit').val() + ') 제품이 추가되었습니다.</span></div>');
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message">' + $('#materialname').val() + '(' + $('#quantity').val() + ') 입고추가 완료.</span></div>');
                 $('body').append(notification);
                 setTimeout(function () {
                     notification.fadeOut(function () {
@@ -1236,114 +1434,26 @@
             let currentDate = `${year}-${month}-${day}`;
 
 
-            $('#datepicker').val(currentDate);
             $('#datepicker1').val(currentDate);
             $('#datepicker2').val(currentDate);
+            $('#datepicker3').val(currentDate);
 
         }
     </script>
     <script>
         function POsearching() {
-            var startDate = new Date($('#datepicker1').val());
-            var endDate = new Date($('#datepicker2').val());
+            showLoading()
 
-            if (startDate > endDate) {
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="color:red;" class="notification-message">조회 기간 확인바랍니다.</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000); // 3초 후에 알림을 사라지게 설정
-            } else {
-                showLoading();
-                $('#PODatatbody').empty();
 
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/POaccountinput',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        start: $('#datepicker1').val(),
-                        finish: $('#datepicker2').val()
-                    }),
-                    success: function (result) {
-                        var tableBody = $('#PODatatbody');
-                        var tableFoot = $('#dataCount');
-                        if (result.length === 0) {
-                            // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
-                            tableFoot.text('총 데이터 개수: 0');
-                        } else {
-                            for (var i = 0; i < result.length; i++) {
-                                tableBody.append(
-                                    '<tr>' +
-                                    '<td style="font-weight:bold;">' + result[i].accountdate + '</td>' +
-                                    '<td style="font-weight:bold;">' + result[i].deliverydate + '</td>' +
-                                    '<td>' + result[i].customer + '</td>' +
-                                    '<td>' + result[i].ponum + '</td>' +
-                                    '<td>' + result[i].contentname + '</td>' +
-                                    '<td><a class="data-edit" style="cursor:pointer; color:blue;">상세</a></td>' +
-                                    '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
-                                    '</tr>'
-                                );
-                            }
-                            tableFoot.text('총 데이터 개수: ' + result.length);
-                        }
 
-                        var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="color:navy;" class="notification-message">' + $('#datepicker1').val() + '/' + $('#datepicker2').val() + ' 조회 완료</span></div>');
-                        $('body').append(notification);
-                        setTimeout(function () {
-                            notification.fadeOut(function () {
-                                $(this).remove();
-                            });
-                        }, 3000); // 3초 후에 알림을 사라지게 설정
-                    }
-                });
-            }
+
+
         }
 
-    </script>
-    <script>
-        function load() {
-            settingDate()
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/POaccountinput',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    start: $('#datepicker1').val(),
-                    finish: $('#datepicker2').val()
-                }),
-                success: function (result) {
-                    var tableBody = $('#PODatatbody');
-                    var tableFoot = $('#dataCount');
-                    tableBody.empty();
 
-                    if (result.length === 0) {
-                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
-                        tableFoot.text('총 데이터 개수: 0');
-                    } else {
-                        for (var i = 0; i < result.length; i++) {
-                            tableBody.append(
-                                '<tr>' +
-                                '<td style="font-weight:bold;">' + result[i].accountdate + '</td>' +
-                                '<td style="font-weight:bold;">' + result[i].deliverydate + '</td>' +
-                                '<td>' + result[i].customer + '</td>' +
-                                '<td>' + result[i].ponum + '</td>' +
-                                '<td>' + result[i].contentname + '</td>' +
-                                '<td><a class="data-content" style="cursor:pointer; color:blue;">상세</a></td>' +
-                                '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
-                                '</tr>'
-                            );
-                        }
-                        tableFoot.text('총 데이터 개수: ' + result.length);
-                    }
-                }
-            });
-        }
+
     </script>
+
 
 </body>
 

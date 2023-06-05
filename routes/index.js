@@ -547,40 +547,97 @@ module.exports = function (app) {
 
     // **** start 원자재 코드기초정보 쿼리
     sql.connect(config).then(pool => {
+        app.post('/api/materialbaseall', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                // .input('searchText', sql.NVarChar, req.body.searchText)
+                .query(
+                    "select * from materialbase"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+
+        });
+
+    });
+    // **** finish
+    // **** start 원자재 코드기초정보 쿼리
+    sql.connect(config).then(pool => {
         app.post('/api/materialbase', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
 
             return pool.request()
-
+                .input('searchText', sql.NVarChar, req.body.searchText)
                 .query(
-
-                    "   select " +
-                    "   id," +
-                    "   materialname," +
-                    "   codenumber," +
-                    "   classification," +
-                    "   format(convert(int,Isnull(fullwidth,0)),'##,##0')'fullwidth'," +
-                    "   format(convert(int,Isnull(swidth,0)),'##,##0')'swidth'," +
-                    "   customer," +
-                    "   format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'," +
-                    "   format(convert(int,Isnull(rollprice,0)),'##,##0')'rollprice'," +
-                    "   day, " +
-                    "   inspection " +
-                    "   from materialbase order by materialname asc")
-
+                    "SELECT " +
+                    "  id, " +
+                    "  materialname, " +
+                    "  codenumber, " +
+                    "  classification, " +
+                    "  FORMAT(CONVERT(INT, ISNULL(fullwidth, 0)), '##,##0') AS fullwidth, " +
+                    "  FORMAT(CONVERT(INT, ISNULL(swidth, 0)), '##,##0') AS swidth, " +
+                    "  customer, " +
+                    "  FORMAT(CONVERT(INT, ISNULL(sqmprice, 0)), '##,##0') AS sqmprice, " +
+                    "  FORMAT(CONVERT(INT, ISNULL(rollprice, 0)), '##,##0') AS rollprice, " +
+                    "  day," +
+                    "  inspection  " +
+                    "FROM materialbase " +
+                    "WHERE " +
+                    "  materialname LIKE '%' + @searchText + '%' " +
+                    "  OR codenumber LIKE '%' + @searchText + '%' " +
+                    "  OR classification LIKE '%' + @searchText + '%' " +
+                    "ORDER BY materialname ASC;"
+                )
                 .then(result => {
-
-                    // console.log('내가보고싶은거', result.recordset)
-
-
                     res.json(result.recordset);
                     res.end();
-
-
-
                 });
+
+        });
+
+    });
+    // **** finish
+    // **** start 원자재 코드기초정보 쿼리
+    sql.connect(config).then(pool => {
+        app.post('/api/materialbaseinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('searchText', sql.NVarChar, req.body.searchText)
+                .query(
+                    "SELECT " +
+                    "  id, " +
+                    "  materialname, " +
+                    "  codenumber, " +
+                    "  classification, " +
+                    "  FORMAT(CONVERT(INT, ISNULL(fullwidth, 0)), '##,##0') AS fullwidth, " +
+                    "  FORMAT(CONVERT(INT, ISNULL(swidth, 0)), '##,##0') AS swidth, " +
+                    "  customer, " +
+                    "  FORMAT(CONVERT(INT, ISNULL(sqmprice, 0)), '##,##0') AS sqmprice, " +
+                    "  FORMAT(CONVERT(INT, ISNULL(rollprice, 0)), '##,##0') AS rollprice, " +
+                    "  day," +
+                    "  inspection  " +
+                    "  FROM materialbase " +
+                    "  WHERE " +
+                    "  materialname LIKE '%' + @searchText + '%' " +
+                    "  OR codenumber LIKE '%' + @searchText + '%' " +
+                    "  OR classification LIKE '%' + @searchText + '%' " +
+                    "ORDER BY materialname ASC;"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+
         });
 
     });
@@ -1039,10 +1096,12 @@ module.exports = function (app) {
                 .input('price', sql.Int, req.body.price)
                 .input('accountnumber', sql.NVarChar, req.body.accountnumber)
                 .input('contents', sql.NVarChar, req.body.contents)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
 
                 .query(
-                    'insert into materialinput(date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents)' +
-                    ' values(@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents)'
+                    'insert into materialinput(date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice)' +
+                    ' values(@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice)'
                 )
                 .then(result => {
 
@@ -1131,6 +1190,7 @@ module.exports = function (app) {
                     "input," +
                     "date," +
                     "materialname," +
+                    "classification," +
                     "lotno," +
                     "manufacturedate," +
                     "expirationdate," +
@@ -1154,6 +1214,51 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialinputsearch', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+                .query(
+
+
+                    "SELECT " +
+                    "id," +
+                    "input," +
+                    "date," +
+                    "materialname," +
+                    "classification," +
+                    "lotno," +
+                    "manufacturedate," +
+                    "expirationdate," +
+                    "format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth'," +
+                    "format(convert(int,Isnull(quantity,0)),'##,##0')'quantity'," +
+                    "roll," +
+                    "sum,part,house,codenumber," +
+                    "format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'" +
+
+                    " FROM materialinput where date between @start and @finish")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/materialouput', function (req, res) {
@@ -1240,6 +1345,142 @@ module.exports = function (app) {
 
                 .query(
                     "select materialname,lotno,manufacturedate,expirationdate,format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth',format(convert(int,Isnull(sum(quantity),0)),'##,##0')'quantity' from materialinput where part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialoptiongroup', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+
+                .query(
+                    "select materialname,lotno,manufacturedate,expirationdate,format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth',format(convert(int,Isnull(sum(quantity),0)),'##,##0')'quantity' from materialinput where part='입고완료' group by materialname,lotno,manufacturedate,expirationdate,materialwidth")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialsoyosearch', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .query(
+                    "SELECT" +
+                    "     materialname, " +
+                    "     codenumber, " +
+                    "     classification, " +
+                    "     lotno, " +
+                    "     manufacturedate, " +
+                    "     expirationdate, " +
+                    "     materialwidth, " +
+                    "     SUM(quantity) AS 'quantity', " +
+                    "     sqmprice,  " +
+                    "     house, " +
+                    "     materialid " +
+                    " FROM " +
+                    "     materialinput " +
+                    " WHERE materialname = @materialname " +
+                    " GROUP BY " +
+                    "     materialname, " +
+                    "     codenumber, " +
+                    "     classification, " +
+                    "     lotno, " +
+                    "     manufacturedate, " +
+                    "     expirationdate, " +
+                    "     materialwidth, " +
+                    "     sqmprice, " +
+                    "     house, " +
+                    "     materialid " +
+                    " HAVING " +
+                    "     SUM(quantity) <> 0 " +
+                    "     AND materialwidth > @materialwidth " +
+                    " ORDER BY " +
+                    "   materialwidth ASC, " +
+                    "   expirationdate ASC ")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
+
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialstocksearch', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+                .query(
+                    "select " +
+                    " materialname, " +
+                    " lotno, " +
+                    " codenumber, " +
+                    " classification, " +
+                    " manufacturedate, " +
+                    " expirationdate, " +
+                    " materialwidth," +
+                    " sqmprice, " +
+                    " sum(quantity)'quantity', " +
+                    " sum(roll)'roll' " +
+                    " from materialinput " +
+                    " where part='입고완료' " +
+                    "  and date between @start and @finish " +
+                    " group by  " +
+                    " materialname, " +
+                    " lotno, " +
+                    " codenumber, " +
+                    " classification, " +
+                    " manufacturedate, " +
+                    " expirationdate, " +
+                    " materialwidth, " +
+                    " sqmprice,roll")
 
 
                 .then(result => {
@@ -1658,6 +1899,94 @@ module.exports = function (app) {
 
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/startproduction', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    " select " +
+                    " id, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " bomno, " +
+                    " lotno, " +
+                    " quantity, " +
+                    " orderid, " +
+                    " status " +
+                    " from  " +
+                    " orderlist  " +
+                    " where status='생산대기' ")
+
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/startproductioning', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    " select " +
+                    " id, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " bomno, " +
+                    " lotno, " +
+                    " quantity, " +
+                    " orderid, " +
+                    " status " +
+                    " from  " +
+                    " orderlist  " +
+                    " where status='생산중' ")
+
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/materialoutputorderid', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('orderid', sql.NVarChar, req.body.orderid)
+
+                .query(
+                    " SELECT " +
+                    "   materialname, " +
+                    "   lotno, " +
+                    "   materialwidth, " +
+                    "   CASE WHEN quantity < 0 THEN -1 * quantity ELSE quantity END AS quantity " +
+                    " FROM " +
+                    "   materialinput " +
+                    " WHERE " +
+                    "   orderid = @orderid")
+
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/operatingrate', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -1787,6 +2116,8 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
+                .input('orderid', sql.NVarChar, req.body.orderid)
+
                 .query(
 
                     "     SELECT " +
@@ -1837,7 +2168,7 @@ module.exports = function (app) {
                     "         GROUP BY " +
                     "             materialname, " +
                     "             materialwidth " +
-                    "     ) AS MI ON BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth WHERE BOM.status = 'true' order by orderid asc"
+                    "     ) AS MI ON BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth WHERE BOM.status = 'true' and orderid=@orderid order by orderid asc"
                 )
                 // .query(
 
@@ -2517,11 +2848,11 @@ module.exports = function (app) {
                 .input('startdate', sql.NVarChar, req.body.startdate)
                 .input('marchine', sql.NVarChar, req.body.marchine)
                 .input('starttime', sql.NVarChar, req.body.starttime)
-
+                .input('status', sql.NVarChar, req.body.status)
 
 
                 .query(
-                    'update orderlist set startdate=@startdate,marchine=@marchine,starttime=@starttime where id=@id'
+                    'update orderlist set startdate=@startdate,marchine=@marchine,starttime=@starttime,status=@status where id=@id'
 
                 )
                 .then(result => {
@@ -2545,11 +2876,12 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
                 .input('inspectiondate', sql.NVarChar, req.body.inspectiondate)
                 .input('start', sql.NVarChar, req.body.start)
+                .input('status', sql.NVarChar, req.body.status)
 
 
 
                 .query(
-                    "update allteststatus set inspectiondate=@inspectiondate,start=@start,status='검사중' where id=@id "
+                    "update allteststatus set inspectiondate=@inspectiondate,start=@start,status=@status where id=@id "
 
                 )
                 .then(result => {
@@ -2866,6 +3198,31 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/materialsoyodelete', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('materialid', sql.NVarChar, req.body.materialid)
+                .input('quantity', sql.Int, req.body.quantity)
+
+
+
+                .query(
+                    'delete from  materialinput where materialid=@materialid and quantity=@quantity'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -3106,6 +3463,48 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  품목등록    
+    sql.connect(config).then(pool => {
+        app.post('/api/materialsoyooutput', function (req, res) {
+
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('date', sql.NVarChar, req.body.date)
+                .input('input', sql.NVarChar, req.body.input)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('manufacturedate', sql.NVarChar, req.body.manufacturedate)
+                .input('expirationdate', sql.NVarChar, req.body.expirationdate)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .input('quantity', sql.Int, req.body.quantity)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('classification', sql.NVarChar, req.body.classification)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('house', sql.NVarChar, req.body.house)
+                .input('materialid', sql.NVarChar, req.body.materialid)
+                .input('orderid', sql.NVarChar, req.body.orderid)
+
+
+
+
+                .query(
+                    'insert into materialinput(date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,part,codenumber,classification,sqmprice,house,materialid,orderid)' +
+                    ' values(@date,@input,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@part,@codenumber,@classification,@sqmprice,@house,@materialid,@orderid)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     // **** start  관리항목등록    
     sql.connect(config).then(pool => {
@@ -3644,19 +4043,19 @@ module.exports = function (app) {
 
 
                 .query(
-                    "   select "+
-                    "   itemcode, "+
-                    "   bomno, "+
-                    "   modelname, "+
-                    "   itemname, "+
-                    "   customer, "+
-                    "   itemcost, "+
-                    "   itemprice, "+
-                    "   quantity, "+
-                    "   price  "+
-                    "   from "+
-                    "   accountinput "+
-                    "   where "+
+                    "   select " +
+                    "   itemcode, " +
+                    "   bomno, " +
+                    "   modelname, " +
+                    "   itemname, " +
+                    "   customer, " +
+                    "   itemcost, " +
+                    "   itemprice, " +
+                    "   quantity, " +
+                    "   price  " +
+                    "   from " +
+                    "   accountinput " +
+                    "   where " +
                     "   ponum = @ponum"
                 )
                 .then(result => {
@@ -3680,6 +4079,27 @@ module.exports = function (app) {
 
                 .query(
                     'select accountname from accountmanagement group by accountname'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start material combobox group 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/housegroup', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .query(
+                    'select housename from house group by housename'
                 )
                 .then(result => {
 
@@ -3896,11 +4316,14 @@ module.exports = function (app) {
                 .input('price', sql.NVarChar, req.body.price)
                 .input('input', sql.NVarChar, req.body.input)
                 .input('part', sql.NVarChar, req.body.part)
+                .input('house', sql.NVarChar, req.body.house)
+                .input('classification', sql.NVarChar, req.body.classification)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
 
 
                 .query(
-                    'insert into materialinput(date,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,input,part)' +
-                    ' values(@date,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@input,@part)'
+                    'insert into materialinput(date,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,input,part,classification,sqmprice,house)' +
+                    ' values(@date,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@input,@part,@classification,@sqmprice,@house)'
                 )
                 .then(result => {
 
@@ -4077,7 +4500,33 @@ module.exports = function (app) {
                 .query(
                     " Select" +
                     "  *" +
-                    "  from allteststatus"
+                    "  from allteststatus where status='검사대기'"
+
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/selectalltesting', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    " Select" +
+                    "  *" +
+                    "  from allteststatus where status='검사중'"
 
 
                 )
