@@ -67,7 +67,7 @@
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
- 
+
 
     <div id="datatable-container" style="height: 500px; max-height: 45%; overflow-y: auto; border: 1px solid silver;">
 
@@ -115,7 +115,7 @@
             </tbody>
         </table>
     </div>
-    
+
 
     <!-- 수정창 -->
     <div id="popupOverlay1" style="display: none;">
@@ -196,13 +196,13 @@
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td style="background-color: black; color: white; width: 200px;">거래처 정보 삭제</td>
-                        <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
+                        <td style="background-color: black; color: white; width: 200px;">생산지시 삭제</td>
+                        <td style="visibility: hidden;"><input type="text" id="id-edit1" class="data" autocomplete="off"
                                 style="width:100%; border:1px solid silver; "></td>
 
                     </tr>
                     <tr>
-                        <td colspan="2" style="background-color: whitesmoke;">거래처 정보를 삭제하시겠습니까?</td>
+                        <td colspan="2" style="background-color: whitesmoke;">생산지시 정보를 삭제하시겠습니까?</td>
                     </tr>
 
                 </table>
@@ -225,6 +225,18 @@
             settingDate()
             load()
             load1()
+            $('#orderdatatable').on('click', '.datadelete', function () {
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var id = td.eq(9).text();
+                $('#id-edit1').val(id)
+                $('#popupOverlay2').fadeIn()
+            })
             $('#datatable').on('click', '.data-edit', function () {
                 var str = "";
                 var tdArr = new Array();// 배열 선언            
@@ -422,8 +434,9 @@
                 $('#popupOverlay1').fadeOut();
                 $('body').append(notification);
                 setTimeout(function () {
+                    load()
                     load1()
-                }, 50); 
+                }, 50);
                 var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="color:navy;" class="notification-message">자재발주 & 생산지시 완료</span></div>');
                 $('body').append(notification);
                 setTimeout(function () {
@@ -432,8 +445,8 @@
                     });
                 }, 3000); // 3초 후에 알림을 사라지게 설정
 
-            
-               
+
+
 
             };
         }
@@ -481,6 +494,7 @@
     </script>
     <script>
         function load() {
+            $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
                 url: server + '/api/accountordering',
@@ -551,7 +565,7 @@
                                 '<td>' + data[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
                                 '<td>' + data[i].orderid + '</td>' +
-                                '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
+                                '<td><a class="datadelete" style="cursor:pointer; color:red;">삭제</a></td>' +
                                 '<td class="data-id">' + data[i].id + '</td>' +
                                 '</tr>'
                             );
@@ -560,6 +574,32 @@
                     $('.data-id').hide();
                 }
             });
+        }
+        function Datadelte() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/deleteproductionjisi',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "id": $('#id-edit1').val()
+                }),
+                success: function (data) {
+
+                }
+            })
+            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:red;" class="notification-message">PO정보 삭제 완료</span></div>');
+            $('body').append(notification);
+            setTimeout(function () {
+                notification.fadeOut(function () {
+                    $(this).remove();
+                });
+            }, 3000);
+            setTimeout(function () {
+                load()
+                load1()
+            }, 50);
+            $('#popupOverlay2').fadeOut();
         }
     </script>
 </body>

@@ -310,6 +310,30 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/deleteproductionjisi', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+            .input('id', sql.Int, req.body.id)
+                .query(
+
+                    " delete from orderlist where id=@id")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
 
 
 
@@ -4188,18 +4212,7 @@ module.exports = function (app) {
             .input('contentname', sql.NVarChar, req.body.contentname)
 
                 .query(
-                    "   select " +
-                    "    accountdate, " +
-                    "    deliverydate, " +
-                    "    customer, " +
-                    "    ponum, " +
-                    "    contentname, " +
-                    "    status " +
-                    "    from " +
-                    "    accountinput " +
-                    "    where contentname=@contentname " +
-                    "    group by " +
-                    "    accountdate,deliverydate,ponum,customer,contentname,status order by accountdate asc"
+                    " select id from orderlist where contentname=@contentname"
                 )
                 .then(result => {
 
