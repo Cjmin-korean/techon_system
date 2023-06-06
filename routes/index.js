@@ -1753,9 +1753,10 @@ module.exports = function (app) {
                 .input('ponum', sql.NVarChar, req.body.ponum)
                 .input('countsum', sql.Float, req.body.countsum)
                 .input('pricesum', sql.Float, req.body.pricesum)
+                .input('status', sql.NVarChar, req.body.status)
                 .query(
-                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum)' +
-                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum)'
+                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status)' +
+                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status)'
                 )
                 .then(result => {
 
@@ -4160,12 +4161,45 @@ module.exports = function (app) {
                     "    deliverydate, " +
                     "    customer, " +
                     "    ponum, " +
-                    "    contentname " +
+                    "    contentname, " +
+                    "    status " +
                     "    from " +
                     "    accountinput " +
                     "    where accountdate between @start and @finish " +
                     "    group by " +
-                    "    accountdate,deliverydate,ponum,customer,contentname order by accountdate asc"
+                    "    accountdate,deliverydate,ponum,customer,contentname,status order by accountdate asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/POaccountinput1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+           
+            .input('contentname', sql.NVarChar, req.body.contentname)
+
+                .query(
+                    "   select " +
+                    "    accountdate, " +
+                    "    deliverydate, " +
+                    "    customer, " +
+                    "    ponum, " +
+                    "    contentname, " +
+                    "    status " +
+                    "    from " +
+                    "    accountinput " +
+                    "    where contentname=@contentname " +
+                    "    group by " +
+                    "    accountdate,deliverydate,ponum,customer,contentname,status order by accountdate asc"
                 )
                 .then(result => {
 
