@@ -294,7 +294,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('contentname', sql.NVarChar, req.body.contentname)
+                .input('contentname', sql.NVarChar, req.body.contentname)
                 .query(
 
                     " delete from accountinput where contentname=@contentname")
@@ -318,7 +318,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('id', sql.Int, req.body.id)
+                .input('id', sql.Int, req.body.id)
                 .query(
 
                     " delete from orderlist where id=@id")
@@ -1273,13 +1273,13 @@ module.exports = function (app) {
 
 
             return pool.request()
-         
+
                 .query(
 
 
-                    "SELECT i.modelname, ii.itemname, i.quantity, ii.itemprice, (i.quantity * ii.itemprice) AS total "+
-                   " FROM iteminput i "+
-                   " JOIN iteminfo ii ON i.itemname = ii.itemname;")
+                    "SELECT i.modelname, ii.itemname, i.quantity, ii.itemprice, (i.quantity * ii.itemprice) AS total " +
+                    " FROM iteminput i " +
+                    " JOIN iteminfo ii ON i.itemname = ii.itemname;")
 
                 .then(result => {
 
@@ -4208,11 +4208,34 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-           
-            .input('contentname', sql.NVarChar, req.body.contentname)
+
+                .input('contentname', sql.NVarChar, req.body.contentname)
 
                 .query(
                     " select id from orderlist where contentname=@contentname"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/POmaterialinput1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .input('orderid', sql.NVarChar, req.body.orderid)
+
+                .query(
+                    "SELECT id FROM orderlist WHERE orderid = @orderid AND materialstatus = 'true1'"
                 )
                 .then(result => {
 

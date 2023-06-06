@@ -69,7 +69,7 @@
     </div>
 
 
-    <div id="datatable-container" style="height: 500px; max-height: 45%; overflow-y: auto; border: 1px solid silver;">
+    <div id="datatable-container" style="height: 50%; max-height: 50%; overflow-y: auto; border: 1px solid silver;">
 
         <table class="styled-table" id="datatable">
             <thead>
@@ -95,7 +95,7 @@
         <a>생산지시 현황</a>
     </div>
 
-    <div id="datatable-container" style="height: 500px; max-height: 45%; overflow-y: auto; border: 1px solid silver;">
+    <div id="datatable-container" style="height: 41%; max-height: 41%; overflow-y: auto; border: 1px solid silver;">
 
         <table class="styled-table" id="orderdatatable">
             <thead>
@@ -233,9 +233,35 @@
                 var tr = checkBtn.parent().parent();
                 var td = tr.children();
 
-                var id = td.eq(9).text();
+
+                var id = td.eq(7).text();
                 $('#id-edit1').val(id)
-                $('#popupOverlay2').fadeIn()
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/POmaterialinput1',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderid": id
+                    }),
+                    success: function (data1) {
+                        console.log(data1.length)
+                        if (data1.length === 0) {
+                            $('#popupOverlay2').fadeIn();
+
+                        } else {
+                            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:red;" class="notification-message">자재발주가 완료되었습니다</span></div>');
+                            $('body').append(notification);
+                            setTimeout(function () {
+                                notification.fadeOut(function () {
+                                    $(this).remove();
+                                });
+                            }, 3000);
+
+                        }
+                    }
+                })
             })
             $('#datatable').on('click', '.data-edit', function () {
                 var str = "";
