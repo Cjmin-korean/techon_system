@@ -286,6 +286,32 @@ module.exports = function (app) {
     });
     // **** finish
 
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/deleteaccount', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+            .input('contentname', sql.NVarChar, req.body.contentname)
+                .query(
+
+                    " delete from accountinput where contentname=@contentname")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
+
 
     // **** start       
     sql.connect(config).then(pool => {
