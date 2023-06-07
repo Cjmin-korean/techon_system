@@ -79,10 +79,12 @@
                     <th>모델명</th>
                     <th>제품명</th>
                     <th>LOTNO.</th>
-                    <th>작업수량</th>
+                    <th>작업수량(EA)</th>
                     <th>생산날짜</th>
-                    <th>양품수량</th>
-                    <th>불량수량</th>
+                    <th>양품율(%)</th>
+                    <th>불량율(%)</th>
+                    <th>양품수량(EA)</th>
+                    <th>불량수량(EA)</th>
                     <th>이물</th>
                     <th>Burr</th>
                     <th>Burr</th>
@@ -254,13 +256,20 @@
                 dataType: 'json',
                 success: function (data) {
                     var itemGroups = {}; // itemname을 기준으로 그룹화된 데이터를 저장할 객체
+                    var totalCount = 0;
+                    var okCountTotal = 0;
+                    var ngCountTotal = 0;
                     var tableBody = $('#datatable');
+
                     if (data.length === 0) {
                         // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
                         tableBody.append('<tr><td colspan="25">데이터가 없습니다.</td></tr>');
                     } else {
                         for (var i = 0; i < data.length; i++) {
                             var itemname = data[i].itemname;
+                            var count = parseInt(data[i].count);
+                            var okcount = parseInt(data[i].okcount);
+                            var ngcount = parseInt(data[i].ngcount);
 
                             // itemname으로 그룹화된 데이터가 없으면 초기화
                             if (!itemGroups[itemname]) {
@@ -268,7 +277,10 @@
                                     rows: [],
                                     ngTotals: Array(15).fill(0),
                                     okCountTotal: 0,
-                                    ngCountTotal: 0
+                                    ngCountTotal: 0,
+                                    totalCount: 0,
+                                    yieldRate: 0,
+                                    defectRate: 0
                                 };
                             }
 
@@ -278,11 +290,16 @@
                             }
 
                             // okcount와 ngcount 합계 계산
-                            itemGroups[itemname].okCountTotal += parseInt(data[i].okcount);
-                            itemGroups[itemname].ngCountTotal += parseInt(data[i].ngcount);
+                            itemGroups[itemname].okCountTotal += okcount;
+                            itemGroups[itemname].ngCountTotal += ngcount;
 
                             // 그룹에 속하는 행 추가
                             itemGroups[itemname].rows.push(data[i]);
+
+                            totalCount += count;
+                            okCountTotal += okcount;
+                            ngCountTotal += ngcount;
+                            itemGroups[itemname].totalCount += count;
                         }
 
                         for (var item in itemGroups) {
@@ -291,13 +308,21 @@
                             var ngTotals = itemGroup.ngTotals;
                             var okCountTotal = itemGroup.okCountTotal;
                             var ngCountTotal = itemGroup.ngCountTotal;
+                            var totalCount = itemGroup.totalCount;
+                            var yieldRate = ((okCountTotal / totalCount) * 100).toFixed(2) + "%";
+                            var defectRate = ((ngCountTotal / totalCount) * 100).toFixed(2) + "%";
 
                             // item 그룹 표시
-                            $('#datatable').append('<tr><td colspan="25" style="font-weight: bold;">' + item + '</td></tr>');
+                            $('#datatable').append('<tr><td colspan="27" style="font-weight: bold;">' + item + '</td></tr>');
 
                             // item 그룹 내 행 표시
                             for (var k = 0; k < rows.length; k++) {
                                 var rowData = rows[k];
+                                var count = parseInt(rowData.count);
+                                var okcount = parseInt(rowData.okcount);
+                                var ngcount = parseInt(rowData.ngcount);
+                                var yieldRate = ((okcount / count) * 100).toFixed(2) + "%";
+                                var defectRate = ((ngcount / count) * 100).toFixed(2) + "%";
                                 var rowHtml = '<tr>' +
                                     '<td>' + rowData.bom + '</td>' +
                                     '<td>' + rowData.testdate + '</td>' +
@@ -306,6 +331,8 @@
                                     '<td>' + rowData.lotno + '</td>' +
                                     '<td style="text-align:right;">' + rowData.count.toLocaleString() + '</td>' +
                                     '<td>' + rowData.productdate + '</td>' +
+                                    '<td style="color:blue;">' + yieldRate + '</td>' +
+                                    '<td style="color:red;">' + defectRate + '</td>' +
                                     '<td style="text-align:right; background-color: blue; color: white;">' + rowData.okcount.toLocaleString() + '</td>' +
                                     '<td style="text-align:right; background-color: red; color: white;">' + rowData.ngcount.toLocaleString() + '</td>';
 
@@ -318,13 +345,14 @@
                                 }
 
                                 rowHtml += '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
+                              
                                     '</tr>';
                                 $('#datatable').append(rowHtml);
                             }
 
                             // 그룹 합계 표시
                             var ngTotalHtml = '<tr>' +
-                                '<td colspan="7">합계</td>' +
+                                '<td colspan="9">합계</td>' +
                                 '<td style="color: blue; text-align:right;">' + okCountTotal.toLocaleString() + '</td>' +
                                 '<td style="color: red; text-align:right;">' + ngCountTotal.toLocaleString() + '</td>';
 
@@ -333,42 +361,33 @@
                             }
 
                             ngTotalHtml += '<td></td>' +
+                            
+                       
                                 '</tr>';
 
                             $('#datatable').append(ngTotalHtml);
                         }
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/productorderlist',
-                            dataType: 'json',
-                            success: function (data) {
-                                for (var i = 0; i < data.length; i++) {
-                                    var possibleColor = data[i].possible === '가능' ? 'background-color: green; color: white;' : '';
-                                    var possibleColor = data[i].possible === '부족' ? 'background-color: red; color: white;' : '';
-                                    $('#orderdatatable').append(
-                                        '<tr>' +
-                                        '<td>' + data[i].contentname + '</td>' +
-                                        '<td>' + data[i].bomno + '</td>' +
-                                        '<td>' + data[i].productdate + '</td>' +
-                                        '<td>' + data[i].modelname + '</td>' +
-                                        '<td>' + data[i].itemname + '</td>' +
-                                        '<td>' + data[i].lotno + '</td>' +
-                                        '<td>' + data[i].quantity + '</td>' +
-                                        '<td>' + data[i].orderid + '</td>' +
 
-                                        '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
-                                        '<td id="data-id">' + data[i].id + '</td>' +
-                                        '</tr>'
-                                    );
-                                    $("td#data-id").hide();
-                                }
-                            }
-                        });
+                        var overallYieldRate = ((okCountTotal / totalCount) * 100).toFixed(2) + "%";
+                        var overallDefectRate = ((ngCountTotal / totalCount) * 100).toFixed(2) + "%";
+
+                        // var overallTotalHtml = '<tr>' +
+                        //     '<td colspan="6">전체 합계</td>' +
+                        //     '<td style="text-align:right;">' + totalCount.toLocaleString() + '</td>' +
+                        //     '<td style="color: blue; text-align:right;">' + okCountTotal.toLocaleString() + '</td>' +
+                        //     '<td style="color: red; text-align:right;">' + ngCountTotal.toLocaleString() + '</td>' +
+                        //     '<td>' + overallYieldRate + '</td>' +
+                        //     '<td>' + overallDefectRate + '</td>' +
+                        //     '<td></td>' +
+                        //     '</tr>';
+
+                        // $('#datatable').append(overallTotalHtml);
+
 
                     }
-
                 }
             });
+
 
 
 

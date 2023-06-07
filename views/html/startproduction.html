@@ -214,6 +214,7 @@
                                 <th>자재명</th>
                                 <th>자재LOT</th>
                                 <th>자재폭(mm)</th>
+                                <th>메인자재</th>
                                 <th>수량(M)</th>
                             </tr>
                         </thead>
@@ -440,22 +441,27 @@
                                 '<td>' + result[i].materialname + '</td>' +
                                 '<td>' + result[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + result[i].materialwidth.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + result[i].classification.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;" id="sum' + (i + 1) + '">' + result[i].quantity.toLocaleString() + '</td>' +
                                 '</tr>'
 
                             )
                         }
-
-                        var totalSum = 0; // 전체 합계를 저장할 변수
+                        var totalSum = 0; // Variable to store the total sum
 
                         for (var i = 0; i < result.length; i++) {
-                            var quantity = result[i].quantity || 0; // quantity 값이 없을 경우 0으로 처리
-                            var formattedQuantity = quantity.toLocaleString(); // quantity 값을 포맷팅하여 출력
+                            var quantity = result[i].quantity || 0; // Set quantity to 0 if it's undefined or null
+                            var classification = result[i].classification; // Get the classification value
 
-                            totalSum += quantity; // quantity 값을 합산
+                            if (classification === "Main") {
+                                totalSum += quantity; // Add the quantity to the totalSum if the classification is "Main"
+                            }
 
+                            var formattedQuantity = quantity.toLocaleString(); // Format the quantity for display
                         }
-                        $('#sumdata').val(totalSum)
+
+                        $('#sumdata').val(totalSum);
+
                     }
 
                 })
@@ -1007,7 +1013,7 @@
             }, 3000); // 3초 후에 알림을 사라지게 설정
             setTimeout(function () {
                 $('#startproductiontbody').empty()
-            $('#startingtbody').empty()
+                $('#startingtbody').empty()
                 $.ajax({
                     type: 'POST',
                     url: server + '/api/startproduction',

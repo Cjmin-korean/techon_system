@@ -2079,15 +2079,18 @@ module.exports = function (app) {
                 .input('orderid', sql.NVarChar, req.body.orderid)
 
                 .query(
-                    " SELECT " +
-                    "   materialname, " +
-                    "   lotno, " +
-                    "   materialwidth, " +
-                    "   CASE WHEN quantity < 0 THEN -1 * quantity ELSE quantity END AS quantity " +
-                    " FROM " +
-                    "   materialinput " +
-                    " WHERE " +
-                    "   orderid = @orderid")
+                    " SELECT  "+
+                    "    mi.materialname, "+
+                    "    mi.lotno, "+
+                    "    mi.materialwidth, "+ 
+                    "    CASE WHEN mi.quantity < 0 THEN -1 * mi.quantity ELSE mi.quantity END AS quantity, "+
+                    "    bm.classification "+
+                    "FROM "+
+                    "    materialinput mi "+
+                        
+                    "JOIN "+
+                    "    bommanagement bm ON mi.materialname = bm.materialname "+
+                    "    where orderid=@orderid") 
 
                 .then(result => {
 
