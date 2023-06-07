@@ -1539,7 +1539,7 @@ module.exports = function (app) {
                     "     materialid " +
                     " HAVING " +
                     "     SUM(quantity) <> 0 " +
-                    "     AND materialwidth > @materialwidth " +
+                    "     AND materialwidth = @materialwidth " +
                     " ORDER BY " +
                     "   materialwidth ASC, " +
                     "   expirationdate ASC ")
@@ -2827,7 +2827,7 @@ module.exports = function (app) {
                 .input('ng15', sql.Int, req.body.ng15)
                 .input('ng16', sql.Int, req.body.ng16)
 
-
+             
                 .query(
                     'insert into alltest(bom,testdate,modelname,itemname,lotno,productdate,productno,count,okcount,ngcount,ng1,ng2,ng3,ng4,ng5,ng6,ng7,ng8,ng9,ng10,ng11,ng12,ng13,ng14,ng15,ng16)' +
                     ' values(@bom,@testdate,@modelname,@itemname,@lotno,@productdate,@productno,@count,@okcount,@ngcount,@ng1,@ng2,@ng3,@ng4,@ng5,@ng6,@ng7,@ng8,@ng9,@ng10,@ng11,@ng12,@ng13,@ng14,@ng15,@ng16)'
@@ -2889,6 +2889,32 @@ module.exports = function (app) {
 
                 .query(
                     'update orderlist set materialinput=@materialinput where orderid=@orderid'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/materialoutputdelete', function (req, res) {
+        
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('materialstatus', sql.NVarChar, req.body.materialstatus)
+
+
+
+                .query(
+                    'update orderlist set materialstatus=@materialstatus where orderid=@orderid'
 
                 )
                 .then(result => {

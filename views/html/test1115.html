@@ -347,7 +347,27 @@
 
 
 
+    <!-- 삭제창 -->
+    <div id="popupOverlay2" style="display: none;">
+        <div id="popupContent2" style="width: 700px; height: auto;">
+            <div class="form-group">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="background-color: black; color: white; width: 200px;">자재출고 대기 정보 삭제</td>
+                        <td style="visibility: hidden;"><input type="text" id="id-edit1" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                        
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="background-color: whitesmoke;">자재출고 대기 정보를 삭제하시겠습니까?</td>
+                    </tr>
 
+                </table>
+            </div>
+            <button id="popupCloseBtn-delete-close">취소</button>
+            <button id="popupCloseBtn-delete" onclick="Datadelte()">삭제</button>
+        </div>
+    </div>
 
 
     <script>
@@ -690,7 +710,7 @@
                     contentType: 'application/json',
                     data: JSON.stringify({
                         materialname: materialname,
-                        materialwidth: parseInt(materialwidth) + 10
+                        materialwidth: parseInt(materialwidth)
                     }),
                     success: function (result) {
                         $('#materialseachbody').empty()
@@ -759,7 +779,19 @@
                 $('#popupOverlay1').fadeIn();
                 $('#count-edit').focus()
             });
+            $('#POdatatable1').on('click', '.datadelete', function () {
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
 
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var id = td.eq(0).text();
+                $('#id-edit1').val(id);
+                $('#popupOverlay2').fadeIn();
+
+            })
             $('#Podatatable').on('click', '.POdata-edit', function () {
                 var clickedRow = $(this); // 클릭한 행(tr) 요소
                 var rowIndex = clickedRow.index() + 1; // 클릭한 행의 인덱스 + 1
@@ -806,7 +838,7 @@
                 var td = tr.children();
 
 
-                var id = td.eq(10).text();
+                var id = td.eq(0).text();
                 $('#id-edit').val(id)
                 $('#popupOverlay2').fadeIn();
             });
@@ -988,11 +1020,8 @@
 
                     }
                 });
-                setTimeout(function () {
-                    load1();
-                load23();
-                }, 3000);
-            
+
+
 
                 var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:navy;" class="notification-message">출고대기저장</span></div>');
                 $('body').append(notification);
@@ -1002,6 +1031,10 @@
                     });
                 }, 3000);
                 $('#popupOverlaycontent').fadeOut();
+                setTimeout(function () {
+                    load1();
+                    load23();
+                }, 30);
             } else {
                 return false;
             }
@@ -1158,7 +1191,32 @@
         }
 
         function Datadelte() {
-            $('#popupOverlay2').fadeIn();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/materialoutputdelete',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    orderid: $('#id-edit1').val(),
+                    materialstatus: 'true'
+                }),
+                success: function (result) {
+
+                }
+            });
+            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" styel="color:red;">출고대기 삭제완료</span></div>');
+            $('body').append(notification);
+            setTimeout(function () {
+                notification.fadeOut(function () {
+                    $(this).remove();
+                });
+            }, 3000);
+
+            $('#popupOverlay2').fadeOut();
+            setTimeout(function () {
+                load1();
+                load23();
+            }, 30);
         }
 
 
@@ -1242,14 +1300,15 @@
                 url: server + '/api/materialouput',
                 dataType: 'json',
                 contentType: 'application/json',
-
                 success: function (result) {
+                    var tbody = $('#PODatatbody12');
+                        tbody.empty(); // tbody 초기화
                     if (result.length === 0) {
                         $('#POdatatable').append('<tr><td colspan="7" style="font-weight:bold; text-align:center;">데이터가 없습니다</td></tr>');
                     } else {
+                   
                         for (var i = 0; i < result.length; i++) {
-                            $('#PODatatbody12').empty()
-                            $('#POdatatable').append(
+                            tbody.append(
                                 '<tr>' +
                                 '<td>' + result[i].orderid + '</td>' +
                                 '<td>' + result[i].productdate + '</td>' +
@@ -1259,15 +1318,11 @@
                                 '<td>' + result[i].itemname + '</td>' +
                                 '<td><a class="data-content"  style="cursor:pointer; color:blue;">상세</a></td>' +
                                 '</tr>'
-
-                            )
-
+                            );
                         }
                     }
-
                 }
-
-            })
+            });
         }
 
         function load1() {
@@ -1276,14 +1331,15 @@
                 url: server + '/api/materialouput1',
                 dataType: 'json',
                 contentType: 'application/json',
-
                 success: function (result) {
+                    var tbody = $('#PODatatbody34');
+                        tbody.empty(); // tbody 초기화
                     if (result.length === 0) {
                         $('#POdatatable1').append('<tr><td colspan="8" style="font-weight:bold; text-align:center;">데이터가 없습니다</td></tr>');
                     } else {
+                     
                         for (var i = 0; i < result.length; i++) {
-                            $('#PODatatbody34').empty()
-                            $('#POdatatable1').append(
+                            tbody.append(
                                 '<tr>' +
                                 '<td>' + result[i].orderid + '</td>' +
                                 '<td>' + result[i].productdate + '</td>' +
@@ -1294,15 +1350,11 @@
                                 '<td><a class="data-content"  style="cursor:pointer; color:blue;">상세</a></td>' +
                                 '<td><a class="datadelete"  style="cursor:pointer; color:red;">삭제</a></td>' +
                                 '</tr>'
-
-                            )
-
+                            );
                         }
                     }
-
                 }
-
-            })
+            });
         }
 
 
