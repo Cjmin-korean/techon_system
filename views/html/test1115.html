@@ -122,6 +122,7 @@
                     <thead>
 
                         <tr>
+                            <th>PONO.</th>
                             <th>자재주문번호</th>
                             <th>생산계획날짜</th>
                             <th>생산lot</th>
@@ -161,6 +162,11 @@
                 <table style="width: 100%;">
                     <tr>
                         <td colspan="4" style="width: 200px; background-color: black; color: white;">자재출고</td>
+                    </tr>
+                    <tr>
+                        <td style="width:20%; background-color: whitesmoke;">PONO.</td>
+                        <td><input style="font-size:16px; font-weight: bold;" type="text" id="pono" class="data"
+                                autocomplete="off" readonly></td>
                     </tr>
                     <tr>
                         <td style="width:20%; background-color: whitesmoke;">자재주문번호</td>
@@ -268,6 +274,7 @@
                     </th>
                 </tr>
                 <tr>
+                    <th>PONO.</th>
                     <th>자재주문번호</th>
                     <th>생산계획날짜</th>
                     <th>생산lot</th>
@@ -356,7 +363,7 @@
                         <td style="background-color: black; color: white; width: 200px;">자재출고 대기 정보 삭제</td>
                         <td style="visibility: hidden;"><input type="text" id="id-edit1" class="data" autocomplete="off"
                                 style="width:100%; border:1px solid silver; "></td>
-                        
+
                     </tr>
                     <tr>
                         <td colspan="2" style="background-color: whitesmoke;">자재출고 대기 정보를 삭제하시겠습니까?</td>
@@ -407,12 +414,14 @@
                 var tr = checkBtn.parent().parent();
                 var td = tr.children();
 
-                var orderid = td.eq(0).text();
-                var bomno = td.eq(3).text();
-                var modelname = td.eq(4).text();
-                var partname = td.eq(5).text();
-                var lotno = td.eq(2).text();
+                var pono = td.eq(0).text();
+                var orderid = td.eq(1).text();
+                var bomno = td.eq(4).text();
+                var modelname = td.eq(5).text();
+                var partname = td.eq(6).text();
+                var lotno = td.eq(3).text();
 
+                $('#pono').val(pono)
                 $('#orderid').val(orderid)
                 $('#modelname').val(modelname)
                 $('#bomno').val(bomno)
@@ -570,6 +579,8 @@
                 // Append the total row if there is data
                 // Append the total row if there is data
                 if (hasData) {
+
+
                     $('#POdatatable-content1').append(
                         '<tr class="total-row" style="background-color:whitesmoke; color:black;">' +
                         '<td colspan="7" style="text-align:right;"><strong>합계:</strong></td>' +
@@ -589,7 +600,24 @@
                             '</tr>'
                         );
                     }
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/bommanagement1materialinput',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            pono:  $('#orderid').val(),
+                            materialinput: groupQuantity,
+                            materialname: material
 
+                        }),
+                        success: function (result) {
+
+
+
+                        }
+
+                    })
                     // Set the value of 'sumquantity' to totalQuantity
                     $('#sumquantity').val(totalQuantity.toLocaleString());
 
@@ -1302,14 +1330,14 @@
                 contentType: 'application/json',
                 success: function (result) {
                     var tbody = $('#PODatatbody12');
-                        tbody.empty(); // tbody 초기화
+                    tbody.empty(); // tbody 초기화
                     if (result.length === 0) {
-                        $('#POdatatable').append('<tr><td colspan="7" style="font-weight:bold; text-align:center;">데이터가 없습니다</td></tr>');
+                        $('#POdatatable').append('<tr><td colspan="8" style="font-weight:bold; text-align:center;">데이터가 없습니다</td></tr>');
                     } else {
-                   
                         for (var i = 0; i < result.length; i++) {
                             tbody.append(
                                 '<tr>' +
+                                '<td>' + result[i].contentname + '</td>' +
                                 '<td>' + result[i].orderid + '</td>' +
                                 '<td>' + result[i].productdate + '</td>' +
                                 '<td>' + result[i].lotno + '</td>' +
@@ -1333,11 +1361,11 @@
                 contentType: 'application/json',
                 success: function (result) {
                     var tbody = $('#PODatatbody34');
-                        tbody.empty(); // tbody 초기화
+                    tbody.empty(); // tbody 초기화
                     if (result.length === 0) {
                         $('#POdatatable1').append('<tr><td colspan="8" style="font-weight:bold; text-align:center;">데이터가 없습니다</td></tr>');
                     } else {
-                     
+
                         for (var i = 0; i < result.length; i++) {
                             tbody.append(
                                 '<tr>' +

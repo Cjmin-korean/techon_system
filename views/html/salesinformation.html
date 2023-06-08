@@ -178,7 +178,7 @@
             <div class="form-group">
                 <table style="width: 85%;">
                     <tr>
-                        <td colspan="4" style="width: 200px; background-color: black; color: white;">영업수주등록</td>
+                        <td colspan="4" style="width: 200px; background-color: black; color: white;">영업수주확인</td>
                     </tr>
                     <tr>
                         <td style="width: 25%; background-color: whitesmoke;">고객사</td>
@@ -198,9 +198,9 @@
 
 
             </div>
-            <div>
+            <!-- <div>
                 <button style="float: right;" id="popupCloseBtn-search">품목조회</button>
-            </div>
+            </div> -->
 
             <br>
 
@@ -217,8 +217,8 @@
                             <th>단가(원)</th>
                             <th>PO수량(개)</th>
                             <th>판매금액(원)</th>
-                            <th style="width:100px;"></th>
-                            <th style="width:100px;"></th>
+                            <!-- <th style="width:100px;"></th>
+                            <th style="width:100px;"></th> -->
                         </tr>
                     </thead>
                     <tbody id="POdatatbody-content-tbody">
@@ -226,19 +226,16 @@
                     <tfoot>
                         <tr>
                             <td style="border:1px solid silver; background-color:whitesmoke;" colspan="7">합계</td>
-                            <td style="border:1px solid silver; text-align:right;"><strong>0
-                                </strong></td>
-                            <td style="border:1px solid silver; text-align:right;"><strong>0
-                                </strong></td>
-                            <td style="border:1px solid silver; background-color:whitesmoke; " colspan="2"></td>
+                            <td style="border:1px solid silver; text-align:right;"><strong>0 </strong></td>
+                            <td style="border:1px solid silver; text-align:right;"><strong>0 </strong></td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
 
 
-            <button id="popupCloseBtn-content-close">취소</button>
-            <button id="popupCloseBtn-content" onclick="Datasave()">수정</button>
+            <button id="popupCloseBtn-content-close">닫기</button>
+            <!-- <button id="popupCloseBtn-content" onclick="Datasave()">수정</button> -->
         </div>
     </div>
 
@@ -254,13 +251,13 @@
             <thead>
 
                 <tr>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:10%;" >수주일자
+                    <th style="background-color:rgb(82, 80, 80); color:white; width:10%;">수주일자
                     </th>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:10%;" >납기일자
+                    <th style="background-color:rgb(82, 80, 80); color:white; width:10%;">납기일자
                     </th>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:auto" >고객사
+                    <th style="background-color:rgb(82, 80, 80); color:white; width:auto">고객사
                     </th>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:auto" >제목
+                    <th style="background-color:rgb(82, 80, 80); color:white; width:auto">제목
                     </th>
                     <th style="background-color:rgb(82, 80, 80); color:white;">PONO</th>
                     <th style="background-color:rgb(82, 80, 80); color:white; width:100px;"></th>
@@ -528,7 +525,7 @@
                 var accountname = td.eq(2).text();
                 var dd = td.eq(1).text();
 
-                $('#popupOverlaycontent').fadeIn()
+
                 $('#customer-content').val(accountname)
 
                 $.ajax({
@@ -549,50 +546,51 @@
                                 '<td>' + result[i].modelname + '</td>' +
                                 '<td>' + result[i].itemname + '</td>' +
                                 '<td>' + result[i].customer + '</td>' +
-                                '<td>' + result[i].itemcost + '</td>' +
-                                '<td>' + result[i].itemprice + '</td>' +
-                                '<td>' + result[i].quantity + '</td>' +
-                                '<td>' + result[i].price + '</td>' +
-                                '<td><a class="data-edit"  style="cursor:pointer; color:blue;">수정</a></td>' +
-                                '<td><a class="data-edit"  style="cursor:pointer; color:red;">삭제</a></td>' +
+                                '<td style="text-align:right;">' + result[i].itemcost.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + result[i].itemprice.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + result[i].price.toLocaleString() + '</td>' +
+                                // '<td><a class="data-edit"  style="cursor:pointer; color:blue;">수정</a></td>' +
+                                // '<td><a class="data-edit"  style="cursor:pointer; color:red;">삭제</a></td>' +
                                 '</tr>'
 
                             )
 
                         }
 
+                        $('#datepicker-content').val(dd)
+                        var total8 = 0;
+                        var total9 = 0;
+                        $('#POdatatable-content td:nth-child(8)').each(function () {
+                            var count8 = parseFloat($(this).text().replace(/,/g, ''));
+                            if (!isNaN(count8)) {
+                                total8 += count8;
+                            }
+                        });
+
+                        $('#POdatatable-content td:nth-child(9)').each(function () {
+                            var count9 = parseFloat($(this).text().replace(/,/g, ''));
+                            if (!isNaN(count9)) {
+                                total9 += count9;
+                            }
+                        });
+                        // 합계 표시
+                        $('#POdatatable-content tfoot').remove(); // 기존의 tfoot 제거
+                        $('#POdatatable-content').append(
+                            '<tfoot>' +
+                            '<tr>' +
+                            '<td style="border:1px solid silver; background-color:whitesmoke;"colspan="7">합계</td>' +
+                            '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total8.toFixed(0)) + '</strong></td>' +
+                            '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total9.toFixed(0)) + '</strong></td>' +
+                            '</tr>' +
+                            '</tfoot>'
+                        );
+                        $('#popupOverlaycontent').fadeIn()
                     }
 
                 })
 
-                $('#datepicker-content').val(dd)
-                var total8 = 0;
-                var total9 = 0;
-                $('#POdatatable-content td:nth-child(8)').each(function () {
-                    var count8 = parseFloat($(this).text().replace(/,/g, ''));
-                    if (!isNaN(count8)) {
-                        total8 += count8;
-                    }
-                });
 
-                $('#POdatatable-content td:nth-child(9)').each(function () {
-                    var count9 = parseFloat($(this).text().replace(/,/g, ''));
-                    if (!isNaN(count9)) {
-                        total9 += count9;
-                    }
-                });
-                // 합계 표시
-                $('#POdatatable-content tfoot').remove(); // 기존의 tfoot 제거
-                $('#POdatatable-content').append(
-                    '<tfoot>' +
-                    '<tr>' +
-                    '<td style="border:1px solid silver; background-color:whitesmoke;"colspan="7">합계</td>' +
-                    '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total8.toFixed(0)) + '</strong></td>' +
-                    '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total9.toFixed(0)) + '</strong></td>' +
-                    '<td style="border:1px solid silver; background-color:whitesmoke; "colspan="2"></td>' +
-                    '</tr>' +
-                    '</tfoot>'
-                );
             })
 
             $('#datatable').on('click', '.data-edit', function () {
@@ -690,7 +688,7 @@
                         console.log(data1.length)
                         if (data1.length === 0) {
                             $('#popupOverlay2').fadeIn();
-                         
+
                         } else {
                             var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:red;" class="notification-message">생산발주가 완료되었습니다</span></div>');
                             $('body').append(notification);
@@ -699,7 +697,7 @@
                                     $(this).remove();
                                 });
                             }, 3000);
-                           
+
                         }
                     }
                 })

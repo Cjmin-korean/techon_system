@@ -242,7 +242,11 @@
                                 style="width:100%; border:1px solid silver; "></td>
 
                     </tr>
-
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">PONNO.</td>
+                        <td><input type="text" id="pono-final" class="data" autocomplete="off"
+                                style="font-size:16px; font-weight: bold; width:100%; border:1px solid silver;"></td>
+                    </tr>
                     <tr>
                         <td style="width: 200px; background-color: whitesmoke;">모델명</td>
                         <td><input type="text" id="modelname-final" class="data" autocomplete="off" readonly
@@ -283,11 +287,7 @@
                         <td><input type="text" id="touch-final" class="data" autocomplete="off"
                                 style="font-size:16px; font-weight: bold; width:100%; border:1px solid silver;"></td>
                     </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">잔재합계(M)</td>
-                        <td><input type="text" id="sum-final" class="data" autocomplete="off"
-                                style="font-size:16px; font-weight: bold; width:100%; border:1px solid silver;"></td>
-                    </tr>
+
 
                 </table>
                 <div style="width:100%; max-height: 800px; overflow-y: scroll;">
@@ -386,6 +386,7 @@
                             '<td style="background-color: ' + backgroundColor + '; color: ' + textColor + ';">' + status + '</td>' +
                             '<td><a class="data-finish" style="cursor:pointer; color:navy;">생산종료</a></td>' +
                             '<td id="data-id">' + data[i].id + '</td>' +
+                            '<td id="data-id">' + data[i].contentname + '</td>' +
                             '</tr>'
 
 
@@ -486,6 +487,7 @@
                 var quantity = td.eq(4).text();
                 var orderid = td.eq(5).text();
                 var id = td.eq(8).text();
+                var pono = td.eq(9).text();
 
                 $('#modelname-final').val(modelname)
                 $('#itemname-final').val(itemname)
@@ -493,7 +495,7 @@
                 $('#lotno-final').val(lotno)
                 $('#quantity-final').val(quantity)
                 $('#orderid-final').val(orderid)
-
+                $('#pono-final').val(pono)
 
                 $('#id-final').val(id)
                 $('#POdatatbody-content-tbody1').empty()
@@ -509,11 +511,11 @@
                         for (var i = 0; i < result.length; i++) {
                             $('#POdatatable-content1').append(
                                 '<tr>' +
-                                '<td>' + result[i].materialname + '</td>' +
+                                '<td id="material' + i + '">' + result[i].materialname + '</td>' +
                                 '<td>' + result[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + result[i].materialwidth.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
-                                '<td><input type="text" onchange="onchangesum()" class="textbox-style" id="etc' + i + '"></td>' +
+                                '<td><input type="text" class="textbox-style" id="etc' + i + '"></td>' +
                                 '</tr>'
 
                             )
@@ -937,19 +939,19 @@
 
     </script>
     <script>
-        function onchangesum() {
-            var rowCount = 10; // Header 행을 제외한 행 개수
-            var totalEtc = 0; // 전체 합계를 저장할 변수
-            for (var i = 0; i < rowCount; i++) {
+        // function onchangesum() {
+        //     var rowCount = 10; // Header 행을 제외한 행 개수
+        //     var totalEtc = 0; // 전체 합계를 저장할 변수
+        //     for (var i = 0; i < rowCount; i++) {
 
-                var etc = parseFloat($('#etc' + i).val()) || 0; // etc 값을 가져와서 숫자로 변환하고, 없을 경우 0으로 처리
-                var formattedEtc = etc.toLocaleString(); // etc 값을 포맷팅하여 출력
+        //         var etc = parseFloat($('#etc' + i).val()) || 0; // etc 값을 가져와서 숫자로 변환하고, 없을 경우 0으로 처리
+        //         var formattedEtc = etc.toLocaleString(); // etc 값을 포맷팅하여 출력
 
-                totalEtc += etc; // etc 값을 합산
-            }
+        //         totalEtc += etc; // etc 값을 합산
+        //     }
 
-            $('#sum-final').val(totalEtc)
-        }
+        //     $('#sum-final').val(totalEtc)
+        // }
 
         function Datafinish() {
 
@@ -983,6 +985,53 @@
                     console.log(result)
                 }
             })
+            const $table = document.getElementById('POdatatable-content1'); // table 엘리먼트 취득
+
+
+            const trGroup = Array.from(document.querySelectorAll('#POdatatable-content1 tr'));
+
+            const textGroup = trGroup.map(tr => {
+                return Array.from(tr.children).map(input => input.textContent);
+            });
+            // console.log($table.rows.length)
+
+            for (var i = 0; i < 2; i++) {
+                var materialname = textGroup[i + 1][0]
+                var materialoutput = $('#etc' + i + '').val();
+                var pono = $('#pono-final').val();
+                // console.log(mateiralname)
+                // console.log(materialoutput)
+                // console.log(pono)
+
+                // .input('materialoutput', sql.Float, req.body.materialoutput)
+                // .input('materialname', sql.NVarChar, req.body.materialname)
+                // .input('pono', sql.NVarChar, req.body.pono)
+
+
+                // .query(
+                //     'update bommanagement1 set materialoutput=@materialoutput where materialname=@materialname and pono=@pono'
+                // )
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/finishinproduct1',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        //              
+                        materialname: materialname,
+                        materialoutput: materialoutput,
+                        pono: pono
+
+
+
+                    }),
+                    success: function (result) {
+
+                    }
+                })
+            }
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/inputalltest',

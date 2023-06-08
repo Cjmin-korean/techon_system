@@ -208,24 +208,29 @@ module.exports = function (app) {
                     " b.onepidding, " +
                     " b.cavity, " +
                     " (c.quantity / CAST(b.cavity AS FLOAT) * CAST(b.onepidding AS FLOAT)) * 0.001 as P, " +
-                    " (c.materialinput) as Q, " +
-                    " (c.materialoutput) as R, " +
-                    " (c.materialinput - c.materialoutput) as S, " +
-                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)) as T, " +
-                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)* a.itemprice) as U, " +
+                    " e.materialinput as Q, " +
+                    " e.materialoutput as R, " +
+                    " (e.materialinput - e.materialoutput) as S, " +
+                    " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)) as T, " +
+                    " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)* a.itemprice) as U, " +
                     " (c.touch) as V, " +
                     " (c.touch * b.cavity) as W, " +
                     " (c.touch * b.cavity * a.itemprice) as X, " +
-                    " (CEILING((c.touch * b.cavity)/((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000) *100)) as Y, " +
+                    " (CEILING((c.touch * b.cavity)/((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000) *100)) as Y, " +
                     " d.ngcount as Z, " +
-                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)-d.okcount)*a.itemprice as AA, " +
+                    " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)-d.okcount)*a.itemprice as AA, " +
                     " d.okcount as AB, " +
-                    " (CEILING((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)- d.okcount) as AC, " +
-                    " (CEILING((c.touch * b.cavity - d.ngcount)/((c.materialinput - c.materialoutput)/ b.onepidding * b.cavity *1000)*100)) as AD " +
-                    " FROM accountinput a " +
-                    " LEFT OUTER JOIN iteminfo b ON a.bomno = b.bomno " +
-                    " LEFT OUTER JOIN orderlist c ON a.contentname = c.contentname " +
-                    " LEFT OUTER JOIN alltest d ON c.lotno = d.lotno "
+                    " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)- d.okcount) as AC, " +
+                    " (CEILING((c.touch * b.cavity - d.ngcount)/((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)*100)) as AD, " +
+                    " e.materialname" +
+                    " FROM "+
+                    "    accountinput a  "+
+                    "    LEFT OUTER JOIN iteminfo b ON a.bomno = b.bomno   "+
+                    "    LEFT OUTER JOIN orderlist c ON a.contentname = c.contentname   "+
+                    "    LEFT OUTER JOIN alltest d ON c.lotno = d.lotno "+
+                    "    LEFT OUTER JOIN bommanagement1 e ON e.pono = a.contentname  "+
+                    "WHERE "+
+                    "    e.classification = '메인자재'  "
 
                 )
 
@@ -298,6 +303,61 @@ module.exports = function (app) {
                 .query(
 
                     " delete from accountinput where contentname=@contentname")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/bommanagement1materialinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('pono', sql.NVarChar, req.body.pono)
+                .input('materialinput', sql.Float, req.body.materialinput)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .query(
+
+                    "update bommanagement1 set materialinput=@materialinput where pono=@pono and materialname=@materialname")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/productionbominsert', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('pono', sql.NVarChar, req.body.pono)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .query(
+
+                    " INSERT INTO bommanagement1 (bomno, model, itemname, materialname, swidth, mwidth, classification, cost, dpid,pono) " +
+                    " SELECT bomno, model, itemname, materialname, swidth, mwidth, classification, cost, dpid, @pono " +
+                    " FROM bommanagement " +
+                    " WHERE status = 'true' and bomno=@bomno")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -793,7 +853,7 @@ module.exports = function (app) {
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .query(
 
-                    " SELECT  bomno,materialname,swidth,mwidth,cost " +
+                    " SELECT  bomno,materialname,swidth,mwidth,dpid,cost,classification " +
                     "  FROM bommanagement " +
                     "  WHERE  bomno=@bomno and status='true' ")
 
@@ -846,18 +906,23 @@ module.exports = function (app) {
 
                 .query(
 
-                    "   select " +
-                    "   id," +
-                    "   itemcode," +
-                    "   bomno," +
-                    "   modelname," +
-                    "   itemname," +
-                    "   customer," +
-                    "   format(convert(float,Isnull(itemprice,0)),'##,##0')'itemprice'," +
-                    "   cost," +
-                    "   quantity, " +
-                    "   FORMAT(cost/itemprice*100, '##,##0.00') AS 'costpg'" +
-                    "   from iteminfo"
+                    "  SELECT "+
+                   "        id, "+
+                   "     itemcode, "+
+                   "     bomno, "+
+                   "     modelname, "+
+                   "     itemname, "+
+                   "     customer, "+
+                   "     FORMAT(CONVERT(float, ISNULL(itemprice, 0)), '##,##0') AS 'itemprice', "+
+                   "     cost, "+
+                   "     quantity,  "+
+                   "     CASE "+
+                   "         WHEN itemprice = 0 THEN 0"+
+                   "         ELSE FORMAT(cost / itemprice * 100, '##,##0.00') "+
+                   "     END AS 'costpg' "+
+                   " FROM iteminfo "
+                 
+            
                 )
 
                 .then(result => {
@@ -1352,11 +1417,11 @@ module.exports = function (app) {
 
 
                     "   select " +
-                    "    orderid,productdate,lotno,bomno,modelname,itemname,materialstatus " +
+                    "    contentname,orderid,productdate,lotno,bomno,modelname,itemname,materialstatus " +
                     "    from " +
                     "    orderlist where materialstatus='true' " +
                     "    group by " +
-                    "    bomno,orderid,productdate,modelname,itemname,lotno,materialstatus "
+                    "   contentname,bomno,orderid,productdate,modelname,itemname,lotno,materialstatus "
                 )
 
                 .then(result => {
@@ -1525,7 +1590,7 @@ module.exports = function (app) {
                     "     materialid " +
                     " FROM " +
                     "     materialinput " +
-                    " WHERE materialname = @materialname " +
+                    " WHERE materialname = @materialname and part='입고완료' " +
                     " GROUP BY " +
                     "     materialname, " +
                     "     codenumber, " +
@@ -2055,7 +2120,7 @@ module.exports = function (app) {
                     " lotno, " +
                     " quantity, " +
                     " orderid, " +
-                    " status " +
+                    " status,contentname " +
                     " from  " +
                     " orderlist  " +
                     " where status='생산중' ")
@@ -2079,18 +2144,18 @@ module.exports = function (app) {
                 .input('orderid', sql.NVarChar, req.body.orderid)
 
                 .query(
-                    " SELECT  "+
-                    "    mi.materialname, "+
-                    "    mi.lotno, "+
-                    "    mi.materialwidth, "+ 
-                    "    CASE WHEN mi.quantity < 0 THEN -1 * mi.quantity ELSE mi.quantity END AS quantity, "+
-                    "    bm.classification "+
-                    "FROM "+
-                    "    materialinput mi "+
-                        
-                    "JOIN "+
-                    "    bommanagement bm ON mi.materialname = bm.materialname "+
-                    "    where orderid=@orderid") 
+                    " SELECT  " +
+                    "    mi.materialname, " +
+                    "    mi.lotno, " +
+                    "    mi.materialwidth, " +
+                    "    CASE WHEN mi.quantity < 0 THEN -1 * mi.quantity ELSE mi.quantity END AS quantity, " +
+                    "    bm.classification " +
+                    "FROM " +
+                    "    materialinput mi " +
+
+                    "JOIN " +
+                    "    bommanagement1 bm ON mi.materialname = bm.materialname " +
+                    "    where orderid=@orderid")
 
                 .then(result => {
 
@@ -2827,7 +2892,7 @@ module.exports = function (app) {
                 .input('ng15', sql.Int, req.body.ng15)
                 .input('ng16', sql.Int, req.body.ng16)
 
-             
+
                 .query(
                     'insert into alltest(bom,testdate,modelname,itemname,lotno,productdate,productno,count,okcount,ngcount,ng1,ng2,ng3,ng4,ng5,ng6,ng7,ng8,ng9,ng10,ng11,ng12,ng13,ng14,ng15,ng16)' +
                     ' values(@bom,@testdate,@modelname,@itemname,@lotno,@productdate,@productno,@count,@okcount,@ngcount,@ng1,@ng2,@ng3,@ng4,@ng5,@ng6,@ng7,@ng8,@ng9,@ng10,@ng11,@ng12,@ng13,@ng14,@ng15,@ng16)'
@@ -2903,7 +2968,7 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/materialoutputdelete', function (req, res) {
-        
+
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -3028,6 +3093,32 @@ module.exports = function (app) {
 
                 .query(
                     'update orderlist set finaltime=@finaltime,touch=@touch,materialoutput=@materialoutput,status=@status where id=@id'
+                )
+                .then(result => {
+                    
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/finishinproduct1', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+                .input('materialoutput', sql.Float, req.body.materialoutput)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('pono', sql.NVarChar, req.body.pono)
+
+
+                .query(
+                    'update bommanagement1 set materialoutput=@materialoutput where materialname=@materialname and pono=@pono'
                 )
                 .then(result => {
 
@@ -3582,13 +3673,14 @@ module.exports = function (app) {
                 .input('status', sql.NVarChar, req.body.status)
                 .input('cost', sql.Float, req.body.cost)
                 .input('dpid', sql.Float, req.body.dpid)
+                .input('classification', sql.NVarChar, req.body.classification)
 
 
 
 
                 .query(
-                    'insert into bommanagement(bomno,model,itemname,materialname,swidth,mwidth,savedate,status,cost,dpid)' +
-                    ' values(@bomno,@model,@itemname,@materialname,@swidth,@mwidth,@savedate,@status,@cost,@dpid)'
+                    'insert into bommanagement(bomno,model,itemname,materialname,swidth,mwidth,savedate,status,cost,dpid,classification)' +
+                    ' values(@bomno,@model,@itemname,@materialname,@swidth,@mwidth,@savedate,@status,@cost,@dpid,@classification)'
                 )
                 .then(result => {
 
@@ -4321,7 +4413,7 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    'select accountname from accountmanagement group by accountname'
+                    'select accountname from accountmanagement group by accountname order by accountname asc'
                 )
                 .then(result => {
 
