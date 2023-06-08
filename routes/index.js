@@ -223,13 +223,13 @@ module.exports = function (app) {
                     " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)- d.okcount) as AC, " +
                     " (CEILING((c.touch * b.cavity - d.ngcount)/((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)*100)) as AD, " +
                     " e.materialname" +
-                    " FROM "+
-                    "    accountinput a  "+
-                    "    LEFT OUTER JOIN iteminfo b ON a.bomno = b.bomno   "+
-                    "    LEFT OUTER JOIN orderlist c ON a.contentname = c.contentname   "+
-                    "    LEFT OUTER JOIN alltest d ON c.lotno = d.lotno "+
-                    "    LEFT OUTER JOIN bommanagement1 e ON e.pono = a.contentname  "+
-                    "WHERE "+
+                    " FROM " +
+                    "    accountinput a  " +
+                    "    LEFT OUTER JOIN iteminfo b ON a.bomno = b.bomno   " +
+                    "    LEFT OUTER JOIN orderlist c ON a.contentname = c.contentname   " +
+                    "    LEFT OUTER JOIN alltest d ON c.lotno = d.lotno " +
+                    "    LEFT OUTER JOIN bommanagement1 e ON e.pono = a.contentname  " +
+                    "WHERE " +
                     "    e.classification = '메인자재'  "
 
                 )
@@ -906,23 +906,23 @@ module.exports = function (app) {
 
                 .query(
 
-                    "  SELECT "+
-                   "        id, "+
-                   "     itemcode, "+
-                   "     bomno, "+
-                   "     modelname, "+
-                   "     itemname, "+
-                   "     customer, "+
-                   "     FORMAT(CONVERT(float, ISNULL(itemprice, 0)), '##,##0') AS 'itemprice', "+
-                   "     cost, "+
-                   "     quantity,  "+
-                   "     CASE "+
-                   "         WHEN itemprice = 0 THEN 0"+
-                   "         ELSE FORMAT(cost / itemprice * 100, '##,##0.00') "+
-                   "     END AS 'costpg' "+
-                   " FROM iteminfo "
-                 
-            
+                    " SELECT " +
+                    "    id, " +
+                    "    itemcode, "+
+                    "    bomno, "+
+                    "    modelname, "+
+                    "    itemname, "+
+                    "    customer, "+
+                    "    FORMAT(CONVERT(float, ISNULL(itemprice, 0)), '##,##0') AS 'itemprice', "+
+                    "    cost, "+
+                    "    quantity,  "+
+                    "    CASE "+
+                    "        WHEN itemprice = 0 THEN 0"+
+                    "        ELSE CAST(ROUND(cost / itemprice * 100, 2) AS decimal(18, 2))"+
+                    "    END AS 'costpg' "+
+                    "FROM iteminfo                 "
+
+
                 )
 
                 .then(result => {
@@ -3095,7 +3095,7 @@ module.exports = function (app) {
                     'update orderlist set finaltime=@finaltime,touch=@touch,materialoutput=@materialoutput,status=@status where id=@id'
                 )
                 .then(result => {
-                    
+
                     res.json(result.recordset);
                     res.end();
                 });
