@@ -204,7 +204,7 @@ module.exports = function (app) {
                     " a.itemname, " +
                     " a.quantity, " +
                     " c.quantity as productquantity, " +
-                    " a.itemprice, " +
+                    " b.itemprice, " +
                     " b.onepidding, " +
                     " b.cavity, " +
                     " (c.quantity / CAST(b.cavity AS FLOAT) * CAST(b.onepidding AS FLOAT)) * 0.001 as P, " +
@@ -212,13 +212,13 @@ module.exports = function (app) {
                     " e.materialoutput as R, " +
                     " (e.materialinput - e.materialoutput) as S, " +
                     " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)) as T, " +
-                    " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)* a.itemprice) as U, " +
+                    " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)* b.itemprice) as U, " +
                     " (c.touch) as V, " +
                     " (c.touch * b.cavity) as W, " +
-                    " (c.touch * b.cavity * a.itemprice) as X, " +
+                    " (c.touch * b.cavity * b.itemprice) as X, " +
                     " (CEILING((c.touch * b.cavity)/((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000) *100)) as Y, " +
                     " d.ngcount as Z, " +
-                    " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)-d.okcount)*a.itemprice as AA, " +
+                    " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)-d.okcount)*b.itemprice as AA, " +
                     " d.okcount as AB, " +
                     " (CEILING((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)- d.okcount) as AC, " +
                     " (CEILING((c.touch * b.cavity - d.ngcount)/((e.materialinput - e.materialoutput)/ b.onepidding * b.cavity *1000)*100)) as AD, " +
