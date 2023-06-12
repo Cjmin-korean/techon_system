@@ -230,7 +230,7 @@ module.exports = function (app) {
                     "    LEFT OUTER JOIN alltest d ON c.lotno = d.lotno " +
                     "    LEFT OUTER JOIN bommanagement1 e ON e.pono = a.contentname  " +
                     "WHERE " +
-                    "    e.classification = '메인자재'  "
+                    "    e.classification = '메인자재'  and e.lotno= c.lotno  order by c.lotno asc"
 
                 )
 
@@ -326,9 +326,10 @@ module.exports = function (app) {
                 .input('pono', sql.NVarChar, req.body.pono)
                 .input('materialinput', sql.Float, req.body.materialinput)
                 .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
                 .query(
 
-                    "update bommanagement1 set materialinput=@materialinput where pono=@pono and materialname=@materialname")
+                    "update bommanagement1 set materialinput=@materialinput where pono=@pono and lotno=@lotno and materialname=@materialname")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -351,11 +352,12 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('pono', sql.NVarChar, req.body.pono)
+                .input('lotno', sql.NVarChar, req.body.lotno)
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .query(
 
-                    " INSERT INTO bommanagement1 (bomno, model, itemname, materialname, swidth, mwidth, classification, cost, dpid,pono) " +
-                    " SELECT bomno, model, itemname, materialname, swidth, mwidth, classification, cost, dpid, @pono " +
+                    " INSERT INTO bommanagement1 (bomno, model, itemname, materialname, swidth, mwidth, classification, cost, lotno, dpid,pono) " +
+                    " SELECT bomno, model, itemname, materialname, swidth, mwidth, classification, cost, @lotno, dpid, @pono " +
                     " FROM bommanagement " +
                     " WHERE status = 'true' and bomno=@bomno")
 
@@ -908,18 +910,18 @@ module.exports = function (app) {
 
                     " SELECT " +
                     "    id, " +
-                    "    itemcode, "+
-                    "    bomno, "+
-                    "    modelname, "+
-                    "    itemname, "+
-                    "    customer, "+
-                    "    FORMAT(CONVERT(float, ISNULL(itemprice, 0)), '##,##0') AS 'itemprice', "+
-                    "    cost, "+
-                    "    quantity,  "+
-                    "    CASE "+
-                    "        WHEN itemprice = 0 THEN 0"+
-                    "        ELSE CAST(ROUND(cost / itemprice * 100, 2) AS decimal(18, 2))"+
-                    "    END AS 'costpg' "+
+                    "    itemcode, " +
+                    "    bomno, " +
+                    "    modelname, " +
+                    "    itemname, " +
+                    "    customer, " +
+                    "    FORMAT(CONVERT(float, ISNULL(itemprice, 0)), '##,##0') AS 'itemprice', " +
+                    "    cost, " +
+                    "    quantity,  " +
+                    "    CASE " +
+                    "        WHEN itemprice = 0 THEN 0" +
+                    "        ELSE CAST(ROUND(cost / itemprice * 100, 2) AS decimal(18, 2))" +
+                    "    END AS 'costpg' " +
                     "FROM iteminfo                 "
 
 
@@ -2033,7 +2035,7 @@ module.exports = function (app) {
                     " quantity, " +
                     " orderid " +
                     " from  " +
-                    " orderlist where status='true' ")
+                    " orderlist where status='true' order by contentname,lotno asc ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -2091,7 +2093,7 @@ module.exports = function (app) {
                     " lotno, " +
                     " quantity, " +
                     " orderid, " +
-                    " status " +
+                    " materialstatus " +
                     " from  " +
                     " orderlist  " +
                     " where status='true' ")
@@ -2142,6 +2144,7 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('lotno', sql.NVarChar, req.body.lotno)
 
                 .query(
                     " SELECT  " +
@@ -2155,7 +2158,7 @@ module.exports = function (app) {
 
                     "JOIN " +
                     "    bommanagement1 bm ON mi.materialname = bm.materialname " +
-                    "    where orderid=@orderid")
+                    "    where orderid=@orderid and bm.lotno=@lotno")
 
                 .then(result => {
 
@@ -2564,6 +2567,7 @@ module.exports = function (app) {
                     "          ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num  " +
                     "      FROM accountinput a  " +
                     "      LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname   " +
+                    "       WHERE a.status = '생산발주대기'  " +
                     "      GROUP BY a.contentname, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno  " +
                     "  ), recursive_cte AS (  " +
                     "      SELECT  " +
@@ -2937,6 +2941,32 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateorderliststatus', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('contentname', sql.NVarChar, req.body.contentname)
+                .input('status', sql.NVarChar, req.body.status)
+
+
+
+                .query(
+                    'update accountinput set status=@status where contentname=@contentname'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -3085,14 +3115,13 @@ module.exports = function (app) {
                 //.input('변수',값 형식, 값)
                 .input('id', sql.Int, req.body.id)
 
-                .input('materialoutput', sql.Float, req.body.materialoutput)
                 .input('finaltime', sql.NVarChar, req.body.finaltime)
                 .input('status', sql.NVarChar, req.body.status)
                 .input('touch', sql.Float, req.body.touch)
 
 
                 .query(
-                    'update orderlist set finaltime=@finaltime,touch=@touch,materialoutput=@materialoutput,status=@status where id=@id'
+                    'update orderlist set finaltime=@finaltime,touch=@touch,status=@status where id=@id'
                 )
                 .then(result => {
 
@@ -3110,15 +3139,15 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-                //.input('변수',값 형식, 값)
 
                 .input('materialoutput', sql.Float, req.body.materialoutput)
                 .input('materialname', sql.NVarChar, req.body.materialname)
                 .input('pono', sql.NVarChar, req.body.pono)
+                .input('lotno', sql.NVarChar, req.body.lotno)
 
 
                 .query(
-                    'update bommanagement1 set materialoutput=@materialoutput where materialname=@materialname and pono=@pono'
+                    'update bommanagement1 set materialoutput=@materialoutput where materialname=@materialname and pono=@pono and lotno=@lotno'
                 )
                 .then(result => {
 
@@ -4203,11 +4232,12 @@ module.exports = function (app) {
             return pool.request()
                 .input('orderid', sql.NVarChar, req.body.orderid)
                 .input('materialstatus', sql.NVarChar, req.body.materialstatus)
+                .input('lotno', sql.NVarChar, req.body.lotno)
 
 
 
                 .query(
-                    "update orderlist set materialstatus=@materialstatus where orderid=@orderid"
+                    "update orderlist set materialstatus=@materialstatus where lotno=@lotno and orderid=@orderid"
 
                 )
                 .then(result => {

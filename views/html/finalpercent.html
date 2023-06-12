@@ -96,7 +96,7 @@
 
                         <!-- <th>생산대비양산수량(EA)</th> -->
                         <th>양품수량(EA)</th>
-                       
+
                         <th>검사불량(EA)</th>
                         <th>손실금액(원)</th>
                         <th>생산수율(%)</th>
@@ -263,22 +263,23 @@
                         // Display a message for no data
                         $('#datatable').append('<tr><td colspan="30" style="text-align:center;">데이터가 없습니다</td></tr>');
                     } else {
-
                         var mergedCells = {};
 
                         // Iterate through the data to find cells to merge
                         for (var i = 0; i < data.length; i++) {
                             var contentName = data[i].contentname || '';
                             var bomNo = data[i].bomno || '';
+                            var lotNo = data[i].lotno || ''; // 추가된 부분
 
-                            // Check if the current contentName and bomNo already exist in the mergedCells object
-                            if (mergedCells.hasOwnProperty(contentName) && mergedCells[contentName].hasOwnProperty(bomNo)) {
+                            // Check if the current contentName, bomNo, and lotNo already exist in the mergedCells object
+                            if (mergedCells.hasOwnProperty(contentName) && mergedCells[contentName].hasOwnProperty(bomNo) && mergedCells[contentName][bomNo].hasOwnProperty(lotNo)) {
                                 // Increment the rowspan of the existing merged cell
-                                mergedCells[contentName][bomNo].rowspan++;
+                                mergedCells[contentName][bomNo][lotNo].rowspan++;
                             } else {
                                 // Create a new merged cell entry
                                 mergedCells[contentName] = mergedCells[contentName] || {};
-                                mergedCells[contentName][bomNo] = {
+                                mergedCells[contentName][bomNo] = mergedCells[contentName][bomNo] || {};
+                                mergedCells[contentName][bomNo][lotNo] = {
                                     rowspan: 1,
                                     rowIndex: i
                                 };
@@ -291,7 +292,7 @@
                             var accountDate = data[i].accountdate || '';
                             var startdate = data[i].startdate || '';
                             var customer = data[i].customer || '';
-                            var lotno = data[i].lotno || '';
+                            var lotNo = data[i].lotno || ''; // 추가된 부분
                             var marchine = data[i].marchine || '';
                             var modelname = data[i].modelname || '';
                             var count = data[i].count || '';
@@ -319,100 +320,58 @@
                             var AC = data[i].AC || '';
                             var AD = data[i].AD || '';
 
-
-                            // Append table row with data, replacing null values with empty string
-                            // $('#datatable').append(
-                            //     '<tr>' +
-                            //     '<td>' + contentName + '</td>' +
-                            //     '<td>' + bomNo + '</td>' +
-                            //     '<td>' + accountDate + '</td>' +
-                            //     '<td>' + startdate + '</td>' +
-                            //     '<td>' + lotno + '</td>' +
-                            //     '<td>' + marchine + '</td>' +
-                            //     '<td>' + customer + '</td>' +
-                            //     '<td>' + modelname + '</td>' +
-                            //     '<td>' + itemname + '</td>' +
-                            //     '<td>' + materialname + '</td>' +
-                            //     // '<td style="text-align:right;">' + quantity.toLocaleString() + '</td>' +
-                            //     // '<td style="text-align:right;">' + productquantity.toLocaleString() + '</td>' +
-                            //     // '<td style="text-align:right;">' + itemprice.toLocaleString() + '</td>' +
-                            //     // '<td style="text-align:right;">' + onepidding.toLocaleString() + '</td>' +
-                            //     // '<td style="text-align:right;">' + cavity.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + P.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + AD.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + Y.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + AC.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + AB.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + AA.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + Z.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + X.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + W.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + V.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + U.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + T.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + S.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + R.toLocaleString() + '</td>' +
-                            //     '<td style="text-align:right;">' + Q.toLocaleString() + '</td>' +
-
-
-                            //     '</tr>'
-                            // );
                             var tableRow = '<tr>' +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + contentName + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + bomNo + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + accountDate + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + startdate + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + lotno + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + marchine + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + customer + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + modelname + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + itemname + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + contentName + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + bomNo + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + accountDate + '</td>' : '') +
+                                    (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + startdate + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + lotNo + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + marchine + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + customer + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + modelname + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + itemname + '</td>' : '') +
 
                                 '<td>' + materialname + '</td>' +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + Q.toLocaleString() + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + P.toLocaleString() + '</td>' : '') +
                                 '<td style="text-align:right;">' + Q.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + R.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + S.toLocaleString() + '</td>' +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + X.toLocaleString() + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + W.toLocaleString() + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + V.toLocaleString() + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + X.toLocaleString() + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + W.toLocaleString() + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + V.toLocaleString() + '</td>' : '') +
                                 '<td style="text-align:right;">' + U.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + T.toLocaleString() + '</td>' +
 
-                              
+
                                 // '<td style="text-align:right;">' + Y.toLocaleString() + '</td>' +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + AB.toLocaleString() + '</td>' : '') +
-                                (mergedCells[contentName] && mergedCells[contentName][bomNo].rowIndex === i ?
-                                    '<td rowspan="' + mergedCells[contentName][bomNo].rowspan + '">' + Z.toLocaleString() + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + AB.toLocaleString() + '</td>' : '') +
+                                (mergedCells[contentName] && mergedCells[contentName][bomNo] && mergedCells[contentName][bomNo][lotNo].rowIndex === i ?
+                                    '<td rowspan="' + mergedCells[contentName][bomNo][lotNo].rowspan + '">' + Z.toLocaleString() + '</td>' : '') +
                                 '<td style="text-align:right;">' + AA.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + Y.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + AD.toLocaleString() + '</td>' +
-
-
-
                                 '</tr>';
 
                             $('#datatable').append(tableRow);
                         }
-
                     }
-
                 }
             });
+
 
 
 

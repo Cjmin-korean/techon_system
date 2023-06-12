@@ -551,367 +551,389 @@
                 $("td#soyomaterialid").hide();
 
                 // Calculate the sum of the quantity column
-                var totalQuantity = 0;
-                var materialGroups = {};
-
-                // Append data rows and calculate total quantity for each material group
-                $('#POdatatable-content1 tr').each(function () {
-                    var material = $(this).find('td:nth-child(1)').text();
-                    var quantityValue = parseFloat($(this).find('td:nth-child(8)').text().replace(/,/g, ''));
-                    if (!isNaN(quantityValue)) {
-                        totalQuantity += quantityValue;
-                        if (material in materialGroups) {
-                            materialGroups[material] += quantityValue;
-                        } else {
-                            materialGroups[material] = quantityValue;
-                        }
-                    }
-                });
-                // Remove existing total row
-                $('.total-row').remove();
-
-                // Remove existing material group rows
-                $('.material-group-row').remove();
-
-                // Check if there is any data
-                var hasData = $('#POdatatable-content1 tr').length > 1;
-
-                // Append the total row if there is data
-                // Append the total row if there is data
-                if (hasData) {
-
-
-                    $('#POdatatable-content1').append(
-                        '<tr class="total-row" style="background-color:whitesmoke; color:black;">' +
-                        '<td colspan="7" style="text-align:right;"><strong>합계:</strong></td>' +
-                        '<td style="text-align:right;"><strong><span>' + totalQuantity.toLocaleString() + '</span></strong></td>' +
-                        '<td colspan="3"></td>' +
-                        '</tr>'
-                    );
-
-                    // Append material group rows with total quantity if there is data
-                    for (var material in materialGroups) {
-                        var groupQuantity = materialGroups[material];
-                        $('#POdatatable-content1').append(
-                            '<tr class="material-group-row">' +
-                            '<td colspan="7" style="text-align:right;"><strong>' + material + ' 합계:</strong></td>' +
-                            '<td style="text-align:right;"><strong>' + groupQuantity.toLocaleString() + '</strong></td>' +
-                            '<td colspan="3"></td>' +
-                            '</tr>'
-                        );
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/bommanagement1materialinput',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            pono:  $('#pono').val(),
-                            materialinput: groupQuantity,
-                            materialname: material
-
-                        }),
-                        success: function (result) {
-
-
-
-                        }
-
-                    })
-                    // Set the value of 'sumquantity' to totalQuantity
-                    $('#sumquantity').val(totalQuantity.toLocaleString());
-
-                    // $('.soyo-value').each(function () {
-                    //     var soyoValue = parseFloat($(this).text().replace(/,/g, ''));
-                    //     if (!isNaN(soyoValue)) {
-                    //         if (soyoValue > groupQuantity) {
-                    //             $(this).css('color', 'red');
-                    //         } else {
-                    //             $(this).css('color', 'blue');
-                    //         }
-                    //     }
-                    // });
-                }
-
-
-
-            })
-            $('#POdatatable-content1').on('click', '.soyo-output', function () {
-                var str = "";
-                var tdArr = new Array();// 배열 선언            
-                var checkBtn = $(this);
-
-                var tr = checkBtn.parent().parent();
-                var td = tr.children();
-
-                var materialid = td.eq(10).text();
-                var quantity = td.eq(7).text();
-                var quantity1 = quantity.replace(/,/g, "");
-
-                console.log(materialid)
-                console.log(quantity1)
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/materialsoyodelete',
+                    url: server + '/api/materialoutputorderid',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        materialid: materialid,
-                        quantity: parseInt(-quantity1)
-
+                        orderid: orderid,
+                        lotno: lotno
                     }),
                     success: function (result) {
-
-
-
-
-                    }
-
-                })
-                $(this).closest('tr').remove();
-
-                // Calculate the sum of the quantity column
-                var totalQuantity = 0;
-                var materialGroups = {};
-
-                // Append data rows and calculate total quantity for each material group
-                $('#POdatatable-content1 tr').each(function () {
-                    var material = $(this).find('td:nth-child(1)').text();
-                    var quantityValue = parseFloat($(this).find('td:nth-child(8)').text().replace(/,/g, ''));
-                    if (!isNaN(quantityValue)) {
-                        totalQuantity += quantityValue;
-                        if (material in materialGroups) {
-                            materialGroups[material] += quantityValue;
-                        } else {
-                            materialGroups[material] = quantityValue;
-                        }
-                    }
-                });
-
-                // Remove existing total row
-                $('.total-row').remove();
-
-                // Remove existing material group rows
-                $('.material-group-row').remove();
-
-                // Check if there is any data
-                var hasData = $('#POdatatable-content1 tr').length > 1;
-
-                // Append the total row if there is data
-                if (hasData) {
-                    $('#POdatatable-content1').append(
-                        '<tr class="total-row" style="background-color:whitesmoke; color:black;">' +
-                        '<td colspan="7" style="text-align:right;"><strong>합계:</strong></td>' +
-                        '<td style="text-align:right;"><strong>' + totalQuantity.toLocaleString() + '</strong></td>' +
-                        '<td colspan="3"></td>' +
-                        '</tr>'
-                    );
-
-                    // Append material group rows with total quantity if there is data
-                    for (var material in materialGroups) {
-                        var groupQuantity = materialGroups[material];
-                        $('#POdatatable-content1').append(
-                            '<tr class="material-group-row">' +
-                            '<td colspan="7" style="text-align:right;"><strong>' + material + ' 합계:</strong></td>' +
-                            '<td style="text-align:right;"><strong>' + groupQuantity.toLocaleString() + '</strong></td>' +
-                            '<td colspan="3"></td>' +
-                            '</tr>'
-                        );
-                    }
-                }
-                $('#sumquantity').val(totalQuantity.toLocaleString());
-            })
-            $('#POdatatable-content').on('click', '.data-edit', function () {
-                var str = "";
-                var tdArr = new Array();// 배열 선언            
-                var checkBtn = $(this);
-
-                var tr = checkBtn.parent().parent();
-                var td = tr.children();
-
-                var materialname = td.eq(0).text();
-                var materialwidth = td.eq(1).text();
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/materialsoyosearch',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        materialname: materialname,
-                        materialwidth: parseInt(materialwidth)
-                    }),
-                    success: function (result) {
-                        $('#materialseachbody').empty()
+                        var materialEtcSum = {};
 
                         for (var i = 0; i < result.length; i++) {
-                            $('#materialsoyodatatable').append(
+                            var materialname = result[i].materialname;
+                            var etc = result[i].etc;
+                            var etcValue = parseFloat(etc) || 0;
+
+                            if (!materialEtcSum.hasOwnProperty(materialname)) {
+                                materialEtcSum[materialname] = 0;
+                            }
+
+                            materialEtcSum[materialname] += etcValue;
+
+                            $('#POdatatable-content1').append(
                                 '<tr>' +
-                                '<td >' + result[i].materialname + '</td>' +
-                                '<td >' + result[i].codenumber + '</td>' +
-                                '<td >' + result[i].classification + '</td>' +
-                                '<td >' + result[i].lotno + '</td>' +
-                                '<td >' + result[i].manufacturedate + '</td>' +
-                                '<td >' + result[i].expirationdate + '</td>' +
+                                '<td id="material' + i + '">' + materialname + '</td>' +
+                                '<td>' + result[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + result[i].materialwidth.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].sqmprice.toLocaleString() + '</td>' +
-                                '<td>' + result[i].house + '</td>' +
-                                '<td id="materialid">' + result[i].materialid + '</td>' +
-                                '<td><a class="data-output" style="cursor:pointer; color:blue;">출고</a></td>' +
+                                '<td><input type="text" class="textbox-style" id="etc' + i + '"></td>' +
                                 '</tr>'
+                            );
 
-                            )
-                            $("td#materialid").hide();
+                            // Add event listener to input field
+                            $('#etc' + i).on('input', calculateSum);
                         }
+
+                        // Calculate and display the material etc sum
+                        calculateSum();
+
+                        function calculateSum() {
+                            // Reset materialEtcSum
+                            for (var materialname in materialEtcSum) {
+                                materialEtcSum[materialname] = 0;
+                            }
+
+                            // Recalculate the sum for each materialname
+                            for (var j = 0; j < result.length; j++) {
+                                var materialname = result[j].materialname;
+                                var inputValue = parseFloat($('#etc' + j).val()) || 0;
+                                materialEtcSum[materialname] += inputValue;
+                            }
+
+                            // Display the sum for each materialname
+                            for (var materialname in materialEtcSum) {
+                                var sumId = 'material-etc-sum-' + materialname.replace(/\s/g, '');
+                                $('#' + sumId).text(materialEtcSum[materialname].toLocaleString());
+                            }
+                        }
+
+                        // Display the material etc sum
+                        $('#POdatatable-content1').append('<tr id="material-etc-sum-row"></tr>');
+                        var sumRow = $('#material-etc-sum-row');
+                        for (var materialname in materialEtcSum) {
+                            var sumId = 'material-etc-sum-' + materialname.replace(/\s/g, '');
+                            sumRow.append('<td style="text-align:right;">' + materialname + ': <span id="' + sumId + '"></span></td>');
+                        }
+                    }
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/bommanagement1materialinput',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        pono: $('#pono').val(),
+                        lotno: $('#lotno').val(),
+                        materialinput: groupQuantity,
+                        materialname: material
+
+                    }),
+                    success: function (result) {
+
+
 
                     }
 
                 })
-                $('#popupOverlay1').fadeIn()
-            })
+                // Set the value of 'sumquantity' to totalQuantity
+                $('#sumquantity').val(totalQuantity.toLocaleString());
 
-            function deleteRow(element) {
-                var row = $(element).closest('tr'); // Get the closest <tr> element
-                row.remove(); // Remove the row from the table
+                // $('.soyo-value').each(function () {
+                //     var soyoValue = parseFloat($(this).text().replace(/,/g, ''));
+                //     if (!isNaN(soyoValue)) {
+                //         if (soyoValue > groupQuantity) {
+                //             $(this).css('color', 'red');
+                //         } else {
+                //             $(this).css('color', 'blue');
+                //         }
+                //     }
+                // });
             }
 
-            $('#datatable').on('click', '.data-edit', function () {
-                var str = "";
-                var tdArr = new Array();// 배열 선언            
-                var checkBtn = $(this);
 
-                var tr = checkBtn.parent().parent();
-                var td = tr.children();
-
-                var itemcode = td.eq(0).text();
-                var bomno = td.eq(1).text();
-                var modelname = td.eq(2).text();
-                var itemname = td.eq(3).text();
-                var customer = td.eq(4).text();
-                var itemprice = td.eq(5).text();
-                var cost = td.eq(6).text();
-                var costpg = td.eq(7).text();
-                var id = td.eq(10).text();
-
-                $('#itemcode-edit').val(itemcode)
-                $('#bomno-edit').val(bomno)
-                $('#modelname-edit').val(modelname)
-                $('#itemname-edit').val(itemname)
-                $('#customer-edit').val(customer)
-                $('#itemprice-edit').val(itemprice)
-                $('#cost-edit').val(cost)
-                $('#costpg-edit').val(costpg)
-                $('#id-edit').val(id)
-                $('#count-edit').val('')
-
-                $('#popupOverlay1').fadeIn();
-                $('#count-edit').focus()
-            });
-            $('#POdatatable1').on('click', '.datadelete', function () {
-                var str = "";
-                var tdArr = new Array();// 배열 선언            
-                var checkBtn = $(this);
-
-                var tr = checkBtn.parent().parent();
-                var td = tr.children();
-
-                var id = td.eq(0).text();
-                $('#id-edit1').val(id);
-                $('#popupOverlay2').fadeIn();
 
             })
-            $('#Podatatable').on('click', '.POdata-edit', function () {
-                var clickedRow = $(this); // 클릭한 행(tr) 요소
-                var rowIndex = clickedRow.index() + 1; // 클릭한 행의 인덱스 + 1
+        $('#POdatatable-content1').on('click', '.soyo-output', function () {
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
 
-                var str = "";
-                var tdArr = new Array();// 배열 선언            
-                var checkBtn = $(this);
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
 
-                var tr = checkBtn.parent().parent();
-                var td = tr.children();
+            var materialid = td.eq(10).text();
+            var quantity = td.eq(7).text();
+            var quantity1 = quantity.replace(/,/g, "");
 
-                var itemcode = td.eq(0).text();
-                var bomno = td.eq(1).text();
-                var modelname = td.eq(2).text();
-                var itemname = td.eq(3).text();
-                var customer = td.eq(4).text();
-                var itemprice = td.eq(5).text();
-                var cost = td.eq(6).text();
-                var costpg = td.eq(7).text();
+            console.log(materialid)
+            console.log(quantity1)
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/materialsoyodelete',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    materialid: materialid,
+                    quantity: parseInt(-quantity1)
 
-                $('#itemcode-POedit').val(itemcode)
-                $('#bomno-POedit').val(bomno)
-                $('#modelname-POedit').val(modelname)
-                $('#itemname-POedit').val(itemname)
-                $('#customer-POedit').val(customer)
-                $('#itemprice-POedit').val(itemprice)
-                $('#cost-POedit').val(cost)
-                $('#costpg-POedit').val(costpg)
-                $('#count-POedit').val('')
-                $('#id-POedit').val(rowIndex)
-                $('#popupOverlay4').fadeIn();
-                $('#count-POedit').focus()
+                }),
+                success: function (result) {
+
+
+
+
+                }
+
+            })
+            $(this).closest('tr').remove();
+
+            // Calculate the sum of the quantity column
+            var totalQuantity = 0;
+            var materialGroups = {};
+
+            // Append data rows and calculate total quantity for each material group
+            $('#POdatatable-content1 tr').each(function () {
+                var material = $(this).find('td:nth-child(1)').text();
+                var quantityValue = parseFloat($(this).find('td:nth-child(8)').text().replace(/,/g, ''));
+                if (!isNaN(quantityValue)) {
+                    totalQuantity += quantityValue;
+                    if (material in materialGroups) {
+                        materialGroups[material] += quantityValue;
+                    } else {
+                        materialGroups[material] = quantityValue;
+                    }
+                }
             });
 
+            // Remove existing total row
+            $('.total-row').remove();
 
+            // Remove existing material group rows
+            $('.material-group-row').remove();
 
+            // Check if there is any data
+            var hasData = $('#POdatatable-content1 tr').length > 1;
 
-            $('#datatable').on('click', '.data-delete', function () {
-                var str = "";
-                var tdArr = new Array();// 배열 선언            
-                var checkBtn = $(this);
+            // Append the total row if there is data
+            if (hasData) {
+                $('#POdatatable-content1').append(
+                    '<tr class="total-row" style="background-color:whitesmoke; color:black;">' +
+                    '<td colspan="7" style="text-align:right;"><strong>합계:</strong></td>' +
+                    '<td style="text-align:right;"><strong>' + totalQuantity.toLocaleString() + '</strong></td>' +
+                    '<td colspan="3"></td>' +
+                    '</tr>'
+                );
 
-                var tr = checkBtn.parent().parent();
-                var td = tr.children();
-
-
-                var id = td.eq(0).text();
-                $('#id-edit').val(id)
-                $('#popupOverlay2').fadeIn();
-            });
-
-
-            $('#popupCloseBtn-save-close').click(function () {
-                $('#popupOverlay').fadeOut();
-            });
-            $('#popupCloseBtn-edit-close').click(function () {
-                $('#popupOverlay1').fadeOut();
-            });
-            $('#popupCloseBtn-delete-close').click(function () {
-                $('#popupOverlay2').fadeOut();
-            });
-            $('#popupCloseBtn-search-close').click(function () {
-                $('#popupOverlay3').fadeOut();
-            });
-            $('#popupCloseBtn-search').click(function () {
-                $('#popupOverlay3').fadeIn();
-            });
-            $('#popupCloseBtn-content-close').click(function () {
-                $('#popupOverlaycontent').fadeOut();
-            });
-            $('#popupCloseBtn-POedit-close').click(function () {
-                $('#popupOverlay4').fadeOut();
-            });
-
-
-            const selectElement = document.getElementById("customer-select");
-            if (selectElement) {
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/accountnamegroup',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    success: function (result) {
-                        for (let i = 0; i < result.length; i++) {
-                            const option = document.createElement("option");
-                            option.text = result[i].accountname;
-                            option.value = result[i].accountname;
-                            selectElement.add(option);
-                        }
-                    },
-                });
+                // Append material group rows with total quantity if there is data
+                for (var material in materialGroups) {
+                    var groupQuantity = materialGroups[material];
+                    $('#POdatatable-content1').append(
+                        '<tr class="material-group-row">' +
+                        '<td colspan="7" style="text-align:right;"><strong>' + material + ' 합계:</strong></td>' +
+                        '<td style="text-align:right;"><strong>' + groupQuantity.toLocaleString() + '</strong></td>' +
+                        '<td colspan="3"></td>' +
+                        '</tr>'
+                    );
+                }
             }
+            $('#sumquantity').val(totalQuantity.toLocaleString());
+        })
+        $('#POdatatable-content').on('click', '.data-edit', function () {
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
+
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
+
+            var materialname = td.eq(0).text();
+            var materialwidth = td.eq(1).text();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/materialsoyosearch',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    materialname: materialname,
+                    materialwidth: parseInt(materialwidth)
+                }),
+                success: function (result) {
+                    $('#materialseachbody').empty()
+
+                    for (var i = 0; i < result.length; i++) {
+                        $('#materialsoyodatatable').append(
+                            '<tr>' +
+                            '<td >' + result[i].materialname + '</td>' +
+                            '<td >' + result[i].codenumber + '</td>' +
+                            '<td >' + result[i].classification + '</td>' +
+                            '<td >' + result[i].lotno + '</td>' +
+                            '<td >' + result[i].manufacturedate + '</td>' +
+                            '<td >' + result[i].expirationdate + '</td>' +
+                            '<td style="text-align:right;">' + result[i].materialwidth.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + result[i].sqmprice.toLocaleString() + '</td>' +
+                            '<td>' + result[i].house + '</td>' +
+                            '<td id="materialid">' + result[i].materialid + '</td>' +
+                            '<td><a class="data-output" style="cursor:pointer; color:blue;">출고</a></td>' +
+                            '</tr>'
+
+                        )
+                        $("td#materialid").hide();
+                    }
+
+                }
+
+            })
+            $('#popupOverlay1').fadeIn()
+        })
+
+        function deleteRow(element) {
+            var row = $(element).closest('tr'); // Get the closest <tr> element
+            row.remove(); // Remove the row from the table
+        }
+
+        $('#datatable').on('click', '.data-edit', function () {
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
+
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
+
+            var itemcode = td.eq(0).text();
+            var bomno = td.eq(1).text();
+            var modelname = td.eq(2).text();
+            var itemname = td.eq(3).text();
+            var customer = td.eq(4).text();
+            var itemprice = td.eq(5).text();
+            var cost = td.eq(6).text();
+            var costpg = td.eq(7).text();
+            var id = td.eq(10).text();
+
+            $('#itemcode-edit').val(itemcode)
+            $('#bomno-edit').val(bomno)
+            $('#modelname-edit').val(modelname)
+            $('#itemname-edit').val(itemname)
+            $('#customer-edit').val(customer)
+            $('#itemprice-edit').val(itemprice)
+            $('#cost-edit').val(cost)
+            $('#costpg-edit').val(costpg)
+            $('#id-edit').val(id)
+            $('#count-edit').val('')
+
+            $('#popupOverlay1').fadeIn();
+            $('#count-edit').focus()
+        });
+        $('#POdatatable1').on('click', '.datadelete', function () {
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
+
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
+
+            var id = td.eq(0).text();
+            $('#id-edit1').val(id);
+            $('#popupOverlay2').fadeIn();
+
+        })
+        $('#Podatatable').on('click', '.POdata-edit', function () {
+            var clickedRow = $(this); // 클릭한 행(tr) 요소
+            var rowIndex = clickedRow.index() + 1; // 클릭한 행의 인덱스 + 1
+
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
+
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
+
+            var itemcode = td.eq(0).text();
+            var bomno = td.eq(1).text();
+            var modelname = td.eq(2).text();
+            var itemname = td.eq(3).text();
+            var customer = td.eq(4).text();
+            var itemprice = td.eq(5).text();
+            var cost = td.eq(6).text();
+            var costpg = td.eq(7).text();
+
+            $('#itemcode-POedit').val(itemcode)
+            $('#bomno-POedit').val(bomno)
+            $('#modelname-POedit').val(modelname)
+            $('#itemname-POedit').val(itemname)
+            $('#customer-POedit').val(customer)
+            $('#itemprice-POedit').val(itemprice)
+            $('#cost-POedit').val(cost)
+            $('#costpg-POedit').val(costpg)
+            $('#count-POedit').val('')
+            $('#id-POedit').val(rowIndex)
+            $('#popupOverlay4').fadeIn();
+            $('#count-POedit').focus()
+        });
+
+
+
+
+        $('#datatable').on('click', '.data-delete', function () {
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
+
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
+
+
+            var id = td.eq(0).text();
+            $('#id-edit').val(id)
+            $('#popupOverlay2').fadeIn();
+        });
+
+
+        $('#popupCloseBtn-save-close').click(function () {
+            $('#popupOverlay').fadeOut();
+        });
+        $('#popupCloseBtn-edit-close').click(function () {
+            $('#popupOverlay1').fadeOut();
+        });
+        $('#popupCloseBtn-delete-close').click(function () {
+            $('#popupOverlay2').fadeOut();
+        });
+        $('#popupCloseBtn-search-close').click(function () {
+            $('#popupOverlay3').fadeOut();
+        });
+        $('#popupCloseBtn-search').click(function () {
+            $('#popupOverlay3').fadeIn();
+        });
+        $('#popupCloseBtn-content-close').click(function () {
+            $('#popupOverlaycontent').fadeOut();
+        });
+        $('#popupCloseBtn-POedit-close').click(function () {
+            $('#popupOverlay4').fadeOut();
+        });
+
+
+        const selectElement = document.getElementById("customer-select");
+        if (selectElement) {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/accountnamegroup',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (result) {
+                    for (let i = 0; i < result.length; i++) {
+                        const option = document.createElement("option");
+                        option.text = result[i].accountname;
+                        option.value = result[i].accountname;
+                        selectElement.add(option);
+                    }
+                },
+            });
+        }
 
         });
 
@@ -1042,7 +1064,8 @@
                     contentType: 'application/json',
                     data: JSON.stringify({
                         orderid: $('#orderid').val(),
-                        materialstatus: 'true1'
+                        materialstatus: 'true1',
+                        lotno: $('#lotno').val()
                     }),
                     success: function (result) {
 

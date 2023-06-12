@@ -207,7 +207,7 @@
                     </td>
                     </tr>
                 </table>
-                <div style="width:100%; max-height: 800px; overflow-y: scroll;">
+                <div style="width:100%; max-height: 600px; overflow-y: scroll;">
                     <table class="styled-table" id="POdatatable-content">
                         <thead>
                             <tr>
@@ -238,7 +238,7 @@
                 <table style="width:100%;">
                     <tr>
                         <td style="background-color: black; color: white;">생산종료</td>
-                        <td><input type="text" id="id-final" class="data" autocomplete="off"
+                        <td style="visibility: hidden;"><input type="text" id="id-final" class="data" autocomplete="off"
                                 style="width:100%; border:1px solid silver; "></td>
 
                     </tr>
@@ -310,6 +310,7 @@
             </div>
             <button id="popupCloseBtn-delete-close">취소</button>
             <button id="popupCloseBtn-edit" onclick="Datafinish()">생산종료</button>
+            <!-- <button onclick="sss()">aaaa</button> -->
         </div>
     </div>
 
@@ -333,8 +334,9 @@
                         var status = data[i].status;
                         var backgroundColor = '';
                         var textColor = 'white';
+                        var materialstatus = data[i].materialstatus === 'true1' ? '자재준비완료' : '';
 
-                        if (status === '생산대기') {
+                        if (materialstatus === '자재준비완료') {
                             backgroundColor = 'blue';
                         }
 
@@ -346,7 +348,7 @@
                             '<td>' + data[i].lotno + '</td>' +
                             '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
                             '<td>' + data[i].orderid + '</td>' +
-                            '<td style="background-color: ' + backgroundColor + '; color: ' + textColor + ';">' + status + '</td>' +
+                            '<td style="background-color: ' + backgroundColor + '; color: ' + textColor + ';">' + materialstatus + '</td>' +
                             '<td><a class="data-edit" style="cursor:pointer; color:navy;">생산시작</a></td>' +
                             '<td id="data-id">' + data[i].id + '</td>' +
                             '</tr>'
@@ -432,7 +434,8 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        orderid: orderid
+                        orderid: orderid,
+                        lotno: lotno
                     }),
                     success: function (result) {
                         console.log(result)
@@ -505,10 +508,23 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        orderid: orderid
+                        orderid: orderid,
+                        lotno: lotno
                     }),
                     success: function (result) {
+                        var materialSum = {};
+
                         for (var i = 0; i < result.length; i++) {
+                            var materialname = result[i].materialname;
+                            var etc = result[i].etc;
+                            var etcValue = parseFloat(etc) || 0;
+
+                            if (!materialSum.hasOwnProperty(materialname)) {
+                                materialSum[materialname] = 0;
+                            }
+
+                            materialSum[materialname] += etcValue;
+
                             $('#POdatatable-content1').append(
                                 '<tr>' +
                                 '<td id="material' + i + '">' + result[i].materialname + '</td>' +
@@ -517,12 +533,49 @@
                                 '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
                                 '<td><input type="text" class="textbox-style" id="etc' + i + '"></td>' +
                                 '</tr>'
+                            );
 
-                            )
+                            // Add event listener to input field
+                            $('#etc' + i).on('input', calculateSum);
+                        }
+
+                        // Calculate and display the material sum
+                        calculateSum();
+
+                        function calculateSum() {
+                            // Reset materialSum
+                            for (var materialname in materialSum) {
+                                materialSum[materialname] = 0;
+                            }
+
+                            // Recalculate the sum for each materialname
+                            for (var j = 0; j < result.length; j++) {
+                                var materialname = result[j].materialname;
+                                var inputValue = parseFloat($('#etc' + j).val()) || 0;
+                                materialSum[materialname] += inputValue;
+                            }
+
+                            // Remove existing material sum rows
+                            $('.material-sum-row').remove();
+
+                            // Display the sum for each materialname
+                            var materialIndex = 1;
+
+                            for (var materialname in materialSum) {
+                                $('#POdatatable-content1').append(
+                                    '<tr class="material-sum-row">' +
+                                    '<td colspan="4" id="materialname' + materialIndex + '" style="text-align:right;">' + materialname + '</td>' +
+                                    '<td colspan="1" id="sum' + materialIndex + '" style="text-align:right;">' + materialSum[materialname].toLocaleString() + '</td>' +
+                                    '</tr>'
+                                );
+                                materialIndex++;
+                            }
+
                         }
                     }
+                });
 
-                })
+
 
                 $('#popupOverlay2').fadeIn();
                 $('#touch-final').val('');
@@ -954,7 +1007,17 @@
         // }
 
         function Datafinish() {
+            // if ($('#touch-final').val() === '') {
+            //     var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="color:red;" class="notification-message">타발수 누락되었습니다</span></div>');
+            //     $('body').append(notification);
+            //     setTimeout(function () {
+            //         notification.fadeOut(function () {
+            //             $(this).remove();
+            //         });
+            //     }, 3000); // 3초 후에 알림을 사라지게 설정   
+            // } else {
 
+            // }
             var today = new Date();
             var now = new Date();	// 현재 날짜 및 시간
             var year = today.getFullYear();
@@ -973,18 +1036,18 @@
                 data: JSON.stringify({
                     //              
                     id: $('#id-final').val(),
-                    materialoutput: $('#sum-final').val(),
                     finaltime: hours + ":" + minutes + ":" + seconds,
                     touch: $('#touch-final').val(),
-                    status: "생산종료"
+                    status: "생산종료",
 
 
 
                 }),
                 success: function (result) {
-                    console.log(result)
                 }
             })
+
+
             const $table = document.getElementById('POdatatable-content1'); // table 엘리먼트 취득
 
 
@@ -995,22 +1058,13 @@
             });
             // console.log($table.rows.length)
 
-            for (var i = 0; i < 2; i++) {
-                var materialname = textGroup[i + 1][0]
-                var materialoutput = $('#etc' + i + '').val();
+            for (var i = 1; i < 3; i++) {
+
+                var materialname = $('#materialname' + i + '').text();
+
+                var materialoutput = $('#sum' + i + '').text();
+
                 var pono = $('#pono-final').val();
-                // console.log(mateiralname)
-                // console.log(materialoutput)
-                // console.log(pono)
-
-                // .input('materialoutput', sql.Float, req.body.materialoutput)
-                // .input('materialname', sql.NVarChar, req.body.materialname)
-                // .input('pono', sql.NVarChar, req.body.pono)
-
-
-                // .query(
-                //     'update bommanagement1 set materialoutput=@materialoutput where materialname=@materialname and pono=@pono'
-                // )
 
                 $.ajax({
                     type: 'POST',
@@ -1021,7 +1075,8 @@
                         //              
                         materialname: materialname,
                         materialoutput: materialoutput,
-                        pono: pono
+                        pono: pono,
+                        lotno: $('#lotno-final').val()
 
 
 
@@ -1140,6 +1195,9 @@
             $('#popupOverlay2').fadeOut()
 
         }
+    </script>
+    <script>
+       
     </script>
 </body>
 
