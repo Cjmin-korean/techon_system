@@ -1405,6 +1405,49 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialinputsearchslim', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+                .query(
+
+
+                    "SELECT " +
+                    "id," +
+                    "input," +
+                    "date," +
+                    "materialname," +
+                    "classification," +
+                    "lotno," +
+                    "manufacturedate," +
+                    "expirationdate," +
+                    "format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth'," +
+                    "format(convert(int,Isnull(quantity,0)),'##,##0')'quantity'," +
+                    "roll," +
+                    "sum,part,house,codenumber," +
+                    "format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'" +
+
+                    " FROM materialinput where input='슬리팅입고' and date between @start and @finish")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
@@ -1434,6 +1477,92 @@ module.exports = function (app) {
 
 
 
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialrealstock', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('searchText', sql.NVarChar, req.body.searchText)
+
+                .query(
+                    "   SELECT "+
+                    "   materialname, "+
+                    "     classification, "+
+                    "   lotno, "+
+                    "   materialwidth, "+
+                    
+                    "     SUM(quantity) AS totalquantity, "+
+                    "   sqmprice, "+ 
+                    "   materialid, "+
+                    " codenumber, "+
+                    " manufacturedate, "+
+                    " expirationdate "+
+                    " FROM "+
+                    "   materialinput "+
+                    " where "+
+                    " materialname "+
+                    " LIKE '%' + @searchText + '%' "+
+                    " GROUP BY "+ 
+                    "   materialid, "+
+                    "    materialwidth,  "+
+                    "    classification, "+
+                    "    sqmprice,  "+
+                    "   materialname, "+
+                    "   lotno, "+
+                    " codenumber, "+
+                    " manufacturedate, "+
+                    " expirationdate "+
+                    " HAVING "+
+                    "   SUM(quantity) > 0 "
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialstockreal', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .query(
+                    "   SELECT "+
+                    "   materialname, "+
+                    "     classification, "+
+                    "   lotno, "+
+                    "   materialwidth, "+
+                    
+                    "     SUM(quantity) AS totalquantity, "+
+                    "   sqmprice, "+ 
+                    "   materialid "+
+                    " FROM "+
+                    "   materialinput "+
+             
+                   
+                    " GROUP BY "+ 
+                    "   materialid, "+
+                    "    materialwidth,  "+
+                    "    classification, "+
+                    "    sqmprice,  "+
+                    "   materialname, "+
+                    "   lotno "+
+                    " HAVING "+
+                    "   SUM(quantity) > 0 "
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
                 });
         });
 
@@ -4689,6 +4818,47 @@ module.exports = function (app) {
                 .query(
                     'insert into materialinput(date,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,input,part,classification,sqmprice,house)' +
                     ' values(@date,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@input,@part,@classification,@sqmprice,@house)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  원자재입고등록쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/slimdeletematerial', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('date', sql.NVarChar, req.body.date)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('manufacturedate', sql.NVarChar, req.body.manufacturedate)
+                .input('expirationdate', sql.NVarChar, req.body.expirationdate)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .input('quantity', sql.NVarChar, req.body.quantity)
+                .input('roll', sql.NVarChar, req.body.roll)
+                .input('sum', sql.NVarChar, req.body.sum)
+                .input('price', sql.NVarChar, req.body.price)
+                .input('input', sql.NVarChar, req.body.input)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('house', sql.NVarChar, req.body.house)
+                .input('classification', sql.NVarChar, req.body.classification)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('materialid', sql.NVarChar, req.body.materialid)
+
+
+                .query(
+                    'insert into materialinput(date,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,input,part,classification,sqmprice,house,materialid)' +
+                    ' values(@date,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@input,@part,@classification,@sqmprice,@house,@materialid)'
                 )
                 .then(result => {
 
