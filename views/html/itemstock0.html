@@ -68,7 +68,7 @@
 
 
     <div class="main_header">
-        <a>완제품입고현황</a>
+        <a>생산 기간재공재고</a>
         <div class="buttons" style="display: flex; justify-content: flex-end;">
             <!-- <button onclick="New()">입고추가</button> -->
         </div>
@@ -81,7 +81,7 @@
     <div class="form-group">
         <table style="width:30%;">
             <tr>
-                <td style="width: 100px; background-color: whitesmoke;">입고날짜</td>
+                <td style="width: 100px; background-color: whitesmoke;">생산날짜</td>
                 <td style="width: 100px;"> <input type="date" id="datepicker2"
                         style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
                 </td>
@@ -191,31 +191,17 @@
                 <table class="styled-table" id="POdatatable-content">
                     <thead>
                         <tr>
-                            <th>품목코드</th>
-                            <th>BOMNO</th>
+                            <th>생산날짜</th>
                             <th>모델명</th>
                             <th>품목명</th>
-                            <th>고객사</th>
-                            <th>원가(원)</th>
-                            <th>단가(원)</th>
-                            <th>PO수량(개)</th>
-                            <th>판매금액(원)</th>
+                            <th>생산수량(개)</th>
                             <th style="width:100px;"></th>
                             <th style="width:100px;"></th>
                         </tr>
                     </thead>
                     <tbody id="POtable-tbody">
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <td style="border:1px solid silver; background-color:whitesmoke;" colspan="7">합계</td>
-                            <td style="border:1px solid silver; text-align:right;"><strong>0
-                                </strong></td>
-                            <td style="border:1px solid silver; text-align:right;"><strong>0
-                                </strong></td>
-                            <td style="border:1px solid silver; background-color:whitesmoke; " colspan="2"></td>
-                        </tr>
-                    </tfoot>
+
                 </table>
             </div>
 
@@ -227,28 +213,22 @@
 
 
 
+    <!-- <div class="main_header" style="background-color:rgb(0, 0, 0); color:white; width: 100%;">
+        <a>창고기준 입고 정보</a>
 
+    </div> -->
     <div id="datatable-container">
         <table class="styled-table" id="materialdatatable">
 
             <thead>
 
                 <tr>
-                    <th>창고명</th>
-                    <th>구분</th>
-                    <th>입고날짜</th>
-                    <th>자재명</th>
-                    <th>분류</th>
-                    <th>LOTNO</th>
-                    <th>LOTNO</th>
-                    <th>제조일자</th>
-                    <th>만료일자</th>
-                    <th>자재폭(mm)</th>
-                    <th>단가(원)</th>
-                    <th>수량(M)</th>
-                    <th>금액(원)</th>
-
-
+                    <th>생산날짜</th>
+                    <th>모델명</th>
+                    <th>품목명</th>
+                    <th>제품단가</th>
+                    <th>생산수량(개)</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="materialinputtbody">
@@ -1329,133 +1309,43 @@
 
 
         // }
+
         function load() {
-            $('#materialinputtbody').empty();
+            $('#materialinputtbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/materialinputsearch',
+                url: server + '/api/itemstockfianl0',
                 dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    start: $('#datepicker2').val(),
-                    finish: $('#datepicker3').val()
-                }),
                 success: function (data) {
-                    var groupedData = {}; // Group data by house
-                    var classificationTotals = {}; // Object to store house-wise totals
+                    if (data.length === 0) {
+                    
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
 
-                    for (var i = 0; i < data.length; i++) {
-                        var classification = data[i].classification;
-
-                        if (!groupedData[classification]) {
-                            groupedData[classification] = [];
-                            classificationTotals[classification] = {
-                                sumquantity: 0,
-                                totalQuantity: 0
-                            };
-                        }
-
-                        groupedData[classification].push(data[i]);
-
-                        var quantity = parseFloat(data[i].quantity.replace(/,/g, ''));
-                        var materialWidth = parseFloat(data[i].materialwidth.replace(/,/g, ''));
-                        var sqmprice = parseFloat(data[i].sqmprice.replace(/,/g, ''));
-                        var multipliedValue = quantity * materialWidth / 1000 * sqmprice;
-
-                        classificationTotals[classification].sumquantity += quantity;
-                        classificationTotals[classification].totalQuantity += multipliedValue;
-                    }
-
-                    // Clear previous table data
-                    $('#materialinputtbody').empty();
-                    var sumquantity = 0;
-                    var totalQuantity = 0;
-
-                    for (var classification in groupedData) {
-                        if (groupedData.hasOwnProperty(classification)) {
-                            // Create a group header row for the house
-                            $('#materialdatatable').append(
+                            $('#materialinputtbody').append(
                                 '<tr>' +
-                                '<td colspan="14" style="background-color:#3f3e3e; color:white;"><strong>' + classification + '</strong></td>' +
+                                '<td>' + data[i].productdate + '</td>' +
+                                '<td>' + data[i].modelname + '</td>' +
+                                '<td>' + data[i].itemname + '</td>' +
+                                '<td>' + data[i].itemprice.toLocaleString() + '</td>' +
+                                '<td>' + data[i].quantity.toLocaleString() + '</td>' +
+                        
+                                '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
+                      
+                                '<td id="data-id">' + data[i].id + '</td>' +
                                 '</tr>'
-                            );
 
-                            var groupData = groupedData[classification];
+                            )
+                            $("td#data-id").hide();
 
-                            for (var i = 0; i < groupData.length; i++) {
-                                var part = groupData[i].part;
-                                var backgroundColor = '';
-
-                                if (part === '입고완료') {
-                                    backgroundColor = 'blue';
-                                } else if (part === '출고대기') {
-                                    backgroundColor = 'red';
-                                } else if (part === '수입검사대기') {
-                                    backgroundColor = 'green';
-                                }
-
-
-                                var quantity = parseFloat(groupData[i].quantity.replace(/,/g, ''));
-                                var materialWidth = parseFloat(groupData[i].materialwidth.replace(/,/g, ''));
-                                var sqmprice = parseFloat(groupData[i].sqmprice.replace(/,/g, ''));
-
-                                sumquantity += quantity;
-                                var multipliedValue = quantity * materialWidth / 1000 * sqmprice;
-                                totalQuantity += multipliedValue;
-                                var classification = groupData[i].classification !== null ? groupData[i].classification : '';
-                                var lotno = groupData[i].lotno !== null ? groupData[i].lotno : '';
-                                var manufacturedate = groupData[i].manufacturedate !== null ? groupData[i].manufacturedate : '';
-                                var expirationdate = groupData[i].expirationdate !== null ? groupData[i].expirationdate : '';
-
-                                $('#materialdatatable').append(
-                                    '<tr>' +
-                                    '<td>' + groupData[i].house + '</td>' +
-                                    '<td>' + groupData[i].input + '</td>' +
-                                    '<td>' + groupData[i].date + '</td>' +
-                                    '<td>' + groupData[i].materialname + '</td>' +
-                                    '<td>' + classification + '</td>' +
-                                    '<td>' + groupData[i].codenumber + '</td>' +
-                                    '<td>' + lotno + '</td>' +
-                                    '<td>' + manufacturedate + '</td>' +
-                                    '<td>' + expirationdate + '</td>' +
-                                    '<td style="text-align:right;">' + groupData[i].materialwidth.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;">' + groupData[i].sqmprice.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;">' + quantity.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;">' + multipliedValue.toLocaleString() + '</td>' + //
-
-                                    '<td class="data-id">' + groupData[i].id + '</td>' +
-                                    '</tr>'
-                                );
-                            }
-
-                            // Add house-wise total row at the end of each group
-                            $('#materialdatatable').append(
-                                '<tr  style="background-color:whitesmoke; color:black;">' +
-                                '<td style="font-weight:bold;" colspan="11">(' + $('#datepicker2').val() + ' ~ ' + $('#datepicker3').val() + ') ' + classification + ' 합계</td>' +
-                                '<td style="text-align:right;"><strong>' + classificationTotals[classification].sumquantity.toLocaleString() + '</strong></td>' +
-                                '<td style="text-align:right;"><strong>' + classificationTotals[classification].totalQuantity.toLocaleString() + '</strong></td>' +
-                                '</tr>'
-                            );
+                  
                         }
                     }
-
-                    // Add the overall total quantity row at the end
-                    var overallSumQuantity = Object.values(classificationTotals).reduce((acc, val) => acc + val.sumquantity, 0);
-                    var overallTotalQuantity = Object.values(classificationTotals).reduce((acc, val) => acc + val.totalQuantity, 0);
-
-                    $('#materialdatatable').append(
-                        '<tr style="background-color:whitesmoke; color:black">' +
-                        '<td style="font-weight:bold;" colspan="11">(' + $('#datepicker2').val() + ' ~ ' + $('#datepicker3').val() + ') 전체 합계</td>' +
-                        '<td style="text-align:right;"><strong>' + overallSumQuantity.toLocaleString() + '</strong></td>' +
-                        '<td style="text-align:right;"><strong>' + overallTotalQuantity.toLocaleString() + '</strong></td>' +
-                        '</tr>'
-                    );
-
-                    $('.data-id').hide();
                 }
-            });
-        }
 
+
+            })
+        }
     </script>
 
 </body>

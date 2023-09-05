@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Directions Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+    <!-- Add Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Directions Finder</h1>
+    <label for="start">Start:</label>
+    <input type="text" id="start" placeholder="Enter starting location">
+    <br>
+    <label for="end">End:</label>
+    <input type="text" id="end" placeholder="Enter destination">
+    <br>
+    <button onclick="getDirections()">Find Directions</button>
+    <div id="map"></div>
+    <div id="directions"></div>
+
+    <script>
+        const mapElement = document.getElementById('map');
+        const directionsElement = document.getElementById('directions');
+
+        let map = L.map('map').setView([37.5665, 126.9780], 13); // Seoul, South Korea
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        function getDirections() {
+            const start = document.getElementById('start').value;
+            const end = document.getElementById('end').value;
+
+            // Use your preferred geocoding service to get latitude and longitude for start and end
+            // For example, you can use the Nominatim API:
+            const apiUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
+
+            fetch(apiUrl + encodeURIComponent(start))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const startLat = data[0].lat;
+                        const startLon = data[0].lon;
+
+                        fetch(apiUrl + encodeURIComponent(end))
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.length > 0) {
+                                    const endLat = data[0].lat;
+                                    const endLon = data[0].lon;
+
+                                    displayDirections([startLat, startLon], [endLat, endLon]);
+                                    addDestinationMarker(endLat, endLon); // Add the red marker for 동대구역
+                                } else {
+                                    directionsElement.textContent = 'Error finding directions';
+                                }
+                            });
+                    } else {
+                        directionsElement.textContent = 'Error finding directions';
+                    }
+                });
+        }
+
+        function displayDirections(startCoords, endCoords) {
+            L.Routing.control({
+                waypoints: [
+                    L.latLng(startCoords[0], startCoords[1]),
+                    L.latLng(endCoords[0], endCoords[1])
+                ],
+                routeWhileDragging: true
+            }).addTo(map);
+        }
+
+        function addDestinationMarker(lat, lon) {
+            L.marker([lat, lon], {
+                icon: L.divIcon({
+                    className: 'custom-icon',
+                    html: '<div style="background-color: red; width: 16px; height: 16px; border-radius: 50%;"></div>',
+                    iconSize: [16, 16]
+                }),
+                draggable: false
+            }).addTo(map);
+        }
+    </script>
+</body>
+</html>

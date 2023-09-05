@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drag and Drop Table Example</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Table styles */
+        .table-container {
+            width: 45%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            float: left;
+            margin-right: 20px;
+        }
+
+        .table-container:last-child {
+            margin-right: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        /* Alternate row colors for better readability */
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Buttons styles */
+        .button-container {
+            clear: both;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #291e53;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        /* Add hover effect to buttons */
+        button:hover {
+            background-color: #2f5031;
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <table id="sourceTable">
+            <thead>
+                <tr>
+                    <th>설비명</th>
+                    <th>BOM NO</th>
+                    <th>고객사</th>
+                    <!-- Add more columns here -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>고속1호기</td>
+                    <td>YPE-2-182</td>
+                    <td>영풍전자</td>
+                    <!-- Add more data here -->
+                </tr>
+                <!-- Add more rows here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <table id="destinationTable">
+            <thead>
+                <tr>
+                    <th>설비명</th>
+                    <th>BOM NO</th>
+                    <th>고객사</th>
+                    <!-- Add more columns here -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Add more rows here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="button-container">
+        <button id="prevDayButton">1주전</button>
+        <button id="prevDayButton">이전날</button>
+        <button id="nextDayButton">다음날</button>
+        <button id="nextDayButton">1주후</button>
+    </div>
+
+    <script>
+        const sourceTable = document.getElementById('sourceTable');
+        const destinationTable = document.getElementById('destinationTable');
+
+        sourceTable.addEventListener('dragstart', handleDragStart);
+        destinationTable.addEventListener('dragover', allowDrop);
+        destinationTable.addEventListener('drop', handleDrop);
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.innerHTML);
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const data = e.dataTransfer.getData('text/plain');
+            const newRow = destinationTable.insertRow();
+            const newCell = newRow.insertCell();
+            newCell.innerHTML = data;
+        }
+    </script>
+</body>
+</html>

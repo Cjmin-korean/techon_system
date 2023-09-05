@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .slitting-table {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .slitting-table th {
+        background-color: navy;
+        color: white;
+        font-weight: bold;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .slitting-table td {
+        padding: 8px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+
+    .slitting-input {
+        text-align: right;
+        width: 100%;
+        padding: 5px;
+        border: none;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+        /* Increase the font size as desired */
+    }
+
+    .large-textbox {
+        font-size: 18px;
+        /* Increase the font size for the large text box */
+    }
+
+    .add-button {
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+        font-weight: bold;
+        background-color: navy;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px;
+    }
+
+    .delete-link {
+        cursor: pointer;
+        color: red;
+    }
+
+    /* Optional: Add hover effect */
+    .slitting-table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .select-box {
+        padding: 4px;
+        font-size: 15px;
+        font-weight: bold;
+        border: 1px solid black;
+        background-color: #f2f2f2;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Optional: Add hover and focus effects */
+    .select-box:hover,
+    .select-box:focus {
+        background-color: #e0e0e0;
+    }
+</style>
+
+<body>
+    <table class="slitting-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>자재명</th>
+                <th>M</th>
+                <th>롤수량</th>
+                <th>재단수량(M)</th>
+
+            </tr>
+        </thead>
+        <tbody id="datatable1tbody">
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>A</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>B</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+            </tr>
+
+            <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+    <button class="add-button" onclick="mergeSelectedRows()">합지</button>
+
+</body>
+<script>
+    // JavaScript 코드
+    function mergeSelectedRows() {
+        const tableBody = document.getElementById("datatable1tbody");
+        const rows = tableBody.getElementsByTagName("tr");
+
+        let mergedRows = [];
+        let currentGroup = [];
+
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[type='checkbox']");
+
+            if (checkbox.checked) {
+                currentGroup.push(rows[i]);
+            } else {
+                if (currentGroup.length > 0) {
+                    mergedRows.push(currentGroup);
+                    currentGroup = [];
+                }
+            }
+        }
+
+        if (currentGroup.length > 0) {
+            mergedRows.push(currentGroup);
+        }
+
+        for (let i = 0; i < mergedRows.length; i++) {
+            if (mergedRows[i].length > 1) {
+                const firstRow = mergedRows[i][0];
+                const rowspan = mergedRows[i].length;
+                const materials = [];
+                let totalRollQuantity = 0;
+
+                for (let j = 0; j < mergedRows[i].length; j++) {
+                    const material = mergedRows[i][j].querySelector("td:nth-child(2)").textContent;
+                    materials.push(material);
+
+                    const rollQuantity = parseInt(mergedRows[i][j].querySelector("td:nth-child(4)").textContent);
+                    totalRollQuantity += rollQuantity;
+                }
+
+                firstRow.querySelector("td:nth-child(2)").textContent = materials.join("+");
+                firstRow.querySelector("td:nth-child(4)").textContent = totalRollQuantity;
+                firstRow.querySelector("td:nth-child(2)").setAttribute("rowspan", rowspan);
+                firstRow.querySelector("td:nth-child(4)").setAttribute("rowspan", rowspan);
+
+                // Hide other cells in the merged group
+                for (let j = 1; j < mergedRows[i].length; j++) {
+                    mergedRows[i][j].querySelector("td:nth-child(2)").style.display = "none";
+                    mergedRows[i][j].querySelector("td:nth-child(4)").style.display = "none";
+                }
+            }
+        }
+    }
+
+</script>
+
+</html>

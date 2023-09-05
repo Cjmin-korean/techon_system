@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="../css/main.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
 </head>
 <style>
   #datatable-container {
@@ -24,11 +26,37 @@
     width: 100%;
     /* Other table styles */
   }
+
+  .button-group {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    margin-top: 20px;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  #customer-select,
+  #model-select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
 </style>
 
 <body>
   <div class="main_header">
-    <a>제품(Item) 정보</a>
+    <a>단가 등록 리스트</a>
     <div class="buttons" style="display: flex; justify-content: flex-end;">
       <!-- <button onclick="New()">신규</button> -->
     </div>
@@ -39,11 +67,31 @@
 
   </div>
   <div class="form-group">
-    <table style="width:100%;">
+    <table style="width: 50%;">
       <tr>
-        <td style="width: 200px; background-color: whitesmoke;">검색</td>
-        <td><input type="text" id="myInput" onclick="search()" class="data" autocomplete="off"
-            style="width:100%; border:1px solid silver;"></td>
+        <td style="width: 9%; background-color: whitesmoke; font-weight: bold; ">모델명</td>
+
+        <td style="width: 25%; background-color: whitesmoke;">
+
+          <div class="form-group">
+            <select id="model-select">
+              <option value="">전체</option>
+            </select>
+          </div>
+        </td>
+        <td style="width: 9%; background-color: whitesmoke; font-weight: bold; ">납품처</td>
+
+        <td style="width: 25%; background-color: whitesmoke;">
+          <div class="form-group">
+            <select id="customer-select">
+              <option value="">전체</option>
+     
+            </select>
+          </div>
+        </td>
+        <td style="width: 5%;"><input type="button" value="검색" class="styled-button"></td>
+        <td style="width: 5%;"><input type="button" value="EXCEL-DOWN" class="styled-button2" onclick="exportExcel()">
+        </td>
 
       </tr>
     </table>
@@ -54,14 +102,15 @@
     <table class="styled-table" id="datatable">
       <thead>
         <tr>
-          <th onclick="sortTable(0)">품목코드</th>
-          <th onclick="sortTable(1)">BOMNO</th>
-          <th onclick="sortTable(2)">모델명</th>
-          <th onclick="sortTable(3)">품목명</th>
-          <th onclick="sortTable(4)">고객사</th>
-          <th onclick="sortTable(5)">단가(원)</th>
-          <th onclick="sortTable(6)">원가(원)</th>
-          <th onclick="sortTable(7)">재료비(%)</th>
+          <th style="width:auto;" onclick="sortTable(0)">BOMNO</th>
+          <th style="width:auto;" onclick="sortTable(1)">모델명</th>
+          <th style="width:auto;" onclick="sortTable(2)">품목명</th>
+          <th style="width:auto;" onclick="sortTable(3)">납품처</th>
+          <th style="width:auto;" onclick="sortTable(4)">판매단가(원)</th>
+          <th style="width:auto;" onclick="sortTable(5)">원가(재료비)(원)</th>
+          <th style="width:auto;" onclick="sortTable(6)">차이(원)</th>
+          <th style="width:auto;" onclick="sortTable(7)">재료비율(%)</th>
+          <th style="width:auto;" onclick="sortTable(8)">기타사항</th>
           <th style="width:100px;"></th>
         </tr>
       </thead>
@@ -69,7 +118,7 @@
       </tbody>
     </table>
   </div>
-  
+
 
   <!-- 수정창 -->
   <div id="popupOverlay1" style="display: none;">
@@ -82,11 +131,11 @@
                 style="width:100%; border:1px solid silver; "></td>
 
           </tr>
-          <tr>
+          <!-- <tr>
             <td style="width: 200px; background-color: whitesmoke;">품목코드</td>
             <td><input type="text" id="itemcode-edit" class="data" autocomplete="off" readonly
                 style="width:100%; border:1px solid silver;"></td>
-          </tr>
+          </tr> -->
           <tr>
             <td style="width: 200px; background-color: whitesmoke;">BOMNO</td>
             <td><input type="text" id="bomno-edit" class="data" autocomplete="off" readonly
@@ -108,21 +157,21 @@
                 style="width:100%; border:1px solid silver;"></td>
           </tr>
           <tr>
-            <td style="width: 200px; background-color: whitesmoke;">단가(원)</td>
-            <td><input type="text" id="itemprice-edit" class="data" autocomplete="off" readonly
+            <td style="width: 200px; background-color: whitesmoke; color: blue;">단가(원)</td>
+            <td><input type="text" id="itemprice-edit" class="data" autocomplete="off"
                 style="width:100%; border:1px solid silver;"></td>
           </tr>
-          <tr>
-            <td style="width: 200px; background-color: whitesmoke; color: blue;">원가(원)</td>
-            <td><input type="text" id="cost-edit" class="data" autocomplete="off"
+          <!-- <tr>
+            <td style="width: 200px; background-color: whitesmoke; ">원가(원)</td>
+            <td><input type="text" id="cost-edit" class="data" autocomplete="off" readonly
                 style="width:100%; border:1px solid silver;"></td>
           </tr>
           <tr>
             <td style="width: 200px; background-color: whitesmoke;">재료비(%)</td>
             <td><input type="text" id="costpg-edit" class="data" autocomplete="off" readonly
                 style="width:100%; border:1px solid silver;"></td>
-          </tr>
-        
+          </tr> -->
+
 
 
         </table>
@@ -133,7 +182,7 @@
   </div>
 
 
-  
+
 
   <script>
     var server = '';
@@ -145,35 +194,44 @@
     }
     $(document).ready(function () {
       showLoading()
-      $.ajax({
-        type: 'POST',
-        url: server + '/api/iteminfo',
-        dataType: 'json',
-        success: function (data) {
-          for (var i = 0; i < data.length; i++) {
+      load()
 
-            $('#datatable').append(
-              '<tr>' +
-              '<td>' + data[i].itemcode + '</td>' +
-              '<td>' + data[i].bomno + '</td>' +
-              '<td>' + data[i].modelname + '</td>' +
-              '<td>' + data[i].itemname + '</td>' +
-              '<td>' + data[i].customer + '</td>' +
-              '<td style="text-align:right;">' + data[i].itemprice + '</td>' +
-              '<td style="text-align:right;">' + data[i].cost + '</td>' +
-              '<td style="text-align:right;">' + data[i].costpg + '</td>' +
+      const selectElement = document.getElementById("customer-select");
+      if (selectElement) {
+        $.ajax({
+          type: 'POST',
+          url: server + '/api/accountnamegroup',
+          dataType: 'json',
+          contentType: 'application/json',
+          success: function (result) {
+            for (let i = 0; i < result.length; i++) {
+              const option = document.createElement("option");
+              option.text = result[i].accountname;
+              option.value = result[i].accountname;
+              selectElement.add(option);
+            }
+          },
+        });
+      }
 
-              '<td><a class="data-edit"  style="cursor:pointer; color:navy;">수정</a></td>' +
-              '<td id="data-id">' + data[i].id + '</td>' +
-              '</tr>'
+      const selectElement1 = document.getElementById("model-select");
+      if (selectElement1) {
+        $.ajax({
+          type: 'POST',
+          url: server + '/api/modelgroup',
+          dataType: 'json',
+          contentType: 'application/json',
+          success: function (result) {
+            for (let i = 0; i < result.length; i++) {
+              const option = document.createElement("option");
+              option.text = result[i].modelname;
+              option.value = result[i].modelname;
+              selectElement1.add(option);
+            }
+          },
+        });
+      }
 
-            )
-            $("td#data-id").hide();
-
-          }
-        }
-
-      })
 
       $('#datatable').on('click', '.data-edit', function () {
         var str = "";
@@ -183,17 +241,15 @@
         var tr = checkBtn.parent().parent();
         var td = tr.children();
 
-        var itemcode = td.eq(0).text();
-        var bomno = td.eq(1).text();
-        var modelname = td.eq(2).text();
-        var itemname = td.eq(3).text();
-        var customer = td.eq(4).text();
-        var itemprice = td.eq(5).text();
-        var cost = td.eq(6).text();
-        var costpg = td.eq(7).text();
-        var id = td.eq(9).text();
+        var bomno = td.eq(0).text();
+        var modelname = td.eq(1).text();
+        var itemname = td.eq(2).text();
+        var customer = td.eq(3).text();
+        var itemprice = td.eq(4).text();
+        var cost = td.eq(5).text();
+        var costpg = td.eq(6).text();
+        var id = td.eq(10).text();
 
-        $('#itemcode-edit').val(itemcode)
         $('#bomno-edit').val(bomno)
         $('#modelname-edit').val(modelname)
         $('#itemname-edit').val(itemname)
@@ -328,73 +384,20 @@
       $('#popupOverlay').fadeIn();
     }
 
-    function Datasave() {
-      if (confirm("생산설비 정보를 등록 하시겠습니까??") == true) {
 
-
-        var equipmentname = $('#equipmentname-save').val();
-
-
-        $.ajax({
-          type: 'POST',
-          url: server + '/api/equipmentinsertdata',
-          dataType: 'json',
-          contentType: 'application/json',
-          data: JSON.stringify({
-
-            "equipmentname": equipmentname
-
-
-
-
-          }),
-          success: function (result) {
-
-
-          }
-        })
-
-        alert("저장이 완료 되었습니다.");
-        $('#popupOverlay').fadeOut();
-        $('#Datatbody').empty()
-        $.ajax({
-          type: 'POST',
-          url: server + '/api/equipment',
-          dataType: 'json',
-          success: function (data) {
-            for (var i = 0; i < data.length; i++) {
-              $('#datatable').append(
-                '<tr>' +
-                '<td>' + data[i].equipmentname + '</td>' +
-
-                '<td><a class="data-edit"  style="cursor:pointer; color:navy;">수정</a></td>' +
-                '<td id="data-id">' + data[i].id + '</td>' +
-                '</tr>'
-
-              )
-              $("td#data-id").hide();
-
-            }
-          }
-
-        })
-      } else {
-        return false;
-      }
-    }
 
     function Dataedit() {
-      if (confirm("생산설비 정보를 수정 하시겠습니까??") == true) {
+      if (confirm("단가정보를 수정하시겠습니까?") == true) {
 
         $.ajax({
           type: 'POST',
-          url: server + '/api/equipmentupdatedata',
+          url: server + '/api/priceupdate',
           dataType: 'json',
           contentType: 'application/json',
           data: JSON.stringify({
 
 
-            equipmentname: $('#equipmentname-edit').val(),
+            itemprice: $('#itemprice-edit').val(),
 
             id: $('#id-edit').val(),
 
@@ -406,38 +409,130 @@
             console.log(result)
           }
         })
+        var currentDate = new Date();
+        var year = currentDate.getFullYear();
+        var month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+        var day = currentDate.getDate().toString().padStart(2, '0');
+
+        var formattedDate = year + '-' + month + '-' + day;
+
+        $.ajax({
+          type: 'POST',
+          url: server + '/api/pricechange',
+          dataType: 'json',
+          contentType: 'application/json',
+          data: JSON.stringify({
+
+
+            bomno: $('#bomno-edit').val(),
+            modelname: $('#modelname-edit').val(),
+            itemname: $('#itemname-edit').val(),
+            customer: $('#customer-edit').val(),
+            price: $('#itemprice-edit').val(),
+            savedate: formattedDate
+
+
+          }),
+          success: function (result) {
+            console.log(result)
+          }
+        })
 
         alert("수정이 완료 되었습니다.");
         $('#popupOverlay1').fadeOut();
-        $('#Datatbody').empty()
-        $.ajax({
-          type: 'POST',
-          url: server + '/api/equipment',
-          dataType: 'json',
-          success: function (data) {
-            for (var i = 0; i < data.length; i++) {
-              $('#datatable').append(
-                '<tr>' +
-                '<td>' + data[i].equipmentname + '</td>' +
+        load()
 
-                '<td><a class="data-edit"  style="cursor:pointer; color:navy;">수정</a></td>' +
-                '<td id="data-id">' + data[i].id + '</td>' +
-                '</tr>'
-
-              )
-              $("td#data-id").hide();
-
-            }
-          }
-
-        })
       } else {
         return false;
       }
     }
 
+    function load() {
+      $('#Datatbody').empty()
+      $.ajax({
+        type: 'POST',
+        url: server + '/api/iteminfo',
+        dataType: 'json',
+        success: function (data) {
+          for (var i = 0; i < data.length; i++) {
+            var rowData = data[i];
 
-   
+            // NULL 값 처리
+            var bomno = rowData.bomno ? rowData.bomno : '';
+            var modelname = rowData.modelname ? rowData.modelname : '';
+            var itemname = rowData.itemname ? rowData.itemname : '';
+            var customer = rowData.customer ? rowData.customer : '';
+            var itemprice = rowData.itemprice ? rowData.itemprice : '';
+            var cost = rowData.cost ? rowData.cost : '';
+            var costpg = rowData.costpg ? rowData.costpg : '';
+            var etc = rowData.etc ? rowData.etc : '';
+            // itemprice - cost 계산
+            var itemPriceMinusCost = parseFloat(itemprice) - parseFloat(cost);
+
+            $('#datatable').append(
+              '<tr>' +
+              '<td>' + bomno + '</td>' +
+              '<td>' + modelname + '</td>' +
+              '<td>' + itemname + '</td>' +
+              '<td>' + customer + '</td>' +
+              '<td style="text-align:right;">' + itemprice.toLocaleString() + '</td>' +
+              '<td style="text-align:right;">' + cost.toLocaleString() + '</td>' +
+              '<td style="text-align:right;">' + itemPriceMinusCost.toLocaleString() + '</td>' +
+              '<td style="text-align:right;">' + costpg.toLocaleString() + '</td>' +
+              '<td >' + etc + '</td>' +
+              '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
+              '<td class="data-id">' + rowData.id + '</td>' +
+              '</tr>'
+            );
+
+            $("td.data-id").hide();
+          }
+        }
+      });
+    }
+
+
+
+  </script>
+  <script>
+    function s2ab(s) {
+      var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+      var view = new Uint8Array(buf);  //create uint8array as viewer
+      for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+      return buf;
+    }
+    function exportExcel() {
+      // step 1. workbook 생성
+      var wb = XLSX.utils.book_new();
+
+      // step 2. 시트 만들기 
+      var newWorksheet = excelHandler.getWorksheet();
+
+      // step 3. workbook에 새로만든 워크시트에 이름을 주고 붙인다.  
+      XLSX.utils.book_append_sheet(wb, newWorksheet, excelHandler.getSheetName());
+
+      // step 4. 엑셀 파일 만들기 
+      var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+      // step 5. 엑셀 파일 내보내기 
+      saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), excelHandler.getExcelFileName());
+    }
+  </script>
+  <script>
+    var excelHandler = {
+      getExcelFileName: function () {
+        return '품목정보리스트.xlsx';
+      },
+      getSheetName: function () {
+        return 'Table Test Sheet';
+      },
+      getExcelData: function () {
+        return document.getElementById('datatable');
+      },
+      getWorksheet: function () {
+        return XLSX.utils.table_to_sheet(this.getExcelData());
+      }
+    }
   </script>
 </body>
 

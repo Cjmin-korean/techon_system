@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>생산설비정보</title>
+    <title>거래처정보</title>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/main.css">
@@ -24,13 +24,94 @@
         width: 100%;
         /* Other table styles */
     }
+
+    /* 깜빡거리는 애니메이션을 정의합니다. */
+    /* 깜빡거리는 애니메이션을 정의합니다. */
+    @keyframes blink {
+        0% {
+            background-color: white;
+        }
+
+        50% {
+            background-color: red;
+            color: white;
+        }
+
+        100% {
+            background-color: white;
+        }
+    }
+
+    @keyframes blink1 {
+        0% {
+            background-color: white;
+        }
+
+        50% {
+            background-color: lime;
+            color: black;
+        }
+
+        100% {
+            background-color: white;
+        }
+    }
+
+    @keyframes blink2 {
+        0% {
+            background-color: white;
+        }
+
+        50% {
+            background-color: orange;
+            color: black;
+        }
+
+        100% {
+            background-color: white;
+        }
+    }
+
+    @keyframes blink3 {
+        0% {
+            background-color: white;
+        }
+
+        50% {
+            background-color: yellow;
+            color: black;
+        }
+
+        100% {
+            background-color: white;
+        }
+    }
+
+
+    /* 깜빡거리는 클래스의 스타일을 설정합니다. */
+    .blink {
+        animation: blink 1s infinite;
+    }
+
+    /* 깜빡거리는 클래스의 스타일을 설정합니다. */
+    .blink1 {
+        animation: blink1 1s infinite;
+    }
+
+    .blink2 {
+        animation: blink2 1s infinite;
+    }
+
+    .blink3 {
+        animation: blink3 1s infinite;
+    }
 </style>
 
 <body>
     <div class="main_header">
-        <a>생산설비 리스트</a>
+        <a>생산현황</a>
         <div class="buttons" style="display: flex; justify-content: flex-end;">
-            <!-- <button onclick="New()">신규</button> -->
+            <!-- <button >신규</button> -->
         </div>
 
     </div>
@@ -44,38 +125,41 @@
                 <td style="width: 200px; background-color: whitesmoke; font-weight: bold; ">검색</td>
                 <td><input type="text" id="myInput" onclick="search()" class="data" autocomplete="off"
                         style="width: auto; border: 1px solid silver; font-size: 18px;"></td>
-                <td style="width: 5%;"><input type="button" onclick="New()" value="신규" class="styled-button"></td>
-                <td style="width: 5%;"><input type="button" value="Excel-Up" class="styled-button1"></td>
+                <td style="width: 5%;"><input type="button" onclick="New()" value="자재투입" class="styled-button"></td>
+                <td style="width: 5%;"><input type="button" onclick="New1()" value="생산투입" class="styled-button"></td>
                 <td style="width: 5%;"><input type="button" value="Excel-Down" class="styled-button2"></td>
             </tr>
         </table>
     </div>
+
 
     <div id="datatable-container">
 
         <table class="styled-table" id="datatable">
             <thead>
                 <tr>
-                    <th onclick="sortTable(0)">설비코드</th>
-                    <th onclick="sortTable(1)">생산설비명</th>
-                    <th onclick="sortTable(2)">구분</th>
-                    <th onclick="sortTable(3)">규격</th>
-                    <th onclick="sortTable(4)">차수</th>
-                    <th onclick="sortTable(5)">설비제작업체</th>
-                    <th onclick="sortTable(6)">설비위치</th>
-                    <th onclick="sortTable(7)">기타사항</th>
-                    <th style="width:100px;"></th>
-                    <th style="width:100px;"></th>
+                    <th style="width: auto;" onclick="sortTable(0)">bomno</th>
+                    <th style="width: auto;" onclick="sortTable(0)">설비명</th>
+                    <th style="width: auto;" onclick="sortTable(1)">모델명</th>
+                    <th style="width: auto;" onclick="sortTable(2)">제품명</th>
+                    <th style="width: auto;" onclick="sortTable(3)">생산lot</th>
+                    <th style="width: auto;" onclick="sortTable(4)">생산지시수량</th>
+                    <th style="width: 100px;" onclick="sortTable(4)">자재</th>
+                    <th style="width: 100px;" onclick="sortTable(4)">생산</th>
+                    <th style="width: 100px;" onclick="sortTable(4)">검사</th>
+                    <th style="width: 100px;" onclick="sortTable(4)">출하</th>
+
                 </tr>
             </thead>
             <tbody id="Datatbody">
             </tbody>
             <tfoot>
                 <tr>
-                    <td style="border: 1px solid silver;" colspan="10" id="dataCount"></td>
+                    <td style="border: 1px solid silver;" colspan="12" id="dataCount"></td>
                 </tr>
             </tfoot>
         </table>
+
     </div>
     <!-- 등록창 -->
     <div id="popupOverlay" style="display: none;">
@@ -83,47 +167,40 @@
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td colspan="2" style="background-color: whitesmoke;">창고 정보 추가</td>
+                        <td colspan="2" style="background-color: black; color:white;">자재준비완료</td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">생산설비명</td>
-                        <td><input type="text" id="equipmentname-save" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver;"></td>
-
+                        <td style="width: 200px; background-color: whitesmoke;">QR CODE :</td>
+                        <td><input type="text" id="qrnum" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;" onkeydown="handleKeyPress(event)"></td>
                     </tr>
 
                 </table>
             </div>
             <button id="popupCloseBtn-save-close">취소</button>
-            <button id="popupCloseBtn-save" onclick="Datasave()">저장</button>
         </div>
     </div>
-
-    <!-- 수정창 -->
+    <!-- 등록창 -->
     <div id="popupOverlay1" style="display: none;">
-        <div id="popupContent1" style="width: 700px; height: auto;">
+        <div id="popupContent" style="width: 700px; height: auto;">
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td style="background-color: black; color: white;">생산설비정보 수정</td>
-                        <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver; "></td>
-
+                        <td colspan="2" style="background-color: black; color:white;">생산투입</td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">생산설비명</td>
-                        <td><input type="text" id="equipmentname-edit" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver;"></td>
-
+                        <td style="width: 200px; background-color: whitesmoke;">QR CODE :</td>
+                        <td><input type="text" id="qrnum1" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;" onkeydown="handleKeyPress1(event)"></td>
                     </tr>
-
 
                 </table>
             </div>
-            <button id="popupCloseBtn-edit-close">취소</button>
-            <button id="popupCloseBtn-edit" onclick="Dataedit()">수정</button>
+            <button id="popupCloseBtn-save-close1">취소</button>
         </div>
     </div>
+
+
 
 
     <!-- 삭제창 -->
@@ -132,13 +209,13 @@
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td style="background-color: black; color: white; width: 200px;">생산설비정보 정보 삭제</td>
+                        <td style="background-color: black; color: white; width: 200px;">거래처 정보 삭제</td>
                         <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
                                 style="width:100%; border:1px solid silver; "></td>
 
                     </tr>
                     <tr>
-                        <td colspan="2" style="background-color: whitesmoke;">생산설비 정보를 삭제하시겠습니까?</td>
+                        <td colspan="2" style="background-color: whitesmoke;">거래처 정보를 삭제하시겠습니까?</td>
                     </tr>
 
                 </table>
@@ -168,13 +245,32 @@
                 var tr = checkBtn.parent().parent();
                 var td = tr.children();
 
-                var equipmentname = td.eq(0).text();
-                var id = td.eq(3).text();
-
-                $('#equipmentname-edit').val(equipmentname)
+                var accountcode = td.eq(0).text();
+                var number = td.eq(1).text();
+                var accountname = td.eq(2).text();
+                var representativename = td.eq(3).text();
+                var phone = td.eq(4).text();
+                var fax = td.eq(5).text();
+                var mobile = td.eq(6).text();
+                var email = td.eq(7).text();
+                var adress = td.eq(8).text();
+                var etc = td.eq(9).text();
+                var id = td.eq(12).text();
+                $('#accountcode-edit').val(accountcode)
+                $('#accountname-edit').val(accountname)
+                $('#representativename-edit').val(representativename)
+                $('#phone-edit').val(phone)
+                $('#adress-edit').val(adress)
+                $('#number-edit').val(number)
+                $('#mobile-edit').val(mobile)
+                $('#fax-edit').val(fax)
+                $('#email-edit').val(email)
+                $('#adress-edit').val(adress)
+                $('#etc-edit').val(etc)
                 $('#id-edit').val(id)
                 $('#popupOverlay1').fadeIn();
-                $('#equipmentname-edit').focus();
+                $('#accountcode-edit').focus()
+
             });
             $('#datatable').on('click', '.data-delete', function () {
                 var str = "";
@@ -185,7 +281,7 @@
                 var td = tr.children();
 
 
-                var id = td.eq(3).text();
+                var id = td.eq(12).text();
                 $('#id-edit').val(id)
                 $('#popupOverlay2').fadeIn();
             });
@@ -194,6 +290,11 @@
             $('#popupCloseBtn-save-close').click(function () {
                 $('#popupOverlay').fadeOut();
             });
+
+            $('#popupCloseBtn-save-close1').click(function () {
+                $('#popupOverlay1').fadeOut();
+            });
+
             $('#popupCloseBtn-edit-close').click(function () {
                 $('#popupOverlay1').fadeOut();
             });
@@ -250,17 +351,17 @@
 
         //검색
         function search() {
-            console.log("11")
             const searchInput = document.getElementById('myInput');
             const dataTable = document.getElementById('datatable');
             const tableRows = dataTable.getElementsByTagName('tr');
+            const dataCountCell = document.getElementById('dataCount');
 
             searchInput.addEventListener('input', function () {
                 const searchValue = this.value.toLowerCase();
+                let count = 0;
 
                 for (let i = 1; i < tableRows.length; i++) {
                     const rowData = tableRows[i].getElementsByTagName('td');
-
                     let found = false;
 
                     for (let j = 0; j < rowData.length; j++) {
@@ -274,13 +375,16 @@
 
                     if (found) {
                         tableRows[i].style.display = '';
+                        count++;
                     } else {
                         tableRows[i].style.display = 'none';
                     }
-
                 }
+
+                dataCountCell.textContent = `검색 결과 개수: ${count - 1}`;
             });
         }
+
         function showLoading() {
             var loadingOverlay = document.getElementById("loadingOverlay");
             loadingOverlay.style.display = "flex";
@@ -292,24 +396,60 @@
         }
 
         function New() {
-            $('#equipmentname-save').val('')
+            $('#qrnum').val('')
 
             $('#popupOverlay').fadeIn();
-            $('#equipmentname-save').focus()
+            $('#qrnum').focus()
+
+        }
+        function New1() {
+            $('#qrnum1').val('')
+
+            $('#popupOverlay1').fadeIn();
+            $('#qrnum1').focus()
+
         }
 
         function Datasave() {
-            if (confirm("생산설비 정보를 등록 하시겠습니까??") == true) {
-                var equipmentname = $('#equipmentname-save').val();
+            if (confirm("고객사 정보를 등록 하시겠습니까??") == true) {
+
+
+                var accountcode = $('#accountcode-save').val();
+                var accountname = $('#accountname-save').val();
+                var representativename = $('#representativename-save').val();
+                var phone = $('#phone-save').val();
+                var adress = $('#adress-save').val();
+                var number = $('#number-save').val();
+                var fax = $('#fax-save').val();
+                var mobile = $('#mobile-save').val();
+                var email = $('#email-save').val();
+                var etc = $('#etc-save').val();
+
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/equipmentinsertdata',
+                    url: server + '/api/accountinfoinsertdata',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        "equipmentname": equipmentname
+
+                        "accountcode": accountcode,
+                        "accountname": accountname,
+                        "representativename": representativename,
+                        "phone": phone,
+                        "adress": adress,
+                        "number": number,
+                        "fax": fax,
+                        "mobile": mobile,
+                        "email": email,
+                        "etc": etc
+
+
+
+
                     }),
                     success: function (result) {
+
+
                     }
                 })
 
@@ -317,7 +457,7 @@
                 setTimeout(function () {
                     load()
                 }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">생산설비 등록 완료</span></div>');
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 등록 완료</span></div>');
                 $('body').append(notification);
                 setTimeout(function () {
                     notification.fadeOut(function () {
@@ -330,25 +470,41 @@
         }
 
         function Dataedit() {
-            if (confirm("생산설비 정보를 수정 하시겠습니까??") == true) {
+            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
+
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/equipmentupdatedata',
+                    url: server + '/api/accountupdatedata',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        equipmentname: $('#equipmentname-edit').val(),
+
                         id: $('#id-edit').val(),
+                        accountcode: $('#accountcode-edit').val(),
+                        accountname: $('#accountname-edit').val(),
+                        representativename: $('#representativename-edit').val(),
+                        phone: $('#phone-edit').val(),
+                        adress: $('#adress-edit').val(),
+                        number: $('#number-edit').val(),
+                        mobile: $('#mobile-edit').val(),
+                        fax: $('#fax-edit').val(),
+                        email: $('#email-edit').val(),
+                        etc: $('#etc-edit').val()
+
+
+
+
                     }),
                     success: function (result) {
                         console.log(result)
                     }
                 })
+
                 $('#popupOverlay1').fadeOut();
                 setTimeout(function () {
                     load()
                 }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">생산설비 수정 완료</span></div>');
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
                 $('body').append(notification);
                 setTimeout(function () {
                     notification.fadeOut(function () {
@@ -362,10 +518,10 @@
 
 
         function Datadelte() {
-            if (confirm("생산설비 정보를 수정 하시겠습니까??") == true) {
+            if (confirm("고객사 정보를 삭제 하시겠습니까??") == true) {
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/equipmentdeletedata',
+                    url: server + '/api/accountinfodeletedata',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -375,29 +531,33 @@
                     }),
                     success: function (result) {
                     }
+
                 })
                 $('#popupOverlay2').fadeOut();
                 setTimeout(function () {
                     load()
                 }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">생산설비 삭제 완료</span></div>');
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 삭제 완료</span></div>');
                 $('body').append(notification);
                 setTimeout(function () {
                     notification.fadeOut(function () {
                         $(this).remove();
                     });
                 }, 3000);
-            }
-            else {
+            } else {
                 return false;
             }
+
+
+
+
 
         }
         function load() {
             $('#Datatbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/equipment',
+                url: server + '/api/productorderlist',
                 dataType: 'json',
                 success: function (data) {
                     var tableFoot = $('#dataCount');
@@ -406,35 +566,30 @@
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
                         for (var i = 0; i < data.length; i++) {
-                            var rowData = data[i];
-
-                            // NULL 값 처리
-                            var codenumber = rowData.codenumber ? rowData.codenumber : '';
-                            var equipmentname = rowData.equipmentname ? rowData.equipmentname : '';
-                            var part = rowData.part ? rowData.part : '';
-                            var size = rowData.size ? rowData.size : '';
-                            var num = rowData.num ? rowData.num : '';
-                            var customer = rowData.customer ? rowData.customer : '';
-                            var position = rowData.position ? rowData.position : '';
-                            var etc = rowData.etc ? rowData.etc : '';
+                            // accountcode 값이 '00021'인 경우 blink 클래스 추가
+                            const blinkClass = data[i].a === '자재준비완료' ? 'blink' : '';
+                            const blinkClass1 = data[i].b === '생산대기중' ? 'blink1' : '';
+                            const blinkClass2 = data[i].c === '검사투입대기' ? 'blink2' : '';
+                            const blinkClass3 = data[i].d === '출하대기' ? 'blink3' : '';
 
                             $('#datatable').append(
                                 '<tr>' +
-                                '<td>' + codenumber + '</td>' +
-                                '<td>' + equipmentname + '</td>' +
-                                '<td>' + part + '</td>' +
-                                '<td>' + size + '</td>' +
-                                '<td>' + num + '</td>' +
-                                '<td>' + customer + '</td>' +
-                                '<td>' + position + '</td>' +
-                                '<td>' + etc + '</td>' +
-                                '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
-                                '<td><a class="data-delete" style="cursor:pointer; color:red;">삭제</a></td>' +
-                                '<td class="data-id">' + rowData.id + '</td>' +
+                                '<td>' + (data[i].bomno || '') + '</td>' +
+                                '<td>' + (data[i].marchine || '') + '</td>' +
+                                '<td>' + (data[i].modelname || '') + '</td>' +
+                                '<td>' + (data[i].itemname || '') + '</td>' +
+                                '<td>' + (data[i].lotno || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].quantity.toLocaleString() || '') + '</td>' +
+                                '<td class="' + blinkClass + '">' + (data[i].a || '') + '</td>' +
+                                '<td class="' + blinkClass1 + '">' + (data[i].b || '') + '</td>' +
+                                '<td class="' + blinkClass2 + '">' + (data[i].c || '') + '</td>' +
+                                '<td class="' + blinkClass3 + '">' + (data[i].d || '') + '</td>' +
+                                '<td id="qrno">' + (data[i].qrno || '') + '</td>' +
+                                '<td id="data-id">' + (data[i].id || '') + '</td>' +
                                 '</tr>'
                             );
-
-                            $("td.data-id").hide();
+                            $("td#data-id").hide();
+                            $("td#qrno").hide();
 
                             tableFoot.text('총 데이터 개수: ' + data.length);
                         }
@@ -443,6 +598,59 @@
             });
         }
 
+        function handleKeyPress(event) {
+            if (event.keyCode === 13) { // Enter 키를 눌렀을 때
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/updatea',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        qrno: $('#qrnum').val(),
+                        a: '자재준비완료'
+
+                    }),
+                    success: function (result) {
+
+                    }
+
+                })
+
+                $('#popupOverlay').fadeOut();
+                load()
+            }
+
+
+
+        }
+        function handleKeyPress1(event) {
+            if (event.keyCode === 13) { // Enter 키를 눌렀을 때
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/updateb',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        qrno: $('#qrnum1').val(),
+                        b: '생산대기중',
+                        a: '자재투입완료'
+
+                    }),
+                    success: function (result) {
+                    }
+
+                })
+                setTimeout(function () {
+                    $('#popupOverlay1').fadeOut();
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+
+            }
+
+
+        }
     </script>
 </body>
 

@@ -23,9 +23,22 @@
         /* Add vertical scrollbars if the content exceeds the container height */
     }
 
+
+
     #datatable {
         width: 100%;
         /* Other table styles */
+    }
+
+    .slitinglist {
+        width: 80px;
+        /* Set the desired width for the text input */
+        height: 30px;
+        /* Set the desired height for the text input */
+        border: 1px solid silver;
+        padding: 5px;
+        font-size: 16px;
+        /* Add any other styles you want to customize the appearance of the text input */
     }
 
     .notification {
@@ -52,7 +65,7 @@
         color: #333;
     }
 
-    #customer-select {
+    #part-select {
         padding: 8px;
         font-size: 14px;
         border: none;
@@ -61,6 +74,80 @@
         width: 100%;
         box-sizing: border-box;
     }
+
+    .slitting-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .slitting-table th {
+        background-color: rgb(0, 0, 0);
+        color: white;
+        font-weight: bold;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .slitting-table td {
+        padding: 8px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+
+    .slitting-input {
+        text-align: right;
+        width: 100%;
+        padding: 5px;
+        border: none;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+        /* Increase the font size as desired */
+    }
+
+    .large-textbox {
+        font-size: 18px;
+        /* Increase the font size for the large text box */
+    }
+
+    .add-button {
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+        font-weight: bold;
+        background-color: rgb(2, 2, 2);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px;
+    }
+
+    .delete-link {
+        cursor: pointer;
+        color: red;
+    }
+
+    /* Optional: Add hover effect */
+    .slitting-table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .select-box {
+        padding: 4px;
+        font-size: 15px;
+        font-weight: bold;
+        border: 1px solid black;
+        background-color: #f2f2f2;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Optional: Add hover and focus effects */
+    .select-box:hover,
+    .select-box:focus {
+        background-color: #e0e0e0;
+    }
 </style>
 
 <body>
@@ -68,11 +155,13 @@
 
 
     <div class="main_header">
-        <a>원자재 슬리팅</a>
+        <a>슬리팅</a>
         <div class="buttons" style="display: flex; justify-content: flex-end;">
-            <button onclick="New()">슬리팅 추가</button>
+            <button onclick="New()">슬리팅 등록</button>
         </div>
-
+        <div class="buttons" style="display: flex; justify-content: flex-end;">
+            <button onclick="New1()">작업지시서</button>
+        </div>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -103,7 +192,7 @@
             <div class="form-group">
                 <table style="width: 100%;">
                     <tr>
-                        <td colspan="4" style="width: 200px; background-color: black; color: white;">원자재 슬리팅 정보</td>
+                        <td colspan="4" style="width: 200px; background-color: black; color: white;">슬리팅 정보</td>
                     </tr>
 
 
@@ -114,7 +203,7 @@
 
             </div>
             <div>
-                <button style="float: right;" id="popupCloseBtn-search">원자재조회</button>
+                <button style="float: right;" id="popupCloseBtn-search">제품조회</button>
             </div>
 
             <br>
@@ -228,7 +317,7 @@
 
 
     <div class="main_header" style="background-color:rgb(0, 0, 0); color:white; width: 100%;">
-        <a>원자재 입고 정보</a>
+        <a>슬리팅 정보</a>
 
     </div>
     <div id="datatable-container">
@@ -237,52 +326,83 @@
             <thead>
 
                 <tr>
-                    <th>구분</th>
-                    <th>입고날짜</th>
-                    <th>자재명</th>
-                    <th>분류</th>
-                    <th>자재채번</th>
-                    <th>LOTNO</th>
-                    <th>제조일자</th>
-                    <th>만료일자</th>
-                    <th>자재폭(mm)</th>
-                    <th>단가(원)</th>
-                    <th>수량(M)</th>
-                    <th>금액(원)</th>
-                    <th>창고위치</th>
-                    <th>입고상태</th>
+                    <th colspan="2" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;"></th>
+                    <th colspan="6" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;">슬리팅자재입고
+                    </th>
+                    <th colspan="5" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;">작업지시내용
 
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:100px;"></th>
+                    </th>
+                    <th colspan="5" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;">슬리팅실적
+
+                    </th>
+                    <th colspan="1" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;"></th>
+                </tr>
+                <tr>
+                    <th>작업지시날짜</th>
+                    <th>구분</th>
+                    <th>자재명</th>
+                    <th>구분</th>
+                    <th>규격폭(mm)</th>
+                    <th>M</th>
+                    <th>롤수량</th>
+                    <th>입고수량(M)</th>
+                    <th>규격폭(mm)</th>
+                    <th>M</th>
+                    <th>롤수량</th>
+                    <th>재단수량(M)</th>
+                    <th>폐기여부</th>
+                    <th>규격폭(mm)</th>
+                    <th>M</th>
+                    <th>롤수량</th>
+                    <th>재단수량(M)</th>
+                    <th>폐기여부</th>
                     <th style="background-color:rgb(82, 80, 80); color:white; width:100px;"></th>
                 </tr>
             </thead>
+
+
             <tbody id="materialinputtbody">
             </tbody>
         </table>
     </div>
     <!-- 품목조회창 -->
     <div id="popupOverlay3" style="display: none;">
-        <div id="popupContent3" style="width: 60%; height: auto;">
+        <div id="popupContent3" style="width: 40%; height: auto;">
 
             <div style="width:100%; max-height: 600px; overflow-y: scroll;">
                 <table class="styled-table" id="datatable">
 
                     <thead>
                         <tr>
-                            <td colspan="9" style="width: 200px; background-color: black; color: white;">원자재 재고 정보
+                            <td colspan="9" style="width: 200px; background-color: black; color: white;">자재 재고 정보
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="3" style="width: 200px; background-color: whitesmoke; color: black;">자재검색</td>
-                            <td colspan="5"> <input type="text" id="myInput1" onkeydown="handleKeyPress(event)"
-                                    class="data" autocomplete="off" style="width:100%; border:1px solid silver;"></td>
+                            <td style="width: 300px; background-color: whitesmoke; color: black;">슬리팅 자재명</td>
+                            <td colspan="2"> <input type="text" id="myInput1" onkeydown="handleKeyPress(event)"
+                                    class="data" autocomplete="off" style="width:auto; border:1px solid silver;"></td>
+
+                        </tr>
+                        <tr>
+                            <td style="width: 300px; background-color: whitesmoke; color: black;">슬리팅 자재폭(mm)</td>
+                            <td colspan="2"> <input type="text" id="searchmaterialwidth"
+                                    onkeydown="handleKeyPress(event)" class="data" autocomplete="off"
+                                    style="width:auto; border:1px solid silver;"></td>
+
+                        </tr>
+                        <tr>
+                            <td style="width: 300px; background-color: whitesmoke; color: black;">필요 소요량(M)</td>
+                            <td colspan="2"> <input type="text" id="myInput2" class="data" autocomplete="off"
+                                    style="width:auto; border:1px solid silver;"></td>
+
                         </tr>
                         <tr>
                             <th>원자재명</th>
                             <th>분류</th>
-                            <th>LOT</th>
                             <th>자재폭(mm)</th>
                             <th>수량(M)</th>
+                            <th>롤</th>
+                            <th>총입고수량(M)</th>
 
                             <th style="background-color: silver; color:black;" style="width:100px;"></th>
                         </tr>
@@ -298,6 +418,45 @@
     </div>
 
 
+    <div id="popupOverlay2" style="display: none;">
+        <div id="popupContent2" style="width: 70%; height: auto;">
+
+            <div style="width:100%; max-height: 600px; overflow-y: scroll;">
+                <table class="styled-table" id="datatablesliting">
+
+                    <thead>
+                        <tr>
+                            <td colspan="13" style="width: 200px; background-color: black; color: white;">자재 발주 대기현황
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>자재주문번호</th>
+                            <th>생산계획날짜</th>
+                            <th>lotno</th>
+                            <th>BOMNO.</th>
+                            <th>모델명</th>
+                            <th>제품명</th>
+                            <th>소요자재명</th>
+                            <th>자재폭</th>
+                            <th>소요량</th>
+                            <th>현재고</th>
+                            <th>필요재고</th>
+                            <th>상태</th>
+
+                            <th style="background-color: silver; color:black;" style="width:100px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="Datatbody11">
+                    </tbody>
+                </table>
+            </div>
+            <button id="popupCloseBtn-delete-close">닫기</button>
+
+        </div>
+
+    </div>
+
 
 
     <!-- 수정창 -->
@@ -306,63 +465,57 @@
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td style="background-color: black; color: white;">원자재 슬리팅</td>
+                        <td style="background-color: black; color: white;">슬리팅 작업지시</td>
                         <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
                                 style="width:100%; border:1px solid silver; "></td>
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">구분</td>
-                        <td><input type="text" id="input" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;" value="슬리팅입고"></td>
-                    </tr>
+                        <td style="width: 100px; background-color: whitesmoke;">구분</td>
+                        <td style="width: 100px;">
+                            <select id="part-select" class="select-box">
+                                <option></option>
+                                <option>슬리팅</option>
+                                <option>컷팅</option>
+                            </select>
+                        </td>
+
                     <tr>
                         <td style="width: 200px; background-color: whitesmoke;">자재명</td>
                         <td><input type="text" id="materialname" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
+                                style="width:auto; border:1px solid silver;"></td>
                     </tr>
                     <tr>
                         <td style="width: 200px; background-color: whitesmoke;">분류</td>
                         <td><input type="text" id="classification" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
+                                style="width:auto; border:1px solid silver;"></td>
                     </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke; ">LOT</td>
-                        <td><input type="text" id="lotno" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke; ">단가(원)</td>
-                        <td><input type="text" id="sqmprice" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke; ">수량(M)</td>
-                        <td><input type="text" id="quantity" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                   
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke; ">입고창고</td>
-                        <td><select id="house-select"
-                                style="padding: 8px; font-size: 15px; font-weight:bold; border: none; background-color: #f2f2f2; border-radius: 4px; width: 100%; box-sizing: border-box;">
-                                <option></option>
-                            </select></td>
-                    </tr>
+
+
+
                     <tr>
                         <td style="width: 200px; background-color: whitesmoke; ">자재폭(mm)</td>
                         <td><input type="text" id="materialwidth" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver;"></td>
+                                style="width:auto; border:1px solid silver;"></td>
                     </tr>
                     <tr>
                         <td style="width: 200px; background-color: whitesmoke; ">롤(roll)</td>
                         <td><input type="text" id="roll" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver;"></td>
+                                style="width:auto; border:1px solid silver;"></td>
                     </tr>
-                  
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; ">M</td>
+                        <td><input type="text" id="quantity" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; ">합계수량(M)</td>
+                        <td><input type="text" id="totalquantity" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;"></td>
+                    </tr>
                     <tr style="display: none;">
                         <td style="width: 200px; background-color: whitesmoke; ">자재삭제</td>
                         <td><input type="text" id="materialname-delete" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver; "></td>
+                                style="width:auto; border:1px solid silver; "></td>
                     </tr>
                     <tr style="display: none;">
                         <td style="width: 200px; background-color: whitesmoke; ">분류삭제</td>
@@ -412,73 +565,221 @@
                         <td><input type="text" id="materialid-delete" class="data" autocomplete="off"
                                 style="width:100%; border:1px solid silver; "></td>
                     </tr>
+                    <table class="slitting-table">
+                        <thead>
+                            <tr>
+                                <th>자재폭(mm)</th>
+                                <th>M</th>
+                                <th>롤수량(M)</th>
+                                <th>재단수량(M)</th>
+                                <th style="width:20%;">폐기여부</th>
+                                <th>
+                                    <button class="add-button" onclick="add1()">추가</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="datatable1tbody">
+                            <tr>
+                                <td><input type="text" class="slitting-input" id="finallotno1" autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="finalmwidth1" autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="finalroll1" onkeydown="sum(event)"
+                                        autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="finalsumquantity1" autocomplete="off">
+                                </td>
+                                <td id="finaltrash1"></td>
+                                <td><a class="delete-link" id="datalotdelete">삭제</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                 </table>
             </div>
             <button id="popupCloseBtn-edit-close">취소</button>
-            <button id="popupCloseBtn-edit" onclick="Dataedit()">추가</button>
+            <button id="popupCloseBtn-edit" onclick="Dataedit()">등록</button>
         </div>
     </div>
 
 
-    <!-- 영업수량수정창 -->
-    <div id="popupOverlay4" style="display: none;">
-        <div id="popupContent4" style="width: 700px; height: 550px;">
+    <!-- 수정창 -->
+    <div id="popupOverlay12" style="display: none;">
+        <div id="popupContent12" style="width: 700px; height: auto;">
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td style="background-color: black; color: white;">PO Item 수정</td>
-                        <td><input type="text" id="id-POedit" class="data" autocomplete="off"
+                        <td style="background-color: black; color: white;">슬리팅 실적입력</td>
+                        <td><input type="text" id="id-edit2" class="data" autocomplete="off"
                                 style="width:100%; border:1px solid silver; "></td>
-
                     </tr>
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">품목코드</td>
-                        <td><input type="text" id="itemcode-POedit" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">BOMNO</td>
-                        <td><input type="text" id="bomno-POedit" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">모델명</td>
-                        <td><input type="text" id="modelname-POedit" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">제품명</td>
-                        <td><input type="text" id="itemname-POedit" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">고객사</td>
-                        <td><input type="text" id="customer-POedit" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">단가(원)</td>
-                        <td><input type="text" id="itemprice-POedit" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px; background-color: whitesmoke; ">원가(원)</td>
-                        <td><input type="text" id="cost-POedit" class="data" autocomplete="off" readonly
-                                style="width:100%; border:1px solid silver;"></td>
-                    </tr>
+                        <td style="width: 100px; background-color: whitesmoke;">구분</td>
+                        <td style="width: 100px;">
+                            <select id="part-select" class="select-box">
+                                <option></option>
+                                <option>슬리팅</option>
+                                <option>컷팅</option>
+                            </select>
+                        </td>
 
                     <tr>
-                        <td style="width: 200px; background-color: whitesmoke;">PO수량</td>
-                        <td><input type="text" id="count-POedit" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver;"></td>
+                        <td style="width: 200px; background-color: whitesmoke;">자재명</td>
+                        <td><input type="text" id="materialname" class="data" autocomplete="off" readonly
+                                style="width:auto; border:1px solid silver;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke;">분류</td>
+                        <td><input type="text" id="classification" class="data" autocomplete="off" readonly
+                                style="width:auto; border:1px solid silver;"></td>
                     </tr>
 
+
+
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; ">자재폭(mm)</td>
+                        <td><input type="text" id="materialwidth" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; ">롤(roll)</td>
+                        <td><input type="text" id="roll" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; ">M</td>
+                        <td><input type="text" id="quantity" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; ">합계수량(M)</td>
+                        <td><input type="text" id="totalquantity" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;"></td>
+                    </tr>
+                    <tr style="display: none;">
+                        <td style="width: 200px; background-color: whitesmoke; ">자재삭제</td>
+                        <td><input type="text" id="materialname-delete" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver; "></td>
+                    </tr>
+                    <tr style="display: none;">
+                        <td style="width: 200px; background-color: whitesmoke; ">분류삭제</td>
+                        <td><input type="text" id="classification-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+                    <tr style="display: none;">
+                        <td style="width: 200px; background-color: whitesmoke; ">로트삭제</td>
+                        <td><input type="text" id="lotno-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+                    <tr style="display: none;">
+                        <td style="width: 200px; background-color: whitesmoke; ">자재폭삭제</td>
+                        <td><input type="text" id="materialwidth-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+
+                    <tr style="display: none;">
+                        <td style="width: 200px; background-color: whitesmoke; ">수량삭제</td>
+                        <td><input type="text" id="quantity-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+                    <tr style="display: none;">
+                        <td style="width: 200px; background-color: whitesmoke; ">단가삭제</td>
+                        <td><input type="text" id="sqmprice-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+                    <tr style="display: none;">
+
+                        <td style="width: 200px; background-color: whitesmoke; ">채번삭제</td>
+                        <td><input type="text" id="codenumber-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+                    <tr style="display: none;">
+
+                        <td style="width: 200px; background-color: whitesmoke; ">제조삭제</td>
+                        <td><input type="text" id="manu-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+                    <tr style="display: none;">
+                        <td style="width: 200px; background-color: whitesmoke; ">만료삭제</td>
+                        <td><input type="text" id="exp-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+                    <tr style="display: none;">
+                        <td style="width: 200px; background-color: whitesmoke; ">id삭제</td>
+                        <td><input type="text" id="materialid-delete" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+                    <table class="slitting-table">
+                        <thead>
+                            <tr>
+                                <th>자재폭(mm)</th>
+                                <th>M</th>
+                                <th>롤수량(M)</th>
+                                <th>재단수량(M)</th>
+                                <th style="width:20%;">폐기여부</th>
+                                <th>
+                                    <button class="add-button" onclick="add1()">추가</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="datatable1tbody">
+                            <tr>
+                                <td><input type="text" class="slitting-input" id="lotno1" autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="mwidth1" autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="roll1" onkeydown="sum(event)"
+                                        autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="sumquantity1" autocomplete="off"></td>
+                                <td id="trash1"></td>
+                                <td><a class="delete-link" id="datalotdelete">삭제</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </table>
+            </div>
+            <button id="popupCloseBtn-edit-close">취소</button>
+            <button id="popupCloseBtn-edit" onclick="Dataedit()">등록</button>
+        </div>
+    </div>
+
+    <!-- 영업수량수정창 -->
+    <div id="popupOverlay4" style="display: none;">
+        <div id="popupContent4" style="width: 700px; height: auto;">
+            <div class="form-group">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="background-color: black; color: white;">슬리팅 실적입력</td>
+                        <td><input type="text" id="id-edit3" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+                    </tr>
+
+                    <table class="slitting-table">
+                        <thead>
+                            <tr>
+                                <th>자재폭(mm)</th>
+                                <th>M</th>
+                                <th>롤수량(M)</th>
+                                <th>재단수량(M)</th>
+                                <th style="width:20%;">폐기여부</th>
+                                <th>
+                                    <button class="add-button" onclick="add2()">추가</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="datatable2tbody">
+                            <tr>
+                                <td><input type="text" class="slitting-input" id="lotno1" autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="mwidth1" autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="roll1" onkeydown="sum(event)"
+                                        autocomplete="off"></td>
+                                <td><input type="text" class="slitting-input" id="sumquantity1" autocomplete="off"></td>
+                                <td id="trash1"></td>
+                                <td><a class="delete-link" id="datalotdelete">삭제</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                 </table>
             </div>
             <button id="popupCloseBtn-POedit-close">취소</button>
-            <button id="popupCloseBtn-POedit" onclick="PODataedit()">수정</button>
+            <button id="popupCloseBtn-POedit" onclick="Dataedit1()">실적입력</button>
         </div>
     </div>
 
@@ -516,6 +817,7 @@
         $(document).ready(function () {
             showLoading()
             settingDate()
+
             $('#count-edit').on('input', function () {
                 var value = $(this).val().replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
                 if (value === '') {
@@ -553,7 +855,6 @@
                     }
                 }
             });
-
 
 
 
@@ -635,6 +936,7 @@
                 );
             })
 
+
             $('#datatable').on('click', '.data-edit', function () {
                 var str = "";
                 var tdArr = new Array();// 배열 선언            
@@ -645,39 +947,40 @@
 
                 var materialname = td.eq(0).text();
                 var classification = td.eq(1).text();
-                var lotno = td.eq(2).text();
-                var materialwidth = td.eq(3).text();
-                var quantity = td.eq(4).text();
-                var day = td.eq(5).text();
-                var sqmprice = td.eq(6).text();
-                var codenumber = td.eq(7).text();
-                var manufacturedate = td.eq(8).text();
-                var expirationdate = td.eq(9).text();
-                var materialid = td.eq(10).text();
+                var materialwidth = td.eq(2).text();
+                var roll = td.eq(4).text();
+                var quantity = td.eq(3).text();
+                var totalquantity = td.eq(5).text();
+                var lotno = $('#searchmaterialwidth').val()
 
                 $('#materialname').val(materialname)
                 $('#classification').val(classification)
-                $('#lotno').val(lotno)
                 $('#materialwidth').val(materialwidth)
                 $('#quantity').val(quantity)
-                // $('#quantity').val(quantity)
+                $('#totalquantity').val(totalquantity)
+                $('#mwidth1').val(quantity)
+                $('#lotno1').val(lotno)
 
-                $('#sqmprice').val(sqmprice)
-                $('#materialname-delete').val(materialname)
-                $('#classification-delete').val(classification)
-                $('#lotno-delete').val(lotno)
-                $('#materialwidth-delete').val(materialwidth)
-                $('#quantity-delete').val(quantity)
-                $('#sqmprice-delete').val(sqmprice)
-                $('#codenumber-delete').val(codenumber)
-                $('#manu-delete').val(manufacturedate)
-                $('#exp-delete').val(expirationdate)
-                $('#materialid-delete').val(materialid)
 
-                $('#roll').val('')
+                $('#roll').val(roll)
 
                 $('#popupOverlay1').fadeIn();
-                $('#house-selct').focus()
+                $('#roll1').focus()
+            });
+
+            $('#materialdatatable').on('click', '.data-edit1', function () {
+
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var id = td.eq(19).text();
+                $('#id-edit3').val(id);
+                $('#popupOverlay4').fadeIn();
+                console.log(id)
             });
 
 
@@ -837,7 +1140,128 @@
             $('#popupOverlay3').fadeIn();
             $('#myInput1').focus()
             $('#myInput1').val('')
+            $('#searchmaterialwidth').val('')
         }
+
+
+        $('#datatablesliting').on('click', '.data-sliting', function () {
+            $('#Datatbody').empty();
+
+            var str = "";
+            var tdArr = new Array();// 배열 선언            
+            var checkBtn = $(this);
+
+            var tr = checkBtn.parent().parent();
+            var td = tr.children();
+
+
+            var materialname = td.eq(6).text();
+            var materialwidth = td.eq(7).text();
+            var soyo = td.eq(10).text();
+            $('#myInput1').val(materialname)
+            $('#myInput2').val(soyo)
+            $('#searchmaterialwidth').val(materialwidth)
+            console.log(materialname)
+            $('#popupOverlay2').fadeOut();
+            $('#popupOverlay3').fadeIn();
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/materialrealstock',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    searchText: $('#myInput1').val(),
+                    materialwidth: $('#searchmaterialwidth').val()
+                }),
+                success: function (result) {
+                    $('#Datatbody').empty();
+
+
+
+                    for (var i = 0; i < result.length; i++) {
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td>' + result[i].materialname + '</td>' +
+                            '<td>' + result[i].classification + '</td>' +
+                            '<td style="text-align:right;">' + result[i].materialwidth.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + result[i].roll.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + result[i].totalquantity.toLocaleString() + '</td>' +
+                            '<td><a class="data-edit"  style="cursor:pointer; color:navy;" onclick="selectRow(' + i + ')">슬리팅</a></td>' +
+
+                            '</tr>'
+                        );
+                        $("td#slim").hide();
+                    }
+
+                    var selectedData = []; // 선택된 데이터를 저장할 배열
+
+                    // 행 클릭 시 해당 데이터를 배열에 하는 함수
+                    window.selectRow = function (index) {
+                        var rowData = result[index]; // 선택된 행의 데이터
+                        selectedData.push(rowData); // 선택된 데이터를 배열에 추가
+                        var materialname = rowData.materialname;
+                        var classification = rowData.classification;
+                        var lotno = rowData.lotno;
+                        var materialwidth = rowData.materialwidth;
+                        var totalquantity = rowData.totalquantity;
+                        var sqmprice = rowData.sqmprice;
+                        var codenumber = rowData.codenumber;
+                        var manufacturedate = rowData.manufacturedate;
+                        var expirationdate = rowData.expirationdate;
+                        console.log(selectedData);
+                    }
+
+                }
+            });
+
+        })
+        function New1() {
+            $('#Datatbody11').empty();
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/materialsoyojisi',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        var conditionClass = result[i].condition === '부족' ? 'insufficient' : ''; // Add conditionClass based on the condition value
+                        var conditionStyle = result[i].condition === '부족' ? 'background-color: red; color: white;' : 'background-color: green; color: white;'; // Update conditionStyle based on the condition value
+
+                        $('#Datatbody11').append(
+                            '<tr>' +
+                            '<td>' + result[i].orderid + '</td>' +
+                            '<td>' + result[i].productdate + '</td>' +
+                            '<td>' + result[i].lotno + '</td>' +
+                            '<td>' + result[i].bomno + '</td>' +
+                            '<td>' + result[i].model + '</td>' +
+                            '<td>' + result[i].itemname + '</td>' +
+                            '<td>' + result[i].materialname + '</td>' +
+                            '<td style="text-align:right;">' + result[i].swidth.toLocaleString() + '</td>' +
+                            '<td class="soyo-value" style="text-align:right;">' + result[i].soyo.toLocaleString() + '</td>' +
+                            '<td class="soyo-value" style="text-align:right;">' + result[i].materialnum.toLocaleString() + '</td>' +
+                            '<td class="soyo-value" style="text-align:right;">' + result[i].diff.toLocaleString() + '</td>' +
+                            '<td class="soyo-value" style="' + conditionStyle + '">' + result[i].condition + '</td>' + // Apply conditionStyle here
+                            '<td><a class="data-sliting" style="cursor:pointer; color:blue;">슬리팅</a></td>' +
+                            '</tr>'
+                        );
+
+                        // Add the conditionClass to the 'condition' cell
+                        $('#Datatbody11 tr:last-child td.so-yo-value').addClass(conditionClass);
+                    }
+                }
+            });
+
+            $('#popupOverlay2').fadeIn();
+            $('#myInput1').focus()
+            $('#myInput1').val('')
+            $('#searchmaterialwidth').val('')
+        }
+
+
 
         function Datasave() {
 
@@ -920,7 +1344,7 @@
                 }, 3000);
 
             } else {
-                if (confirm("원자재 슬리팅을 진행 하시겠습니까??") == true) {
+                if (confirm("원자재 슬리팅지시를 등록 하시겠습니까??") == true) {
                     // printpage()
                     const date = new Date();
 
@@ -957,9 +1381,7 @@
                     var lotno = $('#lotno').val();
                     var roll = $('#roll').val();
                     var quantity = $('#quantity').val();
-                    var quantity1 = quantity.replace(/,/g, "");
-                    var sqmprice1 = $('#sqmprice').val();
-                    var sqmprice = sqmprice1.replace(/,/g, "");
+
                     var classification = $('#classification').val();
                     var sum = $('#quantity').val() * $('#roll').val();;
                     var today = new Date();
@@ -977,64 +1399,70 @@
                     var expirationdate = sumyyyy + '-' + summm + '-' + sumdd
                     var resultdate = sumyyyy + '-' + summm + '-' + sumdd
 
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/slimdeletematerial',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-
-                            "materialname": $('#materialname-delete').val(),
-                            "input": "슬리팅출고",
-                            "codenumber": $('#codenumber-delete').val(),
-                            "manufacturedate": $('#manu-delete').val(),
-                            "expirationdate": $('#exp-delete').val(),
-                            "materialwidth": $('#materialwidth-delete').val(),
-                            "classification": $('#classification-delete').val(),
-                            "date": currentDate,
-                            "lotno": $('#lotno-delete').val(),
-                            "quantity": parseInt(-quantity1),
-                            "part": '슬리팅완료',
-                            "sqmprice": $('#sqmprice-delete').val(),
-                            "house": $('#house-delete').val(),
-                            "materialid" : $('#materialid-delete').val()
-                        }),
-                        success: function (result) {
-
-                        }
-                    })
-
-
-
-
-                    for (i = 0; i < roll; i++) {
+                    // .input('m', sql.Float, req.body.m)
+                    // .input('roll', sql.Float, req.body.roll)
+                    var rowCount = $('#datatable1tbody tr').length + 1;
+                    for (var i = 1; i < rowCount; i++) {
                         $.ajax({
                             type: 'POST',
-                            url: server + '/api/materialinputsave',
+                            url: server + '/api/slimdeletematerial',
                             dataType: 'json',
                             contentType: 'application/json',
                             data: JSON.stringify({
 
-                                "materialname": materialname,
-                                "input": "슬리팅입고",
-                                "codenumber":  $('#codenumber-delete').val(),
-                                "manufacturedate": $('#manu-delete').val(),
-                                "expirationdate":$('#exp-delete').val(),
-                                "materialwidth": materialwidthcomma,
-                                "classification": classification,
-                                "date": currentDate,
-                                "lotno": lotno,
-                                "quantity": quantity1,
-                                "part": '입고완료',
-                                "sqmprice": sqmprice,
-                                "house": house
+                                "slitingdate": today,
+                                "part": $('#part-select').val(),
+                                "materialname": $('#materialname').val(),
+                                "classification": $('#classification').val(),
+                                "expirationdate": $('#exp-delete').val(),
+                                "materialwidth": $('#materialwidth').val(),
+                                "m": $('#quantity').val(),
+                                "roll": $('#roll').val(),
+                                "total": $('#totalquantity').val(),
+                                "aftermaterialwidth": $('#lotno' + i + '').val(),
+                                "afterm": $('#mwidth' + i + '').val(),
+                                "afterroll": $('#roll' + i + '').val(),
+                                "aftertotal": $('#sumquantity' + i + '').val(),
+                                "trash": $('#trash' + i + '').val()
                             }),
                             success: function (result) {
 
                             }
                         })
-
                     }
+
+
+
+
+
+                    // for (i = 0; i < roll; i++) {
+                    //     $.ajax({
+                    //         type: 'POST',
+                    //         url: server + '/api/materialinputsave',
+                    //         dataType: 'json',
+                    //         contentType: 'application/json',
+                    //         data: JSON.stringify({
+
+                    //             "materialname": materialname,
+                    //             "input": "슬리팅입고",
+                    //             "codenumber": $('#codenumber-delete').val(),
+                    //             "manufacturedate": $('#manu-delete').val(),
+                    //             "expirationdate": $('#exp-delete').val(),
+                    //             "materialwidth": materialwidthcomma,
+                    //             "classification": classification,
+                    //             "date": currentDate,
+                    //             "lotno": lotno,
+                    //             "quantity": quantity1,
+                    //             "part": '입고완료',
+                    //             "sqmprice": sqmprice,
+                    //             "house": house
+                    //         }),
+                    //         success: function (result) {
+
+                    //         }
+                    //     })
+
+                    // }
                     setTimeout(function () {
                         load()
                     }, 50); // 3초 후에 알림을 사라지게 설정
@@ -1045,7 +1473,6 @@
 
             }
         }
-
 
 
 
@@ -1102,9 +1529,6 @@
                 });
             }, 3000); // 3초 후에 알림을 사라지게 설정
         });
-        $(document).on('click', '.POdata-edit', function () {
-        })
-
 
 
 
@@ -1160,7 +1584,14 @@
 
         }
 
+        function sum(event) {
+            if (event.keyCode === 13) { // Enter 키를 눌렀을 때
+                for (var i = 1; i < $('#datatable1tbody tr').length + 1; i++) {
+                    $('#sumquantity' + i + '').val($('#roll' + i + '').val() * $('#mwidth' + i + '').val())
+                }
 
+            }
+        }
         function handleKeyPress(event) {
             if (event.keyCode === 13) { // Enter 키를 눌렀을 때
 
@@ -1170,7 +1601,8 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        searchText: $('#myInput1').val()
+                        searchText: $('#myInput1').val(),
+                        materialwidth: $('#searchmaterialwidth').val()
                     }),
                     success: function (result) {
                         $('#Datatbody').empty();
@@ -1182,15 +1614,16 @@
                                 '<tr>' +
                                 '<td>' + result[i].materialname + '</td>' +
                                 '<td>' + result[i].classification + '</td>' +
-                                '<td>' + result[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + result[i].materialwidth.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + result[i].roll.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + result[i].totalquantity.toLocaleString() + '</td>' +
                                 '<td><a class="data-edit"  style="cursor:pointer; color:navy;" onclick="selectRow(' + i + ')">슬리팅</a></td>' +
-                                '<td id="slim">' + result[i].sqmprice.toLocaleString() + '</td>' +
-                                '<td id="slim">' + result[i].codenumber + '</td>' +
-                                '<td id="slim">' + result[i].manufacturedate + '</td>' +
-                                '<td id="slim">' + result[i].expirationdate + '</td>' +
-                                '<td id="slim">' + result[i].materialid + '</td>' +
+                                // '<td id="slim">' + result[i].sqmprice.toLocaleString() + '</td>' +
+                                // '<td id="slim">' + result[i].codenumber + '</td>' +
+                                // '<td id="slim">' + result[i].manufacturedate + '</td>' +
+                                // '<td id="slim">' + result[i].expirationdate + '</td>' +
+                                // '<td id="slim">' + result[i].materialid + '</td>' +
                                 '</tr>'
                             );
                             $("td#slim").hide();
@@ -1225,136 +1658,249 @@
     <script>
         function load() {
             $('#materialinputtbody').empty()
+
+        }
+        function Dataedit1() {
+            if (confirm("슬리팅 실적을 입력 하시겠습니까??") == true) {
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/slitingsiljok3',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        id: '19',
+                        finalmaterialwidth: $('#lotno1').val(),
+                        finalm: $('#mwidth1').val(),
+                        finalroll: $('#roll1').val(),
+                        finaltotal: $('#sumquantity1').val(),
+                        finaltrash: $('#trash1').val(),
+                     
+
+
+
+
+                    }),
+                    success: function (result) {
+                    }
+                })
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/slitingsiljok3',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        id: '20',
+                        finalmaterialwidth: $('#lotno2').val(),
+                        finalm: $('#mwidth2').val(),
+                        finalroll: $('#roll2').val(),
+                        finaltotal: $('#sumquantity2').val(),
+                        finaltrash: $('#trash2').val(),
+                     
+
+
+
+
+                    }),
+                    success: function (result) {
+                    }
+                })
+
+                $('#popupOverlay4').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">슬리팅 입력 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+
+        }
+
+        function add1() {
+
+            console.log(11)
+            var rowCount = $('#datatable1tbody tr').length + 1;
+            var quantity = $('#quantity').val()
+            var newRow = '<tr>' +
+                '<td><input type="text" style="text-align:right;" class="slitting-input" id="lotno' + rowCount + '"></td>' +
+                '<td><input type="text" style="text-align:right;" value="' + quantity + '" class="slitting-input" id="mwidth' + rowCount + '"> </td>' +
+                '<td><input type="text" style="text-align:right;" onkeydown="sum(event)" class="slitting-input" id="roll' + rowCount + '"></td>' +
+                '<td><input type="text" style="text-align:right;" class="slitting-input" id="sumquantity' + rowCount + '"></td>' +
+                '<td><select id="trash' + rowCount + '" class="select-box">' +
+                '<option value=""></option>' + // Set a value for the first option tag
+                '<option value="폐기">폐기</option>' +
+                '</select></td>' +
+                '<td><a class="datalotdelete" style="cursor:pointer; color:red;">삭제</a></td>' +
+                '</tr>';
+
+
+
+            $('#datatable1tbody').append(newRow);
+        }
+
+        function add2() {
+
+            var rowCount = $('#datatable2tbody tr').length + 1;
+            var quantity = $('#quantity').val()
+            var newRow = '<tr>' +
+                '<td><input type="text" style="text-align:right;" class="slitting-input" id="lotno' + rowCount + '"></td>' +
+                '<td><input type="text" style="text-align:right;" value="' + quantity + '" class="slitting-input" id="mwidth' + rowCount + '"> </td>' +
+                '<td><input type="text" style="text-align:right;" onkeydown="sum(event)" class="slitting-input" id="roll' + rowCount + '"></td>' +
+                '<td><input type="text" style="text-align:right;" class="slitting-input" id="sumquantity' + rowCount + '"></td>' +
+                '<td><select id="trash' + rowCount + '" class="select-box">' +
+                '<option value=""></option>' + // Set a value for the first option tag
+                '<option value="폐기">폐기</option>' +
+                '</select></td>' +
+                '<td><a class="datalotdelete" style="cursor:pointer; color:red;">삭제</a></td>' +
+                '</tr>';
+
+
+
+            $('#datatable2tbody').append(newRow);
+        }
+
+        function load() {
+            $('#materialinputtbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/materialinputsearchslim',
+                url: server + '/api/selectslitingplan',
                 dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    start: $('#datepicker2').val(),
-                    finish: $('#datepicker3').val()
-                }),
                 success: function (data) {
-                    // Group data by date
-                    var groupedData = {};
-                    var dateTotals = {}; // Object to store date-wise totals
-
-                    for (var i = 0; i < data.length; i++) {
-                        var date = data[i].date;
-
-                        if (!groupedData[date]) {
-                            groupedData[date] = [];
-                            dateTotals[date] = {
-                                sumquantity: 0,
-                                totalQuantity: 0
-                            };
-                        }
-
-                        groupedData[date].push(data[i]);
-
-                        var quantity = parseFloat(data[i].quantity.replace(/,/g, ''));
-                        var materialWidth = parseFloat(data[i].materialwidth.replace(/,/g, ''));
-                        var sqmprice = parseFloat(data[i].sqmprice.replace(/,/g, ''));
-                        var multipliedValue = quantity * materialWidth / 1000 * sqmprice;
-
-                        dateTotals[date].sumquantity += quantity;
-                        dateTotals[date].totalQuantity += multipliedValue;
+                    if (!Array.isArray(data) || data.length === 0) {
+                        // Handle empty data or invalid data, if required.
+                        return;
                     }
 
-                    var overallSumquantity = 0; // Variable to store the overall sum quantity
-                    var overallTotalQuantity = 0; // Variable to store the overall total quantity
+                    var groupedData = groupBySlitingDate(data);
 
-                    // Iterate over each date group
                     for (var date in groupedData) {
                         if (groupedData.hasOwnProperty(date)) {
-                            // Create a group header row for the date
-                            $('#materialdatatable').append(
-                                '<tr>' +
-                                '<td colspan="16" style="background-color: #f2f2f2;"><strong>' + date + '</strong></td>' +
-                                '</tr>'
-                            );
+                            var groupsByPart = groupedData[date];
+                            var rowCount = 0;
 
-                            var groupData = groupedData[date]; // Get the data for the current date group
-                            var sumquantity = 0; // Variable to store the sum quantity for the current date group
-                            var totalQuantity = 0; // Variable to store the total quantity for the current date group
+                            for (var part in groupsByPart) {
+                                if (groupsByPart.hasOwnProperty(part)) {
+                                    var groupByPart = groupsByPart[part];
+                                    var rows = groupByPart.rows;
+                                    var rowSpan = rows.length;
 
-                            for (var i = 0; i < groupData.length; i++) {
-                                var part = groupData[i].part;
-                                var backgroundColor = '';
+                                    for (var i = 0; i < rows.length; i++) {
+                                        var rowData = rows[i];
+                                        var slitingDateCell = rowCount === 0 ? `<td rowspan="${rowSpan}">${rowData.slitingdate}</td>` : '';
+                                        var partCell = rowCount === 0 ? `<td rowspan="${rowSpan}">${rowData.part}</td>` : '';
+                                        var materialNameCell = rowCount === 0 ? `<td rowspan="${rowSpan}">${rowData.materialname}</td>` : '';
+                                        var classificationCell = rowCount === 0 ? `<td rowspan="${rowSpan}">${rowData.classification}</td>` : '';
+                                        var materialWidthCell = rowCount === 0 ? `<td style="text-align:right;" rowspan="${rowSpan}">${rowData.materialwidth}</td>` : '';
+                                        var mCell = rowCount === 0 ? `<td style="text-align:right;" rowspan="${rowSpan}">${rowData.m}</td>` : '';
+                                        var rollCell = rowCount === 0 ? `<td style="text-align:right;" rowspan="${rowSpan}">${rowData.roll}</td>` : '';
+                                        var totalCell = rowCount === 0 ? `<td style="text-align:right;" rowspan="${rowSpan}">${rowData.total}</td>` : '';
 
-                                if (part === '입고완료') {
-                                    backgroundColor = 'blue';
-                                } else if (part === '출고대기') {
-                                    backgroundColor = 'red';
-                                } else if (part === '수입검사대기') {
-                                    backgroundColor = 'green';
+                                        var isHapjiSlitting = rowData.part === "합지슬리팅";
+
+                                        var afterMaterialWidthCell, afterMCell, afterRollCell, afterTotalCell;
+                                        if (isHapjiSlitting) {
+                                            afterMaterialWidthCell = rowCount === 0 ? `<td style="text-align:right;" rowspan="${rowSpan}">${rowData.aftermaterialwidth}</td>` : '';
+                                            afterMCell = rowCount === 0 ? `<td style="text-align:right;" rowspan="${rowSpan}">${rowData.afterm}</td>` : '';
+                                            afterRollCell = rowCount === 0 ? `<td style="text-align:right;" rowspan="${rowSpan}">${rowData.afterroll}</td>` : '';
+                                            afterTotalCell = rowCount === 0 ? `<td style="text-align:right;" rowspan="${rowSpan}">${rowData.aftertotal}</td>` : '';
+                                        } else {
+                                            afterMaterialWidthCell = `<td style="text-align:right;">${rowData.aftermaterialwidth}</td>`;
+                                            afterMCell = `<td style="text-align:right;">${rowData.afterm}</td>`;
+                                            afterRollCell = `<td style="text-align:right;">${rowData.afterroll}</td>`;
+                                            afterTotalCell = `<td style="text-align:right;">${rowData.aftertotal}</td>`;
+                                        }
+                                        var trash = `<td style="color:red;">${rowData.trash}</td>`;
+
+                                        var finalMaterialWidthCell = `<td style="text-align:right;">${rowData.finalmaterialwidth === null ? '' : rowData.finalmaterialwidth}</td>`;
+                                        var finalMCell = `<td style="text-align:right;">${rowData.finalm === null ? '' : rowData.finalm}</td>`;
+                                        var finalRollCell = `<td style="text-align:right;">${rowData.finalroll === null ? '' : rowData.finalroll}</td>`;
+                                        var finalTotalCell = `<td style="text-align:right;">${rowData.finaltotal === null ? '' : rowData.finaltotal}</td>`;
+                                        var finalTrash = `<td style="color:red;">${rowData.finaltrash === null ? '' : rowData.finaltrash}</td>`;
+
+                                        var inputCell = rowCount === 0 ? `<td rowspan="${rowSpan}"><a class="data-edit1" style="cursor:pointer; color:navy;">실적입력</a></td>` : '';
+                                        var idCell = `<td style="color:red;">${rowData.id === null ? '' : rowData.id}</td>`;
+                                        var ordernoCell = `<td style="color:red;">${rowData.orderno === null ? '' : rowData.orderno}</td>`;
+
+                                        $('#materialinputtbody').append(
+                                            '<tr>' +
+                                            slitingDateCell +
+                                            partCell +
+                                            materialNameCell +
+                                            classificationCell +
+                                            materialWidthCell +
+                                            mCell +
+                                            rollCell +
+                                            totalCell +
+                                            afterMaterialWidthCell +
+                                            afterMCell +
+                                            afterRollCell +
+                                            afterTotalCell +
+                                            trash +
+                                            finalMaterialWidthCell +
+                                            finalMCell +
+                                            finalRollCell +
+                                            finalTotalCell +
+                                            finalTrash +
+                                            inputCell +
+                                            idCell +
+                                            ordernoCell +
+                                            '</tr>'
+                                        );
+
+                                        rowCount++;
+                                    }
                                 }
-
-                                var quantity = parseFloat(groupData[i].quantity.replace(/,/g, ''));
-                                var materialWidth = parseFloat(groupData[i].materialwidth.replace(/,/g, ''));
-                                var sqmprice = parseFloat(groupData[i].sqmprice.replace(/,/g, ''));
-
-                                sumquantity += quantity;
-                                var multipliedValue = quantity * materialWidth / 1000 * sqmprice;
-                                totalQuantity += multipliedValue;
-
-                                var classification = groupData[i].classification !== null ? groupData[i].classification : '';
-                                var lotno = groupData[i].lotno !== null ? groupData[i].lotno : '';
-                                var manufacturedate = groupData[i].manufacturedate !== null ? groupData[i].manufacturedate : '';
-                                var expirationdate = groupData[i].expirationdate !== null ? groupData[i].expirationdate : '';
-
-                                $('#materialdatatable').append(
-                                    '<tr>' +
-                                    '<td>' + groupData[i].input + '</td>' +
-                                    '<td>' + groupData[i].date + '</td>' +
-                                    '<td>' + groupData[i].materialname + '</td>' +
-                                    '<td>' + classification + '</td>' +
-                                    '<td>' + groupData[i].codenumber + '</td>' +
-                                    '<td>' + lotno + '</td>' +
-                                    '<td>' + manufacturedate + '</td>' +
-                                    '<td>' + expirationdate + '</td>' +
-                                    '<td style="text-align:right;">' + groupData[i].materialwidth.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;">' + groupData[i].sqmprice.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;">' + quantity.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;">' + multipliedValue.toLocaleString() + '</td>' +
-                                    '<td>' + groupData[i].house + '</td>' +
-                                    '<td style="color:white; background-color: ' + backgroundColor + ';">' + part + '</td>' +
-                                    '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
-                                    '<td><a class="data-delete" style="cursor:pointer; color:red;">삭제</a></td>' +
-                                    '<td class="data-id">' + groupData[i].id + '</td>' +
-                                    '</tr>'
-                                );
                             }
-
-                            // Add the sum quantity row for the current date group
-                            $('#materialdatatable').append(
-                                '<tr>' +
-                                '<td style="font-weight:bold;" colspan="10">' + date + ' 합계</td>' +
-                                '<td style="text-align:right;"><strong>' + sumquantity.toLocaleString() + '</strong></td>' +
-                                '<td style="text-align:right;"><strong>' + totalQuantity.toLocaleString() + '</strong></td>' +
-                                '<td colspan="4"></td>' +
-                                '</tr>'
-                            );
-
-                            overallSumquantity += sumquantity;
-                            overallTotalQuantity += totalQuantity;
                         }
                     }
-
-                    // Add the overall sum quantity row at the end
-                    $('#materialdatatable').append(
-                        '<tr>' +
-                        '<td style="font-weight:bold;" colspan="10">전체 합계</td>' +
-                        '<td style="text-align:right;"><strong>' + overallSumquantity.toLocaleString() + '</strong></td>' +
-                        '<td style="text-align:right;"><strong>' + overallTotalQuantity.toLocaleString() + '</strong></td>' +
-                        '<td colspan="4"></td>' +
-                        '</tr>'
-                    );
-
-                    $('.data-id').hide();
                 }
             });
         }
+
+        function groupBySlitingDate(data) {
+            var groupedData = {};
+            if (!Array.isArray(data)) {
+                return groupedData; // Return empty object if data is not an array
+            }
+
+            for (var i = 0; i < data.length; i++) {
+                var date = data[i].slitingdate;
+                var part = data[i].part;
+                var materialname = data[i].materialname;
+                var orderno = data[i].orderno;
+                var groupKey = date + "-" + orderno;
+
+                if (!groupedData[groupKey]) {
+                    groupedData[groupKey] = {};
+                }
+
+                if (!groupedData[groupKey][part]) {
+                    groupedData[groupKey][part] = { rows: [] };
+                }
+
+                groupedData[groupKey][part].rows.push(data[i]);
+            }
+
+            return groupedData;
+        }
+
+
+
+
+
+
+
+
 
     </script>
 

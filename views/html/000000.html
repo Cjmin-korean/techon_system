@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>거래처정보</title>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="../css/main.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<head>
+    <title>Table Data Move</title>
+    <style>
+        /* CSS 스타일링 */
+
+
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 10px auto;
+        }
+
+        #sourceTable td,
+        #targetTable td {
+            padding: 18px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        th:hover {
+            cursor: pointer;
+            background-color: #050505;
+        }
+
+        /* 이동 버튼 스타일링 */
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 20px auto;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Source Table, Target Table에 각각 헤더와 데이터를 구분하는 색상 추가 */
+        #sourceTable th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #targetTable th {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #sourceTable td {
+            background-color: #ecf3f8;
+        }
+
+        #targetTable td {
+            background-color: #fcebec;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            /* 최대 너비를 1200px로 설정 */
+            margin: 20px auto;
+        }
+
+        #sourceTable {
+            width: 60%;
+            /* 50% 너비로 설정 */
+        }
+
+        #targetTable {
+            width: 38%;
+            /* 45% 너비로 설정 */
+        }
+
+        #sourceTable th:first-child,
+        #sourceTable td:first-child,
+        #targetTable th:first-child,
+        #targetTable td:first-child {
+            width: 10%;
+            /* 설비명 컬럼의 너비를 10%로 설정 */
+        }
+
+
+        h2 {
+            width: 97%;
+            text-align: center;
+            font-size: 24px;
+            margin: 20px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            position: relative;
+            border: 1px solid silver;
+        }
+
+        .arrow {
+            font-size: 24px;
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #07090a;
+        }
+
+        .arrow.left {
+            left: 10px;
+        }
+
+        .arrow.right {
+            right: 10px;
+        }
+
+        #house-select {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="popupOverlay1" style="display: none;">
+        <div id="popupContent1" style="width: 700px; height: auto;">
+            <div class="form-group">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="background-color: black; color: white;">생산계획 확정</td>
+                        <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
+                                style="width:100%; border:1px solid silver; "></td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 200px; background-color: whitesmoke; ">설비호기</td>
+                        <td><select id="house-select">
+                                <option>고속 1호기</option>
+                                <option>고속 2호기</option>
+                                <option>고속 3호기</option>
+                                <option>고속 4호기</option>
+                                <option>고속 5호기</option>
+                                <option>고속 6호기</option>
+                                <option>고속 7호기(1)</option>
+                                <option>고속 7호기(2)</option>
+                                <option>고속 8호기(1)</option>
+                                <option>고속 8호기(2)</option>
+                                <option>고속 9호기(1)</option>
+                                <option>고속 9호기(2)</option>
+                                <option>고속 10호기(1)</option>
+                                <option>고속 10호기(2)</option>
+                                <option>고속 11호기(1)</option>
+                                <option>고속 11호기(2)</option>
+                                <option>고속 12호기(1)</option>
+                                <option>고속 12호기(2)</option>
+                                <option>고속 13호기(1)</option>
+                                <option>고속 13호기(2)</option>
+                                <option>고속 14호기(1)</option>
+                                <option>고속 14호기(2)</option>
+                                <option>고속 15호기(1)</option>
+                                <option>고속 15호기(2)</option>
+                                <option>유압 1호기</option>
+                                <option>유압 2호기</option>
+                                <option>유압 3호기</option>
+                                <option>유압 4호기</option>
+                                <option>유압 5호기</option>
+
+
+                            </select></td>
+                    </tr>
+
+
+                </table>
+            </div>
+            <button id="popupCloseBtn-edit-close">취소</button>
+            <button id="popupCloseBtn-edit" onclick="Dataedit()">저장</button>
+        </div>
+    </div>
+    <h2>
+        <div class="arrow left" onclick="showPreviousDay()">◀ Previous</div>
+        생산계획표
+        <div class="arrow right" onclick="showNextDay()">Next ▶</div>
+    </h2>
+
+    <div class="container">
+
+        <table id="sourceTable">
+            <tr>
+                <th colspan="15">2023-08-14</th>
+            </tr>
+            <tr>
+                <th style="width: 10%;">설비명</th>
+                <th>BOM NO</th>
+                <th>고객사</th>
+                <th>모델</th>
+                <th>품명</th>
+                <th>작업차수</th>
+                <th>생산LOT.NO</th>
+                <th>PO</th>
+                <th>누적실적</th>
+                <th>PO잔량</th>
+                <th>금일계획</th>
+                <th>금일실적</th>
+                <th>작업자</th>
+                <th>생산ISSUE사항</th>
+                <th>Status</th>
+            </tr>
+            <!-- 고정된 "설비1호기" 행 -->
+            <tr>
+                <td rowspan="7">고속1호기<br> (3조)<br> 태경3232 <br>(이중)</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td id="bomno"></td>
+                <td id="customer"></td>
+                <td id="modelname"></td>
+                <td id="itemname"></td>
+                <td id="marchine"></td>
+                <td id="lotno"></td>
+                <td id="quantity"></td>
+                <td id="1"></td>
+                <td id="2"></td>
+                <td id="3"></td>
+                <td id="4"></td>
+                <td id="5"></td>
+                <td id="6"></td>
+                <td id="7"></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td rowspan="7">고속2호기<br> (3조)<br> 태경3232</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속3호기<br> (3조)<br> 태경3232</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속4호기<br> (3조)<br> 태경3232</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속5호기<br> (3조)<br> 태경3232</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속6호기<br> (3조)<br> 태경3232</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속7호기<br> (5조)<br>태경3232<br>(이중)</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속8호기<br> (5조)<br>태경3232<br>(이중)</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속9호기<br> (5조)<br>태경3232<br>(이중)</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속10호기<br> (5조)<br>태경4038<br>(이중)</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속11호기<br> (5조)<br>태경4038</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속12호기<br> (5조)<br>태경4038</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속13호기<br> (5조)<br>태경4038</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속14호기<br> (5조)<br>태경4038<br>(이중)</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">고속15호기<br> (5조)<br>태경4038</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">유압1호기</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">유압2호기</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+            <tr>
+                <td rowspan="7">유압3호기</td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr draggable="true" ondragstart="dragStart(event)">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- ===================================================== -->
+        </table>
+
+
+        <table class="styled-table" id="targetTable">
+            <thead>
+                <tr>
+                    <th colspan="10">생산계획확정 리스트</th>
+                </tr>
+                <tr>
+                    <th>BOMNO.</th>
+                    <th>생산계획날짜</th>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <th>생산LOTNO.</th>
+                    <th>수량(개)</th>
+                    <th style="width:50px;"></th>
+                    <th style="width:50px;"></th>
+                </tr>
+            </thead>
+            <tbody id="orderdatatabletbody">
+            </tbody>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+
+            load()
+            if (dataTd.id === '7' && dataTd.value === '생산대기') {
+                td.classList.add('blink');
+            }
+        })
+        function load() {
+            $('#orderdatatabletbody').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/productorderlist',
+                dataType: 'json',
+                success: function (data) {
+                    var tableBody = $('#orderdatatabletbody');
+                    if (data.length === 0) {
+                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가   
+                        tableBody.append('<tr><td colspan="10">데이터가 없습니다.</td></tr>');
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
+                            tableBody.append(
+                                '<tr>' +
+                                '<td>' + data[i].bomno + '</td>' +
+                                '<td style="font-weight:bold;">' + data[i].productdate + '</td>' +
+                                '<td>' + data[i].modelname + '</td>' +
+                                '<td>' + data[i].itemname + '</td>' +
+                                '<td>' + data[i].lotno + '</td>' +
+                                '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
+                                '<td><a class="savebutton" style="cursor:pointer; color:navy;">등록</a></td>' +
+                                '<td><a class="datadelete" style="cursor:pointer; color:red;">삭제</a></td>' +
+                                '<td class="data-id">' + data[i].id + '</td>' +
+                                '</tr>'
+                            );
+                        }
+                    }
+                    $('.data-id').hide();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+
+            if (window.location.hostname == 'localhost') {
+                server = 'http://localhost:8080';
+            } else {
+                server = 'http://techonmes.co.kr';
+            }
+            $('#popupCloseBtn-edit-close').click(function () {
+                $('#popupOverlay1').fadeOut();
+            });
+            $('#popupCloseBtn-edit').click(function () {
+                $('#popupOverlay1').fadeOut();
+            });
+            // 클릭 시 데이터 추가
+            $('#targetTable').on('click', 'tr', function () {
+                $('#popupOverlay1').fadeIn();
+
+            });
+            $('#sourceTable').on('click', '#6', function () {
+                const dataTdList = [
+                    { id: 'bomno', value: '' },
+                    { id: 'modelname', value: '' },
+                    { id: 'itemname', value: '' },
+                    { id: 'lotno', value: '' },
+                    { id: 'quantity', value: '' },
+                    { id: 'customer', value: '' },
+                    { id: 'marchine', value: '' },
+                    { id: '1', value: '' },
+                    { id: '2', value: '' },
+                    { id: '3', value: '' },
+                    { id: '4', value: '' },
+                    { id: '5', value: '' },
+                    { id: '6', value: '' },
+                    { id: '7', value: '' }
+                ];
+
+                dataTdList.forEach(dataTd => {
+                    const td = document.getElementById(dataTd.id);
+                    td.innerText = dataTd.value;
+                    td.style.backgroundColor = '#ecf3f8';
+                    td.style.color = 'white';
+                });
+                load()
+            });
+
+
+        });
+        function Dataedit() {
+            // 클릭된 행의 데이터를 가져오기
+            const bomno = $(this).find('td:eq(0)').text();
+            const productdate = $(this).find('td:eq(1)').text();
+            const modelname = $(this).find('td:eq(2)').text();
+            const itemname = $(this).find('td:eq(3)').text();
+            const lotno = $(this).find('td:eq(4)').text();
+            const quantity = $(this).find('td:eq(5)').text();
+
+            // 데이터를 'id="bomno"'인 <td> 요소에 추가
+
+
+            // 나머지 데이터를 해당 <td> 요소에 추가하고 배경색과 텍스트 색상 변경
+            const dataTdList = [
+                { id: 'bomno', value: 'YPE-2-216' },
+                { id: 'modelname', value: 'T6_3' },
+                { id: 'itemname', value: '2CS-COV' },
+                { id: 'lotno', value: '230809-1' },
+                { id: 'quantity', value: '2,000' },
+                { id: 'customer', value: '영풍전자' },
+                { id: 'marchine', value: '2차고속' },
+                { id: '1', value: '' },
+                { id: '2', value: '' },
+                { id: '3', value: '' },
+                { id: '4', value: '' },
+                { id: '5', value: '' },
+                { id: '6', value: '삭제' },
+                { id: '7', value: '생산대기' }
+            ];
+
+            dataTdList.forEach(dataTd => {
+                const td = document.getElementById(dataTd.id);
+                td.innerText = dataTd.value;
+                td.style.backgroundColor = 'navy';
+                td.style.color = 'white';
+            });
+            // id가 '7'이고 값이 '생산대기'인 경우에 깜빡거리는 클래스를 추가
+          
+            $('#orderdatatabletbody').empty()
+        }
+
+
+    </script>
+
+</body>
+
+</html>
