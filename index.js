@@ -37,7 +37,9 @@ app.get("/config.json", cors(), (req, res) => {
 app.get("/main", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/mainmenu.html");
 });
-
+app.get("/readingwork", cors(), (req, res) => {
+    res.sendFile(__dirname + "/views/html/0.html");
+});
 app.get("/house", cors(), (req, res) => {
     res.sendFile(__dirname + "/houseinformation.html");
 });
