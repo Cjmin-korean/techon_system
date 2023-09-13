@@ -1236,7 +1236,7 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
-        app.post('/api/excelinputmaterial', function (req, res) {
+        app.post('/api/inputexcelmaterial', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
