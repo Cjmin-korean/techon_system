@@ -18,14 +18,15 @@ var server = app.listen(port, function () { console.log("Express server has star
 const PORT = 3001;
 
 const corsOptions = {
-    origin: '*',
-    credentials: true,
+    origin: 'http://errdoc.gabia.io', // 허용할 도메인
+    optionsSuccessStatus: 200, // CORS 요청 성공 상태 코드
 };
 console.log('corsOptions', corsOptions)
 console.log('process.env', process.env.PORT)
 app.use(cors(corsOptions));
 // 정적 파일 불러오기
 app.use(express.static(__dirname + "/views"));
+
 
 // 라우팅 정의.start.html
 app.get("/", cors(), (req, res) => {
