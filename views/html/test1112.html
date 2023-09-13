@@ -13,9 +13,84 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 
 </head>
 <style>
+    /* 스타일링을 추가하세요 */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    /* 모달 스타일 */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+        /* 모달을 다른 요소 위에 표시하기 위한 z-index 설정 */
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        max-width: 80%;
+    }
+
+    /* 내부 테이블 스타일 */
+    .modal-content table {
+        width: 100%;
+    }
+
+    .modal-content th,
+    .modal-content td {
+        padding: 16px;
+    }
+
+    /* 스크롤 가능한 컨테이너 스타일 */
+    .table-container {
+        max-height: 300px;
+        /* 원하는 높이로 조정 */
+        overflow-y: auto;
+        /* 세로 스크롤 활성화 */
+    }
+
+    /* 버튼 스타일 */
+    .modal-button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .modal-button:hover {
+        background-color: #0056b3;
+    }
+
     #datatable-container {
         max-height: 1000px;
         /* Adjust the maximum height as needed */
@@ -70,6 +145,28 @@
         border: 1px solid #ccc;
         border-radius: 4px;
     }
+
+    .custom-file-input {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-block;
+        /* 인라인 요소로 표시 */
+        position: relative;
+        /* 위치를 상대적으로 설정 */
+    }
+
+    .custom-file-label {
+        font-size: 16px;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        display: inline-block;
+        /* 인라인 요소로 표시 */
+    }
 </style>
 
 <body>
@@ -77,12 +174,33 @@
 
 
     <div class="main_header">
-        <a>원자재입고1</a>
+        <a>원자재입고</a>
         <div class="buttons" style="display: flex; justify-content: flex-end;">
             <button onclick="New()">입고추가</button>
             <button onclick="New1()">QRcode</button>
+            <div id="uploadContainer">
+                <label class="custom-file-input">
+                    엑셀 파일 선택
+                    <input type="file" id="excelFileInput" onchange="uploadExcelFile()" onclick="resetFileInput()">
+                    <!-- <button onclick="resetFileInput()">리셋</button> -->
+                </label>
+            </div>
         </div>
 
+    </div>
+    <div id="myModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation();">
+            <span onclick="closeModal()" style="cursor: pointer; float: right;">&times;</span>
+            <h3>엑셀 데이터</h3>
+            <!-- 테이블을 감싸는 스크롤 가능한 컨테이너 추가 -->
+            <div class="table-container">
+                <div id="excelData">
+                    <!-- 엑셀 데이터를 여기에 표시합니다. -->
+                </div>
+            </div>
+            <!-- 버튼 추가 -->
+            <button class="modal-button" onclick="SaveModal()">데이터 저장</button>
+        </div>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -1694,6 +1812,189 @@
             }
 
 
+        }
+        function openModal() {
+            var modal = document.getElementById('myModal');
+            modal.style.display = 'flex'; // 모달을 flex로 표시하여 가운데 정렬
+        }
+
+        // 모달 닫기
+        function closeModal() {
+
+            var modal = document.getElementById('myModal');
+            modal.style.display = 'none';
+        }
+
+
+        function SaveModal() {
+
+            var excelDataDiv = document.getElementById('excelData');
+
+            // div 요소의 자식 요소 중에서 tr 태그를 모두 선택
+            var tableRows = excelDataDiv.querySelectorAll('tr');
+
+
+            for (var i = 2; i < tableRows.length + 1; i++) {
+
+                var input = '원자재입고';
+                var customer = $('#sjs-A' + i).text();
+                var date = $('#sjs-B' + i).text();
+                var materialname = $('#sjs-C' + i).text();
+                var materialwidth = $('#sjs-D' + i).text();
+                var quantity = $('#sjs-E' + i).text();
+                var lotno = $('#sjs-F' + i).text();
+                var manufacturedate = $('#sjs-H' + i).text();
+                var expirationdate = $('#sjs-I' + i).text();
+                var roll = $('#sjs-K' + i).text();
+
+                function formatDate(dateString) {
+                    // 날짜 문자열을 '/'를 기준으로 분리
+                    var parts = dateString.split('/');
+                    var month = parts[0];
+                    var day = parts[1];
+                    var year = parts[2];
+
+                    // 'yy' 형식으로 된 연도를 'yyyy' 형식으로 변환
+                    if (year.length === 2) {
+                        year = '20' + year;
+                    }
+                    // 월과 일을 두 자리로 만들기
+                    month = month.length === 1 ? '0' + month : month;
+                    day = day.length === 1 ? '0' + day : day;
+
+                    // 날짜를 'yyyy-mm-dd' 형식으로 조합
+                    var formattedDate = year + '-' + month + '-' + day;
+                    return formattedDate;
+
+                    var formattedDate1 = year + '-' + month + '-' + day;
+                    return formattedDate1;
+
+                    var formattedDate2 = year + '-' + month + '-' + day;
+                    return formattedDate2;
+                }
+
+                // 예시 날짜를 '2/1/24'에서 '2024-02-01'로 변환
+                var originalDate = date;
+                var formattedDate = formatDate(originalDate);
+
+                var originalDate1 = manufacturedate;
+                var formattedDate1 = formatDate(originalDate1);
+
+                var originalDate2 = expirationdate;
+                var formattedDate2 = formatDate(originalDate2);
+
+
+
+                // 날짜 형식 변환 함수를 사용하여 날짜를 변경
+                date = formatDate(date);
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/excelinputmaterial',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "input": input,
+                        "customer": customer,
+                        "date": formattedDate,
+                        "materialname": materialname,
+                        "codenumber": materialname,
+                        "materialwidth": materialwidth,
+                        "quantity": quantity,
+                        "lotno": lotno,
+                        "manufacturedate": formattedDate1,
+                        "expirationdate": formattedDate2,
+                        "roll": roll,
+                        "part": '수입검사대기',
+                        "classification": '사급자재',
+                        "house": '원자재창고',
+
+                    }),
+                    success: function (result) {
+                        // Ajax 요청 성공 시 수행할 동작
+                    }
+                });
+            }
+      
+            var modal = document.getElementById('myModal');
+            modal.style.display = 'none';
+
+            load()
+        }
+
+
+
+        function uploadExcelFile() {
+            var fileInput = document.getElementById('excelFileInput');
+            var file = fileInput.files[0]; // 선택된 파일 가져오기
+
+            if (file) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var workbook = XLSX.read(data, { type: 'binary' });
+
+                    var firstSheetName = workbook.SheetNames[0];
+                    var sheet = workbook.Sheets[firstSheetName];
+                    var html = XLSX.utils.sheet_to_html(sheet);
+
+                    // 표시할 HTML을 생성
+                    var tableHtml = '<table>' + html + '</table>';
+
+                    // HTML에 추가하기 전에 날짜 형식 변환 수행
+                    tableHtml = convertDatesInHTML(tableHtml);
+
+                    // 결과를 원하는 위치에 표시
+                    document.getElementById('excelData').innerHTML = tableHtml;
+
+                    // 모달 열기
+                    openModal();
+                };
+
+                reader.readAsBinaryString(file);
+            } else {
+                alert('파일을 선택해주세요.');
+            }
+        }
+
+        // HTML에서 날짜 형식 변환 함수
+        function convertDatesInHTML(html) {
+            var dateRegex = /\d{4}-\d{2}-\d{2}/g; // 날짜 형식을 찾는 정규식
+            var matches = html.match(dateRegex);
+
+            if (matches) {
+                for (var i = 0; i < matches.length; i++) {
+                    var excelDate = matches[i];
+                    var dateObj = new Date(excelDate);
+                    var formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+                    // 날짜 형식을 변환하여 HTML에 적용
+                    html = html.replace(excelDate, formattedDate);
+                }
+            }
+
+            return html;
+        }
+        function displayFileName() {
+            var fileInput = document.getElementById('excelFileInput');
+            var customLabel = document.querySelector('.custom-file-label');
+
+            if (fileInput.files.length > 0) {
+                customLabel.innerHTML = fileInput.files[0].name;
+            } else {
+                customLabel.innerHTML = '엑셀 파일 선택';
+            }
+        }
+
+        function resetFileInput() {
+            var fileInput = document.getElementById('excelFileInput');
+            var customLabel = document.querySelector('.custom-file-label');
+
+            // 파일 입력 필드 초기화
+            fileInput.value = '';
+            // 라벨 텍스트 초기화
+            customLabel.innerHTML = '엑셀 파일 선택';
         }
     </script>
 

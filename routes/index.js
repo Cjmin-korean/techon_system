@@ -1234,6 +1234,46 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/excelinputmaterial', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('date', sql.NVarChar, req.body.date)
+                .input('input', sql.NVarChar, req.body.input)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('manufacturedate', sql.NVarChar, req.body.manufacturedate)
+                .input('expirationdate', sql.NVarChar, req.body.expirationdate)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .input('quantity', sql.Int, req.body.quantity)
+                .input('roll', sql.Int, req.body.roll)
+                .input('sum', sql.Int, req.body.sum)
+                .input('price', sql.Int, req.body.price)
+                .input('accountnumber', sql.NVarChar, req.body.accountnumber)
+                .input('contents', sql.NVarChar, req.body.contents)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('classification', sql.NVarChar, req.body.classification)
+                .input('house', sql.NVarChar, req.body.house)
+
+                .query(
+                    'insert into materialinput(date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice,customer,classification,house)' +
+                    ' values(@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice,@customer,@classification,@house)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
 
     // **** start       

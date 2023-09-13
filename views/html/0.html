@@ -1,85 +1,210 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>엑셀 파일 업로드</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>엑셀 파일 업로드 및 표시</title>
     <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
+        /* 스타일링을 추가하세요 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
             text-align: center;
-            background-color: #f2f2f2;
         }
 
-        h2 {
-            margin-top: 20px;
-            color: #007bff;
-        }
-
-        #uploadContainer {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            margin-top: 30px;
-        }
-
-        #excelFileInput {
-            display: none; /* 실제 파일 입력 필드를 숨깁니다. */
-        }
-
-        .custom-upload-button {
+        th {
             background-color: #007bff;
             color: #fff;
-            padding: 15px 30px;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            /* 모달을 다른 요소 위에 표시하기 위한 z-index 설정 */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            max-width: 80%;
+        }
+
+        /* 내부 테이블 스타일 */
+        .modal-content table {
+            width: 100%;
+        }
+
+        .modal-content th,
+        .modal-content td {
+            padding: 16px;
+        }
+
+        /* 스크롤 가능한 컨테이너 스타일 */
+        .table-container {
+            max-height: 300px;
+            /* 원하는 높이로 조정 */
+            overflow-y: auto;
+            /* 세로 스크롤 활성화 */
+        }
+
+        /* 버튼 스타일 */
+        .modal-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 18px;
-            margin-bottom: 20px;
-            transition: background-color 0.3s ease;
+            font-size: 16px;
         }
 
-        .custom-upload-button:hover {
+        .modal-button:hover {
             background-color: #0056b3;
-        }
-
-        label {
-            display: inline-block;
-            padding: 15px 30px;
-            border: 2px solid #007bff;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 18px;
-            color: #007bff;
-            transition: background-color 0.3s ease;
-        }
-
-        label:hover {
-            background-color: #f2f2f2;
         }
     </style>
 </head>
+
 <body>
-    <h2>엑셀 파일 업로드</h2>
+    <h2>엑셀 파일 업로드 및 표시</h2>
     <div id="uploadContainer">
-        <input type="file" id="excelFileInput">
-        <label for="excelFileInput" class="custom-upload-button">파일 선택</label>
-        <button onclick="uploadExcelFile()" class="custom-upload-button">업로드</button>
+        <input type="file" id="excelFileInput" onchange="uploadExcelFile()">
+        <!-- 버튼을 추가하여 모달 열기 -->
+        <button onclick="openModal()">모달 열기</button>
     </div>
 
+    <!-- 모달 창 -->
+    <div id="myModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation();">
+            <span onclick="closeModal()" style="cursor: pointer; float: right;">&times;</span>
+            <h3>엑셀 데이터</h3>
+            <!-- 테이블을 감싸는 스크롤 가능한 컨테이너 추가 -->
+            <div class="table-container">
+                <div id="excelData">
+                    <!-- 엑셀 데이터를 여기에 표시합니다. -->
+                </div>
+            </div>
+            <!-- 버튼 추가 -->
+            <button class="modal-button" onclick="closeModal()">데이터 저장</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script>
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        // 모달 열기
+        function openModal() {
+            var modal = document.getElementById('myModal');
+            modal.style.display = 'flex'; // 모달을 flex로 표시하여 가운데 정렬
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            for (var i = 2; i < 4; i++) {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/excelinputmaterial',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "customer": $('#sjs-A' + i),
+
+
+                    }),
+                    success: function (result) {
+
+
+                    }
+                })
+            }
+
+            // var modal = document.getElementById('myModal');
+            // modal.style.display = 'none';
+        }
+
         function uploadExcelFile() {
             var fileInput = document.getElementById('excelFileInput');
             var file = fileInput.files[0]; // 선택된 파일 가져오기
 
             if (file) {
-                // 파일이 선택된 경우 파일 처리를 수행할 수 있습니다.
-                // 예를 들어, 엑셀 파일을 서버로 업로드하거나 로컬에서 처리할 수 있습니다.
-                alert('파일 업로드 성공: ' + file.name);
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var workbook = XLSX.read(data, { type: 'binary' });
+
+                    var firstSheetName = workbook.SheetNames[0];
+                    var sheet = workbook.Sheets[firstSheetName];
+                    var html = XLSX.utils.sheet_to_html(sheet);
+
+                    // 표시할 HTML을 생성
+                    var tableHtml = '<table>' + html + '</table>';
+
+                    // HTML에 추가하기 전에 날짜 형식 변환 수행
+                    tableHtml = convertDatesInHTML(tableHtml);
+
+                    // 결과를 원하는 위치에 표시
+                    document.getElementById('excelData').innerHTML = tableHtml;
+
+                    // 모달 열기
+                    openModal();
+                };
+
+                reader.readAsBinaryString(file);
             } else {
                 alert('파일을 선택해주세요.');
             }
         }
+
+        // HTML에서 날짜 형식 변환 함수
+        function convertDatesInHTML(html) {
+            var dateRegex = /\d{4}-\d{2}-\d{2}/g; // 날짜 형식을 찾는 정규식
+            var matches = html.match(dateRegex);
+
+            if (matches) {
+                for (var i = 0; i < matches.length; i++) {
+                    var excelDate = matches[i];
+                    var dateObj = new Date(excelDate);
+                    var formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+                    // 날짜 형식을 변환하여 HTML에 적용
+                    html = html.replace(excelDate, formattedDate);
+                }
+            }
+
+            return html;
+        }
     </script>
 </body>
+
 </html>
