@@ -17,24 +17,7 @@ module.exports = function (app) {
         }
     };
 
-    const express = require('express');
-    const cors = require('cors');
-
-    const app = express();
-
-    // CORS 미들웨어 설정
-    const corsOptions = {
-        origin: 'http://errdoc.gabia.io', // 허용할 도메인
-        optionsSuccessStatus: 200, // CORS 요청 성공 상태 코드
-    };
-
-    app.use(cors(corsOptions));
-
-    // 나머지 Express 라우팅 및 설정
-
-    app.listen(3000, () => {
-        console.log('서버가 3000 포트에서 실행 중입니다.');
-    });
+ 
 
     // **** start
     sql.connect(config).then(pool => {
