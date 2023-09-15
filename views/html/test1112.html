@@ -1830,98 +1830,135 @@
         function SaveModal() {
 
             var excelDataDiv = document.getElementById('excelData');
-
-            // div 요소의 자식 요소 중에서 tr 태그를 모두 선택
             var tableRows = excelDataDiv.querySelectorAll('tr');
+            var sixthColumnData = []; // 6번째 열의 데이터를 저장할 배열
 
+            // 각 행을 반복하면서 6번째 열의 데이터를 배열에 추가
+            tableRows.forEach(function (row) {
+                var cells = row.querySelectorAll('td');
+                if (cells.length >= 6) { // 적어도 6개의 열이 있는 경우만 처리
+                    var sixthColumnText = cells[5].textContent.trim(); // 6번째 열의 데이터
+                    sixthColumnData.push(sixthColumnText);
+                }
+            });
 
-            for (var i = 2; i < tableRows.length + 1; i++) {
+            // 중복된 데이터 찾기
+            var duplicates = findDuplicates(sixthColumnData);
 
-                var input = '원자재입고';
-                var customer = $('#sjs-A' + i).text();
-                var date = $('#sjs-B' + i).text();
-                var materialname = $('#sjs-C' + i).text();
-                var materialwidth = $('#sjs-D' + i).text();
-                var quantity = $('#sjs-E' + i).text();
-                var lotno = $('#sjs-F' + i).text();
-                var manufacturedate = $('#sjs-H' + i).text();
-                var expirationdate = $('#sjs-I' + i).text();
-                var roll = $('#sjs-K' + i).text();
+            // 중복된 데이터가 있을 때만 alert 메시지 표시
+            if (duplicates.length > 0) {
+                alert('중복된 데이터: ' + duplicates.join(', ') + ' 가 존재합니다.');
+            } else {
+                for (var i = 2; i < tableRows.length + 1; i++) {
 
-                function formatDate(dateString) {
-                    // 날짜 문자열을 '/'를 기준으로 분리
-                    var parts = dateString.split('/');
-                    var month = parts[0];
-                    var day = parts[1];
-                    var year = parts[2];
+                    var input = '원자재입고';
+                    var customer = $('#sjs-A' + i).text();
+                    var date = $('#sjs-B' + i).text();
+                    var materialname = $('#sjs-C' + i).text();
+                    var materialwidth = $('#sjs-D' + i).text();
+                    var quantity = $('#sjs-E' + i).text();
+                    var lotno = $('#sjs-F' + i).text();
+                    var manufacturedate = $('#sjs-H' + i).text();
+                    var expirationdate = $('#sjs-I' + i).text();
+                    var roll = $('#sjs-K' + i).text();
 
-                    // 'yy' 형식으로 된 연도를 'yyyy' 형식으로 변환
-                    if (year.length === 2) {
-                        year = '20' + year;
+                    function formatDate(dateString) {
+                        // 날짜 문자열을 '/'를 기준으로 분리
+                        var parts = dateString.split('/');
+                        var month = parts[0];
+                        var day = parts[1];
+                        var year = parts[2];
+
+                        // 'yy' 형식으로 된 연도를 'yyyy' 형식으로 변환
+                        if (year.length === 2) {
+                            year = '20' + year;
+                        }
+                        // 월과 일을 두 자리로 만들기
+                        month = month.length === 1 ? '0' + month : month;
+                        day = day.length === 1 ? '0' + day : day;
+
+                        // 날짜를 'yyyy-mm-dd' 형식으로 조합
+                        var formattedDate = year + '-' + month + '-' + day;
+                        return formattedDate;
+
+                        var formattedDate1 = year + '-' + month + '-' + day;
+                        return formattedDate1;
+
+                        var formattedDate2 = year + '-' + month + '-' + day;
+                        return formattedDate2;
                     }
-                    // 월과 일을 두 자리로 만들기
-                    month = month.length === 1 ? '0' + month : month;
-                    day = day.length === 1 ? '0' + day : day;
 
-                    // 날짜를 'yyyy-mm-dd' 형식으로 조합
-                    var formattedDate = year + '-' + month + '-' + day;
-                    return formattedDate;
+                    // 예시 날짜를 '2/1/24'에서 '2024-02-01'로 변환
+                    var originalDate = date;
+                    var formattedDate = formatDate(originalDate);
 
-                    var formattedDate1 = year + '-' + month + '-' + day;
-                    return formattedDate1;
+                    var originalDate1 = manufacturedate;
+                    var formattedDate1 = formatDate(originalDate1);
 
-                    var formattedDate2 = year + '-' + month + '-' + day;
-                    return formattedDate2;
+                    var originalDate2 = expirationdate;
+                    var formattedDate2 = formatDate(originalDate2);
+
+
+
+                    // 날짜 형식 변환 함수를 사용하여 날짜를 변경
+                    date = formatDate(date);
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/inputexcelmaterial',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "input": input,
+                            "customer": customer,
+                            "date": formattedDate,
+                            "materialname": materialname,
+                            "codenumber": materialname,
+                            "materialwidth": materialwidth,
+                            "quantity": quantity,
+                            "lotno": lotno,
+                            "manufacturedate": formattedDate1,
+                            "expirationdate": formattedDate2,
+                            "roll": roll,
+                            "part": '수입검사대기',
+                            "classification": '사급자재',
+                            "house": '원자재창고',
+
+                        }),
+                        success: function (result) {
+                            // Ajax 요청 성공 시 수행할 동작
+                        }
+                    });
                 }
 
-                // 예시 날짜를 '2/1/24'에서 '2024-02-01'로 변환
-                var originalDate = date;
-                var formattedDate = formatDate(originalDate);
+                var modal = document.getElementById('myModal');
+                modal.style.display = 'none';
 
-                var originalDate1 = manufacturedate;
-                var formattedDate1 = formatDate(originalDate1);
-
-                var originalDate2 = expirationdate;
-                var formattedDate2 = formatDate(originalDate2);
-
-
-
-                // 날짜 형식 변환 함수를 사용하여 날짜를 변경
-                date = formatDate(date);
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/inputexcelmaterial',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "input": input,
-                        "customer": customer,
-                        "date": formattedDate,
-                        "materialname": materialname,
-                        "codenumber": materialname,
-                        "materialwidth": materialwidth,
-                        "quantity": quantity,
-                        "lotno": lotno,
-                        "manufacturedate": formattedDate1,
-                        "expirationdate": formattedDate2,
-                        "roll": roll,
-                        "part": '수입검사대기',
-                        "classification": '사급자재',
-                        "house": '원자재창고',
-
-                    }),
-                    success: function (result) {
-                        // Ajax 요청 성공 시 수행할 동작
-                    }
-                });
+                load()
             }
-      
-            var modal = document.getElementById('myModal');
-            modal.style.display = 'none';
-
-            load()
         }
+
+        // 중복된 데이터를 찾는 함수
+        function findDuplicates(array) {
+            var duplicates = [];
+            var counts = {};
+
+            for (var i = 0; i < array.length; i++) {
+                var item = array[i];
+                counts[item] = counts[item] ? counts[item] + 1 : 1;
+                if (counts[item] > 1 && duplicates.indexOf(item) === -1) {
+                    duplicates.push(item);
+                }
+            }
+
+            return duplicates;
+        }
+
+
+
+
+
+
 
 
 
