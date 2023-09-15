@@ -1473,7 +1473,7 @@ module.exports = function (app) {
                     "sum,part,house,codenumber," +
                     "format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'" +
 
-                    " FROM materialinput where date between @start and @finish")
+                    " FROM materialinput where date between @start and @finish order by materialname,lotno asc")
 
                 .then(result => {
 

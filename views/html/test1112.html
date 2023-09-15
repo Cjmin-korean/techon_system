@@ -18,6 +18,17 @@
 </head>
 <style>
     /* 스타일링을 추가하세요 */
+    /* 중복된 데이터를 표시할 스타일 */
+    .duplicate-row {
+        background-color: red;
+        /* 빨간색 배경 */
+        color: white;
+        /* 흰색 텍스트 */
+        font-weight: bold;
+        /* 굵은 글씨체 */
+    }
+
+
     table {
         width: 100%;
         border-collapse: collapse;
@@ -1844,12 +1855,47 @@
 
             // 중복된 데이터 찾기
             var duplicates = findDuplicates(sixthColumnData);
-
             // 중복된 데이터가 있을 때만 alert 메시지 표시
             if (duplicates.length > 0) {
                 alert('중복된 데이터: ' + duplicates.join(', ') + ' 가 존재합니다.');
+
+                // 중복된 데이터가 존재하는 경우 해당 행에 클래스 추가
+                tableRows.forEach(function (row) {
+                    var cells = row.querySelectorAll('td');
+                    if (cells.length >= 6) { // 적어도 6개의 열이 있는 경우만 처리
+                        var sixthColumnText = cells[5].textContent.trim(); // 6번째 열의 데이터
+                        if (duplicates.includes(sixthColumnText)) {
+                            row.classList.add('duplicate-row');
+                            row.addEventListener('dblclick', function () {
+                                // 더블 클릭 시 수정 가능한 입력 필드로 변경
+                                var cell = row.querySelector('td:nth-child(6)');
+                                var originalText = cell.textContent.trim();
+                                cell.innerHTML = '<input type="text" value="' + originalText + '">';
+
+                                // 수정된 데이터를 중복 데이터 배열에서 업데이트
+                                cell.querySelector('input').addEventListener('blur', function () {
+                                    var newText = cell.querySelector('input').value.trim();
+                                    if (!duplicates.includes(newText)) {
+                                        var index = duplicates.indexOf(originalText);
+                                        if (index !== -1) {
+                                            duplicates[index] = newText;
+                                        }
+                                        cell.textContent = newText;
+                                        row.classList.remove('duplicate-row');
+                                    }
+                                });
+                            });
+                        }
+                    }
+                });
+
+
+
             } else {
+
+
                 for (var i = 2; i < tableRows.length + 1; i++) {
+
 
                     var input = '원자재입고';
                     var customer = $('#sjs-A' + i).text();
