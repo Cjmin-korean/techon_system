@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>작업지시서 및 설비 리딩</title>
@@ -15,7 +16,7 @@
         .slideshow-container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: #fff;
+            background-color: #ffffff;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
             border-radius: 8px;
         }
@@ -39,57 +40,40 @@
             border-radius: 4px;
         }
 
-        /* 이전/다음 버튼 스타일 */
-        .prev, .next {
-            cursor: pointer;
-            position: absolute;
-            top: 50%;
-            width: 40px;
-            height: 40px;
-            color: #fff;
-            font-size: 24px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border: none;
-            border-radius: 50%;
-            transform: translateY(-50%);
-            transition: background-color 0.3s ease;
+        /* 작업지시서 슬라이드에서만 이전/다음 버튼을 숨김 */
+        .mySlides:first-child .prev,
+        .mySlides:first-child .next {
+            display: none;
         }
 
-        .prev:hover, .next:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .prev {
-            left: 10px;
-        }
-
-        .next {
-            right: 10px;
+        /* 결과를 표시하는 스타일 */
+        .result-container {
+            font-size: 18px;
+            margin-top: 20px;
         }
     </style>
 </head>
+
 <body>
     <div class="slideshow-container">
         <!-- 작업지시서 리딩 슬라이드 -->
         <div class="mySlides">
             <h1>작업지시서를 리딩하세요</h1>
-            <input type="text" id="qr-input-1" placeholder="QR 코드를 입력하고 Enter 키를 누르세요">
+            <input type="text" id="qr-input-1" placeholder="작업지시서의 QR을 리딩해주세요" autofocus>
             <div id="result-1"></div>
         </div>
-
+    </div>
+    <div class="slideshow-container">
         <!-- 설비 리딩 슬라이드 -->
         <div class="mySlides">
             <h1>설비를 리딩하세요</h1>
-            <input type="text" id="qr-input-2" placeholder="QR 코드를 입력하고 Enter 키를 누르세요">
+            <input type="text" id="qr-input-2" placeholder="설비의 QR을 리딩해주세요" autofocus>
             <div id="result-2"></div>
         </div>
-
-        <!-- 이전/다음 버튼 -->
-        <button class="prev" onclick="plusSlides(-1)">&#10094;</button>
-        <button class="next" onclick="plusSlides(1)">&#10095;</button>
     </div>
 
     <script>
+        const slides = document.getElementsByClassName("mySlides"); // slides 변수를 전역으로 정의
         let slideIndex = 1;
         showSlides(slideIndex);
 
@@ -98,8 +82,6 @@
         }
 
         function showSlides(n) {
-            const slides = document.getElementsByClassName("mySlides");
-
             if (n > slides.length) {
                 slideIndex = 1;
             }
@@ -113,6 +95,35 @@
 
             slides[slideIndex - 1].style.display = "block";
         }
+
+        const inputElement1 = document.getElementById('qr-input-1');
+        const inputElement2 = document.getElementById('qr-input-2');
+        const resultContainer1 = document.getElementById('result-1');
+        const resultContainer2 = document.getElementById('result-2');
+
+        inputElement1.addEventListener('keyup', function (event) {
+            if (event.key === 'Enter') {
+                const inputValue = inputElement1.value;
+
+
+                slides[0].style.display = "none"; // 작업지시서 리딩 슬라이드 숨김
+                slides[1].style.display = "block"; // 설비 리딩 슬라이드 보임
+
+
+                inputElement2.focus();
+
+            }
+        });
+
+        inputElement2.addEventListener('keyup', function (event) {
+            if (event.key === 'Enter') {
+                // 엔터 키를 눌렀을 때 처리할 내용
+                const inputValue = inputElement2.value;
+                const equipmentResult = "설비 처리 결과";
+                resultContainer2.innerHTML = equipmentResult;
+            }
+        });
     </script>
 </body>
+
 </html>

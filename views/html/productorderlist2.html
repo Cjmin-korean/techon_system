@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../css/main.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
 </head>
 <style>
     #datatable-container {
@@ -57,6 +58,63 @@
         border-radius: 5px;
         font-size: 14px;
     }
+
+    /* CSS 스타일링 */
+    select {
+        padding: 5px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #333;
+        outline: none;
+        /* 추가적인 스타일을 여기에 추가할 수 있습니다. */
+    }
+
+    /* CSS 부분 */
+    /* 모달 스타일링 */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        width: 50%;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .close {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    /* 버튼 스타일링 */
+    button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
 </style>
 
 <body>
@@ -66,6 +124,29 @@
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
+    </div>
+    <!-- 모달 대화 상자 -->
+    <div class="modal fade" id="confirmationModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- 모달 헤더 -->
+                <div class="modal-header">
+                    <h4 class="modal-title">확인 메시지</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- 모달 본문 -->
+                <div class="modal-body">
+                    <p>생산을 확정하시겠습니까?</p>
+                </div>
+
+                <!-- 모달 하단 버튼 -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -190,6 +271,7 @@
         </div>
     </div>
 
+    <!-- <td><span class="status">생산보류</span></td> -->
 
     <!-- 삭제창 -->
     <div id="popupOverlay2" style="display: none;">
@@ -585,9 +667,9 @@
                             var difference = parseFloat(data[i].difference.replace(/,/g, '')); // 쉼표 제거하고 숫자로 변환
 
                             if (data[i].possible === '가능') {
-                                possibleColor = 'background-color: green; color: white;';
+                                possibleColor = 'color: blue; font-weight:bold;';
                             } else if (data[i].possible === '부족') {
-                                possibleColor = 'background-color: red; color: white;';
+                                possibleColor = 'color: red; font-weight:bold;';
                             }
 
                             // 폰트 색상을 결정하는 조건 추가
@@ -676,7 +758,32 @@
             }, 50);
             $('#popupOverlay2').fadeOut();
         }
+        // JavaScript 부분
+
+        $(document).on('change', 'select', function () {
+            var selectedValue = $(this).val();
+            if (selectedValue === '생산확정') {
+                var confirmation = confirm("생산을 확정하시겠습니까?");
+                if (!confirmation) {
+                    // 사용자가 취소를 선택한 경우
+                    $(this).val('생산보류');
+                } else {
+                    // 선택한 값이 "생산확정"이면 셀 내부 텍스트를 변경하고 select 요소를 제거합니다.
+                    var cell = $(this).closest('td');
+                    cell.html('<span style="color: red;">생산확정</span>');
+
+                    // '삭제' 링크를 '확정취소'로 변경합니다.
+                    var deleteLink = cell.siblings('.datadelete');
+                    deleteLink.text('확정취소');
+                    deleteLink.css('color', 'blue'); // 예시로 파란색으로 변경, 필요에 따라 스타일 조정 가능
+                }
+            }
+        });
+
+
+
     </script>
+
 </body>
 
 </html>
