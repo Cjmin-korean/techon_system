@@ -40,18 +40,26 @@ module.exports = function (app) {
 
                     'SELECT ' +
                     'password, ' +
-                    'name ' +
-
+                    'name, ' +
+                    'part '+
                     'FROM member where nameid = @nameid')
                 .then(result => {
-
-                    console.log('이름 :', result.recordset[0].name)
+                    // console.log('result',result)
+                    // console.log('이름 :', result.recordset[0].name)
                     var judgment = 'NG';
                     if (password == result.recordset[0].password) {
                         judgment = 'OK';
+                        res.json({ 
+                            judgment: judgment,
+                            name: result.recordset[0].name,
+                            part: result.recordset[0].part
+                        });
+                    }else {
+                        res.json({ 
+                            judgment: judgment,
+                        });
                     }
 
-                    res.json({ judgment: judgment });
                     res.end();
                 });
         });
