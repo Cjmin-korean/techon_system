@@ -34,7 +34,7 @@ app.get("/main", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/mainmenu.html");
 });
 app.get("/accountupdatedata", cors(), (req, res) => {
-    res.sendFile(__dirname + "/html/accountinformation.html");
+    res.sendFile(__dirname + "/views/html/accountinformation.html");
 });
 
 app.get("/house", cors(), (req, res) => {
