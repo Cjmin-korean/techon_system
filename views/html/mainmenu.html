@@ -49,19 +49,41 @@
         padding-left: 10px;
     }
 
-    .content {
+    .content_name {
         /* margin-top: 29px; */
         flex-grow: 1;
         height: 50px;
-        margin-left: 300px;
+        /* margin-left: 280px; */
         background-color: white;
         display: flex;
         align-items: center;
         justify-content: right;
         font-size: 20px;
-        font-weight: bold;
+        margin-right: 30px;
     }
 
+    .content_name .user_part{
+        background-color: rgb(239, 252, 246);
+        color:rgb(85,182,133);
+        margin-left: 18px;
+        padding-left: 18px;
+        padding-right: 18px;
+        border-radius: 10px;
+    }
+    .content_name .user_name_sub{
+        font-weight: 300;
+        color: gray;
+    }
+
+    .content_name .user_name{
+        font-weight: 300;
+        margin-right: 4px;
+    }
+
+    .logout_img{
+        margin-left: 20px;
+        width: 30px;
+    }
     #loadHtml {
         flex-grow: 1;
         margin-left: 300px;
@@ -511,7 +533,12 @@
                 </li> -->
             </ul>
         </div>
-        <div class="content">관리자님 안녕하세요. 부서:생산</div>
+        <div class="content_name">
+            <div class="user_name"></div>
+            <div class="user_name_sub">님 안녕하세요</div>
+            <div class="user_part"></div>
+            <img class="logout_img" src="../img/power-off.png" onclick="logout()"/>            
+        </div>
 
     </div>
 
@@ -526,6 +553,43 @@
     <h2 style="text-align: center;">Manufacturing Execution System</h2>
 </div>
 </body>
+<script>
+    function deleteCookie(cookieName) {
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    }
+    function logout() {
+        deleteCookie('userName');
+        deleteCookie('partName');
+        
+        // 로그아웃 또는 다른 로직 수행
+        // 예: 로그아웃 후 홈페이지로 리디렉션
+        window.location.href = '/'; // 홈페이지 URL을 적절히 변경하세요.
+    }
+</script>
+<script>
+    function getCookie(cookieName) {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(cookieName + '=')) {
+                return decodeURIComponent(cookie.substring(cookieName.length + 1));
+            }
+        }
+        return null; // 해당 쿠키 이름을 찾지 못한 경우
+    }
+
+    const contentName = document.querySelector('.user_name');
+    const contentPart = document.querySelector('.user_part');
+
+    const userNameCookieValue = getCookie('userName');
+    const partNameCookieValue = getCookie('partName');
+
+    if (userNameCookieValue && partNameCookieValue) {
+        contentName.textContent = `${userNameCookieValue}`;
+        contentPart.textContent = `${partNameCookieValue}`;
+    }
+
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const summaryElements = document.querySelectorAll("li.parent details summary");
