@@ -33,6 +33,9 @@ app.get("/config.json", cors(), (req, res) => {
 app.get("/main", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/mainmenu.html");
 });
+app.get("/accountupdatedata", cors(), (req, res) => {
+    res.sendFile(__dirname + "/html/accountinformation.html");
+});
 
 app.get("/house", cors(), (req, res) => {
     res.sendFile(__dirname + "/houseinformation.html");
@@ -111,9 +114,7 @@ app.get("/accountordering", cors(), (req, res) => {
     res.sendFile(__dirname + "/productlist2.html");
 });
 
-app.get("/accountupdatedata", cors(), (req, res) => {
-    res.sendFile(__dirname + "/views/html/accountinformation.html");
-});
+
 app.get("/operatingrate", cors(), (req, res) => {
     res.sendFile(__dirname + "/operatingrate.html");
 });
