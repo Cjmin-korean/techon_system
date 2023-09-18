@@ -31,7 +31,7 @@ app.get("/config.json", cors(), (req, res) => {
     res.sendFile(__dirname + "/config.json");
 });
 app.get("/main", cors(), (req, res) => {
-    res.sendFile(__dirname + "/views/html/mainmenu1.html");
+    res.sendFile(__dirname + "/views/html/mainmenu.html");
 });
 app.get("/accountupdatedata", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/accountinformation.html");
