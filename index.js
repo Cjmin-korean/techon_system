@@ -112,7 +112,7 @@ app.get("/accountordering", cors(), (req, res) => {
 });
 
 app.get("/accountupdatedata", cors(), (req, res) => {
-    res.sendFile(__dirname + "/accountinformation.html");
+    res.sendFile(__dirname + "/views/html/accountinformation.html");
 });
 app.get("/operatingrate", cors(), (req, res) => {
     res.sendFile(__dirname + "/operatingrate.html");
