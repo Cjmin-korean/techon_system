@@ -1,31 +1,32 @@
-const monthYearElement = document.getElementById('month-year');
-const datesContainer = document.querySelector('.dates');
-const prevMonthButton = document.querySelector('.prev-month');
-const nextMonthButton = document.querySelector('.next-month');
+
+$(document).ready(function () {
+
+    const monthYearElement = document.getElementById('month-year');
+    const datesContainer = document.querySelector('.dates');
+    const prevMonthButton = document.querySelector('.prev-month');
+    const nextMonthButton = document.querySelector('.next-month');
 
 // 이전에 선택한 날짜 정보를 저장하고 불러오기 위한 키
-const selectedDateKey = 'selectedDate';
+    const selectedDateKey = 'selectedDate';
 
-let currentMonth = new Date().getMonth(); // 현재 월
-let currentYear = new Date().getFullYear(); // 현재 연도
-let selectedDate = null; // 선택한 날짜를 저장할 변수
+    let currentMonth = new Date().getMonth(); // 현재 월
+    let currentYear = new Date().getFullYear(); // 현재 연도
+    let selectedDate = null; // 선택한 날짜를 저장할 변수
 
 // 이전에 선택한 날짜 정보 가져오기
-function getSelectedDate() {
-    const selectedDateStr = localStorage.getItem(selectedDateKey);
-    if (selectedDateStr) {
-        return new Date(selectedDateStr);
+    function getSelectedDate() {
+        const selectedDateStr = localStorage.getItem(selectedDateKey);
+        if (selectedDateStr) {
+            return new Date(selectedDateStr);
+        }
+        return null; // 저장된 정보가 없을 경우
     }
-    return null; // 저장된 정보가 없을 경우
-}
 
 // 선택한 날짜 정보 저장하기
-function setSelectedDate(date) {
-    localStorage.setItem(selectedDateKey, date.toISOString());
-}
+    function setSelectedDate(date) {
+        localStorage.setItem(selectedDateKey, date.toISOString());
+    }
 
-// 페이지 로드 시 실행되는 부분
-$(document).ready(function () {
     console.log('123123123')
     // 이전에 선택한 날짜 정보 가져오기
     selectedDate = getSelectedDate();

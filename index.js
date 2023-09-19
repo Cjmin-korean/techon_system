@@ -322,6 +322,11 @@ app.get("/qrcode.min.js", cors(), (req, res) => {
 app.get("/qrprint", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/print.html");
 });
+
+app.get("/calendar.js", cors(), (req, res) => {
+    res.sendFile(__dirname + "/views/js/calendar.js");
+});
+
 // 서버 실행
 app.listen(PORT, () => {
     console.log(`Listen : ${PORT}`);
