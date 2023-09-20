@@ -6,14 +6,14 @@ $(document).ready(function () {
     const prevMonthButton = document.querySelector('.prev-month');
     const nextMonthButton = document.querySelector('.next-month');
 
-// 이전에 선택한 날짜 정보를 저장하고 불러오기 위한 키
+    // 이전에 선택한 날짜 정보를 저장하고 불러오기 위한 키
     const selectedDateKey = 'selectedDate';
 
     let currentMonth = new Date().getMonth(); // 현재 월
     let currentYear = new Date().getFullYear(); // 현재 연도
     let selectedDate = null; // 선택한 날짜를 저장할 변수
 
-// 이전에 선택한 날짜 정보 가져오기
+    // 이전에 선택한 날짜 정보 가져오기
     function getSelectedDate() {
         const selectedDateStr = localStorage.getItem(selectedDateKey);
         if (selectedDateStr) {
@@ -22,15 +22,15 @@ $(document).ready(function () {
         return null; // 저장된 정보가 없을 경우
     }
 
-// 선택한 날짜 정보 저장하기
+    // 선택한 날짜 정보 저장하기
     function setSelectedDate(date) {
         localStorage.setItem(selectedDateKey, date.toISOString());
     }
 
-    console.log('123123123')
+
     // 이전에 선택한 날짜 정보 가져오기
     selectedDate = getSelectedDate();
-
+    console.log(selectedDate)
     // 만약 저장된 날짜 정보가 없을 경우 현재 날짜를 기본으로 선택
     // if (!selectedDate) {
     selectedDate = new Date(currentYear, currentMonth, new Date().getDate());
@@ -92,9 +92,18 @@ $(document).ready(function () {
             // 각 날짜 버튼에 클릭 이벤트 리스너 추가
             dateButton.addEventListener('click', () => {
                 const clickedDate = new Date(currentYear, currentMonth, day);
+                const formattedDate = formatDate(clickedDate); // yyyy-mm-dd 형식으로 날짜를 포맷
+                console.log(formattedDate);
+
+                const plandateElement = document.getElementById('plandate');
+                if (plandateElement) {
+                    plandateElement.textContent = formattedDate;
+                }
+
 
                 // 이미 선택된 날짜와 같다면 선택 취소
                 if (selectedDate && isSameDate(selectedDate, clickedDate)) {
+                    s
                     selectedDate = null;
                 } else {
                     selectedDate = clickedDate;
@@ -160,5 +169,12 @@ $(document).ready(function () {
                 behavior: 'smooth' // 부드러운 스크롤
             });
         }
+    }
+    // 날짜를 yyyy-mm-dd 형식으로 포맷하는 함수
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 });
