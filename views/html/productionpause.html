@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>생산타발이력</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>거래처정보</title>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/main.css">
@@ -25,38 +24,6 @@
         width: 100%;
         /* Other table styles */
     }
-
-    body {
-        font-family: Arial, sans-serif;
-    }
-
-    #result-container {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    #pauseTime,
-    #operatingTime {
-        font-size: 18px;
-        margin: 10px;
-    }
-
-    #datatable {
-        border-collapse: collapse;
-        width: 100%;
-        margin-bottom: 20px;
-    }
-
-    #datatable th,
-    #datatable td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
-
-    #datatable th {
-        background-color: #131212;
-    }
 </style>
 
 <body>
@@ -71,25 +38,14 @@
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
-    <!-- <div class="search_form-group">
-        <table class="search_div" style="width: 100%;">
-            <tr>
-                <td class="main_header_search">검색</td>
-                <td><input type="text" id="myInput" onclick="search()" class="data" autocomplete="off"
-                        style="width: auto; border: 1px solid silver; font-size: 18px;"></td>
-                <td style="width: 5%;"><input type="button" onclick="New()" value="신규" class="styled-button"></td>
-                <td style="width: 5%;"><input type="button" value="Excel-Up" class="styled-button1"></td>
-                <td style="width: 5%;"><input type="button" value="Excel-Down" class="styled-button2"></td>
-            </tr>
-        </table>
-    </div> -->
-    <div id="result-container">
+
+    <!-- <div id="result-container">
         <h2>데이터 분석 결과</h2>
         <p id="pauseTime"></p>
         <p id="operatingTime"></p>
         <p id="totalStops"></p>
         <p id="totalRows"></p>
-    </div>
+    </div> -->
     <div id="datatable-container">
 
         <table class="styled-table" id="datatable">
@@ -104,7 +60,8 @@
                     <th style="width: auto;" onclick="sortTable(6)">설비호기</th>
                     <th style="width: auto;" onclick="sortTable(7)">정지시간</th>
                     <th style="width: auto;" onclick="sortTable(8)">해제시간</th>
-                    <th style="width: auto;" onclick="sortTable(9)">원인</th>
+                    <th style="width: auto;" onclick="sortTable(9)">정지(초)</th>
+                    <th style="width: auto;" onclick="sortTable(10)">원인</th>
                     <th style="width:80px;"></th>
                     <th style="width:80px;"></th>
                 </tr>
@@ -121,11 +78,11 @@
     </div>
     <!-- 등록창 -->
     <div id="popupOverlay" style="display: none;">
-        <div id="popupContent" >
+        <div id="popupContent">
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td colspan="2"  class="popup_title">거래처 정보 추가</td>
+                        <td colspan="2" class="popup_title">거래처 정보 추가</td>
                     </tr>
                     <tr>
                         <td style="width: 200px">거래처코드</td>
@@ -266,7 +223,7 @@
 
                     </tr>
                     <tr>
-                        <td colspan="2"  class="popup_title">거래처 정보를 삭제하시겠습니까?</td>
+                        <td colspan="2" class="popup_title">거래처 정보를 삭제하시겠습니까?</td>
                     </tr>
 
                 </table>
@@ -653,6 +610,11 @@
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
                         for (var i = 0; i < data.length; i++) {
+                            // 두 시간의 차이를 계산합니다.
+                            var startTime = (data[i].startime);
+                            var finalTime = (data[i].finaltime);
+                            var timeDifferenceInSeconds = calculateTimeDifferenceInSeconds(startTime, finalTime);
+
                             $('#datatable').append(
                                 '<tr>' +
                                 '<td>' + data[i].indate + '</td>' +
@@ -662,27 +624,50 @@
                                 '<td>' + data[i].modelname + '</td>' +
                                 '<td>' + data[i].itemname + '</td>' +
                                 '<td>' + data[i].marchine + '</td>' +
-                                '<td>' + data[i].startime + '</td>' +
-                                '<td>' + data[i].finaltime + '</td>' +
+                                '<td>' + startTime + '</td>' +
+                                '<td>' + finalTime + '</td>' +
+                                '<td style="color:red;">' + timeDifferenceInSeconds + '초</td>' + // 시간 차이를 초로 표시
                                 '<td>' + data[i].cause + '</td>' +
                                 '<td><a class="data-edit" style="cursor:pointer; color:navy;">수정</a></td>' +
                                 '<td><a class="data-delete"style="cursor:pointer; color:red;">삭제</a></td>' +
                                 '<td id="data-id">' + data[i].id + '</td>' +
                                 '</tr>'
+                            );
 
-                            )
                             $("td#data-id").hide();
-
-
                         }
                     }
-
-                    // 결과를 표시하는 부분 추가
-                    $('#pauseTime').text('총 정지시간: 94분');
-                    $('#operatingTime').text('9:00부터 18:00까지 가동시간: 362분');
-                    $('#totalRows').text('총 정지횟수: 50');
                 }
             });
+        }
+        // 두 시간을 나타내는 문자열을 받아와서 초 단위로 변환하는 함수
+        // 두 시간을 나타내는 문자열을 받아와서 초 단위로 변환하는 함수
+        function calculateTimeDifferenceInSeconds(startTime, finalTime) {
+            const startTimeParts = startTime.split(':');
+            const finalTimeParts = finalTime.split(':');
+
+            const startHours = parseInt(startTimeParts[0], 10);
+            const startMinutes = parseInt(startTimeParts[1], 10);
+            const startSeconds = parseInt(startTimeParts[2], 10);
+
+            const finalHours = parseInt(finalTimeParts[0], 10);
+            const finalMinutes = parseInt(finalTimeParts[1], 10);
+            const finalSeconds = parseInt(finalTimeParts[2], 10);
+
+            // 시작 시간과 종료 시간의 차이를 초로 계산
+            const startInSeconds = startHours * 3600 + startMinutes * 60 + startSeconds;
+            const finalInSeconds = finalHours * 3600 + finalMinutes * 60 + finalSeconds;
+            const timeDifferenceInSeconds = finalInSeconds - startInSeconds;
+
+            return timeDifferenceInSeconds;
+        }
+        function timeStringToSeconds(timeString) {
+            const timeParts = timeString.split(':');
+            const hours = parseInt(timeParts[0], 10);
+            const minutes = parseInt(timeParts[1], 10);
+            const seconds = parseInt(timeParts[2], 10);
+            const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+            return totalSeconds;
         }
 
         function calculateTotalPauseTime(data) {
