@@ -93,17 +93,17 @@ $(document).ready(function () {
             dateButton.addEventListener('click', () => {
                 const clickedDate = new Date(currentYear, currentMonth, day);
                 const formattedDate = formatDate(clickedDate); // yyyy-mm-dd 형식으로 날짜를 포맷
-                console.log(formattedDate);
+              
 
                 const plandateElement = document.getElementById('plandate');
                 if (plandateElement) {
                     plandateElement.textContent = formattedDate;
                 }
-
-
+                console.log(formattedDate);
+                
                 // 이미 선택된 날짜와 같다면 선택 취소
                 if (selectedDate && isSameDate(selectedDate, clickedDate)) {
-                    s
+                    
                     selectedDate = null;
                 } else {
                     selectedDate = clickedDate;
