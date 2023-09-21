@@ -2397,6 +2397,24 @@ module.exports = function (app) {
     });
     // **** finish
 
+     // **** start       
+     sql.connect(config).then(pool => {
+        app.post('/api/equipmentname', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    "select equipmentname from equipment")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/productorderlist3', function (req, res) {

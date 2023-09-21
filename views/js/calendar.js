@@ -98,6 +98,7 @@ $(document).ready(function () {
                 const plandateElement = document.getElementById('plandate');
                 if (plandateElement) {
                     plandateElement.textContent = formattedDate;
+                    
                 }
                 console.log(formattedDate);
                 
@@ -114,6 +115,7 @@ $(document).ready(function () {
 
                 // 달력 업데이트
                 updateCalendar();
+                planload()
             });
 
             datesContainer.appendChild(dateButton);

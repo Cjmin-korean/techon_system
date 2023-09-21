@@ -130,11 +130,46 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
+        /* 테이블 전체 영역 */
+        #datatable-container {
+            width: 68%;
+            float: left;
+            overflow-x: auto;
+            /* 가로 스크롤이 필요한 경우 스크롤 표시 */
+        }
+
+        /* 테이블 스타일 */
+        .styled-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        /* 고정된 헤더 스타일 */
+        thead {
+            position: sticky;
+            top: 0;
+            /* 헤더가 스크롤 상단에 고정됨 */
+            z-index: 1;
+            /* 다른 콘텐츠 위에 표시되도록 함 */
+            background-color: white;
+            /* 헤더 배경색 지정 */
+        }
+
+        /* 테이블 셀 스타일 */
+        th,
+        td {
+            border: 1px solid rgb(231, 228, 228);
+            padding: 8px;
+            text-align: center;
+            white-space: nowrap;
+            /* 텍스트가 길어지면 줄바꿈 대신 가로 스크롤 표시 */
+        }
     </style>
 </head>
 
 <body>
-    <div id="popupOverlay1" style="display: none;">
+    <!-- <div id="popupOverlay1" style="display: none;">
         <div id="popupContent1" style="width: 700px; height: auto;">
             <div class="form-group">
                 <table style="width:100%;">
@@ -186,6 +221,64 @@
             </div>
             <button id="popupCloseBtn-edit-close">취소</button>
             <button id="popupCloseBtn-edit" onclick="Dataedit()">저장</button>
+        </div>
+    </div> -->
+    <div id="popupOverlay" style="display: none;">
+
+        <div id="popupContent">
+            <div class="form-group">
+                <table style="width:100%;">
+                    <tr>
+                        <td colspan="2" class="popup_title">생산계획 확정</td>
+                    <tr>
+                        <td style="width: 200px">생산확정날짜</td>
+                        <td>
+                            <input type="text" id="plandate-save" class="data" autocomplete="off"
+                                style="width: 200px; border: 1px solid silver;" readonly>
+                            <label id="days-left-label"></label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="width: 200px">BOM NO.</td>
+                        <td><input type="text" id="bomno-save" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;" readonly></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px">모델명</td>
+                        <td><input type="text" id="modelname-save" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;" readonly></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px">품명</td>
+                        <td><input type="text" id="itemname-save" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;" readonly></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px">생산LOT</td>
+                        <td><input type="text" id="lotno-save" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;" readonly></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px">수량</td>
+                        <td><input type="text" id="quantity-save" class="data" autocomplete="off"
+                                style="width:auto; border:1px solid silver;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 200px">설비호기</td>
+                        <td>
+                            <select id="equipment-select" class="form-select">
+                                <option value=""></option>
+                            </select>
+                        </td>
+
+                    </tr>
+
+
+                </table>
+            </div>
+            <button id="popupCloseBtn-save-close">취소</button>
+            <button id="popupCloseBtn-save" onclick="Datasave()">저장</button>
         </div>
     </div>
     <div class="calendar">
@@ -249,7 +342,7 @@
         </table>
     </div>
     <div id="datatable-container" style="width: 31%; float: right;">
-        <table class="styled-table" id="datatable">
+        <table class="styled-table" id="planstauts">
             <thead>
                 <tr>
                     <th colspan="8" rowspan="1"
@@ -274,7 +367,7 @@
                 </tr>
 
             </thead>
-            <tbody id="Datatbody">
+            <tbody id="planstatustbody">
                 <!-- 여기에 데이터 행 추가 -->
             </tbody>
         </table>
@@ -285,24 +378,23 @@
 
     <script>
 
-        $(document).ready(function () {
+        // $(document).ready(function () {
 
-            load()
-            if (dataTd.id === '7' && dataTd.value === '생산대기') {
-                td.classList.add('blink');
-            }
-        })
+        //     load()
+        //     if (dataTd.id === '7' && dataTd.value === '생산대기') {
+        //         td.classList.add('blink');
+        //     }
+        // })
         function load() {
-            $('#orderdatatabletbody').empty()
+            $('#planstatustbody').empty()
             $.ajax({
                 type: 'POST',
                 url: server + '/api/productorderlist',
                 dataType: 'json',
                 success: function (data) {
-                    var tableBody = $('#orderdatatabletbody');
+                    var tableBody = $('#planstatustbody');
                     if (data.length === 0) {
                         // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
-                        tableBody.append('<tr><td colspan="10">데이터가 없습니다.</td></tr>');
                     } else {
                         for (var i = 0; i < data.length; i++) {
                             tableBody.append(
@@ -313,7 +405,7 @@
                                 '<td>' + data[i].itemname + '</td>' +
                                 '<td>' + data[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
-                                '<td><a class="savebutton" style="cursor:pointer; color:navy;">등록</a></td>' +
+                                '<td><a class="savebutton" style="cursor: pointer; color: navy;">등록</a></td>' +
                                 '<td><a class="datadelete" style="cursor:pointer; color:red;">삭제</a></td>' +
                                 '<td class="data-id">' + data[i].id + '</td>' +
                                 '</tr>'
@@ -325,6 +417,48 @@
             });
         }
 
+        function planload() {
+            $('#Datatbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/equipmentname',
+                dataType: 'json',
+                success: function (data) {
+                    var tableBody = $('#Datatbody');
+                    if (data.length === 0) {
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
+                            // 6줄에만 첫 번째 열을 병합하고 나머지 열은 빈 셀로 남김
+                            tableBody.append(
+                                '<tr>' +
+                                '<td id="' + data[i].equipmentname + '">' + data[i].equipmentname + '</td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="bomno' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="customer' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="modelname' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="itemname' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="part' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="linepart' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="lotno' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="pono' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="accumulate' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="remaining' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="planone' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="siljokone' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="plantwo' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="siljoktwo' + data[i].equipmentname + $('#plandate').text() + '"></td>' +
+                                '</tr>'
+                            );
+                        }
+                    }
+                    $('.data-id').hide();
+                }
+            });
+        }
+
+
+
+
+
         $(document).ready(function () {
 
             if (window.location.hostname == 'localhost') {
@@ -332,7 +466,9 @@
             } else {
                 server = 'http://techonmes.co.kr';
             }
-
+            $('#popupCloseBtn-save-close').click(function () {
+                $('#popupOverlay').fadeOut();
+            });
 
             var today = new Date();
 
@@ -346,9 +482,95 @@
             if (plandateElement) {
                 plandateElement.textContent = year + "-" + month + "-" + day;
             }
+            planload()
+            load()
+            const selectElement1 = document.getElementById("equipment-select");
+            if (selectElement1) {
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/equipmentname',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (result) {
+                        for (let i = 0; i < result.length; i++) {
+                            const option = document.createElement("option");
+                            option.text = result[i].equipmentname;
+                            option.value = result[i].equipmentname;
+                            selectElement1.add(option);
+                        }
+                    },
+                });
+            }
+            $(document).on("click", ".savebutton", function () {
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var plandate = $('#plandate').text()
+                var bomno = td.eq(0).text();
+                var modelname = td.eq(2).text();
+                var itemname = td.eq(3).text();
+                var lotno = td.eq(4).text();
+                var quantity = td.eq(5).text();
+
+
+                $('#plandate-save').val(plandate)
+                $('#bomno-save').val(bomno)
+                $('#modelname-save').val(modelname)
+                $('#itemname-save').val(itemname)
+                $('#lotno-save').val(lotno)
+                $('#quantity-save').val(quantity)
+                $('#popupOverlay').fadeIn();
+                updateDaysLeftLabel();
+
+            });
 
         });
 
+
+
+    </script>
+    <script>
+
+        // "남은 일수"를 계산하여 라벨에 추가하는 함수
+        function updateDaysLeftLabel() {
+            var plandateSaveValue = $("#plandate-save").val();
+            var currentDate = new Date();
+            var plandateDate = new Date(plandateSaveValue);
+            var timeDiff = plandateDate - currentDate;
+            var daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+            var labelElement = $("#days-left-label");
+
+
+
+            // 남은 일수가 1일인 경우 스타일을 변경할 수 있습니다.
+            if (daysRemaining === 0) {
+                labelElement.css("color", "blue"); // 남은 일수가 1일인 경우 빨간색으로 변경
+                labelElement.text("금일생산 예정입니다.");
+            } else {
+                labelElement.text(daysRemaining + "일 뒤에 생산예정입니다.");
+                labelElement.css("color", "red"); // 그 외의 경우 기본 색상으로 변경
+            }
+            if (daysRemaining < 0) {
+                labelElement.text("생산 계획을 내릴수 없습니다");
+                labelElement.css("color", "red"); // 그 외의 경우 기본 색상으로 변경
+            }
+        }
+        function Datasave() {
+            var bomno = $('#bomno-save').val()
+            var equipment = $('#equipment-select').val()
+            var plandate = $('#plandate-save').val()
+            var td = '#bomno' + equipment + plandate
+            $('#bomno\\고속\\ 1호기2023-09-21').val('1');
+
+            // $('#popupOverlay').fadeOut();
+
+        }
 
 
     </script>
