@@ -21,6 +21,14 @@ const corsOptions = {
 console.log('corsOptions', corsOptions)
 console.log('process.env', process.env.PORT)
 app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "http://techonmes.co.kr");
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
 // 정적 파일 불러오기
 app.use(express.static(__dirname + "/views"));
 
