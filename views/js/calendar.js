@@ -98,19 +98,19 @@ $(document).ready(function () {
                 const plandateElement = document.getElementById('plandate');
                 if (plandateElement) {  
                     plandateElement.textContent = formattedDate;
-                    plansearch()
+                    plansearching()
                 }
 
                 // 이미 선택된 날짜와 같다면 선택 취소
                 if (selectedDate && isSameDate(selectedDate, clickedDate)) {
                     selectedDate = null;
-                    plansearch()
+                    plansearching()
                 } else {
                     selectedDate = clickedDate;
                     planload()
                     updateCalendar();
                     setSelectedDate(selectedDate);
-                    plansearch()
+                    plansearching()
 
                 }
                 // 선택한 날짜 정보 저장
