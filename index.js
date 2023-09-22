@@ -314,6 +314,9 @@ app.get("/POaccountinputponum", cors(), (req, res) => {
 app.get("/bomchange", cors(), (req, res) => {
     res.sendFile(__dirname + "/test1111.html");
 });
+app.get("/000000", cors(), (req, res) => {
+    res.sendFile(__dirname + "/000000.html");
+});
 
 
 

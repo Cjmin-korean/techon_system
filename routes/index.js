@@ -2416,37 +2416,23 @@ module.exports = function (app) {
 
     
     // **** start       
-    // sql.connect(config).then(pool => {
-    //     app.post('/api/plansearch', function (req, res) {
-    //         res.header("Access-Control-Allow-Origin", "*");
+    sql.connect(config).then(pool => {
+        app.post('/api/plansearch', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
 
-    //         return pool.request()
-    //         .input('plandate', sql.NVarChar, req.body.plandate)
+            return pool.request()
+            .input('plandate', sql.NVarChar, req.body.plandate)
 
-    //             .query(
-    //                 "select * from produceplan where plandate=@plandate")
-    //             .then(result => {
+                .query(
+                    "select * from produceplan where plandate=@plandate")
+                .then(result => {
 
-    //                 res.json(result.recordset);
-    //                 res.end();
-    //             });
-    //     });
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
 
-    // });
-
-    app.post('/api/plansearch', function (req, res) {
-        res.header("Access-Control-Allow-Origin", "*"); // 모든 출처에서 요청을 허용하도록 설정
-    
-        return pool.request()
-        .input('plandate', sql.NVarChar, req.body.plandate)
-            .query(
-                "select * from produceplan where plandate=@plandate")
-            .then(result => {
-                res.json(result.recordset);
-                res.end();
-            });
     });
-
     // **** finish
 
          
