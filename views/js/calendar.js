@@ -183,4 +183,51 @@ $(document).ready(function () {
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
+
+    function plansearching() {
+
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/plansearch',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "plandate": $('#plandate').text()
+            }),
+            success: function (data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    var bomno = 'bomno' + data[i].equipmentname + data[i].plandate;
+                    var customer = 'customer' + data[i].equipmentname + data[i].plandate;
+                    var modelname = 'modelname' + data[i].equipmentname + data[i].plandate;
+                    var itemname = 'itemname' + data[i].equipmentname + data[i].plandate;
+                    var part = 'part' + data[i].equipmentname + data[i].plandate;
+                    var linepart = 'linepart' + data[i].equipmentname + data[i].plandate;
+                    var lotno = 'lotno' + data[i].equipmentname + data[i].plandate;
+                    var pono = 'pono' + data[i].equipmentname + data[i].plandate;
+                    var accumulate = 'accumulate' + data[i].equipmentname + data[i].plandate;
+                    var remaining = 'remaining' + data[i].equipmentname + data[i].plandate;
+                    var planone = 'planone' + data[i].equipmentname + data[i].plandate;
+                    var siljokone = 'siljokone' + data[i].equipmentname + data[i].plandate;
+                    var plantwo = 'plantwo' + data[i].equipmentname + data[i].plandate;
+                    var siljoktwo = 'siljoktwo' + data[i].equipmentname + data[i].plandate;
+
+                    $('#' + i + bomno + '').text(data[i].bomno);
+                    $('#' + i + customer + '').text(data[i].customer);
+                    $('#' + i + modelname + '').text(data[i].modelname);
+                    $('#' + i + itemname + '').text(data[i].itemname);
+                    $('#' + i + part + '').text(data[i].part);
+                    $('#' + i + linepart + '').text(data[i].linepart);
+                    $('#' + i + lotno + '').text(data[i].lotno);
+                    $('#' + i + pono + '').text(data[i].pono);
+                    $('#' + i + accumulate + '').text(data[i].accumulate);
+                    $('#' + i + remaining + '').text(data[i].remaining);
+                    $('#' + i + planone + '').text(data[i].planone);
+                    $('#' + i + siljokone + '').text(data[i].siljokone);
+                    $('#' + i + plantwo + '').text(data[i].plantwo);
+                    $('#' + i + siljoktwo + '').text(data[i].siljoktwo);
+                }
+            }
+        });
+    }
 });
