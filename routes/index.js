@@ -2417,7 +2417,7 @@ module.exports = function (app) {
     
     // **** start       
     sql.connect(config).then(pool => {
-        app.post('/api/plansearch', function (req, res) {
+        app.post('/api/plansearch1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
