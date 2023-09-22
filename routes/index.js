@@ -17,7 +17,7 @@ module.exports = function (app) {
         }
     };
 
- 
+
 
     // **** start
     sql.connect(config).then(pool => {
@@ -41,7 +41,7 @@ module.exports = function (app) {
                     'SELECT ' +
                     'password, ' +
                     'name, ' +
-                    'part '+
+                    'part ' +
                     'FROM member where nameid = @nameid')
                 .then(result => {
                     // console.log('result',result)
@@ -49,13 +49,13 @@ module.exports = function (app) {
                     var judgment = 'NG';
                     if (password == result.recordset[0].password) {
                         judgment = 'OK';
-                        res.json({ 
+                        res.json({
                             judgment: judgment,
                             name: result.recordset[0].name,
                             part: result.recordset[0].part
                         });
-                    }else {
-                        res.json({ 
+                    } else {
+                        res.json({
                             judgment: judgment,
                         });
                     }
@@ -2397,14 +2397,53 @@ module.exports = function (app) {
     });
     // **** finish
 
-     // **** start       
-     sql.connect(config).then(pool => {
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/equipmentname', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
                 .query(
-                    "select equipmentname from equipment")
+                    "select equipmentname,codenumber from equipment")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/plansearch', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('plandate', sql.NVarChar, req.body.plandate)
+
+                .query(
+                    "select * from produceplan where plandate=@plandate")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/plansearch1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('plandate', sql.NVarChar, req.body.plandate)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+
+                .query(
+                    "select * from produceplan where plandate=@plandate and equipmentname=@equipmentname")
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
