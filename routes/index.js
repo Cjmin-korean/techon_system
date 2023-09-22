@@ -2414,25 +2414,28 @@ module.exports = function (app) {
     });
     // **** finish
 
+    
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/plansearch', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
-
             return pool.request()
-                .input('plandate', sql.NVarChar, req.body.plandate)
+            .input('plandate', sql.NVarChar, req.body.plandate)
 
                 .query(
                     "select * from produceplan where plandate=@plandate")
                 .then(result => {
+
                     res.json(result.recordset);
                     res.end();
                 });
         });
 
     });
-    // **** start       
+    // **** finish
+
+         
     sql.connect(config).then(pool => {
         app.post('/api/plansearch1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");

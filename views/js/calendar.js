@@ -104,22 +104,24 @@ $(document).ready(function () {
                 // 이미 선택된 날짜와 같다면 선택 취소
                 if (selectedDate && isSameDate(selectedDate, clickedDate)) {
                     selectedDate = null;
-
+                    plansearch()
                 } else {
                     selectedDate = clickedDate;
+                    planload()
 
+                    updateCalendar();
+                    setSelectedDate(selectedDate);
+                    plansearch()
                 }
                 // 선택한 날짜 정보 저장
 
 
-                planload()
-                updateCalendar();
-                setSelectedDate(selectedDate);
-      
+              
+           
+
 
             });
             datesContainer.appendChild(dateButton);
-            // plansearch()
         }
 
         // 이전에 선택된 버튼 제거
@@ -130,7 +132,7 @@ $(document).ready(function () {
 
         // 이전에 선택한 날짜 정보를 기반으로 선택된 버튼 설정
         selectDateButton();
-        plansearch()
+       
     }
 
     // 달력 초기 업데이트
