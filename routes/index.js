@@ -2416,27 +2416,42 @@ module.exports = function (app) {
 
     
     // **** start       
-    sql.connect(config)
-    .then(pool => {
+    sql.connect(config).then(pool => {
         app.post('/api/plansearch', function (req, res) {
-        res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Origin", "*");
 
-        return pool.request()
-            .input('plandate', sql.NVarChar, req.body.plandate)
-            .query("select * from produceplan where plandate=@plandate")
-            .then(result => {
-            res.json(result.recordset);
-            res.end();
-            })
-            .catch(err => {
-            console.error('SQL error:', err);
-            res.status(500).send('Database error');
-            });
+            return pool.request()
+                .input('plandate', sql.NVarChar, req.body.plandate)
+                .query("select * from produceplan where plandate=@plandate")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
         });
-    })
-    .catch(err => {
-        console.error('Database connection error:', err);
+
     });
+
+    // sql.connect(config).then(pool => {
+    //     app.post('/api/plansearch', function (req, res) {
+    //         res.header("Access-Control-Allow-Origin", "*");
+
+    //         return pool.request()
+    //             .input('plandate', sql.NVarChar, req.body.plandate)
+    //             .query("select * from produceplan where plandate=@plandate")
+    //             .then(result => {
+    //             res.json(result.recordset);
+    //             res.end();
+    //             })
+    //             .catch(err => {
+    //             console.error('SQL error:', err);
+    //             res.status(500).send('Database error');
+    //             });
+    //         });
+    // })
+    // .catch(err => {
+    //     console.error('Database connection error:', err);
+    // });
 
     // **** finish
 
