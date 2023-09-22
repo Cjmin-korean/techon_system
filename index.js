@@ -17,6 +17,13 @@ const corsOptions = {
     origin: '*',
     credentials: true,
 };
+// CORS 설정
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*'); // 모든 도메인에서 요청 허용 (* 대신 특정 도메인을 지정할 수 있음)
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
 console.log('corsOptions', corsOptions)
 console.log('process.env', process.env.PORT)
 app.use(cors(corsOptions));
