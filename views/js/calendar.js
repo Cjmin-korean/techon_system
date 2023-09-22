@@ -93,38 +93,33 @@ $(document).ready(function () {
             dateButton.addEventListener('click', () => {
                 const clickedDate = new Date(currentYear, currentMonth, day);
                 const formattedDate = formatDate(clickedDate); // yyyy-mm-dd 형식으로 날짜를 포맷
-              
+
 
                 const plandateElement = document.getElementById('plandate');
                 if (plandateElement) {
                     plandateElement.textContent = formattedDate;
-                    plansearch()
 
                 }
-                
+
                 // 이미 선택된 날짜와 같다면 선택 취소
                 if (selectedDate && isSameDate(selectedDate, clickedDate)) {
-                    plansearch()
-                    // selectedDate = null;
-                  
+                    selectedDate = null;
+
                 } else {
-                    plansearch()
                     selectedDate = clickedDate;
-              
+
                 }
                 // 선택한 날짜 정보 저장
-             
-             
+
+
                 planload()
                 updateCalendar();
                 setSelectedDate(selectedDate);
-                plansearch()
-              
-             
+      
+
             });
             datesContainer.appendChild(dateButton);
             plansearch()
-
         }
 
         // 이전에 선택된 버튼 제거
@@ -135,7 +130,7 @@ $(document).ready(function () {
 
         // 이전에 선택한 날짜 정보를 기반으로 선택된 버튼 설정
         selectDateButton();
-        
+        plansearch()
     }
 
     // 달력 초기 업데이트
