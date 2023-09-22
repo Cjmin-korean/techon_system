@@ -119,7 +119,7 @@ $(document).ready(function () {
 
             });
             datesContainer.appendChild(dateButton);
-            plansearch()
+            // plansearch()
         }
 
         // 이전에 선택된 버튼 제거
