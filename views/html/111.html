@@ -1,99 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Directions Finder</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        #map {
-            height: 400px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-    </style>
-    <!-- Add Leaflet CSS and JavaScript -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
+<style>
+    table {
+        border-collapse: collapse;
+        width: 50%;
+        margin: 20px;
+        float: left;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+        height: 20px;
+    }
+
+    tr:hover td {
+        background-color: lightblue;
+        cursor: pointer;
+    }
+
+    .highlight {
+        background-color: #ffd700;
+        /* 강조 표시 색상 (노란색) */
+    }
+</style>
+
 <body>
-    <h1>Directions Finder</h1>
-    <label for="start">Start:</label>
-    <input type="text" id="start" placeholder="Enter starting location">
-    <br>
-    <label for="end">End:</label>
-    <input type="text" id="end" placeholder="Enter destination">
-    <br>
-    <button onclick="getDirections()">Find Directions</button>
-    <div id="map"></div>
-    <div id="directions"></div>
+    <table id="table1">
+        <thead>
+            <tr>
+                <th>Table 1 - Column 1</th>
+                <th>Table 1 - Column 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td draggable="true">Data 1</td>
+                <td draggable="true">Data 2</td>
+            </tr>
+            <tr>
+                <td draggable="true">Data 3</td>
+                <td draggable="true">Data 4</td>
+            </tr>
+        </tbody>
+    </table>
 
-    <script>
-        const mapElement = document.getElementById('map');
-        const directionsElement = document.getElementById('directions');
+    <table id="table2">
+        <thead>
+            <tr>
+                <th>Table 2 - Column 1</th>
+                <th>Table 2 - Column 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
 
-        let map = L.map('map').setView([37.5665, 126.9780], 13); // Seoul, South Korea
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-
-        function getDirections() {
-            const start = document.getElementById('start').value;
-            const end = document.getElementById('end').value;
-
-            // Use your preferred geocoding service to get latitude and longitude for start and end
-            // For example, you can use the Nominatim API:
-            const apiUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
-
-            fetch(apiUrl + encodeURIComponent(start))
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        const startLat = data[0].lat;
-                        const startLon = data[0].lon;
-
-                        fetch(apiUrl + encodeURIComponent(end))
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.length > 0) {
-                                    const endLat = data[0].lat;
-                                    const endLon = data[0].lon;
-
-                                    displayDirections([startLat, startLon], [endLat, endLon]);
-                                    addDestinationMarker(endLat, endLon); // Add the red marker for 동대구역
-                                } else {
-                                    directionsElement.textContent = 'Error finding directions';
-                                }
-                            });
-                    } else {
-                        directionsElement.textContent = 'Error finding directions';
-                    }
-                });
-        }
-
-        function displayDirections(startCoords, endCoords) {
-            L.Routing.control({
-                waypoints: [
-                    L.latLng(startCoords[0], startCoords[1]),
-                    L.latLng(endCoords[0], endCoords[1])
-                ],
-                routeWhileDragging: true
-            }).addTo(map);
-        }
-
-        function addDestinationMarker(lat, lon) {
-            L.marker([lat, lon], {
-                icon: L.divIcon({
-                    className: 'custom-icon',
-                    html: '<div style="background-color: red; width: 16px; height: 16px; border-radius: 50%;"></div>',
-                    iconSize: [16, 16]
-                }),
-                draggable: false
-            }).addTo(map);
-        }
-    </script>
 </body>
+<script>
+    var draggedItem = null;
+
+    // 드래그 시작 시
+    document.addEventListener("dragstart", function (event) {
+        if (event.target.tagName === "TD" && event.target.closest("tbody")) {
+            draggedItem = event.target;
+        }
+    });
+
+    // 드래그 가능한 대상에 커서가 들어갈 때
+    document.addEventListener("dragover", function (event) {
+        event.preventDefault();
+        var targetCell = event.target;
+
+        // 드래그 가능한 대상이고 첫 번째 열인 경우
+        if (draggedItem && targetCell.tagName === "TD" && targetCell.cellIndex === 0) {
+            targetCell.classList.add("highlight"); // 드롭 대상 강조 표시
+        }
+    });
+
+    // 드래그 가능한 대상에서 커서가 나갈 때
+    document.addEventListener("dragleave", function (event) {
+        var targetCell = event.target;
+
+        // 드래그 가능한 대상이고 첫 번째 열인 경우
+        if (targetCell.tagName === "TD" && targetCell.cellIndex === 0) {
+            targetCell.classList.remove("highlight"); // 강조 표시 제거
+        }
+    });
+
+    // 드롭 시
+    document.addEventListener("drop", function (event) {
+        var targetCell = event.target;
+
+        // 드래그 가능한 대상이고 첫 번째 열인 경우
+        if (draggedItem && targetCell.tagName === "TD" && targetCell.cellIndex === 0) {
+            targetCell.classList.remove("highlight"); // 강조 표시 제거
+            // 드래그 가능한 대상이고 두 번째 열인 경우
+            if (draggedItem && targetCell.tagName === "TD" && targetCell.cellIndex === 0) {
+                targetCell.classList.remove("highlight"); // 강조 표시 제거
+
+                // Table 1의 데이터를 Table 2로 이동
+                targetCell.textContent = draggedItem.parentElement.querySelectorAll("td")[1].textContent; // 데이터 복사
+                draggedItem.parentElement.querySelectorAll("td")[1].textContent = ""; // 원래 데이터 제거
+                targetCell.parentElement.querySelectorAll("td")[2].textContent = draggedItem.parentElement.querySelectorAll("td")[0].textContent; // 데이터 복사
+                draggedItem.parentElement.querySelectorAll("td")[0].textContent = ""; // 원래 데이터 제거
+            }
+
+            // 새로운 행 생성   
+            var newRow = document.createElement("tr");
+            newRow.innerHTML = `<td>${data1}</td><td>${data2}</td>`;
+
+            // 테이블 2에 새로운 행 추가
+            targetCell.parentElement.parentElement.querySelector("tbody").appendChild(newRow);
+
+            // 테이블 1에서 행 제거
+            draggedItem.parentElement.remove();
+        }
+    });
+
+
+
+</script>
+
 </html>

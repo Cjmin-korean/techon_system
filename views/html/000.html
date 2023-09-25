@@ -4,31 +4,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Drag and Drop Example</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin: 20px;
+            float: left;
+        }
+
+
+        .header-row {
+            background-color: whitesmoke;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+            height: 20px;
+        }
+
+        tr:hover td {
+            background-color: lightblue;
+            cursor: pointer;
+        }
+
+        .table1 {
+            background-color: #f2f2f2;
+        }
+
+        .table2 {
+            background-color: #e0e0e0;
+        }
+
+        .selected {
+            background-color: lightblue;
+        }
+
+        .footrow {
+            background-color: silver;
+        }
+
+        .footrow:hover {
+            background-color: transparent;
+            cursor: auto;
+        }
+
+        .droppable {
+            border: 2px dashed #ccc;
+        }
+    </style>
 </head>
 
 <body>
+    <table id="table1" class="droppable">
+        <thead>
+            <tr class="header-marchine">
+                <th colspan="4">설비1호기</th>
+            </tr>
+            <tr class="header-row">
+                <th>BOM NO.</th>
+                <th>모델명</th>
+                <th>품명</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 데이터가 없는 경우에도 드래그 가능한 요소 추가 -->
+            <tr>
+            </tr>
 
+            <tr>
+                <td class="footrow" colspan="3"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 데이터가 없는 테이블도 드래그 가능한 요소 추가 -->
+    <table id="table2" class="droppable">
+        <thead>
+            <tr class="header-marchine">
+                <th colspan="4">설비2호기</th>
+            </tr>
+            <tr class="header-row">
+                <th>BOM NO.</th>
+                <th>모델명</th>
+                <th>품명</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 빈 tbody에 빈 tr 요소 추가 -->
+            <tr>
+                <td class="footrow" colspan="3"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table id="table3" class="droppable">
+        <thead>
+            <tr class="header-marchine">
+                <th colspan="5">생산확정리스트</th>
+            </tr>
+            <tr class="header-row">
+                <th>BOM NO.</th>
+                <th>고객사</th>
+                <th>모델명</th>
+                <th>수량</th>
+                <th>품명</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 데이터가 없는 경우에도 드래그 가능한 요소 추가 -->
+            <tr>
+                <td draggable="true" class="drag-bom">bom</td>
+                <td draggable="true" class="drag-customer">영풍전자</td>
+                <td draggable="true" class="drag-model">모델명</td>
+                <td draggable="true" class="drag-qty">수량</td>
+                <td draggable="true" class="drag-item">제품명</td>
+            </tr>
+            <tr>
+                <td draggable="true" class="drag-bom">bom1</td>
+                <td draggable="true" class="drag-customer">영풍전자</td>
+                <td draggable="true" class="drag-model">모델명</td>
+                <td draggable="true" class="drag-qty">수량</td>
+                <td draggable="true" class="drag-item">제품명</td>
+            </tr>
+            <tr>
+                <td draggable="true" class="drag-bom">bom</td>
+                <td draggable="true" class="drag-customer">영풍전자</td>
+                <td draggable="true" class="drag-model">모델명</td>
+                <td draggable="true" class="drag-qty">수량</td>
+                <td draggable="true" class="drag-item">제품명</td>
+            </tr>
+
+            <tr>
+                <td class="footrow" colspan="5"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        var draggedItem = null;
+        document.addEventListener("dragstart", function (event) {
+            draggedItem = event.target.parentElement;
+            // 데이터 추출
+            var bom = draggedItem.querySelector("td.drag-bom").textContent;
+            var model = draggedItem.querySelector("td.drag-model").textContent;
+            var item = draggedItem.querySelector("td.drag-item").textContent;
+
+            // 특정 위치의 빈 td에 표시 (고객사와 수량은 빈 상태로 둠)
+            var targetTable = document.getElementById(event.target.closest("table").id);
+            var targetRow = event.target.closest("tr");
+            targetRow.querySelector(".drag-bom").textContent = bom;
+            targetRow.querySelector(".drag-model").textContent = model;
+            targetRow.querySelector(".drag-item").textContent = item;
+            targetRow.querySelector(".drag-customer").remove();
+            targetRow.querySelector(".drag-qty").remove();
+
+
+            event.dataTransfer.setData("text/plain", event.target.innerHTML);
+            event.dataTransfer.setData("source-table", event.target.closest("table").id);
+            draggedItem.classList.add("selected");
+        });
+
+
+        document.addEventListener("dragover", function (event) {
+            event.preventDefault();
+            var targetRow = event.target.closest("tr");
+            var lastTd = targetRow.lastElementChild; // 마지막 td 요소
+
+            if (draggedItem && targetRow && targetRow.closest("tbody") && !targetRow.classList.contains("header-row") && !targetRow.classList.contains("footrow") && event.clientY < lastTd.getBoundingClientRect().bottom) {
+                var rowRect = targetRow.getBoundingClientRect();
+                var mouseY = event.clientY - rowRect.top;
+                var isAboveMiddle = mouseY < rowRect.height / 2;
+
+                if (isAboveMiddle) {
+                    targetRow.parentNode.insertBefore(draggedItem, targetRow);
+                } else {
+                    targetRow.parentNode.insertBefore(draggedItem, targetRow.nextSibling);
+                }
+
+                var sourceTable = document.getElementById(event.dataTransfer.getData("source-table"));
+                var sourceRows = sourceTable.querySelectorAll("tbody tr");
+                var targetRows = targetRow.parentElement.querySelectorAll("tr");
+
+                for (var i = 0; i < sourceRows.length; i++) {
+                    targetRows[i].querySelector(".drag-bom").textContent = sourceRows[i].querySelector(".drag-bom").textContent;
+                    sourceRows[i].querySelector(".drag-bom").textContent = "";
+
+                    targetRows[i].querySelector(".drag-model").textContent = sourceRows[i].querySelector(".drag-model").textContent;
+                    sourceRows[i].querySelector(".drag-model").textContent = "";
+
+                    // 총 3개의 td만 유지
+                    if (i >= 2) {
+                        var qtyElement = targetRows[i].querySelector(".drag-qty");
+                        if (qtyElement) {
+                            qtyElement.remove(); // .drag-qty 삭제
+                        }
+                        var customerElement = targetRows[i].querySelector(".drag-customer");
+                        if (customerElement) {
+                            customerElement.remove(); // .drag-customer 삭제
+                        }
+                        targetRows[i].querySelector(".drag-item").textContent = ""; // .drag-item 비움
+                    } else {
+                        var qtyElement = targetRows[i].querySelector(".drag-qty");
+                        if (qtyElement) {
+                            qtyElement.textContent = sourceRows[i].querySelector(".drag-qty").textContent;
+                            sourceRows[i].querySelector(".drag-qty").textContent = "";
+                        }
+                        var customerElement = targetRows[i].querySelector(".drag-customer");
+                        if (customerElement) {
+                            customerElement.textContent = sourceRows[i].querySelector(".drag-customer").textContent;
+                            sourceRows[i].querySelector(".drag-customer").textContent = "";
+                        }
+                        targetRows[i].querySelector(".drag-item").textContent = sourceRows[i].querySelector(".drag-item").textContent;
+                        sourceRows[i].querySelector(".drag-item").textContent = "";
+                    }
+                }
+            }
+        });
+
+
+
+
+        draggedItem = event.currentTarget;
+
+        var bom = draggedItem.querySelector("td.drag-bom").textContent;
+        var model = draggedItem.querySelector("td.drag-model").textContent;
+        var item = draggedItem.querySelector("td.drag-item").textContent;
+
+        // 특정 위치의 빈 td에 표시 (고객사와 수량은 빈 상태로 둠)
+        var targetTable = document.getElementById(event.currentTarget.closest("table").id);
+        var targetRow = event.currentTarget.closest("tr");
+        targetRow.querySelector(".drag-bom").textContent = bom;
+        targetRow.querySelector(".drag-model").textContent = model;
+        targetRow.querySelector(".drag-item").textContent = item;
+        targetRow.querySelector(".drag-customer").remove();
+        targetRow.querySelector(".drag-qty").remove();
+
+        // 데이터를 설정하지 않고 직접 옮길 데이터 설정
+        event.dataTransfer.effectAllowed = "move";
+
+
+        document.addEventListener("dragend", function () {
+            if (draggedItem) {
+                // 데이터 설정
+                event.dataTransfer.setData("text/plain", draggedItem.innerHTML);
+                event.dataTransfer.setData("source-table", draggedItem.closest("table").id);
+
+                draggedItem.classList.remove("selected");
+                draggedItem = null;
+            }
+            alert('생산계획이 확정되었습니다')
+        });
+        document.addEventListener("drop", function (event) {
+            event.preventDefault();
+            var target = event.target;
+            if (target.classList.contains("drag-qty") || target.classList.contains("drag-item")) {
+                target.innerHTML = event.dataTransfer.getData("text/plain");
+            }
+        });
+    </script>
 </body>
-<script>
-    const input = "HGP/A080PG&2308092A03/2&2023/08/09&200&2024/02/08";
-    const pattern = /자재명:\s*(.*)\nlot:\s*(.*)\n제조일자:\s*([\d/]+)\n만료일자:\s*([\d/]+)\n자재폭:\s*(.*)/;
-    const match = input.match(pattern);
-    if (match) {
-        const materialName = match[1];
-        const lot = match[2];
-        const manufactureDate = match[3];
-        const expirationDate = match[4];
-        const materialWidth = match[5];
-
-        console.log("자재명:", materialName);
-        console.log("lot:", lot);
-        console.log("제조일자:", manufactureDate);
-        console.log("만료일자:", expirationDate);
-        console.log("자재폭:", materialWidth);
-    } else {
-        console.log("패턴이 일치하지 않습니다.");
-    }
-</script>
 
 </html>

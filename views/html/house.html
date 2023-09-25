@@ -46,7 +46,8 @@
                         style="width: auto; border: 1px solid silver; font-size: 18px;" placeholder="검색내용을 입력하세요."></td>
                 <td style="width: 5%;"><input type="button" onclick="New()" value="신규" class="styled-button"></td>
                 <td style="width: 5%;"><input type="button" value="Excel-Up" class="styled-button1"></td>
-                <td style="width: 5%;"><input type="button" value="Excel-Down" class="styled-button2" onclick="exportToExcel()"></td>
+                <td style="width: 5%;"><input type="button" value="Excel-Down" class="styled-button2"
+                        onclick="exportToExcel()"></td>
             </tr>
         </table>
     </div>
@@ -75,11 +76,11 @@
     </div>
     <!-- 등록창 -->
     <div id="popupOverlay" style="display: none;">
-        <div id="popupContent" >
+        <div id="popupContent">
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td colspan="2"  class="popup_title">창고 정보 추가</td>
+                        <td colspan="2" class="popup_title">창고 정보 추가</td>
                     </tr>
                     <tr>
                         <td style="width: 200px">창고코드</td>
@@ -114,14 +115,11 @@
 
     <!-- 수정창 -->
     <div id="popupOverlay1" style="display: none;">
-        <div id="popupContent1" style="width: 700px; height: auto;">
+        <div id="popupContent">
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td style="background-color: black; color: white;">창고 정보 수정</td>
-                        <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver; "></td>
-
+                        <td colspan="2" class="popup_title">창고 정보 수정</td>
                     </tr>
                     <tr>
                         <td style="width: 200px">창고코드</td>
@@ -153,29 +151,25 @@
             </div>
             <button id="popupCloseBtn-edit-close">취소</button>
             <button id="popupCloseBtn-edit" onclick="Dataedit()">수정</button>
+            <input type="text" id="id-edit" style="visibility: hidden; width: 10px; float: right;" autocomplete="off">
+
         </div>
     </div>
 
 
     <!-- 삭제창 -->
     <div id="popupOverlay2" style="display: none;">
-        <div id="popupContent2" style="width: 700px; height: auto;">
+        <div id="popupContent">
             <div class="form-group">
                 <table style="width:100%;">
                     <tr>
-                        <td style="background-color: black; color: white; width: 200px;">창고 정보 삭제</td>
-                        <td style="visibility: hidden;"><input type="text" id="id-edit" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver; "></td>
-
+                        <td colspan="2" class="popup_title">창고 정보를 삭제하시겠습니까?</td>
                     </tr>
-                    <tr>
-                        <td colspan="2"  class="popup_title">창고 정보를 삭제하시겠습니까?</td>
-                    </tr>
-
                 </table>
             </div>
             <button id="popupCloseBtn-delete-close">취소</button>
             <button id="popupCloseBtn-delete" onclick="Datadelte()">삭제</button>
+            <input type="text" id="id-edit" style="visibility: hidden; width: 10px; float: right;" autocomplete="off">
         </div>
     </div>
 
@@ -328,11 +322,11 @@
         }
 
         function New() {
-            $('#accountcode-save').val('')
-            $('#accountname-save').val('')
-            $('#representativename-save').val('')
-            $('#phone-save').val('')
-            $('#adress-save').val('')
+            $('#housecode-save').val('')
+            $('#housename-save').val('')
+            $('#part-save').val('')
+            $('#partname-save').val('')
+
             $('#popupOverlay').fadeIn();
             $('#housecode-save').focus();
 
@@ -421,36 +415,31 @@
 
 
         function Datadelte() {
-            if (confirm("창고 정보를 삭제 하시겠습니까??") == true) {
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/housedeletedata',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/housedeletedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
 
-                        id: $('#id-edit').val(),
+                    id: $('#id-edit').val(),
 
-                    }),
-                    success: function (result) {
-                    }
-                })
+                }),
+                success: function (result) {
+                }
+            })
 
-                $('#popupOverlay2').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">창고 삭제 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-
+            $('#popupOverlay2').fadeOut();
+            setTimeout(function () {
+                load()
+            }, 50); // 3초 후에 알림을 사라지게 설정
+            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">창고 삭제 완료</span></div>');
+            $('body').append(notification);
+            setTimeout(function () {
+                notification.fadeOut(function () {
+                    $(this).remove();
+                });
+            }, 3000);
         }
         function load() {
             $('#Datatbody').empty()

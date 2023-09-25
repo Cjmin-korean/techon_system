@@ -1328,13 +1328,19 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-                //.input('변수',값 형식, 값)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('size', sql.NVarChar, req.body.size)
+                .input('num', sql.NVarChar, req.body.num)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('position', sql.NVarChar, req.body.position)
+                .input('etc', sql.NVarChar, req.body.etc)
 
 
                 .query(
-                    'insert into equipment(equipmentname)' +
-                    ' values(@equipmentname)'
+                    'insert into equipment(codenumber,equipmentname,part,size,num,customer,position,etc)' +
+                    ' values(@codenumber,@equipmentname,@part,@size,@num,@customer,@position,@etc)'
                 )
                 .then(result => {
 
@@ -2396,6 +2402,35 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/planorderlist', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    " select " +
+                    " id, " +
+                    " bomno, " +
+
+                    " contentname, " +
+                    " productdate, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " lotno, " +
+                    " quantity, " +
+                    " orderid,marchine,a,b,c,d,qrno " +
+                    " from  " +
+                    " orderlist where status='ok' order by contentname,lotno asc ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -2413,6 +2448,23 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/searchequipmentcodenumber', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .query(
+                    "select codenumber from equipment where equipmentname=@equipmentname")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     
     // **** start       
@@ -2422,7 +2474,8 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
-                .query("select * from produceplan where plandate=@plandate")
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .query("select * from produceplan where plandate=@plandate and equipmentname=@equipmentname")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -2689,6 +2742,36 @@ module.exports = function (app) {
                 .query(
                     'insert into test(A)' +
                     ' values(@A)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/planinsert', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('plandate', sql.NVarChar, req.body.plandate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('pono', sql.NVarChar, req.body.pono)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+
+
+
+
+                .query(
+                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname)' +
+                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname)'
                 )
                 .then(result => {
 
@@ -4004,19 +4087,25 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/equipmentupdatedata', function (req, res) {
-            console.log("res", res)
-            console.log("req", req)
+         
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
                 .input('id', sql.Int, req.body.id)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('size', sql.NVarChar, req.body.size)
+                .input('num', sql.NVarChar, req.body.num)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('position', sql.NVarChar, req.body.position)
+                .input('etc', sql.NVarChar, req.body.etc)
 
 
 
                 .query(
-                    'update equipment set equipmentname=@equipmentname where id=@id'
+                    'update equipment set codenumber=@codenumber,equipmentname=@equipmentname,part=@part,size=@size,num=@num,customer=@customer,position=@position,etc=@etc where id=@id'
 
                 )
                 .then(result => {
