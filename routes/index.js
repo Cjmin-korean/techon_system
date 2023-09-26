@@ -2,6 +2,7 @@
 const multer = require('multer');
 const xlsx = require('xlsx');
 const fs = require('fs');
+const sql = require("mssql");
 module.exports = function (app) {
     const sql = require('mssql');
     var config = {
@@ -2476,6 +2477,22 @@ module.exports = function (app) {
                 .input('plandate', sql.NVarChar, req.body.plandate)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
                 .query("select * from produceplan where plandate=@plandate and equipmentname=@equipmentname")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+
+    sql.connect(config).then(pool => {
+        app.post('/api/plansearchAll', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('plandate', sql.NVarChar, req.body.plandate)
+                .query("select * from produceplan where plandate=@plandate")
                 .then(result => {
 
                     res.json(result.recordset);
