@@ -2656,11 +2656,10 @@ module.exports = function (app) {
                 .input('lotno', sql.NVarChar, req.body.lotno)
                 .input('pono', sql.NVarChar, req.body.pono)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
-
-
+                .input('num', sql.Int, req.body.num)
                 .query(
-                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname)' +
-                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname)'
+                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num)' +
+                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num)'
                 )
                 .then(result => {
 
@@ -2677,8 +2676,8 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/planupdate', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            console.log('req', req)
-            console.log('req', req.body.id)
+            // console.log('req', req)
+            // console.log('req', req.body.id, req.body.num)
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
                 .input('bomno', sql.NVarChar, req.body.bomno)
@@ -2690,10 +2689,18 @@ module.exports = function (app) {
                 .input('num', sql.Int, req.body.num)
                 .input('id', sql.Int, req.body.id)
                 .query(
-                    'update produceplan set plandate=@plandate,bomno=@bomno,modelname=@modelname,itemname=@itemname,lotno=@lotno,pono=@pono,equipmentname=@equipmentname,num=@num where id=@id'
+                    'update produceplan set plandate=@plandate' +
+                    ',bomno=@bomno,' +
+                    'modelname=@modelname,' +
+                    'itemname=@itemname,' +
+                    'lotno=@lotno,' +
+                    'pono=@pono,' +
+                    'equipmentname=@equipmentname,' +
+                    'num=@num' +
+                    ' where id=@id'
                 )
                 .then(result => {
-                    console.log(result.recordset)
+                    // console.log(result)
                     res.json(result.recordset);
                     res.end();
                 });

@@ -347,21 +347,44 @@ $(document).ready(function () {
                     console.log('difference', differenceInsert);
 
                     for(let i=0; i<differenceUpdate.length; i++) {
+                        if(differenceUpdate[i].num) {
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/planupdate',
+                                dataType: 'json',
+                                data: {
+                                    "id": differenceUpdate[i].id,
+                                    "plandate": differenceUpdate[i].plandate,
+                                    "bomno": differenceUpdate[i].bomno,
+                                    "modelname": differenceUpdate[i].modelname,
+                                    "itemname": differenceUpdate[i].itemname,
+                                    "lotno": differenceUpdate[i].lotno,
+                                    "pono": differenceUpdate[i].pono,
+                                    "equipmentname": differenceUpdate[i].equipmentname,
+                                    "num": differenceUpdate[i].num
+                                },
+                                success: function (data) {
+                                    console.log('update ok', data)
+                                }
+                            });
+                        }
+                    }
+                    for(let i=0; i<differenceInsert.length; i++) {
                         $.ajax({
                             type: 'POST',
-                            url: server + '/api/planupdate',
+                            url: server + '/api/planinsert',
                             dataType: 'json',
-                            data: JSON.stringify({
-                                "id": differenceUpdate[i].id,
-                                "plandate": differenceUpdate[i].plandate,
-                                "bomno": differenceUpdate[i].bomno,
-                                "modelname": differenceUpdate[i].modelname,
-                                "itemname": differenceUpdate[i].itemname,
-                                "lotno": differenceUpdate[i].lotno,
-                                "pono": differenceUpdate[i].pono,
-                                "equipmentname": differenceUpdate[i].equipmentname,
-                                "num": differenceUpdate[i].num
-                            }),
+                            data: {
+                                "id": differenceInsert[i].id,
+                                "plandate": differenceInsert[i].plandate,
+                                "bomno": differenceInsert[i].bomno,
+                                "modelname": differenceInsert[i].modelname,
+                                "itemname": differenceInsert[i].itemname,
+                                "lotno": differenceInsert[i].lotno,
+                                "pono": differenceInsert[i].pono,
+                                "equipmentname": differenceInsert[i].equipmentname,
+                                "num": differenceInsert[i].num
+                            },
                             success: function (data) {
                                 console.log('update ok', data)
                             }
@@ -553,13 +576,13 @@ $(document).ready(function () {
         function equipmentNameSetting() {
             var loadTdDataKeys = Object.keys(loadTdData);
 
-            for (let i = 0; i < 24; i += 8) {
+            for (let i = 0; i < flattenedData.length; i += 8) {
                 for (let j = i; j < i + 8; j++) {
-                    // if (flattenedData[j].num !== '' && flattenedData[j].num !== null) {
-                    if (j > 7) {
-                        flattenedData[j].equipmentname = loadTdDataKeys[i / 8];
+                    if (flattenedData[j].num !== '' && flattenedData[j].num !== null) {
+                        if (j > 7) {
+                            flattenedData[j].equipmentname = loadTdDataKeys[i / 8];
+                        }
                     }
-                    // }
                 }
             }
         }
