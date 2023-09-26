@@ -2390,9 +2390,9 @@ module.exports = function (app) {
                     " itemname, " +
                     " lotno, " +
                     " quantity, " +
-                    " orderid,marchine,a,b,c,d,qrno " +
+                    " orderid,marchine,a,b,c,d,qrno,orderstatus " +
                     " from  " +
-                    " orderlist where status='true' order by contentname,lotno asc ")
+                    " orderlist where status='true' order by orderstatus desc ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -2772,6 +2772,39 @@ module.exports = function (app) {
                 .query(
                     'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname)' +
                     ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
+
+      // **** start       
+      sql.connect(config).then(pool => {
+        app.post('/api/planupdate', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('plandate', sql.NVarChar, req.body.plandate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('pono', sql.NVarChar, req.body.pono)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('id', sql.Int, req.body.id)
+
+
+
+
+                .query(
+                    'update produceplan set plandate=@plandate,bomno=@bomno,modelname=@modelname,itemname=@itemname,lotno=@lotno,pono=@pono,equipmentname=@equipmentname where id=@id' 
+                    
                 )
                 .then(result => {
 
@@ -3544,6 +3577,57 @@ module.exports = function (app) {
 
                 .query(
                     'update orderlist set a=@a where qrno=@qrno'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateorderstatus', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('contentname', sql.NVarChar, req.body.contentname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('orderstatus', sql.NVarChar, req.body.orderstatus)
+
+
+
+                .query(
+                    'update orderlist set orderstatus=@orderstatus where contentname=@contentname and lotno=@lotno'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/statusfalse', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('status', sql.NVarChar, req.body.status)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+
+
+
+                .query(
+                    'update orderlist set status=@status where lotno=@lotno'
 
                 )
                 .then(result => {

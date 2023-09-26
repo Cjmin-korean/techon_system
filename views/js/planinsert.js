@@ -4,7 +4,7 @@ function planinsert() {
     var modelname = $('#modelname-save').val();
     var itemname = $('#itemname-save').val();
     var lotno = $('#lotno-save').val();
-    var pono = $('#pono-save').val();
+    var pono = $('#quantity-save').val();
     var equipmentname = $('#equipment-select').val();
 
     $.ajax({
@@ -30,6 +30,7 @@ function planinsert() {
                     "pono": pono,
                     "equipmentname": data[0].codenumber
 
+
                 }),
                 success: function (result) {
                 },
@@ -41,9 +42,27 @@ function planinsert() {
         }
     });
 
+    $.ajax({
+        type: 'POST',
+        url: server + '/api/statusfalse',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            "status": 'false',
+            "lotno": lotno
+
+        }),
+        success: function (data) {
+
+        },
+        error: function (error) {
+        }
+    });
+
     $('#popupOverlay').fadeOut();
 
     load()
     planload()
+    plansearching()
 
 }
