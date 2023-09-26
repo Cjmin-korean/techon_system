@@ -19,7 +19,6 @@ module.exports = function (app) {
     };
 
 
-
     // **** start
     sql.connect(config).then(pool => {
         app.post('/api/users', function (req, res) {
@@ -38,7 +37,6 @@ module.exports = function (app) {
             return pool.request()
                 .input('nameid', sql.NVarChar, nameid)
                 .query(
-
                     'SELECT ' +
                     'password, ' +
                     'name, ' +
@@ -68,8 +66,7 @@ module.exports = function (app) {
     // **** finish
 
 
-
-    const upload = multer({ dest: 'uploads/' });
+    const upload = multer({dest: 'uploads/'});
 
     app.post('/upload-excel', upload.single('excelFile'), (req, res) => {
         // 클라이언트가 업로드한 파일을 읽음
@@ -192,18 +189,15 @@ module.exports = function (app) {
     });
 
 
-
-    // **** start       
+    // **** start
     sql.connect(config).then(pool => {
         app.post('/api/finalpercent', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     " SELECT " +
                     " a.contentname, " +
                     " a.bomno, " +
@@ -243,13 +237,11 @@ module.exports = function (app) {
                     "    LEFT OUTER JOIN bommanagement1 e ON e.pono = a.contentname  " +
                     "WHERE " +
                     "    e.classification = '메인자재'  and e.lotno= c.lotno  order by c.lotno asc"
-
                 )
 
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -264,11 +256,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     "   select " +
                     "    a.contentname, " +
                     "    a.accountdate, " +
@@ -296,7 +286,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -309,17 +298,14 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('contentname', sql.NVarChar, req.body.contentname)
                 .query(
-
                     " delete from accountinput where contentname=@contentname")
 
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -333,20 +319,17 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('pono', sql.NVarChar, req.body.pono)
                 .input('materialinput', sql.Float, req.body.materialinput)
                 .input('materialname', sql.NVarChar, req.body.materialname)
                 .input('lotno', sql.NVarChar, req.body.lotno)
                 .query(
-
                     "update bommanagement1 set materialinput=@materialinput where pono=@pono and lotno=@lotno and materialname=@materialname")
 
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -361,13 +344,11 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('pono', sql.NVarChar, req.body.pono)
                 .input('lotno', sql.NVarChar, req.body.lotno)
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .query(
-
                     " INSERT INTO bommanagement1 (bomno, model, itemname, materialname, swidth, mwidth, classification, cost, lotno, dpid,pono) " +
                     " SELECT bomno, model, itemname, materialname, swidth, mwidth, classification, cost, @lotno, dpid, @pono " +
                     " FROM bommanagement " +
@@ -376,7 +357,6 @@ module.exports = function (app) {
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -390,17 +370,14 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('id', sql.Int, req.body.id)
                 .query(
-
                     " delete from orderlist where id=@id")
 
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -410,19 +387,16 @@ module.exports = function (app) {
     // **** finish
 
 
-
-    // **** start       
+    // **** start
     sql.connect(config).then(pool => {
         app.post('/api/shipment', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-
 
 
             return pool.request()
                 .input('START', sql.NVarChar, req.body.start)
                 .input('FINISH', sql.NVarChar, req.body.finish)
                 .query(
-
                     "   SELECT " +
                     "     S.SHIPMENTDATE, " +
                     "     I.REV, " +
@@ -471,7 +445,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -484,12 +457,10 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('START', sql.NVarChar, req.body.start)
                 .input('FINISH', sql.NVarChar, req.body.finish)
                 .query(
-
                     "  SELECT " +
                     " * " +
                     " FROM " +
@@ -569,7 +540,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -582,11 +552,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     'SELECT ' +
                     '* ' +
                     'FROM house')
@@ -598,7 +566,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -613,11 +580,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     'SELECT ' +
                     '* ' +
                     'FROM bommanagement')
@@ -629,7 +594,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -644,11 +608,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     'SELECT ' +
                     '* ' +
                     'FROM filesave')
@@ -662,7 +624,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -673,7 +634,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/materialbaseall', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-
 
 
             return pool.request()
@@ -694,7 +654,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/materialbase', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-
 
 
             return pool.request()
@@ -732,7 +691,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/materialbaseinput', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-
 
 
             return pool.request()
@@ -775,7 +733,6 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-
                     "    SELECT " +
                     "    id, " +
                     "    ISNULL(accountcode, '') AS accountcode, " +
@@ -806,7 +763,6 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-
                     'SELECT ' +
                     '* ' +
                     'FROM alltest')
@@ -828,7 +784,6 @@ module.exports = function (app) {
             return pool.request()
                 // .input('accountname', sql.NVarChar, req.body.accountname)
                 .query(
-
                     " SELECT " +
                     " * " +
                     " FROM accountmanagement where accountname like '%스%' ")
@@ -849,7 +804,6 @@ module.exports = function (app) {
             return pool.request()
                 .input('materialname', sql.NVarChar, req.body.materialname)
                 .query(
-
                     " SELECT " +
                     " * " +
                     " FROM materialinput where materialname=@materialname ")
@@ -871,7 +825,6 @@ module.exports = function (app) {
             return pool.request()
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .query(
-
                     " SELECT  bomno,materialname,swidth,mwidth,dpid,cost,classification " +
                     "  FROM bommanagement " +
                     "  WHERE  bomno=@bomno and status='true' ")
@@ -891,11 +844,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     'SELECT ' +
                     '* ' +
                     'FROM department')
@@ -905,7 +856,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -920,11 +870,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     " SELECT " +
                     "    id, " +
                     "    itemcode, " +
@@ -940,8 +888,6 @@ module.exports = function (app) {
                     "        ELSE CAST(ROUND(cost / itemprice * 100, 2) AS decimal(18, 2))" +
                     "    END AS 'costpg' ,etc " +
                     "FROM iteminfo  order by bomno asc               "
-
-
                 )
 
                 .then(result => {
@@ -949,7 +895,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -963,11 +908,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     'SELECT ' +
                     '* ' +
                     'FROM managementtopics')
@@ -977,7 +920,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -1024,7 +966,6 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('start', sql.NVarChar, req.body.orderdate)
                 .input('finish', sql.NVarChar, req.body.deliverydate)
@@ -1036,7 +977,6 @@ module.exports = function (app) {
                 //     "and status=" +
                 //     "'영업완료'")
                 .query(
-
                     "SELECT " +
                     "id," +
                     "managementno," +
@@ -1059,7 +999,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1071,11 +1010,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     "SELECT " +
                     "id," +
                     "bomno," +
@@ -1105,7 +1042,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1117,11 +1053,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     " SELECT " +
                     " id, " +
                     " name," +
@@ -1143,7 +1077,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1161,7 +1094,6 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-
                     "SELECT " +
                     " * " +
                     " FROM equipment ")
@@ -1171,7 +1103,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -1186,11 +1117,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
                     "SELECT " +
                     "A,B" +
                     " FROM test ")
@@ -1200,7 +1129,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -1307,7 +1235,6 @@ module.exports = function (app) {
                 .input('day', sql.Int, req.body.day)
 
 
-
                 .query(
                     'insert into materialbase(materialname,codenumber,classification,fullwidth,swidth,customer,sqmprice,rollprice,day)' +
                     ' values(@materialname,@codenumber,@classification,@fullwidth,@swidth,@customer,@sqmprice,@rollprice,@day)'
@@ -1359,12 +1286,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
-
                     "SELECT " +
                     "id," +
                     "input," +
@@ -1388,7 +1312,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1401,12 +1324,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
-
                     "SELECT " +
                     "     modelname, " +
                     "     itemname, " +
@@ -1425,7 +1345,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1437,12 +1356,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
-
                     "select * from iteminput")
 
                 .then(result => {
@@ -1450,7 +1366,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -1465,13 +1380,10 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('start', sql.NVarChar, req.body.start)
                 .input('finish', sql.NVarChar, req.body.finish)
                 .query(
-
-
                     "SELECT " +
                     "id," +
                     "input," +
@@ -1497,7 +1409,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1508,12 +1419,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
-
                     "SELECT " +
                     "id," +
                     "input," +
@@ -1539,7 +1447,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1551,13 +1458,10 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('start', sql.NVarChar, req.body.start)
                 .input('finish', sql.NVarChar, req.body.finish)
                 .query(
-
-
                     "SELECT " +
                     "     input, " +
                     "     date, " +
@@ -1602,7 +1506,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1614,13 +1517,10 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('start', sql.NVarChar, req.body.start)
                 .input('finish', sql.NVarChar, req.body.finish)
                 .query(
-
-
                     "SELECT " +
                     "id," +
                     "input," +
@@ -1645,7 +1545,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1658,12 +1557,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
-
                     "   select " +
                     "    contentname,orderid,productdate,lotno,bomno,modelname,itemname,materialstatus " +
                     "    from " +
@@ -1677,7 +1573,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -1808,7 +1703,6 @@ module.exports = function (app) {
                     "    classification, " +
                     "    materialwidth, " +
                     "    negated_quantity; "
-
                 )
                 .then(result => {
                     res.json(result.recordset);
@@ -1824,12 +1718,9 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
 
                 .query(
-
-
                     "   select " +
                     "    orderid,productdate,lotno,bomno,modelname,itemname,materialstatus " +
                     "    from " +
@@ -1845,7 +1736,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1858,13 +1748,10 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('start', sql.NVarChar, req.body.accountcode)
                 .input('finish', sql.NVarChar, req.body.accountcode)
                 .query(
-
-
                     "SELECT " +
                     "id," +
                     "date," +
@@ -1886,7 +1773,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1897,7 +1783,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/materialoptiongroup', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-
 
 
             return pool.request()
@@ -1913,7 +1798,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -1924,7 +1808,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/materialoptiongroup', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-
 
 
             return pool.request()
@@ -1938,7 +1821,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -1952,12 +1834,10 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('materialname', sql.NVarChar, req.body.materialname)
                 .input('materialwidth', sql.Int, req.body.materialwidth)
                 .query(
-
                     " SELECT" +
                     "     materialname, " +
                     "     codenumber, " +
@@ -1999,7 +1879,6 @@ module.exports = function (app) {
                     res.end();
 
 
-
                 });
         });
 
@@ -2013,12 +1892,10 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
-
             return pool.request()
                 .input('start', sql.NVarChar, req.body.start)
                 .input('finish', sql.NVarChar, req.body.finish)
                 .query(
-
                     " select " +
                     " materialname, " +
                     " lotno, " +
@@ -2049,7 +1926,6 @@ module.exports = function (app) {
 
                     res.json(result.recordset);
                     res.end();
-
 
 
                 });
@@ -2245,7 +2121,6 @@ module.exports = function (app) {
     // **** finish
 
 
-
     // **** start   영업수주 네임건 등록
     sql.connect(config).then(pool => {
         app.post('/api/purchaseorder', function (req, res) {
@@ -2331,7 +2206,6 @@ module.exports = function (app) {
                 .input('productnumber', sql.NVarChar, req.body.productnumber)
                 .input('productcount', sql.Int, req.body.productcount)
                 .input('status', sql.NVarChar, req.body.status)
-
 
 
                 .query(
@@ -2455,7 +2329,7 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
                 .query(
                     "select codenumber from equipment where equipmentname=@equipmentname")
                 .then(result => {
@@ -2467,7 +2341,7 @@ module.exports = function (app) {
     });
     // **** finish
 
-    
+
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/plansearch', function (req, res) {
@@ -2525,7 +2399,7 @@ module.exports = function (app) {
 
     // **** finish
 
-         
+
     sql.connect(config).then(pool => {
         app.post('/api/plansearch1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -2784,8 +2658,6 @@ module.exports = function (app) {
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
 
 
-
-
                 .query(
                     'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname)' +
                     ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname)'
@@ -2801,11 +2673,12 @@ module.exports = function (app) {
     // **** finish
 
 
-      // **** start       
-      sql.connect(config).then(pool => {
+    // **** start
+    sql.connect(config).then(pool => {
         app.post('/api/planupdate', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-
+            console.log('req', req)
+            console.log('req', req.body.id)
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
                 .input('bomno', sql.NVarChar, req.body.bomno)
@@ -2814,17 +2687,13 @@ module.exports = function (app) {
                 .input('lotno', sql.NVarChar, req.body.lotno)
                 .input('pono', sql.NVarChar, req.body.pono)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('num', sql.Int, req.body.num)
                 .input('id', sql.Int, req.body.id)
-
-
-
-
                 .query(
-                    'update produceplan set plandate=@plandate,bomno=@bomno,modelname=@modelname,itemname=@itemname,lotno=@lotno,pono=@pono,equipmentname=@equipmentname where id=@id' 
-                    
+                    'update produceplan set plandate=@plandate,bomno=@bomno,modelname=@modelname,itemname=@itemname,lotno=@lotno,pono=@pono,equipmentname=@equipmentname,num=@num where id=@id'
                 )
                 .then(result => {
-
+                    console.log(result.recordset)
                     res.json(result.recordset);
                     res.end();
                 });
@@ -2863,8 +2732,7 @@ module.exports = function (app) {
     // **** finish
 
 
-
-    // **** start       
+    // **** start
     sql.connect(config).then(pool => {
         app.post('/api/transference', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -2891,7 +2759,6 @@ module.exports = function (app) {
                 .input('orderid', sql.NVarChar, req.body.orderid)
 
                 .query(
-
                     "     SELECT " +
                     "     orderid, " +
                     "     OL.productdate, " +
@@ -2962,7 +2829,6 @@ module.exports = function (app) {
                 .input('orderid', sql.NVarChar, req.body.orderid)
 
                 .query(
-
                     "     SELECT " +
                     "     orderid, " +
                     "     OL.productdate, " +
@@ -3225,7 +3091,6 @@ module.exports = function (app) {
                     "      contentname,bomno,deliverydate,customer,modelname, itemname, FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference, " +
                     "      CASE WHEN (difference)>=0  THEN '가능' ELSE '부족' END AS possible   " +
                     "  FROM recursive_cte"
-
                 )
                 .then(result => {
 
@@ -3569,7 +3434,6 @@ module.exports = function (app) {
 
                 .query(
                     'update Accountmanagement set accountcode=@accountcode,accountname=@accountname,representativename=@representativename,phone=@phone,adress=@adress where id=@id'
-
                 )
                 .then(result => {
 
@@ -3591,10 +3455,8 @@ module.exports = function (app) {
                 .input('a', sql.NVarChar, req.body.a)
 
 
-
                 .query(
                     'update orderlist set a=@a where qrno=@qrno'
-
                 )
                 .then(result => {
 
@@ -3617,10 +3479,8 @@ module.exports = function (app) {
                 .input('orderstatus', sql.NVarChar, req.body.orderstatus)
 
 
-
                 .query(
                     'update orderlist set orderstatus=@orderstatus where contentname=@contentname and lotno=@lotno'
-
                 )
                 .then(result => {
 
@@ -3642,10 +3502,8 @@ module.exports = function (app) {
                 .input('lotno', sql.NVarChar, req.body.lotno)
 
 
-
                 .query(
                     'update orderlist set status=@status where lotno=@lotno'
-
                 )
                 .then(result => {
 
@@ -3668,10 +3526,8 @@ module.exports = function (app) {
                 .input('a', sql.NVarChar, req.body.a)
 
 
-
                 .query(
                     'update orderlist set a=@a,b=@b where qrno=@qrno'
-
                 )
                 .then(result => {
 
@@ -3694,10 +3550,8 @@ module.exports = function (app) {
                 .input('status', sql.NVarChar, req.body.status)
 
 
-
                 .query(
                     'update accountinput set status=@status where contentname=@contentname'
-
                 )
                 .then(result => {
 
@@ -3722,10 +3576,8 @@ module.exports = function (app) {
                 .input('materialinput', sql.Float, req.body.materialinput)
 
 
-
                 .query(
                     'update orderlist set materialinput=@materialinput where orderid=@orderid'
-
                 )
                 .then(result => {
 
@@ -3748,10 +3600,8 @@ module.exports = function (app) {
                 .input('materialstatus', sql.NVarChar, req.body.materialstatus)
 
 
-
                 .query(
                     'update orderlist set materialstatus=@materialstatus where orderid=@orderid'
-
                 )
                 .then(result => {
 
@@ -3774,10 +3624,8 @@ module.exports = function (app) {
                 .input('materialoutput', sql.Float, req.body.materialoutput)
 
 
-
                 .query(
                     'update orderlist set materialoutput=@materialoutput where lotno=@lotno'
-
                 )
                 .then(result => {
 
@@ -3803,7 +3651,6 @@ module.exports = function (app) {
                 .input('materialoutput', sql.Float, req.body.materialoutput)
                 .query(
                     "update orderlist set materialinput=@materialinput,materialoutput=@materialoutput "
-
                 )
                 .then(result => {
 
@@ -3835,7 +3682,6 @@ module.exports = function (app) {
 
                 .query(
                     'update orderlist set startdate=@startdate,marchine=@marchine,starttime=@starttime,status=@status,materialstatus=@materialstatus,materialinput=@materialinput where id=@id'
-
                 )
                 .then(result => {
 
@@ -3914,10 +3760,8 @@ module.exports = function (app) {
                 .input('status', sql.NVarChar, req.body.status)
 
 
-
                 .query(
                     "update allteststatus set inspectiondate=@inspectiondate,start=@start,status=@status where id=@id "
-
                 )
                 .then(result => {
 
@@ -3942,11 +3786,8 @@ module.exports = function (app) {
                 .input('touch', sql.NVarChar, req.body.touch)
 
 
-
-
                 .query(
                     'update orderlist set finaltime=@finaltime,touch=@touch where id=@id'
-
                 )
                 .then(result => {
 
@@ -3969,12 +3810,8 @@ module.exports = function (app) {
                 .input('finish', sql.NVarChar, req.body.finish)
 
 
-
-
-
                 .query(
                     "update allteststatus set finish=@finish,status='검사완료' where id=@id"
-
                 )
                 .then(result => {
 
@@ -3994,7 +3831,6 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-
 
 
                 .input('modelname', sql.NVarChar, req.body.modelname)
@@ -4018,7 +3854,6 @@ module.exports = function (app) {
 
                 .query(
                     'update iteminfo set modelname=@modelname,itemname=@itemname,itemcode=@itemcode,bomno=@bomno,customer=@customer,working=@working,cost=@cost,cavity=@cavity,onepidding=@onepidding,twopidding=@twopidding,one=@one,two=@two,rev=@rev,updatedate=@updatedate,minus=@minus,part=@part,itemprice=@itemprice where bomno=@bomno'
-
                 )
                 .then(result => {
 
@@ -4044,10 +3879,8 @@ module.exports = function (app) {
                 .input('productionorder', sql.NVarChar, req.body.productionorder)
 
 
-
                 .query(
                     'update accountinput set productionorder=@productionorder where id=@id'
-
                 )
                 .then(result => {
 
@@ -4083,7 +3916,6 @@ module.exports = function (app) {
 
                 .query(
                     "update accountmanagement set accountcode=@accountcode,accountname=@accountname,representativename=@representativename,phone=@phone,adress=@adress,number=@number,email=@email,etc=@etc,fax=@fax,mobile=@mobile  where id=@id "
-
                 )
                 .then(result => {
 
@@ -4106,10 +3938,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     "update inspection set final='수입검사완료' where id=@id "
-
                 )
                 .then(result => {
 
@@ -4133,11 +3963,8 @@ module.exports = function (app) {
                 .input('lotno', sql.NVarChar, req.body.lotno)
 
 
-
-
                 .query(
                     "update materialinput set part='입고완료' where materialname=@materialname and input='원자재입고' and lotno=@lotno"
-
                 )
                 .then(result => {
 
@@ -4150,8 +3977,7 @@ module.exports = function (app) {
     // **** finish
 
 
-
-    // **** start       
+    // **** start
     sql.connect(config).then(pool => {
         app.post('/api/bomupdatedata', function (req, res) {
 
@@ -4170,10 +3996,8 @@ module.exports = function (app) {
                 .input('rev', sql.NVarChar, req.body.rev)
 
 
-
                 .query(
                     'update iteminfo set working=@working,customer=@customer,pcs=@pcs,marchine=@marchine,cavity=@cavity,onepidding=@onepidding,twopidding=@twopidding,rev=@rev where id=@id'
-
                 )
                 .then(result => {
 
@@ -4188,7 +4012,7 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/equipmentupdatedata', function (req, res) {
-         
+
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -4204,10 +4028,8 @@ module.exports = function (app) {
                 .input('etc', sql.NVarChar, req.body.etc)
 
 
-
                 .query(
                     'update equipment set codenumber=@codenumber,equipmentname=@equipmentname,part=@part,size=@size,num=@num,customer=@customer,position=@position,etc=@etc where id=@id'
-
                 )
                 .then(result => {
 
@@ -4230,10 +4052,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from  Accountmanagement where id=@id'
-
                 )
                 .then(result => {
 
@@ -4255,10 +4075,8 @@ module.exports = function (app) {
                 .input('quantity', sql.Int, req.body.quantity)
 
 
-
                 .query(
                     'delete from  materialinput where materialid=@materialid and quantity=@quantity'
-
                 )
                 .then(result => {
 
@@ -4280,10 +4098,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from  materialinput where id=@id'
-
                 )
                 .then(result => {
 
@@ -4305,10 +4121,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from  materialbase where id=@id'
-
                 )
                 .then(result => {
 
@@ -4330,10 +4144,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from  equipment where id=@id'
-
                 )
                 .then(result => {
 
@@ -4354,7 +4166,6 @@ module.exports = function (app) {
                 //.input('변수',값 형식, 값)
                 .input('departmentcode', sql.NVarChar, req.body.departmentcode)
                 .input('departmentname', sql.NVarChar, req.body.departmentname)
-
 
 
                 .query(
@@ -4381,7 +4192,6 @@ module.exports = function (app) {
                 .input('housename', sql.NVarChar, req.body.housename)
                 .input('part', sql.NVarChar, req.body.part)
                 .input('partname', sql.NVarChar, req.body.partname)
-
 
 
                 .query(
@@ -4422,7 +4232,6 @@ module.exports = function (app) {
                 .input('itemprice', sql.Float, req.body.itemprice)
 
 
-
                 .query(
                     'insert into iteminfo(itemcode,bomno,modelname,itemname,customer,cost,rev,insertdate,minus,working,cavity,onepidding,twopidding,one,two,part,itemprice)' +
                     ' values(@itemcode,@bomno,@modelname,@itemname,@customer,@cost,@rev,@insertdate,@minus,@working,@cavity,@onepidding,@twopidding,@one,@two,@part,@itemprice)'
@@ -4455,8 +4264,6 @@ module.exports = function (app) {
                 .input('cost', sql.Float, req.body.cost)
                 .input('dpid', sql.Float, req.body.dpid)
                 .input('classification', sql.NVarChar, req.body.classification)
-
-
 
 
                 .query(
@@ -4495,8 +4302,6 @@ module.exports = function (app) {
                 .input('part', sql.NVarChar, req.body.part)
 
 
-
-
                 .query(
                     'insert into materialinput(date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,contents,part)' +
                     ' values(@date,@input,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@contents,@part)'
@@ -4513,7 +4318,6 @@ module.exports = function (app) {
     // **** start  품목등록    
     sql.connect(config).then(pool => {
         app.post('/api/materialsoyooutput', function (req, res) {
-
 
 
             res.header("Access-Control-Allow-Origin", "*");
@@ -4537,8 +4341,6 @@ module.exports = function (app) {
                 .input('roll', sql.Int, req.body.roll)
                 .input('customer', sql.NVarChar, req.body.customer)
                 .input('productlot', sql.NVarChar, req.body.productlot)
-
-
 
 
                 .query(
@@ -4567,9 +4369,6 @@ module.exports = function (app) {
                 .input('managementname', sql.NVarChar, req.body.managementname)
 
 
-
-
-
                 .query(
                     'insert into managementtopics(managementcode,managementname)' +
                     ' values(@managementcode,@managementname)'
@@ -4595,10 +4394,8 @@ module.exports = function (app) {
                 .input('departmentname', sql.NVarChar, req.body.departmentname)
 
 
-
                 .query(
                     'update Department set departmentcode=@departmentcode,departmentname=@departmentname where id=@id'
-
                 )
                 .then(result => {
 
@@ -4622,11 +4419,8 @@ module.exports = function (app) {
                 .input('status', sql.NVarChar, req.body.status)
 
 
-
-
                 .query(
                     'update bommanagement set status=@status where bomno=@bomno'
-
                 )
                 .then(result => {
 
@@ -4660,7 +4454,6 @@ module.exports = function (app) {
 
                 .query(
                     'update materialbase set materialname=@materialname,codenumber=@codenumber,classification=@classification,fullwidth=@fullwidth,swidth=@swidth,customer=@customer,sqmprice=@sqmprice,rollprice=@rollprice,day=@day where id=@id'
-
                 )
                 .then(result => {
 
@@ -4686,10 +4479,8 @@ module.exports = function (app) {
                 .input('partname', sql.NVarChar, req.body.partname)
 
 
-
                 .query(
                     'update house set housecode=@housecode,housename=@housename,part=@part,partname=@partname where id=@id'
-
                 )
                 .then(result => {
 
@@ -4716,10 +4507,8 @@ module.exports = function (app) {
                 .input('itemprice', sql.Float, req.body.itemprice)
 
 
-
                 .query(
                     'update iteminfo set itemcode=@itemcode,bomno=@bomno,modelname=@modelname,itemname=@itemname,itemprice=@itemprice where id=@id'
-
                 )
                 .then(result => {
 
@@ -4741,10 +4530,8 @@ module.exports = function (app) {
                 .input('itemprice', sql.Float, req.body.itemprice)
 
 
-
                 .query(
                     'update iteminfo set itemprice=@itemprice where id=@id'
-
                 )
                 .then(result => {
 
@@ -4767,11 +4554,8 @@ module.exports = function (app) {
                 .input('managementname', sql.NVarChar, req.body.managementname)
 
 
-
-
                 .query(
                     'update managementtopics set managementcode=@managementcode,managementname=@managementname where id=@id'
-
                 )
                 .then(result => {
 
@@ -4804,7 +4588,6 @@ module.exports = function (app) {
                 .query(
                     'update materialinfo set codenumber=@codenumber,itemname=@itemname,classfication=@classfication,materialwidth=@materialwidth,fullwidth=@fullwidth,length=@length,koreancustomer=@koreancustomer,' +
                     'sqmprice=@sqmprice,rollprice=@rollprice,widthclassfication=@widthclassfication,day=@day where id=@id'
-
                 )
                 .then(result => {
 
@@ -4826,10 +4609,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from materialinfo where id=@id'
-
                 )
                 .then(result => {
 
@@ -4849,10 +4630,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from department where id=@id'
-
                 )
                 .then(result => {
 
@@ -4873,10 +4652,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from house where id=@id'
-
                 )
                 .then(result => {
 
@@ -4897,10 +4674,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from iteminfo where id=@id'
-
                 )
                 .then(result => {
 
@@ -4921,10 +4696,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from managementtopics where id=@id'
-
                 )
                 .then(result => {
 
@@ -4953,9 +4726,6 @@ module.exports = function (app) {
                 .input('gender', sql.NVarChar, req.body.gender)
                 .input('email', sql.NVarChar, req.body.email)
                 .input('phone', sql.NVarChar, req.body.phone)
-
-
-
 
 
                 .query(
@@ -5078,7 +4848,6 @@ module.exports = function (app) {
                 .query(
                     'update member set name=@name,nameid=@nameid,password=@password,part=@part,birth=@birth,gender=@gender,email=@email,salary=@salary' +
                     'phone=@phone where id=@id'
-
                 )
                 .then(result => {
 
@@ -5100,10 +4869,8 @@ module.exports = function (app) {
                 .input('lotno', sql.NVarChar, req.body.lotno)
 
 
-
                 .query(
                     "update orderlist set materialstatus=@materialstatus where lotno=@lotno and orderid=@orderid"
-
                 )
                 .then(result => {
 
@@ -5124,10 +4891,8 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
 
 
-
                 .query(
                     'delete from member where id=@id'
-
                 )
                 .then(result => {
 
@@ -5228,7 +4993,6 @@ module.exports = function (app) {
                     " from " +
                     " accountinput " +
                     " order by accountdate asc"
-
                 )
                 .then(result => {
 
@@ -5252,7 +5016,6 @@ module.exports = function (app) {
 
                 .query(
                     " select * from pcent where date between '2023-05-01' and '2023-05-31' order by date asc "
-
                 )
                 .then(result => {
 
@@ -5541,7 +5304,6 @@ module.exports = function (app) {
                     "  day" +
                     "  from materialinfo" +
                     "  WHERE itemname=@itemname and materialwidth=@materialwidth"
-
                 )
                 .then(result => {
 
@@ -5684,7 +5446,6 @@ module.exports = function (app) {
                 .input('shipmentcount', sql.NVarChar, req.body.shipmentcount)
 
 
-
                 .query(
                     'insert into shipment(shipmentdate,customer,modelname,itemname,shipmentcount)' +
                     ' values(@shipmentdate,@customer,@modelname,@itemname,@shipmentcount)'
@@ -5783,7 +5544,6 @@ module.exports = function (app) {
                     "  chk" +
                     "  from materialinfo" +
                     "  WHERE itemname=@itemname and materialwidth=@materialwidth and materialwidth not in ('Null','')"
-
                 )
                 .then(result => {
 
@@ -5808,7 +5568,6 @@ module.exports = function (app) {
                     "  lotno" +
                     "  from materialinput" +
                     "  WHERE lotno=@lotno"
-
                 )
                 .then(result => {
 
@@ -5830,13 +5589,10 @@ module.exports = function (app) {
                 .input('materialwidth', sql.Int, req.body.materialwidth)
 
                 .query(
-
                     "select " +
                     " * " +
                     " from " +
                     " slitingplan "
-
-
                 )
                 .then(result => {
 
@@ -5862,12 +5618,8 @@ module.exports = function (app) {
                 .input('finaltrash', sql.NVarChar, req.body.finaltrash)
 
 
-
                 .query(
-
                     "update slitingplan set  finalm=@finalm,finalmaterialwidth=@finalmaterialwidth,finalroll=@finalroll,finaltotal=@finaltotal,finaltrash=@finaltrash where id=@id"
-
-
                 )
                 .then(result => {
 
@@ -5894,9 +5646,7 @@ module.exports = function (app) {
 
 
                 .query(
-
                     " update slitingplan set finalmaterialwidth=@finalmaterialwidth,fianlm=@finalm,finalroll=@finalroll,finaltotal=@finaltotal,finaltrash=@finaltrash where id=@id  "
-
                 )
                 .then(result => {
 
@@ -5926,7 +5676,6 @@ module.exports = function (app) {
                     " price " +
                     " from " +
                     " accountinput"
-
                 )
                 .then(result => {
 
@@ -5951,8 +5700,6 @@ module.exports = function (app) {
                     " Select" +
                     "  *" +
                     "  from inspection order by final asc"
-
-
                 )
                 .then(result => {
 
@@ -5977,8 +5724,6 @@ module.exports = function (app) {
                     " Select" +
                     "  *" +
                     "  from allteststatus where status='검사대기'"
-
-
                 )
                 .then(result => {
 
@@ -6003,8 +5748,6 @@ module.exports = function (app) {
                     " Select" +
                     "  *" +
                     "  from allteststatus where status='검사중'"
-
-
                 )
                 .then(result => {
 
@@ -6028,7 +5771,6 @@ module.exports = function (app) {
                 .input('date', sql.NVarChar, req.body.date)
                 .input('materialname', sql.NVarChar, req.body.materialname)
                 .input('status', sql.NVarChar, req.body.status)
-
 
 
                 .query(
@@ -6062,7 +5804,6 @@ module.exports = function (app) {
                 .input('quantity', sql.NVarChar, req.body.quantity)
 
 
-
                 .query(
                     "insert into allteststatus(bomno,modelname,itemname,lotno,startdate,quantity,status)" +
                     " values(@bomno,@modelname,@itemname,@lotno,@startdate,@quantity,'검사대기')"
@@ -6087,9 +5828,8 @@ module.exports = function (app) {
         app.use('/order', router);
 
         router.get('/', function (req, res, next) {
-            app.db.models.partner.findAll({
-            }).then((result) => {
-                res.render('order', { title: 'Order', partner_list: result });
+            app.db.models.partner.findAll({}).then((result) => {
+                res.render('order', {title: 'Order', partner_list: result});
             });
 
         });
@@ -6160,7 +5900,7 @@ module.exports = function (app) {
 
 
             app.db.models.order.update(
-                { status: status_code },
+                {status: status_code},
                 {
                     where: {
                         id: {
@@ -6169,9 +5909,9 @@ module.exports = function (app) {
                     }
                     //where : {id : 1 }
                 }).then(result => {
-                    console.log(result);
-                    res.send('OK');
-                });
+                console.log(result);
+                res.send('OK');
+            });
         });
 
 

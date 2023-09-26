@@ -228,7 +228,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: 'POST',
-            url: server + '/api/plansearch',
+            url: server + '/api/plansearchAll',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -318,130 +318,203 @@ $(document).ready(function () {
         });
     }
 
+    $(document).ready(function() {
 
-})
+        console.log('######')
 
-document.addEventListener('DOMContentLoaded', function () {
+        function updateGrid() {
+            let filteredData = [];
+            let differenceUpdate = [];
+            let differenceInsert = [];
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/plansearchAll',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "plandate": $('#plandate').text()
+                }),
+                success: function (data) {
+                    flattenedData
+                    oldPlanSearchData = data;
+
+                    filteredData = _.filter(flattenedData, item => item.num !== '');
+                    console.log('difference', filteredData);
+
+                    differenceUpdate = _.differenceWith(filteredData, oldPlanSearchData, _.isEqual);
+                    console.log('difference', differenceUpdate);
+                    differenceInsert = _.differenceWith(filteredData, oldPlanSearchData, (item1, item2) => item1.id === item2.id);
+                    console.log('difference', differenceInsert);
+
+                    for(let i=0; i<differenceUpdate.length; i++) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/planupdate',
+                            dataType: 'json',
+                            data: JSON.stringify({
+                                "id": differenceUpdate[i].id,
+                                "plandate": differenceUpdate[i].plandate,
+                                "bomno": differenceUpdate[i].bomno,
+                                "modelname": differenceUpdate[i].modelname,
+                                "itemname": differenceUpdate[i].itemname,
+                                "lotno": differenceUpdate[i].lotno,
+                                "pono": differenceUpdate[i].pono,
+                                "equipmentname": differenceUpdate[i].equipmentname,
 
 
-
-
-
-    function updateGrid() {
-        let filteredData = [];
-        let differenceUpdate = [];
-        let differenceInsert = [];
-        $.ajax({
-            type: 'POST',
-            url: server + '/api/plansearch',
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                "plandate": $('#plandate').text()
-            }),
-            success: function (data) {
-                flattenedData
-                oldPlanSearchData = data;
-
-                filteredData = _.filter(flattenedData, item => item.num !== '');
-                console.log('difference', filteredData);
-
-                differenceUpdate = _.differenceWith(filteredData, oldPlanSearchData, _.isEqual);
-                console.log('difference', differenceUpdate);
-                differenceInsert = _.differenceWith(filteredData, oldPlanSearchData, (item1, item2) => item1.id === item2.id);
-                console.log('difference', differenceInsert);
-
-                for(let i=0; i<differenceUpdate.length; i++) {
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/planupdate',
-                        dataType: 'json',
-                        data: JSON.stringify({
-                            id: differenceUpdate[i].id,
-                            plandate: differenceUpdate[i].plandate,
-                            bomno: differenceUpdate[i].bomno,
-                            modelname: differenceUpdate[i].modelname,
-                            itemname: differenceUpdate[i].itemname,
-                            lotno: differenceUpdate[i].lotno,
-                            pono: differenceUpdate[i].pono,
-                            equipmentname: differenceUpdate[i].equipmentname,
-
-                        }),
-                        success: function (data) {
-                            console.log('update ok', data)
-                        }
-                    });
+                            }),
+                            success: function (data) {
+                                console.log('update ok', data)
+                            }
+                        });
+                    }
                 }
-            }
-        });
+            });
 
-    }
-
-    function settingTdData() {
-        // //console.log('flattenedData', flattenedData);
-        // //console.log('####1', loadTdData2);
-        // //console.log('####2', loadTdData);
-
-        var loadTdDataKeys = Object.keys(loadTdData);
-
-        // for()
-        for (let i = 0; i < flattenedData.length; i += 8) {
-            const start = i;
-            const end = i + 7;
-            for (let j = start; j <= end; j++) {
-
-                // //console.log(col, j);
-                // if (flattenedData[j].num !== '' || flattenedData[j].num) {
-
-                if(j > 7) {
-                    const row = Math.floor(j / 8); // 행 인덱스 계산
-                    const col = j % 8; // 열 인덱스 계산
-                    // //console.log('flattenedData[j]', flattenedData[j]);
-                    loadTdData[loadTdDataKeys[row]][col] = flattenedData[j];
-                }else {
-                    const row = Math.floor(j / 8); // 행 인덱스 계산
-                    // const col = j % 8; // 열 인덱스 계산
-                    // //console.log(row,j);
-                    loadTdData[loadTdDataKeys[row]][j] = flattenedData[j];
-                }
-                //
-                // }
-            }
         }
-        //console.log('####$$$loadTdData', loadTdData);
-    }
 
-    //############### row를 끌어서 내려놓았을떄
-    function dropData(dragIndex, dropIndex) {
-        //console.log('Index', dragIndex, dropIndex);
+        function settingTdData() {
+            // //console.log('flattenedData', flattenedData);
+            // //console.log('####1', loadTdData2);
+            // //console.log('####2', loadTdData);
 
-        const dragData = flattenedData[dragIndex];
-        const dropData = flattenedData[dropIndex];
+            var loadTdDataKeys = Object.keys(loadTdData);
 
-        //console.log('dragData', dragData);
-        //console.log('dropData', dropData);
+            // for()
+            for (let i = 0; i < flattenedData.length; i += 8) {
+                const start = i;
+                const end = i + 7;
+                for (let j = start; j <= end; j++) {
 
-        if (dropData.num === '' || dropData.num === "" || dropData.num === null) {
-            // 끌어 놓는 곳이 데이터가 없을 때
-            //console.log('끌어 놓는 곳이 데이터가 없을 때');
+                    // //console.log(col, j);
+                    // if (flattenedData[j].num !== '' || flattenedData[j].num) {
 
-            // 위치 변경
-            flattenedData[dragIndex] = dropData;
-            flattenedData[dropIndex] = dragData;
+                    if(j > 7) {
+                        const row = Math.floor(j / 8); // 행 인덱스 계산
+                        const col = j % 8; // 열 인덱스 계산
+                        // //console.log('flattenedData[j]', flattenedData[j]);
+                        loadTdData[loadTdDataKeys[row]][col] = flattenedData[j];
+                    }else {
+                        const row = Math.floor(j / 8); // 행 인덱스 계산
+                        // const col = j % 8; // 열 인덱스 계산
+                        // //console.log(row,j);
+                        loadTdData[loadTdDataKeys[row]][j] = flattenedData[j];
+                    }
+                    //
+                    // }
+                }
+            }
+            //console.log('####$$$loadTdData', loadTdData);
+        }
 
+        //############### row를 끌어서 내려놓았을떄
+        function dropData(dragIndex, dropIndex) {
+            //console.log('Index', dragIndex, dropIndex);
+
+            const dragData = flattenedData[dragIndex];
+            const dropData = flattenedData[dropIndex];
+
+            //console.log('dragData', dragData);
+            //console.log('dropData', dropData);
+
+            if (dropData.num === '' || dropData.num === "" || dropData.num === null) {
+                // 끌어 놓는 곳이 데이터가 없을 때
+                //console.log('끌어 놓는 곳이 데이터가 없을 때');
+
+                // 위치 변경
+                flattenedData[dragIndex] = dropData;
+                flattenedData[dropIndex] = dragData;
+
+                if (dropIndex >= 0 && dropIndex < 8) {
+                    //console.log('name change');
+                    // 직접 원래 배열 요소에 접근하여 값을 변경
+                    flattenedData[dropIndex].equipmentname = '0001';
+                }
+            } else {
+                // 끌어 놓는 곳에 데이터가 있을 때
+                //console.log('끌어 놓는 곳에 데이터가 있을 때');
+                //console.log('dragData', dragData);
+
+                var noneDataRowIndex  = -1;
+
+                if(dragIndex < dropIndex) {
+                    //제일 가까운 빈칸 데이터
+                    for (let i = dropIndex; i < flattenedData.length - 1; i++) {
+                        if(flattenedData[i].num === '' || flattenedData[i].num === '') {
+                            noneDataRowIndex = i
+                            break;
+                        }
+                    }
+
+                    if(noneDataRowIndex !== -1) {
+                        //console.log('noneDataRowIndex', noneDataRowIndex, dropIndex);
+                        //console.log('dragData', dragData);
+                        // 데이터를 한 칸씩 아래로 밀기
+                        for (let i = noneDataRowIndex; i > dropIndex; i--) {
+                            flattenedData[i] = flattenedData[i - 1];
+                        }
+                        // dragData를 dropIndex 위치에 삽입
+                        flattenedData[dropIndex] = dragData;
+                    }
+                    emptyData(dragIndex)
+                }else if (dragIndex > dropIndex) {
+
+                    const removedElement = flattenedData.splice(dragIndex, 1)[0];
+
+                    // dropIndex에 dragData를 삽입
+                    flattenedData.splice(dropIndex, 0, dragData);
+
+                }
+
+
+            }
+            //console.log('### 재정비되어진 data', flattenedData);
+
+            equipmentNameSetting();
             if (dropIndex >= 0 && dropIndex < 8) {
                 //console.log('name change');
                 // 직접 원래 배열 요소에 접근하여 값을 변경
                 flattenedData[dropIndex].equipmentname = '0001';
             }
-        } else {
-            // 끌어 놓는 곳에 데이터가 있을 때
-            //console.log('끌어 놓는 곳에 데이터가 있을 때');
+
+            //console.log('### 재정비되어진 data', flattenedData);
+        }
+
+        function dropPlanData(dragIndex, dropIndex) {
+            //console.log('Index', dragIndex, dropIndex);
+            //console.log('loadData', loadData);
+
+            const dragData = loadData[dragIndex];
+            const dropData = flattenedData[dropIndex];
+
             //console.log('dragData', dragData);
+            //console.log('dropData', dropData);
 
-            var noneDataRowIndex  = -1;
+            if (dropData.num === '' || dropData.num === "" || dropData.num === null) {
+                // 끌어 놓는 곳이 데이터가 없을 때
+                //console.log('끌어 놓는 곳이 데이터가 없을 때');
 
-            if(dragIndex < dropIndex) {
+                // 위치 변경
+                // flattenedData[dragIndex] = dropData;
+                const returnData = setNewPlanData(dragData, dropIndex);
+                //console.log('re', returnData);
+                // dragData = returnData
+                flattenedData[dropIndex] = returnData;
+
+                //console.log('flattenedData', flattenedData);
+
+                if (dropIndex >= 0 && dropIndex < 8) {
+                    //console.log('name change');
+                    // 직접 원래 배열 요소에 접근하여 값을 변경
+                    flattenedData[dropIndex].equipmentname = '0001';
+                }
+            } else {
+                // 끌어 놓는 곳에 데이터가 있을 때
+                //console.log('끌어 놓는 곳에 데이터가 있을 때');
+                //console.log('dragData', dragData);
+
+                var noneDataRowIndex  = -1;
+
                 //제일 가까운 빈칸 데이터
                 for (let i = dropIndex; i < flattenedData.length - 1; i++) {
                     if(flattenedData[i].num === '' || flattenedData[i].num === '') {
@@ -450,6 +523,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
 
+                const returnData = setNewPlanData(dragData, dropIndex);
                 if(noneDataRowIndex !== -1) {
                     //console.log('noneDataRowIndex', noneDataRowIndex, dropIndex);
                     //console.log('dragData', dragData);
@@ -458,365 +532,288 @@ document.addEventListener('DOMContentLoaded', function () {
                         flattenedData[i] = flattenedData[i - 1];
                     }
                     // dragData를 dropIndex 위치에 삽입
-                    flattenedData[dropIndex] = dragData;
+                    flattenedData[dropIndex] = returnData;
+                    //console.log('flattenedData[dropIndex]', flattenedData[dropIndex]);
                 }
-                emptyData(dragIndex)
-            }else if (dragIndex > dropIndex) {
+                // emptyData(dragIndex)
 
-                const removedElement = flattenedData.splice(dragIndex, 1)[0];
-
-                // dropIndex에 dragData를 삽입
-                flattenedData.splice(dropIndex, 0, dragData);
 
             }
+            //console.log('### 재정비되어진 data', flattenedData);
 
-
-        }
-        //console.log('### 재정비되어진 data', flattenedData);
-
-        equipmentNameSetting();
-        if (dropIndex >= 0 && dropIndex < 8) {
-            //console.log('name change');
-            // 직접 원래 배열 요소에 접근하여 값을 변경
-            flattenedData[dropIndex].equipmentname = '0001';
-        }
-
-        //console.log('### 재정비되어진 data', flattenedData);
-    }
-
-    function dropPlanData(dragIndex, dropIndex) {
-        //console.log('Index', dragIndex, dropIndex);
-        //console.log('loadData', loadData);
-
-        const dragData = loadData[dragIndex];
-        const dropData = flattenedData[dropIndex];
-
-        //console.log('dragData', dragData);
-        //console.log('dropData', dropData);
-
-        if (dropData.num === '' || dropData.num === "" || dropData.num === null) {
-            // 끌어 놓는 곳이 데이터가 없을 때
-            //console.log('끌어 놓는 곳이 데이터가 없을 때');
-
-            // 위치 변경
-            // flattenedData[dragIndex] = dropData;
-            const returnData = setNewPlanData(dragData, dropIndex);
-            //console.log('re', returnData);
-            // dragData = returnData
-            flattenedData[dropIndex] = returnData;
-
-            //console.log('flattenedData', flattenedData);
-
+            equipmentNameSetting();
             if (dropIndex >= 0 && dropIndex < 8) {
                 //console.log('name change');
                 // 직접 원래 배열 요소에 접근하여 값을 변경
                 flattenedData[dropIndex].equipmentname = '0001';
             }
-        } else {
-            // 끌어 놓는 곳에 데이터가 있을 때
-            //console.log('끌어 놓는 곳에 데이터가 있을 때');
-            //console.log('dragData', dragData);
 
-            var noneDataRowIndex  = -1;
-
-            //제일 가까운 빈칸 데이터
-            for (let i = dropIndex; i < flattenedData.length - 1; i++) {
-                if(flattenedData[i].num === '' || flattenedData[i].num === '') {
-                    noneDataRowIndex = i
-                    break;
-                }
-            }
-
-            const returnData = setNewPlanData(dragData, dropIndex);
-            if(noneDataRowIndex !== -1) {
-                //console.log('noneDataRowIndex', noneDataRowIndex, dropIndex);
-                //console.log('dragData', dragData);
-                // 데이터를 한 칸씩 아래로 밀기
-                for (let i = noneDataRowIndex; i > dropIndex; i--) {
-                    flattenedData[i] = flattenedData[i - 1];
-                }
-                // dragData를 dropIndex 위치에 삽입
-                flattenedData[dropIndex] = returnData;
-                //console.log('flattenedData[dropIndex]', flattenedData[dropIndex]);
-            }
-            // emptyData(dragIndex)
-
-
-        }
-        //console.log('### 재정비되어진 data', flattenedData);
-
-        equipmentNameSetting();
-        if (dropIndex >= 0 && dropIndex < 8) {
-            //console.log('name change');
-            // 직접 원래 배열 요소에 접근하여 값을 변경
-            flattenedData[dropIndex].equipmentname = '0001';
+            //console.log('### 재정비되어진 data', flattenedData);
         }
 
-        //console.log('### 재정비되어진 data', flattenedData);
-    }
+        function equipmentNameSetting() {
+            var loadTdDataKeys = Object.keys(loadTdData);
 
-
-
-    function equipmentNameSetting() {
-        var loadTdDataKeys = Object.keys(loadTdData);
-
-        for (let i = 0; i < 24; i += 8) {
-            for (let j = i; j < i + 8; j++) {
-                // if (flattenedData[j].num !== '' && flattenedData[j].num !== null) {
-                if (j > 7) {
-                    flattenedData[j].equipmentname = loadTdDataKeys[i / 8];
-                }
-                // }
-            }
-        }
-    }
-
-    function numberSetting() {
-        for (let i = 0; i < flattenedData.length; i++) {
-            // i를 8로 나눈 몫에 1을 더하여 번호를 매깁니다.
-            const number = Math.floor(i / 8) + 1;
-            if(flattenedData[i].num !== '' || flattenedData[i].num !== "" ) {
-                flattenedData[i].num = (i % 8) + 1;
-            }
-        }
-
-        //console.log('flattenedData', flattenedData);
-    }
-
-    function emptyData(index) {
-        const emptyData = {
-            num: '',
-            bomno: '',
-            customer: '',
-            modelname: '',
-            itemname: '',
-            part: '',
-            linepart: '',
-            lotno: '',
-            pono: '',
-            accumulate: '',
-            remaining: '',
-            planone: '',
-            siljokone: '',
-            plantwo: '',
-            siljoktwo: ''
-        }
-        flattenedData[index] = emptyData
-    }
-
-    function setNewPlanData(newData, dropIndex) {
-        var today = new Date();
-        var formattedDate = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
-
-        //console.log('new Data', newData);
-        var returnData = {
-            num: dropIndex < 8 ? dropIndex + 1 : (dropIndex + 1) % 8,
-            bomno: newData.bomno === undefined ? null : newData.bomno,
-            customer: '',//##
-            modelname: newData.modelname === undefined ? null : newData.modelname,
-            itemname: newData.itemname === undefined ? null : newData.itemname,
-            part: '',//##
-            linepart: '',//##
-            lotno: newData.lotno === undefined ? null : newData.lotno,
-            pono: newData.pono === undefined ? null : newData.pono,
-            accumulate: newData.accumulate === undefined ? null : newData.accumulate,
-            remaining: newData.remaining === undefined ? null : newData.remaining,
-            planone: newData.planone === undefined ? null : newData.planone,
-            siljokone: newData.siljokone === undefined ? null : newData.siljokone,
-            plantwo: newData.plantwo === undefined ? null : newData.plantwo,
-            siljoktwo: newData.siljoktwo === undefined ? null : newData.siljoktwo,
-            plandate: formattedDate
-        }
-
-        return returnData
-    }
-
-    function planload2() {
-        // $('#Datatbody').empty();
-        // $.ajax({
-        //     type: 'POST',
-        //     url: server + '/api/equipmentname',
-        //     dataType: 'json',
-        //     success: function (data) {
-        //         var tableBody = $('#Datatbody');
-        //         if (data.length === 0) {
-        //         } else {
-        loadTdData2 = {};
-
-        for (var i = 0; i < loadData.length; i++) {
-
-
-            // loadTdData 배열에 객체 추가
-            loadTdData2[loadData[i].codenumber] = {};
-            var numRows = 8; // 각 설비당 행 수 지정
-            for (var j = 0; j < numRows; j++) {
-
-
-                loadTdData2[loadData[i].codenumber][j] = {
-                    num: '',
-                    bomno: '',
-                    customer: '',
-                    modelname: '',
-                    itemname: '',
-                    part: '',
-                    linepart: '',
-                    lotno: '',
-                    pono: '',
-                    accumulate: '',
-                    remaining: '',
-                    planone: '', // 중복된 'planone' 제거
-                    siljokone: '',
-                    plantwo: '',
-                    siljoktwo: '',
+            for (let i = 0; i < 24; i += 8) {
+                for (let j = i; j < i + 8; j++) {
+                    // if (flattenedData[j].num !== '' && flattenedData[j].num !== null) {
+                    if (j > 7) {
+                        flattenedData[j].equipmentname = loadTdDataKeys[i / 8];
+                    }
+                    // }
                 }
             }
         }
 
-        //             //console.log('#####loadTdData2', loadTdData2)
-        //             // plansearching()
-        //         }
-        settingTdData();
-        //     }
-        // });
-    }
+        function numberSetting() {
+            for (let i = 0; i < flattenedData.length; i++) {
+                // i를 8로 나눈 몫에 1을 더하여 번호를 매깁니다.
+                const number = Math.floor(i / 8) + 1;
+                if(flattenedData[i].num !== '' || flattenedData[i].num !== "" ) {
+                    flattenedData[i].num = (i % 8) + 1;
+                }
+            }
 
-    function relaodLeftGrid() {
-        $("#datatable td").each(function() {
+            //console.log('flattenedData', flattenedData);
+        }
 
-            // 현재 <td> 요소의 rowspan 속성을 가져옵니다.
-            var rowspan = $(this).attr("rowspan");
+        function emptyData(index) {
+            const emptyData = {
+                num: '',
+                bomno: '',
+                customer: '',
+                modelname: '',
+                itemname: '',
+                part: '',
+                linepart: '',
+                lotno: '',
+                pono: '',
+                accumulate: '',
+                remaining: '',
+                planone: '',
+                siljokone: '',
+                plantwo: '',
+                siljoktwo: ''
+            }
+            flattenedData[index] = emptyData
+        }
 
+        function setNewPlanData(newData, dropIndex) {
+            var today = new Date();
+            var formattedDate = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
+
+            //console.log('new Data', newData);
+            var returnData = {
+                num: dropIndex < 8 ? dropIndex + 1 : (dropIndex + 1) % 8,
+                bomno: newData.bomno === undefined ? null : newData.bomno,
+                customer: '',//##
+                modelname: newData.modelname === undefined ? null : newData.modelname,
+                itemname: newData.itemname === undefined ? null : newData.itemname,
+                part: '',//##
+                linepart: '',//##
+                lotno: newData.lotno === undefined ? null : newData.lotno,
+                pono: newData.pono === undefined ? null : newData.pono,
+                accumulate: newData.accumulate === undefined ? null : newData.accumulate,
+                remaining: newData.remaining === undefined ? null : newData.remaining,
+                planone: newData.planone === undefined ? null : newData.planone,
+                siljokone: newData.siljokone === undefined ? null : newData.siljokone,
+                plantwo: newData.plantwo === undefined ? null : newData.plantwo,
+                siljoktwo: newData.siljoktwo === undefined ? null : newData.siljoktwo,
+                plandate: formattedDate
+            }
+
+            return returnData
+        }
+
+        function planload2() {
+            // $('#Datatbody').empty();
+            // $.ajax({
+            //     type: 'POST',
+            //     url: server + '/api/equipmentname',
+            //     dataType: 'json',
+            //     success: function (data) {
+            //         var tableBody = $('#Datatbody');
+            //         if (data.length === 0) {
+            //         } else {
+            loadTdData2 = {};
+
+            for (var i = 0; i < loadData.length; i++) {
+
+
+                // loadTdData 배열에 객체 추가
+                loadTdData2[loadData[i].codenumber] = {};
+                var numRows = 8; // 각 설비당 행 수 지정
+                for (var j = 0; j < numRows; j++) {
+
+
+                    loadTdData2[loadData[i].codenumber][j] = {
+                        num: '',
+                        bomno: '',
+                        customer: '',
+                        modelname: '',
+                        itemname: '',
+                        part: '',
+                        linepart: '',
+                        lotno: '',
+                        pono: '',
+                        accumulate: '',
+                        remaining: '',
+                        planone: '', // 중복된 'planone' 제거
+                        siljokone: '',
+                        plantwo: '',
+                        siljoktwo: '',
+                    }
+                }
+            }
+
+            //             //console.log('#####loadTdData2', loadTdData2)
+            //             // plansearching()
+            //         }
+            settingTdData();
+            //     }
+            // });
+        }
+
+        function relaodLeftGrid() {
+            $("#datatable td").each(function() {
+
+                // 현재 <td> 요소의 rowspan 속성을 가져옵니다.
+                var rowspan = $(this).attr("rowspan");
+
+                // rowspan이 없는 경우에만 텍스트를 지웁니다.
+                if (typeof rowspan === "undefined" || rowspan === false) {
+                    $(this).text("");
+                }
+            });
             // rowspan이 없는 경우에만 텍스트를 지웁니다.
-            if (typeof rowspan === "undefined" || rowspan === false) {
-                $(this).text("");
-            }
-        });
-        // rowspan이 없는 경우에만 텍스트를 지웁니다.
-        // if (typeof rowspan === "undefined" || rowspan === false) {
-        //     $('#datatable td').text("");
-        // }
-        var loadTdDataKeys = Object.keys(loadTdData);
-        //console.log('loadTdData3', loadTdData);
-        var numKeys = loadTdDataKeys.length;
-        // //console.log(numKeys);
-        for (var i = 0; i < numKeys; i++) {
+            // if (typeof rowspan === "undefined" || rowspan === false) {
+            //     $('#datatable td').text("");
+            // }
+            var loadTdDataKeys = Object.keys(loadTdData);
+            //console.log('loadTdData3', loadTdData);
+            var numKeys = loadTdDataKeys.length;
+            // //console.log(numKeys);
+            for (var i = 0; i < numKeys; i++) {
 
-            for(var j=0; j < 8; j++) {
+                for(var j=0; j < 8; j++) {
 
-                var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
 
-                $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
-                $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
-                $('#' + j + modelname + '').text(loadTdData[loadTdDataKeys[i]][j].modelname);
-                $('#' + j + itemname + '').text(loadTdData[loadTdDataKeys[i]][j].itemname);
-                $('#' + j + part + '').text(loadTdData[loadTdDataKeys[i]][j].part);
-                $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].linepart);
-                $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
-                $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono);
-                $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
-                $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
-                $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
-                $('#' + j + siljokone + '').text(loadTdData[loadTdDataKeys[i]][j].siljokone);
-                $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
-                $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
+                    $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
+                    $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
+                    $('#' + j + modelname + '').text(loadTdData[loadTdDataKeys[i]][j].modelname);
+                    $('#' + j + itemname + '').text(loadTdData[loadTdDataKeys[i]][j].itemname);
+                    $('#' + j + part + '').text(loadTdData[loadTdDataKeys[i]][j].part);
+                    $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].linepart);
+                    $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
+                    $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono);
+                    $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
+                    $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
+                    $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
+                    $('#' + j + siljokone + '').text(loadTdData[loadTdDataKeys[i]][j].siljokone);
+                    $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
+                    $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
+
+                }
 
             }
-
         }
-    }
 
-    const tables = document.querySelectorAll('.styled-table');
-    const table1 = document.querySelector('#datatable');
-    const table2 = document.querySelector('#planstauts');
-    let draggedRowIndex; // 드래그하는 행의 인덱스를 저장할 변수
+        const tables = document.querySelectorAll('.droppable');
+        const table1 = document.querySelector('#datatable');
 
-    tables.forEach(function (table) {
-        table.addEventListener('dragstart', function (e) {
-            e.dataTransfer.setData('text/html', e.target.innerHTML);
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('draggedTableId', table.id);
-            const draggedRow = e.target.closest('tr');
+        const table2 = document.querySelector('#planstauts');
+        let draggedRowIndex; // 드래그하는 행의 인덱스를 저장할 변수
 
-            if (draggedRow) {
-                draggedRowIndex = Array.from(table1.tBodies[0].rows).indexOf(draggedRow);
-                e.dataTransfer.setData('text/html', draggedRow.outerHTML);
-            }
+        tables.forEach(function (table) {
+            console.log(table1)
+            table.addEventListener('dragstart', function (e) {
+                e.dataTransfer.setData('text/html', e.target.innerHTML);
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('draggedTableId', table.id);
+                const draggedRow = e.target.closest('tr');
+
+                if (draggedRow) {
+                    draggedRowIndex = Array.from(table1.tBodies[0].rows).indexOf(draggedRow);
+                    e.dataTransfer.setData('text/html', draggedRow.outerHTML);
+                }
+            });
+
+            table1.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                const targetRow = e.target.closest('tr');
+                if (targetRow) {
+                    targetRow.classList.add('drag-over-row');
+                }
+
+            });
+
+            table1.addEventListener('dragleave', function (e) {
+                const targetRow = e.target.closest('tr');
+                if (targetRow) {
+                    targetRow.classList.remove('drag-over-row');
+                }
+                //console.log('dragleave');
+            });
+
+            table1.addEventListener('drop', function (e) {
+                e.preventDefault();
+                const targetRow = e.target.closest('tr');
+                if (targetRow) {
+                    targetRow.classList.remove('drag-over-row');
+                }
+                const data = e.dataTransfer.getData('text/html');
+                const draggedTableId = e.dataTransfer.getData('draggedTableId');
+                //console.log('draggedTableId', draggedTableId);
+                if (table === table1 && draggedTableId === 'planstauts') {
+                    const newRow = document.createElement('tr');
+                    newRow.setAttribute('draggable', 'true');
+
+                    const parentTable = targetRow.closest('table');
+                    const targetRowIndex = Array.from(parentTable.tBodies[0].rows).indexOf(targetRow);
+                    //console.log('draggedRowIndex', draggedRowIndex+1);
+                    //console.log('targetRowIndex', targetRowIndex);
+
+                    dropPlanData(draggedRowIndex +1, targetRowIndex)
+                    numberSetting()
+                    planload2();
+                    relaodLeftGrid();
+                    console.log('flattenedData',flattenedData);
+                    updateGrid()
+
+                } else if (table === table1 && draggedTableId === 'datatable') {
+
+                    const parentTable = targetRow.closest('table');
+                    const targetRowIndex = Array.from(parentTable.tBodies[0].rows).indexOf(targetRow);
+
+                    dropData(draggedRowIndex, targetRowIndex)
+                    numberSetting()
+                    planload2();
+                    relaodLeftGrid();
+                    console.log('flattenedData',flattenedData);
+                    updateGrid()
+                } else if (table === table2) {
+                    // Handle table2 logic if needed
+                }
+
+            });
         });
 
-        table1.addEventListener('dragover', function (e) {
-            e.preventDefault();
-            const targetRow = e.target.closest('tr');
-            if (targetRow) {
-                targetRow.classList.add('drag-over-row');
-            }
-
-        });
-
-        table1.addEventListener('dragleave', function (e) {
-            const targetRow = e.target.closest('tr');
-            if (targetRow) {
-                targetRow.classList.remove('drag-over-row');
-            }
-            //console.log('dragleave');
-        });
-
-        table1.addEventListener('drop', function (e) {
-            e.preventDefault();
-            const targetRow = e.target.closest('tr');
-            if (targetRow) {
-                targetRow.classList.remove('drag-over-row');
-            }
-            const data = e.dataTransfer.getData('text/html');
-            const draggedTableId = e.dataTransfer.getData('draggedTableId');
-            //console.log('draggedTableId', draggedTableId);
-            if (table === table1 && draggedTableId === 'planstauts') {
-                const newRow = document.createElement('tr');
-                newRow.setAttribute('draggable', 'true');
-
-                const parentTable = targetRow.closest('table');
-                const targetRowIndex = Array.from(parentTable.tBodies[0].rows).indexOf(targetRow);
-                //console.log('draggedRowIndex', draggedRowIndex+1);
-                //console.log('targetRowIndex', targetRowIndex);
-
-                dropPlanData(draggedRowIndex +1, targetRowIndex)
-                numberSetting()
-                planload2();
-                relaodLeftGrid();
-                console.log('flattenedData',flattenedData);
-                updateGrid()
-
-            } else if (table === table1 && draggedTableId === 'datatable') {
-
-                const parentTable = targetRow.closest('table');
-                const targetRowIndex = Array.from(parentTable.tBodies[0].rows).indexOf(targetRow);
-
-                dropData(draggedRowIndex, targetRowIndex)
-                numberSetting()
-                planload2();
-                relaodLeftGrid();
-                console.log('flattenedData',flattenedData);
-                updateGrid()
-            } else if (table === table2) {
-                // Handle table2 logic if needed
-            }
-
-        });
     });
 
 
+})
 
-
-});
