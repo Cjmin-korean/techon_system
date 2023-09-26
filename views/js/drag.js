@@ -360,8 +360,7 @@ $(document).ready(function () {
                                 "lotno": differenceUpdate[i].lotno,
                                 "pono": differenceUpdate[i].pono,
                                 "equipmentname": differenceUpdate[i].equipmentname,
-
-
+                                "num": differenceUpdate[i].num
                             }),
                             success: function (data) {
                                 console.log('update ok', data)
