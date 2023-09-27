@@ -2454,7 +2454,7 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
                 .query(
                     "select codenumber from equipment where equipmentname=@equipmentname")
                 .then(result => {
@@ -2466,7 +2466,7 @@ module.exports = function (app) {
     });
     // **** finish
 
-    
+
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/plansearch', function (req, res) {
@@ -2508,7 +2508,7 @@ module.exports = function (app) {
 
     // **** finish
 
-         
+
     sql.connect(config).then(pool => {
         app.post('/api/plansearch1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -2711,10 +2711,11 @@ module.exports = function (app) {
                 .input('b', sql.NVarChar, req.body.b)
                 .input('c', sql.NVarChar, req.body.c)
                 .input('d', sql.NVarChar, req.body.d)
+                .input('orderstatus', sql.NVarChar, req.body.orderstatus)
 
                 .query(
-                    "insert into orderlist(modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus,qrno,a,b,c,d)" +
-                    " values(@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus,'30AF8B0C-AE78-4E60-8A41-C7F5EA51854A',@a,@b,@c,@d)"
+                    "insert into orderlist(modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus,qrno,a,b,c,d,orderstatus)" +
+                    " values(@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus,'30AF8B0C-AE78-4E60-8A41-C7F5EA51854A',@a,@b,@c,@d,@orderstatus)"
                 )
                 .then(result => {
 
@@ -2784,8 +2785,8 @@ module.exports = function (app) {
     // **** finish
 
 
-      // **** start       
-      sql.connect(config).then(pool => {
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/planupdate', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -2803,8 +2804,8 @@ module.exports = function (app) {
 
 
                 .query(
-                    'update produceplan set plandate=@plandate,bomno=@bomno,modelname=@modelname,itemname=@itemname,lotno=@lotno,pono=@pono,equipmentname=@equipmentname where id=@id' 
-                    
+                    'update produceplan set plandate=@plandate,bomno=@bomno,modelname=@modelname,itemname=@itemname,lotno=@lotno,pono=@pono,equipmentname=@equipmentname where id=@id'
+
                 )
                 .then(result => {
 
@@ -3595,14 +3596,13 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
-                .input('contentname', sql.NVarChar, req.body.contentname)
-                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('id', sql.Int, req.body.id)
                 .input('orderstatus', sql.NVarChar, req.body.orderstatus)
 
 
 
                 .query(
-                    'update orderlist set orderstatus=@orderstatus where contentname=@contentname and lotno=@lotno'
+                    'update orderlist set orderstatus=@orderstatus where id=@id'
 
                 )
                 .then(result => {
@@ -3614,6 +3614,32 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/deleteorderstatus', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+                .input('id', sql.Int, req.body.id)
+
+
+
+                .query(
+                    'delete from orderlist where id=@id'
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+ 
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/statusfalse', function (req, res) {
@@ -4171,7 +4197,7 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/equipmentupdatedata', function (req, res) {
-         
+
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
