@@ -2673,11 +2673,9 @@ module.exports = function (app) {
     // **** finish
 
 
-<<<<<<< HEAD
+
     // **** start       
-=======
-    // **** start
->>>>>>> e243a94e50ba2545aa8ee3d5cad8026dee1006b9
+
     sql.connect(config).then(pool => {
         app.post('/api/planupdate', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -2693,11 +2691,8 @@ module.exports = function (app) {
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
                 .input('num', sql.Int, req.body.num)
                 .input('id', sql.Int, req.body.id)
-                .query(
-<<<<<<< HEAD
-                    'update produceplan set plandate=@plandate,bomno=@bomno,modelname=@modelname,itemname=@itemname,lotno=@lotno,pono=@pono,equipmentname=@equipmentname where id=@id'
+                .query(              
 
-=======
                     'update produceplan set plandate=@plandate' +
                     ',bomno=@bomno,' +
                     'modelname=@modelname,' +
@@ -2707,7 +2702,7 @@ module.exports = function (app) {
                     'equipmentname=@equipmentname,' +
                     'num=@num' +
                     ' where id=@id'
->>>>>>> e243a94e50ba2545aa8ee3d5cad8026dee1006b9
+
                 )
                 .then(result => {
                     // console.log(result)
@@ -3496,12 +3491,9 @@ module.exports = function (app) {
 
 
                 .query(
-<<<<<<< HEAD
                     'update orderlist set orderstatus=@orderstatus where id=@id'
+ 
 
-=======
-                    'update orderlist set orderstatus=@orderstatus where contentname=@contentname and lotno=@lotno'
->>>>>>> e243a94e50ba2545aa8ee3d5cad8026dee1006b9
                 )
                 .then(result => {
 
