@@ -2267,7 +2267,35 @@ module.exports = function (app) {
                     " quantity, " +
                     " orderid,marchine,a,b,c,d,qrno,orderstatus " +
                     " from  " +
-                    " orderlist where status='true' order by orderstatus desc ")
+                    " orderlist where orderstatus='생산확정' order by orderstatus desc ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/productorderlist3', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    " select " +
+                    " id, " +
+                    " bomno, " +
+
+                    " contentname, " +
+                    " productdate, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " lotno, " +
+                    " quantity, " +
+                    " orderid,marchine,a,b,c,d,qrno,orderstatus " +
+                    " from  " +
+                    " orderlist where status='true' order by status desc ")
                 .then(result => {
 
                     res.json(result.recordset);
