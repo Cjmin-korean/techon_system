@@ -1,13 +1,13 @@
+let loadData = [];
+let planSearchData = [];
+let loadTdData = [];
+let loadTdData2 = [];
 
+let oldPlanSearchData = [];
+
+var flattenedData = [];
 $(document).ready(function () {
-    let loadData = [];
-    let planSearchData = [];
-    let loadTdData = [];
-    let loadTdData2 = [];
 
-    let oldPlanSearchData = [];
-
-    var flattenedData = [];
     console.log('####')
     function load() {
         $('#planstatustbody').empty()
@@ -18,6 +18,7 @@ $(document).ready(function () {
             success: function (data) {
                 var tableBody = $('#planstatustbody');
                 if (data.length === 0) {
+                    // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
                 } else {
                     loadData = data;
 
@@ -38,6 +39,7 @@ $(document).ready(function () {
                     }
                 }
                 $('.data-id').hide();
+                //console.log('loadData', loadData);
             }
         });
     }
@@ -57,8 +59,9 @@ $(document).ready(function () {
                     for (var i = 0; i < data.length; i++) {
 
 
+                        // loadTdData 배열에 객체 추가
                         loadTdData[data[i].codenumber] = {};
-                        var numRows = 8;
+                        var numRows = 8; // 각 설비당 행 수 지정
                         for (var j = 0; j < numRows; j++) {
 
 
@@ -74,7 +77,7 @@ $(document).ready(function () {
                                 pono: '',
                                 accumulate: '',
                                 remaining: '',
-                                planone: '',
+                                planone: '', // 중복된 'planone' 제거
                                 siljokone: '',
                                 plantwo: '',
                                 siljoktwo: '',
@@ -102,6 +105,8 @@ $(document).ready(function () {
 
                         }
                     }
+
+                    //console.log('loadTdData2', loadTdData)
                     plansearching()
                 }
             }
@@ -236,8 +241,8 @@ $(document).ready(function () {
 
                 for (var i = 0; i < data.length; i++) {
                     loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
-                        id: data[i].id,
-                        equipmentname: planSearchData[i].equipmentname,
+                        id:data[i].id,
+                        equipmentname:planSearchData[i].equipmentname,
                         num: data[i].num,
                         bomno: data[i].bomno,
                         customer: data[i].customer,
@@ -263,22 +268,22 @@ $(document).ready(function () {
                 // //console.log(numKeys);
                 for (var i = 0; i < numKeys; i++) {
 
-                    for (var j = 0; j < 8; j++) {
+                    for(var j=0; j < 8; j++) {
 
-                        var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                        var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
 
                         // //console.log('ㅓ', i,j);
                         // //console.log('bomno', bomno);
@@ -313,7 +318,7 @@ $(document).ready(function () {
         });
     }
 
-    $(document).ready(function () {
+    $(document).ready(function() {
 
         console.log('######')
 
@@ -341,8 +346,8 @@ $(document).ready(function () {
                     differenceInsert = _.differenceWith(filteredData, oldPlanSearchData, (item1, item2) => item1.id === item2.id);
                     console.log('difference', differenceInsert);
 
-                    for (let i = 0; i < differenceUpdate.length; i++) {
-                        if (differenceUpdate[i].num) {
+                    for(let i=0; i<differenceUpdate.length; i++) {
+                        if(differenceUpdate[i].num) {
                             $.ajax({
                                 type: 'POST',
                                 url: server + '/api/planupdate',
@@ -364,7 +369,7 @@ $(document).ready(function () {
                             });
                         }
                     }
-                    for (let i = 0; i < differenceInsert.length; i++) {
+                    for(let i=0; i<differenceInsert.length; i++) {
                         $.ajax({
                             type: 'POST',
                             url: server + '/api/planinsert',
@@ -406,12 +411,12 @@ $(document).ready(function () {
                     // //console.log(col, j);
                     // if (flattenedData[j].num !== '' || flattenedData[j].num) {
 
-                    if (j > 7) {
+                    if(j > 7) {
                         const row = Math.floor(j / 8); // 행 인덱스 계산
                         const col = j % 8; // 열 인덱스 계산
                         // //console.log('flattenedData[j]', flattenedData[j]);
                         loadTdData[loadTdDataKeys[row]][col] = flattenedData[j];
-                    } else {
+                    }else {
                         const row = Math.floor(j / 8); // 행 인덱스 계산
                         // const col = j % 8; // 열 인덱스 계산
                         // //console.log(row,j);
@@ -452,18 +457,18 @@ $(document).ready(function () {
                 //console.log('끌어 놓는 곳에 데이터가 있을 때');
                 //console.log('dragData', dragData);
 
-                var noneDataRowIndex = -1;
+                var noneDataRowIndex  = -1;
 
-                if (dragIndex < dropIndex) {
+                if(dragIndex < dropIndex) {
                     //제일 가까운 빈칸 데이터
                     for (let i = dropIndex; i < flattenedData.length - 1; i++) {
-                        if (flattenedData[i].num === '' || flattenedData[i].num === '') {
+                        if(flattenedData[i].num === '' || flattenedData[i].num === '') {
                             noneDataRowIndex = i
                             break;
                         }
                     }
 
-                    if (noneDataRowIndex !== -1) {
+                    if(noneDataRowIndex !== -1) {
                         //console.log('noneDataRowIndex', noneDataRowIndex, dropIndex);
                         //console.log('dragData', dragData);
                         // 데이터를 한 칸씩 아래로 밀기
@@ -474,7 +479,7 @@ $(document).ready(function () {
                         flattenedData[dropIndex] = dragData;
                     }
                     emptyData(dragIndex)
-                } else if (dragIndex > dropIndex) {
+                }else if (dragIndex > dropIndex) {
 
                     const removedElement = flattenedData.splice(dragIndex, 1)[0];
 
@@ -530,18 +535,18 @@ $(document).ready(function () {
                 //console.log('끌어 놓는 곳에 데이터가 있을 때');
                 //console.log('dragData', dragData);
 
-                var noneDataRowIndex = -1;
+                var noneDataRowIndex  = -1;
 
                 //제일 가까운 빈칸 데이터
                 for (let i = dropIndex; i < flattenedData.length - 1; i++) {
-                    if (flattenedData[i].num === '' || flattenedData[i].num === '') {
+                    if(flattenedData[i].num === '' || flattenedData[i].num === '') {
                         noneDataRowIndex = i
                         break;
                     }
                 }
 
                 const returnData = setNewPlanData(dragData, dropIndex);
-                if (noneDataRowIndex !== -1) {
+                if(noneDataRowIndex !== -1) {
                     //console.log('noneDataRowIndex', noneDataRowIndex, dropIndex);
                     //console.log('dragData', dragData);
                     // 데이터를 한 칸씩 아래로 밀기
@@ -586,7 +591,7 @@ $(document).ready(function () {
             for (let i = 0; i < flattenedData.length; i++) {
                 // i를 8로 나눈 몫에 1을 더하여 번호를 매깁니다.
                 const number = Math.floor(i / 8) + 1;
-                if (flattenedData[i].num !== '' || flattenedData[i].num !== "") {
+                if(flattenedData[i].num !== '' || flattenedData[i].num !== "" ) {
                     flattenedData[i].num = (i % 8) + 1;
                 }
             }
@@ -692,7 +697,7 @@ $(document).ready(function () {
         }
 
         function relaodLeftGrid() {
-            $("#datatable td").each(function () {
+            $("#datatable td").each(function() {
 
                 // 현재 <td> 요소의 rowspan 속성을 가져옵니다.
                 var rowspan = $(this).attr("rowspan");
@@ -712,22 +717,22 @@ $(document).ready(function () {
             // //console.log(numKeys);
             for (var i = 0; i < numKeys; i++) {
 
-                for (var j = 0; j < 8; j++) {
+                for(var j=0; j < 8; j++) {
 
-                    var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                    var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                    var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                    var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
 
                     $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
                     $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
@@ -804,11 +809,11 @@ $(document).ready(function () {
                     //console.log('draggedRowIndex', draggedRowIndex+1);
                     //console.log('targetRowIndex', targetRowIndex);
 
-                    dropPlanData(draggedRowIndex + 1, targetRowIndex)
+                    dropPlanData(draggedRowIndex +1, targetRowIndex)
                     numberSetting()
                     planload2();
                     relaodLeftGrid();
-                    console.log('flattenedData', flattenedData);
+                    console.log('flattenedData',flattenedData);
                     updateGrid()
 
                 } else if (table === table1 && draggedTableId === 'datatable') {
@@ -820,7 +825,7 @@ $(document).ready(function () {
                     numberSetting()
                     planload2();
                     relaodLeftGrid();
-                    console.log('flattenedData', flattenedData);
+                    console.log('flattenedData',flattenedData);
                     updateGrid()
                 } else if (table === table2) {
                     // Handle table2 logic if needed
