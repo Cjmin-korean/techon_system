@@ -48,7 +48,7 @@ function planinsert() {
         dataType: 'json',
         contentType: 'application/json',
         data: JSON.stringify({
-            "status": 'false',
+            "orderstatus": '생산확정완료',
             "lotno": lotno
 
         }),
@@ -58,11 +58,11 @@ function planinsert() {
         error: function (error) {
         }
     });
-
-    $('#popupOverlay').fadeOut();
-
     load()
     planload()
     plansearching()
+    $('#popupOverlay').fadeOut();
+
+ 
 
 }

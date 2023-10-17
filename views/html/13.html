@@ -1,789 +1,306 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Table Example</title>
-    <style>
-        /* Style the buttons */
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            background-color: #291e53;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-right: 10px;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="../css/calendar.css">
+    <script src="../js/calendar.js"></script>
 
-        /* Add hover effect to buttons */
-        button:hover {
-            background-color: #2f5031;
-        }
 
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        #tableContainer {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            border-collapse: collapse;
-            border: 1px solid black;
-            width: 100%;
-        }
-
-        th,
-        td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: center;
-        }
-
-        /* Style the header cells */
-        th {
-            background-color: #f2f2f2;
-        }
-
-        /* Style the facility name cell */
-        td.facility-cell {
-            height: 100px;
-            /* Adjust the height as needed */
-            vertical-align: middle;
-            word-wrap: break-word;
-            /* Allow text to wrap within the cell */
-        }
-
-        /* Set a fixed width for the date cells */
-        th.date-cell {
-            width: 30%;
-            /* Each date cell will take 30% of the available width */
-        }
-
-        .calendar-container {
-            position: relative;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .calendar {
-            position: absolute;
-            top: 40px;
-            left: 0;
-            background-color: #fff;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            padding: 10px;
-            display: none;
-        }
-
-        .calendar.show {
-            display: block;
-        }
-
-        .calendar table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .calendar th,
-        .calendar td {
-            text-align: center;
-            padding: 8px;
-            border: 1px solid #ccc;
-        }
-
-        .calendar th {
-            font-weight: bold;
-        }
-
-        .calendar td:not(.disabled):hover {
-            background-color: #f2f2f2;
-            cursor: pointer;
-        }
-
-        .calendar .disabled {
-            color: #ccc;
-            pointer-events: none;
-        }
-    </style>
 </head>
+<style>
+    .calendar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: white;
+        z-index: 1000;
+        height: 120px;
+        /* 높이 설정 */
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 0;
+    }
+
+    .tables-container {
+        display: flex;
+        flex-direction: row;
+        /* 가로로 나열되도록 수정 */
+        align-items: flex-start;
+        gap: 20px;
+        /* 두 테이블 사이의 간격 설정 */
+        padding: 20px;
+        margin-top: 150px;
+    }
+
+    /* 스크롤 추가 스타일 */
+    .scrollable-table {
+        overflow-x: auto;
+        max-width: 500px;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .tables_ui {
+        background-color: white;
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+        /* 테이블 위쪽 간격 조절 */
+        margin-bottom: 20px;
+        /* 테이블 아래쪽 간격 조절 */
+        max-height: 400px;
+        /* 테이블 최대 높이 설정 */
+        overflow-y: auto;
+        /* 세로 스크롤 표시 */
+    }
+
+    .tables_ui caption {
+        text-align: left;
+        font-weight: bold;
+        padding: 8px;
+        background-color: rgb(233, 230, 230);
+        color: black;
+    }
+
+    .tables_ui td {
+        padding: 8px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .tables_ui th {
+        background-color: #d4d4da;
+        color: black;
+    }
+
+    .tables_ui tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .tables_ui tbody tr:hover {
+        background-color: #e0e0e0;
+    }
+
+    .tables_ui h4 {
+        margin: 0;
+        padding: 8px;
+        font-size: 18px;
+    }
+
+    .tables_ui th {
+        border: 1px solid #e7e4e4;
+        padding: 8px;
+        text-align: center;
+        background-color: white;
+        font-size: 15px;
+        font-weight: bold;
+        color: rgb(88, 85, 85);
+    }
+
+    .tables_ui th[colspan="2"] {
+        border-right: none;
+    }
+
+    .tables_ui th:first-child {
+        border-left: 1px solid #e7e4e4;
+    }
+
+    .tables_ui th:last-child {
+        border-right: 1px solid #e7e4e4;
+    }
+
+    /* 날짜 스타일 */
+    .current-date {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-align: center;
+        /* 가운데 정렬을 위한 스타일 추가 */
+    }
+
+    /* 오른쪽 테이블 스타일 */
+    #rightTableContainer {
+        flex: 1;
+        /* 남은 공간을 모두 차지하도록 설정 */
+        max-height: calc(100vh - 120px);
+        /* 화면 높이에서 .calendar 높이를 뺀 값으로 설정 */
+        overflow-y: auto;
+        /* 세로 스크롤 표시 */
+    }
+</style>
 
 <body>
-    <button id="prevDayButton">1주전</button>
-    <button id="nextDayButton">이전날</button>
-    <button id="nextDayButton">다음날</button>
-    <button id="nextDayButton">1주후</button>
-    <div class="calendar-container">
-        <input type="text" id="calendarInput" placeholder="Select a date">
-        <div class="calendar">
-            <!-- Calendar content will be generated dynamically with JavaScript -->
+    <div class="calendar">
+        <div class="month">
+            <button class="prev-month">
+                <img style="cursor:pointer;" src="../img/left-arrow.png" />
+            </button>
+            <h1 id="month-year">2023년 9월</h1>
+            <button class="next-month">
+                <img style="cursor:pointer;" src="../img/right-arrow.png" />
+            </button>
+        </div>
+        <div class="dates">
+            <!-- 여기에 날짜 버튼이 생성됩니다. -->
         </div>
     </div>
-    <div id="tableContainer"> <!-- Container with horizontal scroll -->
-        <table>
-            <thead>
+    <div class="tables-container">
+        <div class="current-date" id="currentDate">Today: </div>
+        <div class="scrollable-table-container" id="tableContainer">
+            <div id="loadingIndicator" style="display: none;">
+                <p>생산계획 준비중 입니다...</p>
+            </div>
+        </div>
+        <div class="scrollable-table-container" id="rightTableContainer">
+            <!-- 오른쪽에 테이블 추가 -->
+            <table class="tables_ui">
+                <caption>
+                    <h4>생산확정리스트</h4>
+                </caption>
                 <tr>
-                    <th rowspan="2" style="width:5%;">설비명</th>
-                    <th colspan="13" class="date-cell">08-03</th>
-                    <th colspan="13" class="date-cell">08-04</th>
-                </tr>
-
-
-
-                <tr>
-                    <th>BOM NO</th>
-                    <th>고객사</th>
-                    <th>모델</th>
+                    <th>BOM NO.</th>
+                    <th>생산계획날짜</th>
+                    <th>모델명</th>
                     <th>품명</th>
-                    <th>작업차수</th>
-                    <th>생산LOT.NO</th>
-                    <th>PO</th>
-                    <th>누적실적</th>
-                    <th>PO잔량</th>
-                    <th>금일계획</th>
-                    <th>금일실적</th>
-                    <th>작업자</th>
-                    <th>생산ISSUE사항</th>
-
-                    <th>BOM NO</th>
-                    <th>고객사</th>
-                    <th>모델</th>
-                    <th>품명</th>
-                    <th>작업차수</th>
-                    <th>생산LOT.NO</th>
-                    <th>PO</th>
-                    <th>누적실적</th>
-                    <th>PO잔량</th>
-                    <th>금일계획</th>
-                    <th>금일실적</th>
-                    <th>작업자</th>
-                    <th>생산ISSUE사항</th>
-
+                    <th>생산LOT</th>
+                    <th>수량</th>
+                    <th></th>
+                    <th></th>
 
                 </tr>
-            </thead>
-            <tbody id="dataRows">
-                <tr draggable="true" ondragstart="dragStart(event)">
-                    <td class="facility-cell" rowspan="6" style="height: 200px;">고속1호기 (3조) 태경3232 (이중)</td>
-                    <!-- Add data for 12/1 (수) here -->
-                    <td style=" background-color :navy; color:white;">YPE-2-182</td>
-                    <td style=" background-color :navy; color:white;">영풍전자</td>
-                    <td style=" background-color :navy; color:white;">T4L</td>
-                    <td style=" background-color :navy; color:white;">1CS-COV</td>
-                    <td style=" background-color :navy; color:white;">2차고속</td>
-                    <td style=" background-color :navy; color:white;">23/08/01</td>
-                    <td style=" background-color :navy; color:white;">40,000</td>
-                    <td style=" background-color :navy; color:white;">40,000</td>
-                    <td style=" background-color :navy; color:white;">40,000</td>
-                    <td style=" background-color :navy; color:white;">40,000</td>
-                    <td style=" background-color :navy; color:white;">40,000</td>
-                    <td style=" background-color :navy; color:white;">권재형</td>
-                    <td style=" background-color :navy; color:white;">전일분이어서</td>
-                    <!-- Add data for 12/1 (수) here -->
-
-                    <td style=" background-color :navy; color:white;">YPE-2-183</td>
-                    <td style=" background-color :navy; color:white;">영풍전자</td>
-                    <td style=" background-color :navy; color:white;">T4L</td>
-                    <td style=" background-color :navy; color:white;">1CS-COV</td>
-                    <td style=" background-color :navy; color:white;">2차고속</td>
-                    <td style=" background-color :navy; color:white;">23/08/01</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">권재형</td>
-                    <td style=" background-color :navy; color:white;">전일분이어서</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td class="facility-cell" rowspan="6" style="height: 200px;">고속2호기 (3조) 태경3232</td>
-                    <!-- Add data for 12/1 (수) here -->
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">YPE-2-183</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">영풍전자</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">T4L</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">1CS-COV</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">2차고속</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">23/08/01</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">권재형</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">전일분이어서</td>
-                    <!-- Add data for 12/1 (수) here -->
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td class="facility-cell" rowspan="6" style="height: 200px;">고속3호기 (3조) 태경3232</td>
-                    <!-- Add data for 12/1 (수) here -->
-                    <td style=" background-color :navy; color:white;">YPE-2-183</td>
-                    <td style=" background-color :navy; color:white;">영풍전자</td>
-                    <td style=" background-color :navy; color:white;">T4L</td>
-                    <td style=" background-color :navy; color:white;">1CS-COV</td>
-                    <td style=" background-color :navy; color:white;">2차고속</td>
-                    <td style=" background-color :navy; color:white;">23/08/01</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">80,000</td>
-                    <td style=" background-color :navy; color:white;">권재형</td>
-                    <td style=" background-color :navy; color:white;">전일분이어서</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">YPE-2-183</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">영풍전자</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">T4L</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">1CS-COV</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">2차고속</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">23/08/01</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">80,000</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">권재형</td>
-                    <td style=" background-color :rgb(201, 76, 76); color:white;">전일분이어서</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <!-- Add more data rows as needed -->
-            </tbody>
-        </table>
+                <tbody>
+                    <!-- 테이블 데이터를 이 부분에 추가 -->
+                    <tr>
+                        <td>데이터1</td>
+                        <td>데이터2</td>
+                        <!-- 필요한 만큼 데이터를 추가 -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-
-
-    <script>
-        // Function to move data from one row to another
-        function moveData(sourceRowId, targetRowId) {
-            const sourceRow = document.getElementById(sourceRowId);
-            const targetRow = document.getElementById(targetRowId);
-
-            if (sourceRow && targetRow) {
-                // Assuming the first cell in the row contains the facility name
-                const facilityName = sourceRow.cells[0].innerText;
-                targetRow.cells[0].innerText = facilityName;
-
-                // Move data from each cell in the source row to the target row
-                for (let i = 1; i < sourceRow.cells.length; i++) {
-                    const data = sourceRow.cells[i].innerText;
-                    targetRow.cells[i].innerText = data;
-                    // Clear the data in the source row
-                    sourceRow.cells[i].innerText = "";
-                }
-            }
-        }
-
-        // Example usage: Move data from the first row to the third row
-        // Replace 'sourceRowId' and 'targetRowId' with the actual IDs of the rows you want to move data from and to
-        // moveData('sourceRowId', 'targetRowId');
-
-        // Add event listeners to all rows in the table (excluding the first row)
-        const rows = document.querySelectorAll("tbody tr:not(:first-child)");
-        rows.forEach((row) => {
-            row.addEventListener("dragstart", dragStart);
-            row.addEventListener("dragover", allowDrop);
-            row.addEventListener("drop", drop);
-        });
-
-        // 드래그 시작 시 실행되는 함수
-        function dragStart(event) {
-            const facilityName = event.target.cells[0].innerText;
-
-            // "설비1호기" 행은 무시하도록 설정
-            if (facilityName === "설비1호기") {
-                event.preventDefault();
-                return;
-            }
-
-            // 드래그되는 행의 데이터를 DataTransfer에 추가
-            const data = [];
-            for (let i = 1; i < event.target.cells.length; i++) {
-                data.push(event.target.cells[i].innerText);
-            }
-
-            event.dataTransfer.setData("text/plain", facilityName);
-            event.dataTransfer.setData("data", JSON.stringify(data));
-        }
-
-        // 드롭 영역 위에 행이 드롭될 때 실행되는 함수
-        function allowDrop(event) {
-            event.preventDefault();
-        }
-
-        // 드롭 시 실행되는 함수
-        function drop(event) {
-            event.preventDefault();
-            const facilityName = event.dataTransfer.getData("text/plain");
-
-            // "설비1호기" 행은 무시하도록 설정
-            if (facilityName === "설비1호기") {
-                return;
-            }
-
-            const data = JSON.parse(event.dataTransfer.getData("data"));
-
-            // Create a new row and insert data from the dragged row
-            const targetTable = document.getElementById("dataRows");
-            const newRow = targetTable.insertRow(-1);
-            newRow.addEventListener("dragstart", dragStart);
-            newRow.addEventListener("dragover", allowDrop);
-            newRow.addEventListener("drop", drop);
-
-            newRow.insertCell(0).innerText = facilityName;
-
-            for (let i = 1; i < data.length; i++) {
-                newRow.insertCell(i).innerText = data[i - 1];
-            }
-
-            // Clear the data in the dragged row
-            for (let i = 1; i < event.target.cells.length; i++) {
-                event.target.cells[i].innerText = "";
-            }
-        }
-    </script>
-
 </body>
+<script>
+    var server = '';
+
+    if (window.location.hostname == 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+    $(document).ready(function () {
+        $("#loadingIndicator").show();
+        loadEquipmentData();
+        displayCurrentDate(); // 현재 날짜 표시
+    });
+
+    function loadEquipmentData() {
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8080/api/equipment',
+            dataType: 'json',
+            success: function (data) {
+                // Hide loading indicator
+                $("#loadingIndicator").hide();
+
+                for (var i = 0; i < data.length; i++) {
+                    var equipmentName = data[i].equipmentname;
+                    createTableWithCaption(equipmentName, i + 1);
+                }
+
+                // Initialize sortable after data is loaded
+                initializeSortable();
+            },
+            error: function () {
+                // Handle error if data cannot be loaded
+                $("#loadingIndicator").hide();
+                console.error("Failed to load data.");
+            }
+        });
+    }
+
+    function createTableWithCaption(equipmentName, index) {
+        var tableContainer = document.getElementById("tableContainer");
+
+        var table = document.createElement("table");
+        table.className = "tables_ui"; // scrollable-table 클래스 제거
+        table.id = "t_draggable" + index;
+
+        var caption = document.createElement("caption");
+        caption.innerHTML = "<h4>" + equipmentName + "</h4>";
+
+        var tbody = document.createElement("tbody");
+        tbody.className = "t_sortable ui-sortable"; // 클래스 추가
+
+        // 첫 번째 행: 헤더
+        var headerRow1 = document.createElement("tr");
+        headerRow1.innerHTML = `
+        <th rowspan="2">호기(설비명)</th>
+        <th rowspan="2">BOM NO.</th>
+        <th rowspan="2">고객사</th>
+        <th rowspan="2">모델명</th>
+        <th rowspan="2">품명</th>
+        <th rowspan="2">총작업차수</th>
+        <th rowspan="2">라인계획작업차수</th>
+        <th rowspan="2">생산LOT</th>
+        <th rowspan="2">작업지시수량</th>
+        <th rowspan="2">누적생산실적</th>
+        <th rowspan="2">작업지시생산잔량</th>
+        <th colspan="2">반제품 계획실적</th>
+        <th colspan="2">완제품 계획실적</th>
+    `;
+        tbody.appendChild(headerRow1);
+
+        // 두 번째 행: 하위 헤더
+        var headerRow2 = document.createElement("tr");
+        headerRow2.innerHTML = `
+    <th draggable="false">금일계획</th>
+    <th draggable="false">금일실적</th>
+    <th draggable="false">금일계획</th>
+    <th draggable="false">금일실적</th>
+`;
+
+        tbody.appendChild(headerRow2);
+        headerRow2.addEventListener("dragstart", function (e) {
+            e.preventDefault();
+        });
+        tbody.appendChild(headerRow2);
+
+        table.appendChild(caption);
+        table.appendChild(tbody);
+
+        tableContainer.appendChild(table);
+    }
+
+    function initializeSortable() {
+        $("tbody.t_sortable").sortable({
+            connectWith: ".t_sortable",
+            items: "> tr:not(:first)",
+            helper: "clone",
+            zIndex: 999990
+        }).disableSelection();
+    }
+
+    function displayCurrentDate() {
+        var currentDate = new Date();
+        var year = currentDate.getFullYear();
+        var month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1을 하고 두 자리로 포맷팅
+        var day = String(currentDate.getDate()).padStart(2, '0'); // 일을 두 자리로 포맷팅
+
+        var formattedDate = year + '-' + month + '-' + day;
+
+        document.getElementById("currentDate").textContent += formattedDate;
+    }
+</script>
 
 </html>

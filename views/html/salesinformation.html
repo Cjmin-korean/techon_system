@@ -23,6 +23,15 @@
         /* Add vertical scrollbars if the content exceeds the container height */
     }
 
+    .group-title {
+        font-weight: bold;
+        color: navy;
+        border: 1px solid whitesmoke;
+        background-color: #f2f2f2;
+        /* text-align: left; */
+        /* 기타 스타일 지정 */
+    }
+
     #datatable {
         width: 100%;
         /* Other table styles */
@@ -60,6 +69,54 @@
         border-radius: 4px;
         width: 100%;
         box-sizing: border-box;
+    }
+
+    /* 테이블 스타일 */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        /* background-color: whitesmoke; */
+        color: black;
+        text-align: center;
+        /* 가운데 정렬 추가 */
+
+    }
+
+    .popup_title {
+        font-weight: bold;
+        text-align: center;
+    }
+
+    /* 입력 필드 스타일 */
+    input[type="date"] {
+        width: 100%;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    /* 체크박스 스타일 */
+    input[type="checkbox"] {
+        transform: scale(2);
+        /* 체크박스 크기 조절 */
+
+    }
+
+    input[type="checkbox"]:checked {
+        background-color: #007BFF;
+        /* 체크된 경우 배경색 변경 */
+    }
+
+    .POdata-edit:hover {
+        font-weight: bold;
     }
 </style>
 
@@ -105,31 +162,23 @@
     <div id="popupOverlay" style="display: none;">
         <div id="popupContent" style="width: 70%; height: auto;">
             <div class="form-group">
-                <table style="width:100%;">
+                <table>
                     <tr>
-                        <td colspan="4" class="popup_title">영업 수주 등록</td>
+                        <td colspan="4" class="popup_title">영업 수주서 등록</td>
                     </tr>
-                    <tr style="width: 50%;">
-
-                        <td style="width:15%; background-color: whitesmoke; color: black;">납기일자</td>
-                        <td style="width:15%; background-color: whitesmoke;">
-
-                            <input type="date" id="datepicker"
-                                style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                    <tr>
+                        <td style="width: 15%;">납기일자</td>
+                        <td style="width: 25%;">
+                            <input type="date" id="datepicker">
                         </td>
-                        <td style="background-color: whitesmoke; color: black;"><label id="days-left-label"></label>
-                        </td>
-                        <td style="background-color: whitesmoke; color: black;"></td>
+                        <!-- <td><label id="days-left-label"></label></td> -->
+                        <td></td>
                     </tr>
-
-
-
                 </table>
-
-
             </div>
             <div>
                 <button style="float: right;" id="popupCloseBtn-search">품목조회</button>
+                <!-- <button style="float: right;" id="ad">콘솔</button> -->
             </div>
 
             <br>
@@ -147,6 +196,7 @@
                             <th>단가(원)</th>
                             <th>PO수량(개)</th>
                             <th>판매금액(원)</th>
+                            <th>영업확정</th>
                             <th style="width:100px;"></th>
                             <th style="width:100px;"></th>
                         </tr>
@@ -216,7 +266,8 @@
                             <th>원가(원)</th>
                             <th>단가(원)</th>
                             <th>PO수량(개)</th>
-                            <th>판매금액(원)</th>
+                            <th>판매금액(원)1</th>
+                            <th>영업확정</th>
                             <!-- <th style="width:100px;"></th>
                             <th style="width:100px;"></th> -->
                         </tr>
@@ -568,7 +619,8 @@
 
                         }
 
-                        $('#datepicker-content').val(dd)
+                        // $('#datepicker-content').val(dd)
+
                         var total8 = 0;
                         var total9 = 0;
                         $('#POdatatable-content td:nth-child(8)').each(function () {
@@ -735,6 +787,7 @@
                 $('#myInput').val('')
                 $('#myInput').focus()
             });
+
             $('#popupCloseBtn-content-close').click(function () {
                 $('#popupOverlaycontent').fadeOut();
             });
@@ -896,7 +949,7 @@
                 '<td style="border:1px solid silver; background-color:whitesmoke;"colspan="7">합계</td>' +
                 '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total8.toFixed(0)) + '</strong></td>' +
                 '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total9.toFixed(0)) + '</strong></td>' +
-                '<td style="border:1px solid silver; background-color:whitesmoke; "colspan="2"></td>' +
+                '<td style="border:1px solid silver; background-color:whitesmoke; "colspan="3"></td>' +
                 '</tr>' +
                 '</tfoot>'
             );
@@ -938,7 +991,6 @@
                         const textGroup = trGroup.map(tr => {
                             return Array.from(tr.children).map(input => input.textContent);
                         });
-
                         var today = new Date();
                         var now = new Date();	// 현재 날짜 및 시간
                         var year = today.getFullYear();
@@ -965,6 +1017,14 @@
                             var pricevalue = parseFloat(price.replace(/,/g, ''));
                             var aDatavalue = parseFloat(aData.replace(/,/g, ''));
                             var bDatavalue = parseFloat(bData.replace(/,/g, ''));
+
+                            var adValue = "";
+                            if ($table.rows[i + 1].cells[9].querySelector('input[type="checkbox"]').checked === true) {
+                                adValue = "A";
+                            } else {
+                                adValue = "D";
+                            }
+
                             $.ajax({
                                 type: 'POST',
                                 url: server + '/api/openinsertdata',
@@ -986,8 +1046,8 @@
                                     "countsum": aDatavalue,
                                     "pricesum": bDatavalue,
                                     "status": "생산발주대기",
-                                    "contentname": year + month + day + hours + minutes + seconds
-
+                                    "contentname": year + month + day + hours + minutes + seconds,
+                                    "ad": adValue
                                 }),
                                 success: function (data) {
 
@@ -996,17 +1056,17 @@
 
                             $('#popupOverlay').fadeOut();
 
-
-                            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:blue;" class="notification-message">PO정보 등록 완료</span></div>');
+                            load(); // 알림창 사라진 후 load() 함수 호출
+                            // 영업수주 등록완료 알림창 표시
+                            var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">영업수주 등록완료</span></div>');
                             $('body').append(notification);
+
                             setTimeout(function () {
                                 notification.fadeOut(function () {
                                     $(this).remove();
                                 });
+
                             }, 3000);
-                            setTimeout(function () {
-                                load()
-                            }, 50);
 
 
                         }
@@ -1113,6 +1173,7 @@
                     '<td style="text-align:right;">' + addCommas($('#itemprice-edit').val()) + '</td>' +
                     '<td style="text-align:right;">' + addCommas($('#count-edit').val()) + '</td>' +
                     '<td style="text-align:right;">' + addCommas(total.toLocaleString()) + '</td>' +
+                    '<td><input type="checkbox" id="poad"></td>' +
                     '<td><a class="POdata-edit"  style="cursor:pointer; color:navy;">수정</a></td>' +
                     '<td><a class="data-delete" style="cursor:pointer; color:red;">삭제</a></td>' +
                     '</tr>'
@@ -1142,7 +1203,7 @@
                     '<td style="border:1px solid silver; background-color:whitesmoke;"colspan="7">합계</td>' +
                     '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total8.toFixed(0)) + '</strong></td>' +
                     '<td style="border:1px solid silver; text-align:right;"><strong>' + addCommas(total9.toFixed(0)) + '</strong></td>' +
-                    '<td style="border:1px solid silver; background-color:whitesmoke; "colspan="2"></td>' +
+                    '<td style="border:1px solid silver; background-color:whitesmoke; "colspan="3"></td>' +
                     '</tr>' +
                     '</tfoot>'
                 );
@@ -1314,7 +1375,7 @@
     </script>
     <script>
         function load() {
-            settingDate()
+            settingDate();
             setTimeout(function () {
                 $('#PODatatbody').empty();
                 $.ajax({
@@ -1330,34 +1391,56 @@
                         if (result.length === 0) {
                             $('#PODatatbody').append('<tr><td colspan="11" style="text-align:center;">데이터가 없습니다</td></tr>');
                         } else {
-                            for (var i = 0; i < result.length; i++) {
-                                var status = result[i].status;
-                                var statusColor = status === '생산발주대기' ? 'red' : status === '생산발주완료' ? 'blue' : '';
+                            // contentname을 기준으로 그룹화한 데이터를 저장할 객체를 생성합니다.
+                            var groupedData = {};
 
-                                $('#PODatatbody').append(
-                                    '<tr>' +
-                                    '<td style="font-weight:bold;">' + result[i].contentname + '</td>' +
-                                    '<td style="font-weight:bold;">' + result[i].bomno + '</td>' +
-                                    '<td style="font-weight:bold;">' + result[i].modelname + '</td>' +
-                                    '<td style="font-weight:bold;">' + result[i].itemname + '</td>' +
-                                    '<td>' + result[i].customer + '</td>' +
-                                    '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;">' + result[i].itemprice.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;">' + result[i].price.toLocaleString() + '</td>' +
-                                    '<td>' + result[i].deliverydate + '</td>' +
-                                    '<td><a class="data-edit" style="cursor:pointer; color:blue;">상세</a></td>' +
-                                    '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
-                                    '</tr>'
-                                );
+                            for (var i = 0; i < result.length; i++) {
+                                var contentname = result[i].contentname;
+
+                                // 그룹화된 데이터 객체가 없으면 생성합니다.
+                                if (!groupedData[contentname]) {
+                                    groupedData[contentname] = [];
+                                }
+
+                                // 데이터를 그룹화된 객체에 추가합니다.
+                                groupedData[contentname].push(result[i]);
+                            }
+
+                            // 그룹화된 데이터를 순회하면서 표시합니다.
+                            for (var groupName in groupedData) {
+                                var groupData = groupedData[groupName];
+
+                                $('#PODatatbody').append('<tr><td colspan="11" class="group-title">' + groupName + '</td></tr>');
+
+
+                                // 그룹 내의 데이터를 표시합니다.
+                                for (var j = 0; j < groupData.length; j++) {
+                                    var status = groupData[j].status;
+                                    var statusColor = status === '생산발주대기' ? 'red' : status === '생산발주완료' ? 'blue' : '';
+
+                                    $('#PODatatbody').append(
+                                        '<tr>' +
+                                        '<td >' + groupData[j].contentname + '</td>' +
+                                        '<td >' + groupData[j].bomno + '</td>' +
+                                        '<td >' + groupData[j].modelname + '</td>' +
+                                        '<td >' + groupData[j].itemname + '</td>' +
+                                        '<td>' + groupData[j].customer + '</td>' +
+                                        '<td style="text-align:right;">' + groupData[j].quantity.toLocaleString() + '</td>' +
+                                        '<td style="text-align:right;">' + groupData[j].itemprice.toLocaleString() + '</td>' +
+                                        '<td style="text-align:right;">' + groupData[j].price.toLocaleString() + '</td>' +
+                                        '<td>' + groupData[j].deliverydate + '</td>' +
+                                        '<td><a class="data-edit" style="cursor:pointer; color:blue;">상세</a></td>' +
+                                        '<td><a class="data-edit" style="cursor:pointer; color:red;">삭제</a></td>' +
+                                        '</tr>'
+                                    );
+                                }
                             }
                         }
                     }
                 });
             }, 10); // 3초 후에 알림을 사라지게 설정
-
-
-
         }
+
     </script>
     <script>
         function POdelte() {

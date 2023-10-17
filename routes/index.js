@@ -66,7 +66,7 @@ module.exports = function (app) {
     // **** finish
 
 
-    const upload = multer({dest: 'uploads/'});
+    const upload = multer({ dest: 'uploads/' });
 
     app.post('/upload-excel', upload.single('excelFile'), (req, res) => {
         // 클라이언트가 업로드한 파일을 읽음
@@ -2055,7 +2055,7 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/openinsertdata', function (req, res) {
 
-            console.log("11", req)
+            // console.log("11", req)
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
@@ -2078,10 +2078,11 @@ module.exports = function (app) {
                 .input('countsum', sql.Float, req.body.countsum)
                 .input('pricesum', sql.Float, req.body.pricesum)
                 .input('status', sql.NVarChar, req.body.status)
+                .input('ad', sql.NVarChar, req.body.ad)
 
                 .query(
-                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status)' +
-                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status)'
+                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad)' +
+                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad)'
                 )
                 .then(result => {
 
@@ -2295,7 +2296,7 @@ module.exports = function (app) {
                     " quantity, " +
                     " orderid,marchine,a,b,c,d,qrno,orderstatus " +
                     " from  " +
-                    " orderlist where status='true' order by status desc ")
+                    " orderlist where status='true' order by orderstatus,productdate asc ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -2719,7 +2720,7 @@ module.exports = function (app) {
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
                 .input('num', sql.Int, req.body.num)
                 .input('id', sql.Int, req.body.id)
-                .query(              
+                .query(
 
                     'update produceplan set plandate=@plandate' +
                     ',bomno=@bomno,' +
@@ -3100,37 +3101,38 @@ module.exports = function (app) {
                     // "    SELECT contentname,bomno,deliverydate,customer,modelname, itemname, quantity, difference, " +
                     // "     case when (difference)>=0  then '가능' else '부족' end as possible  " +
                     // "    FROM recursive_cte  "
-                    "  WITH cte AS (  " +
-                    "      SELECT  " +
-                    "          a.contentname,a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno,  " +
-                    "          SUM(ISNULL(i.quantity, 0)) AS total_quantity,  " +
-                    "          ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num  " +
-                    "      FROM accountinput a  " +
-                    "      LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname   " +
-                    "       WHERE a.status = '생산발주대기'  " +
-                    "      GROUP BY a.contentname, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno  " +
-                    "  ), recursive_cte AS (  " +
-                    "      SELECT  " +
-                    "          bomno, contentname,deliverydate,customer,modelname, itemname, quantity, total_quantity,  " +
-                    "          total_quantity - quantity AS difference,  " +
-                    "          row_num  " +
-                    "      FROM cte  " +
-                    "      WHERE row_num = 1  " +
-                    "      UNION ALL   " +
-                    "      SELECT  " +
-                    "          c.bomno, c.contentname,c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity,  " +
-                    "          rc.difference - c.quantity AS difference,  " +
-                    "          c.row_num  " +
-                    "      FROM cte c  " +
-                    "      JOIN recursive_cte rc  " +
-                    "          ON c.modelname = rc.modelname   " +
-                    "          AND c.itemname = rc.itemname   " +
-                    "          AND c.row_num = rc.row_num + 1  " +
-                    "  )  " +
-                    "  SELECT " +
-                    "      contentname,bomno,deliverydate,customer,modelname, itemname, FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference, " +
-                    "      CASE WHEN (difference)>=0  THEN '가능' ELSE '부족' END AS possible   " +
-                    "  FROM recursive_cte"
+                    "   WITH cte AS (   "+
+                 "        SELECT   "+
+                 "            a.ad,a.contentname,a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno,   "+
+                 "            SUM(ISNULL(i.quantity, 0)) AS total_quantity,   "+
+                 "            ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num   "+
+                 "        FROM accountinput a   "+
+                 "        LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname    "+
+                 "         WHERE a.status = '생산발주대기'   "+
+                 "        GROUP BY a.ad,a.contentname, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno   "+
+                 "    ), recursive_cte AS (   "+
+                 "        SELECT   "+
+                 "            ad,bomno, contentname,deliverydate,customer,modelname, itemname, quantity, total_quantity,   "+
+                 "            total_quantity - quantity AS difference,   "+
+                 "            row_num   "+
+                 "        FROM cte   "+
+                 "        WHERE row_num = 1   "+
+                 "        UNION ALL    "+
+                 "        SELECT   "+
+                 "            c.ad, c.bomno, c.contentname,c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity,   "+
+                 "            rc.difference - c.quantity AS difference,   "+
+                 "            c.row_num   "+
+                 "        FROM cte c   "+
+                 "        JOIN recursive_cte rc   "+
+                 "            ON c.modelname = rc.modelname    "+
+                 "            AND c.itemname = rc.itemname    "+
+                 "            AND c.row_num = rc.row_num +  1   "+
+                 "    )   "+
+                 "    SELECT  "+
+                 "        contentname,bomno,deliverydate,customer,modelname, itemname, FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference,  "+
+                 "        CASE WHEN (difference)>=0  THEN '가능' ELSE '부족' END AS possible, "+
+                 "       ad "+
+                 "    FROM recursive_cte "
                 )
                 .then(result => {
 
@@ -3507,6 +3509,32 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/orderchange', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('productdate', sql.NVarChar, req.body.productdate)
+                .input('quantity', sql.Int, req.body.quantity)
+                .input('id', sql.Int, req.body.id)
+
+
+                .query(
+                    'update orderlist set quantity=@quantity,productdate=@productdate where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/updateorderstatus', function (req, res) {
@@ -3520,7 +3548,7 @@ module.exports = function (app) {
 
                 .query(
                     'update orderlist set orderstatus=@orderstatus where id=@id'
- 
+
 
                 )
                 .then(result => {
@@ -3557,7 +3585,7 @@ module.exports = function (app) {
 
     });
     // **** finish
- 
+
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/statusfalse', function (req, res) {
@@ -3565,12 +3593,12 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
-                .input('status', sql.NVarChar, req.body.status)
+                .input('orderstatus', sql.NVarChar, req.body.orderstatus)
                 .input('lotno', sql.NVarChar, req.body.lotno)
 
 
                 .query(
-                    'update orderlist set status=@status where lotno=@lotno'
+                    'update orderlist set orderstatus=@orderstatus where lotno=@lotno'
                 )
                 .then(result => {
 
@@ -5896,7 +5924,7 @@ module.exports = function (app) {
 
         router.get('/', function (req, res, next) {
             app.db.models.partner.findAll({}).then((result) => {
-                res.render('order', {title: 'Order', partner_list: result});
+                res.render('order', { title: 'Order', partner_list: result });
             });
 
         });
@@ -5967,7 +5995,7 @@ module.exports = function (app) {
 
 
             app.db.models.order.update(
-                {status: status_code},
+                { status: status_code },
                 {
                     where: {
                         id: {
@@ -5976,9 +6004,9 @@ module.exports = function (app) {
                     }
                     //where : {id : 1 }
                 }).then(result => {
-                console.log(result);
-                res.send('OK');
-            });
+                    console.log(result);
+                    res.send('OK');
+                });
         });
 
 
