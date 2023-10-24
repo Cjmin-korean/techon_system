@@ -2488,7 +2488,7 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    " select * from productionpause "
+                    " select id,registrationdate,productionordernumber,lotno,bomno,modelname,productname,equipment,downtime,restarttime,DowntimeReason from pause "
                 )
                 .then(result => {
 
