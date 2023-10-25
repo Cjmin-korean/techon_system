@@ -2796,16 +2796,17 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('orderid', sql.NVarChar, req.body.orderid)
                 .query(
-                    "  SELECT "+
-                    " bm.materialname, "+
-                    " bm.swidth, "+
-                    " CEILING(o.quantity * (bm.mwidth / ii.cavity / 1000 * 1.03)) AS soyo "+
-                    " FROM orderlist o "+
-                    " JOIN bommanagement bm ON o.bomno = bm.bomno AND o.orderid = @orderid "+
-                    " JOIN iteminfo ii ON o.bomno = ii.bomno "+
-                    " WHERE o.materialstatus = 'true' ")
+                    " SELECT " +
+                    "     bm.materialname, " +
+                    "     bm.swidth, " +
+                    "     SUM(CEILING(o.quantity * (bm.mwidth / ii.cavity / 1000 * 1.03))) AS soyo " +
+                    " FROM orderlist o " +
+                    " JOIN bommanagement bm ON o.bomno = bm.bomno AND o.orderid =@orderid " +
+                    " JOIN iteminfo ii ON o.bomno = ii.bomno " +
+                    " WHERE o.materialstatus = 'true' " +
+                    " GROUP BY bm.materialname, bm.swidth;")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -3126,38 +3127,38 @@ module.exports = function (app) {
                     // "    SELECT contentname,bomno,deliverydate,customer,modelname, itemname, quantity, difference, " +
                     // "     case when (difference)>=0  then '가능' else '부족' end as possible  " +
                     // "    FROM recursive_cte  "
-                    "   WITH cte AS (   "+
-                 "        SELECT   "+
-                 "            a.ad,a.contentname,a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno,   "+
-                 "            SUM(ISNULL(i.quantity, 0)) AS total_quantity,   "+
-                 "            ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num   "+
-                 "        FROM accountinput a   "+
-                 "        LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname    "+
-                 "         WHERE a.status = '생산발주대기'   "+
-                 "        GROUP BY a.ad,a.contentname, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno   "+
-                 "    ), recursive_cte AS (   "+
-                 "        SELECT   "+
-                 "            ad,bomno, contentname,deliverydate,customer,modelname, itemname, quantity, total_quantity,   "+
-                 "            total_quantity - quantity AS difference,   "+
-                 "            row_num   "+
-                 "        FROM cte   "+
-                 "        WHERE row_num = 1   "+
-                 "        UNION ALL    "+
-                 "        SELECT   "+
-                 "            c.ad, c.bomno, c.contentname,c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity,   "+
-                 "            rc.difference - c.quantity AS difference,   "+
-                 "            c.row_num   "+
-                 "        FROM cte c   "+
-                 "        JOIN recursive_cte rc   "+
-                 "            ON c.modelname = rc.modelname    "+
-                 "            AND c.itemname = rc.itemname    "+
-                 "            AND c.row_num = rc.row_num +  1   "+
-                 "    )   "+
-                 "    SELECT  "+
-                 "        contentname,bomno,deliverydate,customer,modelname, itemname, FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference,  "+
-                 "        CASE WHEN (difference)>=0  THEN '가능' ELSE '부족' END AS possible, "+
-                 "       ad "+
-                 "    FROM recursive_cte "
+                    "   WITH cte AS (   " +
+                    "        SELECT   " +
+                    "            a.ad,a.contentname,a.deliverydate, a.customer,a.modelname, a.itemname, a.quantity, a.bomno,   " +
+                    "            SUM(ISNULL(i.quantity, 0)) AS total_quantity,   " +
+                    "            ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num   " +
+                    "        FROM accountinput a   " +
+                    "        LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname    " +
+                    "         WHERE a.status = '생산발주대기'   " +
+                    "        GROUP BY a.ad,a.contentname, a.modelname, a.itemname, a.quantity , a.deliverydate ,a.customer, a.bomno   " +
+                    "    ), recursive_cte AS (   " +
+                    "        SELECT   " +
+                    "            ad,bomno, contentname,deliverydate,customer,modelname, itemname, quantity, total_quantity,   " +
+                    "            total_quantity - quantity AS difference,   " +
+                    "            row_num   " +
+                    "        FROM cte   " +
+                    "        WHERE row_num = 1   " +
+                    "        UNION ALL    " +
+                    "        SELECT   " +
+                    "            c.ad, c.bomno, c.contentname,c.deliverydate,c.customer, c.modelname, c.itemname, c.quantity, c.total_quantity,   " +
+                    "            rc.difference - c.quantity AS difference,   " +
+                    "            c.row_num   " +
+                    "        FROM cte c   " +
+                    "        JOIN recursive_cte rc   " +
+                    "            ON c.modelname = rc.modelname    " +
+                    "            AND c.itemname = rc.itemname    " +
+                    "            AND c.row_num = rc.row_num +  1   " +
+                    "    )   " +
+                    "    SELECT  " +
+                    "        contentname,bomno,deliverydate,customer,modelname, itemname, FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference,  " +
+                    "        CASE WHEN (difference)>=0  THEN '가능' ELSE '부족' END AS possible, " +
+                    "       ad " +
+                    "    FROM recursive_cte "
                 )
                 .then(result => {
 
