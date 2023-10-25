@@ -2790,6 +2790,31 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start
+    sql.connect(config).then(pool => {
+        app.post('/api/soyodata', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('orderid', sql.NVarChar, req.body.orderid)
+                .query(
+                    "  SELECT "+
+                    " bm.materialname, "+
+                    " bm.swidth, "+
+                    " CEILING(o.quantity * (bm.mwidth / ii.cavity / 1000 * 1.03)) AS soyo "+
+                    " FROM orderlist o "+
+                    " JOIN bommanagement bm ON o.bomno = bm.bomno AND o.orderid = @orderid "+
+                    " JOIN iteminfo ii ON o.bomno = ii.bomno "+
+                    " WHERE o.materialstatus = 'true' ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
