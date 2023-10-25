@@ -1561,11 +1561,11 @@ module.exports = function (app) {
 
                 .query(
                     "   select " +
-                    "    contentname,orderid,productdate,lotno,bomno,modelname,itemname,materialstatus " +
+                    "    contentname,orderid,productdate,lotno,bomno,modelname,itemname,quantity,materialstatus " +
                     "    from " +
                     "    orderlist where materialstatus='true' " +
                     "    group by " +
-                    "   contentname,bomno,orderid,productdate,modelname,itemname,lotno,materialstatus "
+                    "   contentname,bomno,orderid,productdate,modelname,itemname,lotno,materialstatus,quantity "
                 )
 
                 .then(result => {

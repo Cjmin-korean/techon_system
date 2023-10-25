@@ -70,7 +70,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td style="border: 1px solid silver;" colspan="12" id="dataCount"></td>
+                    <td style="border: 1px solid silver;" colspan="13" id="dataCount"></td>
                 </tr>
             </tfoot>
         </table>
@@ -611,10 +611,13 @@
                     } else {
                         for (var i = 0; i < data.length; i++) {
                             // 두 시간의 차이를 계산합니다.
-                            var downtime = (data[i].downtime);
-                            var restarttime = (data[i].restarttime);
+                            var downtime = data[i].downtime;
+                            var restarttime = data[i].restarttime;
                             var timeDifferenceInSeconds = calculateTimeDifferenceInSeconds(downtime, restarttime);
-                            // select registrationdate,productionordernumber,lotno,bomno,modelname,productname,equipment,downtime,restarttime,DowntimeReason from pause
+                            if (isLunchBreakTime(downtime) || isLunchBreakTime(restarttime)) {
+                                timeDifferenceInSeconds = 0;
+                            }
+
                             $('#datatable').append(
                                 '<tr>' +
                                 '<td>' + data[i].registrationdate + '</td>' +
@@ -640,27 +643,33 @@
                 }
             });
         }
-        // 두 시간을 나타내는 문자열을 받아와서 초 단위로 변환하는 함수
-        // 두 시간을 나타내는 문자열을 받아와서 초 단위로 변환하는 함수
-        function calculateTimeDifferenceInSeconds(startTime, finalTime) {
-            const startTimeParts = startTime.split(':');
-            const finalTimeParts = finalTime.split(':');
 
-            const startHours = parseInt(startTimeParts[0], 10);
-            const startMinutes = parseInt(startTimeParts[1], 10);
-            const startSeconds = parseInt(startTimeParts[2], 10);
+        function isLunchBreakTime(time) {
+            var lunchBreakStartTime = "12:30:00";
+            var lunchBreakEndTime = "13:30:00";
 
-            const finalHours = parseInt(finalTimeParts[0], 10);
-            const finalMinutes = parseInt(finalTimeParts[1], 10);
-            const finalSeconds = parseInt(finalTimeParts[2], 10);
+            // 시간 문자열을 Date 객체로 변환합니다.
+            var timeDate = new Date("2000-01-01T" + time);
+            var lunchBreakStartDate = new Date("2000-01-01T" + lunchBreakStartTime);
+            var lunchBreakEndDate = new Date("2000-01-01T" + lunchBreakEndTime);
 
-            // 시작 시간과 종료 시간의 차이를 초로 계산
-            const startInSeconds = startHours * 3600 + startMinutes * 60 + startSeconds;
-            const finalInSeconds = finalHours * 3600 + finalMinutes * 60 + finalSeconds;
-            const timeDifferenceInSeconds = finalInSeconds - startInSeconds;
+            // 시간이 점심시간 내에 속하는지 확인합니다.
+            return timeDate >= lunchBreakStartDate && timeDate <= lunchBreakEndDate;
+        }
 
+
+        function calculateTimeDifferenceInSeconds(startTime, endTime) {
+            var start = new Date("2000-01-01T" + startTime);
+            var end = new Date("2000-01-01T" + endTime);
+
+            var timeDifferenceInSeconds = (end - start) / 1000; // Difference in seconds
+            if (timeDifferenceInSeconds < 0) {
+                timeDifferenceInSeconds += 86400; // Add 24 hours to account for overnight time
+            }
             return timeDifferenceInSeconds;
         }
+
+
         function timeStringToSeconds(timeString) {
             const timeParts = timeString.split(':');
             const hours = parseInt(timeParts[0], 10);
