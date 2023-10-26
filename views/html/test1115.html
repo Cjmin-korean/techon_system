@@ -21,6 +21,16 @@
         /* Add vertical scrollbars if the content exceeds the container height */
     }
 
+    .available {
+        background-color: blue;
+        color: white;
+    }
+
+    .shortage {
+        background-color: red;
+        color: white;
+    }
+
     #datatable {
         width: 100%;
         /* Other table styles */
@@ -121,12 +131,14 @@
                     <table class="styled-table" id="POdatatable-content">
                         <thead>
                             <tr>
-                                <th colspan="4" style="background-color: white;">필요자재</th>
+                                <th colspan="4" style="background-color: white;">BOM소요자재</th>
                             </tr>
                             <tr>
                                 <th>자재명</th>
                                 <th>자재폭(mm)</th>
                                 <th>자재필요(M)</th>
+                                <th>생산재고(M)</th>
+                                <th>상태</th>
                                 <th style="width:100px;"></th>
                             </tr>
                         </thead>
@@ -348,24 +360,26 @@
                         orderid: orderid
                     }),
                     success: function (result) {
-                        $('#POdatatbody-content-tbody').empty()
+                        $('#POdatatbody-content-tbody').empty();
 
                         for (var i = 0; i < result.length; i++) {
+                            // Determine CSS classes for styling based on availability
+                            var availabilityClass = (result[i].availability === '가능') ? 'available' : 'shortage';
+
                             $('#POdatatbody-content-tbody').append(
                                 '<tr>' +
-                                '<td >' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].materialname + '</td>' +
                                 '<td style="text-align:right;">' + result[i].swidth.toLocaleString() + '</td>' +
                                 '<td class="soyo-value" style="text-align:right;">' + result[i].soyo.toLocaleString() + '</td>' +
-                                '<td><a class="data-edit"  style="cursor:pointer; color:blue;">출고</a></td>' +
+                                '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;" class="' + availabilityClass + '"></td>' +
+                                '<td><a class="data-edit" style="cursor:pointer; color:blue;">출고</a></td>' +
                                 '</tr>'
-
-                            )
-
+                            );
                         }
-
                     }
+                });
 
-                })
                 $('#popupOverlay').fadeIn()
 
 

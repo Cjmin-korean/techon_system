@@ -2798,15 +2798,35 @@ module.exports = function (app) {
             return pool.request()
                 .input('orderid', sql.NVarChar, req.body.orderid)
                 .query(
-                    " SELECT " +
-                    "     bm.materialname, " +
-                    "     bm.swidth, " +
-                    "     SUM(CEILING(o.quantity * (bm.mwidth / ii.cavity / 1000 * 1.03))) AS soyo " +
-                    " FROM orderlist o " +
-                    " JOIN bommanagement bm ON o.bomno = bm.bomno AND o.orderid =@orderid " +
-                    " JOIN iteminfo ii ON o.bomno = ii.bomno " +
-                    " WHERE o.materialstatus = 'true' " +
-                    " GROUP BY bm.materialname, bm.swidth;")
+                    " SELECT"+
+                    "    tb2.materialname, "+
+                    "    tb2.swidth, "+
+                    "    tb2.soyo, "+
+                    "    COALESCE(tb1.quantity, 0) AS quantity, "+
+                    "    CASE "+
+                    "        WHEN tb2.soyo >= COALESCE(tb1.quantity, 0) THEN '부족' "+
+                    "        ELSE '가능' "+
+                    "    END AS availability "+
+                    "FROM ( "+
+                    "    SELECT materialname, "+
+                    "           materialwidth, "+
+                    "           SUM(quantity) 'quantity', "+
+                    "           house "+
+                    "    FROM materialinput "+
+                    "    WHERE house = '생산창고' "+
+                    "    GROUP BY materialname, materialwidth, house "+
+                    ") tb1 "+
+                    "RIGHT JOIN ( "+
+                    "    SELECT bm.materialname, "+
+                    "           bm.swidth, "+
+                    "           SUM(CEILING(o.quantity * (bm.mwidth / ii.cavity / 1000 * 1.03))) AS soyo "+
+                    "    FROM orderlist o "+
+                    "    JOIN bommanagement bm ON o.bomno = bm.bomno AND o.orderid = @orderid "+
+                    "    JOIN iteminfo ii ON o.bomno = ii.bomno "+
+                    "    WHERE o.materialstatus = 'true' "+
+                    "    GROUP BY bm.materialname, bm.swidth "+
+                    ") tb2 ON tb1.materialname = tb2.materialname")
+              
                 .then(result => {
 
                     res.json(result.recordset);
