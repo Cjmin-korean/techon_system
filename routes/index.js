@@ -1868,8 +1868,9 @@ module.exports = function (app) {
                     "     SUM(quantity) <> 0 " +
                     "     AND materialwidth = @materialwidth " +
                     " ORDER BY " +
-                    "   materialwidth ASC, " +
-                    "   expirationdate ASC ")
+                    "    house asc, "+
+                    " expirationdate ASC, "+
+                    " quantity desc ")
 
 
                 .then(result => {
