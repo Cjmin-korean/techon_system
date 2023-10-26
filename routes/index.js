@@ -1852,7 +1852,7 @@ module.exports = function (app) {
                     "     materialid,customer " +
                     " FROM " +
                     "     materialinput " +
-                    " WHERE materialname = @materialname  " +
+                    " WHERE materialname = @materialname and house='원자재창고' " +
                     " GROUP BY " +
                     "     materialname, " +
                     "     codenumber, " +
@@ -4476,7 +4476,7 @@ module.exports = function (app) {
                 .input('part', sql.NVarChar, req.body.part)
                 .input('codenumber', sql.NVarChar, req.body.codenumber)
                 .input('classification', sql.NVarChar, req.body.classification)
-                .input('sqmprice', sql.Float, req.body.sqmprice)
+                // .input('sqmprice', sql.Float, req.body.sqmprice)
                 .input('house', sql.NVarChar, req.body.house)
                 .input('materialid', sql.NVarChar, req.body.materialid)
                 .input('orderid', sql.NVarChar, req.body.orderid)
@@ -4486,8 +4486,8 @@ module.exports = function (app) {
 
 
                 .query(
-                    'insert into materialinput(date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,part,codenumber,classification,sqmprice,house,materialid,orderid,roll,customer,productlot)' +
-                    ' values(@date,@input,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@part,@codenumber,@classification,@sqmprice,@house,@materialid,@orderid,@roll,@customer,@productlot)'
+                    'insert into materialinput(date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,part,codenumber,classification,house,materialid,orderid,roll,customer,productlot)' +
+                    ' values(@date,@input,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@part,@codenumber,@classification,@house,@materialid,@orderid,@roll,@customer,@productlot)'
                 )
                 .then(result => {
 
