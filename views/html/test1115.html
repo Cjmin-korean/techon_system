@@ -138,6 +138,7 @@
                                 <th>자재폭(mm)</th>
                                 <th>자재필요(M)</th>
                                 <th>생산재고(M)</th>
+                                <th>출고대기(M)</th>
                                 <th>상태</th>
                                 <th style="width:100px;"></th>
                             </tr>
@@ -232,7 +233,7 @@
         </table>
     </div>
 
-   
+
     <div id="popupOverlay1" style="display: none;">
         <div id="popupContent" style="width:70%; height: auto;">
             <div class="form-group">
@@ -362,7 +363,8 @@
                                 '<td style="text-align:right;">' + result[i].swidth.toLocaleString() + '</td>' +
                                 '<td class="soyo-value" style="text-align:right;">' + result[i].soyo.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;" class="' + availabilityClass + '"></td>' +
+                                '<td id="' + result[i].materialname + '" style="text-align:right;">0</td>' +
+                                '<td  style="text-align:right;"  class="' + availabilityClass + '"></td>' +
                                 '<td><a class="data-edit" style="cursor:pointer; color:blue;">출고</a></td>' +
                                 '</tr>'
                             );
@@ -508,7 +510,12 @@
                         '<td colspan="3"></td>' +
                         '</tr>'
                     );
+                    // if (materialname) {
+                    //     $('#HGCS-A305YA+SJ-2502LS-W(D)').val(totalQuantity.toLocaleString());
+                    // }
+                    // var escapedMaterialName = jQuery.escapeSelector(materialname);
 
+                    console.log(totalQuantity.toLocaleString())
                     // Append material group rows with total quantity if there is data
                     for (var material in materialGroups) {
                         var groupQuantity = materialGroups[material];
@@ -539,19 +546,13 @@
                         }
 
                     })
-                    // Set the value of 'sumquantity' to totalQuantity
-                    $('#sumquantity').val(totalQuantity.toLocaleString());
+                    // $('#materialname').val(totalQuantity.toLocaleString());
 
-                    // $('.soyo-value').each(function () {
-                    //     var soyoValue = parseFloat($(this).text().replace(/,/g, ''));
-                    //     if (!isNaN(soyoValue)) {
-                    //         if (soyoValue > groupQuantity) {
-                    //             $(this).css('color', 'red');
-                    //         } else {
-                    //             $(this).css('color', 'blue');
-                    //         }
-                    //     }
-                    // });
+                    var escapedMaterialName = jQuery.escapeSelector(materialname);
+                    $('#POdatatable-content #' + escapedMaterialName).text(groupQuantity.toLocaleString());
+
+
+                    // $('#POdatatable-content #' + materialname + '').text(totalQuantity.toLocaleString());
                 }
 
 
@@ -569,7 +570,7 @@
                 var quantity = td.eq(7).text();
                 var quantity1 = quantity.replace(/,/g, "");
 
-             
+
                 $.ajax({
                     type: 'POST',
                     url: server + '/api/materialsoyodelete',
