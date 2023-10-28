@@ -43,6 +43,10 @@
     .right-column {
         text-align: right;
     }
+    .blue-bg white-text{
+        color:blue;
+    }
+
 </style>
 
 </style>
@@ -361,10 +365,10 @@
                                 '<tr>' +
                                 '<td>' + result[i].materialname + '</td>' +
                                 '<td style="text-align:right;">' + result[i].swidth.toLocaleString() + '</td>' +
-                                '<td class="soyo-value" style="text-align:right;">' + result[i].soyo.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
+                                '<td id="' + result[i].materialname + 'soyo' + '"  class="soyo-value" style="text-align:right;">' + result[i].soyo.toLocaleString() + '</td>' +
+                                '<td id="' + result[i].materialname + 'quantity' + '" style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
                                 '<td id="' + result[i].materialname + '" style="text-align:right;">0</td>' +
-                                '<td  style="text-align:right;"  class="' + availabilityClass + '"></td>' +
+                                '<td id="' + result[i].materialname + 'availability" style="text-align:right;"  class="' + availabilityClass + '"></td>' +
                                 '<td><a class="data-edit" style="cursor:pointer; color:blue;">출고</a></td>' +
                                 '</tr>'
                             );
@@ -550,9 +554,7 @@
 
                     var escapedMaterialName = jQuery.escapeSelector(materialname);
                     $('#POdatatable-content #' + escapedMaterialName).text(groupQuantity.toLocaleString());
-
-
-                    // $('#POdatatable-content #' + materialname + '').text(totalQuantity.toLocaleString());
+                    var availabilityClass = (materialnmae + availability === '가능') ? 'available' : 'shortage';
                 }
 
 
@@ -1250,16 +1252,19 @@
                     if (result.length === 0) {
                         $('#POdatatable1').append('<tr><td colspan="8" style="font-weight:bold; text-align:center;">데이터가 없습니다</td></tr>');
                     } else {
-
                         for (var i = 0; i < result.length; i++) {
+                            // 스타일 및 색상을 결정하는 클래스 설정
+                            var mstatusClass = (result[i].mstatus === '자재완전출고') ? 'blue-bg white-text' : 'yellow-bg black-text';
+
                             tbody.append(
-                                '<tr>' +
+                                '<tr class="' + mstatusClass + '">' +
                                 '<td>' + result[i].orderid + '</td>' +
                                 '<td>' + result[i].productdate + '</td>' +
                                 '<td>' + result[i].lotno + '</td>' +
                                 '<td>' + result[i].bomno + '</td>' +
                                 '<td>' + result[i].modelname + '</td>' +
                                 '<td>' + result[i].itemname + '</td>' +
+                                '<td>' + result[i].mstatus + '</td>' +
                                 '<td><a class="data-content"  style="cursor:pointer; color:blue;">상세</a></td>' +
                                 '<td><a class="datadelete"  style="cursor:pointer; color:red;">삭제</a></td>' +
                                 '</tr>'
@@ -1269,6 +1274,7 @@
                 }
             });
         }
+
 
 
     </script>
