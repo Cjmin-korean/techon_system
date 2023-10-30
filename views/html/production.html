@@ -155,6 +155,91 @@
             <button id="popupCloseBtn-content" onclick="Datasave()">준비완료</button>
         </div>
     </div>
+    <div id="popupOverlay1" style="display: none;">
+        <div id="popupContent" style="width:50%; height: auto;">
+            <div class="form-group">
+                <table style="width:50%;" class="popuptable">
+                    <tr>
+                        <td colspan="1" class="popup_title">잔재입력</td>
+                    </tr>
+
+                    <!-- 상위 3개 tr 왼쪽 -->
+
+                    <tr>
+                        <td class="left-column">BOMNO</td>
+                        <td class="right-column">
+                            <input type="text" id="bomno-finish" class="data" autocomplete="off"
+                                style="width:900px; border:1px solid silver;" readonly>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="left-column">모델명</td>
+                        <td class="right-column">
+                            <input type="text" id="modelname-finish" class="data" autocomplete="off"
+                                style="width:900px; border:1px solid silver;" readonly>
+                        </td>
+                    </tr>
+
+                    <!-- 나머지 3개 tr 오른쪽 -->
+                    <tr>
+                        <td class="left-column">제품명</td>
+                        <td class="right-column">
+                            <input type="text" id="partname-finish" class="data" autocomplete="off"
+                                style="width:900px; border:1px solid silver;" readonly>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="left-column">생산lot</td>
+                        <td class="right-column">
+                            <input type="text" id="lotno-finish" class="data" autocomplete="off"
+                                style="width:900px; border:1px solid silver;" readonly>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="left-column">발주수량</td>
+                        <td class="right-column">
+                            <input type="text" id="ponum-finish" class="data" autocomplete="off"
+                                style="width:900px; border:1px solid silver;" readonly>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+
+
+            <br>
+            <div>
+
+                <div style="width:auto; height:auto; max-height: 600px; overflow-y: scroll; border: 1px solid silver;">
+                    <table class="styled-table" id="POdatatable-content1">
+                        <thead>
+                            <tr>
+                                <th colspan="11" style="background-color: white;">잔고자재</th>
+                            </tr>
+                            <tr>
+                                <th>자재명</th>
+                                <!-- <th>자재채번</th> -->
+                                <th>분류</th>
+                                <th>lotno</th>
+                                <th>자재폭(mm)</th>
+                                <th>잔재수량(M)</th>
+                                <!-- <th style="width:100px;"></th> -->
+
+                            </tr>
+                        </thead>
+                        <tbody id="POdatatbody-content-tbody2">
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+
+            <button id="popupCloseBtn-finish-close">취소</button>
+            <button id="popupCloseBtn-content" onclick="Datasave()">준비완료</button>
+        </div>
+    </div>
 
 
 
@@ -285,7 +370,7 @@
             });
 
 
-            production() 
+            production()
             load23()
             load1()
 
@@ -344,6 +429,60 @@
                 });
 
                 $('#popupOverlay').fadeIn()
+
+
+            })
+            $('#productiondatatable').on('click', '.data-finish', function () {
+                // console.log(111)
+                var str = "";
+                var tdArr = new Array();// 배열 선언            
+                var checkBtn = $(this);
+
+                var tr = checkBtn.parent().parent();
+                var td = tr.children();
+
+                var bomno = td.eq(1).text();
+                var lotno = td.eq(2).text();
+                var modelname = td.eq(3).text();
+                var partname = td.eq(4).text();
+                var ponum = td.eq(5).text();
+
+                // $('#pono').val(pono)
+                $('#modelname-finish').val(modelname)
+                $('#bomno-finish').val(bomno)
+                $('#partname-finish').val(partname)
+                $('#lotno-finish').val(lotno)
+                $('#ponum-finish').val(ponum)
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/materialoutputdata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        // orderid: orderid
+                    }),
+                    success: function (result) {
+                        $('#POdatatbody-content-tbody2').empty();
+
+                        for (var i = 0; i < result.length; i++) {
+
+                            $('#POdatatbody-content-tbody2').append(
+                                '<tr>' +
+                                '<td>' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].classification + '</td>' +
+                                '<td>' + result[i].lotno + '</td>' +
+                                '<td>' + result[i].materialwidth + '</td>' +
+                                '<td><input type="text" value="0" style="text-align:right; width:100px; border:1px solid silver; background-color: #f0f0f0; border-radius: 5px; padding: 5px; box-shadow: 2px 2px 2px #888;"></td>'+
+
+
+                                // '<td><a class="data-check" style="cursor:pointer; color:blue;">확인</a></td>' +
+                                '</tr>'
+                            );
+                        }
+                    }
+                });
+
+                $('#popupOverlay1').fadeIn()
 
 
             })
@@ -803,6 +942,9 @@
             $('#popupCloseBtn-content-close').click(function () {
                 $('#popupOverlay').fadeOut();
             });
+            $('#popupCloseBtn-finish-close').click(function () {
+                $('#popupOverlay1').fadeOut();
+            });
             $('#popupCloseBtn-POedit-close').click(function () {
                 $('#popupOverlay4').fadeOut();
             });
@@ -914,7 +1056,7 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-               
+
                         status1: '생산중',
                         lotno: $('#lotno').val()
                     }),
@@ -928,7 +1070,7 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-               
+
                         mstatus: '',
                         lotno: $('#lotno').val()
                     }),
@@ -943,7 +1085,7 @@
                 setTimeout(function () {
                     load1();
                     load23();
-                    production() 
+                    production()
                 }, 30);
             } else {
                 return false;
@@ -1126,7 +1268,7 @@
             setTimeout(function () {
                 load1();
                 load23();
-                production() 
+                production()
             }, 30);
         }
 
@@ -1256,7 +1398,7 @@
                                 '<td>' + result[i].modelname + '</td>' +
                                 '<td>' + result[i].itemname + '</td>' +
                                 '<td>' + result[i].quantity.toLocaleString() + '</td>' +
-                                '<td><a class="data-content"  style="cursor:pointer; color:blue;">생산종료</a></td>' +
+                                '<td><a class="data-finish"  style="cursor:pointer; color:blue;">생산종료</a></td>' +
                                 '</tr>'
                             );
                         }
