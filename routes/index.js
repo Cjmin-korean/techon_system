@@ -1630,6 +1630,82 @@ module.exports = function (app) {
         });
 
     });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/productioning', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query( 
+                    " select * from orderlist where status1='생산중'"
+                     
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updateproduction', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('status1', sql.NVarChar, req.body.status1)
+            .input('lotno', sql.NVarChar, req.body.lotno)
+
+                .query( 
+                    " update orderlist set status1=@status1 where lotno=@lotno"
+                     
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatemtstatus', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('mstatus', sql.NVarChar, req.body.mstatus)
+            .input('lotno', sql.NVarChar, req.body.lotno)
+
+                .query( 
+                    " update orderlist set mstatus=@mstatus where lotno=@lotno"
+                     
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
     // **** finish
     // **** start  생산설비창 띄우기  
     // sql.connect(config).then(pool => {
