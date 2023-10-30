@@ -1579,6 +1579,57 @@ module.exports = function (app) {
         });
 
     });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/productionmaterialouput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query( 
+                    "   SELECT contentname, orderid, productdate, lotno, bomno, modelname, itemname, quantity, materialstatus "+
+                    " FROM orderlist "+
+                    " WHERE mstatus IN ('자재완전출고', '자재부분출고') "+
+                    " GROUP BY contentname, bomno, orderid, productdate, modelname, itemname, lotno, materialstatus, quantity; "
+                     
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialoutputdata', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query( 
+                    " select * from materialinput where input='원자재출고'"
+                     
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
     // **** finish
     // **** start  생산설비창 띄우기  
     // sql.connect(config).then(pool => {
