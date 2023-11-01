@@ -169,14 +169,14 @@
                         <td class="left-column">BOMNO</td>
                         <td class="right-column">
                             <input type="text" id="bomno-finish" class="data" autocomplete="off"
-                                style="width:900px; border:1px solid silver;" readonly>
+                                style="width:auto; border:1px solid silver;" readonly>
                         </td>
                     </tr>
                     <tr>
                         <td class="left-column">모델명</td>
                         <td class="right-column">
                             <input type="text" id="modelname-finish" class="data" autocomplete="off"
-                                style="width:900px; border:1px solid silver;" readonly>
+                                style="width:auto; border:1px solid silver;" readonly>
                         </td>
                     </tr>
 
@@ -185,21 +185,21 @@
                         <td class="left-column">제품명</td>
                         <td class="right-column">
                             <input type="text" id="partname-finish" class="data" autocomplete="off"
-                                style="width:900px; border:1px solid silver;" readonly>
+                                style="width:auto; border:1px solid silver;" readonly>
                         </td>
                     </tr>
                     <tr>
                         <td class="left-column">생산lot</td>
                         <td class="right-column">
                             <input type="text" id="lotno-finish" class="data" autocomplete="off"
-                                style="width:900px; border:1px solid silver;" readonly>
+                                style="width:auto; border:1px solid silver;" readonly>
                         </td>
                     </tr>
                     <tr>
                         <td class="left-column">발주수량</td>
                         <td class="right-column">
                             <input type="text" id="ponum-finish" class="data" autocomplete="off"
-                                style="width:900px; border:1px solid silver;" readonly>
+                                style="width:auto; border:1px solid silver;" readonly>
                         </td>
                     </tr>
                 </table>
@@ -212,7 +212,7 @@
             <div>
 
                 <div style="width:auto; height:auto; max-height: 600px; overflow-y: scroll; border: 1px solid silver;">
-                    <table class="styled-table" id="POdatatable-content1">
+                    <table class="styled-table" id="POdatatable-content2">
                         <thead>
                             <tr>
                                 <th colspan="11" style="background-color: white;">잔고자재</th>
@@ -221,10 +221,12 @@
                                 <th>자재명</th>
                                 <!-- <th>자재채번</th> -->
                                 <th>분류</th>
-                                <th>lotno</th>
+                                <th>LOT NO.</th>
+                                <th>제조일자</th>
+                                <th>만료일자</th>
                                 <th>자재폭(mm)</th>
                                 <th>잔재수량(M)</th>
-                                <!-- <th style="width:100px;"></th> -->
+                                <!-- <input type="button" value="console" onclick="rowcount()"> -->
 
                             </tr>
                         </thead>
@@ -237,7 +239,7 @@
 
 
             <button id="popupCloseBtn-finish-close">취소</button>
-            <button id="popupCloseBtn-content" onclick="Datasave()">준비완료</button>
+            <button id="popupCloseBtn-content" onclick="productionfinish()">생산종료</button>
         </div>
     </div>
 
@@ -293,60 +295,11 @@
     </div>
 
 
-    <div id="popupOverlay1" style="display: none;">
-        <div id="popupContent" style="width:70%; height: auto;">
-            <div class="form-group">
-                <table class="styled-table" id="materialsoyodatatable">
-                    <tr>
-                        <td colspan="11" class="popup_title">원자재 재고정보</td>
-                    </tr>
-
-                    <tr>
-                        <th>원자재명</th>
-                        <th>자재채번</th>
-                        <th>고객사</th>
-                        <th>분류</th>
-                        <th>lotno</th>
-                        <th>제조일자</th>
-                        <th>만료일자</th>
-                        <th>자재폭(mm)</th>
-                        <th>수량(M)</th>
-                        <th>창고위치</th>
-                        <th style="color:black;" style="width:100px;"></th>
-                    </tr>
-                    </thead>
-                    <tbody id="materialseachbody">
-                    </tbody>
-                </table>
-            </div>
-            <button id="popupCloseBtn-edit-close">취소</button>
-        </div>
-    </div>
 
 
 
 
-    <!-- 삭제창 -->
-    <div id="popupOverlay2" style="display: none;">
-        <div id="popupContent2" style="width: 700px; height: auto;">
-            <div class="form-group">
-                <table style="width:100%;">
-                    <tr>
-                        <td style="background-color: black; color: white; width: 200px;">자재출고 대기 정보 삭제</td>
-                        <td style="visibility: hidden;"><input type="text" id="id-edit1" class="data" autocomplete="off"
-                                style="width:100%; border:1px solid silver; "></td>
 
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="popup_title">자재출고 대기 정보를 삭제하시겠습니까?</td>
-                    </tr>
-
-                </table>
-            </div>
-            <button id="popupCloseBtn-delete-close">취소</button>
-            <button id="popupCloseBtn-delete" onclick="Datadelte()">삭제</button>
-        </div>
-    </div>
 
 
     <script>
@@ -468,11 +421,13 @@
 
                             $('#POdatatbody-content-tbody2').append(
                                 '<tr>' +
-                                '<td>' + result[i].materialname + '</td>' +
-                                '<td>' + result[i].classification + '</td>' +
-                                '<td>' + result[i].lotno + '</td>' +
-                                '<td>' + result[i].materialwidth + '</td>' +
-                                '<td><input type="text" value="0" style="text-align:right; width:100px; border:1px solid silver; background-color: #f0f0f0; border-radius: 5px; padding: 5px; box-shadow: 2px 2px 2px #888;"></td>'+
+                                '<td id="' + result[i].materialname + '">' + result[i].materialname + '</td>' +
+                                '<td id="' + result[i].classification + '">' + result[i].classification + '</td>' +
+                                '<td id="' + result[i].lotno + '">' + result[i].lotno + '</td>' +
+                                '<td id="' + result[i].manufacturedate + '">' + result[i].manufacturedate + '</td>' +
+                                '<td id="' + result[i].expirationdate + '">' + result[i].expirationdate + '</td>' +
+                                '<td id="' + result[i].materialwidth + '">' + result[i].materialwidth + '</td>' +
+                                '<td><input type="text" id="remnants' + i + '" value="0" style="text-align:right; width:100px; border:1px solid silver; background-color: #f0f0f0; border-radius: 5px; padding: 5px; box-shadow: 2px 2px 2px #888;"></td>' +
 
 
                                 // '<td><a class="data-check" style="cursor:pointer; color:blue;">확인</a></td>' +
@@ -1091,6 +1046,107 @@
                 return false;
             }
         }
+        function productionfinish() {
+            if (confirm("생산을 종료 하시겠습니까?") == true) {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/updateproduction',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        status1: '생산종료',
+                        lotno: $('#lotno-finish').val()
+                    }),
+                    success: function (result) {
+
+                    }
+                });
+
+                var today = new Date();
+                var year = today.getFullYear(); // 연도
+                var month = today.getMonth() + 1; // 월 (0부터 시작하므로 1을 더해줍니다)
+                var day = today.getDate(); // 일
+
+                // 월과 일이 한 자리 숫자인 경우 두 자리로 만들어줍니다 (예: 2023-10-28)
+                if (month < 10) {
+                    month = '0' + month;
+                }
+
+                if (day < 10) {
+                    day = '0' + day;
+                }
+
+                var currentDate = year + '-' + month + '-' + day;
+
+
+                const $table = document.getElementById('POdatatable-content2'); // table 엘리먼트 취득
+                const trGroup = Array.from(document.querySelectorAll('#POdatatable-content2 tr'));
+
+                const textGroup = trGroup.map(tr => {
+                    return Array.from(tr.children).map(input => input.textContent);
+                });
+
+                for (var i = 0; i < $table.rows.length - 2; i++) {
+
+                    var remant = $('#remnants' + i + '').val()
+                    if (remant !== '0') {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/insertmaterialinput',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+
+                                date: currentDate,
+                                input: '생산후입고',
+                                materialname: textGroup[i + 2][0],
+                                classification: textGroup[i + 2][1],
+                                lotno: textGroup[i + 2][2],
+                                codenumber: textGroup[i + 2][0],
+                                manufacturedate: textGroup[i + 2][3],
+                                expirationdate: textGroup[i + 2][4],
+                                materialwidth: textGroup[i + 2][5],
+                                quantity: $('#remnants' + i + '').val(),
+                                roll: '1',
+                                house: '원자재창고',
+                                customer: '영풍전자',
+                                part: '무검사항목'
+
+                            }),
+                            success: function (result) {
+
+                            }
+                        });
+                    } else {
+                        // remant가 0인 경우에 실행할 코드
+
+                    }
+
+
+                }
+                // date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,contents,part
+
+
+
+
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span style="font-weight:bold; color:navy;" class="notification-message">생산이 완료되었습니다.</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+                $('#popupOverlay1').fadeOut();
+                setTimeout(function () {
+                    load1();
+                    load23();
+                    production()
+                }, 30);
+            } else {
+                return false;
+            }
+        }
 
 
 
@@ -1443,7 +1499,35 @@
         }
 
 
+        function rowcount() {
+            var today = new Date();
+            var year = today.getFullYear(); // 연도
+            var month = today.getMonth() + 1; // 월 (0부터 시작하므로 1을 더해줍니다)
+            var day = today.getDate(); // 일
 
+            // 월과 일이 한 자리 숫자인 경우 두 자리로 만들어줍니다 (예: 2023-10-28)
+            if (month < 10) {
+                month = '0' + month;
+            }
+
+            if (day < 10) {
+                day = '0' + day;
+            }
+
+            var currentDate = year + '-' + month + '-' + day;
+            console.log(currentDate)
+
+            const $table = document.getElementById('POdatatable-content2'); // table 엘리먼트 취득
+            const trGroup = Array.from(document.querySelectorAll('#POdatatable-content2 tr'));
+
+            const textGroup = trGroup.map(tr => {
+                return Array.from(tr.children).map(input => input.textContent);
+            });
+
+            console.log(textGroup[2][0])
+            console.log(textGroup[3][0])
+            console.log($table.rows.length)
+        }
     </script>
 
 
