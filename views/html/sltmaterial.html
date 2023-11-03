@@ -13,9 +13,127 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 </head>
 <style>
+    input[type="text"] {
+        width: 100px;
+        /* 텍스트 상자의 너비 */
+        padding: 4px;
+        /* 텍스트 상자의 패딩 */
+        border: 1px solid #ccc;
+        /* 테두리 스타일과 색상 */
+        border-radius: 4px;
+        /* 테두리의 둥근 정도 */
+        font-size: 14px;
+        /* 글꼴 크기 */
+        /* 추가적인 스타일을 여기에 추가할 수 있습니다. */
+    }
+
+    input[type="file"] {
+        width: 200px;
+        /* 텍스트 상자의 너비 */
+        padding: 4px;
+        /* 텍스트 상자의 패딩 */
+        border: 1px solid #ccc;
+        /* 테두리 스타일과 색상 */
+        border-radius: 4px;
+        /* 테두리의 둥근 정도 */
+        font-size: 12px;
+        /* 글꼴 크기 */
+        /* 추가적인 스타일을 여기에 추가할 수 있습니다. */
+        /* background-color: red; */
+    }
+
+    #uploadContainer {
+        background-color: transparent;
+    }
+
+    /* 스타일링을 추가하세요 */
+    /* 중복된 데이터를 표시할 스타일 */
+    .duplicate-row {
+        background-color: red;
+        /* 빨간색 배경 */
+        color: white;
+        /* 흰색 텍스트 */
+        font-weight: bold;
+        /* 굵은 글씨체 */
+    }
+
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    /* 모달 스타일 */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+        /* 모달을 다른 요소 위에 표시하기 위한 z-index 설정 */
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        max-width: 80%;
+    }
+
+    /* 내부 테이블 스타일 */
+    .modal-content table {
+        width: 100%;
+    }
+
+    .modal-content th,
+    .modal-content td {
+        padding: 16px;
+    }
+
+    /* 스크롤 가능한 컨테이너 스타일 */
+    .table-container {
+        max-height: 300px;
+        /* 원하는 높이로 조정 */
+        overflow-y: auto;
+        /* 세로 스크롤 활성화 */
+    }
+
+    /* 버튼 스타일 */
+    .modal-button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .modal-button:hover {
+        background-color: #0056b3;
+    }
+
     #datatable-container {
         max-height: 1000px;
         /* Adjust the maximum height as needed */
@@ -23,22 +141,9 @@
         /* Add vertical scrollbars if the content exceeds the container height */
     }
 
-
-
     #datatable {
         width: 100%;
         /* Other table styles */
-    }
-
-    .slitinglist {
-        width: 80px;
-        /* Set the desired width for the text input */
-        height: 30px;
-        /* Set the desired height for the text input */
-        border: 1px solid silver;
-        padding: 5px;
-        font-size: 16px;
-        /* Add any other styles you want to customize the appearance of the text input */
     }
 
     .notification {
@@ -65,7 +170,7 @@
         color: #333;
     }
 
-    #part-select {
+    #customer-select {
         padding: 8px;
         font-size: 14px;
         border: none;
@@ -75,78 +180,36 @@
         box-sizing: border-box;
     }
 
-    .slitting-table {
+    #house-select {
+        display: block;
         width: 100%;
-        border-collapse: collapse;
-    }
-
-    .slitting-table th {
-        background-color: rgb(0, 0, 0);
-        color: white;
-        font-weight: bold;
-        padding: 8px;
-        text-align: center;
-    }
-
-    .slitting-table td {
-        padding: 8px;
-        border: 1px solid #ccc;
-        text-align: center;
-    }
-
-    .slitting-input {
-        text-align: right;
-        width: 100%;
-        padding: 5px;
-        border: none;
-        border-radius: 4px;
-        box-sizing: border-box;
+        padding: 10px;
         font-size: 16px;
-        /* Increase the font size as desired */
+        border: 1px solid #ccc;
+        border-radius: 4px;
     }
 
-    .large-textbox {
-        font-size: 18px;
-        /* Increase the font size for the large text box */
-    }
-
-    .add-button {
-        cursor: pointer;
-        width: 100%;
-        height: 100%;
-        font-weight: bold;
-        background-color: rgb(2, 2, 2);
-        color: white;
+    .custom-file-input {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 15px;
         border: none;
-        border-radius: 4px;
-        padding: 4px;
-    }
-
-    .delete-link {
+        border-radius: 5px;
         cursor: pointer;
-        color: red;
+        font-size: 12px;
+        display: inline-block;
+        /* 인라인 요소로 표시 */
+        position: relative;
+        /* 위치를 상대적으로 설정 */
     }
 
-    /* Optional: Add hover effect */
-    .slitting-table tr:hover {
-        background-color: #f5f5f5;
-    }
-
-    .select-box {
-        padding: 4px;
-        font-size: 15px;
-        font-weight: bold;
-        border: 1px solid black;
-        background-color: #f2f2f2;
-        border-radius: 4px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Optional: Add hover and focus effects */
-    .select-box:hover,
-    .select-box:focus {
-        background-color: #e0e0e0;
+    .custom-file-label {
+        font-size: 16px;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        display: inline-block;
+        /* 인라인 요소로 표시 */
     }
 </style>
 
@@ -156,18 +219,13 @@
 
     <div class="main_header">
         <a>슬리팅</a>
-        <div class="buttons" style="display: flex; justify-content: flex-end;">
-            <button onclick="New()">슬리팅 등록</button>
-        </div>
-        <div class="buttons" style="display: flex; justify-content: flex-end;">
-            <button onclick="New1()">작업지시서</button>
-        </div>
+
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
-    <div class="form-group">
+    <!-- <div class="form-group">
         <table style="width:30%;">
             <tr>
                 <td style="width: 100px; background-color: whitesmoke;">슬리팅 날짜</td>
@@ -183,8 +241,33 @@
             </tr>
         </table>
 
-    </div>
+    </div> -->
 
+
+    <div class="form-group">
+        <table style="width:50%;">
+            <tr>
+                <td style="width: 100px; background-color: whitesmoke;">슬리팅 날짜</td>
+                <td style="width: 100px;"> <input type="date" id="datepicker2"
+                        style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </td>
+                <td style="width: 100px;"> <input type="date" id="datepicker3"
+                        style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </td>
+                <td style="width: 50px;"> <input type="button" value="조회" onclick="POsearching()"
+                        style="width:100%; cursor: pointer; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: navy; color: white;">
+                </td>
+                <td style="width: 50px;"> <input type="button" value="슬리팅 등록" onclick="New()"
+                        style="width:100%; cursor: pointer; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: rgb(71, 22, 55); color: white;">
+                </td>
+                <td style="width: 50px;"> <input type="button" value="작업지시서" onclick="New1()"
+                        style="width:100%; cursor: pointer; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: black; color: white;">
+                </td>
+
+            </tr>
+        </table>
+
+    </div>
 
     <!-- 등록창 -->
     <div id="popupOverlay" style="display: none;">
@@ -316,26 +399,23 @@
 
 
 
-    <div class="main_header" style="background-color:rgb(0, 0, 0); color:white; width: 100%;">
-        <a>슬리팅 정보</a>
 
-    </div>
     <div id="datatable-container">
         <table class="styled-table" id="materialdatatable">
 
             <thead>
 
                 <tr>
-                    <th colspan="2" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;"></th>
-                    <th colspan="6" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;">슬리팅자재입고
+                    <th colspan="2" style="border:1px solid silver; font-size: 18px;"></th>
+                    <th colspan="6" style="border:1px solid silver; font-size: 18px;">슬리팅자재입고
                     </th>
-                    <th colspan="5" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;">작업지시내용
+                    <th colspan="5" style="border:1px solid silver; font-size: 18px;">작업지시내용
 
                     </th>
-                    <th colspan="5" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;">슬리팅실적
+                    <th colspan="5" style="border:1px solid silver; font-size: 18px;">슬리팅실적
 
                     </th>
-                    <th colspan="1" style="background-color: rgb(82, 80, 80); color: white; font-size: 18px;"></th>
+                    <th colspan="1" style="border:1px solid silver;  font-size: 18px;"></th>
                 </tr>
                 <tr>
                     <th>작업지시날짜</th>
@@ -356,7 +436,7 @@
                     <th>롤수량</th>
                     <th>재단수량(M)</th>
                     <th>폐기여부</th>
-                    <th style="background-color:rgb(82, 80, 80); color:white; width:100px;"></th>
+                    <th style="width:100px;"></th>
                 </tr>
             </thead>
 
@@ -796,7 +876,7 @@
 
                     </tr>
                     <tr>
-                        <td colspan="2"  class="popup_title">PO Item을 삭제하시겠습니까?</td>
+                        <td colspan="2" class="popup_title">PO Item을 삭제하시겠습니까?</td>
                     </tr>
 
                 </table>
@@ -1676,7 +1756,7 @@
                         finalroll: $('#roll1').val(),
                         finaltotal: $('#sumquantity1').val(),
                         finaltrash: $('#trash1').val(),
-                     
+
 
 
 
@@ -1699,7 +1779,7 @@
                         finalroll: $('#roll2').val(),
                         finaltotal: $('#sumquantity2').val(),
                         finaltrash: $('#trash2').val(),
-                     
+
 
 
 
@@ -1828,8 +1908,8 @@
                                         var finalTrash = `<td style="color:red;">${rowData.finaltrash === null ? '' : rowData.finaltrash}</td>`;
 
                                         var inputCell = rowCount === 0 ? `<td rowspan="${rowSpan}"><a class="data-edit1" style="cursor:pointer; color:navy;">실적입력</a></td>` : '';
-                                        var idCell = `<td style="color:red;">${rowData.id === null ? '' : rowData.id}</td>`;
-                                        var ordernoCell = `<td style="color:red;">${rowData.orderno === null ? '' : rowData.orderno}</td>`;
+                                        var idCell = `<td style="color:red; visibility:hidden;">${rowData.id === null ? '' : rowData.id}</td>`;
+                                        var ordernoCell = `<td style="color:red; visibility:hidden;">${rowData.orderno === null ? '' : rowData.orderno}</td>`;
 
                                         $('#materialinputtbody').append(
                                             '<tr>' +
