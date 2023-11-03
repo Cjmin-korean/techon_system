@@ -1587,12 +1587,12 @@ module.exports = function (app) {
 
             return pool.request()
 
-                .query( 
-                    "   SELECT contentname, orderid, productdate, lotno, bomno, modelname, itemname, quantity, materialstatus "+
-                    " FROM orderlist "+
-                    " WHERE mstatus IN ('자재완전출고', '자재부분출고') "+
+                .query(
+                    "   SELECT contentname, orderid, productdate, lotno, bomno, modelname, itemname, quantity, materialstatus " +
+                    " FROM orderlist " +
+                    " WHERE mstatus IN ('자재완전출고', '자재부분출고') " +
                     " GROUP BY contentname, bomno, orderid, productdate, modelname, itemname, lotno, materialstatus, quantity; "
-                     
+
                 )
 
                 .then(result => {
@@ -1614,9 +1614,9 @@ module.exports = function (app) {
 
             return pool.request()
 
-                .query( 
+                .query(
                     " select * from materialinput where input='원자재출고'"
-                     
+
                 )
 
                 .then(result => {
@@ -1638,9 +1638,9 @@ module.exports = function (app) {
 
             return pool.request()
 
-                .query( 
+                .query(
                     " select * from orderlist where status1='생산중'"
-                     
+
                 )
 
                 .then(result => {
@@ -1661,12 +1661,12 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('status1', sql.NVarChar, req.body.status1)
-            .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('status1', sql.NVarChar, req.body.status1)
+                .input('lotno', sql.NVarChar, req.body.lotno)
 
-                .query( 
+                .query(
                     " update orderlist set status1=@status1 where lotno=@lotno"
-                     
+
                 )
 
                 .then(result => {
@@ -1680,45 +1680,45 @@ module.exports = function (app) {
         });
 
     });
-        // **** start  품목등록    
-        sql.connect(config).then(pool => {
-            app.post('/api/insertmaterialinput', function (req, res) {
-    
-                res.header("Access-Control-Allow-Origin", "*");
-                return pool.request()
-                    //.input('변수',값 형식, 값)
-                    .input('date', sql.NVarChar, req.body.date)
-                    .input('input', sql.NVarChar, req.body.input)
-                    .input('materialname', sql.NVarChar, req.body.materialname)
-                    .input('lotno', sql.NVarChar, req.body.lotno)
-                    .input('manufacturedate', sql.NVarChar, req.body.manufacturedate)
-                    .input('expirationdate', sql.NVarChar, req.body.expirationdate)
-                    .input('materialwidth', sql.Int, req.body.materialwidth)
-                    .input('quantity', sql.Int, req.body.quantity)
-                    .input('roll', sql.Int, req.body.roll)
-                    .input('sum', sql.Int, req.body.sum)
-                    .input('contents', sql.NVarChar, req.body.contents)
-                    .input('house', sql.NVarChar, req.body.house)
-                    .input('classification', sql.NVarChar, req.body.classification)
-                    .input('codenumber', sql.NVarChar, req.body.codenumber)
-                    .input('customer', sql.NVarChar, req.body.customer)
-                    .input('part', sql.NVarChar, req.body.part)
+    // **** start  품목등록    
+    sql.connect(config).then(pool => {
+        app.post('/api/insertmaterialinput', function (req, res) {
 
-    
-    
-                    .query(
-                        'insert into materialinput(date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,contents,house,classification,codenumber,customer,part)' +
-                        ' values(@date,@input,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@contents,@house,@classification,@codenumber,@customer,@part)'
-                    )
-                    .then(result => {
-    
-                        res.json(result.recordset);
-                        res.end();
-                    });
-            });
-    
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('date', sql.NVarChar, req.body.date)
+                .input('input', sql.NVarChar, req.body.input)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('manufacturedate', sql.NVarChar, req.body.manufacturedate)
+                .input('expirationdate', sql.NVarChar, req.body.expirationdate)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .input('quantity', sql.Int, req.body.quantity)
+                .input('roll', sql.Int, req.body.roll)
+                .input('sum', sql.Int, req.body.sum)
+                .input('contents', sql.NVarChar, req.body.contents)
+                .input('house', sql.NVarChar, req.body.house)
+                .input('classification', sql.NVarChar, req.body.classification)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('part', sql.NVarChar, req.body.part)
+
+
+
+                .query(
+                    'insert into materialinput(date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,contents,house,classification,codenumber,customer,part)' +
+                    ' values(@date,@input,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@contents,@house,@classification,@codenumber,@customer,@part)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
         });
-        // **** finish
+
+    });
+    // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/updatemtstatus', function (req, res) {
@@ -1726,12 +1726,12 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('mstatus', sql.NVarChar, req.body.mstatus)
-            .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('mstatus', sql.NVarChar, req.body.mstatus)
+                .input('lotno', sql.NVarChar, req.body.lotno)
 
-                .query( 
+                .query(
                     " update orderlist set mstatus=@mstatus where lotno=@lotno"
-                     
+
                 )
 
                 .then(result => {
@@ -2034,8 +2034,8 @@ module.exports = function (app) {
                     "     SUM(quantity) <> 0 " +
                     "     AND materialwidth = @materialwidth " +
                     " ORDER BY " +
-                    "    house asc, "+
-                    " expirationdate ASC, "+
+                    "    house asc, " +
+                    " expirationdate ASC, " +
                     " quantity desc ")
 
 
@@ -2909,6 +2909,70 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+
+    sql.connect(config).then(pool => {
+        app.post('/api/slitingupdate', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('finalmaterialwidth', sql.Float, req.body.finalmaterialwidth)
+                .input('finalm', sql.Float, req.body.finalm)
+                .input('finalroll', sql.Float, req.body.finalroll)
+                .input('finaltotal', sql.Float, req.body.finaltotal)
+                .input('id', sql.Int, req.body.id)
+                .query(
+
+                    'update slitingplan set finalmaterialwidth=@finalmaterialwidth,finalm=@finalm,finalroll=@finalroll,finaltotal=@finaltotal where id=@id'
+
+
+                )
+                .then(result => {
+                    // console.log(result)
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/insertslitingupdate', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('slitingdate', sql.NVarChar, req.body.slitingdate)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('classification', sql.NVarChar, req.body.classification)
+                .input('materialwidth', sql.Float, req.body.materialwidth)
+                .input('m', sql.Float, req.body.m)
+                .input('roll', sql.Float, req.body.roll)
+                .input('total', sql.Float, req.body.total)
+                .input('aftermaterialwidth', sql.Float, req.body.aftermaterialwidth)
+                .input('afterm', sql.Float, req.body.afterm)
+                .input('afterroll', sql.Float, req.body.afterroll)
+                .input('aftertotal', sql.Float, req.body.aftertotal)
+                .input('finalmaterialwidth', sql.Float, req.body.finalmaterialwidth)
+                .input('finalm', sql.Float, req.body.finalm)
+                .input('finalroll', sql.Float, req.body.finalroll)
+                .input('finaltotal', sql.Float, req.body.finaltotal)
+                .query(
+
+                    'insert into slitingplan(slitingdate,part,materialname,classification,materialwidth,m,roll,total,aftermaterialwidth,afterm,afterroll,aftertotal,finalmaterialwidth,finalm,finalroll,finaltotal)' +
+                    ' values(@slitingdate,@part,@materialname,@classification,@materialwidth,@m,@roll,@total,@aftermaterialwidth,@afterm,@afterroll,@aftertotal,@finalmaterialwidth,@finalm,@finalroll,@finaltotal)'
+
+
+                )
+                .then(result => {
+                    // console.log(result)
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
 
     // **** start       
@@ -2965,35 +3029,35 @@ module.exports = function (app) {
             return pool.request()
                 .input('orderid', sql.NVarChar, req.body.orderid)
                 .query(
-                    " SELECT"+
-                    "    tb2.materialname, "+
-                    "    tb2.swidth, "+
-                    "    tb2.soyo, "+
-                    "    COALESCE(tb1.quantity, 0) AS quantity, "+
-                    "    CASE "+
-                    "        WHEN tb2.soyo >= COALESCE(tb1.quantity, 0) THEN '부족' "+
-                    "        ELSE '가능' "+
-                    "    END AS availability "+
-                    "FROM ( "+
-                    "    SELECT materialname, "+
-                    "           materialwidth, "+
-                    "           SUM(quantity) 'quantity', "+
-                    "           house "+
-                    "    FROM materialinput "+
-                    "    WHERE house = '생산창고' "+
-                    "    GROUP BY materialname, materialwidth, house "+
-                    ") tb1 "+
-                    "RIGHT JOIN ( "+
-                    "    SELECT bm.materialname, "+
-                    "           bm.swidth, "+
-                    "           SUM(CEILING(o.quantity * (bm.mwidth / ii.cavity / 1000 * 1.03))) AS soyo "+
-                    "    FROM orderlist o "+
-                    "    JOIN bommanagement bm ON o.bomno = bm.bomno AND o.orderid = @orderid "+
-                    "    JOIN iteminfo ii ON o.bomno = ii.bomno "+
-                    "    WHERE o.materialstatus = 'true' "+
-                    "    GROUP BY bm.materialname, bm.swidth "+
+                    " SELECT" +
+                    "    tb2.materialname, " +
+                    "    tb2.swidth, " +
+                    "    tb2.soyo, " +
+                    "    COALESCE(tb1.quantity, 0) AS quantity, " +
+                    "    CASE " +
+                    "        WHEN tb2.soyo >= COALESCE(tb1.quantity, 0) THEN '부족' " +
+                    "        ELSE '가능' " +
+                    "    END AS availability " +
+                    "FROM ( " +
+                    "    SELECT materialname, " +
+                    "           materialwidth, " +
+                    "           SUM(quantity) 'quantity', " +
+                    "           house " +
+                    "    FROM materialinput " +
+                    "    WHERE house = '생산창고' " +
+                    "    GROUP BY materialname, materialwidth, house " +
+                    ") tb1 " +
+                    "RIGHT JOIN ( " +
+                    "    SELECT bm.materialname, " +
+                    "           bm.swidth, " +
+                    "           SUM(CEILING(o.quantity * (bm.mwidth / ii.cavity / 1000 * 1.03))) AS soyo " +
+                    "    FROM orderlist o " +
+                    "    JOIN bommanagement bm ON o.bomno = bm.bomno AND o.orderid = @orderid " +
+                    "    JOIN iteminfo ii ON o.bomno = ii.bomno " +
+                    "    WHERE o.materialstatus = 'true' " +
+                    "    GROUP BY bm.materialname, bm.swidth " +
                     ") tb2 ON tb1.materialname = tb2.materialname")
-              
+
                 .then(result => {
 
                     res.json(result.recordset);
