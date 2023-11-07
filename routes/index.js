@@ -3147,55 +3147,62 @@ module.exports = function (app) {
                 .input('orderid', sql.NVarChar, req.body.orderid)
 
                 .query(
-                    "     SELECT " +
-                    "     orderid, " +
-                    "     OL.productdate, " +
-                    "     OL.lotno, " +
-                    "     BOM.bomno, " +
-                    "     BOM.model, " +
-                    "     BOM.itemname, " +
-                    "     BOM.materialname, " +
-                    "     BOM.swidth, " +
-                    "     FORMAT(BOM.mwidth * OL.quantity, 'N0') AS soyo, " +
-                    "     FORMAT(COALESCE(MI.quantity, 0), 'N0') AS materialnum, " +
-                    "     FORMAT( " +
-                    "         CASE " +
-                    "             WHEN BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth " +
-                    "             THEN BOM.mwidth * OL.quantity - COALESCE(MI.quantity, 0) " +
-                    "             ELSE BOM.mwidth * OL.quantity " +
-                    "         END, " +
-                    "         'N0' " +
-                    "     ) AS diff, " +
-                    "     CASE " +
-                    "         WHEN BOM.mwidth * OL.quantity > COALESCE(MI.quantity, 0) THEN '부족' " +
-                    "         WHEN BOM.mwidth * OL.quantity <= COALESCE(MI.quantity, 0) THEN '가능' " +
-                    "         ELSE NULL " +
-                    "     END AS condition " +
-                    " FROM  " +
-                    "     bommanagement AS BOM " +
-                    "     INNER JOIN ( " +
-                    "         SELECT  " +
-                    "             orderid, " +
-                    "             productdate, " +
-                    "             lotno, " +
-                    "             itemname,  " +
-                    "             SUM(CASE WHEN [status] = 'true' THEN [quantity] ELSE 0 END) AS quantity " +
-                    "         FROM " +
-                    "             orderlist  " +
-                    "         GROUP BY " +
-                    "             lotno, itemname, productdate ,orderid  " +
-                    "     ) AS OL ON BOM.itemname = OL.itemname " +
-                    "     LEFT JOIN ( " +
-                    "         SELECT " +
-                    "             materialname, " +
-                    "             materialwidth, " +
-                    "             SUM(quantity) AS quantity " +
-                    "         FROM " +
-                    "             materialinput " +
-                    "         GROUP BY " +
-                    "             materialname, " +
-                    "             materialwidth " +
-                    "     ) AS MI ON BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth WHERE BOM.status = 'true' order by orderid asc"
+                    "  SELECT  "+
+                    "    orderid,  "+
+                    "    OL.productdate,  "+
+                    "    OL.lotno,  "+
+                    "    BOM.bomno,  "+
+                    "    BOM.model,  "+
+                    "    BOM.itemname,  "+
+                    "    BOM.materialname,  "+
+                    "    BOM.swidth,  "+
+                    "    FORMAT(SUM(OL.quantity * BOM.mwidth / iteminfo.cavity / 1000 * 1.03), 'N0') AS soyo,  "+
+                    "    FORMAT(COALESCE(SUM(MI.quantity), 0), 'N0') AS materialnum,  "+
+                    "    FORMAT(  "+
+                    "        CASE  "+
+                    "            WHEN BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth  "+
+                    "            THEN SUM(OL.quantity * BOM.mwidth / iteminfo.cavity / 1000 * 1.03) - COALESCE(SUM(MI.quantity), 0)  "+
+                    "            ELSE SUM(OL.quantity * BOM.mwidth / iteminfo.cavity / 1000 * 1.03)  "+
+                    "        END,  "+
+                    "        'N0'  "+
+                    "    ) AS diff,  "+
+                    "    CASE  "+
+                    "        WHEN SUM(OL.quantity * BOM.mwidth / iteminfo.cavity / 1000 * 1.03) > COALESCE(SUM(MI.quantity), 0) THEN '부족'  "+
+                    "        WHEN SUM(OL.quantity * BOM.mwidth / iteminfo.cavity / 1000 * 1.03) <= COALESCE(SUM(MI.quantity), 0) THEN '가능'  "+
+                    "        ELSE NULL  "+
+                    "    END AS condition  "+
+                    "FROM   "+
+                    "    bommanagement AS BOM  "+
+                    "    INNER JOIN (  "+
+                    "        SELECT   "+
+                    "            orderid,  "+
+                    "            productdate,  "+
+                    "            lotno,  "+
+                    "            itemname,   "+
+                    "            SUM(CASE WHEN [status] = 'true' THEN [quantity] ELSE 0 END) AS quantity  "+
+                    "        FROM  "+
+                    "            orderlist   "+
+                    "        GROUP BY  "+
+                    "            lotno, itemname, productdate, orderid   "+
+                    "    ) AS OL ON BOM.itemname = OL.itemname  "+
+                    "    LEFT JOIN (  "+
+                    "        SELECT  "+
+                    "            materialname,  "+
+                    "            materialwidth,  "+
+                    "            SUM(quantity) AS quantity  "+
+                    "        FROM  "+
+                    "            materialinput  "+
+                    "        GROUP BY  "+
+                    "            materialname, materialwidth  "+
+                    "    ) AS MI ON BOM.materialname = MI.materialname AND BOM.swidth = MI.materialwidth  "+
+                    "    LEFT JOIN ("+
+                    "        SELECT itemname, cavity "+
+                    "        FROM iteminfo "+
+                    "    ) AS iteminfo ON BOM.itemname = iteminfo.itemname "+
+                    "WHERE BOM.status = 'true'  "+
+                    "GROUP BY "+
+                    "    orderid, OL.productdate, OL.lotno, BOM.bomno, BOM.model, BOM.itemname, BOM.materialname, BOM.swidth, iteminfo.cavity,MI.materialname,MI.materialwidth "+
+                    "ORDER BY materialname ASC"
                 )
 
                 .then(result => {
@@ -5953,6 +5960,30 @@ module.exports = function (app) {
     // **** start itemname,materialwidth변수로  chk확인 쿼리      
     sql.connect(config).then(pool => {
         app.post('/api/selectslitingplan', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+
+                .query(
+                    "select " +
+                    " * " +
+                    " from " +
+                    " slitingplan "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/selectlot', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
 
