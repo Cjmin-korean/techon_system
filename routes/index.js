@@ -3282,6 +3282,77 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterial', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+            .input('materialname', sql.NVarChar, req.body.materialname)
+            .input('materialwidth', sql.Int, req.body.materialwidth)
+
+                .query(
+                    "  SELECT "+
+                    "    materialname, "+
+                    "    materialwidth, "+
+                    "    SUM( "+
+                    "        CASE "+
+                    "            WHEN input = '원자재출고' THEN -quantity "+
+                    "            ELSE quantity "+
+                    "        END "+
+                    "    ) AS totalcount "+
+                    "FROM "+
+                    "    materialinput "+
+                    "WHERE "+
+                    "    materialname = @materialname "+
+                    "    AND materialwidth > @materialwidth "+
+                    "GROUP BY "+
+                    "    materialname, materialwidth, materialid; ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/insertsltmaterial', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+            .input('slitingdate', sql.NVarChar, req.body.slitingdate)
+            .input('part', sql.Int, req.body.part)
+            .input('materialname', sql.Int, req.body.materialname)
+            .input('classification', sql.Int, req.body.classification)
+            .input('materialwidth', sql.Int, req.body.materialwidth)
+            .input('m', sql.Int, req.body.m)
+            .input('roll', sql.Int, req.body.roll)
+            .input('total', sql.Int, req.body.total)
+            .input('afterm', sql.Int, req.body.afterm)
+            .input('afterroll', sql.Int, req.body.afterroll)
+            .input('aftertotal', sql.Int, req.body.aftertotal)
+            .input('finalmaterialwidth', sql.Int, req.body.finalmaterialwidth)
+            .input('finalm', sql.Int, req.body.finalm)
+            .input('finalroll', sql.Int, req.body.finalroll)
+            .input('finaltotal', sql.Int, req.body.finaltotal)
+            .input('orderno', sql.Int, req.body.orderno)
+
+                .query(
+                    'insert into slitingplan(slitingdate,part,materialname,classification,materialwidth,m,roll,total,afterm,afterroll,aftertotal,finalmaterialwidth,finalm,finalroll,finaltotal,orderno)' +
+                    ' values(@slitingdate,@part,@materialname,@classification,@materialwidth,@m,@roll,@total,@afterm,@afterroll,@aftertotal,@finalmaterialwidth,@finalm,@finalroll,@finaltotal,@orderno)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
 
     // **** start       
