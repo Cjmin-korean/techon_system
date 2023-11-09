@@ -30,6 +30,13 @@
         /* 추가적인 스타일을 여기에 추가할 수 있습니다. */
     }
 
+    input[type="checkbox"] {
+        width: 20px;
+        /* 너비 조정 */
+        height: 20px;
+        /* 높이 조정 */
+    }
+
     input[type="file"] {
         width: 200px;
         /* 텍스트 상자의 너비 */
@@ -558,7 +565,7 @@
                         </tr>
 
                         <tr>
-
+                            <th></th>
                             <th>자재명</th>
                             <th>규격폭(mm)</th>
                             <th>M</th>
@@ -1580,34 +1587,100 @@
             var materialwidth = td.eq(4).text();
             var now = parseFloat(td.eq(6).text()); // 현재고를 숫자로 파싱
 
-            $('#Datatbody111').empty();
+            // 만약 materialname이 "A+B" 구조라면
+            if (materialname.includes("+")) {
+                var parts = materialname.split("+");
+                var partA = parts[0].trim(); // A 부분
+                var partB = parts[1].trim(); // B 부분
 
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectmaterial',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    materialname: td.eq(3).text(),
-                    materialwidth: td.eq(4).text()
-                }),
-                success: function (result) {
-                    for (var i = 0; i < result.length; i++) {
-                        // console.log(result)
-                        $('#Datatbody111').append(
-                            '<tr>' +
-                            '<td>' + materialname + '</td>' +
-                            '<td>' + result[i].materialwidth + '</td>' +
-                            '<td>' + result[i].totalcount + '</td>' +
-                            '<td><a class="sliting">슬리팅</a></td>' +
+                $('#Datatbody111').empty();
 
-                            '</tr>'
-                        );
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectmaterial',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        materialname: parts[0].trim(),
+                        materialwidth: td.eq(4).text()
+                    }),
+                    success: function (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            // console.log(result)
+                            $('#Datatbody111').append(
+                                '<tr>' +
+                                '<td><input type="checkbox"></td>' +
+                                '<td>' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].materialwidth + '</td>' +
+                                '<td>' + result[i].totalcount + '</td>' +
+                                '<td><a class="sliting">슬리팅</a></td>' +
 
-                        // Add the conditionClass to the 'condition' cell
+                                '</tr>'
+                            );
+
+                            // Add the conditionClass to the 'condition' cell
+                        }
                     }
-                }
-            });
+                });
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectmaterial',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        materialname: parts[1].trim(),
+                        materialwidth: td.eq(4).text()
+                    }),
+                    success: function (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            // console.log(result)
+                            $('#Datatbody111').append(
+                                '<tr>' +
+                                '<td><input type="checkbox"></td>' +
+                                '<td>' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].materialwidth + '</td>' +
+                                '<td>' + result[i].totalcount + '</td>' +
+                                '<td><a class="sliting">슬리팅</a></td>' +
+
+                                '</tr>'
+                            );
+
+                            // Add the conditionClass to the 'condition' cell
+                        }
+                    }
+                });
+            } else {
+                $('#Datatbody111').empty();
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectmaterial',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        materialname: td.eq(3).text(),
+                        materialwidth: td.eq(4).text()
+                    }),
+                    success: function (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            // console.log(result)
+                            $('#Datatbody111').append(
+                                '<tr>' +
+                                '<td></td>' +
+                                '<td>' + materialname + '</td>' +
+                                '<td>' + result[i].materialwidth + '</td>' +
+                                '<td>' + result[i].totalcount + '</td>' +
+                                '<td><a class="sliting">슬리팅</a></td>' +
+
+                                '</tr>'
+                            );
+
+                            // Add the conditionClass to the 'condition' cell
+                        }
+                    }
+                });
+            }
+
         });
         $('#datatablesliting1').on('click', '.sliting', function () {
             // 현재 날짜를 가져옵니다.
