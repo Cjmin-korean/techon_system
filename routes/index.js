@@ -3340,10 +3340,11 @@ module.exports = function (app) {
             .input('finalroll', sql.Float, req.body.finalroll)
             .input('finaltotal', sql.Float, req.body.finaltotal)
             .input('orderno', sql.NVarChar, req.body.orderno)
+            .input('trash', sql.NVarChar, req.body.trash)
 
                 .query(
-                    'insert into slitingplan(slitingdate,part,materialname,classification,materialwidth,m,roll,total,afterm,aftermaterialwidth,afterroll,aftertotal,finalmaterialwidth,finalm,finalroll,finaltotal,orderno)' +
-                    ' values(@slitingdate,@part,@materialname,@classification,@materialwidth,@m,@roll,@total,@afterm,@aftermaterialwidth,@afterroll,@aftertotal,@finalmaterialwidth,@finalm,@finalroll,@finaltotal,@orderno)'
+                    'insert into slitingplan(slitingdate,part,materialname,classification,materialwidth,m,roll,total,afterm,aftermaterialwidth,afterroll,aftertotal,finalmaterialwidth,finalm,finalroll,finaltotal,orderno,trash)' +
+                    ' values(@slitingdate,@part,@materialname,@classification,@materialwidth,@m,@roll,@total,@afterm,@aftermaterialwidth,@afterroll,@aftertotal,@finalmaterialwidth,@finalm,@finalroll,@finaltotal,@orderno,@trash)'
                 )
                 .then(result => {
 
