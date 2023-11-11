@@ -3295,7 +3295,7 @@ module.exports = function (app) {
                 .query(
                     "  SELECT " +
                     "    materialname, " +
-                    "    materialwidth, " +
+                    "    materialwidth,lotno, " +
                     "    SUM( " +
                     "        CASE " +
                     "            WHEN input = '원자재출고' THEN -quantity " +
@@ -3308,7 +3308,7 @@ module.exports = function (app) {
                     "    materialname = @materialname " +
                     "    AND materialwidth > @materialwidth " +
                     "GROUP BY " +
-                    "    materialname, materialwidth, materialid; ")
+                    "    materialname, materialwidth,lotno; ")
                 .then(result => {
 
                     res.json(result.recordset);

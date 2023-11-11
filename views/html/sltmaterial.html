@@ -592,6 +592,7 @@
                             <th>자재명</th>
                             <th>규격폭(mm)</th>
                             <th>M</th>
+                            <th>자재LOT</th>
 
 
                             <!-- <th style="background-color: silver; color:black;" style="width:100px;"></th> -->
@@ -1622,7 +1623,7 @@
                             // console.log(result)
                             $('#Datatbody111').append(
                                 '<tr>' +
-                                '<td><input type="checkbox"></td>' +
+                                '<td><input type="checkbox" id="habjicheckbox"></td>' +
                                 '<td>' + result[i].materialname + '</td>' +
                                 '<td>' + result[i].materialwidth + '</td>' +
                                 '<td>' + result[i].totalcount + '</td>' +
@@ -1648,7 +1649,7 @@
                             // console.log(result)
                             $('#Datatbody111').append(
                                 '<tr>' +
-                                '<td><input type="checkbox"></td>' +
+                                '<td><input type="checkbox" id="habjicheckbox"></td>' +
                                 '<td>' + result[i].materialname + '</td>' +
                                 '<td>' + result[i].materialwidth + '</td>' +
                                 '<td>' + result[i].totalcount + '</td>' +
@@ -1678,11 +1679,13 @@
                             // console.log(result)
                             $('#Datatbody111').append(
                                 '<tr>' +
-                                '<td></td>' +
+                                '<td><input type="checkbox" id="sltcheckbox"></td>' +
                                 '<td>' + materialname + '</td>' +
                                 '<td>' + result[i].materialwidth + '</td>' +
                                 '<td>' + result[i].totalcount + '</td>' +
-                                '<td><a class="sliting">슬리팅</a></td>' +
+                                '<td>' + result[i].lotno + '</td>' +
+                                // '<td><a class="sliting">슬리팅</a></td>' +
+                                '<td><button id="calculateButton">합계</button></td>' +
 
                                 '</tr>'
                             );
@@ -1783,13 +1786,42 @@
         //         $('#popupOverlay6').fadeIn();
         //     }
         // }
+        $('#Datatbody111').on('click', '#calculateButton', function () {
+            // 선택된 체크박스들에서 quantity 값을 합산할 변수
+            var sumQuantity = 0;
 
+            // 400과 800 체크박스에 대한 선택된 quantity 값을 합산
+            $('#sltcheckbox:checked').each(function () {
+                var quantity = $(this).closest('tr').find('td:eq(3)').text();
+                sumQuantity += parseInt(quantity, 10) || 0;
+            });
+
+            // 합산된 결과를 콘솔에 출력
+            alert( sumQuantity);
+
+            // 여기에서 다른 동작을 추가하거나 결과를 특정 요소에 표시할 수 있습니다.
+        });
+        // 선택된 체크박스들의 quantity 값을 합산할 변수
+        var sumQuantity = 0;
+
+        // '#habjicheckbox' 체크박스들에 대한 change 이벤트 핸들러
+        $('#Datatbody111').on('change', '#sltcheckbox', function () {
+            // 체크된 체크박스들을 반복
+            $('#sltcheckbox:checked').each(function () {
+                // 각 체크된 체크박스의 가장 가까운 tr에서 quantity 값을 가져와서 합산
+                var quantity = $(this).closest('tr').find('td:eq(3)').text();
+                // 가져온 quantity 값을 숫자로 변환하여 sumQuantity에 더함
+                sumQuantity += parseInt(quantity, 10) || 0;
+            });
+
+            // 합산된 값을 출력하거나 다른 작업을 수행
+        });
 
         // 선택된 자재를 추적하는 배열
         var selectedMaterials = [];
 
         // 체크박스의 change 이벤트에 대한 핸들러
-        $('#Datatbody111').on('change', 'input[type="checkbox"]', function () {
+        $('#Datatbody111').on('change', '#habjicheckbox', function () {
             // 체크박스가 체크되었는지 확인
             if ($(this).is(':checked')) {
                 // 선택된 자재의 이름 가져오기
@@ -2262,7 +2294,7 @@
                             finalm: $('#finalm' + parseInt(finalCount) + '').val(),
                             finalroll: $('#finalroll' + parseInt(finalCount) + '').val(),
                             finaltotal: $('#finalt' + parseInt(finalCount) + '').val(),
-                            orderno:$('#orderno').val(),
+                            orderno: $('#orderno').val(),
 
 
 
