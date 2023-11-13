@@ -590,9 +590,11 @@
                         <tr>
                             <th></th>
                             <th>자재명</th>
-                            <th>규격폭(mm)</th>
-                            <th>M</th>
                             <th>자재LOT</th>
+                            <th>규격폭(mm)</th>
+                            <th>롤(roll)</th>
+                            <th>M</th>
+                            <th><button class="sliting">슬리팅등록</button></th>
 
 
                             <!-- <th style="background-color: silver; color:black;" style="width:100px;"></th> -->
@@ -1031,36 +1033,27 @@
                             <td><input type="text" id="slt-part-save" class="data" autocomplete="off"
                                     style="width:auto; border:1px solid silver;"></td>
                         </tr>
-                        <tr>
-                            <td style="width: 150px;">자재명</td>
-                            <td><input type="text" id="slt-materialname-save" class="data" autocomplete="off"
-                                    style="width:auto; border:1px solid silver;"></td>
-                        </tr>
-                        <tr>
-                            <td style="width: 150px;">자재구분</td>
-                            <td><input type="text" id="slt-classification-save" class="data" autocomplete="off"
-                                    style="width:auto; border:1px solid silver;"></td>
-                        </tr>
-                        <tr>
-                            <td style="width: 150px;">규격폭(mm)</td>
-                            <td><input type="text" id="slt-materialwidth-save" class="data" autocomplete="off"
-                                    style="width:auto; border:1px solid silver;"></td>
-                        </tr>
-                        <tr>
-                            <td style="width: 150px;">수량(M)</td>
-                            <td><input type="text" id="slt-m-save" class="data" autocomplete="off"
-                                    style="width:auto; border:1px solid silver;"></td>
-                        </tr>
-                        <tr>
-                            <td style="width: 150px;">롤(roll)</td>
-                            <td><input type="text" id="slt-roll-save" class="data" autocomplete="off"
-                                    style="width:auto; border:1px solid silver;"></td>
-                        </tr>
-                        <tr>
-                            <td style="width: 150px;">입고수량(M)</td>
-                            <td><input type="text" id="slt-total-save" class="data" autocomplete="off"
-                                    style="width:auto; border:1px solid silver;"></td>
-                        </tr>
+                        <table class="styled-table" id="selecttable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <td colspan="5" class="popup_title">슬리팅 자재선택</td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <th>자재명</th>
+                                    <th>LOT NO.</th>
+                                    <th>자재폭(mm)</th>
+                                    <th>롤(roll)</th>
+                                    <th>수량(M)</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody id="selectmaterialinput">
+
+
+                            </tbody>
+                        </table>
                     </table>
                 </div>
 
@@ -1681,11 +1674,12 @@
                                 '<tr>' +
                                 '<td><input type="checkbox" id="sltcheckbox"></td>' +
                                 '<td>' + materialname + '</td>' +
-                                '<td>' + result[i].materialwidth + '</td>' +
-                                '<td>' + result[i].totalcount + '</td>' +
                                 '<td>' + result[i].lotno + '</td>' +
+                                '<td>' + result[i].materialwidth + '</td>' +
+                                '<td>' + result[i].totalroll + '</td>' +
+                                '<td>' + result[i].totalcount + '</td>' +
                                 // '<td><a class="sliting">슬리팅</a></td>' +
-                                '<td><button id="calculateButton">합계</button></td>' +
+                                // '<td><button id="calculateButton">합계</button></td>' +
 
                                 '</tr>'
                             );
@@ -1792,12 +1786,12 @@
 
             // 400과 800 체크박스에 대한 선택된 quantity 값을 합산
             $('#sltcheckbox:checked').each(function () {
-                var quantity = $(this).closest('tr').find('td:eq(3)').text();
+                var quantity = $(this).closest('tr').find('td:eq(4)').text();
                 sumQuantity += parseInt(quantity, 10) || 0;
             });
 
             // 합산된 결과를 콘솔에 출력
-            alert( sumQuantity);
+            alert(sumQuantity);
 
             // 여기에서 다른 동작을 추가하거나 결과를 특정 요소에 표시할 수 있습니다.
         });
@@ -1823,7 +1817,7 @@
         // 체크박스의 change 이벤트에 대한 핸들러
         $('#Datatbody111').on('change', '#habjicheckbox', function () {
             // 체크박스가 체크되었는지 확인
-            if ($(this).is(':checked')) {
+            if ($(this).is(':checkde')) {
                 // 선택된 자재의 이름 가져오기
                 var materialName = $(this).closest('tr').find('td:eq(1)').text();
 
@@ -1844,10 +1838,42 @@
                 }
             }
         });
+        // $('#datatablesliting1').on('change', '#sltcheckbox', function () {
+        //     // 체크박스가 체크되었는지 확인
+        //     if ($(this).is(':checked')) {
+        //         var materailwidth = $(this).closest('tr').find('td:eq(3)').text();
+
+        //         if (selectedMaterials.includes(materailwidth)) {
+        //             // 선택이 이미 되어있는 경우
+        //             $(this).prop('checked', false);
+        //             alert('자재폭이 일치하지 않습니다');
+        //         } else {
+        //             selectedMaterials.push(materailwidth);
+        //         }
+        //     } else {
+        //         var materailwidth = $(this).closest('tr').find('td:eq(3)').text();
+        //         var index = selectedMaterials.indexOf(materailwidth);
+        //         if (index !== -1) {
+        //             selectedMaterials.splice(index, 1);
+        //         }
+        //     }
+        // });
+
 
 
         $('#datatablesliting1').on('click', '.sliting', function () {
             // 현재 날짜를 가져옵니다.
+            var sumQuantity = 0;
+
+            // 400과 800 체크박스에 대한 선택된 quantity 값을 합산
+            $('#sltcheckbox:checked').each(function () {
+                var quantity = $(this).closest('tr').find('td:eq(5)').text();
+                sumQuantity += parseInt(quantity, 10) || 0;
+            });
+
+            // 합산된 결과를 콘솔에 출력
+            // alert(sumQuantity);
+
             var today = new Date();
 
             // 년, 월, 일을 가져옵니다.
@@ -1868,9 +1894,78 @@
             var tr = checkBtn.parent().parent();
             var td = tr.children();
 
-            var materialname = td.eq(1).text();
-            var materialwidth = td.eq(2).text();
-            var quantity = td.eq(3).text();
+            var selectedMaterials = [];
+            $('#Datatbody111 #sltcheckbox:checked').each(function (index) {
+                var tr = $(this).closest('tr');
+                var material = {
+                    name: tr.find('td:nth-child(2)').text(),
+                    lotno: tr.find('td:nth-child(3)').text(),
+                    width: tr.find('td:nth-child(4)').text(),
+                };
+                selectedMaterials.push(material);
+                if (index === 0) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/selectmaterialinput',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            materialname: selectedMaterials[index].name,
+                            lotno: selectedMaterials[index].lotno,
+                            materialwidth: selectedMaterials[index].width
+                        }),
+                        success: function (result) {
+                            for (var i = 0; i < result.length; i++) {
+                                $('#selectmaterialinput').append(
+                                    '<tr>' +
+                                    '<td><input type="checkbox" id="sltinputcheckbox"></td>' +
+                                    '<td>' + result[i].materialname + '</td>' +
+                                    '<td>' + result[i].lotno + '</td>' +
+                                    '<td>' + result[i].materialwidth + '</td>' +
+                                    '<td>' + result[i].roll + '</td>' +
+                                    '<td>' + result[i].quantity + '</td>' +
+                                    '</tr>'
+                                );
+
+                                // Add the conditionClass to the 'condition' cell
+                            }
+                        }
+                    });
+                }
+                if (index === 1) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/selectmaterialinput',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            materialname: selectedMaterials[index].name,
+                            lotno: selectedMaterials[index].lotno,
+                            materialwidth: selectedMaterials[index].width
+                        }),
+                        success: function (result) {
+                            for (var i = 0; i < result.length; i++) {
+                                $('#selectmaterialinput').append(
+                                    '<tr>' +
+                                    '<td><input type="checkbox" id="sltinputcheckbox"></td>' +
+                                    '<td>' + result[i].materialname + '</td>' +
+                                    '<td>' + result[i].lotno + '</td>' +
+                                    '<td>' + result[i].materialwidth + '</td>' +
+                                    '<td>' + result[i].roll + '</td>' +
+                                    '<td>' + result[i].quantity + '</td>' +
+
+                                    '</tr>'
+                                );
+
+                                // Add the conditionClass to the 'condition' cell
+                            }
+                        }
+                    });
+                }
+            });
+            $('#selectmaterialinput').empty()
+
+
             // $('#slitingdate-save').val(slitingdate)
             $('#slt-part-save').val('슬리팅')
             $('#slt-materialname-save').val(materialname)
@@ -1878,7 +1973,7 @@
             $('#slt-materialwidth-save').val(materialwidth)
             $('#slt-m-save').val(quantity)
             $('#slt-roll-save').val('1')
-            $('#slt-total-save').val(quantity)
+            $('#slt-total-save').val(sumQuantity)
             $('#popupOverlay5').fadeIn()
         })
 

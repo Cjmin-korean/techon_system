@@ -3301,19 +3301,52 @@ module.exports = function (app) {
                     "            WHEN input = '원자재출고' THEN -quantity " +
                     "            ELSE quantity " +
                     "        END " +
-                    "    ) AS totalcount " +
+                    "    ) AS totalcount, " +
+                    "        SUM(roll) AS totalroll " +
                     "FROM " +
                     "    materialinput " +
                     "WHERE " +
                     "    materialname = @materialname " +
                     "    AND materialwidth > @materialwidth " +
                     "GROUP BY " +
-                    "    materialname, materialwidth,lotno; ")
+                    "    materialname, materialwidth,lotno order by materialwidth asc")
                 .then(result => {
 
                     res.json(result.recordset);
                     res.end();
                 });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+
+                .query(
+                    "SELECT  "+
+                    " materialname, "+
+                    " materialwidth, "+
+                    " lotno, "+
+                    " roll,quantity "+
+                    " from "+
+                    " materialinput "+
+                    " where  "+
+                    "  materialname = @materialname   "+
+                    " AND materialwidth = @materialwidth "+
+                    " AND lotno = @lotno "+
+                    " order by materialwidth asc ")
+                    .then(result => {
+
+                        res.json(result.recordset);
+                        res.end();
+                    });
         });
 
     });
@@ -3598,23 +3631,23 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('orderno', sql.NVarChar, req.body.orderno)
+                .input('orderno', sql.NVarChar, req.body.orderno)
 
                 .query(
-                        "select "+
-                        "aftermaterialwidth, "+
-                        "afterm, "+
-                        "afterroll, "+
-                        "aftertotal "+
-                        "from "+
-                        "slitingplan "+
-                        "where "+
-                        "orderno = @orderno")
-                    .then(result => {
+                    "select " +
+                    "aftermaterialwidth, " +
+                    "afterm, " +
+                    "afterroll, " +
+                    "aftertotal " +
+                    "from " +
+                    "slitingplan " +
+                    "where " +
+                    "orderno = @orderno")
+                .then(result => {
 
-                        res.json(result.recordset);
-                        res.end();
-                    });
+                    res.json(result.recordset);
+                    res.end();
+                });
         });
 
     });
