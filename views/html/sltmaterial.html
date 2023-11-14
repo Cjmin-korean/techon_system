@@ -489,7 +489,7 @@
             <thead>
                 <tr>
                     <th colspan="2" style="border:1px solid silver; font-size: 18px;"></th>
-                    <th colspan="6" style="border:1px solid silver; font-size: 18px;">슬리팅자재입고</th>
+                    <th colspan="7" style="border:1px solid silver; font-size: 18px;">슬리팅자재입고</th>
                     <th colspan="5" style="border:1px solid silver; font-size: 18px;">작업지시내용</th>
                     <th colspan="5" style="border:1px solid silver; font-size: 18px;">슬리팅실적</th>
                     <th colspan="1" style="border:1px solid silver;  font-size: 18px;"></th>
@@ -499,6 +499,7 @@
                     <th style="border:1px solid silver;">구분</th>
                     <th style="border:1px solid silver;">자재명</th>
                     <th style="border:1px solid silver;">구분</th>
+                    <th style="border:1px solid silver;">lotno</th>
                     <th style="border:1px solid silver;">규격폭(mm)</th>
                     <th style="border:1px solid silver;">M</th>
                     <th style="border:1px solid silver;">롤수량</th>
@@ -2430,41 +2431,58 @@
             }
         }
         function Dataedit2() {
-            var rowCount = $('#slttable1 tbody tr').length + 1;
+            var rowCount = $('#slttable1 tbody tr').length ;
+            console.log(rowCount)
             if (confirm("슬리팅 작업지시를 등록 하시겠습니까??") == true) {
+                var selectedMaterials = [];
+                $('#selectmaterialinput input[type="checkbox"]:checked').each(function (index) {
+                    var tr = $(this).closest('tr');
+                    var material = {
+                        name: tr.find('td:nth-child(2)').text(),
+                        width: tr.find('td:nth-child(4)').text(),
+                        mwidth: tr.find('td:nth-child(6)').text(),
+                        roll: tr.find('td:nth-child(5)').text(),
+                        lotno: tr.find('td:nth-child(3)').text()
+                    };
+                    selectedMaterials.push(material);
+                
+                    for (var i = 1; i < rowCount; i++) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/insertsltmaterial',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
 
-                for (var i = 1; i < rowCount; i++) {
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/insertsltmaterial',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
+                                slitingdate: $('#slitingdate-save').val(),
+                                part: $('#slt-part-save').val(),
+                                materialname: selectedMaterials[index].name,
+                                classification: '사급자재',
+                                lotno:selectedMaterials[index].lotno,
+                                materialwidth: selectedMaterials[index].width,
+                                m:  selectedMaterials[index].mwidth,
+                                roll: selectedMaterials[index].roll,
+                                total: $('#slt-quantity-save').val(),
+                                afterlotno: $('#afterlotno' + i + '').val(),
+                                aftermaterialwidth: $('#aftermaterialwidth' + i + '').val(),
+                                afterm: $('#afterm' + i + '').val(),
+                                afterroll: $('#afterroll' + i + '').val(),
+                                aftertotal: $('#aftert' + i + '').val(),
+                                finalmaterialwidth: '0',
+                                finalm: '0',
+                                finalroll: '0',
+                                finaltotal: '0',
+                                orderno: 'slt-' + $('#slitingdate-save').val() + $('#slt-materialname-save').val() + $('#slt-materialwidth-save').val()
+                            }),
+                            success: function (result) {
+                                // 성공 처리 코드 추가
+                            }
+                        });
 
-                            slitingdate: $('#slitingdate-save').val(),
-                            part: $('#slt-part-save').val(),
-                            materialname: $('#slt-materialname-save').val(),
-                            classification: $('#slt-classification-save').val(),
-                            materialwidth: $('#slt-materialwidth-save').val(),
-                            m: $('#slt-m-save').val(),
-                            roll: $('#slt-roll-save').val(),
-                            total: $('#slt-total-save').val(),
-                            aftermaterialwidth: $('#aftermaterialwidth' + i + '').val(),
-                            afterm: $('#afterm' + i + '').val(),
-                            afterroll: $('#afterroll' + i + '').val(),
-                            aftertotal: $('#aftert' + i + '').val(),
-                            finalmaterialwidth: '0',
-                            finalm: '0',
-                            finalroll: '0',
-                            finaltotal: '0',
-                            orderno: 'slt-' + $('#slitingdate-save').val() + $('#slt-materialname-save').val() + $('#slt-materialwidth-save').val()
-                        }),
-                        success: function (result) {
-                            // 성공 처리 코드 추가
-                        }
-                    });
+                    }
 
-                }
+                });
+
 
 
 
@@ -2916,10 +2934,10 @@
                                             materialNameCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.materialname}</td>` : '';
                                             classificationCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.classification}</td>` : '';
                                             materialWidthCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.materialwidth}</td>` : '';
-                                            mCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.m}</td>` : '';
-                                            rollCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.roll}</td>` : '';
-                                            totalCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.total}</td>` : '';
-
+                                            mCell = `<td style="text-align:right; border:1px solid silver;">${rowData.m}</td>`;
+                                            rollCell = `<td style="text-align:right; border:1px solid silver;">${rowData.roll}</td>`;
+                                            totalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.total}</td>`;
+                                            lotnoCell = `<td style="text-align:right; border:1px solid silver;">${rowData.lotno}</td>`;
                                             afterMaterialWidthCell = `<td style="text-align:right; border:1px solid silver; ">${rowData.aftermaterialwidth}</td>`;
                                             afterMCell = `<td style="text-align:right; border:1px solid silver;">${rowData.afterm}</td>`;
                                             afterRollCell = `<td style="text-align:right; border:1px solid silver;">${rowData.afterroll}</td>`;
@@ -2943,6 +2961,7 @@
                                             partCell +
                                             materialNameCell +
                                             classificationCell +
+                                            lotnoCell+
                                             materialWidthCell.toLocaleString() +
                                             mCell.toLocaleString() +
                                             rollCell.toLocaleString() +

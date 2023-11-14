@@ -3363,9 +3363,11 @@ module.exports = function (app) {
                 .input('classification', sql.NVarChar, req.body.classification)
                 .input('materialwidth', sql.Float, req.body.materialwidth)
                 .input('m', sql.Float, req.body.m)
+                .input('lotno', sql.NVarChar, req.body.lotno)
                 .input('roll', sql.Float, req.body.roll)
                 .input('total', sql.Float, req.body.total)
                 .input('afterm', sql.Float, req.body.afterm)
+                .input('afterlotno', sql.NVarChar, req.body.afterlotno)
                 .input('aftermaterialwidth', sql.Float, req.body.aftermaterialwidth)
                 .input('afterroll', sql.Float, req.body.afterroll)
                 .input('aftertotal', sql.Float, req.body.aftertotal)
@@ -3377,8 +3379,8 @@ module.exports = function (app) {
                 .input('trash', sql.NVarChar, req.body.trash)
 
                 .query(
-                    'insert into slitingplan(slitingdate,part,materialname,classification,materialwidth,m,roll,total,afterm,aftermaterialwidth,afterroll,aftertotal,finalmaterialwidth,finalm,finalroll,finaltotal,orderno,trash)' +
-                    ' values(@slitingdate,@part,@materialname,@classification,@materialwidth,@m,@roll,@total,@afterm,@aftermaterialwidth,@afterroll,@aftertotal,@finalmaterialwidth,@finalm,@finalroll,@finaltotal,@orderno,@trash)'
+                    'insert into slitingplan(slitingdate,part,materialname,lotno,classification,materialwidth,m,roll,total,afterlotno,afterm,aftermaterialwidth,afterroll,aftertotal,finalmaterialwidth,finalm,finalroll,finaltotal,orderno,trash)' +
+                    ' values(@slitingdate,@part,@materialname,@lotno,@classification,@materialwidth,@m,@roll,@total,@afterlotno,@afterm,@aftermaterialwidth,@afterroll,@aftertotal,@finalmaterialwidth,@finalm,@finalroll,@finaltotal,@orderno,@trash)'
                 )
                 .then(result => {
 
