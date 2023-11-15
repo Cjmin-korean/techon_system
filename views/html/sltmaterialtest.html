@@ -308,23 +308,7 @@
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
-    <!-- <div class="form-group">
-        <table style="width:30%;">
-            <tr>
-                <td style="width: 100px; background-color: whitesmoke;">슬리팅 날짜</td>
-                <td style="width: 100px;"> <input type="date" id="datepicker2"
-                        style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-                </td>
-                <td style="width: 100px;"> <input type="date" id="datepicker3"
-                        style="width:100%; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-                </td>
-                <td style="width: 50px;"> <input type="button" value="조회" onclick="POsearching()"
-                        style="width:100%; cursor: pointer; display: inline-block; font-size: 15px; font-weight:bold; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: navy; color: white;">
-                </td>
-            </tr>
-        </table>
 
-    </div> -->
 
 
     <div class="form-group">
@@ -487,35 +471,20 @@
         <table class="styled-table" id="materialdatatable">
 
             <thead>
+
                 <tr>
-                    <th colspan="2" style="border:1px solid silver; font-size: 18px;"></th>
-                    <th colspan="7" style="border:1px solid silver; font-size: 18px;">슬리팅자재입고</th>
-                    <th colspan="6" style="border:1px solid silver; font-size: 18px;">작업지시내용</th>
-                    <th colspan="5" style="border:1px solid silver; font-size: 18px;">슬리팅실적</th>
-                    <th colspan="1" style="border:1px solid silver;  font-size: 18px;"></th>
-                </tr>
-                <tr>
-                    <th style="border:1px solid silver;">작업지시날짜</th>
+                    <th style="border:1px solid silver;">생산LOTNO</th>
+                    <th style="border:1px solid silver;">작업날짜</th>
                     <th style="border:1px solid silver;">구분</th>
                     <th style="border:1px solid silver;">자재명</th>
                     <th style="border:1px solid silver;">구분</th>
                     <th style="border:1px solid silver;">lotno</th>
                     <th style="border:1px solid silver;">규격폭(mm)</th>
                     <th style="border:1px solid silver;">M</th>
-                    <th style="border:1px solid silver;">롤수량</th>
-                    <th style="border:1px solid silver;">입고수량(M)</th>
-                    <th style="border:1px solid silver;">lotno</th>
-                    <th style="border:1px solid silver;">규격폭(mm)</th>
-                    <th style="border:1px solid silver;">M</th>
-                    <th style="border:1px solid silver;">롤수량</th>
-                    <th style="border:1px solid silver;">재단수량(M)</th>
-                    <th style="border:1px solid silver;">폐기여부</th>
-                    <th style="border:1px solid silver;">규격폭(mm)</th>
-                    <th style="border:1px solid silver;">M</th>
-                    <th style="border:1px solid silver;">롤수량</th>
-                    <th style="border:1px solid silver;">재단수량(M)</th>
-                    <th style="border:1px solid silver;">폐기여부</th>
-                    <th style="border:1px solid silver; width:100px;">실적입력</th>
+                    <th style="border:1px solid silver;">Roll</th>
+                    <th style="border:1px solid silver;">합계(M)</th>
+
+                    <th style="border:1px solid silver; width:100px;"></th>
                 </tr>
             </thead>
 
@@ -2748,142 +2717,80 @@
             $('#materialinputtbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectslitingplan',
+                url: server + '/api/selectslitingplantest',
                 dataType: 'json',
                 success: function (data) {
-                    if (!Array.isArray(data) || data.length === 0) {
-                        // Handle empty data or invalid data, if required.
-                        return;
-                    }
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
+                        // Group data by sltno
+                        var groupedData = groupBy(data, 'sltno');
 
-                    var groupedData = groupBySlitingDate(data);
+                        // Iterate through each group
+                        Object.keys(groupedData).forEach(function (sltno) {
+                            // Display a summary row for each group
+                            var groupSummary = groupedData[sltno][0]; // Assuming sltno is the same for all rows in a group
+                            $('#materialinputtbody').append(
+                                '<tr class="group-summary">' +
+                                '<td colspan="10">' + sltno + '</td>' +
+                                '</tr>'
+                            );
 
-                    for (var date in groupedData) {
-                        if (groupedData.hasOwnProperty(date)) {
-                            var groupsByPart = groupedData[date];
-                            var rowCount = 0;
+                            // Iterate through rows in the group
+                            groupedData[sltno].forEach(function (row) {
+                                // Change background color based on classification
+                                var part = row.part;
+                                var backgroundColor = '';
 
-                            for (var part in groupsByPart) {
-                                if (groupsByPart.hasOwnProperty(part)) {
-                                    var groupByPart = groupsByPart[part];
-                                    var rows = groupByPart.rows;
-                                    var rowSpan = rows.length;
-
-                                    for (var i = 0; i < rows.length; i++) {
-                                        var rowData = rows[i];
-                                        var slitingDateCell = rowCount === 0 ? `<td style="border:1px solid silver;" rowspan="${rowSpan}">${rowData.slitingdate}</td>` : '';
-                                        var partCell = rowCount === 0 ? `<td style="border:1px solid silver;" rowspan="${rowSpan}">${rowData.part}</td>` : '';
-
-
-                                        var isHapjiSlitting = rowData.part === "합지슬리팅";
-
-                                        var afterMaterialWidthCell, afterMCell, afterRollCell, afterTotalCell;
-                                        if (isHapjiSlitting) {
-                                            partCell = rowCount === 0 ? `<td style="text-align:center; background-color:whitesmoke; border:1px solid silver;" rowspan="${rowSpan}">${rowData.part}</td>` : '';
-                                            materialNameCell = `<td style="text-align:center; border:1px solid silver;">${rowData.materialname}</td>`;
-                                            classificationCell = `<td style="text-align:center; border:1px solid silver;">${rowData.classification}</td>`;
-                                            materialWidthCell = `<td style="text-align:right; border:1px solid silver;">${rowData.materialwidth}</td>`;
-                                            mCell = `<td style="text-align:right; border:1px solid silver;">${rowData.m}</td>`;
-                                            rollCell = `<td style="text-align:center; border:1px solid silver;">${rowData.roll}</td>`;
-                                            totalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.total}</td>`;
-                                            afterMaterialWidthCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;"  rowspan="${rowSpan}">${rowData.aftermaterialwidth}</td>` : '';
-                                            afterMCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.afterm}</td>` : '';
-                                            afterRollCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.afterroll}</td>` : '';
-                                            afterTotalCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.aftertotal}</td>` : '';
-                                        } else {
-                                            partCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.part}</td>` : '';
-                                            materialNameCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.materialname}</td>` : '';
-                                            classificationCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.classification}</td>` : '';
-                                            materialWidthCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.materialwidth}</td>` : '';
-                                            mCell = `<td style="text-align:right; border:1px solid silver;">${rowData.m}</td>`;
-                                            rollCell = `<td style="text-align:right; border:1px solid silver;">${rowData.roll}</td>`;
-                                            totalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.total}</td>`;
-                                            lotnoCell = `<td style="text-align:right; border:1px solid silver;">${rowData.lotno}</td>`;
-                                            afterlotnoCell = `<td style="text-align:right; border:1px solid silver;">${rowData.afterlotno}</td>`;
-                                            afterMaterialWidthCell = `<td style="text-align:right; border:1px solid silver; ">${rowData.aftermaterialwidth}</td>`;
-                                            afterMCell = `<td style="text-align:right; border:1px solid silver;">${rowData.afterm}</td>`;
-                                            afterRollCell = `<td style="text-align:right; border:1px solid silver;">${rowData.afterroll}</td>`;
-                                            afterTotalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.aftertotal}</td>`;
-                                        }
-                                        var trash = `<td style="color:red; border:1px solid silver;">${rowData.trash}</td>`;
-
-                                        var finalMaterialWidthCell = `<td style="text-align:right; border:1px solid silver;">${rowData.finalmaterialwidth === null ? '' : rowData.finalmaterialwidth}</td>`;
-                                        var finalMCell = `<td style="text-align:right; border:1px solid silver;">${rowData.finalm === null ? '' : rowData.finalm}</td>`;
-                                        var finalRollCell = `<td style="text-align:right; border:1px solid silver;">${rowData.finalroll === null ? '' : rowData.finalroll}</td>`;
-                                        var finalTotalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.finaltotal === null ? '' : rowData.finaltotal}</td>`;
-                                        var finalTrash = `<td style="color:red; border:1px solid silver;">${rowData.finaltrash === null ? '' : rowData.finaltrash}</td>`;
-
-                                        var inputCell = rowCount === 0 ? `<td style="border:1px solid silver;" rowspan="${rowSpan}"><a class="data-edit1" style="cursor:pointer; color:navy;">실적입력</a></td>` : '';
-                                        var idCell = `<td style="color:red;" id="data-id">${rowData.id === null ? '' : rowData.id}</td>`;
-                                        var ordernoCell = `<td style="color:red;" id="data-id1">${rowData.orderno === null ? '' : rowData.orderno}</td>`;
-
-                                        $('#materialinputtbody').append(
-                                            '<tr>' +
-                                            slitingDateCell +
-                                            partCell +
-                                            materialNameCell +
-                                            classificationCell +
-                                            lotnoCell +
-                                            materialWidthCell.toLocaleString() +
-                                            mCell.toLocaleString() +
-                                            rollCell.toLocaleString() +
-                                            totalCell.toLocaleString() +
-                                            afterlotnoCell +
-                                            afterMaterialWidthCell.toLocaleString() +
-                                            afterMCell.toLocaleString() +
-                                            afterRollCell.toLocaleString() +
-                                            afterTotalCell.toLocaleString() +
-                                            trash +
-                                            finalMaterialWidthCell.toLocaleString() +
-                                            finalMCell.toLocaleString() +
-                                            finalRollCell.toLocaleString() +
-                                            finalTotalCell.toLocaleString() +
-                                            finalTrash +
-                                            inputCell +
-                                            idCell +
-                                            ordernoCell +
-                                            '</tr>'
-                                        );
-                                        $("td#data-id").hide();
-                                        $("td#data-id1").hide();
-                                        rowCount++;
-                                    }
+                                if (part === '슬리팅자재입고') {
+                                    bgColor = 'lightgreen';
+                                } else if (part === '슬리팅작업지시') {
+                                    bgColor = 'lightyellow';
+                                } else if (part === '슬리팅실적') {
+                                    bgColor = 'orange';
                                 }
-                            }
-                        }
+
+                                // var bgColor = row.part === '슬리팅자재입고' ? 'lightgreen' : ''; // Adjust color as needed
+                                //                 row.part === '슬리팅작업지시' ? 'lightgreen' : '';
+                                $('#materialinputtbody').append(
+                                    '<tr  style="background-color: ' + bgColor + ';" >' +
+                                    '<td>' + row.sltno + '</td>' +
+                                    '<td>' + row.slitingdate + '</td>' +
+                                    '<td>' + row.part + '</td>' +
+                                    '<td>' + row.materialname + '</td>' +
+                                    '<td>' + row.classification + '</td>' +
+                                    '<td>' + row.lotno + '</td>' +
+                                    '<td>' + row.materialwidth + '</td>' +
+                                    '<td>' + row.m + '</td>' +
+                                    '<td>' + row.roll + '</td>' +
+                                    '<td>' + row.total + '</td>' +
+                                    '<td id="data-id">' + row.id + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                        });
+
+                        // Update the total data count
+                        tableFoot.text('총 데이터 개수: ' + data.length);
                     }
                 }
             });
         }
-        // 이벤트 핸들러를 등록하는 부분
 
-
-        function groupBySlitingDate(data) {
-            var groupedData = {};
-            if (!Array.isArray(data)) {
-                return groupedData; // Return empty object if data is not an array
-            }
-
-            for (var i = 0; i < data.length; i++) {
-                var date = data[i].slitingdate;
-                var part = data[i].part;
-                var materialname = data[i].materialname;
-                var orderno = data[i].orderno;
-                var groupKey = date + "-" + orderno;
-
-                if (!groupedData[groupKey]) {
-                    groupedData[groupKey] = {};
-                }
-
-                if (!groupedData[groupKey][part]) {
-                    groupedData[groupKey][part] = { rows: [] };
-                }
-
-                groupedData[groupKey][part].rows.push(data[i]);
-            }
-
-            return groupedData;
+        // Function to group an array of objects by a specified key
+        function groupBy(array, key) {
+            return array.reduce(function (acc, obj) {
+                var groupKey = obj[key];
+                acc[groupKey] = acc[groupKey] || [];
+                acc[groupKey].push(obj);
+                return acc;
+            }, {});
         }
+
+
+
 
 
 

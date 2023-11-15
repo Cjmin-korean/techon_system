@@ -6119,6 +6119,30 @@ module.exports = function (app) {
     });
     // **** start itemname,materialwidth변수로  chk확인 쿼리      
     sql.connect(config).then(pool => {
+        app.post('/api/selectslitingplantest', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                // .input('itemname', sql.NVarChar, req.body.itemname)
+                // .input('materialwidth', sql.Int, req.body.materialwidth)
+
+                .query(
+                    "select " +
+                    " * " +
+                    " from " +
+                    " sliting "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
         app.post('/api/selectlot', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
