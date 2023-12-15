@@ -1122,28 +1122,24 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT " +
-                    "id," +
-                    "bomno," +
-                    "part," +
-                    "modelname," +
-                    "itemname," +
-                    "customer," +
-                    "itemcode," +
-                    "working," +
-                    "cavity," +
-                    "onepidding," +
-                    "twopidding," +
-                    "status," +
-                    "one," +
-                    "two," +
-                    "rev," +
-                    "insertdate," +
-                    "updatedate," +
-                    "cost," +
-                    "minus," +
-                    "itemprice,direction,pcs, " +
-                    "ROUND(cost/itemprice*100, 1) AS pcent" +
-                    " FROM iteminfo ")
+                    "    I.BOMNO, " +
+                    "    I.PART, " +
+                    "    I.MODELNAME, " +
+                    "    I.ITEMNAME, " +
+                    "    I.CUSTOMER, " +
+                    "    I.ITEMCODE, " +
+                    "    I.ITEMPRICE, " +
+                    "    COALESCE(SUM(B.COST), 0) AS TOTALCOST, " +
+                    "    CASE " +
+                    "        WHEN I.ITEMPRICE = 0 THEN 0 " +
+                    "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE, 1) " +
+                    "    END AS COSTPRICERATIO " +
+                    "FROM " +
+                    "    ITEMINFO I " +
+                    "LEFT JOIN " +
+                    "    BOMMANAGEMENT B ON I.BOMNO = B.BOMNO " +
+                    "GROUP BY " +
+                    "    I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE;            ")
 
                 .then(result => {
 
@@ -4011,11 +4007,12 @@ module.exports = function (app) {
                 .input('ordercount', sql.Float, req.body.ordercount)
                 .input('workpart', sql.NVarChar, req.body.workpart)
                 .input('additionalnotes', sql.Float, req.body.additionalnotes)
+                .input('itemprice', sql.Float, req.body.itemprice)
 
 
                 .query(
-                    'insert into iteminfo(updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, part, working, direction, cost, ordercount, additionalnotes,workpart)' +
-                    ' values(@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @part, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart)'
+                    'insert into iteminfo(itemprice,updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, part, working, direction, cost, ordercount, additionalnotes,workpart)' +
+                    ' values(@itemprice,@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @part, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart)'
                 )
                 .then(result => {
 
@@ -4032,13 +4029,15 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
-            
+
 
 
                 .input('savedate', sql.NVarChar, req.body.savedate)
+                .input('main', sql.NVarChar, req.body.main)
                 .input('bomno', sql.NVarChar, req.body.bomno)
                 .input('model', sql.NVarChar, req.body.model)
                 .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('materialname', sql.NVarChar, req.body.materialname)
                 .input('status', sql.NVarChar, req.body.status)
                 .input('char', sql.NVarChar, req.body.char)
                 .input('etc', sql.NVarChar, req.body.etc)
@@ -4058,15 +4057,15 @@ module.exports = function (app) {
                 .input('length', sql.Float, req.body.length)
                 .input('sqmprice', sql.Float, req.body.sqmprice)
                 .input('rollprice', sql.Float, req.body.rollprice)
-                .input('unit', sql.Float, req.body.unit)
+                .input('unit', sql.NVarChar, req.body.unit)
                 .input('manufacterer', sql.NVarChar, req.body.manufacterer)
                 .input('supplier', sql.NVarChar, req.body.supplier)
 
 
 
                 .query(
-                    'insert into bommanagement(insertdate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier)' +
-                    ' values(@insertdate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier)'
+                    'insert into bommanagement(main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier)' +
+                    ' values(@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier)'
                 )
                 .then(result => {
 
