@@ -573,6 +573,114 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectshipmentinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " SELECT " +
+                    " *  " +
+                    " FROM shipmentinput where revnum='1' order by month asc")
+
+                .then(result => {
+
+                    // console.log('내가보고싶은거', result.recordset)
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectsampleorder', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "select " +
+                    "insertdate, " +
+                    "orderdate, " +
+                    "outdate, " +
+                    "bomno, " +
+                    "customer, " +
+                    "modelname, " +
+                    "itemname, " +
+                    "materialname, " +
+                    "rev, " +
+                    "pcs, " +
+                    "pcscount, " +
+                    "ordercount, " +
+                    "productcount, " +
+                    "inspectioncount, " +
+                    "part, " +
+                    "status, " +
+                    "outtime, " +
+                    "specification, " +
+                    "chung, " +
+                    "itemprice, " +
+                    "(itemprice*ordercount)'sumitemprice', " +
+                    " purchaseprice, " +
+                    " (purchaseprice*productcount)'purchprice', " +
+                    "deadline, " +
+                    "employee, " +
+                    "etc " +
+                    "from " +
+                    "sampleorderinput")
+
+                .then(result => {
+
+                    // console.log('내가보고싶은거', result.recordset)
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/searchpinacle', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    'SELECT ' +
+                    '* ' +
+                    'FROM iteminfo where bomno=@bomno')
+
+                .then(result => {
+
+                    // console.log('내가보고싶은거', result.recordset)
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -1025,6 +1133,7 @@ module.exports = function (app) {
                     "cavity," +
                     "onepidding," +
                     "twopidding," +
+                    "status," +
                     "one," +
                     "two," +
                     "rev," +
@@ -1032,8 +1141,174 @@ module.exports = function (app) {
                     "updatedate," +
                     "cost," +
                     "minus," +
-                    "itemprice" +
+                    "itemprice,direction,pcs, " +
+                    "ROUND(cost/itemprice*100, 1) AS pcent" +
                     " FROM iteminfo ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/bomfinalsheet', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "     madecustomer, " +
+
+                    "     SUM(CASE WHEN part2 = '양산' THEN (ordercount * orderprice) * 1.1 ELSE 0 END) AS 'final1', " +
+                    "     SUM(CASE WHEN part2 = '샘플' THEN (ordercount * orderprice) * 1.1 ELSE 0 END) AS 'final2' " +
+
+                    " FROM " +
+                    "     bomtoolorder " +
+                    " GROUP BY " +
+                    "     madecustomer")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/bomfinalsheet2', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "     madecustomer, " +
+
+                    "     SUM(CASE WHEN sheet2 = '청구' THEN (ordercount * orderprice) * 1.1 ELSE 0 END) AS 'final1', " +
+                    "     SUM(CASE WHEN sheet2 = '미청구' THEN (ordercount * orderprice) * 1.1 ELSE 0 END) AS 'final2' " +
+
+                    " FROM " +
+                    "     bomtoolorder " +
+                    " GROUP BY " +
+                    "     madecustomer")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/bomtoolorder', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " SELECT " +
+                    " orderdate, " +
+                    " inputdate, " +
+                    " madecustomer, " +
+                    " toolcode, " +
+                    " bomno, " +
+                    " customer, " +
+                    " itemname, " +
+                    " char, " +
+                    " part, " +
+                    " ordercount, " +
+                    " orderprice, " +
+                    " (ordercount*orderprice)'a1', " +
+                    " (ordercount*orderprice)*0.1'a2', " +
+                    " (ordercount*orderprice)*1.1'a3', " +
+                    " part2," +
+                    " sheet2,  " +
+                    " ordercause, " +
+                    " deadline, " +
+                    " employee " +
+                    " from " +
+                    " bomtoolorder")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/bomsheet2', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "     a.customer, " +
+                    "     COALESCE(a.B, '0') AS B, " +
+                    "     COALESCE(a.D, '0') AS D, " +
+                    "     COALESCE(b.E, '0') AS E, " +
+                    "     COALESCE((a.D + b.E - a.B), '0') AS F, " +
+                    "     COALESCE(b.G, '0') AS G, " +
+                    "     COALESCE(a.H, '0') AS H " +
+
+                    " FROM " +
+                    "     (SELECT  " +
+                    "         customer, " +
+                    "         SUM(CASE WHEN part2 = '양산' OR part2 = '샘플' THEN (ordercount * orderprice) * 1.1 ELSE 0 END) AS 'B', " +
+                    "         SUM(CASE WHEN sheet2 = '청구' THEN (ordercount * orderprice) * 1.1 ELSE 0 END) AS 'D', " +
+                    "         SUM(CASE WHEN deadline = '이월' THEN (ordercount * orderprice) * 1.1 ELSE 0 END) AS 'H' " +
+                    "     FROM " +
+                    "         bomtoolorder " +
+                    "     GROUP BY " +
+                    "         customer) a " +
+                    " LEFT JOIN " +
+                    "     (SELECT  " +
+                    "         customer, " +
+                    "         SUM(CASE WHEN chung = '청구' THEN (ordercount * itemprice) * 1.1 ELSE 0 END) AS 'E', " +
+                    "         SUM(CASE WHEN deadline = '이월' THEN (productcount * itemprice) * 1.1 ELSE 0 END) AS 'G' " +
+                    "     FROM " +
+                    "         sampleorderinput " +
+                    "     GROUP BY " +
+                    "         customer) b " +
+                    " ON a.customer = b.customer " +
+                    " ORDER BY " +
+                    "     a.B DESC")
+
 
                 .then(result => {
 
@@ -1123,6 +1398,237 @@ module.exports = function (app) {
                     "SELECT " +
                     "A,B" +
                     " FROM test ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcustomerinformation', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "*" +
+                    " FROM customerinformation ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinformation', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "*" +
+                    " FROM materialinfoinformation ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpurchaseorder', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "*" +
+                    " FROM purchaseorder ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinputinformation', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "*" +
+                    " FROM materialinput ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpurchaseordermodel', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('revnum', sql.Float, req.body.revnum)
+
+                .query(
+
+                    "WITH PriceChangeWithRowNumber AS ( " +
+                    "     SELECT " +
+                    "         bomno, " +
+                    "         modelname, " +
+                    "         itemname, " +
+                    "         customer, " +
+                    "         savedate, " +
+                    "         price, " +
+                    "         ROW_NUMBER() OVER (PARTITION BY bomno ORDER BY savedate ASC) AS row_num_asc, " +
+                    "         ROW_NUMBER() OVER (PARTITION BY bomno ORDER BY savedate DESC) AS row_num_desc " +
+                    "     FROM " +
+                    "         pricechange " +
+                    " ), " +
+                    " BomCostSummary AS ( " +
+                    "     SELECT " +
+                    "         bomno, " +
+                    "         model, " +
+                    "         itemname, " +
+                    "         SUM(cost) AS total_cost " +
+                    "     FROM " +
+                    "         bommanagement " +
+                    "     GROUP BY " +
+                    "         bomno, model, itemname " +
+                    " ), " +
+                    " ShipmentInputSummary AS ( " +
+                    "     SELECT " +
+                    "         bomno, " +
+                    "         SUM(CASE WHEN revnum = @revnum THEN revcount ELSE 0 END) AS totalrevcount, " +
+                    "         SUM(CASE WHEN revnum = @revnum THEN revprice ELSE 0 END) AS totalrevprice, " +
+                    "         SUM(CASE WHEN revnum = '1' THEN revprice ELSE 0 END) AS totalrevpricesiljok " +
+                    "     FROM " +
+                    "         shipmentinput " +
+                    "     WHERE " +
+                    "         month BETWEEN '2023-12-01' AND '2023-12-31' " +
+                    "     GROUP BY " +
+                    "         bomno " +
+                    " ), " +
+                    " ItemInputSummary AS ( " +
+                    "     SELECT " +
+                    "         bomno, " +
+                    "         SUM(quantity) AS total_quantity " +
+                    "     FROM " +
+                    "         iteminput " +
+                    "     GROUP BY " +
+                    "         bomno " +
+                    " ), " +
+                    " ProductionOrderSummary AS ( " +
+                    "     SELECT " +
+                    "         bomno, " +
+                    "         SUM(quantity) AS total_production_quantity " +
+                    "     FROM " +
+                    "         orderlist " +
+                    "     WHERE " +
+                    "         orderstatus = '생산확정' " +
+                    "     GROUP BY " +
+                    "         bomno " +
+                    " ), " +
+                    " RollPriceSummary AS ( " +
+                    "     SELECT " +
+                    "         ol.bomno, " +
+                    "         SUM(COALESCE(mi.rollprice, 0)) AS total_rollprice " +
+                    "     FROM " +
+                    "         orderlist ol " +
+                    "     JOIN " +
+                    "         bommanagement bm ON ol.bomno = bm.bomno " +
+                    "     LEFT JOIN " +
+                    "         Materialinfoinformation mi ON bm.materialname = mi.materialname " +
+                    "     WHERE " +
+                    "         ol.orderstatus = '생산확정' " +
+                    "     GROUP BY " +
+                    "         ol.bomno " +
+                    " ) " +
+                    " SELECT " +
+                    "     bm.bomno, " +
+                    "     pc_first.customer, " +
+                    "     COUNT(bm.bomno) AS bomnocount, " +
+                    "     pc_first.price AS firstprice, " +
+                    "     ROUND(bcs.total_cost / pc_first.price * 100, 1) AS 'firstpercent', " +
+                    "     pc_last.price AS nowprice, " +
+                    "     bcs.total_cost AS 'nowcost', " +
+                    "     ROUND(bcs.total_cost / pc_last.price * 100, 1) AS 'nowpercent', " +
+                    "     sis.totalrevcount, " +
+                    "     sis.totalrevprice, " +
+                    "     sis.totalrevpricesiljok, " +
+                    "     ROUND((sis.totalrevpricesiljok / sis.totalrevprice) * 100, 1) AS achievementrate, " +
+                    "     COALESCE(sis.totalrevcount - COALESCE(iis.total_quantity, 0), 0) AS adjustedtotalrevcount, " +
+                    "     COALESCE(iis.total_quantity, 0) AS totalquantityfromiteminput, " +
+                    "     COALESCE(pos.total_production_quantity, 0) AS totalproductionquantity, " +
+                    "     COALESCE(rps.total_rollprice, 0) AS total_rollprice " +
+                    " FROM " +
+                    "     bommanagement bm " +
+                    " LEFT JOIN " +
+                    "     PriceChangeWithRowNumber pc_first ON bm.bomno = pc_first.bomno AND pc_first.row_num_asc = 1 " +
+                    " LEFT JOIN " +
+                    "     PriceChangeWithRowNumber pc_last ON bm.bomno = pc_last.bomno AND pc_last.row_num_desc = 1 " +
+                    " LEFT JOIN " +
+                    "     BomCostSummary bcs ON bm.bomno = bcs.bomno " +
+                    " LEFT JOIN " +
+                    "     ShipmentInputSummary sis ON bm.bomno = sis.bomno " +
+                    " LEFT JOIN " +
+                    "     ItemInputSummary iis ON bm.bomno = iis.bomno " +
+                    " LEFT JOIN " +
+                    "     ProductionOrderSummary pos ON bm.bomno = pos.bomno " +
+                    " LEFT JOIN " +
+                    "     RollPriceSummary rps ON bm.bomno = rps.bomno " +
+                    " GROUP BY " +
+                    "     bm.bomno, pc_first.customer, bcs.total_cost, pc_first.price, pc_last.price, sis.totalrevcount, sis.totalrevprice, sis.totalrevpricesiljok, iis.total_quantity, pos.total_production_quantity, rps.total_rollprice               ")
 
                 .then(result => {
 
@@ -2246,10 +2752,13 @@ module.exports = function (app) {
                 .input('pricesum', sql.Float, req.body.pricesum)
                 .input('status', sql.NVarChar, req.body.status)
                 .input('ad', sql.NVarChar, req.body.ad)
+                .input('pcs', sql.NVarChar, req.body.pcs)
+                .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
+                .input('processname', sql.NVarChar, req.body.processname)
 
                 .query(
-                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad)' +
-                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad)'
+                    'insert into accountinput(accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname)' +
+                    ' values(@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname)'
                 )
                 .then(result => {
 
@@ -2311,6 +2820,53 @@ module.exports = function (app) {
                 .query(
                     'insert into purchaseorder(orderdate,deliverydate,purchaseordername,customer,managementno,count,employee,status)' +
                     ' values(@orderdate,@deliverydate,@purchaseordername,@customer,@managementno,@count,@employee,@status)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start   영업수주 네임건 등록
+    sql.connect(config).then(pool => {
+        app.post('/api/selectorderlistinformation', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+                .query(
+                    "SELECT " +
+                    "      ol.bomno, " +
+                    "      ol.modelname, " +
+                    "      ol.itemname, " +
+                    "      bm.materialname, " +
+                    "      bm.swidth, " +
+                    "      CEILING(SUM(ol.quantity * bm.mwidth * 0.001 * 1.03)) AS totalquantity1, " +
+                    "        (SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname) AS sum_quantity, " +
+                    "      FLOOR(COALESCE(mi.usewidth, 0) / bm.swidth) AS calculatedvalue, " +
+                    "      CEILING( " +
+                    "          (CEILING(SUM(ol.quantity * bm.mwidth * 0.001 * 1.03)) - ( " +
+                    "              SELECT SUM(quantity)  " +
+                    "              FROM materialinput  " +
+                    "              WHERE materialname = bm.materialname " +
+                    "          )) / (COALESCE(mi.usewidth, 0) / bm.swidth) / mi.length " +
+                    "      ) AS calculated_column " +
+                    "  FROM " +
+                    "      orderlist ol " +
+                    "  JOIN " +
+                    "      bommanagement bm ON ol.bomno = bm.bomno " +
+                    "  LEFT JOIN " +
+                    "      Materialinfoinformation mi ON bm.materialname = mi.materialname " +
+                    "  WHERE " +
+                    "      ol.orderstatus = '생산확정' " +
+                    "  GROUP BY " +
+                    "      ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.swidth, mi.usewidth, mi.length " +
+                    "  ORDER BY " +
+                    "      bm.swidth ASC                "
                 )
                 .then(result => {
 
@@ -2415,6 +2971,25 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/bucakcustomer', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            console.log("11", req)
+            return pool.request()
+                .query(
+                    'SELECT * FROM bucakcustomer')
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -3330,23 +3905,43 @@ module.exports = function (app) {
                 .input('lotno', sql.NVarChar, req.body.lotno)
 
                 .query(
-                    "SELECT  "+
-                    " materialname, "+
-                    " materialwidth, "+
-                    " lotno, "+
-                    " roll,quantity "+
-                    " from "+
-                    " materialinput "+
-                    " where  "+
-                    "  materialname = @materialname   "+
-                    " AND materialwidth = @materialwidth "+
-                    " AND lotno = @lotno "+
+                    "SELECT  " +
+                    " materialname, " +
+                    " materialwidth, " +
+                    " lotno, " +
+                    " roll,quantity " +
+                    " from " +
+                    " materialinput " +
+                    " where  " +
+                    "  materialname = @materialname   " +
+                    " AND materialwidth = @materialwidth " +
+                    " AND lotno = @lotno " +
                     " order by materialwidth asc ")
-                    .then(result => {
+                .then(result => {
 
-                        res.json(result.recordset);
-                        res.end();
-                    });
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/searchingmaterialname', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+
+                .query(
+                    "SELECT * FROM materialinfoinformation WHERE materialname LIKE '%' + @materialname + '%' order by materialname asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
         });
 
     });
@@ -3381,6 +3976,97 @@ module.exports = function (app) {
                 .query(
                     'insert into slitingplan(slitingdate,part,materialname,lotno,classification,materialwidth,m,roll,total,afterlotno,afterm,aftermaterialwidth,afterroll,aftertotal,finalmaterialwidth,finalm,finalroll,finaltotal,orderno,trash)' +
                     ' values(@slitingdate,@part,@materialname,@lotno,@classification,@materialwidth,@m,@roll,@total,@afterlotno,@afterm,@aftermaterialwidth,@afterroll,@aftertotal,@finalmaterialwidth,@finalm,@finalroll,@finaltotal,@orderno,@trash)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/bommasssaveiteminfo', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+
+                .input('insertdate', sql.NVarChar, req.body.insertdate)
+                .input('updatedate', sql.NVarChar, req.body.updatedate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('pcs', sql.NVarChar, req.body.pcs)
+                .input('cavity', sql.Float, req.body.cavity)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('working', sql.NVarChar, req.body.working)
+                .input('direction', sql.NVarChar, req.body.direction)
+                .input('cost', sql.Float, req.body.cost)
+                .input('ordercount', sql.Float, req.body.ordercount)
+                .input('workpart', sql.NVarChar, req.body.workpart)
+                .input('additionalnotes', sql.Float, req.body.additionalnotes)
+
+
+                .query(
+                    'insert into iteminfo(updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, part, working, direction, cost, ordercount, additionalnotes,workpart)' +
+                    ' values(@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @part, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/bommasssavebommanagement', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+            
+
+
+                .input('savedate', sql.NVarChar, req.body.savedate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('model', sql.NVarChar, req.body.model)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('materialwidth', sql.Float, req.body.materialwidth)
+                .input('using', sql.NVarChar, req.body.using)
+                .input('onepid', sql.Float, req.body.onepid)
+                .input('twopid', sql.Float, req.body.twopid)
+                .input('soyo', sql.Float, req.body.soyo)
+                .input('ta', sql.Float, req.body.ta)
+                .input('allta', sql.Float, req.body.allta)
+                .input('talength', sql.Float, req.body.talength)
+                .input('loss', sql.Float, req.body.loss)
+                .input('cost', sql.Float, req.body.cost)
+                .input('rlcut', sql.Float, req.body.rlcut)
+                .input('rlproduct', sql.Float, req.body.rlproduct)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.Float, req.body.unit)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+
+
+
+                .query(
+                    'insert into bommanagement(insertdate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier)' +
+                    ' values(@insertdate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier)'
                 )
                 .then(result => {
 
@@ -3618,6 +4304,65 @@ module.exports = function (app) {
                     " datediff(day,salesorder,shipment)'difference' " +
                     " from " +
                     " accountinput where status='완료' ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start 영업진행 조회 쿼리 
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpurchasestatusmodel', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    "WITH PriceChangeWithRowNumber AS ( " +
+                    "    SELECT " +
+                    "        bomno, " +
+                    "        modelname, " +
+                    "        itemname,  " +
+                    "        customer, " +
+                    "        savedate, " +
+                    "        price, " +
+                    "        ROW_NUMBER() OVER (PARTITION BY bomno ORDER BY savedate ASC) AS row_num_asc, " +
+                    "        ROW_NUMBER() OVER (PARTITION BY bomno ORDER BY savedate DESC) AS row_num_desc " +
+                    "    FROM " +
+                    "        pricechange " +
+                    "), " +
+                    "BomCostSummary AS ( " +
+                    "    SELECT " +
+                    "        bomno, " +
+                    "        model,  " +
+                    "        itemname, " +
+                    "        SUM(cost) AS total_cost " +
+                    "    FROM " +
+                    "        bommanagement " +
+                    "    GROUP BY " +
+                    "        bomno, model, itemname " +
+                    ") " +
+                    "SELECT " +
+                    "    bm.bomno, " +
+                    "    pc_first.customer, " +
+                    "    COUNT(bm.bomno) AS bomnocount, " +
+                    "    pc_first.price AS firstprice, " +
+                    "    ROUND(bcs.total_cost / pc_first.price * 100, 1) AS 'firstpercent', " +
+                    "    pc_last.price AS nowprice, " +
+                    "    bcs.total_cost AS 'nowcost', " +
+                    "    ROUND(bcs.total_cost / pc_last.price * 100, 1) AS 'nowpercent' " +
+                    "FROM " +
+                    "    bommanagement bm " +
+                    "LEFT JOIN " +
+                    "    PriceChangeWithRowNumber pc_first ON bm.bomno = pc_first.bomno AND pc_first.row_num_asc = 1 " +
+                    "LEFT JOIN " +
+                    "    PriceChangeWithRowNumber pc_last ON bm.bomno = pc_last.bomno AND pc_last.row_num_desc = 1 " +
+                    "LEFT JOIN " +
+                    "    BomCostSummary bcs ON bm.bomno = bcs.bomno " +
+                    "GROUP BY " +
+                    "    bm.bomno, bcs.total_cost, pc_first.price, pc_last.price ,pc_first.customer;")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -6230,15 +6975,164 @@ module.exports = function (app) {
 
 
                 .query(
-                    " select " +
-                    " bomno, " +
-                    " modelname, " +
-                    " itemname, " +
-                    " customer, " +
-                    " quantity, " +
-                    " price " +
-                    " from " +
+                    " select * from " +
+
+                    " iteminfo"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/accountshipment', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    " select * from " +
+
                     " accountinput"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/shipmentinput', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    " SELECT " +
+                    "     customer, " +
+                    "     bomno, " +
+                    "     modelname, " +
+                    "     itemname, " +
+                    "     itemprice,  " +
+                    "     prevrevcount, " +
+                    "     prevrevprice/1000000.0'prevrevprice', " +
+                    "     nowrevcount, " +
+                    "     nowrevprice/1000000.0'nowrevprice', " +
+                    "     rev1count, " +
+                    "     rev1price, " +
+                    "     CASE WHEN rev1count = 0 THEN 0 ELSE nowrevcount / rev1count * 100 END AS rev1countratio, " +
+                    "     rev2count, " +
+                    "     rev2price, " +
+                    "     CASE WHEN rev2count = 0 THEN 0 ELSE nowrevcount / rev2count * 100 END AS rev2countratio, " +
+                    "     rev3count, " +
+                    "     rev3price, " +
+                    "     CASE WHEN rev3count = 0 THEN 0 ELSE nowrevcount / rev3count * 100 END AS rev3countratio, " +
+                    "     rev4count, " +
+                    "     rev4price, " +
+                    "     CASE WHEN rev4count = 0 THEN 0 ELSE nowrevcount / rev4count * 100 END AS rev4countratio, " +
+                    "     rev5count, " +
+                    "     rev5price, " +
+                    "     CASE WHEN rev5count = 0 THEN 0 ELSE nowrevcount / rev5count * 100 END AS rev5countratio " +
+                    " FROM ( " +
+                    "     SELECT " +
+                    "         customer, " +
+                    "         bomno, " +
+                    "         modelname, " +
+                    "         itemname, " +
+                    "         itemprice, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-11-01' AND '2023-11-30' THEN revcount ELSE 0 END) AS prevrevcount, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-11-01' AND '2023-11-30' THEN revprice ELSE 0 END) AS prevrevprice, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' THEN revcount ELSE 0 END) AS nowrevcount, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' THEN revprice ELSE 0 END) AS nowrevprice, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231201 THEN revcount  ELSE 0 END) AS rev1count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231201 THEN revprice / 1000000.0 ELSE 0 END) AS rev1price, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231202 THEN revcount ELSE 0 END) AS rev2count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231202 THEN revprice / 1000000.0 ELSE 0 END) AS rev2price, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231203 THEN revcount ELSE 0 END) AS rev3count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231203 THEN revprice / 1000000.0 ELSE 0 END) AS rev3price, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231204 THEN revcount ELSE 0 END) AS rev4count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231204 THEN revprice / 1000000.0 ELSE 0 END) AS rev4price, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231205 THEN revcount ELSE 0 END) AS rev5count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231205 THEN revprice / 1000000.0 ELSE 0 END) AS rev5price " +
+                    "     FROM shipmentinput " +
+                    "     GROUP BY itemname, customer, bomno, modelname, itemprice " +
+                    " ) AS subquery "
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/shipmentinput1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    "SELECT " +
+                    "     customer, " +
+                    "     bomno, " +
+                    "     modelname, " +
+                    "     itemname, " +
+                    "     itemprice, " +
+                    "     prevrevcount, " +
+                    "     prevrevprice/1000000.0'prevrevprice', " +
+                    "     nowrevcount, " +
+                    "     nowrevprice/1000000.0'nowrevprice', " +
+                    "     rev1count,   " +
+                    "     rev1price,  " +
+                    "     rev2count,  " +
+                    "     rev2price,  " +
+                    "     rev3count,  " +
+                    "     rev3price,  " +
+                    "     rev4count,  " +
+                    "     rev4price  " +
+                    " FROM (  " +
+                    "     SELECT " +
+                    "         customer, " +
+                    "         bomno, " +
+                    "         modelname, " +
+                    "         itemname, " +
+                    "         itemprice, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-11-01' AND '2023-11-30' THEN revcount ELSE 0 END) AS prevrevcount, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-11-01' AND '2023-11-30' THEN revprice ELSE 0 END) AS prevrevprice, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' THEN revcount ELSE 0 END) AS nowrevcount, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' THEN revprice ELSE 0 END) AS nowrevprice, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231201 THEN revcount  ELSE 0 END) AS rev1count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 231201 THEN revprice / 1000000.0 ELSE 0 END) AS rev1price, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 240101 THEN revcount ELSE 0 END) AS rev2count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 240101 THEN revprice / 1000000.0 ELSE 0 END) AS rev2price, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 240201 THEN revcount ELSE 0 END) AS rev3count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 240201 THEN revprice / 1000000.0 ELSE 0 END) AS rev3price, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 240301 THEN revcount ELSE 0 END) AS rev4count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 240301 THEN revprice / 1000000.0 ELSE 0 END) AS rev4price, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 240401 THEN revcount ELSE 0 END) AS rev5count, " +
+                    "         SUM(CASE WHEN CONVERT(DATE, month, 23) BETWEEN '2023-12-01' AND '2023-12-31' AND revnum = 240401 THEN revprice / 1000000.0 ELSE 0 END) AS rev5price " +
+                    "     FROM shipmentinput " +
+                    "     GROUP BY itemname, customer, bomno, modelname, itemprice " +
+                    " ) AS subquery                 "
                 )
                 .then(result => {
 
@@ -6263,6 +7157,271 @@ module.exports = function (app) {
                     " Select" +
                     "  *" +
                     "  from inspection order by final asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/businessplan', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    " select  " +
+                    " site, " +
+                    " customer, " +
+                    " codenumber, " +
+                    " bomno, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " team, " +
+                    " aea, " +
+                    " aprice, " +
+                    " aea*aprice/1000000'acost'," +
+                    " bea, " +
+                    " bprice, " +
+                    " bea*bprice/1000000'bcost'," +
+                    " cea, " +
+                    " cprice, " +
+                    " cea*cprice/1000000'ccost'," +
+                    " dea, " +
+                    " dprice, " +
+                    " dea*dprice/1000000'dcost'," +
+                    " eea, " +
+                    " eprice, " +
+                    " eea*eprice/1000000'ecost'," +
+                    " fea, " +
+                    " fprice, " +
+                    " fea*fprice/1000000'fcost'," +
+                    " gea, " +
+                    " gprice, " +
+                    " gea*gprice/1000000'gcost'," +
+                    " hea, " +
+                    " hprice, " +
+                    " hea*hprice/1000000'hcost'," +
+                    " iea, " +
+                    " iprice, " +
+                    " iea*iprice/1000000'icost'," +
+                    " jea, " +
+                    " jprice, " +
+                    " jea*jprice/1000000'jcost'," +
+                    " kea, " +
+                    " kprice, " +
+                    " kea*kprice/1000000'kcost'," +
+                    " lea, " +
+                    " lprice, " +
+                    " lea*lprice/1000000'lcost'" +
+                    " from " +
+                    " businessplan"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/businessplanrev', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    "SELECT " +
+                    "     COALESCE(s.customer, b.customer) AS customer, " +
+                    "     COALESCE(b.total_lcost, 0) AS total_lcost, " +
+                    "     COALESCE(s.total_revprice_231201, 0) AS total_revprice_231201, " +
+                    "     COALESCE(s.total_revprice_231202, 0) AS total_revprice_231202, " +
+                    "     COALESCE(s.total_revprice_231203, 0) AS total_revprice_231203, " +
+                    "     COALESCE(s.total_revprice_231204, 0) AS total_revprice_231204, " +
+                    "     COALESCE(s.total_revprice_231205, 0) AS total_revprice_231205, " +
+                    "     COALESCE(r.total_revprice_for_renum_1, 0) AS total_revprice_for_renum_1 " +
+                    " FROM " +
+                    "     (SELECT " +
+                    "         customer, " +
+                    "         SUM(CASE WHEN revnum = '231201' THEN revprice ELSE 0 END)/1000000 AS total_revprice_231201, " +
+                    "         SUM(CASE WHEN revnum = '231202' THEN revprice ELSE 0 END)/1000000 AS total_revprice_231202, " +
+                    "         SUM(CASE WHEN revnum = '231203' THEN revprice ELSE 0 END)/1000000 AS total_revprice_231203, " +
+                    "         SUM(CASE WHEN revnum = '231204' THEN revprice ELSE 0 END)/1000000 AS total_revprice_231204, " +
+                    "         SUM(CASE WHEN revnum = '231205' THEN revprice ELSE 0 END)/1000000 AS total_revprice_231205 " +
+                    "     FROM " +
+                    "         shipmentinput " +
+                    "     WHERE " +
+                    "         revnum IN ('231201', '231202', '231203', '231204', '231205') " +
+                    "     GROUP BY " +
+                    "         customer) AS s " +
+                    " FULL OUTER JOIN " +
+                    "     (SELECT " +
+                    "         customer, " +
+                    "         SUM(lea*lprice)/1000000 AS total_lcost " +
+                    "     FROM " +
+                    "         businessplan " +
+                    "     GROUP BY " +
+                    "         customer, site, codenumber) AS b " +
+                    " ON " +
+                    "     s.customer = b.customer " +
+                    " LEFT JOIN " +
+                    "     (SELECT " +
+                    "         customer, " +
+                    "         SUM(revprice)/1000000 AS total_revprice_for_renum_1 " +
+                    "     FROM " +
+                    "         shipmentinput " +
+                    "     WHERE " +
+                    "         revnum = '1' " +
+                    "     GROUP BY " +
+                    "         customer) AS r " +
+                    " ON " +
+                    "     COALESCE(s.customer, b.customer) = r.customer " +
+                    " ORDER BY " +
+                    "     total_lcost DESC               "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/businessplanyear', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    "SELECT " +
+                    "     SUM(aea * aprice)/1000000 AS 'a', " +
+                    "     SUM(bea * bprice)/1000000 AS 'b', " +
+                    "     SUM(cea * cprice)/1000000 AS 'c', " +
+                    "     SUM(dea * dprice)/1000000 AS 'd', " +
+                    "     SUM(eea * eprice)/1000000 AS 'e', " +
+                    "     SUM(fea * fprice)/1000000 AS 'f', " +
+                    "     SUM(gea * gprice)/1000000 AS 'g', " +
+                    "     SUM(hea * hprice)/1000000 AS 'h', " +
+                    "     SUM(iea * iprice)/1000000 AS 'i', " +
+                    "     SUM(jea * jprice)/1000000 AS 'j', " +
+                    "     SUM(kea * kprice)/1000000 AS 'k', " +
+                    "     SUM(lea * lprice)/1000000 AS 'l' " +
+                    " FROM " +
+                    "     businessplan;"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/businessplanyearsiljok', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    "SELECT " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-01-01' AND '2023-01-31' THEN revprice ELSE 0 END)/1000000 AS 'aa', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-02-01' AND '2023-02-28' THEN revprice ELSE 0 END)/1000000 AS 'ab', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-03-01' AND '2023-03-31' THEN revprice ELSE 0 END)/1000000 AS 'ac', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-04-01' AND '2023-04-30' THEN revprice ELSE 0 END)/1000000 AS 'ad', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-05-01' AND '2023-05-31' THEN revprice ELSE 0 END)/1000000 AS 'ae', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-06-01' AND '2023-06-30' THEN revprice ELSE 0 END)/1000000 AS 'af', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-07-01' AND '2023-07-31' THEN revprice ELSE 0 END)/1000000 AS 'ag', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-08-01' AND '2023-08-31' THEN revprice ELSE 0 END)/1000000 AS 'ah', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-09-01' AND '2023-09-30' THEN revprice ELSE 0 END)/1000000 AS 'ai', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-10-01' AND '2023-10-31' THEN revprice ELSE 0 END)/1000000 AS 'aj', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-11-01' AND '2023-11-30' THEN revprice ELSE 0 END)/1000000 AS 'ak', " +
+                    "     SUM(CASE WHEN month BETWEEN '2023-12-01' AND '2023-12-31' THEN revprice ELSE 0 END)/1000000 AS 'al' " +
+                    " FROM " +
+                    "     shipmentinput " +
+                    " WHERE " +
+                    "     revnum = '1' " +
+                    "     AND month BETWEEN '2023-01-01' AND '2023-12-31';"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/businessplanyearprev', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    "SELECT " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-01-01' AND '2022-01-31' THEN revprice ELSE 0 END)/1000000 AS 'aaa', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-02-01' AND '2022-02-28' THEN revprice ELSE 0 END)/1000000 AS 'aab', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-03-01' AND '2022-03-31' THEN revprice ELSE 0 END)/1000000 AS 'aac', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-04-01' AND '2022-04-30' THEN revprice ELSE 0 END)/1000000 AS 'aad', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-05-01' AND '2022-05-31' THEN revprice ELSE 0 END)/1000000 AS 'aae', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-06-01' AND '2022-06-30' THEN revprice ELSE 0 END)/1000000 AS 'aaf', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-07-01' AND '2022-07-31' THEN revprice ELSE 0 END)/1000000 AS 'aag', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-08-01' AND '2022-08-31' THEN revprice ELSE 0 END)/1000000 AS 'aah', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-09-01' AND '2022-09-30' THEN revprice ELSE 0 END)/1000000 AS 'aai', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-10-01' AND '2022-10-31' THEN revprice ELSE 0 END)/1000000 AS 'aaj', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-11-01' AND '2022-11-30' THEN revprice ELSE 0 END)/1000000 AS 'aak', " +
+                    "     SUM(CASE WHEN month BETWEEN '2022-12-01' AND '2022-12-31' THEN revprice ELSE 0 END)/1000000 AS 'aal' " +
+                    " FROM " +
+                    "     shipmentinput " +
+                    " WHERE " +
+                    "     revnum = '1' " +
+                    "     AND month BETWEEN '2022-01-01' AND '2022-12-31';"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/sampleorder', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    "select * from sampleorder"
                 )
                 .then(result => {
 
@@ -6339,6 +7498,74 @@ module.exports = function (app) {
                 .query(
                     'insert into quality(date,materialname,status)' +
                     ' values(@date,@materialname,@status)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/insertpinacle', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('insertdate', sql.NVarChar, req.body.insertdate)
+                .input('toolcode', sql.NVarChar, req.body.toolcode)
+                .input('madedate', sql.NVarChar, req.body.madedate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('inputprice', sql.Float, req.body.inputprice)
+                .input('outputprice', sql.Float, req.body.outputprice)
+
+
+                .query(
+                    'insert into sampleorder(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice)' +
+                    ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/inputexcelshipmentsiljok', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('month', sql.NVarChar, req.body.month)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('itemprice', sql.Float, req.body.itemprice)
+                .input('revnum', sql.Float, req.body.revnum)
+                .input('revcount', sql.Float, req.body.revcount)
+                .input('revprice', sql.Float, req.body.revprice)
+
+
+                .query(
+                    'insert into shipmentinput(month,customer,bomno,modelname,itemname,itemprice,revnum,revcount,revprice)' +
+                    ' values(@month,@customer,@bomno,@modelname,@itemname,@itemprice,@revnum,@revcount,@revprice)'
                 )
                 .then(result => {
 
