@@ -100,6 +100,83 @@
         </tbody>
 
     </table>
+    <table style="width:50%">
+        <tr>
+            <th style="background-color: whitesmoke;">문제점</th>
+            <th style="background-color: whitesmoke;">해결유무</th>
+            <th style="background-color: whitesmoke;">비고</th>
+        </tr>
+        <tr>
+            <td>검색창 오류</td>
+            <td>해결완료</td>
+            <td>SQM단가가 공백인게 있어서 막혔던거였습니다. 죄송합니다</td>
+        </tr>
+        <tr>
+            <td>합지버튼</td>
+            <td>보류</td>
+            <td>합지는 회의를 통해 해결해야할 것 같습니다</td>
+        </tr>
+        <tr>
+            <td>검색시 복사 공백 제거</td>
+            <td>해결완료</td>
+            <td>마지막에 띄어쓰기는 되지만 검색시 띄어쓰기 제거되어 검색됩니다.</td>
+        </tr>
+        <tr>
+            <td>자재분류추가</td>
+            <td>80%</td>
+            <td>지금은 자재에서 자재분류를 알파벳으로 진행하였는데 분류하여 한글로 넣겠습니다.</td>
+        </tr>
+        <tr>
+            <td>원자재 자재폭&사용폭 공란</td>
+            <td>해결완료</td>
+            <td>행 추가시 공란으로 추가됩니다.</td>
+        </tr>
+        <tr>
+            <td>키보드 방향키 사용</td>
+            <td>50%</td>
+            <td>왼쪽 오른쪽 가능 up/down 시도중</td>
+        </tr>
+        <tr>
+            <td>Esc 창꺼짐 사용</td>
+            <td>해결완료</td>
+            <td>ESC키 누르면 자재검색창 닫힙니다.</td>
+        </tr>
+        <tr>
+            <td>자재추가후 자동 칸 생성</td>
+            <td>해결완료</td>
+            <td>자재 선택후 자동으로 한칸이 생성됩니다.</td>
+        </tr>
+        <tr>
+            <td>고객사 검색창</td>
+            <td>해결완료</td>
+            <td>고객사명 text 에서 더블클릭 후 검색 (기초정보 거래처정보에서 끌어옴)</td>
+        </tr>
+        <tr>
+            <td>고객코드 선택창 'None'가능</td>
+            <td>?</td>
+            <td>고객사코드는 어디서 끌고 와야하는지?</td>
+        </tr>
+        <tr>
+            <td>고객사코드 공란 가능</td>
+            <td>?</td>
+            <td>고객사코드 공란 말고 공란이 될수 있는게 또 있는지?</td>
+        </tr>
+        <tr>
+            <td>등록 확인창</td>
+            <td>작업중</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>수정 가능창</td>
+            <td>작업중</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>원가&소요량</td>
+            <td>작업중</td>
+            <td>작업하면서 계속 테스트 진행중입니다.</td>
+        </tr>
+    </table>
     <div id="editModal">
         <div class="mainheader">
             <h1>양산BOM 신규생성</h1>
@@ -121,7 +198,8 @@
                     <td><label for="editAuthor">BOMNO</label></td>
                     <td><input type="text" id="bomno-save" value="" autocomplete="off"></td>
                     <td><label for="editAuthor">고객사명</label></td>
-                    <td><input type="text" id="customer-save" value="" autocomplete="off"></td>
+                    <td><input type="text" ondblclick="customerDoubleClick();"  style="background-color: whitesmoke; cursor: pointer;" readonly
+                            id="customer-save" value="" autocomplete="off"></td>
                     <td><label for="editDate">모델명</label></td>
                     <td><input type="text" id="modelname-save" value="" autocomplete="off"></td>
                     <td><label for="editDate">제품명</label></td>
@@ -140,7 +218,7 @@
 
 
                     <td><label for="editDate">고객코드</label></td>
-                    <td><input type="text" id="itemcode-save" value="" autocomplete="off"></td>
+                    <td><select id="itemcode-save"><option value=""></option><option value="None">None</option></select></td>
                     <td><label for="editDate">공정구분</label></td>
                     <td><select id="workpart-save" style="font-weight: bold;">
                             <option style="font-weight: bold; font-size: 15px;" value=""></option>
@@ -188,6 +266,7 @@
                             <th style="width: 50px;" rowspan="2">작업<br>차수</th>
                             <th style="width: 130px;" rowspan="2">메인자재</th>
                             <th style="width: 200px;" rowspan="2">원자재명</th>
+                            <th style="width: 70px;" rowspan="2">자재종류</th>
                             <th rowspan="2" style="width: 400px;">자재별 특이사항</th>
                             <th style="width: 70px;">원단폭</th>
                             <th style="width: 70px;">사용가능폭</th>
@@ -248,6 +327,9 @@
                                 <td><input type="text" id="materialname-input"
                                         style="background-color: whitesmoke; cursor: pointer;" readonly
                                         ondblclick="handleDoubleClick();" value="" autocomplete="off"></td>
+                                <td><input type="text" id="materialclassification-input"
+                                        style="background-color: whitesmoke; " readonly
+                                        value="" autocomplete="off"></td>
                                 <td><input type="text" id="etc-input" value="" autocomplete="off"></td>
                                 <td><input type="text" style="text-align:right;" id="materialwidth-input"
                                         oninput="updateSoyoValue(); updateRlProductInput(); updateRlcutValue();calculateCost();"
@@ -629,8 +711,8 @@
             <span class="close" onclick="materialnamesearchcloseModal()">&times;</span>
             <input type="text" id="numericPart" style="width: 20px; visibility: hidden;">
         </div>
-        <input type="text" id="materialnameinput" placeholder="자재명을 입력하세요" style="font-size: 16px; font-weight: bold;"
-            onkeydown="handleEnterKey(event)" autocomplete="off">
+        <input type="text" id="materialnameinput" placeholder="자재명을 입력 후 Enter를 누르세요"
+            style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey(event)" autocomplete="off">
 
         <div style="height:600px; max-height: 600px; overflow-y: auto;">
             <table class="styled-table" id="datatable">
@@ -640,9 +722,34 @@
                         <th style="width: auto; text-align: center;" onclick="sortTable(1)">자재폭(mm)</th>
                         <th style="width: auto; text-align: center;" onclick="sortTable(2)">길이(M)</th>
                         <th style="width: auto; text-align: center;" onclick="sortTable(3)">제조사</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(4)">자재종류</th>
                     </tr>
                 </thead>
                 <tbody id="searchingmaterialinfobody">
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div id="customernamesearch">
+        <div class="mainheader">
+            <h1>고객사 검색</h1>
+            <span class="close" onclick="customercloseModal()">&times;</span>
+            <input type="text" id="numericPart" style="width: 20px; visibility: hidden;">
+        </div>
+        <input type="text" id="customernameinput" placeholder="고객사명을 입력 후 Enter를 누르세요"
+            style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey1(event)" autocomplete="off">
+
+        <div style="height:600px; max-height: 600px; overflow-y: auto;">
+            <table class="styled-table" id="datatable">
+                <thead>
+                    <tr>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">고객사명</th>
+                      
+                    </tr>
+                </thead>
+                <tbody id="searchingcustomernameinfobody">
 
                 </tbody>
             </table>
@@ -770,13 +877,41 @@
             $('#Datatbody').on('dblclick', 'tr', function () {
                 openEditModal2(this);
             });
+            $(document).keydown(function (event) {
+                // Check if the pressed key is the Escape key (key code 27)
+                if (event.which === 27) {
+                    $('#materialnamesearch').hide();
+                    $('#customernamesearch').hide();
+                }
+            });
+          
+            var inputs = $('input[id$="-input"]');
+
+            // Attach a keydown event listener to each input
+            inputs.on('keydown', function (e) {
+                // Get the current input index
+                var currentIndex = inputs.index(this);
+
+                // Handle arrow keys
+                switch (e.which) {
+                    case 37: // Left arrow
+                        if (currentIndex > 0) {
+                            inputs.eq(currentIndex - 1).focus();
+                        }
+                        break;
+                    case 39: // Right arrow
+                        if (currentIndex < inputs.length - 1) {
+                            inputs.eq(currentIndex + 1).focus();
+                        }
+                        break;
+                    case 38: // Up arrow
+                        break;
+                    case 40: // Down arrow
 
 
-
-            // $(document).on('dblclick', '#materialname-input', function () {
-            //     clickedRowIndex = $(this).index();
-            //     handleDoubleClick();
-            // });
+                        break;
+                }
+            });
         });
 
         function openEditModal2(row) {
@@ -833,6 +968,9 @@
         }
         function materialnamesearchcloseModal() {
             $('#materialnamesearch').fadeOut();
+        }
+        function customercloseModal() {
+            $('#customernamesearch').fadeOut();
         }
 
         function showLoading() {
@@ -915,11 +1053,11 @@
                             '<td style="text-align:right;">' + data[i].TOTALCOST + '</td>' +
                             '<td style="text-align:right;">' + data[i].ITEMPRICE + '</td>' +
                             '<td style="text-align:right;">' + data[i].COSTPRICERATIO + '</td>' +
-                           
+
                             '</tr>'
                         );
 
-                    
+
                     }
                 }
             });
@@ -940,8 +1078,19 @@
 
         }
 
+        function customerDoubleClick() {
+            document.getElementById('customernamesearch').style.display = 'block';
+            $('#searchingcustomernameinfobody').empty()
+            $("#customernameinput").val('')
+            $("#customernameinput").focus()
+
+
+        }
         function handleEnterKey(event) {
             if (event.key === 'Enter') {
+                var inputValue = document.getElementById("materialnameinput").value.trim();
+
+                document.getElementById("materialnameinput").value = "";
                 $('#searchingmaterialinfobody').empty();
                 $.ajax({
                     type: 'POST',
@@ -950,13 +1099,14 @@
                     contentType: 'application/json',
                     data: JSON.stringify({
 
-                        materialname: $('#materialnameinput').val()
+                        materialname: inputValue
 
                     }),
                     success: function (result) {
                         for (var i = 0; i < result.length; i++) {
 
-
+                            var sqmprice = result[i].sqmprice !== null ? result[i].sqmprice.toLocaleString() : '';
+                            var rollprice = result[i].rollprice !== null ? result[i].rollprice.toLocaleString() : '';
                             $('#searchingmaterialinfobody').append(
                                 '<tr onclick="insertmaterialdata(this)">' +
                                 '<td>' + result[i].materialname + '</td>' +
@@ -966,11 +1116,12 @@
                                 '<td id="data-width">' + result[i].width.toLocaleString() + '</td>' +
                                 '<td id="data-usewidth">' + result[i].usewidth.toLocaleString() + '</td>' +
                                 '<td id="data-length">' + result[i].length.toLocaleString() + '</td>' +
-                                '<td id="data-sqmprice">' + result[i].sqmprice.toLocaleString() + '</td>' +
-                                '<td id="data-rollprice">' + result[i].rollprice.toLocaleString() + '</td>' +
+                                '<td id="data-sqmprice">' + sqmprice + '</td>' +
+                                '<td id="data-rollprice">' + rollprice + '</td>' +
                                 '<td id="data-unit">' + result[i].unit + '</td>' +
                                 '<td id="data-manufacterer">' + result[i].manufacterer + '</td>' +
                                 '<td id="data-supplier">' + result[i].supplier + '</td>' +
+                                '<td id="data-typecategory">' + result[i].typecategory + '</td>' +
 
                                 '</tr>'
                             );
@@ -983,16 +1134,53 @@
                             $("td#data-unit").hide();
                             $("td#data-manufacterer").hide();
                             $("td#data-supplier").hide();
-                            // $("td#data-cost").hide();
-                            // $("td#data-minus").hide();
-                            // $("td#data-itemprice").hide();
-                            // $("td#data-status").hide();
-                            // $("td#data-direction").hide();
-                            // $("td#data-pcs").hide();
+
                         }
                     }
                 });
             }
+        }
+        function handleEnterKey1(event) {
+            if (event.key === 'Enter') {
+                var inputValue = document.getElementById("customernameinput").value.trim();
+
+                document.getElementById("customernameinput").value = "";
+                $('#searchingcustomernameinfobody').empty();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchingcustomername',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        customername: inputValue
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                        for (var i = 0; i < result.length; i++) {
+
+                      
+                            $('#searchingcustomernameinfobody').append(
+                                '<tr style="cursor:pointer;" onclick="insertmaterialdata1(this)">' +
+                                '<td>' + result[i].customername + '</td>' +
+                                
+
+                                '</tr>'
+                            );
+
+                          
+                        }
+                    }
+                });
+            }
+        }
+        function insertmaterialdata1(row) {
+            document.getElementById('customernamesearch').style.display = 'none';
+            var rowData = $(row).find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#customer-save').val(rowData[0])
         }
         function insertmaterialdata(row) {
             document.getElementById('materialnamesearch').style.display = 'none';
@@ -1005,6 +1193,7 @@
 
             // Update the materialname-input in the specified row
             $('#bomtableBody tr:eq(' + rowIndex + ') #materialname-input').val(rowData[0]);
+            $('#bomtableBody tr:eq(' + rowIndex + ') #materialclassification-input').val(rowData[12]);
             $('#bomtableBody tr:eq(' + rowIndex + ') #width-input').val(rowData[4]);
             $('#bomtableBody tr:eq(' + rowIndex + ') #usewidth-input').val(rowData[5]);
             $('#bomtableBody tr:eq(' + rowIndex + ') #length-input').val(rowData[6]);
@@ -1043,7 +1232,7 @@
 
             // Update cost-input value
             $('#bomtableBody tr:eq(' + rowIndex + ') #cost-input').val(costValue.toFixed(2));
-
+            addRow()
         }
 
         // function insertmaterialdata(row) {
@@ -1211,6 +1400,10 @@
             newRow.find('#unit-input').val('');
             newRow.find('#manufacterer-input').val('');
             newRow.find('#supplier-input').val('');
+            newRow.find('#materialwidth-input').val('');
+            newRow.find('#use-input').val('');
+            newRow.find('#etc-input').val('');
+            newRow.find('#materialclassification-input').val('');
         }
         function Bomsave() {
             var insertdate = new Date().toISOString().slice(0, 10);
@@ -1257,7 +1450,7 @@
                             "costsum": costsum,
                             "ordercount": ordercount,
                             "additionalnotes": additionalnotes,
-                            "itemprice":'0'
+                            "itemprice": '0'
                         }),
                         success: function (result) {
                             // Handle success

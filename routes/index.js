@@ -3944,6 +3944,26 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/searchingcustomername', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('customername', sql.NVarChar, req.body.customername)
+
+
+                .query(
+                    "SELECT * FROM customerinformation WHERE customername LIKE '%' + @customername + '%' order by customername asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/insertsltmaterial', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
