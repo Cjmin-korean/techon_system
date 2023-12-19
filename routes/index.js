@@ -103,7 +103,29 @@ module.exports = function (app) {
 
 
     // const downloadPath = '/Users/cjh/Downloads/Techon/sshkey_1'; // 다운로드 받을 경로
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/insertimg', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
 
+
+            return pool.request()
+                .input('img', sql.VarBinary, req.body.img)
+
+                .query(
+                    'insert into img(img)' +
+                    ' values(@img')
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     app.get('/down-excel', (req, res) => {
         sql.connect(config)
@@ -548,7 +570,7 @@ module.exports = function (app) {
 
     // **** start       
     sql.connect(config).then(pool => {
-        app.post('/api/house', function (req, res) {
+        app.post('/api/houseinformation', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
 
@@ -726,6 +748,58 @@ module.exports = function (app) {
                 .then(result => {
 
                     // console.log('내가보고싶은거', result.recordset)
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcategorycode', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    'SELECT ' +
+                    '* ' +
+                    'FROM categorycode')
+
+                .then(result => {
+
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcategorycode1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    'SELECT ' +
+                    '* ' +
+                    'FROM categorycode1')
+
+                .then(result => {
+
 
 
                     res.json(result.recordset);
@@ -2835,34 +2909,113 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT " +
-                    "      ol.bomno, " +
-                    "      ol.modelname, " +
-                    "      ol.itemname, " +
-                    "      bm.materialname, " +
-                    "      bm.swidth, " +
-                    "      CEILING(SUM(ol.quantity * bm.mwidth * 0.001 * 1.03)) AS totalquantity1, " +
-                    "        (SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname) AS sum_quantity, " +
-                    "      FLOOR(COALESCE(mi.usewidth, 0) / bm.swidth) AS calculatedvalue, " +
-                    "      CEILING( " +
-                    "          (CEILING(SUM(ol.quantity * bm.mwidth * 0.001 * 1.03)) - ( " +
-                    "              SELECT SUM(quantity)  " +
-                    "              FROM materialinput  " +
-                    "              WHERE materialname = bm.materialname " +
-                    "          )) / (COALESCE(mi.usewidth, 0) / bm.swidth) / mi.length " +
-                    "      ) AS calculated_column " +
-                    "  FROM " +
-                    "      orderlist ol " +
-                    "  JOIN " +
-                    "      bommanagement bm ON ol.bomno = bm.bomno " +
-                    "  LEFT JOIN " +
-                    "      Materialinfoinformation mi ON bm.materialname = mi.materialname " +
-                    "  WHERE " +
-                    "      ol.orderstatus = '생산확정' " +
-                    "  GROUP BY " +
-                    "      ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.swidth, mi.usewidth, mi.length " +
-                    "  ORDER BY " +
-                    "      bm.swidth ASC                "
+                    "SELECT  " +
+                    "    ol.bomno,  " +
+                    "    ol.modelname,  " +
+                    "    ol.itemname,  " +
+                    "    bm.materialname,  " +
+                    "    bm.materialwidth,     " +
+                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1,  " +
+                    "    COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) AS sum_quantity," +
+                    "     CASE " +
+                    "        WHEN EXISTS (" +
+                    "            SELECT 1" +
+                    "            FROM materialinput" +
+                    "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth" +
+                    "        ) THEN 'Y'" +
+                    "        ELSE 'N'" +
+                    "    END AS has," +
+                    "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue,  " +
+                    "    CEILING(  " +
+                    "        (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) - (  " +
+                    "            SELECT COALESCE(SUM(quantity), 0)   " +
+                    "            FROM materialinput   " +
+                    "            WHERE materialname = bm.materialname  " +
+                    "        )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length  " +
+                    "    ) AS calculated_column, " +
+                    "FLOOR( "+
+                    "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) - ( "+
+                    "        SELECT COALESCE(SUM(quantity), 0)    "+
+                    "        FROM materialinput    "+
+                    "        WHERE materialname = bm.materialname   "+
+                    "    )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length * 10 "+
+                    ") / 10 AS calculated_column1, "+
+                    "      MIN(ol.lotno) AS min_lotno,  " +
+                    "      MAX(ol.lotno) AS max_lotno " +
+                    " FROM  " +
+                    "     orderlist ol  " +
+                    " JOIN  " +
+                    "     bommanagement bm ON ol.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     Materialinfoinformation mi ON bm.materialname = mi.materialname  " +
+                    " WHERE  " +
+                    "     ol.orderstatus = '생산확정'  " +
+                    " GROUP BY  " +
+                    "     ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length  " +
+                    " ORDER BY  " +
+                    "     ol.bomno,bm.materialwidth ASC ;                  "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start   영업수주 네임건 등록
+    sql.connect(config).then(pool => {
+        app.post('/api/selectorderlistinformation2', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+                .query(
+                    "SELECT  " +
+             
+                    "    bm.materialname,  " +
+                    "    bm.materialwidth,     " +
+                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1,  " +
+                    "    COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) AS sum_quantity," +
+                    "     CASE " +
+                    "        WHEN EXISTS (" +
+                    "            SELECT 1" +
+                    "            FROM materialinput" +
+                    "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth" +
+                    "        ) THEN 'Y'" +
+                    "        ELSE 'N'" +
+                    "    END AS has," +
+                    "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue,  " +
+                    "    CEILING(  " +
+                    "        (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) - (  " +
+                    "            SELECT COALESCE(SUM(quantity), 0)   " +
+                    "            FROM materialinput   " +
+                    "            WHERE materialname = bm.materialname  " +
+                    "        )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length  " +
+                    "    ) AS calculated_column, " +
+                    "FLOOR( "+
+                    "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) - ( "+
+                    "        SELECT COALESCE(SUM(quantity), 0)    "+
+                    "        FROM materialinput    "+
+                    "        WHERE materialname = bm.materialname   "+
+                    "    )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length * 10 "+
+                    ") / 10 AS calculated_column1, "+
+                    "      MIN(ol.lotno) AS min_lotno,  " +
+                    "      MAX(ol.lotno) AS max_lotno " +
+                    " FROM  " +
+                    "     orderlist ol  " +
+                    " JOIN  " +
+                    "     bommanagement bm ON ol.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     Materialinfoinformation mi ON bm.materialname = mi.materialname  " +
+                    " WHERE  " +
+                    "     ol.orderstatus = '생산확정'  " +
+                    " GROUP BY  " +
+                    "     bm.materialname, bm.materialwidth, mi.usewidth, mi.length  " +
+                    " ORDER BY  " +
+                    "     bm.materialwidth ASC ;                  "
                 )
                 .then(result => {
 

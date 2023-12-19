@@ -5,251 +5,315 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title></title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="/css/accountinformation.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css" />
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js" defer></script>
-
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </head>
 
+
+
 <body>
-
-
-
-    <div style="height:50px; border: 1px solid black;">
-        <p style="margin-left:20px; margin-top:10px; font-size: 20px; font-weight: bold;">기초정보-품목정보</p>
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">단가 등록 및 조회</a>
     </div>
-
-    <div style="width:100%; height:34px; border: 1px solid black;">
-        <button style="margin-top: 1px;" onclick="modalsave()">추가</button>
+    <div id="loadingOverlay">
+        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
 
+    <fieldset>
+        <legend>검색조건</legend>
+
+        <label for="month">연 :</label>
+        <select id="searchselect1">
+            <option value="2024">2024년</option>
+            <option value="2023">2023년</option>
 
 
 
-    <table id="fileinfo" class="display" style="width:100%">
-        <thead>
+        </select>
+        <label for="month">월 :</label>
+        <select id="searchselect2">
+            <option value="1월">1월</option>
+            <option value="2월">2월</option>
+            <option value="3월">3월</option>
+            <option value="4월">4월</option>
+            <option value="5월">5월</option>
+            <option value="6월">6월</option>
+            <option value="7월">7월</option>
+            <option value="8월">8월</option>
+            <option value="9월">9월</option>
+            <option value="10월">10월</option>
+            <option value="11월">11월</option>
+            <option value="12월">12월</option>
+
+
+        </select>
+        <!-- <input type="text" style="width: 100px;" class="author-cell"> -->
+        <button onclick="searchData()">조회</button>
+    </fieldset>
+    <div id="overlay"></div>
+    <table class="styled-table" id="datatable">
+        <thead id="tableHead">
             <tr>
-                <th></th>
-                <th>품목코드</th>
-                <th>BOMNO.</th>
-                <th>모델명</th>
-                <th>품목명</th>
-                <th>규격명</th>
-                <th>입고단가(₩)</th>
-                <th></th>
-                <th></th>
+                <th style="text-align:center;" onclick="sortTable(0)">BOMNO</th>
+                <th style="text-align:center;" onclick="sortTable(1)">구분</th>
+                <th style="text-align:center;" onclick="sortTable(2)">모델명</th>
+                <th style="text-align:center;" onclick="sortTable(3)">품목명</th>
+                <th style="text-align:center;" onclick="sortTable(4)">납품처</th>
+                <th style="text-align:center;" onclick="sortTable(5)">고객사코드</th>
+                <th style="text-align:center;" onclick="sortTable(6)">판매단가(원)</th>
+                <th style="text-align:center;" onclick="sortTable(7)">원가(재료비)(원)</th>
+                <th style="text-align:center;" onclick="sortTable(8)">차이(원)</th>
+                <th style="text-align:center;" onclick="sortTable(9)">재료비율(%)</th>
+
+
             </tr>
         </thead>
-        <tbody>
+        <tbody id="Datatbody">
+
         </tbody>
+
     </table>
-    <!-- Modal등록 -->
-    <div class="modal fade" id="myModalsave" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">거래처 등록</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="accountcode">
-                        <p>거래처코드: </p><span></span>
-                        <input type="text" style="width: 350px;" id="accountcode-save">
-                    </div>
-                    <div class="accountname">
-                        <p>거래처명: </p><span></span>
-                        <input type="text" style="width: 350px;" id="accountname-save">
-                    </div>
-                    <div class="representativename">
-                        <p>대표자: </p><span></span>
-                        <input type="text" style="width: 350px;" id="representativename-save">
-                    </div>
-                    <div class="phone">
-                        <p>전화번호: </p><span></span>
-                        <input type="text" style="width: 350px;" id="phone-save">
-                    </div>
-                    <div class="adress">
-                        <p>주소: </p><span></span>
-                        <input type="text" style="width: 350px;" id="adress-save">
-                    </div>
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button">닫기</button>
-                </div>
-            </div>
+    <script>
+        var server = '';
 
-        </div>
-    </div>
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        $(document).ready(function () {
 
-    <!-- Modal수정 -->
-    <div class="modal fade" id="myModal" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">거래처 수정</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="accountcode">
-                        <p>거래처코드: </p><span></span>
-                        <input type="text" style="width: 350px;" id="accountcode-edit">
-                    </div>
-                    <div class="accountname">
-                        <p>거래처명: </p><span></span>
-                        <input type="text" style="width: 350px;" id="accountname-edit">
-                    </div>
-                    <div class="representativename">
-                        <p>대표자: </p><span></span>
-                        <input type="text" style="width: 350px;" id="representativename-edit">
-                    </div>
-                    <div class="phone">
-                        <p>전화번호: </p><span></span>
-                        <input type="text" style="width: 350px;" id="phone-edit">
-                    </div>
-                    <div class="adress">
-                        <p>주소: </p><span></span>
-                        <input type="text" style="width: 350px;" id="adress-edit">
-                    </div>
+            showLoading()
+            load()
+            $('#Datatbody').on('dblclick', 'tr', function () {
+                openEditModal(this); // Pass the clicked row to the function
+            });
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button">닫기</button>
-                </div>
-            </div>
+        });
 
-        </div>
-    </div>
+        // Function to close edit modal and overlay
+        function closeModal() {
+            $('#overlay').fadeOut();
+            $('#editModal').fadeOut();
+        }
+
+        function showLoading() {
+            var loadingOverlay = document.getElementById("loadingOverlay");
+            loadingOverlay.style.display = "flex";
+            setTimeout(function () {
+                loadingOverlay.style.display = "none";
+            }, 1000);
+        }
+
+
+
+        function Datasave() {
+            if (confirm("샘플 발주 정보를 등록 하시겠습니까??") == true) {
+
+                var insertdate = new Date().toISOString().slice(0, 10);
+
+                var toolcode = $('#toolcode').val();
+                var madedate = $('#datepicker1').val();
+                var bomno = $('#bomno').val();
+                var customer = $('#customer').val();
+                var modelname = $('#modelname').val();
+                var itemname = $('#itemname').val();
+                var char = $('#char').val();
+                var part = $('#part').val();
+                var inputprice = $('#inputprice').val();
+                var outputprice = $('#outputprice').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertpinacle',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "insertdate": insertdate,
+                        "toolcode": toolcode,
+                        "madedate": madedate,
+                        "bomno": bomno,
+                        "customer": customer,
+                        "modelname": modelname,
+                        "itemname": itemname,
+                        "char": char,
+                        "part": part,
+                        "inputprice": inputprice,
+                        "outputprice": outputprice
+
+
+
+
+                    }),
+                    success: function (result) {
+
+
+                    }
+                })
+
+                $('#popupOverlay').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+        }
+
+        function Dataedit() {
+            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/accountupdatedata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        id: $('#id-edit').val(),
+                        accountcode: $('#accountcode-edit').val(),
+                        accountname: $('#accountname-edit').val(),
+                        representativename: $('#representativename-edit').val(),
+                        phone: $('#phone-edit').val(),
+                        adress: $('#adress-edit').val(),
+                        number: $('#number-edit').val(),
+                        mobile: $('#mobile-edit').val(),
+                        fax: $('#fax-edit').val(),
+                        email: $('#email-edit').val(),
+                        etc: $('#etc-edit').val()
+
+
+
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                    }
+                })
+
+                $('#popupOverlay1').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+        }
+
+        // function load() {
+        //     $('#Datatbody').empty()
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: server + '/api/iteminfo',
+        //         dataType: 'json',
+        //         success: function (data) {
+        //             for (var i = 0; i < data.length; i++) {
+        //                 var rowData = data[i];
+
+        //                 // NULL 값 처리
+        //                 var bomno = rowData.bomno ? rowData.bomno : '';
+        //                 var modelname = rowData.modelname ? rowData.modelname : '';
+        //                 var itemname = rowData.itemname ? rowData.itemname : '';
+        //                 var customer = rowData.customer ? rowData.customer : '';
+        //                 var itemprice = rowData.itemprice ? rowData.itemprice : '';
+        //                 var cost = rowData.cost ? rowData.cost : '';
+        //                 var costpg = rowData.costpg ? rowData.costpg : '';
+        //                 var etc = rowData.etc ? rowData.etc : '';
+        //                 // itemprice - cost 계산
+        //                 var itemPriceMinusCost = parseFloat(itemprice) - parseFloat(cost);
+
+        //                 $('#Datatbody').append(
+        //                     '<tr>' +
+        //                     '<td>' + bomno + '</td>' +
+        //                     '<td>' + modelname + '</td>' +
+        //                     '<td>' + itemname + '</td>' +
+        //                     '<td>' + customer + '</td>' +
+        //                     '<td style="text-align:right;">' + itemprice.toLocaleString() + '</td>' +
+        //                     '<td style="text-align:right;">' + cost.toLocaleString() + '</td>' +
+        //                     '<td style="text-align:right;">' + itemPriceMinusCost.toLocaleString() + '</td>' +
+        //                     '<td style="text-align:right;">' + costpg.toLocaleString() + '</td>' +
+        //                     '<td >' + etc + '</td>' +
+        //                     '<td class="data-id">' + rowData.id + '</td>' +
+        //                     '</tr>'
+        //                 );
+
+        //                 $("td.data-id").hide();
+        //             }
+        //         }
+        //     });
+        // }
+        function load() {
+            $('#Datatbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/iteminfobom',
+                dataType: 'json',
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        var totalCost = data[i].TOTALCOST !== null ? data[i].TOTALCOST : '';
+                        var itemPrice = data[i].ITEMPRICE !== null ? data[i].ITEMPRICE : '';
+                        var costPriceRatio = data[i].COSTPRICERATIO !== null ? data[i].COSTPRICERATIO : '';
+
+                        var itemcode1 = data[i].ITEMCODE !== null ? data[i].ITEMCODE : '';
+
+                        // Calculate the difference between itemPrice and totalCost
+                        var priceDifference = itemPrice !== '' && totalCost !== '' ? (parseFloat(itemPrice) - parseFloat(totalCost)).toFixed(2) : '';
+
+                        var fontColor = data[i].status === '미사용' ? 'silver' : '';
+
+                        $('#Datatbody').append(
+                            '<tr style="color: ' + fontColor + ';">' +
+                            '<td>' + data[i].BOMNO + '</td>' +
+                            '<td>' + data[i].PART + '</td>' +
+                            '<td>' + data[i].MODELNAME + '</td>' +
+                            '<td>' + data[i].ITEMNAME + '</td>' +
+                            '<td>' + data[i].CUSTOMER + '</td>' +
+                            '<td>' + itemcode1 + '</td>' +
+                            '<td style="text-align:right;">' + itemPrice + '</td>' +
+                            '<td style="text-align:right;">' + totalCost + '</td>' +
+                            '<td style="text-align:right;">' + priceDifference + '</td>' + 
+                            '<td style="text-align:right;">' + costPriceRatio + '</td>' +
+
+                            '</tr>'
+                        );
+                    }
+                }
+            });
+        }
+
+
+
+
+    </script>
 
 
 </body>
-
-
-
-
-<script>
-
-</script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        $.ajax({
-            url: 'http://techonmes.co.kr/api/iteminfo',
-            method: 'post',
-            dataType: 'json',
-            success: function (data) {
-                $('#fileinfo').dataTable({
-                    deferLender: true,
-                    paging: true,
-                    sort: true,
-                    pageLength: 10,
-                    searching: true,
-                    data: data,
-                    responsive: true,
-                    deferLoading: [0, 10],
-                    columns: [
-
-                        { "data": "id" },
-                        { "data": "itemcode" },
-                        { "data": "bomno" },
-                        { "data": "modelname" },
-                        { "data": "itemname" },
-                        { "data": "size" },
-                        { "data": "itemprice" }
-
-
-                    ],
-                    columnDefs: [
-
-                        {
-                            targets: 0,
-                            visible: false
-                        },
-                        {
-                            targets: 7,
-                            data: null,
-                            defaultContent: '<button>수정</button>',
-                            width: 70
-                        },
-                        {
-                            targets: 8,
-                            data: null,
-                            defaultContent: '<button>삭제</button>',
-                            width: 70
-                        }
-
-                    ],
-                    "language": {
-                        emptyTable: "데이터가 없습니다.",
-                        lengthMenu: "페이지당 _MENU_ 개씩 보기",
-                        info: "현재 _START_ - _END_ / _TOTAL_건",
-                        infoEmpty: "데이터 없음",
-                        infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-                        search: "검색:",
-                        zeroRecords: "일치하는 데이터가 없습니다.",
-                        loadingRecords: "로딩중...",
-                        processing: "잠시만 기다려 주세요.",
-                        paginate: {
-                            next: "다음",
-                            previous: "이전",
-                        },
-                    },
-                    destroy: true,
-                });
-            }, error: function (response) {
-                alert(response.responseText);
-            }
-        });
-
-
-    });
-    // var table = $('#fileinfo').DataTable();
-    // $('#fileinfo tbody').on('click', 'tr', function () {
-    //     console.log(table.row(this).data());
-    //     $(".modal-body div span").text("");
-    //     $(".username span").text(table.row(this).data()[0]);
-    //     $(".position span").text(table.row(this).data()[1]);
-    //     $(".office span").text(table.row(this).data()[2]);
-    //     $(".age span").text(table.row(this).data()[3]);
-    //     $(".date span").text(table.row(this).data()[4]);
-    //     $(".salary span").text(table.row(this).data()[5]);
-    //     $("#myModal").modal("show");
-    // });
-    $('#fileinfo tbody').on('click', 'button', function () {
-        table1 = $('#fileinfo').DataTable();
-        var data1 = table1.row($(this).parents('tr')).data(); // getting 
-
-        $('#accountcode-edit').val(data1.accountcode);
-        $('#accountname-edit').val(data1.accountname);
-        $('#representativename-edit').val(data1.representativename);
-        $('#phone-edit').val(data1.phone);
-        $('#adress-edit').val(data1.adress);
-
-
-        $("#myModal").modal("show");
-
-    });
-    function modalsave() {
-        $('#accountcode-save').val('');
-        $('#accountname-save').val('');
-        $('#representativename-save').val('');
-        $('#phone-save').val('');
-        $('#adress-save').val('');
-
-
-        $("#myModalsave").modal("show");
-    }
-
-</script>
 
 </html>

@@ -9,7 +9,8 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
-    <link rel="stylesheet" href="../css/mesopenmodal.css">
+    <link rel="stylesheet" href="../css/mespurchaseorder.css">
+    <!-- <link rel="stylesheet" href="../css/mesopenmodal.css"> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -19,7 +20,18 @@
 
 </head>
 
-
+<style>
+    input {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
 
 <body>
     <div class="main_header">
@@ -34,31 +46,6 @@
     <fieldset>
         <legend>검색조건</legend>
 
-        <label for="month">연 :</label>
-        <select id="searchselect1">
-            <option value="2024">2024년</option>
-            <option value="2023">2023년</option>
-
-
-
-        </select>
-        <label for="month">월 :</label>
-        <select id="searchselect2">
-            <option value="1월">1월</option>
-            <option value="2월">2월</option>
-            <option value="3월">3월</option>
-            <option value="4월">4월</option>
-            <option value="5월">5월</option>
-            <option value="6월">6월</option>
-            <option value="7월">7월</option>
-            <option value="8월">8월</option>
-            <option value="9월">9월</option>
-            <option value="10월">10월</option>
-            <option value="11월">11월</option>
-            <option value="12월">12월</option>
-
-
-        </select>
         <button onclick="searchData()">조회</button>
         <button onclick="openSaveModal()">신규</button>
     </fieldset>
@@ -87,93 +74,57 @@
         </tbody>
 
     </table>
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+
+
+
+    <div id="editModal">
+        <div class="mainheader">
+            <h1>생산확정 구매발주</h1>
+
             <span class="close" onclick="closeModal()">&times;</span>
-
-            <div id="editForm">
-                <!-- Styling for Arrays -->
-                <div class="form-group1">
-                    <label for="editAuthor">작성자:</label>
-                    <input type="text" id="editAuthor" class="form-control" value="Author Name">
-                </div>
-
-                <div class="form-group1">
-                    <label for="editDate">날짜:</label>
-                    <input type="text" id="editDate" class="form-control" value="2023-01-01">
-                </div>
-
-                <!-- Styling for Text -->
-                <div class="form-group1">
-                    <label for="editText">텍스트:</label>
-                    <textarea id="editText" class="form-control">Sample Text</textarea>
-                </div>
-
-                <button onclick="saveChanges()">Save Changes</button>
-            </div>
         </div>
-    </div>
+        <div id="editForm">
+            <table class="styled-table" style="height: auto; width: 100%; float: left;">
+                <tr style="height:50px;">
+                    <th style="text-align:center;">BOMNO</th>
+                    <th style="text-align:center;">모델명</th>
+                    <th style="text-align:center;">품목명</th>
+                    <th style="text-align:center;">자재명</th>
+                    <th style="text-align:center;">자재폭(mm)</th>
+                    <th style="text-align:center;">필요소요량</th>
+                    <th style="text-align:center;">현재고</th>
+                    <th style="text-align:center;">폭이상재고(M)</th>
+                    <th style="text-align:center;">시작LOT</th>
+                    <th style="text-align:center;">마지막LOT</th>
+         
 
+                    <th style="text-align:center;">1RL컷수</th>
+                    <th style="text-align:center;">재단폭</th>
+                    <th style="text-align:center;">필요 발주수량(롤)</th>
+                    <th style="text-align:center;">발주수량(롤)</th>
+                </tr>
+                <tbody id="orderlistbombody">
+                </tbody>
+            </table>
+            <!-- <table class="styled-table" style=" width: 50%; float: right;">
+                <tr style="height:50px;">
 
+                    <th style="text-align:center;">자재명</th>
+                    <th style="text-align:center;">자재폭(mm)</th>
+                    <th style="text-align:center;">소요량(M)</th>
+                    <th style="text-align:center;">현재고(M)</th>
+                    <th style="text-align:center;">이상폭 재고</th>
+                    <th style="text-align:center;">필요 발주수량(롤)</th>
+                    <th style="text-align:center;">시작LOT</th>
+                    <th style="text-align:center;">마지막LOT</th>
+                    <th style="text-align:center;">수량(롤)</th>
+                </tr>
+                <tbody id="orderlistbombody1">
+                </tbody>
+            </table> -->
 
-
-
-    <!-- 등록창 -->
-    <div id="popupOverlay" style="display: none; ">
-        <div id="popupContent" style="width: 30%;">
-            <div class="form-group">
-                <table style="width:100%;">
-                    <tr>
-                        <td colspan="2" class="popup_title">샘플 발주 추가</td>
-                    </tr>
-                </table>
-                <fieldset>
-                    <legend>
-                        입력정보
-                    </legend>
-
-                    <label class="rev">접수날짜:</label>
-                    <input type="date" id="datepicker1" style="font-size: 14px; font-weight: bold;">
-                    <label class="rev">출하날짜:</label>
-                    <input type="date" id="datepicker2" style="font-size: 14px; font-weight: bold;">
-                    <label class="rev">BOMNO:</label><br>
-                    <div class="bomno-container">
-                        <input type="text" class="bomno-input" id="bomno" autocomplete="off">
-                        <button class="bomno-button" onclick="searchbomno()">조회</button>
-                    </div>
-                    <label class="rev">고객사:</label>
-                    <input type="text" id="customer" readonly autocomplete="off">
-                    <label class="rev">모델명:</label>
-                    <input type="text" id="modelname" readonly autocomplete="off">
-                    <label class="rev">품목명:</label>
-                    <input type="text" id="itemname" readonly autocomplete="off">
-                    <label class="rev">고객사코드:</label>
-                    <input type="text" id="revison" readonly autocomplete="off">
-                    <label class="rev">수량:</label>
-                    <input type="text" id="ordercount" autocomplete="off">
-                    <label class="rev">작업구분:</label>
-                    <input type="text" id="part" autocomplete="off">
-                    <label class="rev">입고상태:</label>
-                    <select id="status">
-                        <option value="완료">완료</option>
-                        <option value="미완료">미완료</option>
-                    </select>
-                    <label class="rev">출고시간:</label>
-                    <select id="outtime">
-                        <option value="오전">오전</option>
-                        <option value="오후">오후</option>
-                    </select>
-                    <label class="rev">사양구분:</label>
-                    <input type="text" id="specification" autocomplete="off">
-                    <label class="rev">작성자:</label>
-                    <input type="text" id="employee" autocomplete="off">
-
-                </fieldset>
-            </div>
-            <button id="popupCloseBtn-save-close">취소</button>
-            <button id="popupCloseBtn-save" onclick="Datasave()">저장</button>
         </div>
+
     </div>
 
 
@@ -202,31 +153,10 @@
 
 
         function openSaveModal() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('editModal').style.display = 'block';
             load1()
-
-            $('#editForm').html(
-                '<h2>생산 확정 자재 소요량</h2>' +
-                '<table class="styled-table">' +
-                '<thead id="tableHead">' +
-                '<tr>' +
-                '<th style="text-align:center;">BOMNO</th>' +
-                '<th style="text-align:center;">모델명</th>' +
-                '<th style="text-align:center;">품목명</th>' +
-                '<th style="text-align:center;">자재명</th>' +
-                '<th style="text-align:center;">자재폭(mm)</th>' +
-                '<th style="text-align:center;">소요량(M)</th>' +
-                '<th style="text-align:center;">현재고(M)</th>' +
-                '<th style="text-align:center;">필요 발주수량(롤)</th>' +
-                '<th style="text-align:center;">수량(롤)</th>' +
-                '<button class="save-button" onclick="saveData()">저장</button>' +
-                '</tr>' +
-                '</thead>' +
-                '<tbody id="orderlistbombody">' +
-                '</tbody>' +
-                '</table>'
-            );
-
-            $('#editModal').fadeIn();
+            load2()
         }
 
 
@@ -423,6 +353,9 @@
                 }
             });
         }
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
         function load1() {
             $('#orderlistbombody').empty();
             $.ajax({
@@ -434,30 +367,88 @@
                     if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
+                        // Sort data by materialname
+                        data.sort(function (a, b) {
+                            return a.materialname.localeCompare(b.materialname);
+                        });
+
+                        // Iterate through sorted data
                         for (var i = 0; i < data.length; i++) {
                             var rowId = 'TABLEROW' + (i + 1);
+                            var isFirstRow = i === 0 || data[i].materialname !== data[i - 1].materialname;
+
+                            if (isFirstRow) {
+                                // Add a row for materialname
+                                $('#orderlistbombody').append(
+                                    '<tr class="material-group">' +
+                                    '<td style="background-color:silver;">자재명</td>' +
+                                    '<td colspan="5">' + (data[i].materialname || '') + '</td>' +
+
+                                    '</tr>'
+                                );
+                            }
+
                             $('#orderlistbombody').append(
                                 '<tr id="' + rowId + '">' +
                                 '<td>' + (data[i].bomno || '') + '</td>' +
                                 '<td>' + (data[i].modelname || '') + '</td>' +
                                 '<td>' + (data[i].itemname || '') + '</td>' +
                                 '<td>' + (data[i].materialname || '') + '</td>' +
-                                '<td>' + (data[i].swidth || '') + '</td>' +
-                                '<td>' + (data[i].totalquantity1 || '') + '</td>' +
-                                '<td>' + (data[i].sum_quantity || '0') + '</td>' +
-                                '<td>' + (data[i].calculated_column || '0') + '</td>' +
-                                '<td><input type="text" class="editable-field" value="' + (data[i].calculated_column || '0') + '"></td>' +
+                                '<td style="text-align:right;">' + (data[i].materialwidth || '') + '</td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].totalquantity1 || '') + '</td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].sum_quantity || '0') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].has || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].min_lotno || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].max_lotno || '') + '</td>' +
+                                '<td style="text-align:right;"></td>' +
+                                '<td style="text-align:right;"><select><option>5</option><option>1080</option></select></td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].calculated_column1 || '0') + '</td>' +
+                                '<td><input type="text" class="editable-field" value="' + numberWithCommas(data[i].calculated_column || '0') + '"></td>' +
                                 '</tr>'
                             );
-
-                            // Retrieve and log data for each row
-                            var tablerowData = getDataForRow(i + 1);
-                            console.log(tablerowData);
                         }
                     }
                 }
             });
         }
+
+
+
+
+
+        // function load2() {
+        //     $('#orderlistbombody').empty();
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: server + '/api/selectorderlistinformation2',
+        //         dataType: 'json',
+        //         success: function (data) {
+        //             var tableFoot = $('#dataCount');
+        //             if (data.length === 0) {
+        //                 tableFoot.text('총 데이터 개수: 0');
+        //             } else {
+        //                 for (var i = 0; i < data.length; i++) {
+        //                     var rowId = 'TABLEROW' + (i + 1);
+        //                     $('#orderlistbombody1').append(
+        //                         '<tr id="' + rowId + '">' +
+
+        //                         '<td>' + (data[i].materialname || '') + '</td>' +
+        //                         '<td style="text-align:right;">' + (data[i].materialwidth || '') + '</td>' +
+        //                         '<td style="text-align:right;">' + numberWithCommas(data[i].totalquantity1 || '') + '</td>' +
+        //                         '<td style="text-align:right;">' + numberWithCommas(data[i].sum_quantity || '0') + '</td>' +
+        //                         '<td style="text-align:right;">' + (data[i].has || '') + '</td>' +
+        //                         '<td style="text-align:right;">' + numberWithCommas(data[i].calculated_column || '0') + '</td>' +
+        //                         '<td style="text-align:right;">' + (data[i].min_lotno || '') + '</td>' +
+        //                         '<td style="text-align:right;">' + (data[i].max_lotno || '') + '</td>' +
+        //                         '<td><input type="text" class="editable-field" value="' + numberWithCommas(data[i].calculated_column || '0') + '"></td>' +
+        //                         '</tr>'
+        //                     );
+        //                 }
+        //             }
+        //         }
+        //     });
+        // }
+
 
         // Function to retrieve data for a specific row
         function getDataForRow(rowIndex) {

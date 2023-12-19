@@ -24,81 +24,77 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">자재 기초정보</a>
+        <a style="margin-left: 20px;">자재 분류코드 등록</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
 
-    <fieldset>
-        <legend>검색조건</legend>
-
-        <label for="month">연 :</label>
-        <select id="searchselect1">
-            <option value="2024">2024년</option>
-            <option value="2023">2023년</option>
-
-
-
-        </select>
-        <label for="month">월 :</label>
-        <select id="searchselect2">
-            <option value="1월">1월</option>
-            <option value="2월">2월</option>
-            <option value="3월">3월</option>
-            <option value="4월">4월</option>
-            <option value="5월">5월</option>
-            <option value="6월">6월</option>
-            <option value="7월">7월</option>
-            <option value="8월">8월</option>
-            <option value="9월">9월</option>
-            <option value="10월">10월</option>
-            <option value="11월">11월</option>
-            <option value="12월">12월</option>
-
-
-        </select>
-        <button onclick="searchData()">조회</button>
-    </fieldset>
     <div id="overlay"></div>
-    <table class="styled-table" id="datatable">
-        <thead id="tableHead">
-            <tr>
-                <th style="text-align:center;" onclick="sortTable(0)">품목코드</th>
-                <th style="text-align:center;" onclick="sortTable(1)">자재명</th>
-                <th style="text-align:center;" onclick="sortTable(2)">전폭(mm)</th>
-                <th style="text-align:center;" onclick="sortTable(3)">길이(M)</th>
-                <th style="text-align:center;" onclick="sortTable(4)">SQM단가</th>
-                <th style="text-align:center;" onclick="sortTable(5)">롤단가</th>
-                <th style="text-align:center;" onclick="sortTable(6)">단위</th>
-                <th style="text-align:center;" onclick="sortTable(7)">적용<br>순번</th>
-                <th style="text-align:center;" onclick="sortTable(8)">제조사</th>
-                <th style="text-align:center;" onclick="sortTable(9)">공급사</th>
-                <th style="text-align:center;" onclick="sortTable(10)">사용별</th>
-                <th style="text-align:center;" onclick="sortTable(11)">유형별</th>
-                <th style="text-align:center;" onclick="sortTable(12)">업체별</th>
-                <th style="text-align:center;" onclick="sortTable(13)">자재TYPE</th>
-                <th style="text-align:center;" onclick="sortTable(14)">색상</th>
-                <th style="text-align:center;" onclick="sortTable(15)">두께</th>
-                <th style="text-align:center;" onclick="sortTable(16)">점착력</th>
-                <th style="text-align:center;" onclick="sortTable(17)">점착제</th>
-                <th style="text-align:center;" onclick="sortTable(18)">원단무게<br>(KG)</th>
-                <th style="text-align:center;" onclick="sortTable(19)">요청자</th>
-                <th style="text-align:center;" onclick="sortTable(20)">최초수정날짜</th>
-                <th style="text-align:center;" onclick="sortTable(21)">등록사유</th>
-                <th style="text-align:center;" onclick="sortTable(22)">고객사</th>
-                <th style="text-align:center;" onclick="sortTable(23)">모델</th>
-            
 
+
+    <table class="styled-table" style="width:30%; float: left;" id="datatable1">
+        <thead id="tableHead1">
+            <tr>
+                <th style="text-align:center;" colspan="2">자재분류코드</th>
+            </tr>
+            <tr>
+                <th style="text-align:center;" onclick="sortTable(0)">취급 별 분류코드</th>
+                <th style="text-align:center;" onclick="sortTable(1)">분류내용</th>
             </tr>
         </thead>
-        <tbody id="Datatbody">
+        <tbody id="Datatbody1">
 
         </tbody>
-
     </table>
-  
+
+
+
+
+
+    <table class="styled-table1" style="width:30%; float: left;" id="datatable2">
+        <thead id="tableHead2">
+            <tr>
+                <th style="text-align:center;" colspan="3">자재종류 분류코드</th>
+            </tr>
+            <tr>
+                <th style="text-align:center;" onclick="sortTable(0)">분류코드</th>
+                <th style="text-align:center;" onclick="sortTable(1)">영문</th>
+                <th style="text-align:center;" onclick="sortTable(2)">종류</th>
+            </tr>
+        </thead>
+        <tbody id="Datatbody2">
+
+        </tbody>
+    </table>
+
+    <table class="styled-table2" style="width:30%; float: left;" id="datatable3">
+
+        <thead id="tableHead3">
+            <tr>
+                <th style="text-align:center;" colspan="2">업체명 분류코드</th>
+            </tr>
+            <tr>
+                <th style="text-align:center;" onclick="sortTable(0)">업체명</th>
+                <th style="text-align:center;" onclick="sortTable(1)">코드</th>
+            </tr>
+        </thead>
+        <tbody id="Datatbody3">
+
+        </tbody>
+    </table>
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="mainheader">
+                <span class="close" onclick="closeModal()">&times;</span>
+
+            </div>
+            <div id="editForm">
+            </div>
+        </div>
+    </div>
+
 
 
 
@@ -179,23 +175,16 @@
 
             showLoading()
             load()
+            load1()
+            load2()
+
             $('#Datatbody').on('dblclick', 'tr', function () {
                 openEditModal(this); // Pass the clicked row to the function
             });
 
         });
-        function openEditModal(row) {
-            var rowData = $(row).find('td').map(function () {
-                return $(this).text();
-            }).get();
-            // $('#editForm').html(
-            //     '작성자: <input type="text" id="editAuthor" value="' + rowData[30] + '"><br>' +
-            //     '날짜: <input type="text" id="editDate" value="' + rowData[31] + '"><br>' +
-            //     '<button onclick="saveChanges()">Save Changes</button>'
-            // );
 
-            $('#editModal').fadeIn()
-        }
+
         function openEditModal(row) {
             var rowData = $(row).find('td').map(function () {
                 return $(this).text();
@@ -206,13 +195,18 @@
 
             // Populate and display edit modal
             // $('#editForm').html(
-            //     '작성자: <input type="text" id="editAuthor" value="' + rowData[30] + '"><br>' +
-            //     '날짜: <input type="text" id="editDate" value="' + rowData[31] + '"><br>' +
+            //     '<label for="editAuthor">작성자:</label> <input type="text" id="editAuthor" value="' + rowData[1] + '"><br>' +
+            //     '<label for="editDate">날짜:</label> <input type="text" id="editDate" value="' + rowData[2] + '"><br>' +
+            //     '<label for="editType">유형:</label> <input type="text" id="editType" value="' + rowData[2] + '"><br>' +
+            //     '<label for="editReason">등록사유:</label> <input type="text" id="editReason" value="' + rowData[33] + '"><br>' +
+            //     '<label for="editCustomerModel">고객사/적용모델:</label> <input type="text" id="editCustomerModel" value="' + rowData[3] + '"><br>' +
+            //     '<label for="editMaterialInfo">자재 정보:</label> <input type="text" id="editMaterialInfo" value="' + rowData[4] + '"><br>' +
             //     '<button onclick="saveChanges()">Save Changes</button>'
             // );
 
             $('#editModal').fadeIn();
         }
+
 
         // Function to close edit modal and overlay
         function closeModal() {
@@ -339,10 +333,10 @@
         }
 
         function load() {
-            $('#Datatbody').empty()
+            $('#Datatbody1').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectmaterialinformation',
+                url: server + '/api/selectcategorycode',
                 dataType: 'json',
                 success: function (data) {
                     var tableFoot = $('#dataCount');
@@ -351,39 +345,67 @@
                     } else {
                         var sequenceNumber = 1;
                         for (var i = 0; i < data.length; i++) {
-                            $('#Datatbody').append(
+                            $('#Datatbody1').append(
                                 '<tr>' +
-                                '<td>' + (data[i].codenumber || '') + '</td>' +
-                                '<td>' + (data[i].materialname || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].width.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].length.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].sqmprice || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].rollprice || '') + '</td>' +
-                                '<td>' + (data[i].unit || '') + '</td>' +
-                                '<td>' + (data[i].num || '') + '</td>' +
-                                '<td>' + (data[i].manufacterer || '') + '</td>' +
-                                '<td>' + (data[i].supplier || '') + '</td>' +
-                                '<td>' + (data[i].usagecategory || '') + '</td>' +
-                                '<td>' + (data[i].typecategory || '') + '</td>' +
-                                '<td>' + (data[i].companycategory || '') + '</td>' +
-                                '<td>' + (data[i].materialtype || '') + '</td>' +
-                                '<td>' + (data[i].color || '') + '</td>' +
-                                '<td>' + (data[i].thickness || '') + '</td>' +
-                                '<td>' + (data[i].adhesionstrength || '') + '</td>' +
-                                '<td>' + (data[i].adhesive || '') + '</td>' +
-                                '<td>' + (data[i].fabricweight || '') + '</td>' +
-                                '<td>' + (data[i].requester || '') + '</td>' +
-                                '<td>' + (data[i].modificationdate || '') + '</td>' +
-                                '<td>' + (data[i].registrationreason || '') + '</td>' +
-                                '<td>' + (data[i].customer || '') + '</td>' +
-                                '<td>' + (data[i].modelname || '') + '</td>' +
-                     
-                                '<td id="data-id">' + (data[i].id || '') + '</td>' +
+                                '<td>' + (data[i].categorycode || '') + '</td>' +
+                                '<td>' + (data[i].contents || '') + '</td>' +
+
                                 '</tr>'
                             )
-                            $("td#data-id").hide();
                         }
-                    
+
+                    }
+                }
+            });
+        }
+        function load1() {
+            $('#Datatbody2').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcategorycode1',
+                dataType: 'json',
+                success: function (data) {
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
+                        var sequenceNumber = 1;
+                        for (var i = 0; i < data.length; i++) {
+                            $('#Datatbody2').append(
+                                '<tr>' +
+                                '<td>' + (data[i].categorycode || '') + '</td>' +
+                                '<td>' + (data[i].english || '') + '</td>' +
+                                '<td>' + (data[i].classification || '') + '</td>' +
+
+                                '</tr>'
+                            )
+                        }
+
+                    }
+                }
+            });
+        }
+        function load2() {
+            $('#Datatbody3').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcustomerinformation',
+                dataType: 'json',
+                success: function (data) {
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
+                        var sequenceNumber = 1;
+                        for (var i = 0; i < data.length; i++) {
+                            $('#Datatbody3').append(
+                                '<tr>' +
+                                '<td>' + (data[i].customername || '') + '</td>' +
+                                '<td>' + (data[i].customerinitial || '') + '</td>' +
+
+                                '</tr>'
+                            )
+                        }
 
                     }
                 }

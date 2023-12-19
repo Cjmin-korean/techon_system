@@ -23,7 +23,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">거래처 정보 등록 및 조회</a>
+        <a style="margin-left: 20px;">단가 변경 이력 및 조회</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -65,36 +65,14 @@
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <!-- <th style="text-align:center;" onclick="sortTable(0)">작성자</th> -->
-                <th style="text-align:center;" onclick="sortTable(0)">날짜</th>
-                <th style="text-align:center;" onclick="sortTable(1)">유형</th>
-                <th style="text-align:center;" onclick="sortTable(2)">외주/원부자재/고객사(구분)</th>
-                <th style="text-align:center;" onclick="sortTable(3)">매입/매출</th>
-                <th style="text-align:center;" onclick="sortTable(4)">등록사유</th>
-                <th style="text-align:center;" onclick="sortTable(5)">고객사/적용모델</th>
-                <th style="text-align:center;" onclick="sortTable(6)">자재 정보</th>
-                <th style="text-align:center;" onclick="sortTable(7)">사업자등록번호</th>
-                <th style="text-align:center;" onclick="sortTable(8)">대표자명</th>
-                <th style="text-align:center;" onclick="sortTable(9)">거래처명</th>
-                <th style="text-align:center;" onclick="sortTable(10)">거래처이니셜</th>
-                <th style="text-align:center;" onclick="sortTable(11)">거래처명(영문)</th>
-                <th style="text-align:center;" onclick="sortTable(12)">업태(구분)</th>
-                <th style="text-align:center;" onclick="sortTable(13)">업종(구분)</th>
-                <th style="text-align:center;" onclick="sortTable(14)">주소</th>
-                <th style="text-align:center;" onclick="sortTable(15)">전화번호</th>
-                <th style="text-align:center;" onclick="sortTable(16)">팩스번호</th>
-                <th style="text-align:center;" onclick="sortTable(17)">담당자</th>
-                <th style="text-align:center;" onclick="sortTable(18)">담당자 연락처</th>
-                <th style="text-align:center;" onclick="sortTable(19)">VAT유형</th>
-                <th style="text-align:center;" onclick="sortTable(20)">결재방법</th>
-                <th style="text-align:center;" onclick="sortTable(21)">마감일</th>
-                <th style="text-align:center;" onclick="sortTable(22)">결재기간</th>
-                <th style="text-align:center;" onclick="sortTable(23)">은행명</th>
-                <th style="text-align:center;" onclick="sortTable(24)">계좌번호</th>
-                <th style="text-align:center;" onclick="sortTable(25)">예금주명</th>
-                <th style="text-align:center;" onclick="sortTable(26)">비고</th>
-                <th style="text-align:center;" onclick="sortTable(27)">요청부서</th>
-
+                <th style="text-align:center;" onclick="sortTable(0)">BOMNO</th>
+                <th style="text-align:center;" onclick="sortTable(1)">모델명</th>
+                <th style="text-align:center;" onclick="sortTable(2)">품목명</th>
+                <th style="text-align:center;" onclick="sortTable(3)">거래처</th>
+                <th style="text-align:center;" onclick="sortTable(4)">변경일자</th>
+                <th style="text-align:center;" onclick="sortTable(5)">기존판매단가(원)</th>
+                <th style="text-align:center;" onclick="sortTable(6)">차이(원)</th>
+                <th style="text-align:center;" onclick="sortTable(7)">변경율(%)</th>
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -102,7 +80,7 @@
         </tbody>
 
     </table>
-   
+
     <script>
         var server = '';
 
@@ -245,63 +223,122 @@
             }
         }
 
+
+        // function load() {
+        //     $('#Datatbody').empty()
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: server + '/api/houseinformation',
+        //         dataType: 'json',
+        //         success: function (data) {
+        //             if (data.length === 0) {
+
+        //             } else {
+        //                 for (var i = 0; i < data.length; i++) {
+
+        //                     $('#Datatbody').append(
+        //                         '<tr>' +
+        //                         '<td>' + (data[i].housecode || '') + '</td>' +
+        //                         '<td>' + (data[i].housename || '') + '</td>' +
+        //                         '<td>' + (data[i].part || '') + '</td>' +
+        //                         '<td>' + (data[i].partname || '') + '</td>' +
+        //                         '<td id="data-id">' + data[i].id + '</td>' +
+        //                         '</tr>'
+
+        //                     )
+        //                     $("td#data-id").hide();
+
+        //                 }
+        //             }
+        //         }
+
+        //     })
+        // }
         function load() {
-            $('#Datatbody').empty()
+            $('#Datatbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectcustomerinformation',
+                url: server + '/api/selectpricechange',
                 dataType: 'json',
                 success: function (data) {
                     var tableFoot = $('#dataCount');
                     if (data.length === 0) {
+                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
-                        var sequenceNumber = 1;
-                        for (var i = 0; i < data.length; i++) {
-                            $('#Datatbody').append(
-                                '<tr>' +
-                                '<td>' + (data[i].date || '') + '</td>' +
-                                '<td>' + (data[i].customerregistrationtype || '') + '</td>' +
-                                '<td>' + (data[i].outsourcing || '') + '</td>' +
-                                '<td>' + (data[i].purchase || '') + '</td>' +
-                                '<td>' + (data[i].reasonforregistration || '') + '</td>' +
-                                '<td>' + (data[i].appliedmodel || '') + '</td>' +
-                                '<td>' + (data[i].materialinformation || '') + '</td>' +
-                                '<td>' + (data[i].businessregistrationnumber || '') + '</td>' +
-                                '<td>' + (data[i].representativename || '') + '</td>' +
-                                '<td>' + (data[i].customername || '') + '</td>' +
-                                '<td>' + (data[i].customerinitial || '') + '</td>' +
-                                '<td>' + (data[i].customernameenglish || '') + '</td>' +
-                                '<td>' + (data[i].businesstype || '') + '</td>' +
-                                '<td>' + (data[i].industrytype || '') + '</td>' +
-                                '<td>' + (data[i].address || '') + '</td>' +
-                                '<td>' + (data[i].phonenumber || '') + '</td>' +
-                                '<td>' + (data[i].faxnumber || '') + '</td>' +
-                                '<td>' + (data[i].contactperson || '') + '</td>' +
-                                '<td>' + (data[i].sphonenumber || '') + '</td>' +
-                                '<td>' + (data[i].vattype || '') + '</td>' +
-                                '<td>' + (data[i].paymentmethod || '') + '</td>' +
-                                '<td>' + (data[i].deadline || '') + '</td>' +
-                                '<td>' + (data[i].paymentperiod || '') + '</td>' +
-                                '<td>' + (data[i].bankname || '') + '</td>' +
-                                '<td>' + (data[i].accountnumber || '') + '</td>' +
-                                '<td>' + (data[i].accountholdername || '') + '</td>' +
-                                '<td>' + (data[i].remarks || '') + '</td>' +
-                                '<td>' + (data[i].requestdepartment || '') + '</td>' +
-                                '<td id="data-id">' + (data[i].id || '') + '</td>' +
-                                '</tr>'
-                            )
-                            $("td#data-id").hide();
-                        }
-                       
+                        var groupData = groupByBomNo(data);
 
+                        for (var i = 0; i < groupData.length; i++) {
+                            var group = groupData[i];
+                            var rowspan = group.length;
+
+                            for (var j = 0; j < rowspan; j++) {
+                                var rowData = group[j];
+                                var bomno = rowData.bomno || '';
+                                var modelname = rowData.modelname || '';
+                                var itemname = rowData.itemname || '';
+                                var customer = rowData.customer || '';
+                                var savedate = rowData.savedate || '';
+                                var price = rowData.price || '';
+                                var previousprice = rowData.previousprice || '';
+                                var pricedifference = rowData.pricedifference || '';
+                                var pricechangepercentage = rowData.pricechangepercentage || '';
+
+                                // pricechangepercentage가 음수인 경우 텍스트의 색상을 빨간색으로 변경
+                                var pricechangepercentageColor = pricechangepercentage < 0 ? 'color: red;' : '';
+
+                                if (j === 0) {
+                                    $('#datatable').append(
+                                        '<tr>' +
+                                        '<td rowspan="' + rowspan + '">' + bomno + '</td>' +
+                                        '<td>' + modelname + '</td>' +
+                                        '<td>' + itemname + '</td>' +
+                                        '<td>' + customer + '</td>' +
+                                        '<td>' + savedate + '</td>' +
+                                        '<td style="text-align:right;">' + price + '</td>' +
+                                        // '<td style="text-align:right;">' + previousprice + '</td>' +
+                                        '<td style="text-align:right;' + pricechangepercentageColor + '">' + pricedifference + '</td>' +
+                                        '<td style="text-align:right;' + pricechangepercentageColor + '">' + pricechangepercentage + '</td>' +
+                                        '<td id="data-id">' + rowData.id + '</td>' +
+                                        '</tr>'
+                                    );
+                                } else {
+                                    $('#datatable').append(
+                                        '<tr>' +
+                                        '<td>' + modelname + '</td>' +
+                                        '<td>' + itemname + '</td>' +
+                                        '<td>' + customer + '</td>' +
+                                        '<td>' + savedate + '</td>' +
+                                        '<td style="text-align:right;">' + price + '</td>' +
+                                        // '<td style="text-align:right;">' + previousprice + '</td>' +
+                                        '<td style="text-align:right;' + pricechangepercentageColor + '">' + pricedifference + '</td>' +
+                                        '<td style="text-align:right;' + pricechangepercentageColor + '">' + pricechangepercentage + '</td>' +
+                                        '<td id="data-id">' + rowData.id + '</td>' +
+                                        '</tr>'
+                                    );
+                                }
+                            }
+                        }
+
+                        $("td#data-id").hide();
+                        tableFoot.text('총 데이터 개수: ' + data.length);
                     }
                 }
             });
         }
 
+        function groupByBomNo(data) {
+            var groupedData = {};
+            data.forEach(function (rowData) {
+                var bomno = rowData.bomno;
+                if (!groupedData[bomno]) {
+                    groupedData[bomno] = [];
+                }
+                groupedData[bomno].push(rowData);
+            });
 
-
+            return Object.values(groupedData);
+        }
 
     </script>
 
