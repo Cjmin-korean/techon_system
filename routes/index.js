@@ -1195,25 +1195,31 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT " +
-                    "    I.BOMNO, " +
-                    "    I.PART, " +
-                    "    I.MODELNAME, " +
-                    "    I.ITEMNAME, " +
-                    "    I.CUSTOMER, " +
-                    "    I.ITEMCODE, " +
-                    "    I.ITEMPRICE, " +
-                    "    COALESCE(SUM(B.COST), 0) AS TOTALCOST, " +
-                    "    CASE " +
-                    "        WHEN I.ITEMPRICE = 0 THEN 0 " +
-                    "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE, 1) " +
-                    "    END AS COSTPRICERATIO " +
-                    "FROM " +
-                    "    ITEMINFO I " +
-                    "LEFT JOIN " +
-                    "    BOMMANAGEMENT B ON I.BOMNO = B.BOMNO " +
-                    "GROUP BY " +
-                    "    I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE;            ")
+                    "SELECT  "+
+                    "    I.BOMNO,  "+
+                    "    I.PART,  "+
+                    "    I.MODELNAME,  "+
+                    "    I.ITEMNAME,  "+
+                    "    I.CUSTOMER,  "+
+                    "    I.ITEMCODE,  "+
+                    "    I.ITEMPRICE,  "+
+                    "    COALESCE(SUM(B.COST), 0) AS TOTALCOST,  "+
+                    "    CASE  "+
+                    "        WHEN I.ITEMPRICE = 0 THEN 0  "+
+                    "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE, 1)  "+
+                    "    END AS COSTPRICERATIO  ,"+
+                    "    I.PCS, "+
+                    "    I.CAVITY, "+
+                    "    I.WORKING, "+
+                    "    I.WORKPART, "+
+                    "    I.DIRECTION, "+
+                    "        I.ORDERCOUNT "+
+                    "   FROM  "+
+                    "       ITEMINFO I  "+
+                    "   LEFT JOIN  "+
+                    "       BOMMANAGEMENT B ON I.BOMNO = B.BOMNO  "+
+                    "   GROUP BY  "+
+                    "       I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE ,I.PCS,I.CAVITY,I.WORKING,	I.WORKPART,	I.DIRECTION,	I.ORDERCOUNT ")
 
                 .then(result => {
 
@@ -1936,6 +1942,30 @@ module.exports = function (app) {
 
                 .query(
                     "select * from iteminput")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbommasssavebommanagement', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "select * from bommanagement where bomno=@bomno")
 
                 .then(result => {
 
