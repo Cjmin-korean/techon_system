@@ -33,7 +33,7 @@
     }
 
     input {
-        width: 50%;
+        width: 100%;
         padding: 8px;
         margin-top: 5px;
         box-sizing: border-box;
@@ -82,14 +82,16 @@
 
 
         <label for="customer">거래처</label>
-        <input type="text" id="customer-select" style="cursor: pointer; background-color: whitesmoke;" readonly
-            ondblclick="handleDoubleClick()">
-
+        <input type="text" id="customer-select" style="cursor: pointer;" onkeydown="handleEnterKey(event)"
+            autocomplete="off">
+        <button onclick="openpurchaseorder()">발주</button>
+        <button onclick="">저장</button>
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
+                <th style="text-align:center;"><input type="checkbox" style="width: 20px; height: 20px;"></th>
                 <th style="text-align:center;">품목코드</th>
                 <th style="text-align:center;">품목명</th>
                 <th style="text-align:center;">자재폭</th>
@@ -168,9 +170,50 @@
                     <tr>
                         <th style="width: auto; text-align: center;" onclick="sortTable(0)">고객사명</th>
 
+
                     </tr>
                 </thead>
                 <tbody id="searchingcustomernameinfobody">
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div id="purchaseorder">
+        <div class="mainheader">
+            <h1>발주현황</h1>
+            <span class="close" onclick="purchaseordercloseModal()">&times;</span>
+            <input type="text" id="numericPart" style="width: 20px; visibility: hidden;">
+        </div>
+        <div style="width:100%; height: 50px;">
+
+            <button style="margin-left: 50px;" onclick="insertdata()">저장</button>
+        </div>
+
+        <div style="height:600px; max-height: 600px; overflow-y: auto;">
+            <table class="styled-table" id="datatable">
+                <thead>
+                    <tr>
+                        <th style="width: 20px;"><input type="checkbox"
+                                style="width:20px; height: 20px; cursor: pointer;" id="selectAllCheckbox"
+                                onchange="toggleSelectAll()"></th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">발주일자</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">품목코드</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">품목명</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">자재폭</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">길이</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">수량</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">입고단가</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">공급가액</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">BOMNO</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">구분</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">거래처명</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">적요</th>
+
+                    </tr>
+                </thead>
+                <tbody id="purchaseorderinfobody">
 
                 </tbody>
             </table>
@@ -444,6 +487,48 @@
 
             $('#customernamesearch').fadeOut();
         }
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                $("#overlay").fadeIn()
+                $('#customernamesearch').fadeIn();
+                var inputValue = document.getElementById("customer-select").value.trim();
+
+                document.getElementById("customernameinput").value = "";
+                $('#searchingcustomernameinfobody').empty();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchingcustomer',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        supplier: inputValue
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                        for (var i = 0; i < result.length; i++) {
+
+
+                            $('#searchingcustomernameinfobody').append(
+                                '<tr style="cursor:pointer;" onclick="insertmaterialdata1(this)">' +
+                                '<td>' + result[i].supplier + '</td>' +
+
+
+                                '</tr>'
+                            );
+
+
+                        }
+                    }
+                });
+
+            }
+
+        }
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
         function handleEnterKey1(event) {
             if (event.key === 'Enter') {
                 var inputValue = document.getElementById("customernameinput").value.trim();
@@ -479,6 +564,19 @@
                 });
             }
         }
+        function purchaseordercloseModal() {
+            $("#overlay").fadeOut()
+            $('#purchaseorder').fadeOut();
+        }
+
+        function toggleSelectAll() {
+            var checkboxes = document.querySelectorAll('#purchaseorderinfobody input[type="checkbox"]');
+            var selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = selectAllCheckbox.checked;
+            }
+        }
         function insertmaterialdata1(row) {
             document.getElementById('customernamesearch').style.display = 'none';
             var rowData = $(row).find('td').map(function () {
@@ -487,6 +585,84 @@
             $('#customer-select').val(rowData[0])
             $('#overlay').fadeOut()
         }
+        function openpurchaseorder() {
+            $("#overlay").fadeIn()
+            $('#purchaseorder').fadeIn();
+            var inputValue = document.getElementById("customer-select").value.trim();
+
+            $('#purchaseorderinfobody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectpurchaseordersupplier',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    suppliername: inputValue
+                }),
+                success: function (result) {
+                    console.log(result);
+                    for (var i = 0; i < result.length; i++) {
+                        $('#purchaseorderinfobody').append(
+                            '<tr style="cursor:pointer;">' +
+                            '<td><input type="checkbox" style="width:20px; height:20px;"></td>' +
+                            '<td>' + result[i].orderdate + '</td>' +
+                            '<td>' + result[i].itemname + '</td>' +
+                            '<td>' + result[i].codenumber + '</td>' +
+                            '<td style="text-align:right;">' + numberWithCommas(result[i].width) + '</td>' +
+                            '<td style="text-align:right;">' + numberWithCommas(result[i].length) + '</td>' +
+                            '<td style="text-align:right;">' + numberWithCommas(result[i].quantity) + '</td>' +
+                            '<td style="text-align:right;">' + numberWithCommas(result[i].unitprice) + '</td>' +
+                            '<td style="text-align:right;">' + numberWithCommas(result[i].supplyamount) + '</td>' +
+                            '<td>' + result[i].bomno + '</td>' +
+                            '<td>' + result[i].ordertype + '</td>' +
+                            '<td>' + result[i].suppliername + '</td>' +
+                            '<td></td>' +
+                            '</tr>'
+                        );
+                    }
+                }
+            });
+        }
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        function insertdata() {
+            var checkboxes = document.querySelectorAll('#purchaseorderinfobody input[type="checkbox"]');
+            var searchingCustomerNameInfoBody = document.getElementById('Datatbody');
+
+            // Loop through checkboxes in the original tbody
+            for (var i = 0; i < checkboxes.length; i++) {
+                // If checkbox is checked, move the row to the new tbody
+                if (checkboxes[i].checked) {
+                    var row = checkboxes[i].closest('tr').cloneNode(true);
+
+                    // Make td elements editable and add a class for styling
+                    var editableTds = row.querySelectorAll('td');
+                    for (var j = 1; j < editableTds.length; j++) {
+                        editableTds[j].contentEditable = true;
+                        editableTds[j].classList.add('editable-cell'); // Add a class for styling
+                    }
+
+                    searchingCustomerNameInfoBody.appendChild(row);
+                    // Optional: Remove the row from the original tbody
+                    checkboxes[i].closest('tr').remove();
+                }
+            }
+
+            // Optional: Clear the checkboxes after moving rows
+            clearCheckboxes();
+            $('#purchaseorder').fadeOut();
+            $('#overlay').fadeOut();
+        }
+
+        function clearCheckboxes() {
+            var checkboxes = document.querySelectorAll('#purchaseorderinfobody input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = false;
+            }
+        }
+
     </script>
 
 

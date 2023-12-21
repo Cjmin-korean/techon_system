@@ -1564,6 +1564,32 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectpurchaseordersupplier', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('suppliername', sql.NVarChar, req.body.suppliername)
+
+                .query(
+                    "SELECT " +
+                    "*" +
+                    " FROM purchaseorder where suppliername=@suppliername")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectmaterialinputinformation', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
