@@ -4413,6 +4413,86 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/bommassupdatebommanagement', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('savedate', sql.NVarChar, req.body.savedate)
+                .input('main', sql.NVarChar, req.body.main)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('model', sql.NVarChar, req.body.model)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('materialwidth', sql.Float, req.body.materialwidth)
+                .input('using', sql.NVarChar, req.body.using)
+                .input('onepid', sql.Float, req.body.onepid)
+                .input('twopid', sql.Float, req.body.twopid)
+                .input('soyo', sql.Float, req.body.soyo)
+                .input('ta', sql.Float, req.body.ta)
+                .input('allta', sql.Float, req.body.allta)
+                .input('talength', sql.Float, req.body.talength)
+                .input('loss', sql.Float, req.body.loss)
+                .input('cost', sql.Float, req.body.cost)
+                .input('rlcut', sql.Float, req.body.rlcut)
+                .input('rlproduct', sql.Float, req.body.rlproduct)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('id', sql.Int, req.body.id)
+
+
+
+                .query(
+                    "UPDATE bommanagement "+
+                    " SET savedate = @savedate, "+
+                    "     main = @main, "+
+                    "     model = @model, "+
+                    "     itemname = @itemname, "+
+                    "     materialname = @materialname, "+
+                    "     status = @status, "+
+                    "     char = @char, "+
+                    "     etc = @etc, "+
+                    "     materialwidth = @materialwidth, "+
+                    "     using = @using,"+
+                    "     onepid = @onepid,"+
+                    "     twopid = @twopid,"+
+                    "     soyo = @soyo,"+
+                    "     ta = @ta,"+
+                    "     allta = @allta,"+
+                    "     talength = @talength,"+
+                    "     loss = @loss,"+
+                    "     cost = @cost,"+
+                    "     rlcut = @rlcut,"+
+                    "     rlproduct = @rlproduct,"+
+                    "     width = @width,"+
+                    "     length = @length,"+
+                    "     sqmprice = @sqmprice,"+
+                    "     rollprice = @rollprice, "+
+                    "     unit = @unit,"+
+                    "     manufacterer = @manufacterer, "+
+                    "     supplier = @supplier, "+
+                    "     codenumber = @codenumber "+
+                    " WHERE id = @id; "
+                    
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
 
     // **** start       
