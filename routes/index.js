@@ -4365,9 +4365,6 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
-
-
-
                 .input('savedate', sql.NVarChar, req.body.savedate)
                 .input('main', sql.NVarChar, req.body.main)
                 .input('bomno', sql.NVarChar, req.body.bomno)
@@ -4397,12 +4394,14 @@ module.exports = function (app) {
                 .input('manufacterer', sql.NVarChar, req.body.manufacterer)
                 .input('supplier', sql.NVarChar, req.body.supplier)
                 .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('usewidth', sql.Float, req.body.usewidth)
+                .input('num', sql.Float, req.body.num)
 
 
 
                 .query(
-                    'insert into bommanagement(main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber)' +
-                    ' values(@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber)'
+                    'insert into bommanagement(num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber)' +
+                    ' values(@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber)'
                 )
                 .then(result => {
 

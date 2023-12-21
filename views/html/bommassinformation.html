@@ -65,6 +65,7 @@
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
         <a style="margin-left: 20px;">BOM(양산) 상세정보</a>
+        <h1 id="countdown"></h1>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -765,6 +766,7 @@
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="supplier-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="cavity-input" onchange="updateSoyoValue(); updateRlProductInput(); updateRlcutValue();calculateCost();" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="codenumber-input"  autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="num-input"  autocomplete="off"></td>');
 
             // Append the new row to the table body
             $('#bomtableBody').append(newRow);
@@ -831,7 +833,7 @@
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="cavity-edit" value="' + (result[i].cavity || '') + '" onchange="cc(); updateSoyoValue(); updateRlProductInput(); updateRlcutValue();calculateCost();" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="codenumber-edit" value="' + (result[i].codenumber || '') + '"  autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="id-edit" value="' + (result[i].id || '') + '"  autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="index-edit" value="' + counter + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="index-edit" value="' + (result[i].num || '') + '"  autocomplete="off"></td>' +
 
                                 '</tr>'
                             )
@@ -1013,7 +1015,7 @@
                                 '<td style="text-align:right;">' + width + '</td>' +
                                 '<td style="text-align:right;">' + length + '</td>' +
                                 '<td>' + result[i].manufacterer + '</td>' +
-                                '<td id="data-width">' +width + '</td>' +
+                                '<td id="data-width">' + width + '</td>' +
                                 '<td id="data-usewidth">' + usewidth + '</td>' +
                                 '<td id="data-length">' + length + '</td>' +
                                 '<td id="data-sqmprice">' + sqmprice + '</td>' +
@@ -1314,6 +1316,10 @@
         }
         function Bomsave() {
             var insertdate = new Date().toISOString().slice(0, 10);
+            var rowCount = $('#bomtableBody tr').length;
+            for (var i = 0; i < rowCount; i++) {
+                $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
+            }
 
             var bomno = $('#bomno-save').val();
             var customer = $('#customer-save').val();
@@ -1329,10 +1335,10 @@
             var ordercount = $('#ordercount-save').val();
             var additionalnotes = $('#additionalNote').val();
 
-            if (
-                bomno !== '' && customer !== '' && modelname !== '' && itemname !== '' &&
-                cavity !== '' && workpart !== '' && working !== '' && direction !== '' &&
-                costsum !== '' && ordercount !== '' && additionalnotes !== ''
+            if (bomno !== ''
+                // bomno !== '' && customer !== '' && modelname !== '' && itemname !== '' &&
+                // cavity !== '' && workpart !== '' && working !== '' && direction !== '' &&
+                // costsum !== '' && ordercount !== '' && additionalnotes !== ''
             ) {
                 if (confirm("BOM정보(양산) 데이터를 저장하시겠습니까?") == true) {
                     $.ajax({
@@ -1389,10 +1395,12 @@
                         var length = parseFloat($('[id^="length-input"]').eq(index).val().replace(/,/g, '')) || 0;
                         var sqmprice = parseFloat($('[id^="sqmprice-input"]').eq(index).val().replace(/,/g, '')) || 0;
                         var rollprice = parseFloat($('[id^="rollprice-input"]').eq(index).val().replace(/,/g, '')) || 0;
+                        var usewidth = parseFloat($('[id^="usewidth-input"]').eq(index).val().replace(/,/g, '')) || 0;
                         var unit = ($('[id^="unit-input"]').eq(index).val());
                         var manufacterer = ($('[id^="manufacterer-input"]').eq(index).val());
                         var supplier = ($('[id^="supplier-input"]').eq(index).val());
                         var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
+                        var num = ($('[id^="num-input"]').eq(index).val());
 
                         $.ajax({
                             type: 'POST',
@@ -1429,6 +1437,8 @@
                                 "manufacterer": manufacterer,
                                 "supplier": supplier,
                                 "codenumber": codenumber,
+                                "usewidth": usewidth,
+                                "num": num
                             }),
                             success: function (result) {
                                 // Handle success
@@ -1562,60 +1572,79 @@
         }
 
         function update() {
+            var insertdate = new Date().toISOString().slice(0, 10);
+
             var isConfirmed = confirm("Are you sure you want to update?");
             if (isConfirmed) {
                 var rowCount = $('#bomtableBody-edit tr').length;
-
                 for (var i = 0; i < rowCount; i++) {
+
+
+
+                    const idValue = $('#bomtableBody-edit tr:eq(' + (i) + ') #id-edit').val();
+                    //null아닐때
+                    if (idValue !== null && idValue !== undefined) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/bommassupdatebommanagement',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": idValue,
+                                "savedate": insertdate,
+                                //     "main" : $('#bomtableBody-edit tr:eq(' + (i) + ') #main-edit').val(),
+                                //    "bomno":  $('#bomtableBody-edit tr:eq(' + (i) + ') #bomno-edit').val(),
+                                //    "model": $('#bomtableBody-edit tr:eq(' + (i) + ') #model-edit').val(),
+                                //    "itemname": $('#bomtableBody-edit tr:eq(' + (i) + ') #itemname-edit').val(),
+                                //    "materialname": $('#bomtableBody-edit tr:eq(' + (i) + ') #materialname-edit').val(),
+                                //    "status": $('#bomtableBody-edit tr:eq(' + (i) + ') #status-edit').val(),
+                                //    "char": $('#bomtableBody-edit tr:eq(' + (i) + ') #char-edit').val(),
+                                //    "etc": $('#bomtableBody-edit tr:eq(' + (i) + ') #etc-edit').val(),
+                                //    "materialwidth": $('#bomtableBody-edit tr:eq(' + (i) + ') #materialwidth-edit').val(),
+                                //    "using": $('#bomtableBody-edit tr:eq(' + (i) + ') #using-edit').val(),
+                                "onepid": $('#bomtableBody-edit tr:eq(' + (i) + ') #onepidding-edit').val(),
+                                "twopid": $('#bomtableBody-edit tr:eq(' + (i) + ') #twopidding-edit').val(),
+                                "soyo": $('#bomtableBody-edit tr:eq(' + (i) + ') #soyo-edit').val(),
+                                //    "ta": $('#bomtableBody-edit tr:eq(' + (i) + ') #ta-edit').val(),
+                                //    "allta": $('#bomtableBody-edit tr:eq(' + (i) + ') #allta-edit').val(),
+                                //    "talength": $('#bomtableBody-edit tr:eq(' + (i) + ') #talength-edit').val(),
+                                //    "loss": $('#bomtableBody-edit tr:eq(' + (i) + ') #loss-edit').val(),
+                                //    "cost": $('#bomtableBody-edit tr:eq(' + (i) + ') #cost-edit').val(),
+                                //    "rlcut": $('#bomtableBody-edit tr:eq(' + (i) + ') #rlcut-edit').val(),
+                                //    "rlproduct": $('#bomtableBody-edit tr:eq(' + (i) + ') #rlproduct-edit').val(),
+                                //    "width": $('#bomtableBody-edit tr:eq(' + (i) + ') #width-edit').val(),
+                                //    "length": $('#bomtableBody-edit tr:eq(' + (i) + ') #length-edit').val(),
+                                //    "sqmprice": $('#bomtableBody-edit tr:eq(' + (i) + ') #sqmprice-edit').val(),
+                                //    "rollprice": $('#bomtableBody-edit tr:eq(' + (i) + ') #rollprice-edit').val(),
+                                //    "unit": $('#bomtableBody-edit tr:eq(' + (i) + ') #unit-edit').val(),
+                                //    "manufacterer": $('#bomtableBody-edit tr:eq(' + (i) + ') #manufacterer-edit').val(),
+                                //    "supplier": $('#bomtableBody-edit tr:eq(' + (i) + ') #supplier-edit').val(),
+                                //    "codenumber": $('#bomtableBody-edit tr:eq(' + (i) + ') #codenumber-edit').val()
+
+                            }),
+                            success: function (result) {
+                                alert('성공')
+                            }
+
+                        });
+                    } else {
+
+                    }
                     var currentRow = $('#bomtableBody-edit tr').eq(i);
                     var rowData = currentRow.find('td').map(function () {
                         return $(this).text();
                     }).get();
                 }
-                console.log('Data for row ' + (i + 1) + ':', rowData);
+                // console.log('Data for row ' + (i + 1) + ':', rowData);
             } else {
             }
-            // $.ajax({
-            //     type: 'POST',
-            //     url: server + '/api/updatebominput',
-            //     dataType: 'json',
-            //     contentType: 'application/json',
-            //     data: JSON.stringify({
-            //         "id": rowData[0]
-
-            //     }),
-            //     success: function (result) {
-
-            //     }
-
-            // });
-
-            // $.ajax({
-            //     type: 'POST',
-            //     url: server + '/api/selectbommasssavebommanagement',
-            //     dataType: 'json',
-            //     contentType: 'application/json',
-            //     data: JSON.stringify({
-            //         "id": rowData[0]
-
-            //     }),
-            //     success: function (result) {
-            //         if (result.length === 0) {
-
-            //         } else {
-            //             for (var i = 0; i < result.length; i++) {
-
-            //             }
 
 
 
-            //         }
-            //     }
-
-            // });
         }
 
-
+        var rowCount = $('#bomtableBody-edit tr').length;
+        $('#countdown').val(rowCount);
     </script>
 
 
