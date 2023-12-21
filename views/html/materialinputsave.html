@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
-    <link rel="stylesheet" href="../css/mesopenmodal.css">
+    <link rel="stylesheet" href="../css/mesmaterialinput.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -19,78 +19,88 @@
 
 </head>
 
+<style>
+    legend {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #333;
+    }
 
+    label {
+        display: block;
+        margin-top: 10px;
+        color: #333;
+    }
+
+    input {
+        width: 50%;
+        padding: 8px;
+        margin-top: 5px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    label,
+    select,
+    input,
+    button {
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    #rev-select,
+    #price-select,
+    #date-select,
+    #customer-select {
+        /* position: relative;
+        display: block; */
+        margin-left: 20px;
+        width: 250px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+</style>
+<div id="overlay"></div>
 
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">자재 기초정보</a>
+        <a style="margin-left: 20px;">자재 입고 등록</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
 
-    <fieldset>
+    <fieldset style="height: auto;">
         <legend>검색조건</legend>
-
-        <label for="month">연 :</label>
-        <select id="searchselect1">
-            <option value="2024">2024년</option>
-            <option value="2023">2023년</option>
+        <label for="datepicker">일자</label>
+        <input type="date" id="date-select">
 
 
+        <label for="customer">거래처</label>
+        <input type="text" id="customer-select" style="cursor: pointer; background-color: whitesmoke;" readonly
+            ondblclick="handleDoubleClick()">
 
-        </select>
-        <label for="month">월 :</label>
-        <select id="searchselect2">
-            <option value="1월">1월</option>
-            <option value="2월">2월</option>
-            <option value="3월">3월</option>
-            <option value="4월">4월</option>
-            <option value="5월">5월</option>
-            <option value="6월">6월</option>
-            <option value="7월">7월</option>
-            <option value="8월">8월</option>
-            <option value="9월">9월</option>
-            <option value="10월">10월</option>
-            <option value="11월">11월</option>
-            <option value="12월">12월</option>
-
-
-        </select>
-        <button onclick="searchData()">조회</button>
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <th style="text-align:center;" onclick="sortTable(0)">품목코드</th>
-                <th style="text-align:center;" onclick="sortTable(1)">자재명</th>
-                <th style="text-align:center;" onclick="sortTable(2)">전폭(mm)</th>
-                <th style="text-align:center;" onclick="sortTable(3)">길이(M)</th>
-                <th style="text-align:center;" onclick="sortTable(4)">SQM단가</th>
-                <th style="text-align:center;" onclick="sortTable(5)">롤단가</th>
-                <th style="text-align:center;" onclick="sortTable(6)">단위</th>
-                <th style="text-align:center;" onclick="sortTable(7)">적용<br>순번</th>
-                <th style="text-align:center;" onclick="sortTable(8)">제조사</th>
-                <th style="text-align:center;" onclick="sortTable(9)">공급사</th>
-                <th style="text-align:center;" onclick="sortTable(10)">사용별</th>
-                <th style="text-align:center;" onclick="sortTable(11)">유형별</th>
-                <th style="text-align:center;" onclick="sortTable(12)">업체별</th>
-                <th style="text-align:center;" onclick="sortTable(13)">자재TYPE</th>
-                <th style="text-align:center;" onclick="sortTable(14)">색상</th>
-                <th style="text-align:center;" onclick="sortTable(15)">두께</th>
-                <th style="text-align:center;" onclick="sortTable(16)">점착력</th>
-                <th style="text-align:center;" onclick="sortTable(17)">점착제</th>
-                <th style="text-align:center;" onclick="sortTable(18)">원단무게<br>(KG)</th>
-                <th style="text-align:center;" onclick="sortTable(19)">요청자</th>
-                <th style="text-align:center;" onclick="sortTable(20)">최초수정날짜</th>
-                <th style="text-align:center;" onclick="sortTable(21)">등록사유</th>
-                <th style="text-align:center;" onclick="sortTable(22)">고객사</th>
-                <th style="text-align:center;" onclick="sortTable(23)">모델</th>
-            
-
+                <th style="text-align:center;">품목코드</th>
+                <th style="text-align:center;">품목명</th>
+                <th style="text-align:center;">자재폭</th>
+                <th style="text-align:center;">길이</th>
+                <th style="text-align:center;">수량</th>
+                <th style="text-align:center;">롤단가</th>
+                <th style="text-align:center;">공급가액</th>
+                <th style="text-align:center;">부가세</th>
+                <th style="text-align:center;">적요</th>
+                <th style="text-align:center;">발주구분</th>
+                <th style="text-align:center;">BOMNO</th>
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -98,68 +108,77 @@
         </tbody>
 
     </table>
-  
+    <div id="editModal">
+        <div class="mainheader">
+            <h1>자재정보</h1>
+            <!-- <button class="saveButton" onclick="opentool()">TOOL</button> -->
 
-
-
-
-
-    <!-- 등록창 -->
-    <div id="popupOverlay" style="display: none; ">
-        <div id="popupContent" style="width: 30%;">
-            <div class="form-group">
-                <table style="width:100%;">
-                    <tr>
-                        <td colspan="2" class="popup_title">샘플 발주 추가</td>
-                    </tr>
-                </table>
-                <fieldset>
-                    <legend>
-                        입력정보
-                    </legend>
-
-                    <label class="rev">접수날짜:</label>
-                    <input type="date" id="datepicker1" style="font-size: 14px; font-weight: bold;">
-                    <label class="rev">출하날짜:</label>
-                    <input type="date" id="datepicker2" style="font-size: 14px; font-weight: bold;">
-                    <label class="rev">BOMNO:</label><br>
-                    <div class="bomno-container">
-                        <input type="text" class="bomno-input" id="bomno" autocomplete="off">
-                        <button class="bomno-button" onclick="searchbomno()">조회</button>
-                    </div>
-                    <label class="rev">고객사:</label>
-                    <input type="text" id="customer" readonly autocomplete="off">
-                    <label class="rev">모델명:</label>
-                    <input type="text" id="modelname" readonly autocomplete="off">
-                    <label class="rev">품목명:</label>
-                    <input type="text" id="itemname" readonly autocomplete="off">
-                    <label class="rev">고객사코드:</label>
-                    <input type="text" id="revison" readonly autocomplete="off">
-                    <label class="rev">수량:</label>
-                    <input type="text" id="ordercount" autocomplete="off">
-                    <label class="rev">작업구분:</label>
-                    <input type="text" id="part" autocomplete="off">
-                    <label class="rev">입고상태:</label>
-                    <select id="status">
-                        <option value="완료">완료</option>
-                        <option value="미완료">미완료</option>
-                    </select>
-                    <label class="rev">출고시간:</label>
-                    <select id="outtime">
-                        <option value="오전">오전</option>
-                        <option value="오후">오후</option>
-                    </select>
-                    <label class="rev">사양구분:</label>
-                    <input type="text" id="specification" autocomplete="off">
-                    <label class="rev">작성자:</label>
-                    <input type="text" id="employee" autocomplete="off">
-
-                </fieldset>
-            </div>
-            <button id="popupCloseBtn-save-close">취소</button>
-            <button id="popupCloseBtn-save" onclick="Datasave()">저장</button>
+            <span class="close" onclick="closeModal()">&times;</span>
         </div>
+        <table class="styled-table" id="datatable">
+
+            <tr>
+                <td style="width:30px;">자재</td>
+                <td colspan="3">ESL-025(ZC)</td>
+            </tr>
+            <tr>
+                <td>폭</td>
+                <td></td>
+                <td style="width:30px;">길이</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>LOT NO.</td>
+                <td></td>
+                <td rowspan="3" colspan="2">
+                    <!-- Example QR code: Replace the URL with your QR code data -->
+                    <img style="width: 100px; height: 100px; float: right;"
+                        src="https://api.qrserver.com/v1/create-qr-code/?data=example" alt="QR Code">
+                </td>
+            </tr>
+            <tr>
+                <td>제조일자</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>만료일자</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td rowspan="3" colspan="2"></td>
+            </tr>
+            <button onclick="printTable()">Print Table</button>
+
+        </table>
     </div>
+
+
+    <div id="customernamesearch">
+        <div class="mainheader">
+            <h1>고객사 검색</h1>
+            <span class="close" onclick="customercloseModal()">&times;</span>
+            <input type="text" id="numericPart" style="width: 20px; visibility: hidden;">
+        </div>
+        <input type="text" id="customernameinput" placeholder="고객사명을 입력 후 Enter를 누르세요"
+            style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey1(event)" autocomplete="off">
+
+        <div style="height:600px; max-height: 600px; overflow-y: auto;">
+            <table class="styled-table" id="datatable">
+                <thead>
+                    <tr>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">고객사명</th>
+
+                    </tr>
+                </thead>
+                <tbody id="searchingcustomernameinfobody">
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
 
 
 
@@ -176,9 +195,9 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
-
+            settingDate()
             showLoading()
-            load()
+            // load()
             $('#Datatbody').on('dblclick', 'tr', function () {
                 openEditModal(this); // Pass the clicked row to the function
             });
@@ -204,7 +223,7 @@
             // Display overlay
             $('#overlay').fadeIn();
 
-            // Populate and display edit modal
+            // // Populate and display edit modal
             // $('#editForm').html(
             //     '작성자: <input type="text" id="editAuthor" value="' + rowData[30] + '"><br>' +
             //     '날짜: <input type="text" id="editDate" value="' + rowData[31] + '"><br>' +
@@ -342,7 +361,7 @@
             $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectmaterialinformation',
+                url: server + '/api/selectmaterialinputinformation',
                 dataType: 'json',
                 success: function (data) {
                     var tableFoot = $('#dataCount');
@@ -353,46 +372,121 @@
                         for (var i = 0; i < data.length; i++) {
                             $('#Datatbody').append(
                                 '<tr>' +
-                                '<td>' + (data[i].codenumber || '') + '</td>' +
+                                '<td>' + (data[i].input || '') + '</td>' +
+                                '<td>' + (data[i].date || '') + '</td>' +
                                 '<td>' + (data[i].materialname || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].width.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].length.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].sqmprice || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].rollprice || '') + '</td>' +
-                                '<td>' + (data[i].unit || '') + '</td>' +
-                                '<td>' + (data[i].num || '') + '</td>' +
-                                '<td>' + (data[i].manufacterer || '') + '</td>' +
-                                '<td>' + (data[i].supplier || '') + '</td>' +
-                                '<td>' + (data[i].usagecategory || '') + '</td>' +
-                                '<td>' + (data[i].typecategory || '') + '</td>' +
-                                '<td>' + (data[i].companycategory || '') + '</td>' +
-                                '<td>' + (data[i].materialtype || '') + '</td>' +
-                                '<td>' + (data[i].color || '') + '</td>' +
-                                '<td>' + (data[i].thickness || '') + '</td>' +
-                                '<td>' + (data[i].adhesionstrength || '') + '</td>' +
-                                '<td>' + (data[i].adhesive || '') + '</td>' +
-                                '<td>' + (data[i].fabricweight || '') + '</td>' +
-                                '<td>' + (data[i].requester || '') + '</td>' +
-                                '<td>' + (data[i].modificationdate || '') + '</td>' +
-                                '<td>' + (data[i].registrationreason || '') + '</td>' +
+                                '<td>' + (data[i].classification || '') + '</td>' +
                                 '<td>' + (data[i].customer || '') + '</td>' +
-                                '<td>' + (data[i].modelname || '') + '</td>' +
-                     
+                                '<td>' + (data[i].codenumber || '') + '</td>' +
+                                '<td>' + (data[i].lotno || '') + '</td>' +
+                                '<td>' + (data[i].manufacturedate || '') + '</td>' +
+                                '<td>' + (data[i].expirationdate || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].materialwidth || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].price || '0') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].roll || '0') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].quantity || '0') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].sum || '0') + '</td>' +
+                                '<td>' + (data[i].house || '0') + '</td>' +
+                                '<td>' + (data[i].part || '0') + '</td>' +
+
+
                                 '<td id="data-id">' + (data[i].id || '') + '</td>' +
                                 '</tr>'
                             )
                             $("td#data-id").hide();
                         }
-                    
+
 
                     }
                 }
             });
         }
 
+        function printTable() {
+            window.print();
+        }
+
+        function settingDate() {
+            const date = new Date();
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
 
 
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+            }
 
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+
+
+            $('#date-select').val(currentDate);
+
+        }
+        function handleDoubleClick() {
+            $("#overlay").fadeIn()
+            document.getElementById('customernamesearch').style.display = 'block';
+            $('#searchingcustomernameinfobody').empty()
+            $("#customernameinput").val('')
+            $("#customernameinput").focus()
+
+
+        }
+        function customercloseModal() {
+            $("#overlay").fadeOut()
+
+            $('#customernamesearch').fadeOut();
+        }
+        function handleEnterKey1(event) {
+            if (event.key === 'Enter') {
+                var inputValue = document.getElementById("customernameinput").value.trim();
+
+                document.getElementById("customernameinput").value = "";
+                $('#searchingcustomernameinfobody').empty();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchingcustomer',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        supplier: inputValue
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                        for (var i = 0; i < result.length; i++) {
+
+
+                            $('#searchingcustomernameinfobody').append(
+                                '<tr style="cursor:pointer;" onclick="insertmaterialdata1(this)">' +
+                                '<td>' + result[i].supplier + '</td>' +
+
+
+                                '</tr>'
+                            );
+
+
+                        }
+                    }
+                });
+            }
+        }
+        function insertmaterialdata1(row) {
+            document.getElementById('customernamesearch').style.display = 'none';
+            var rowData = $(row).find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#customer-select').val(rowData[0])
+            $('#overlay').fadeOut()
+        }
     </script>
 
 
