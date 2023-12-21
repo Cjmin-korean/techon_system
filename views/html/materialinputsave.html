@@ -20,6 +20,29 @@
 </head>
 
 <style>
+    #tableHead {
+        position: sticky;
+        top: 0;
+        background-color: #f1f1f1;
+        z-index: 100;
+    }
+
+    #tableHead th {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .styled-table th,
+    .styled-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
     legend {
         font-size: 1.2em;
         font-weight: bold;
@@ -82,7 +105,7 @@
 
 
         <label for="customer">거래처</label>
-        <input type="text" id="customer-select" style="cursor: pointer;" onkeydown="handleEnterKey(event)"
+        <input type="text" id="customer-select" value="성진산업" style="cursor: pointer;" onkeydown="handleEnterKey(event)"
             autocomplete="off">
         <button onclick="openpurchaseorder()">발주</button>
         <button onclick="">저장</button>
@@ -92,6 +115,7 @@
         <thead id="tableHead">
             <tr>
                 <th style="text-align:center;"><input type="checkbox" style="width: 20px; height: 20px;"></th>
+                <th style="text-align:center;">발주일자</th>
                 <th style="text-align:center;">품목코드</th>
                 <th style="text-align:center;">품목명</th>
                 <th style="text-align:center;">자재폭</th>
@@ -99,10 +123,10 @@
                 <th style="text-align:center;">수량</th>
                 <th style="text-align:center;">롤단가</th>
                 <th style="text-align:center;">공급가액</th>
+                <th style="text-align:center;">BOMNO</th>
                 <th style="text-align:center;">부가세</th>
                 <th style="text-align:center;">적요</th>
                 <th style="text-align:center;">발주구분</th>
-                <th style="text-align:center;">BOMNO</th>
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -631,30 +655,35 @@
             var checkboxes = document.querySelectorAll('#purchaseorderinfobody input[type="checkbox"]');
             var searchingCustomerNameInfoBody = document.getElementById('Datatbody');
 
-            // Loop through checkboxes in the original tbody
             for (var i = 0; i < checkboxes.length; i++) {
-                // If checkbox is checked, move the row to the new tbody
                 if (checkboxes[i].checked) {
                     var row = checkboxes[i].closest('tr').cloneNode(true);
 
-                    // Make td elements editable and add a class for styling
                     var editableTds = row.querySelectorAll('td');
                     for (var j = 1; j < editableTds.length; j++) {
                         editableTds[j].contentEditable = true;
                         editableTds[j].classList.add('editable-cell'); // Add a class for styling
                     }
-
                     searchingCustomerNameInfoBody.appendChild(row);
-                    // Optional: Remove the row from the original tbody
+                    console.log("Checked Row Data:", getRowData(row));
                     checkboxes[i].closest('tr').remove();
                 }
             }
 
-            // Optional: Clear the checkboxes after moving rows
             clearCheckboxes();
             $('#purchaseorder').fadeOut();
             $('#overlay').fadeOut();
         }
+
+        function getRowData(row) {
+            var rowData = {};
+            var cells = row.querySelectorAll('td');
+            for (var i = 0; i < cells.length; i++) {
+                rowData[`${i + 1}`] = cells[i].textContent.trim();
+            }
+            return rowData;
+        }
+
 
         function clearCheckboxes() {
             var checkboxes = document.querySelectorAll('#purchaseorderinfobody input[type="checkbox"]');
