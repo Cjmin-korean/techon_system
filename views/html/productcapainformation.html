@@ -9,7 +9,6 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
-    <link rel="stylesheet" href="../css/mesiteminformation.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -19,23 +18,12 @@
 
 </head>
 
-<style>
-    input {
-        width: 100%;
-        padding: 10px;
-        box-sizing: border-box;
-        /* margin-bottom: 16px; */
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 15px;
-        font-weight: bold;
-    }
-</style>
+
 
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">단가 등록 및 조회</a>
+        <a style="margin-left: 20px;">생산 CAPA 분석</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -77,18 +65,36 @@
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <th style="text-align:center;" onclick="sortTable(0)">BOMNO</th>
-                <th style="text-align:center;" onclick="sortTable(1)">구분</th>
-                <th style="text-align:center;" onclick="sortTable(2)">모델명</th>
-                <th style="text-align:center;" onclick="sortTable(3)">품목명</th>
-                <th style="text-align:center;" onclick="sortTable(4)">납품처</th>
-                <th style="text-align:center;" onclick="sortTable(5)">고객사코드</th>
-                <th style="text-align:center;" onclick="sortTable(6)">판매단가(원)</th>
-                <th style="text-align:center;" onclick="sortTable(7)">원가(재료비)(원)</th>
-                <th style="text-align:center;" onclick="sortTable(8)">차이(원)</th>
-                <th style="text-align:center;" onclick="sortTable(9)">재료비율(%)</th>
+                <!-- <th style="text-align:center;" onclick="sortTable(0)">작성자</th> -->
+                <th style="text-align:center;" rowspan="3">BOM NO</th>
+                <th style="text-align:center;" rowspan="3">고객사</th>
+                <th style="text-align:center;" rowspan="3">모델명</th>
+                <th style="text-align:center;" rowspan="3">품목명</th>
+                <th style="text-align:center;" rowspan="3">작업구분</th>
+                <th style="text-align:center;" rowspan="3">차수</th>
+                <th style="text-align:center;" rowspan="3">1차피딩</th>
+                <th style="text-align:center;" rowspan="3">2차피딩</th>
+                <th style="text-align:center;" rowspan="3">Cavity</th>
+                <th style="text-align:center;" rowspan="3">설비</th>
+                <th style="text-align:center;" colspan="2" >작업표준시간</th>
+                <th style="text-align:center;" colspan="7">생산 CAPA</th>
 
-
+            </tr>
+            <tr>
+                <th style="text-align:center;"  rowspan="2">셋팅시간</th>
+                <th style="text-align:center;"  rowspan="2">표준분당타수</th>
+                <th style="text-align:center;" colspan="3">타발기준</th>
+                <th style="text-align:center;" colspan="3">수량기준</th>
+                <th style="text-align:center;" rowspan="3">필요설비대수</th>
+            </tr>
+            <tr>
+         
+                <th style="text-align:center;">시간당 타발</th>
+                <th style="text-align:center;">주간 타발<br>(8시간)</th>
+                <th style="text-align:center;">잔업기준 타발<br>(10.5시간)</th>
+                <th style="text-align:center;">시간당 타발</th>
+                <th style="text-align:center;">주간 타발<br>(8시간)</th>
+                <th style="text-align:center;">잔업기준 타발<br>(10.5시간)</th>
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -96,56 +102,7 @@
         </tbody>
 
     </table>
-    <div id="editModal">
-        <div class="mainheader">
-            <h1>제품 상세 정보</h1>
-            <!-- <button class="saveButton" onclick="opentool()">TOOL</button> -->
 
-            <span class="close" onclick="closeModal()">&times;</span>
-        </div>
-
-
-        <div id="editForm">
-            <table>
-                <tr style="height:50px;">
-                    <td colspan="11">제품 정보</td>
-                    <!-- <td> </td> -->
-                    <td> </td>
-                </tr>
-
-                <tr>
-                    <td><label for="editAuthor">BOMNO</label></td>
-                    <td><input type="text" id="bomno-edit" value="" readonly autocomplete="off"></td>
-                    <td><label for="editAuthor">구분</label></td>
-                    <td><input type="text" id="part-edit" value="" readonly autocomplete="off"></td>
-
-                </tr>
-                <tr>
-                    <td><label for="editAuthor">모델명</label></td>
-                    <td><input type="text" id="modelname-edit" value="" readonly autocomplete="off"></td>
-                    <td><label for="editAuthor">품목명</label></td>
-                    <td><input type="text" id="itemname-edit" value="" readonly autocomplete="off"></td>
-
-                </tr>
-                <tr>
-                    <td><label for="editAuthor">납품처</label></td>
-                    <td><input type="text" id="customer-edit" value="" readonly autocomplete="off"></td>
-                    <td><label for="editAuthor">고객사코드</label></td>
-                    <td><input type="text" id="itemcode-edit" value="" readonly autocomplete="off"></td>
-
-                </tr> 
-                <tr>
-                    <td><label for="editAuthor">판매단가</label></td>
-                    <td><input type="text" id="itemprice-edit" value="" autocomplete="off"></td>
-                    <td><label for="editAuthor">원가(재료비)</label></td>
-                    <td><input type="text" id="costprice-edit" value="" readonly autocomplete="off"></td>
-
-                </tr>
-
-            </table>
-
-        </div>
-    </div>
     <script>
         var server = '';
 
@@ -157,8 +114,10 @@
         $(document).ready(function () {
 
             showLoading()
-            load()
-
+            // load()
+            $('#Datatbody').on('dblclick', 'tr', function () {
+                openEditModal(this); // Pass the clicked row to the function
+            });
 
         });
 
@@ -286,62 +245,61 @@
             }
         }
 
-
         function load() {
-            $('#Datatbody').empty();
+            $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/iteminfobom',
+                url: server + '/api/selectcustomerinformation',
                 dataType: 'json',
                 success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        var totalCost = data[i].TOTALCOST !== null ? data[i].TOTALCOST : '';
-                        var itemPrice = data[i].ITEMPRICE !== null ? data[i].ITEMPRICE : '';
-                        var costPriceRatio = data[i].COSTPRICERATIO !== null ? data[i].COSTPRICERATIO : '';
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
+                        var sequenceNumber = 1;
+                        for (var i = 0; i < data.length; i++) {
+                            $('#Datatbody').append(
+                                '<tr>' +
+                                '<td>' + (data[i].date || '') + '</td>' +
+                                '<td>' + (data[i].customerregistrationtype || '') + '</td>' +
+                                '<td>' + (data[i].outsourcing || '') + '</td>' +
+                                '<td>' + (data[i].purchase || '') + '</td>' +
+                                '<td>' + (data[i].reasonforregistration || '') + '</td>' +
+                                '<td>' + (data[i].appliedmodel || '') + '</td>' +
+                                '<td>' + (data[i].materialinformation || '') + '</td>' +
+                                '<td>' + (data[i].businessregistrationnumber || '') + '</td>' +
+                                '<td>' + (data[i].representativename || '') + '</td>' +
+                                '<td>' + (data[i].customername || '') + '</td>' +
+                                '<td>' + (data[i].customerinitial || '') + '</td>' +
+                                '<td>' + (data[i].customernameenglish || '') + '</td>' +
+                                '<td>' + (data[i].businesstype || '') + '</td>' +
+                                '<td>' + (data[i].industrytype || '') + '</td>' +
+                                '<td>' + (data[i].address || '') + '</td>' +
+                                '<td>' + (data[i].phonenumber || '') + '</td>' +
+                                '<td>' + (data[i].faxnumber || '') + '</td>' +
+                                '<td>' + (data[i].contactperson || '') + '</td>' +
+                                '<td>' + (data[i].sphonenumber || '') + '</td>' +
+                                '<td>' + (data[i].vattype || '') + '</td>' +
+                                '<td>' + (data[i].paymentmethod || '') + '</td>' +
+                                '<td>' + (data[i].deadline || '') + '</td>' +
+                                '<td>' + (data[i].paymentperiod || '') + '</td>' +
+                                '<td>' + (data[i].bankname || '') + '</td>' +
+                                '<td>' + (data[i].accountnumber || '') + '</td>' +
+                                '<td>' + (data[i].accountholdername || '') + '</td>' +
+                                '<td>' + (data[i].remarks || '') + '</td>' +
+                                '<td>' + (data[i].requestdepartment || '') + '</td>' +
+                                '<td id="data-id">' + (data[i].id || '') + '</td>' +
+                                '</tr>'
+                            )
+                            $("td#data-id").hide();
+                        }
 
-                        var itemcode1 = data[i].ITEMCODE !== null ? data[i].ITEMCODE : '';
 
-                        // Calculate the difference between itemPrice and totalCost
-                        var priceDifference = itemPrice !== '' && totalCost !== '' ? (parseFloat(itemPrice) - parseFloat(totalCost)).toFixed(2) : '';
-
-                        var fontColor = data[i].status === '미사용' ? 'silver' : '';
-
-                        $('#Datatbody').append(
-                            '<tr ondblclick="openEditModal2(this)" style="color: ' + fontColor + ';">' +
-                            '<td>' + data[i].BOMNO + '</td>' +
-                            '<td>' + data[i].PART + '</td>' +
-                            '<td>' + data[i].MODELNAME + '</td>' +
-                            '<td>' + data[i].ITEMNAME + '</td>' +
-                            '<td>' + data[i].CUSTOMER + '</td>' +
-                            '<td>' + itemcode1 + '</td>' +
-                            '<td style="text-align:right;">' + itemPrice + '</td>' +
-                            '<td style="text-align:right;">' + totalCost + '</td>' +
-                            '<td style="text-align:right;">' + priceDifference + '</td>' +
-                            '<td style="text-align:right;">' + costPriceRatio + '</td>' +
-
-                            '</tr>'
-                        );
                     }
                 }
             });
         }
 
-        function openEditModal2(row) {
-            var rowData = $(row).find('td').map(function () {
-                return $(this).text();
-            }).get();
-            document.getElementById('overlay').style.display = 'block';
-
-            $('#editModal').fadeIn();
-            $('#bomno-edit').val(rowData[0])
-            $('#part-edit').val(rowData[1])
-            $('#modelname-edit').val(rowData[2])
-            $('#itemname-edit').val(rowData[3])
-            $('#customer-edit').val(rowData[4])
-            $('#itemcode-edit').val(rowData[5])
-            $('#itemprice-edit').val(rowData[6])
-            $('#costprice-edit').val(rowData[7])
-        }
 
 
 

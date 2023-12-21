@@ -1195,7 +1195,7 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT  "+
+                    " SELECT  "+
                     "    I.BOMNO,  "+
                     "    I.PART,  "+
                     "    I.MODELNAME,  "+
@@ -2939,51 +2939,61 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT  " +
-                    "    ol.bomno,  " +
-                    "    ol.modelname,  " +
-                    "    ol.itemname,  " +
-                    "    bm.materialname,  " +
-                    "    bm.materialwidth,     " +
-                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1,  " +
-                    "    COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) AS sum_quantity," +
-                    "     CASE " +
-                    "        WHEN EXISTS (" +
-                    "            SELECT 1" +
-                    "            FROM materialinput" +
-                    "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth" +
-                    "        ) THEN 'Y'" +
-                    "        ELSE 'N'" +
-                    "    END AS has," +
-                    "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue,  " +
-                    "    CEILING(  " +
-                    "        (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) - (  " +
-                    "            SELECT COALESCE(SUM(quantity), 0)   " +
-                    "            FROM materialinput   " +
-                    "            WHERE materialname = bm.materialname  " +
-                    "        )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length  " +
-                    "    ) AS calculated_column, " +
-                    "FLOOR( "+
-                    "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) - ( "+
-                    "        SELECT COALESCE(SUM(quantity), 0)    "+
-                    "        FROM materialinput    "+
-                    "        WHERE materialname = bm.materialname   "+
-                    "    )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length * 10 "+
-                    ") / 10 AS calculated_column1, "+
-                    "      MIN(ol.lotno) AS min_lotno,  " +
-                    "      MAX(ol.lotno) AS max_lotno " +
-                    " FROM  " +
-                    "     orderlist ol  " +
-                    " JOIN  " +
-                    "     bommanagement bm ON ol.bomno = bm.bomno  " +
-                    " LEFT JOIN  " +
-                    "     Materialinfoinformation mi ON bm.materialname = mi.materialname  " +
-                    " WHERE  " +
-                    "     ol.orderstatus = '생산확정'  " +
-                    " GROUP BY  " +
-                    "     ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length  " +
-                    " ORDER BY  " +
-                    "     ol.bomno,bm.materialwidth ASC ;                  "
+                    "SELECT "+
+                "    ol.bomno, "+
+                "    ol.modelname, "+
+                "    ol.itemname, "+
+                "    bm.materialname, "+
+                "    bm.materialwidth, "+
+                "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, "+
+                "    CASE "+
+                "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 "+
+                "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) "+
+                "        ELSE 0 "+
+                "    END AS sum_quantity, "+
+                "    CASE "+
+                "        WHEN EXISTS ( "+
+                "            SELECT 1 "+
+                "            FROM materialinput "+
+                "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth "+
+                "        ) THEN 'Y' "+
+                "        ELSE 'N' "+
+                "    END AS has, "+
+                "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue, "+
+                "        (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) "+
+                "     AS calculated_column, "+
+                "      CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) "+
+                "     AS soyo, "+
+                "      floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) "+
+                
+                "     AS cut, "+
+                "         floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length "+
+                "     AS test, "+
+                "       ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03))/ (floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length),2) "+
+                " AS a, "+
+                "        CEILING( "+
+                "        (SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / "+
+                "        (floor((COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length)) "+
+                "        ) AS RoundedResult, "+
+                "    MIN(ol.lotno) AS min_lotno, "+
+                "    MAX(ol.lotno) AS max_lotno, "+
+                " mi.width, "+
+                " mi.length, "+
+                " mi.sqmprice, "+
+                " 	mi.rollprice, "+
+                " 	mi.supplier,ol.quantity , mi.codenumber  "+
+                "FROM "+
+                "    orderlist ol "+
+                "JOIN "+
+                "    bommanagement bm ON ol.bomno = bm.bomno "+
+                "LEFT JOIN "+
+                "    Materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
+                "WHERE "+
+                "    ol.orderstatus = '생산확정' "+
+                "GROUP BY "+
+                "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length , mi.width ,mi.sqmprice, mi.rollprice ,mi.supplier,ol.quantity , mi.codenumber "+
+                "ORDER BY "+
+                "    ol.bomno, bm.materialwidth ASC;           "
                 )
                 .then(result => {
 
@@ -3082,6 +3092,43 @@ module.exports = function (app) {
                 .query(
                     'insert into materialinfo(codenumber,itemname,classfication,materialwidth,fullwidth,length,koreancustomer,sqmprice,rollprice,widthclassfication,day)' +
                     ' values(@codenumber,@itemname,@classfication,@materialwidth,@fullwidth,@length,@koreancustomer,@sqmprice,@rollprice,@widthclassfication,@day)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/insertpurchaseorder', function (req, res) {
+
+            // console.log("11", req)
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+                .input('orderdate', sql.NVarChar, req.body.orderdate)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('quantity', sql.Float, req.body.quantity)
+                .input('unitprice', sql.Float, req.body.unitprice)
+                .input('supplyamount', sql.Float, req.body.supplyamount)
+                .input('suppliername', sql.NVarChar, req.body.suppliername)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('ordertype', sql.NVarChar, req.body.ordertype)
+                .input('cutting', sql.NVarChar, req.body.cutting)
+                .input('confirmed', sql.NVarChar, req.body.confirmed)
+
+
+                .query(
+                    'insert into purchaseorder(orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed)' +
+                    ' values(@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed)'
                 )
                 .then(result => {
 
@@ -3301,6 +3348,23 @@ module.exports = function (app) {
                 .input('plandate', sql.NVarChar, req.body.plandate)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
                 .query("select * from produceplan where plandate=@plandate and equipmentname=@equipmentname")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialnamelength', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+                .query("select length from materialinfoinformation where materialname=@materialname")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -4115,7 +4179,27 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT * FROM materialinfoinformation WHERE materialname LIKE '%' + @materialname + '%' order by materialname asc")
+                    "SELECT * FROM materialinfoinformation WHERE materialname LIKE '%' + @materialname + '%' order by materialname,num asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/searchbomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+
+                .query(
+                    "SELECT * FROM iteminfo WHERE bomno LIKE '%' + @bomno + '%' order by bomno asc")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -4263,12 +4347,13 @@ module.exports = function (app) {
                 .input('unit', sql.NVarChar, req.body.unit)
                 .input('manufacterer', sql.NVarChar, req.body.manufacterer)
                 .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
 
 
 
                 .query(
-                    'insert into bommanagement(main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier)' +
-                    ' values(@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier)'
+                    'insert into bommanagement(main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber)' +
+                    ' values(@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber)'
                 )
                 .then(result => {
 

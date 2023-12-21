@@ -9,7 +9,8 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
-    <link rel="stylesheet" href="../css/mesopenmodal.css">
+    <link rel="stylesheet" href="../css/mespurchaseorder.css">
+    <!-- <link rel="stylesheet" href="../css/mesopenmodal.css"> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -19,7 +20,18 @@
 
 </head>
 
-
+<style>
+    input,
+    select {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
 
 <body>
     <div class="main_header">
@@ -34,136 +46,63 @@
     <fieldset>
         <legend>검색조건</legend>
 
-
-
-        <label for="month">월:</label>
-        <select id="searchselect2">
-            <option value="">전체</option>
-            <option value="01">1월</option>
-            <option value="02">2월</option>
-            <option value="03">3월</option>
-            <option value="04">4월</option>
-            <option value="05">5월</option>
-            <option value="06">6월</option>
-            <option value="07">7월</option>
-            <option value="08">8월</option>
-            <option value="09">9월</option>
-            <option value="10">10월</option>
-            <option value="11">11월</option>
-            <option value="12">12월</option>
-        </select>
-
-        <label for="customer">Revision:</label>
-        <select id="searchselect1">
-            <!-- <option value="">전체</option> -->
-            <option value="231201">231201</option>
-            <option value="231202">231202</option>
-            <option value="231203">231203</option>
-            <option value="231204">231204</option>
-            <option value="231205">231205</option>
-
-        </select>
-
-
-        <button onclick="load()">조회</button>
-
+        <button onclick="searchData()">조회</button>
+        <button onclick="openSaveModal()">신규</button>
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <th style="text-align:center;">구분</th>
-                <th style="text-align:center;">고객명</th>
-                <th style="text-align:center;">모델명</th>
-                <th style="text-align:center;">품목수</th>
-                <th style="text-align:center;">기초판가</th>
-                <th style="text-align:center;">기초<br>재료비율(%)</th>
-                <th style="text-align:center;">현재판가</th>
-                <th style="text-align:center;">현재재료비</th>
-                <th style="text-align:center;">현재<br>재료비율(%)</th>
-                <th style="text-align:center;">매입<br>비율</th>
-                <th style="text-align:center;">판매<br>계획수량</th>
-                <th style="text-align:center;">판매<br>계획금액</th>
-                <th style="text-align:center;">판매<br>실적금액</th>
-                <th style="text-align:center;">달성율</th>
-                <th style="text-align:center;">생산필요<br>수량</th>
-                <th style="text-align:center;">생산확정<br>수량</th>
-                <th style="text-align:center;">과부족</th>
-                <th style="text-align:center;">구매<br>예상금액</th>
-                <th style="text-align:center;">구매<br>실적금액</th>
-                <th style="text-align:center;">진척율</th>
-                <th style="text-align:center;">목표<br>차액</th>
-                <th style="text-align:center;">실적<br>차액</th>
-                <th style="text-align:center;">달성율</th>
-                <th style="text-align:center;">완제품<br>재고금액</th>
-                <th style="text-align:center;">자재<br>재고금액</th>
-            </tr>
+                <th style="text-align:center;" onclick="sortTable(0)">거래처명</th>
+                <th style="text-align:center;" onclick="sortTable(1)">매출현황(￦)</th>
+                <th style="text-align:center;" onclick="sortTable(2)">구매현황(￦)</th>
+                <th style="text-align:center;" onclick="sortTable(2)">차이(￦)</th>
+                <th style="text-align:center;" onclick="sortTable(2)">매입율(%)</th>
+               </tr>
         </thead>
         <tbody id="Datatbody">
 
         </tbody>
 
     </table>
-   
 
 
 
+    <div id="editModal">
+        <div class="mainheader">
+            <h1>생산확정 구매발주</h1>
 
-    <!-- 등록창 -->
-    <div id="popupOverlay" style="display: none; ">
-        <div id="popupContent" style="width: 30%;">
-            <div class="form-group">
-                <table style="width:100%;">
-                    <tr>
-                        <td colspan="2" class="popup_title">샘플 발주 추가</td>
-                    </tr>
-                </table>
-                <fieldset>
-                    <legend>
-                        입력정보
-                    </legend>
-
-                    <label class="rev">접수날짜:</label>
-                    <input type="date" id="datepicker1" style="font-size: 14px; font-weight: bold;">
-                    <label class="rev">출하날짜:</label>
-                    <input type="date" id="datepicker2" style="font-size: 14px; font-weight: bold;">
-                    <label class="rev">BOMNO:</label><br>
-                    <div class="bomno-container">
-                        <input type="text" class="bomno-input" id="bomno" autocomplete="off">
-                        <button class="bomno-button" onclick="searchbomno()">조회</button>
-                    </div>
-                    <label class="rev">고객사:</label>
-                    <input type="text" id="customer" readonly autocomplete="off">
-                    <label class="rev">모델명:</label>
-                    <input type="text" id="modelname" readonly autocomplete="off">
-                    <label class="rev">품목명:</label>
-                    <input type="text" id="itemname" readonly autocomplete="off">
-                    <label class="rev">고객사코드:</label>
-                    <input type="text" id="revison" readonly autocomplete="off">
-                    <label class="rev">수량:</label>
-                    <input type="text" id="ordercount" autocomplete="off">
-                    <label class="rev">작업구분:</label>
-                    <input type="text" id="part" autocomplete="off">
-                    <label class="rev">입고상태:</label>
-                    <select id="status">
-                        <option value="완료">완료</option>
-                        <option value="미완료">미완료</option>
-                    </select>
-                    <label class="rev">출고시간:</label>
-                    <select id="outtime">
-                        <option value="오전">오전</option>
-                        <option value="오후">오후</option>
-                    </select>
-                    <label class="rev">사양구분:</label>
-                    <input type="text" id="specification" autocomplete="off">
-                    <label class="rev">작성자:</label>
-                    <input type="text" id="employee" autocomplete="off">
-
-                </fieldset>
-            </div>
-            <button id="popupCloseBtn-save-close">취소</button>
-            <button id="popupCloseBtn-save" onclick="Datasave()">저장</button>
+            <span class="close" onclick="closeModal()">&times;</span>
         </div>
+        <div id="editForm">
+            <table class="styled-table" style="height: auto; width: 100%; float: left;">
+                <tr>
+                    <th colspan="13">생산확정</th>
+                    <th><button onclick="insertpurchaseorder()">저장</button></th>
+                </tr>
+                <tr style="height:50px;">
+                    <th style="text-align:center;">BOMNO</th>
+                    <th style="text-align:center;">모델명</th>
+                    <th style="text-align:center;">품목명</th>
+                    <th style="text-align:center;">자재명</th>
+                    <th style="text-align:center;">자재폭(mm)</th>
+                    <th style="text-align:center;">필요소요량</th>
+                    <th style="text-align:center;">현재고</th>
+                    <th style="text-align:center;">폭이상재고(M)</th>
+                    <th style="text-align:center;">시작LOT</th>
+                    <th style="text-align:center;">마지막LOT</th>
+                    <th style="text-align:center; width:70px;">1RL<br>컷수</th>
+                    <th style="text-align:center; width:100px;">재단폭</th>
+                    <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
+                    <th style="text-align:center; width:70px;">발주수량(롤)</th>
+                </tr>
+                <tbody id="orderlistbombody">
+                </tbody>
+            </table>
+
+
+        </div>
+
     </div>
 
 
@@ -183,10 +122,7 @@
         $(document).ready(function () {
 
             showLoading()
-            var currentMonth = new Date().getMonth() + 1;
-
-            // Set the selected option based on the current month
-            $('#searchselect2').val(currentMonth.toString());
+            load()
             $('#Datatbody').on('dblclick', 'tr', function () {
                 openEditModal(this); // Pass the clicked row to the function
             });
@@ -195,31 +131,10 @@
 
 
         function openSaveModal() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('editModal').style.display = 'block';
             load1()
-
-            $('#editForm').html(
-                '<h2>생산 확정 자재 소요량</h2>' +
-                '<table class="styled-table">' +
-                '<thead id="tableHead">' +
-                '<tr>' +
-                '<th style="text-align:center;">BOMNO</th>' +
-                '<th style="text-align:center;">모델명</th>' +
-                '<th style="text-align:center;">품목명</th>' +
-                '<th style="text-align:center;">자재명</th>' +
-                '<th style="text-align:center;">자재폭(mm)</th>' +
-                '<th style="text-align:center;">소요량(M)</th>' +
-                '<th style="text-align:center;">현재고(M)</th>' +
-                '<th style="text-align:center;">필요 발주수량(롤)</th>' +
-                '<th style="text-align:center;">수량(롤)</th>' +
-                '<button class="save-button" onclick="saveData()">저장</button>' +
-                '</tr>' +
-                '</thead>' +
-                '<tbody id="orderlistbombody">' +
-                '</tbody>' +
-                '</table>'
-            );
-
-            $('#editModal').fadeIn();
+            load2()
         }
 
 
@@ -263,66 +178,7 @@
 
 
 
-        function saveData() {
-            if (confirm("구매 발주 정보를 등록 하시겠습니까??") == true) {
 
-                var insertdate = new Date().toISOString().slice(0, 10);
-
-                var toolcode = $('#toolcode').val();
-                var madedate = $('#datepicker1').val();
-                var bomno = $('#bomno').val();
-                var customer = $('#customer').val();
-                var modelname = $('#modelname').val();
-                var itemname = $('#itemname').val();
-                var char = $('#char').val();
-                var part = $('#part').val();
-                var inputprice = $('#inputprice').val();
-                var outputprice = $('#outputprice').val();
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertpurchaseorder',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        "orderdate": insertdate,
-                        "itemname": toolcode,
-                        "codenumber": madedate,
-                        "specification": quantity,
-                        "quantity": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "char": char,
-                        "part": part,
-                        "inputprice": inputprice,
-                        "outputprice": outputprice
-
-
-
-
-                    }),
-                    success: function (result) {
-
-
-                    }
-                })
-
-                $('#popupOverlay').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
 
         function Dataedit() {
             if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
@@ -370,52 +226,122 @@
                 return false;
             }
         }
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
         function load() {
-            $('#Datatbody').empty();
-            var selectedValue = $('#searchselect1').val();
-            console.log('Selected value:', selectedValue);
-
+            $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectpurchaseordermodel',
+                url: server + '/api/selectpurchaseorder',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    revnum: selectedValue // Corrected the field name here
+                    // revnum : $('#popupOverlay1').val()
                 }),
-                success: function (result) {
+
+                success: function (data) {
                     var tableFoot = $('#dataCount');
-                    if (result.length === 0) {
+                    if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
-                        for (var i = 0; i < result.length; i++) {
+                        var sequenceNumber = 1;
+                        for (var i = 0; i < data.length; i++) {
                             $('#Datatbody').append(
                                 '<tr>' +
-                                '<td>국내</td>' +
-                                '<td>' + (result[i].customer || '') + '</td>' +
-                                '<td>' + (result[i].bomno || '') + '</td>' +
-                                '<td>' + (result[i].bomnocount || '') + '종</td>' +
-                                '<td style="text-align:right;" >' + (result[i].firstprice.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].firstpercent.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].nowprice.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].nowcost.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].nowpercent.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;" >보류</td>' +
-                                '<td style="text-align:right;" >' + (result[i].totalrevcount.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].totalrevprice.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].totalrevpricesiljok.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].achievementrate.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].adjustedtotalrevcount.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].totalquantityfromiteminput.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].totalproductionquantity.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;" >' + (result[i].total_rollprice.toLocaleString() || '0') + '</td>' +
+                                '<td id="' + (data[i].orderdate) + '">' + (data[i].orderdate || '') + '</td>' +
+                                '<td id="">' + (data[i].itemname || '') + '</td>' +
+                                '<td id="">' + (data[i].codenumber || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].width || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].length || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].quantity || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].unitprice || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].supplyamount || '') + '</td>' +
+                                '<td id="">' + (data[i].suppliername || '') + '</td>' +
+                                '<td id="">' + (data[i].bomno || '') + '</td>' +
+                                '<td id="">' + (data[i].ordertype || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].confirmed || '') + '</td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].cutting || '') + '</td>' +
+
+
+                                '<td id="data-id">' + (data[i].id || '') + '</td>' +
                                 '</tr>'
-                            );
+                            )
+                            $("td#data-id").hide();
                         }
+
+
                     }
                 }
             });
+
+        }
+
+        function insertpurchaseorder() {
+            if (confirm("구매 발주 정보를 등록 하시겠습니까??") == true) {
+
+                var insertdate = new Date().toISOString().slice(0, 10);
+
+                var itemname = $('#toolcode').val();
+                var codenumber = $('#datepicker1').val();
+                var width = $('#bomno').val();
+                var length = $('#customer').val();
+                var quantity = $('#modelname').val();
+                var unitprice = $('#itemname').val();
+                var supplyamount = $('#char').val();
+                var suppliername = $('#part').val();
+                var bomno = $('#inputprice').val();
+                var ordertype = $('#outputprice').val();
+                var cutting = $('#outputprice').val();
+                var confirmed = $('#outputprice').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertpurchaseorder',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "orderdate": insertdate,
+                        "itemname": itemname,
+                        "codenumber": codenumber,
+                        "width": width,
+                        "length": length,
+                        "quantity": quantity,
+                        "unitprice": unitprice,
+                        "supplyamount": supplyamount,
+                        "suppliername": suppliername,
+                        "bomno": bomno,
+                        "ordertype": ordertype,
+                        "cutting": cutting,
+                        "confirmed": confirmed
+
+
+
+
+                    }),
+                    success: function (result) {
+
+
+                    }
+                })
+
+                $('#popupOverlay').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+
         }
 
         function load1() {
@@ -429,30 +355,61 @@
                     if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
+                        // Sort data by materialname
+                        data.sort(function (a, b) {
+                            return a.materialname.localeCompare(b.materialname);
+                        });
+
+                        // Iterate through sorted data
                         for (var i = 0; i < data.length; i++) {
                             var rowId = 'TABLEROW' + (i + 1);
+                            var isFirstRow = i === 0 || data[i].materialname !== data[i - 1].materialname;
+
+                            if (isFirstRow) {
+                                // Add a row for materialname
+                                $('#orderlistbombody').append(
+                                    '<tr class="material-group">' +
+                                    '<td style="background-color:silver;">자재명</td>' +
+                                    '<td style="text-align:center; backgroung-color:white;">' + (data[i].materialname || '') + '</td>' +
+
+                                    '</tr>'
+                                );
+                            }
+
                             $('#orderlistbombody').append(
                                 '<tr id="' + rowId + '">' +
                                 '<td>' + (data[i].bomno || '') + '</td>' +
                                 '<td>' + (data[i].modelname || '') + '</td>' +
                                 '<td>' + (data[i].itemname || '') + '</td>' +
                                 '<td>' + (data[i].materialname || '') + '</td>' +
-                                '<td>' + (data[i].swidth || '') + '</td>' +
-                                '<td>' + (data[i].totalquantity1 || '') + '</td>' +
-                                '<td>' + (data[i].sum_quantity || '0') + '</td>' +
-                                '<td>' + (data[i].calculated_column || '0') + '</td>' +
-                                '<td><input type="text" class="editable-field" value="' + (data[i].calculated_column || '0') + '"></td>' +
-                                '</tr>'
-                            );
+                                '<td style="text-align:right;">' + (data[i].materialwidth || '') + '</td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].soyo || '') + '</td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].sum_quantity || '0') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].has || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].min_lotno || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].max_lotno || '') + '</td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].cut || '0') + '</td>' +
+                                '<td style="text-align:right;"><select><option>' + numberWithCommas(data[i].materialwidth || '') + '</option><option>' + numberWithCommas(data[i].width || '') + '</option></select></td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].a || '0') + '</td>' +
+                                '<td><input type="text" class="editable-field" value="' + numberWithCommas(data[i].RoundedResult || '0') + '"></td>' +
+                                '<td id="data-sqmprice" style="text-align:right;">' + (data[i].sqmprice || '0') + '</td>' +
+                                '<td id="data-rollprice" style="text-align:right;">' + (data[i].rollprice || '0') + '</td>' +
+                                '<td id="data-olquantity" style="text-align:right;">' + (data[i].quantity || '0') + '</td>' +
+                                '<td id="data-codenumber" style="text-align:right;">' + (data[i].codenumber || '0') + '</td>' +
 
-                            // Retrieve and log data for each row
-                            var tablerowData = getDataForRow(i + 1);
-                            console.log(tablerowData);
+                                '</tr>'
+
+                            );
+                            $('td#data-rollprice').hide()
+                            $('td#data-sqmprice').hide()
+                            $('td#data-olquantity').hide()
+                            $('td#data-codenumber').hide()
                         }
                     }
                 }
             });
         }
+
 
         // Function to retrieve data for a specific row
         function getDataForRow(rowIndex) {
@@ -480,15 +437,6 @@
 
             return rowData;
         }
-
-
-
-
-
-
-
-
-
     </script>
 
 

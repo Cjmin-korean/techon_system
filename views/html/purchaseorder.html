@@ -56,15 +56,16 @@
                 <th style="text-align:center;" onclick="sortTable(0)">발주일자</th>
                 <th style="text-align:center;" onclick="sortTable(1)">품목명</th>
                 <th style="text-align:center;" onclick="sortTable(2)">품목코드</th>
-                <th style="text-align:center;" onclick="sortTable(3)">규격명</th>
-                <th style="text-align:center;" onclick="sortTable(4)">수량</th>
-                <th style="text-align:center;" onclick="sortTable(5)">단가</th>
-                <th style="text-align:center;" onclick="sortTable(6)">공급가액</th>
-                <th style="text-align:center;" onclick="sortTable(7)">거래처명</th>
-                <th style="text-align:center;" onclick="sortTable(8)">BOMNO</th>
-                <th style="text-align:center;" onclick="sortTable(9)">발주구분</th>
-                <th style="text-align:center;" onclick="sortTable(10)">재단규격</th>
-                <th style="text-align:center;" onclick="sortTable(11)">생산확정수량</th>
+                <th style="text-align:center;" onclick="sortTable(3)">전폭<br>(mm)</th>
+                <th style="text-align:center;" onclick="sortTable(4)">M</th>
+                <th style="text-align:center;" onclick="sortTable(5)">수량</th>
+                <th style="text-align:center;" onclick="sortTable(6)">단가</th>
+                <th style="text-align:center;" onclick="sortTable(7)">공급가액</th>
+                <th style="text-align:center;" onclick="sortTable(8)">거래처명</th>
+                <th style="text-align:center;" onclick="sortTable(9)">BOMNO</th>
+                <th style="text-align:center;" onclick="sortTable(10)">발주구분</th>
+                <th style="text-align:center;" onclick="sortTable(11)">재단규격</th>
+                <th style="text-align:center;" onclick="sortTable(12)">생산확정수량</th>
 
 
             </tr>
@@ -84,9 +85,11 @@
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div id="editForm">
-            <table class="styled-table" style="height: auto; width: 60%; float: left;">
+            <table class="styled-table" style="height: auto; width: 100%; float: left;">
                 <tr>
-                    <th colspan="14">생산확정</th>
+                    <th colspan="12">생산확정</th>
+                    <th><input type="text" id="num"></th>
+                    <th><button onclick="insertpurchaseorder()">저장</button></th>
                 </tr>
                 <tr style="height:50px;">
                     <th style="text-align:center;">BOMNO</th>
@@ -100,29 +103,14 @@
                     <th style="text-align:center;">시작LOT</th>
                     <th style="text-align:center;">마지막LOT</th>
                     <th style="text-align:center; width:70px;">1RL<br>컷수</th>
-                    <th style="text-align:center; width:70px;">재단폭</th>
+                    <th style="text-align:center; width:100px;">재단폭</th>
                     <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
-                    <th style="text-align:center; width:70px;">발주수량(롤)</th>
+                    <th style="text-align:center; width:120px;">발주수량(롤)</th>
                 </tr>
                 <tbody id="orderlistbombody">
                 </tbody>
             </table>
-            <!-- <table class="styled-table" style=" width: 50%; float: right;">
-                <tr style="height:50px;">
 
-                    <th style="text-align:center;">자재명</th>
-                    <th style="text-align:center;">자재폭(mm)</th>
-                    <th style="text-align:center;">소요량(M)</th>
-                    <th style="text-align:center;">현재고(M)</th>
-                    <th style="text-align:center;">이상폭 재고</th>
-                    <th style="text-align:center;">필요 발주수량(롤)</th>
-                    <th style="text-align:center;">시작LOT</th>
-                    <th style="text-align:center;">마지막LOT</th>
-                    <th style="text-align:center;">수량(롤)</th>
-                </tr>
-                <tbody id="orderlistbombody1">
-                </tbody>
-            </table> -->
 
         </div>
 
@@ -157,7 +145,6 @@
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('editModal').style.display = 'block';
             load1()
-            load2()
         }
 
 
@@ -201,66 +188,7 @@
 
 
 
-        function saveData() {
-            if (confirm("구매 발주 정보를 등록 하시겠습니까??") == true) {
 
-                var insertdate = new Date().toISOString().slice(0, 10);
-
-                var toolcode = $('#toolcode').val();
-                var madedate = $('#datepicker1').val();
-                var bomno = $('#bomno').val();
-                var customer = $('#customer').val();
-                var modelname = $('#modelname').val();
-                var itemname = $('#itemname').val();
-                var char = $('#char').val();
-                var part = $('#part').val();
-                var inputprice = $('#inputprice').val();
-                var outputprice = $('#outputprice').val();
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertpurchaseorder',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        "orderdate": insertdate,
-                        "itemname": toolcode,
-                        "codenumber": madedate,
-                        "specification": quantity,
-                        "quantity": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "char": char,
-                        "part": part,
-                        "inputprice": inputprice,
-                        "outputprice": outputprice
-
-
-
-
-                    }),
-                    success: function (result) {
-
-
-                    }
-                })
-
-                $('#popupOverlay').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
 
         function Dataedit() {
             if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
@@ -308,6 +236,9 @@
                 return false;
             }
         }
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
         function load() {
             $('#Datatbody').empty()
@@ -329,18 +260,19 @@
                         for (var i = 0; i < data.length; i++) {
                             $('#Datatbody').append(
                                 '<tr>' +
-                                '<td>' + (data[i].orderdate || '') + '</td>' +
-                                '<td>' + (data[i].itemname || '') + '</td>' +
-                                '<td>' + (data[i].codenumber || '') + '</td>' +
-                                '<td>' + (data[i].specification || '') + '</td>' +
-                                '<td>' + (data[i].quantity || '') + '</td>' +
-                                '<td>' + (data[i].unitprice || '') + '</td>' +
-                                '<td>' + (data[i].supplyamount || '') + '</td>' +
-                                '<td>' + (data[i].suppliername || '') + '</td>' +
-                                '<td>' + (data[i].bomno || '') + '</td>' +
-                                '<td>' + (data[i].ordertype || '') + '</td>' +
-                                '<td>' + (data[i].confirmed || '') + '</td>' +
-                                '<td>' + (data[i].cutting.toLocaleString() || '') + '</td>' +
+                                '<td id="' + (data[i].orderdate) + '">' + (data[i].orderdate || '') + '</td>' +
+                                '<td id="">' + (data[i].itemname || '') + '</td>' +
+                                '<td id="">' + (data[i].codenumber || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].width || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].length || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].quantity || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].unitprice || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].supplyamount || '') + '</td>' +
+                                '<td id="">' + (data[i].suppliername || '') + '</td>' +
+                                '<td id="">' + (data[i].bomno || '') + '</td>' +
+                                '<td id="">' + (data[i].ordertype || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].confirmed || '') + '</td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(data[i].cutting || '') + '</td>' +
 
 
                                 '<td id="data-id">' + (data[i].id || '') + '</td>' +
@@ -353,10 +285,72 @@
                     }
                 }
             });
+
         }
-        function numberWithCommas(x) {
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        function insertpurchaseorder() {
+            var itemname = $('#bomno').val();
+            console.log(itemname)
+            if (confirm("구매 발주 정보를 등록 하시겠습니까??")) {
+                for (var i = 0; i < $('#num').val(); i++) {
+                    var insertdate = new Date().toISOString().slice(0, 10);
+
+                    // var codenumber = $('#codenumber' + i + '').val();
+                    // var width = parseFloat($('#data-width' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
+                    // var length = parseFloat($('#data-length' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
+                    // var quantity = parseFloat($('#RoundedResult' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
+                    // var unitprice = parseFloat($('#data-rollprice' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
+                    // var supplyamount = unitprice * quantity;
+                    // var suppliername = $('#data-supplier').val();
+                    // var bomno = $('#bomno0').val();
+                    // var ordertype = '양산';
+                    // var cutting = parseFloat($('#materialwidth' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
+                    // var confirmed = parseFloat($('#data-quantity' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/insertpurchaseorder',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "orderdate": insertdate,
+                            "itemname": itemname,
+                            // "codenumber": codenumber,
+                            // "width": width,
+                            // "length": length,
+                            // "quantity": quantity,
+                            // "unitprice": unitprice,
+                            // "supplyamount": supplyamount,
+                            // "suppliername": suppliername,
+                            // "bomno": bomno,
+                            // "ordertype": ordertype,
+                            // "cutting": cutting,
+                            // "confirmed": confirmed
+                        }),
+                        success: function (result) {
+                            // Handle success
+                        }
+                    });
+                }
+
+                $('#popupOverlay').fadeOut();
+                setTimeout(function () {
+                    load();
+                }, 50);
+
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
         }
+
+
         function load1() {
             $('#orderlistbombody').empty();
             $.ajax({
@@ -364,6 +358,7 @@
                 url: server + '/api/selectorderlistinformation',
                 dataType: 'json',
                 success: function (data) {
+                    $('#num').val(data.length)
                     var tableFoot = $('#dataCount');
                     if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
@@ -391,27 +386,43 @@
 
                             $('#orderlistbombody').append(
                                 '<tr id="' + rowId + '">' +
-                                '<td>' + (data[i].bomno || '') + '</td>' +
-                                '<td>' + (data[i].modelname || '') + '</td>' +
-                                '<td>' + (data[i].itemname || '') + '</td>' +
-                                '<td>' + (data[i].materialname || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].materialwidth || '') + '</td>' +
-                                '<td style="text-align:right;">' + numberWithCommas(data[i].totalquantity1 || '') + '</td>' +
-                                '<td style="text-align:right;">' + numberWithCommas(data[i].sum_quantity || '0') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].has || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].min_lotno || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].max_lotno || '') + '</td>' +
-                                '<td style="text-align:right;"></td>' +
-                                '<td style="text-align:right;"><select><option>5</option><option>1080</option></select></td>' +
-                                '<td style="text-align:right;">' + numberWithCommas(data[i].calculated_column1 || '0') + '</td>' +
-                                '<td><input type="text" class="editable-field" value="' + numberWithCommas(data[i].calculated_column || '0') + '"></td>' +
+                                '<td id="bomno">' + (data[i].bomno || '') + '</td>' +
+                                '<td id="modelname' + i + '">' + (data[i].modelname || '') + '</td>' +
+                                '<td id="itemname' + i + '">' + (data[i].itemname || '') + '</td>' +
+                                '<td id="materialname' + i + '">' + (data[i].materialname || '') + '</td>' +
+                                '<td id="materialwidth' + i + '" style="text-align:right;">' + (data[i].materialwidth || '') + '</td>' +
+                                '<td id="soyo' + i + '" style="text-align:right;">' + numberWithCommas(data[i].soyo || '') + '</td>' +
+                                '<td id="sum_quantity' + i + '" style="text-align:right;">' + numberWithCommas(data[i].sum_quantity || '0') + '</td>' +
+                                '<td id="has' + i + '" style="text-align:right;">' + (data[i].has || '') + '</td>' +
+                                '<td id="min_lotno' + i + '" style="text-align:right;">' + (data[i].min_lotno || '') + '</td>' +
+                                '<td id="max_lotno' + i + '" style="text-align:right;">' + (data[i].max_lotno || '') + '</td>' +
+                                '<td id="cut' + i + '" style="text-align:right;">' + numberWithCommas(data[i].cut || '0') + '</td>' +
+                                '<td style="text-align:right;"><select  id="materialwidth' + i + '"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="' + numberWithCommas(data[i].width) + '">' + numberWithCommas(data[i].width || '') + '</option></select></td>' +
+                                '<td id="RoundedResult' + i + '" style="text-align:right;">' + numberWithCommas(data[i].a || '0') + '</td>' +
+                                '<td><input type="text" id="RoundedResult' + i + '" class="editable-field" value="' + numberWithCommas(data[i].RoundedResult || '0') + '"></td>' +
+                                '<td id="data-sqmprice' + i + '" style="text-align:right;">' + (data[i].sqmprice || '0') + '</td>' +
+                                '<td id="data-rollprice' + i + '" style="text-align:right;">' + (data[i].rollprice || '0') + '</td>' +
+                                '<td id="data-olquantity' + i + '" style="text-align:right;">' + (data[i].quantity || '0') + '</td>' +
+                                '<td id="data-codenumber' + i + '" style="text-align:right;">' + (data[i].codenumber || '0') + '</td>' +
+                                '<td id="data-supplier' + i + '" style="text-align:right;">' + (data[i].supplier || '0') + '</td>' +
+                                '<td id="data-width' + i + '" style="text-align:right;">' + (data[i].width || '0') + '</td>' +
+                                '<td id="data-length' + i + '" style="text-align:right;">' + (data[i].length || '0') + '</td>' +
                                 '</tr>'
+
                             );
+                            $('td#data-rollprice' + i + '').hide()
+                            $('td#data-sqmprice' + i + '').hide()
+                            $('td#data-olquantity' + i + '').hide()
+                            $('td#data-codenumber' + i + '').hide()
+                            $('td#data-supplier' + i + '').hide()
+                            $('td#data-width' + i + '').hide()
+                            $('td#data-length' + i + '').hide()
                         }
                     }
                 }
             });
         }
+
 
         // Function to retrieve data for a specific row
         function getDataForRow(rowIndex) {
