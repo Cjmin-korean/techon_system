@@ -133,7 +133,7 @@
 
                 <tr>
                     <td><label for="editAuthor">BOMNO</label></td>
-                    <td><input type="text" id="bomno-save" value="" autocomplete="off"></td>
+                    <td><input type="text" id="bomno-save" oninput="bomchanged()" value="" autocomplete="off"></td>
                     <td><label for="editAuthor">고객사명</label></td>
                     <td><input type="text" ondblclick="customerDoubleClick();"
                             style="background-color: whitesmoke; cursor: pointer;" readonly id="customer-save" value=""
@@ -1645,6 +1645,29 @@
 
         var rowCount = $('#bomtableBody-edit tr').length;
         $('#countdown').val(rowCount);
+
+        function bomchanged() {
+            var bomnoSaveValue = $('#bomno-save').val();
+            var customerinitial = bomnoSaveValue.substring(0, 3);
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcustomerinformationwhere',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    customerinitial: $('#bomno-save').val()
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                    $('#customer-save').val(result[0].customername)
+                }
+            });
+
+        }
+
+
     </script>
 
 

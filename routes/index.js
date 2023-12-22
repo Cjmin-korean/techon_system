@@ -1515,6 +1515,32 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectcustomerinformationwhere', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('customerinitial', sql.NVarChar, req.body.customerinitial)
+
+                .query(
+                    "SELECT " +
+                    "customername" +
+                    " FROM customerinformation where customerinitial=@customerinitial")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectmaterialinformation', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
