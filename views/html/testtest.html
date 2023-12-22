@@ -67,9 +67,35 @@
         background-color: #45a049;
     }
 
-    /* ... (existing styles) ... */
+    td {
+        font-weight: bold;
+        border: 3px solid black;
+        font-size: 18px;
+    }
+
+    #printPreview {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 1000;
+        overflow-y: auto;
+    }
 
     @media print {
+        #printPreviewButton,
+        #printPreview {
+            display: none;
+        }
+
+        @page {
+            size: 6cm 4cm;
+            margin: 0;
+        }
+
         body * {
             visibility: hidden;
         }
@@ -80,77 +106,99 @@
         }
 
         #datatable {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 20;
-            height: 20;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0;
+            margin-right: 0;
         }
 
-        /* Hide time and date in the header */
+        #datatable td,
+        #datatable th {
+            border: 1px solid black;
+            padding: 3px;
+            text-align: center;
+        }
+
         .mainheader {
             display: none;
         }
 
-        /* Hide domain in the footer */
         body::after {
             content: none !important;
+        }
+
+        html,
+        body {
+            width: 6cm;
+            height: 2cm;
+            margin: 0;
+            background: blue;
         }
     }
 </style>
 
 <body>
+    <button id="printPreviewButton">Print Preview</button>
 
-    <div id="editModal" style="width:30%">
+    <div id="editModal">
         <table class="styled-table" id="datatable" style="border:3px solid black;">
             <tr>
-                <td style="border:3px solid black;" style="width:20%">자재</td>
-                <td style="border:3px solid black;" colspan="3">ESL-025(ZC)</td>
+                <td style="width:30%">자재명</td>
+                <td colspan="3">ESL-025(ZC)</td>
             </tr>
             <tr>
-                <td style="border:3px solid black;">폭</td>
+                <td>폭</td>
                 <td>1,080</td>
-                <td style="border:3px solid black;" rowspan="5" style="width: 70px; height: 70px;">
+                <td rowspan="5" style="width: 70px; height: 70px;">
                     <div id="qrcode"></div>
                 </td>
             </tr>
             <tr>
-                <td style="border:3px solid black;">길이</td>
-                <td style="border:3px solid black;">100</td>
-
+                <td>길이</td>
+                <td>100</td>
             </tr>
             <tr>
-                <td style="border:3px solid black;">LOT NO.</td>
-                <td style="border:3px solid black;">20231201</td>
-               
+                <td>LOT NO.</td>
+                <td>20231201</td>
             </tr>
             <tr>
-                <td style="border:3px solid black;">제조일자</td>
-                <td style="border:3px solid black;">2023-12-01</td>
+                <td>제조일자</td>
+                <td>2023-12-01</td>
             </tr>
             <tr>
-                <td style="border:3px solid black;">만료일자</td>
-                <td style="border:3px solid black;">2023-12-01</td>
+                <td>만료일자</td>
+                <td>2023-12-01</td>
             </tr>
         </table>
         <button onclick="printQRCode()">Print QR Code</button>
     </div>
 
-    <script>
-        // 프린트 함수
-        function printQRCode() {
-            // 자재명을 가져오기
-            var materialName = document.querySelector('td[colspan="3"]').textContent;
+    <div id="printPreview">
+        <div id="printPreviewContent"></div>
+    </div>
 
-            // qrcode.js를 사용하여 QR 코드 생성
+    <script>
+        document.getElementById('printPreviewButton').addEventListener('click', function() {
+            var printPreview = document.getElementById('printPreview');
+            printPreview.style.display = 'block';
+
+            var contentToPrint = document.getElementById('datatable').cloneNode(true);
+            var printPreviewContent = document.getElementById('printPreviewContent');
+            printPreviewContent.innerHTML = '';
+            printPreviewContent.appendChild(contentToPrint);
+
+            window.print();
+
+            printPreview.style.display = 'none';
+        });
+
+        function printQRCode() {
+            var materialName = document.querySelector('td[colspan="3"]').textContent;
             var qrcode = new QRCode(document.getElementById("qrcode"), {
                 text: materialName,
                 width: 70,
                 height: 70
             });
-
-            // 프린트 다이얼로그 열기
-            // window.print();
         }
     </script>
 
