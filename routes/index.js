@@ -1195,30 +1195,30 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " SELECT  "+
-                    "    I.BOMNO,  "+
-                    "    I.PART,  "+
-                    "    I.MODELNAME,  "+
-                    "    I.ITEMNAME,  "+
-                    "    I.CUSTOMER,  "+
-                    "    I.ITEMCODE,  "+
-                    "    I.ITEMPRICE,  "+
-                    "    COALESCE(SUM(B.COST), 0) AS TOTALCOST,  "+
-                    "    CASE  "+
-                    "        WHEN I.ITEMPRICE = 0 THEN 0  "+
-                    "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE, 1)  "+
-                    "    END AS COSTPRICERATIO  ,"+
-                    "    I.PCS, "+
-                    "    I.CAVITY, "+
-                    "    I.WORKING, "+
-                    "    I.WORKPART, "+
-                    "    I.DIRECTION, "+
-                    "        I.ORDERCOUNT "+
-                    "   FROM  "+
-                    "       ITEMINFO I  "+
-                    "   LEFT JOIN  "+
-                    "       BOMMANAGEMENT B ON I.BOMNO = B.BOMNO  "+
-                    "   GROUP BY  "+
+                    " SELECT  " +
+                    "    I.BOMNO,  " +
+                    "    I.PART,  " +
+                    "    I.MODELNAME,  " +
+                    "    I.ITEMNAME,  " +
+                    "    I.CUSTOMER,  " +
+                    "    I.ITEMCODE,  " +
+                    "    I.ITEMPRICE,  " +
+                    "                            CAST(COALESCE(SUM(B.COST), 0) AS DECIMAL(10, 2)) AS TOTALCOST,                    " +
+                    "    CASE  " +
+                    "        WHEN I.ITEMPRICE = 0 THEN 0  " +
+                    "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE, 1)  " +
+                    "    END AS COSTPRICERATIO  ," +
+                    "    I.PCS, " +
+                    "    I.CAVITY, " +
+                    "    I.WORKING, " +
+                    "    I.WORKPART, " +
+                    "    I.DIRECTION, " +
+                    "        I.ORDERCOUNT " +
+                    "   FROM  " +
+                    "       ITEMINFO I  " +
+                    "   LEFT JOIN  " +
+                    "       BOMMANAGEMENT B ON I.BOMNO = B.BOMNO  " +
+                    "   GROUP BY  " +
                     "       I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE ,I.PCS,I.CAVITY,I.WORKING,	I.WORKPART,	I.DIRECTION,	I.ORDERCOUNT ")
 
                 .then(result => {
@@ -1569,7 +1569,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('suppliername', sql.NVarChar, req.body.suppliername)
+                .input('suppliername', sql.NVarChar, req.body.suppliername)
 
                 .query(
                     "SELECT " +
@@ -1988,7 +1988,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('bomno', sql.NVarChar, req.body.bomno)
 
                 .query(
                     "select * from bommanagement where bomno=@bomno")
@@ -2965,61 +2965,61 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT "+
-                "    ol.bomno, "+
-                "    ol.modelname, "+
-                "    ol.itemname, "+
-                "    bm.materialname, "+
-                "    bm.materialwidth, "+
-                "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, "+
-                "    CASE "+
-                "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 "+
-                "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) "+
-                "        ELSE 0 "+
-                "    END AS sum_quantity, "+
-                "    CASE "+
-                "        WHEN EXISTS ( "+
-                "            SELECT 1 "+
-                "            FROM materialinput "+
-                "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth "+
-                "        ) THEN 'Y' "+
-                "        ELSE 'N' "+
-                "    END AS has, "+
-                "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue, "+
-                "        (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) "+
-                "     AS calculated_column, "+
-                "      CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) "+
-                "     AS soyo, "+
-                "      floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) "+
-                
-                "     AS cut, "+
-                "         floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length "+
-                "     AS test, "+
-                "       ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03))/ (floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length),2) "+
-                " AS a, "+
-                "        CEILING( "+
-                "        (SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / "+
-                "        (floor((COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length)) "+
-                "        ) AS RoundedResult, "+
-                "    MIN(ol.lotno) AS min_lotno, "+
-                "    MAX(ol.lotno) AS max_lotno, "+
-                " mi.width, "+
-                " mi.length, "+
-                " mi.sqmprice, "+
-                " 	mi.rollprice, "+
-                " 	mi.supplier,ol.quantity , mi.codenumber  "+
-                "FROM "+
-                "    orderlist ol "+
-                "JOIN "+
-                "    bommanagement bm ON ol.bomno = bm.bomno "+
-                "LEFT JOIN "+
-                "    Materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
-                "WHERE "+
-                "    ol.orderstatus = '생산확정' "+
-                "GROUP BY "+
-                "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length , mi.width ,mi.sqmprice, mi.rollprice ,mi.supplier,ol.quantity , mi.codenumber "+
-                "ORDER BY "+
-                "    ol.bomno, bm.materialwidth ASC;           "
+                    "SELECT " +
+                    "    ol.bomno, " +
+                    "    ol.modelname, " +
+                    "    ol.itemname, " +
+                    "    bm.materialname, " +
+                    "    bm.materialwidth, " +
+                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, " +
+                    "    CASE " +
+                    "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 " +
+                    "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) " +
+                    "        ELSE 0 " +
+                    "    END AS sum_quantity, " +
+                    "    CASE " +
+                    "        WHEN EXISTS ( " +
+                    "            SELECT 1 " +
+                    "            FROM materialinput " +
+                    "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth " +
+                    "        ) THEN 'Y' " +
+                    "        ELSE 'N' " +
+                    "    END AS has, " +
+                    "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue, " +
+                    "        (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) " +
+                    "     AS calculated_column, " +
+                    "      CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) " +
+                    "     AS soyo, " +
+                    "      floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) " +
+
+                    "     AS cut, " +
+                    "         floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length " +
+                    "     AS test, " +
+                    "       ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03))/ (floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length),2) " +
+                    " AS a, " +
+                    "        CEILING( " +
+                    "        (SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / " +
+                    "        (floor((COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length)) " +
+                    "        ) AS RoundedResult, " +
+                    "    MIN(ol.lotno) AS min_lotno, " +
+                    "    MAX(ol.lotno) AS max_lotno, " +
+                    " mi.width, " +
+                    " mi.length, " +
+                    " mi.sqmprice, " +
+                    " 	mi.rollprice, " +
+                    " 	mi.supplier,ol.quantity , mi.codenumber  " +
+                    "FROM " +
+                    "    orderlist ol " +
+                    "JOIN " +
+                    "    bommanagement bm ON ol.bomno = bm.bomno " +
+                    "LEFT JOIN " +
+                    "    Materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "WHERE " +
+                    "    ol.orderstatus = '생산확정' " +
+                    "GROUP BY " +
+                    "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length , mi.width ,mi.sqmprice, mi.rollprice ,mi.supplier,ol.quantity , mi.codenumber " +
+                    "ORDER BY " +
+                    "    ol.bomno, bm.materialwidth ASC;           "
                 )
                 .then(result => {
 
@@ -3040,7 +3040,7 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT  " +
-             
+
                     "    bm.materialname,  " +
                     "    bm.materialwidth,     " +
                     "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1,  " +
@@ -3061,13 +3061,13 @@ module.exports = function (app) {
                     "            WHERE materialname = bm.materialname  " +
                     "        )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length  " +
                     "    ) AS calculated_column, " +
-                    "FLOOR( "+
-                    "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) - ( "+
-                    "        SELECT COALESCE(SUM(quantity), 0)    "+
-                    "        FROM materialinput    "+
-                    "        WHERE materialname = bm.materialname   "+
-                    "    )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length * 10 "+
-                    ") / 10 AS calculated_column1, "+
+                    "FLOOR( " +
+                    "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) - ( " +
+                    "        SELECT COALESCE(SUM(quantity), 0)    " +
+                    "        FROM materialinput    " +
+                    "        WHERE materialname = bm.materialname   " +
+                    "    )) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) / mi.length * 10 " +
+                    ") / 10 AS calculated_column1, " +
                     "      MIN(ol.lotno) AS min_lotno,  " +
                     "      MAX(ol.lotno) AS max_lotno " +
                     " FROM  " +
@@ -4265,10 +4265,10 @@ module.exports = function (app) {
 
 
                 .query(
-                    " SELECT DISTINCT supplier "+
-                   "  FROM materialinfoinformation "+
-                   "  WHERE supplier LIKE '%' + @supplier + '%' "+
-                   " ORDER BY supplier ASC;")
+                    " SELECT DISTINCT supplier " +
+                    "  FROM materialinfoinformation " +
+                    "  WHERE supplier LIKE '%' + @supplier + '%' " +
+                    " ORDER BY supplier ASC;")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -4451,37 +4451,37 @@ module.exports = function (app) {
 
 
                 .query(
-                    "UPDATE bommanagement "+
-                    " SET savedate = @savedate, "+
-                    "     main = @main, "+
-                    "     model = @model, "+
-                    "     itemname = @itemname, "+
-                    "     materialname = @materialname, "+
-                    "     status = @status, "+
-                    "     char = @char, "+
-                    "     etc = @etc, "+
-                    "     materialwidth = @materialwidth, "+
-                    "     using = @using,"+
-                    "     onepid = @onepid,"+
-                    "     twopid = @twopid,"+
-                    "     soyo = @soyo,"+
-                    "     ta = @ta,"+
-                    "     allta = @allta,"+
-                    "     talength = @talength,"+
-                    "     loss = @loss,"+
-                    "     cost = @cost,"+
-                    "     rlcut = @rlcut,"+
-                    "     rlproduct = @rlproduct,"+
-                    "     width = @width,"+
-                    "     length = @length,"+
-                    "     sqmprice = @sqmprice,"+
-                    "     rollprice = @rollprice, "+
-                    "     unit = @unit,"+
-                    "     manufacterer = @manufacterer, "+
-                    "     supplier = @supplier, "+
-                    "     codenumber = @codenumber "+
+                    "UPDATE bommanagement " +
+                    " SET savedate = @savedate, " +
+                    "     main = @main, " +
+                    "     model = @model, " +
+                    "     itemname = @itemname, " +
+                    "     materialname = @materialname, " +
+                    "     status = @status, " +
+                    "     char = @char, " +
+                    "     etc = @etc, " +
+                    "     materialwidth = @materialwidth, " +
+                    "     using = @using," +
+                    "     onepid = @onepid," +
+                    "     twopid = @twopid," +
+                    "     soyo = @soyo," +
+                    "     ta = @ta," +
+                    "     allta = @allta," +
+                    "     talength = @talength," +
+                    "     loss = @loss," +
+                    "     cost = @cost," +
+                    "     rlcut = @rlcut," +
+                    "     rlproduct = @rlproduct," +
+                    "     width = @width," +
+                    "     length = @length," +
+                    "     sqmprice = @sqmprice," +
+                    "     rollprice = @rollprice, " +
+                    "     unit = @unit," +
+                    "     manufacterer = @manufacterer, " +
+                    "     supplier = @supplier, " +
+                    "     codenumber = @codenumber " +
                     " WHERE id = @id; "
-                    
+
                 )
                 .then(result => {
 
@@ -5529,6 +5529,32 @@ module.exports = function (app) {
 
                 .query(
                     'update iteminfo set modelname=@modelname,itemname=@itemname,itemcode=@itemcode,bomno=@bomno,customer=@customer,working=@working,cost=@cost,cavity=@cavity,onepidding=@onepidding,twopidding=@twopidding,one=@one,two=@two,rev=@rev,updatedate=@updatedate,minus=@minus,part=@part,itemprice=@itemprice where bomno=@bomno'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateiteminfoitemprice', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('itemprice', sql.Float, req.body.itemprice)
+
+
+                .query(
+                    'update iteminfo set itemprice=@itemprice where bomno=@bomno'
                 )
                 .then(result => {
 

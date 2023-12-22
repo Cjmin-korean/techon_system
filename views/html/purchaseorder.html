@@ -289,24 +289,37 @@
         }
 
         function insertpurchaseorder() {
-            var itemname = $('#bomno').val();
-            console.log(itemname)
+            var rowCount = $('#orderlistbombody tr').length;
+
+
+
+
             if (confirm("구매 발주 정보를 등록 하시겠습니까??")) {
                 for (var i = 0; i < $('#num').val(); i++) {
                     var insertdate = new Date().toISOString().slice(0, 10);
 
-                    // var codenumber = $('#codenumber' + i + '').val();
-                    // var width = parseFloat($('#data-width' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
-                    // var length = parseFloat($('#data-length' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
-                    // var quantity = parseFloat($('#RoundedResult' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
-                    // var unitprice = parseFloat($('#data-rollprice' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
-                    // var supplyamount = unitprice * quantity;
-                    // var suppliername = $('#data-supplier').val();
-                    // var bomno = $('#bomno0').val();
-                    // var ordertype = '양산';
-                    // var cutting = parseFloat($('#materialwidth' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
-                    // var confirmed = parseFloat($('#data-quantity' + i + '').val().replace(/,/g, '') || 0); // Added check for undefined
+                    var bomno = document.getElementById('bomno' + i + '').textContent
+                    var modelname = document.getElementById('modelname' + i + '').textContent
+                    var itemname = document.getElementById('itemname' + i + '').textContent
+                    var materialname = document.getElementById('materialname' + i + '').textContent
+                    var materialwidth = document.getElementById('materialwidth' + i + '').textContent
+                    var soyo = document.getElementById('soyo' + i + '').textContent
+                    var minlotno = document.getElementById('min_lotno' + i + '').textContent
+                    var maxlotno = document.getElementById('max_lotno' + i + '').textContent
+                    var cutmaterialwidth = document.getElementById('cutmaterialwidth' + i + '').textContent
+                    var RoundedResult = document.getElementById('RoundedResult' + i + '').textContent
+                    var codenumber = document.getElementById('data-codenumber' + i + '').textContent
+                    var length = document.getElementById('data-length' + i + '').textContent
+                    var rollprice = document.getElementById('data-rollprice' + i + '').textContent
+                    var supplier = document.getElementById('data-supplier' + i + '').textContent
+                    var cut = document.getElementById('cut' + i + '').textContent
+                    var olquantity = document.getElementById('data-olquantity' + i + '').textContent
 
+
+                    var quantity = RoundedResult;
+                    var unitprice = rollprice;
+
+                    var supplyamount = quantity * unitprice;
                     $.ajax({
                         type: 'POST',
                         url: server + '/api/insertpurchaseorder',
@@ -315,17 +328,17 @@
                         data: JSON.stringify({
                             "orderdate": insertdate,
                             "itemname": itemname,
-                            // "codenumber": codenumber,
-                            // "width": width,
-                            // "length": length,
-                            // "quantity": quantity,
-                            // "unitprice": unitprice,
-                            // "supplyamount": supplyamount,
-                            // "suppliername": suppliername,
-                            // "bomno": bomno,
-                            // "ordertype": ordertype,
-                            // "cutting": cutting,
-                            // "confirmed": confirmed
+                            "codenumber": materialname,
+                            "width": cutmaterialwidth,
+                            "length": length,
+                            "quantity": RoundedResult,
+                            "unitprice": rollprice,
+                            "supplyamount": supplyamount,
+                            "suppliername": supplier,
+                            "bomno": bomno,
+                            "ordertype": '양산',
+                            "cutting": cut,
+                            "confirmed": olquantity
                         }),
                         success: function (result) {
                             // Handle success
@@ -333,7 +346,8 @@
                     });
                 }
 
-                $('#popupOverlay').fadeOut();
+                $('#editModal').fadeOut();
+                $('#overlay').fadeOut();
                 setTimeout(function () {
                     load();
                 }, 50);
@@ -359,6 +373,7 @@
                 dataType: 'json',
                 success: function (data) {
                     $('#num').val(data.length)
+
                     var tableFoot = $('#dataCount');
                     if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
@@ -386,7 +401,7 @@
 
                             $('#orderlistbombody').append(
                                 '<tr id="' + rowId + '">' +
-                                '<td id="bomno">' + (data[i].bomno || '') + '</td>' +
+                                '<td id="bomno' + i + '">' + (data[i].bomno || '') + '</td>' +
                                 '<td id="modelname' + i + '">' + (data[i].modelname || '') + '</td>' +
                                 '<td id="itemname' + i + '">' + (data[i].itemname || '') + '</td>' +
                                 '<td id="materialname' + i + '">' + (data[i].materialname || '') + '</td>' +
@@ -397,8 +412,8 @@
                                 '<td id="min_lotno' + i + '" style="text-align:right;">' + (data[i].min_lotno || '') + '</td>' +
                                 '<td id="max_lotno' + i + '" style="text-align:right;">' + (data[i].max_lotno || '') + '</td>' +
                                 '<td id="cut' + i + '" style="text-align:right;">' + numberWithCommas(data[i].cut || '0') + '</td>' +
-                                '<td style="text-align:right;"><select  id="materialwidth' + i + '"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="' + numberWithCommas(data[i].width) + '">' + numberWithCommas(data[i].width || '') + '</option></select></td>' +
-                                '<td id="RoundedResult' + i + '" style="text-align:right;">' + numberWithCommas(data[i].a || '0') + '</td>' +
+                                '<td style="text-align:right;"><select  id="cutmaterialwidth' + i + '"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="' + numberWithCommas(data[i].width) + '">' + numberWithCommas(data[i].width || '') + '</option></select></td>' +
+                                '<td id="Result' + i + '" style="text-align:right;">' + numberWithCommas(data[i].a || '0') + '</td>' +
                                 '<td><input type="text" id="RoundedResult' + i + '" class="editable-field" value="' + numberWithCommas(data[i].RoundedResult || '0') + '"></td>' +
                                 '<td id="data-sqmprice' + i + '" style="text-align:right;">' + (data[i].sqmprice || '0') + '</td>' +
                                 '<td id="data-rollprice' + i + '" style="text-align:right;">' + (data[i].rollprice || '0') + '</td>' +

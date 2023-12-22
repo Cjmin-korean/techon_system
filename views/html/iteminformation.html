@@ -108,9 +108,9 @@
         <div id="editForm">
             <table>
                 <tr style="height:50px;">
-                    <td colspan="11">제품 정보</td>
-                    <!-- <td> </td> -->
-                    <td> </td>
+                    <td colspan="3">제품 정보</td>
+
+                    <td><button onclick="saveitemprice()">저장</button> </td>
                 </tr>
 
                 <tr>
@@ -133,7 +133,7 @@
                     <td><label for="editAuthor">고객사코드</label></td>
                     <td><input type="text" id="itemcode-edit" value="" readonly autocomplete="off"></td>
 
-                </tr> 
+                </tr>
                 <tr>
                     <td><label for="editAuthor">판매단가</label></td>
                     <td><input type="text" id="itemprice-edit" value="" autocomplete="off"></td>
@@ -344,7 +344,39 @@
         }
 
 
+        function saveitemprice() {
+            if (confirm("단가 정보를 수정 하시겠습니까??") == true) {
 
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/updateiteminfoitemprice',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        itemprice: $('#itemprice-edit').val(),
+                        bomno: $('#bomno-edit').val()
+                    }),
+                    success: function (result) {
+                    }
+                })
+
+                $('#overlay').fadeOut();
+                $('#editModal').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+        }
     </script>
 
 
