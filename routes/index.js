@@ -1203,6 +1203,7 @@ module.exports = function (app) {
                     "    I.CUSTOMER,  " +
                     "    I.ITEMCODE,  " +
                     "    I.ITEMPRICE,  " +
+                    "    I.class,  " +
                     "                            CAST(COALESCE(SUM(B.COST), 0) AS DECIMAL(10, 2)) AS TOTALCOST,                    " +
                     "    CASE  " +
                     "        WHEN I.ITEMPRICE = 0 THEN 0  " +
@@ -1219,8 +1220,8 @@ module.exports = function (app) {
                     "   LEFT JOIN  " +
                     "       BOMMANAGEMENT B ON I.BOMNO = B.BOMNO  " +
                     "   GROUP BY  " +
-                    "       I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE ,I.PCS,I.CAVITY,I.WORKING,	I.WORKPART,	I.DIRECTION,	I.ORDERCOUNT ")
-
+                    "      I.class, I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE ,I.PCS,I.CAVITY,I.WORKING,	I.WORKPART,	I.DIRECTION,	I.ORDERCOUNT "+
+                    " order by i.bomno asc")
                 .then(result => {
 
 
@@ -5550,11 +5551,12 @@ module.exports = function (app) {
 
 
                 .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('class', sql.NVarChar, req.body.class)
                 .input('itemprice', sql.Float, req.body.itemprice)
 
 
                 .query(
-                    'update iteminfo set itemprice=@itemprice where bomno=@bomno'
+                    'update iteminfo set itemprice=@itemprice,class=@class where bomno=@bomno'
                 )
                 .then(result => {
 

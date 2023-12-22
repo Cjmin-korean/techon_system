@@ -30,6 +30,16 @@
         font-size: 15px;
         font-weight: bold;
     }
+    select {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
 </style>
 
 <body>
@@ -83,10 +93,11 @@
                 <th style="text-align:center;" onclick="sortTable(3)">품목명</th>
                 <th style="text-align:center;" onclick="sortTable(4)">납품처</th>
                 <th style="text-align:center;" onclick="sortTable(5)">고객사코드</th>
-                <th style="text-align:center;" onclick="sortTable(6)">판매단가(원)</th>
-                <th style="text-align:center;" onclick="sortTable(7)">원가(재료비)(원)</th>
-                <th style="text-align:center;" onclick="sortTable(8)">차이(원)</th>
-                <th style="text-align:center;" onclick="sortTable(9)">재료비율(%)</th>
+                <th style="text-align:center;" onclick="sortTable(6)">제품군</th>
+                <th style="text-align:center;" onclick="sortTable(7)">판매단가(원)</th>
+                <th style="text-align:center;" onclick="sortTable(8)">원가(재료비)(원)</th>
+                <th style="text-align:center;" onclick="sortTable(9)">차이(원)</th>
+                <th style="text-align:center;" onclick="sortTable(10)">재료비율(%)</th>
 
 
             </tr>
@@ -139,6 +150,22 @@
                     <td><input type="text" id="itemprice-edit" value="" autocomplete="off"></td>
                     <td><label for="editAuthor">원가(재료비)</label></td>
                     <td><input type="text" id="costprice-edit" value="" readonly autocomplete="off"></td>
+
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">제품군</label></td>
+                    <td>
+                        <select id="class-edit">
+                            <option id=""></option>
+                            <option id="FPCB">FPCB</option>
+                            <option id="OLED">OLED</option>
+                            <option id="MOBILE">MOBILE</option>
+                            <option id="전장">전장</option>
+                            <option id="의료">의료</option>
+                        </select>
+                    </td>
+                    <!-- <td><input type="text" id="class-edit" value="" autocomplete="off"></td> -->
+               
 
                 </tr>
 
@@ -298,6 +325,7 @@
                         var totalCost = data[i].TOTALCOST !== null ? data[i].TOTALCOST : '';
                         var itemPrice = data[i].ITEMPRICE !== null ? data[i].ITEMPRICE : '';
                         var costPriceRatio = data[i].COSTPRICERATIO !== null ? data[i].COSTPRICERATIO : '';
+                        var class1 = data[i].class !== null ? data[i].class : '';
 
                         var itemcode1 = data[i].ITEMCODE !== null ? data[i].ITEMCODE : '';
 
@@ -314,6 +342,7 @@
                             '<td>' + data[i].ITEMNAME + '</td>' +
                             '<td>' + data[i].CUSTOMER + '</td>' +
                             '<td>' + itemcode1 + '</td>' +
+                            '<td>' + class1 + '</td>' +
                             '<td style="text-align:right;">' + itemPrice + '</td>' +
                             '<td style="text-align:right;">' + totalCost + '</td>' +
                             '<td style="text-align:right;">' + priceDifference + '</td>' +
@@ -339,8 +368,9 @@
             $('#itemname-edit').val(rowData[3])
             $('#customer-edit').val(rowData[4])
             $('#itemcode-edit').val(rowData[5])
-            $('#itemprice-edit').val(rowData[6])
-            $('#costprice-edit').val(rowData[7])
+            $('#class-edit').val(rowData[6])
+            $('#itemprice-edit').val(rowData[7])
+            $('#costprice-edit').val(rowData[8])
         }
 
 
@@ -355,6 +385,7 @@
                     data: JSON.stringify({
 
                         itemprice: $('#itemprice-edit').val(),
+                        class: $('#class-edit').val(),
                         bomno: $('#bomno-edit').val()
                     }),
                     success: function (result) {
