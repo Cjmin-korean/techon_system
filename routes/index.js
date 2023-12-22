@@ -1207,7 +1207,7 @@ module.exports = function (app) {
                     "                            CAST(COALESCE(SUM(B.COST), 0) AS DECIMAL(10, 2)) AS TOTALCOST,                    " +
                     "    CASE  " +
                     "        WHEN I.ITEMPRICE = 0 THEN 0  " +
-                    "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE, 1)  " +
+                    "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE *100 , 1)  " +
                     "    END AS COSTPRICERATIO  ," +
                     "    I.PCS, " +
                     "    I.CAVITY, " +
