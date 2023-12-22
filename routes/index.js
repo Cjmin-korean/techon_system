@@ -1204,6 +1204,7 @@ module.exports = function (app) {
                     "    I.ITEMCODE,  " +
                     "    I.ITEMPRICE,  " +
                     "    I.class,  " +
+                    "    I.additionalnotes,  " +
                     "                            CAST(COALESCE(SUM(B.COST), 0) AS DECIMAL(10, 2)) AS TOTALCOST,                    " +
                     "    CASE  " +
                     "        WHEN I.ITEMPRICE = 0 THEN 0  " +
@@ -1220,7 +1221,7 @@ module.exports = function (app) {
                     "   LEFT JOIN  " +
                     "       BOMMANAGEMENT B ON I.BOMNO = B.BOMNO  " +
                     "   GROUP BY  " +
-                    "      I.class, I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE ,I.PCS,I.CAVITY,I.WORKING,	I.WORKPART,	I.DIRECTION,	I.ORDERCOUNT "+
+                    "    I.additionalnotes,  I.class, I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE ,I.PCS,I.CAVITY,I.WORKING,	I.WORKPART,	I.DIRECTION,	I.ORDERCOUNT " +
                     " order by i.bomno asc")
                 .then(result => {
 
@@ -1520,7 +1521,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('customerinitial', sql.NVarChar, req.body.customerinitial)
+                .input('customerinitial', sql.NVarChar, req.body.customerinitial)
 
                 .query(
                     "SELECT " +
@@ -2018,7 +2019,7 @@ module.exports = function (app) {
                 .input('bomno', sql.NVarChar, req.body.bomno)
 
                 .query(
-                    "select * from bommanagement where bomno=@bomno")
+                    "select * from bommanagement where bomno=@bomno order by num asc")
 
                 .then(result => {
 
@@ -4248,11 +4249,11 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
-                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
 
 
                 .query(
-                    "SELECT * FROM iteminfo WHERE bomno LIKE '%' + @bomno + '%' order by bomno asc")
+                    "SELECT * FROM iteminfo WHERE itemcode LIKE '%' + @itemcode + '%' order by itemcode asc")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -4369,7 +4370,7 @@ module.exports = function (app) {
                 .input('cost', sql.Float, req.body.cost)
                 .input('ordercount', sql.Float, req.body.ordercount)
                 .input('workpart', sql.NVarChar, req.body.workpart)
-                .input('additionalnotes', sql.Float, req.body.additionalnotes)
+                .input('additionalnotes', sql.NVarChar, req.body.additionalnotes)
                 .input('itemprice', sql.Float, req.body.itemprice)
 
 
@@ -4423,12 +4424,13 @@ module.exports = function (app) {
                 .input('codenumber', sql.NVarChar, req.body.codenumber)
                 .input('usewidth', sql.Float, req.body.usewidth)
                 .input('num', sql.Float, req.body.num)
+                .input('materialclassification', sql.NVarChar, req.body.materialclassification)
 
 
 
                 .query(
-                    'insert into bommanagement(num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber)' +
-                    ' values(@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber)'
+                    'insert into bommanagement(materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber)' +
+                    ' values(@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber)'
                 )
                 .then(result => {
 
@@ -5583,6 +5585,41 @@ module.exports = function (app) {
 
                 .query(
                     'update iteminfo set itemprice=@itemprice,class=@class where bomno=@bomno'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateiteminformation', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('pcs', sql.Float, req.body.pcs)
+                .input('cavity', sql.Int, req.body.cavity)
+                .input('direction', sql.NVarChar, req.body.direction)
+                .input('workpart', sql.NVarChar, req.body.workpart)
+                .input('ordercount', sql.Float, req.body.ordercount)
+                .input('additionalnotes', sql.NVarChar, req.body.additionalnotes)
+
+                // 
+                .query(
+                    'update iteminfo set modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes where bomno=@bomno'
                 )
                 .then(result => {
 
