@@ -93,7 +93,7 @@ $(document).ready(function () {
 
                     for (var i = 0; i < data.length; i++) {
                         tableBody.append(
-                            '<tr draggable="true">' +
+                            '<tr draggable="true" onclick="save(this)">' +
                             '<td>' + data[i].bomno + '</td>' +
                             '<td>' + data[i].char + '</td>' +
                             '<td style="font-weight:bold;">' + data[i].productdate + '</td>' +
@@ -147,22 +147,22 @@ $(document).ready(function () {
                             }
 
                             tableBody.append(
-                                '<tr draggable="true">' +
-                                (j === 0 ? '<td style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '</td>' : '') +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+                                '<tr draggable="true" >' +
+                                (j === 0 ? '<td onclick="openmodal(this)" style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '</td>' : '') +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
                                 '</tr>'
                             );
 

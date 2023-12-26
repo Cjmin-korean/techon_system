@@ -7,6 +7,7 @@
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="../css/mesmain.css">
+<link rel="stylesheet" href="../css/mesmaterialinput.css">
 <link rel="stylesheet" href="../css/calendar.css">
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -14,10 +15,11 @@
 
 <head>
     <style>
-        #datatable th{
+        #datatable th {
             text-align: center;
         }
-        #datatable td{
+
+        #datatable td {
             height: 20px;
         }
     </style>
@@ -28,65 +30,45 @@
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
         <a style="margin-left: 20px;">생산계획등록</a>
     </div>
-    <div id="popupOverlay" style="display: none;">
+    
+    <div id="overlay"></div>
+    <div id="editModal3" style="max-height: 600px;  overflow-y: auto;">
+        <div class="mainheader">
+            <h1>생산 계획 등록</h1>
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div id="editForm">
 
-        <div id="popupContent">
-            <div class="form-group">
-                <table style="width:100%;">
-                    <tr>
-                        <td colspan="2" class="popup_title">생산계획 확정</td>
-                    <tr>
-                        <td style="width: 200px">생산확정날짜</td>
-                        <td>
-                            <input type="text" id="plandate-save" class="data" autocomplete="off"
-                                style="width: 200px; border: 1px solid silver;" readonly>
-                            <label id="days-left-label"></label>
-                        </td>
-                    </tr>
+            <table class="styled-table" id="planstauts">
 
+                <thead id="tableHead">
                     <tr>
-                        <td style="width: 200px">BOM NO.</td>
-                        <td><input type="text" id="bomno-save" class="data" autocomplete="off"
-                                style="width:auto; border:1px solid silver;" readonly></td>
+                        <th colspan="7" rowspan="1"
+                            style="width: auto; font-size: 20px; font-weight: bold; border: 1px solid rgb(231, 228, 228);">
+                            생산확정 리스트
+                        </th>
                     </tr>
-                    <tr>
-                        <td style="width: 200px">모델명</td>
-                        <td><input type="text" id="modelname-save" class="data" autocomplete="off"
-                                style="width:auto; border:1px solid silver;" readonly></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px">품명</td>
-                        <td><input type="text" id="itemname-save" class="data" autocomplete="off"
-                                style="width:auto; border:1px solid silver;" readonly></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px">생산LOT</td>
-                        <td><input type="text" id="lotno-save" class="data" autocomplete="off"
-                                style="width:auto; border:1px solid silver;" readonly></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px">수량</td>
-                        <td><input type="text" id="quantity-save" class="data" autocomplete="off"
-                                style="width:auto; border:1px solid silver;"></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px">설비호기</td>
-                        <td>
-                            <select id="equipment-select" class="form-select">
-                                <option value=""></option>
-                            </select>
-                        </td>
+                   
+
+                    <tr >
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">BOM NO.</th>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">차수</th>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">생산계획날짜</th>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">모델명</th>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">품명</th>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">생산LOT</th>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">수량</th>
+
 
                     </tr>
 
-                </table>
-
-             
-            </div>
-            <button id="popupCloseBtn-save-close">취소</button>
-            <button id="popupCloseBtn-save" onclick="planinsert()">저장</button>
+                </thead>
+                <tbody id="planstatustbody">
+                </tbody>
+            </table>
         </div>
     </div>
+
     <div class="calendar">
         <div class="month">
             <button class="prev-month">
@@ -102,7 +84,7 @@
     </div>
 
 
-    <div id="datatable-container" style="width: 68%; float: left;">
+    <div id="datatable-container" style="width: 100%; float: left;">
         <table class="styled-table" id="datatable">
             <thead id="tableHead">
                 <tr>
@@ -149,7 +131,7 @@
                     <th colspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
                         완제품 계획실적
                     </th>
-                
+
                 </tr>
                 <tr>
                     <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
@@ -172,7 +154,7 @@
             </tbody>
         </table>
     </div>
-    <div id="datatable-container" style="width: 31%; height: 100%; float: right; border: 1px solid silver;">
+    <!-- <div id="datatable-container" style="width: 31%; height: 100%; float: right; border: 1px solid silver;">
         <table class="styled-table" id="planstauts">
 
             <thead id="tableHead1">
@@ -204,7 +186,7 @@
             <tbody id="planstatustbody">
             </tbody>
         </table>
-    </div>
+    </div> -->
 
     <div id="popupOverlay2" style="display: none;">
         <div id="popupContent">
@@ -227,9 +209,7 @@
         $('#popupCloseBtn-delete-close').click(function () {
             $('#popupOverlay2').fadeOut();
         });
-        function abc() {
-            $('#popupOverlay2').fadeIn();
-        }
+
     </script>
 
     <script>
@@ -254,7 +234,7 @@
                                 '<td>' + data[i].itemname + '</td>' +
                                 '<td>' + data[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
-                                   '<td class="data-id">' + data[i].id + '</td>' +
+                                '<td class="data-id">' + data[i].id + '</td>' +
                                 '</tr>'
                             );
                         }
@@ -263,162 +243,8 @@
                 }
             });
         }
-        function plansearching() {
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/plansearchAll',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "plandate": $('#plandate').text()
-                }),
-                success: function (data) {
-                    //console.log('loadTdData2', loadTdData);
-                    planSearchData = data;
-                    //console.log('planSearchData', planSearchData);
-
-                    for (var i = 0; i < data.length; i++) {
-                        loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
-                            id: data[i].id,
-                            equipmentname: planSearchData[i].equipmentname,
-                            num: data[i].num,
-                            bomno: data[i].bomno,
-                            customer: data[i].customer,
-                            modelname: data[i].modelname,
-                            itemname: data[i].itemname,
-                            part: data[i].part,
-                            linepart: data[i].linepart,
-                            lotno: data[i].lotno,
-                            pono: data[i].pono,
-                            accumulate: data[i].accumulate,
-                            remaining: data[i].remaining,
-                            planone: data[i].planone,
-                            siljokone: data[i].siljokone,
-                            plantwo: data[i].plantwo,
-                            siljoktwo: data[i].siljoktwo,
-                            plandate: data[i].plandate
-                        };
-                        // //console.log('data[i].plandate', data[i].plandate);
-                    }
-                    var loadTdDataKeys = Object.keys(loadTdData);
-                    // //console.log('keys', loadTdDataKeys);
-                    var numKeys = loadTdDataKeys.length;
-                    // //console.log(numKeys);
-                    for (var i = 0; i < numKeys; i++) {
-
-                        for (var j = 0; j < 8; j++) {
-
-                            var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-                            var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
-
-
-
-                            $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
-                            $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
-                            $('#' + j + modelname + '').text(loadTdData[loadTdDataKeys[i]][j].modelname);
-                            $('#' + j + itemname + '').text(loadTdData[loadTdDataKeys[i]][j].itemname);
-                            $('#' + j + part + '').text(loadTdData[loadTdDataKeys[i]][j].part);
-                            $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].linepart);
-                            $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
-                            $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono);
-                            $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
-                            $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
-                            $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
-                            $('#' + j + siljokone + '').text(loadTdData[loadTdDataKeys[i]][j].siljokone);
-                            $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
-                            $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
-
-
-                        }
-
-                    }
-                    for (var key in loadTdData) {
-                        for (var subKey in loadTdData[key]) {
-                            flattenedData.push(loadTdData[key][subKey]);
-                        }
-                    }
-                }
-            });
-        }
-
-        function planload() {
-            $('#Datatbody').empty();
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/equipmentname',
-                dataType: 'json',
-                success: function (data) {
-                    var tableBody = $('#Datatbody');
-                    if (data.length === 0) {
-                    } else {
-                        loadTdData = {};
-
-                        for (var i = 0; i < data.length; i++) {
-                            loadTdData[data[i].codenumber] = {};
-                            var numRows = 8;
-                            for (var j = 0; j < numRows; j++) {
-                                loadTdData[data[i].codenumber][j] = {
-                                    num: '',
-                                    bomno: '',
-                                    customer: '',
-                                    modelname: '',
-                                    itemname: '',
-                                    part: '',
-                                    linepart: '',
-                                    lotno: '',
-                                    pono: '',
-                                    accumulate: '',
-                                    remaining: '',
-                                    planone: '',
-                                    siljokone: '',
-                                    plantwo: '',
-                                    siljoktwo: '',
-                                }
-
-                                tableBody.append(
-                                    '<tr draggable="true">' +
-                                    (j === 0 ? '<td style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '</td>' : '') +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
-                                    '<td ondblclick="abc()" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
-                                    '</tr>'
-                                );
-
-                            }
-                        }
-
-
-
-
-                        plansearching()
-                    }
-                }
-            });
-        }
+        
+        
 
         function planinsert() {
             var plandate = $('#plandate-save').val();
@@ -489,7 +315,24 @@
 
         }
 
-
+       
+        function openmodal(row){
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+            console.log(rowData)
+            $('#overlay').fadeIn();
+            $('#editModal3').fadeIn();
+        }
+        function closeModal() {
+            $('#overlay').fadeOut();
+            $('#editModal3').fadeOut();
+        }
+        function save(row){
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+        }
     </script>
 
 
