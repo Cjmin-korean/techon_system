@@ -2033,6 +2033,43 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/insepectioninformation', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "SELECT "+
+                "    m.materialname, "+
+                "    m.codenumber, "+
+                "    m.manufacterer, "+
+                "    m.supplier, "+
+                "    m.typecategory, "+
+                "    m.width, "+
+                "    s.thickness "+
+                "FROM "+
+                "    materialinfoinformation m "+
+                "JOIN "+
+                "    materialinsepctionspec s ON m.materialname = s.materialname "+
+                "WHERE "+
+                "    m.inspection = 'y';")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
@@ -2226,6 +2263,68 @@ module.exports = function (app) {
                     "    orderlist where materialstatus='true' " +
                     "    group by " +
                     "   contentname,bomno,orderid,productdate,modelname,itemname,lotno,materialstatus,quantity "
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/inspectionfinish', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT "+
+                "    COALESCE(insp.inspectiondate, '') AS inspectiondate,		  "+  
+                "    COALESCE(insp.inspectionpeople, '') AS inspectionpeople,	"+	   
+                "    combined.typecategory,"+
+                "    combined.manufacterer, "+
+                "    combined.supplier, "+
+                "    combined.materialname, "+
+                "    combined.materialinput_codenumber, "+
+                "    combined.lotno, "+
+                "    combined.roll, "+
+                "    COALESCE(insp.inspectionroll, '') AS inspectionroll,		    "+
+                "    COALESCE(spec.thickness, '') AS thickness,		   "+ 
+                "    COALESCE(insp.thickness1, '') AS thickness1, "+
+                "    COALESCE(insp.thickness2, '') AS thickness2, "+
+                "    COALESCE(insp.thickness3, '') AS thickness3, "+ 
+                "    COALESCE(insp.thickness4, '') AS thickness4, "+
+                "    COALESCE(insp.thickness5, '') AS thickness5   "+
+                
+                "FROM ( "+
+                "    SELECT "+
+                "        m.materialname, "+
+                "        m.codenumber AS materialinput_codenumber, "+
+                "        i.codenumber AS materialinfoinformation_codenumber, "+
+                "        i.inspection, "+
+                "        i.supplier, "+
+                "        i.manufacterer, "+
+                "        i.typecategory, "+
+                "        m.lotno,m.roll "+
+                
+                "    FROM  "+
+                "        materialinput m "+
+                "    INNER JOIN "+
+                "        materialinfoinformation i ON m.materialname = i.materialname AND m.codenumber = i.codenumber "+
+                "    WHERE "+
+                "        i.inspection = 'y' "+
+                ") AS combined "+
+                "LEFT JOIN "+
+                "    materialinsepctionspec spec ON combined.materialname = spec.materialname "+
+                "LEFT JOIN "+
+                "    materialinsepectioninput insp ON combined.materialname = insp.materialname"
                 )
 
                 .then(result => {
