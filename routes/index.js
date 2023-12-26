@@ -6845,19 +6845,21 @@ module.exports = function (app) {
                 .input('finish', sql.NVarChar, req.body.finish)
 
                 .query(
-                    " select " +
-                    " contentname, " +
-                    " bomno, " +
-                    " modelname, " +
-                    " itemname, " +
-                    " customer, " +
-                    " quantity, " +
-                    " itemprice, " +
-                    " price, " +
-                    " deliverydate " +
-                    " from " +
-                    " accountinput " +
-                    " order by accountdate asc"
+                    " select   "+
+                    " contentname,  "+
+                    " bomno,  "+
+                    " modelname,  "+
+                    " itemname,  "+
+                    " customer,  "+
+                    " quantity,  "+
+                    " itemcode,  "+
+                    " quantity * itemprice AS totalprice,  "+
+                    " itemprice,  "+
+                    " price,  "+
+                    " deliverydate  "+
+                    " from  "+
+                    " accountinput where deliverydate between @start and @finish "+
+                    " order by deliverydate asc"
                 )
                 .then(result => {
 

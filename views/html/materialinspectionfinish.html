@@ -36,7 +36,7 @@
 
 
     <div id="overlay"></div>
-    <table class="styled-table" id="datatable" style="width:100%;">
+    <table class="styled-table" id="datatable" style="width:140%;">
         <thead id="tableHead">
             <tr>
                 <th rowspan="3">검사일자</th>
@@ -52,7 +52,9 @@
                 <th colspan="6">자재두께 (㎛)</th>
                 <th colspan="12">점착력 (gf/25mm)</th>
                 <th colspan="12">표면저항 (Ω)</th>
-
+                <th rowspan="3">판정</th>
+                <th rowspan="3">판정</th>
+                <th rowspan="3">부적합 현상내용</th>
             </tr>
             <tr>
                 <th colspan="6">DATA</th>
@@ -94,6 +96,7 @@
                 <th>#4</th>
                 <th>#5</th>
             </tr>
+
         </thead>
         <tbody id="Datatbody">
 
@@ -256,7 +259,6 @@
                         // Handle case where data is empty
                     } else {
                         for (var i = 0; i < data.length; i++) {
-                            // Determine the color for each thickness value
                             var thicknessColor = getColorForThicknessRange(data[i].thickness);
                             var thickness1Color = getColorForThicknessRange(data[i].thickness1);
                             var thickness2Color = getColorForThicknessRange(data[i].thickness2);
@@ -264,7 +266,6 @@
                             var thickness4Color = getColorForThicknessRange(data[i].thickness4);
                             var thickness5Color = getColorForThicknessRange(data[i].thickness5);
 
-                            // Append row to the table with colored thickness values
                             $('#Datatbody').append(
                                 '<tr>' +
                                 '<td>' + (data[i].inspectiondate || '') + '</td>' +
@@ -281,8 +282,8 @@
                                 '<td style="color:' + thickness1Color + ';">' + (data[i].thickness1 || '') + '</td>' +
                                 '<td style="color:' + thickness2Color + ';">' + (data[i].thickness2 || '') + '</td>' +
                                 '<td style="color:' + thickness3Color + ';">' + (data[i].thickness3 || '') + '</td>' +
-                                '<td style="color:red;">' + (data[i].thickness4 || '') + '</td>' +
-                                '<td style="color:red;">' + (data[i].thickness5 || '') + '</td>' +
+                                '<td style="color:' + thickness4Color + ';">' + (data[i].thickness4 || '') + '</td>' +
+                                '<td style="color:' + thickness5Color + ';">' + (data[i].thickness5 || '') + '</td>' +
                                 '</tr>'
                             );
                         }
@@ -290,7 +291,6 @@
                 }
             });
         }
-
         function getColorForThicknessRange(thickness) {
             // Check if thickness is a non-null string
             if (typeof thickness === 'string' && thickness.trim() !== '') {
@@ -307,18 +307,17 @@
                         var lowerBound = centralValue - tolerance;
                         var upperBound = centralValue + tolerance;
 
-                        // Check if the thickness falls outside the specified range
+                        // Check if the thickness falls within the specified range
                         var numericValue = parseFloat(thickness); // Use parseFloat to handle decimal values
-                        if (isNaN(numericValue) || numericValue > upperBound || numericValue < lowerBound) {
-                            return 'red'; // Red color for values outside the range or invalid format
+                        if (!isNaN(numericValue) && numericValue > lowerBound && numericValue < upperBound) {
+                            return 'blue'; // Blue color for values within the range
                         }
                     }
                 }
             }
 
-            return 'blue'; // Blue color for values within the range or invalid format
+            return 'red'; // Red color for values outside the range or invalid format
         }
-
 
 
 
