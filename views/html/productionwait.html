@@ -61,40 +61,65 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">영업수주등록</a>
+        <a style="margin-left: 20px;">생산발주대기</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
 
-    <fieldset>
-        <legend>검색조건</legend>
-        <input type="date" id="datepicker1">
-        <input type="date" id="datepicker2">
-        <button onclick="load()">조회</button>
-        <button onclick="newadd()">신규추가</button>
-    </fieldset>
     <div id="overlay"></div>
-    <table class="styled-table" id="datatable">
-        <thead id="tableHead">
-            <tr>
-                <th style="width: auto; text-align:center;" onclick="sortTable(1)">발주일자</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(2)">고객사</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(3)">품목코드</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(4)">모델명</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(5)">품목명</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(6)">BOM.NO</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(7)">수량(개)</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(8)">단가(원)</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(9)">공급가액(원)</th>
-            </tr>
-        </thead>
-        <tbody id="Datatbody">
+    <div style="max-height: 500px; overflow-y: auto;">
+        <table class="styled-table" id="datatable">
+            <thead id="tableHead">
+                <tr>
+                    <th style="width: auto; text-align:center;">BOM.NO</th>
+                    <th style="width: auto; text-align:center;">발주일자</th>
+                    <th style="width: auto; text-align:center;">고객사</th>
+                    <th style="width: auto; text-align:center;">품목코드</th>
+                    <th style="width: auto; text-align:center;">모델명</th>
+                    <th style="width: auto; text-align:center;">품목명</th>
+                    <th style="width: auto; text-align:center;">영업구분</th>
+                    <th style="width: auto; text-align:center;">PO수량(개)</th>
+                    <th style="width: auto; text-align:center;">창고차이</th>
+                    <th style="width: auto; text-align:center;">가능여부</th>
 
-        </tbody>
+                </tr>
+            </thead>
+            <tbody id="Datatbody">
 
-    </table>
+            </tbody>
+
+        </table>
+    </div>
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">생산지시현황</a>
+    </div>
+    <div style="max-height: 500px; overflow-y: auto;">
+        <table class="styled-table" id="datatable">
+            <thead id="tableHead">
+                <tr>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(0)">BOM.NO</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(1)">발주일자</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(2)">고객사</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(3)">품목코드</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(4)">모델명</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(5)">품목명</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(6)">영업구분</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(7)">PO수량(개)</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(8)">창고차이</th>
+                    <th style="width: auto; text-align:center;" onclick="sortTable(9)">가능여부</th>
+
+                </tr>
+            </thead>
+            <tbody id="Datatbody1">
+
+            </tbody>
+
+        </table>
+    </div>
+
     <div id="editModal" style="max-height: 600px; overflow-y: auto;">
         <div class="mainheader">
             <h1>영업 수주 등록</h1>
@@ -252,58 +277,69 @@
             }
         }
 
-
         function load() {
             $('#Datatbody').empty();
-            var totalQuantity = 0;
-            var totalTotalPrice = 0;
-
             $.ajax({
                 type: 'POST',
-                url: server + '/api/POaccountinput',
+                url: server + '/api/accountordering',
                 dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    start: $('#datepicker1').val(),
-                    finish: $('#datepicker2').val()
-                }),
-                success: function (result) {
-                    if (result.length === 0) {
+                success: function (data) {
+                    var tableBody = $('#Datatbody');
+                    var tableRowCount = $('#Datatbody tr').length;
+                    if (data.length === 0) {
                     } else {
-                        for (var i = 0; i < result.length; i++) {
-                            totalQuantity += result[i].quantity || 0;
-                            totalTotalPrice += result[i].totalprice || 0;
+                        for (var i = 0; i < data.length; i++) {
+                            var deliveryDate = new Date(data[i].deliverydate);
+                            var currentDate = new Date();
 
-                            $('#Datatbody').append(
+                            var daysRemaining = Math.ceil((deliveryDate - currentDate) / (1000 * 60 * 60 * 24));
+
+                            var daysRemainingColor = daysRemaining > 0 ? 'color: blue;' : 'color: red;';
+
+                            var possibleColor = '';
+                            var difference = parseFloat(data[i].difference.replace(/,/g, '')); // 쉼표 제거하고 숫자로 변환
+
+                            if (data[i].possible === '가능') {
+                                possibleColor = 'color: blue; font-weight:bold;';
+                            } else if (data[i].possible === '부족') {
+                                possibleColor = 'color: red; font-weight:bold;';
+                            }
+
+                            // 폰트 색상을 결정하는 조건 추가
+                            var fontColor = '';
+                            if (difference <= 0) {
+                                fontColor = 'color: red;';
+                            }
+
+                            // 남은 일수가 음수인 경우 "만료"로 표시
+                            var daysRemainingText = daysRemaining < 0 ? "납기미준수" : daysRemaining + '일 남음';
+
+                            tableBody.append(
                                 '<tr>' +
-                                '<td>' + (result[i].deliverydate || '') + '</td>' +
-                                '<td>' + (result[i].customer || '') + '</td>' +
-                                '<td>' + (result[i].itemcode || '') + '</td>' +
-                                '<td>' + (result[i].modelname || '') + '</td>' +
-                                '<td>' + (result[i].itemname || '') + '</td>' +
-                                '<td>' + (result[i].bomno || '') + '</td>' +
-                                '<td style="text-align:right;">' + (result[i].quantity.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;">' + (result[i].itemprice.toLocaleString() || '0') + '</td>' +
-                                '<td style="text-align:right;">' + (result[i].totalprice.toLocaleString() || '0') + '</td>' +
+                                '<td>' + data[i].bomno + '</td>' +
+                                '<td style="font-weight:bold;">' + data[i].deliverydate + '</td>' +
+                                '<td>' + data[i].customer + '</td>' +
+                                '<td>' + data[i].itemcode + '</td>' +
+                                '<td>' + data[i].modelname + '</td>' +
+                                '<td>' + data[i].itemname + '</td>' +
+                                '<td style="text-align:center;">' + data[i].ad + '</td>' +
+                                '<td style="text-align:right;">' + data[i].quantity + '</td>' +
+                                '<td style="text-align:right;' + fontColor + '">' + difference.toLocaleString() + '</td>' + // 쉼표 추가하여 숫자로 표시
+                                '<td style="' + possibleColor + '">' + data[i].possible + '</td>' +
                                 '</tr>'
                             );
-                        }
 
-                        $('#Datatbody').append(
-                            '<tr style="background-color:whitesmoke;">' +
-                            '<td colspan="5"><b>' + $('#datepicker1').val() + '~' + $('#datepicker2').val() + '</b></td>' +
-                            '<td style="text-align:right;"><b>수주 건수:' + result.length.toLocaleString() + '</b></td>' +
-                            '<td style="text-align:right;"><b>' + totalQuantity.toLocaleString() + '</b></td>' +
-                            '<td></td>' +
-                            '<td style="text-align:right;"><b>' + totalTotalPrice.toLocaleString() + '</b></td>' +
+                        }
+                        $('#Datatbody').after(
+                            '<tr>' +
+                            '<td colspan="10" style="text-align:right; font-weight:bold;">Total Rows: ' + data.length + '</td>' +
                             '</tr>'
                         );
-
-
                     }
                 }
             });
         }
+
 
 
 
@@ -354,7 +390,7 @@
             newRow.append('<td><input type="text" style="text-align:right;" id="itemprice-input"  readonly value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right;" id="pocount-input" oninput="valuechanged()" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right;" id="price-input" readonly value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;" readonly value="" autocomplete="off"></td>');
+            newRow.append('<td><input id="checkbox" type="checkbox" style="width:20px; height:20px; cursor:pointer;" readonly value="" autocomplete="off"></td>');
             $('#accountdatatbody').append('<tr id="sumRow"><td><button onclick="accountsave()" style="background-color:navy;">저장</button></td><td colspan="6" style="text-align:right;">합계:</td><td id="pocount-sum" style="text-align:right;"></td><td id="price-sum" style="text-align:right;"></td></tr>');
 
             // $('#accountdatatbody').append(newRow);
@@ -474,7 +510,7 @@
             newRow.append('<td><input type="text" style="text-align:right;" id="itemprice-input"  readonly value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right;" id="pocount-input" oninput="valuechanged()" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right;" id="price-input" readonly value="" autocomplete="off"></td>');
-            newRow.append('<td><input id="checkbox-input" style="width:20px; height:20px; cursor:pointer;" type="checkbox"  readonly value="" autocomplete="off"></td>');
+            newRow.append('<td><input id="checkbox" style="width:20px; height:20px; cursor:pointer;" type="checkbox"  readonly value="" autocomplete="off"></td>');
             $('#accountdatatbody').append(newRow);
         }
         function accountsave(row) {
@@ -486,25 +522,11 @@
 
                 for (var i = 1; i < rowCount; i++) {
                     var bomno = $('#accountdatatbody tr:eq(' + i + ') #bomno-input').val();
-                    var pocount = $('#accountdatatbody tr:eq(' + i + ') #pocount-input').val();
 
-                    // Check if bomno is empty or contains only whitespace
+                    // Check if bomno is empty, and skip to the next iteration if it is
                     if (!bomno.trim()) {
-                        // Skip to the next iteration if bomno is empty
                         continue;
                     }
-
-                    // Check if pocount is empty or contains only whitespace
-                    if (!pocount.trim()) {
-                        // Skip to the next iteration if pocount is empty
-                        continue;
-                    }
-
-                    // Get the value of the checkbox with id=checkbox-input
-                    var checkboxChecked = $('#accountdatatbody tr:eq(' + i + ') #checkbox-input').prop('checked');
-
-                    // Set the value of ad based on the checkbox status
-                    var adValue = checkboxChecked ? 'A' : 'D';
 
                     $.ajax({
                         type: 'POST',
@@ -519,8 +541,6 @@
                             "quantity": $('#accountdatatbody tr:eq(' + i + ') #pocount-input').val(),
                             "itemcode": $('#accountdatatbody tr:eq(' + i + ') #itemcode-input').val(),
                             "itemprice": $('#accountdatatbody tr:eq(' + i + ') #itemprice-input').val(),
-                            "status": '생산발주대기',
-                            "ad": adValue, // Use the adValue variable here
                             "deliverydate": insertdate
                         }),
                         success: function (result) {
@@ -547,7 +567,6 @@
                 // 사용자가 취소한 경우의 처리
             }
         }
-
         // 이벤트 핸들러 등록
         $('#accountdatatbody').on('keydown', 'input', function (e) {
             if (e.key === 'Enter') {
