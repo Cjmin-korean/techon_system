@@ -69,7 +69,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">생산발주대기</a>
+        <a style="margin-left: 20px;">영업 출하계획 등록 및 조회</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -77,23 +77,10 @@
     </div>
 
     <div id="overlay"></div>
-    <div style="max-height: 500px; height: 500px; overflow-y: auto;">
+    <div style="max-height: 500px; overflow-y: auto;">
         <table class="styled-table" id="datatable">
             <thead id="tableHead">
-                <tr>
-                    <th style="width: auto; text-align:center;">BOM.NO</th>
-                    <th style="width: auto; text-align:center;">발주일자</th>
-                    <th style="width: auto; text-align:center;">고객사</th>
-                    <th style="width: auto; text-align:center;">품목코드</th>
-                    <th style="width: auto; text-align:center;">모델명</th>
-                    <th style="width: auto; text-align:center;">품목명</th>
-                    <th style="width: auto; text-align:center;">영업구분</th>
-                    <th style="width: auto; text-align:center;">PO수량(개)</th>
-                    <th style="width: auto; text-align:center;">재공재고</th>
-                    <th style="width: auto; text-align:center;">창고차이</th>
-                    <th style="width: auto; text-align:center;">가능여부</th>
 
-                </tr>
             </thead>
             <tbody id="Datatbody">
 
@@ -101,30 +88,7 @@
 
         </table>
     </div>
-    <div class="main_header">
-        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">생산지시현황</a>
-    </div>
-    <div style="max-height: 500px; overflow-y: auto;">
-        <table class="styled-table" id="orderdatatable">
-            <thead>
-                <tr>
-                    <th>BOMNO.</th>
-                    <th>생산계획날짜</th>
-                    <th>모델명</th>
-                    <th>제품명</th>
-                    <th>생산LOTNO.</th>
-                    <th>수량(개)</th>
-                    <th>수량변경</th>
-                    <th></th>
-                    <th></th>
 
-                </tr>
-            </thead>
-            <tbody id="orderdatatabletbody">
-            </tbody>
-        </table>
-    </div>
 
     <div id="editModal" style="max-height: 600px; overflow-y: auto;">
         <div class="mainheader">
@@ -155,7 +119,6 @@
 
         </div>
     </div>
-
     <div id="editModal4" style="width: 800px; height: auto;">
         <div class="mainheader">
             <h1>생산지시등록</h1>
@@ -169,7 +132,7 @@
             <table>
                 <tr style="height:50px;">
                     <td><button onclick="saveproduction()">저장</button> </td>
-                    <td colspan="1">제품 정보<input type="text" id="orderid" style="visibility: hidden;"></td>
+                    <td colspan="1">제품 정보</td>
                 </tr>
                 <tr>
                     <td><label for="editAuthor">BOMNO</label></td>
@@ -218,7 +181,6 @@
             </table>
 
         </div>
-
         <div id="editModal1" style="max-height: 800px; overflow-y: auto;">
             <div class="mainheader">
                 <h1>품목 검색</h1>
@@ -265,91 +227,6 @@
 
             });
 
-            function orderstatusmodal(row) {
-                var rowData = $(row).closest('tr').find('td').map(function () {
-                    return $(this).text();
-                }).get();
-                var confirmation = confirm('생산을 확정하시겠습니까?');
-
-                if (confirmation) {
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/updateaccountstatus',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-
-                            "id": rowData[9],
-                            "orderstatus": '생산확정'
-                        }),
-                        success: function (result) {
-
-                        }
-                    });
-                    alert('생산이 확정되었습니다.');
-                    load()
-                    load1()
-
-                } else {
-
-                }
-            }
-            function deleteorderstatus(row) {
-                var rowData = $(row).closest('tr').find('td').map(function () {
-                    return $(this).text();
-                }).get();
-                var confirmation = confirm('생산지시를 삭제 하시겠습니까?');
-
-                if (confirmation) {
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/deleteaccountstatus',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "id": rowData[9]
-                        }),
-                        success: function (result) {
-
-                        }
-                    });
-                    alert('생산지시가 삭제 되었습니다.');
-                    load()
-                    load1()
-
-                } else {
-
-                }
-            }
-            function orderstatuscancelmodal(row) {
-                var rowData = $(row).closest('tr').find('td').map(function () {
-                    return $(this).text();
-                }).get();
-                var confirmation = confirm('생산확정을 취소하시겠습니까?');
-
-                if (confirmation) {
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/updateaccountstatus',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-
-                            "id": rowData[9],
-                            "orderstatus": '생산보류'
-                        }),
-                        success: function (result) {
-
-                        }
-                    });
-                    alert('생산확정이 취소 되었습니다.');
-                    load()
-                    load1()
-
-                } else {
-
-                }
-            }
             // Function to close edit modal and overlay
             function closeModal() {
                 $('#overlay').fadeOut();
@@ -369,75 +246,195 @@
             }
 
 
+            function Datasave() {
+                if (confirm("샘플 발주 정보를 등록 하시겠습니까??") == true) {
+
+                    var insertdate = new Date().toISOString().slice(0, 10);
+
+                    var toolcode = $('#toolcode').val();
+                    var madedate = $('#datepicker1').val();
+                    var bomno = $('#bomno').val();
+                    var customer = $('#customer').val();
+                    var modelname = $('#modelname').val();
+                    var itemname = $('#itemname').val();
+                    var char = $('#char').val();
+                    var part = $('#part').val();
+                    var inputprice = $('#inputprice').val();
+                    var outputprice = $('#outputprice').val();
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/insertpinacle',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+
+                            "insertdate": insertdate,
+                            "toolcode": toolcode,
+                            "madedate": madedate,
+                            "bomno": bomno,
+                            "customer": customer,
+                            "modelname": modelname,
+                            "itemname": itemname,
+                            "char": char,
+                            "part": part,
+                            "inputprice": inputprice,
+                            "outputprice": outputprice
 
 
+
+
+                        }),
+                        success: function (result) {
+
+
+                        }
+                    })
+
+                    $('#popupOverlay').fadeOut();
+                    setTimeout(function () {
+                        load()
+                    }, 50); // 3초 후에 알림을 사라지게 설정
+                    var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
+                    $('body').append(notification);
+                    setTimeout(function () {
+                        notification.fadeOut(function () {
+                            $(this).remove();
+                        });
+                    }, 3000);
+                } else {
+                    return false;
+                }
+            }
             function load() {
                 $('#Datatbody').empty();
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/accountordering',
+                    url: server + '/api/shipmentplan',
                     dataType: 'json',
                     success: function (data) {
-                        var tableBody = $('#Datatbody');
-                        var tableRowCount = $('#Datatbody tr').length;
-                        if (data.length === 0) {
-                        } else {
-                            for (var i = 0; i < data.length; i++) {
-                                var deliveryDate = new Date(data[i].deliverydate);
-                                var currentDate = new Date();
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/accountshipment',
+                            dataType: 'json',
+                            success: function (data1) {
+                                for (var i = 0; i < data1.length; i++) { // Use data1.length here
+                                    $('#datatable').append(
+                                        '<tr>' +
+                                        '<td rowspan="3">' + data[i].bomno + '</td>' +
+                                        '<td rowspan="3">' + data[i].itemcode + '</td>' +
+                                        '<td rowspan="3">' + data[i].modelname + '</td>' +
+                                        '<td rowspan="3">' + data[i].pcs + '</td>' +
+                                        '<td rowspan="3">' + (data[i].processname ? data[i].processname : '') + '</td>' +
+                                        '<td rowspan="3" onclick="showbucak()">' + (data[i].bucakcustomer ? data[i].bucakcustomer : '') + '</td>' +
+                                        '<td rowspan="3">' + (data1[i].planquantity ? data1[i].planquantity : '') + '</td>' +
 
-                                var daysRemaining = Math.ceil((deliveryDate - currentDate) / (1000 * 60 * 60 * 24));
+                                        '<td rowspan="3"></td>' +
+                                        '<td rowspan="3"></td>' +
+                                        '<td rowspan="3"></td>' +
+                                        '<td></td>' +
+                                        '<td>발주</td>' +
+                                        '<td></td>' +
+                                        addDateColumns(data1[i].deliverydate, data1[i].quantity.toLocaleString()) +
+                                        '</tr>' +
 
-                                var daysRemainingColor = daysRemaining > 0 ? 'color: blue;' : 'color: red;';
+                                        '<tr>' +
+                                        '<td></td>' +
+                                        '<td style="color:blue;">계획</td>' +
+                                        '<td></td>' +
+                                        addDateColumns1(data1[i].deliverydate, data1[i].quantity) +
+                                        '</tr>' +
 
-                                var possibleColor = '';
-                                var difference = parseFloat(data[i].difference.replace(/,/g, '')); // 쉼표 제거하고 숫자로 변환
-
-                                if (data[i].possible === '가능') {
-                                    possibleColor = 'color: blue; font-weight:bold;';
-                                } else if (data[i].possible === '부족') {
-                                    possibleColor = 'color: red; font-weight:bold;';
+                                        '<tr>' +
+                                        '<td></td>' +
+                                        '<td style="color:red;">실적</td>' +
+                                        '<td></td>' +
+                                        addDateColumns2(data1[i].deliverydate, data1[i].quantity) +
+                                        '</tr>'
+                                    );
                                 }
 
-                                // 폰트 색상을 결정하는 조건 추가
-                                var fontColor = '';
-                                if (difference <= 0) {
-                                    fontColor = 'color: red;';
-                                }
-
-                                // 남은 일수가 음수인 경우 "만료"로 표시
-                                var daysRemainingText = daysRemaining < 0 ? "납기미준수" : daysRemaining + '일 남음';
-
-                                tableBody.append(
-                                    '<tr>' +
-                                    '<td>' + data[i].bomno + '</td>' +
-                                    '<td style="font-weight:bold;">' + data[i].deliverydate + '</td>' +
-                                    '<td>' + data[i].customer + '</td>' +
-                                    '<td>' + data[i].itemcode + '</td>' +
-                                    '<td>' + data[i].modelname + '</td>' +
-                                    '<td>' + data[i].itemname + '</td>' +
-                                    '<td style="text-align:center;">' + data[i].ad + '</td>' +
-                                    '<td style="text-align:right;">' + data[i].quantity + '</td>' +
-                                    '<td style="text-align:right;">' + data[i].total_quantity.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right;' + fontColor + '">' + difference.toLocaleString() + '</td>' + // 쉼표 추가하여 숫자로 표시
-                                    '<td style="' + possibleColor + '">' + data[i].possible + '</td>' +
-                                    '<td id="data-orderid">' + data[i].orderid + '</td>' +
-                                    '</tr>'
-                                );
-                                $('td#data-orderid').hide()
                             }
-                            // $('#Datatbody').after(
-                            //     '<tr>' +
-                            //     '<td colspan="11" style="text-align:right; font-weight:bold;">Total Rows: ' + data.length + '</td>' +
-                            //     '</tr>'
-                            // );
+                        });
+                    }
+                });
+            }
+            function createTableColumns() {
+                var startDate = new Date('2023-12-01');
+                var endDate = new Date('2023-12-31');
+                var currentDate = new Date(startDate);
 
-                        }
+                var thead = document.querySelector('#datatable thead');
+
+                var headerTitles = ['BOMNO.', '코드명', '모델명', 'EA=PCS', '공정명', '부착업체', '판매계획', 'P/O', '납품수량', 'PO잔량', 'TTL', '구분', '전월P/O잔량'];
+                for (var i = 0; i < headerTitles.length; i++) {
+                    var th = document.createElement('th');
+                    th.style.width = i === 5 ? '300px' : '200px'; // 너비 조절
+                    th.style.textAlign = 'center'; // 가운데 정렬
+                    th.textContent = headerTitles[i];
+                    thead.appendChild(th);
+                }
+
+                while (currentDate <= endDate) {
+                    var month = currentDate.getMonth() + 1;
+                    var day = currentDate.getDate();
+                    var formattedMonth = month < 10 ? '0' + month : month;
+                    var formattedDay = day < 10 ? '0' + day : day;
+                    var formattedDate = formattedMonth + "-" + formattedDay;
+
+                    for (var i = 0; i < 1; i++) {
+                        var th = document.createElement('th');
+                        th.style.width = 'auto'; // 기본 너비
+                        th.style.textAlign = 'center'; // 가운데 정렬
+                        th.textContent = formattedDate;
+                        thead.appendChild(th);
                     }
 
-                });
-
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
             }
+
+
+            // 테이블 컬럼 생성 호출
+            createTableColumns();
+
+            function addDateColumns(deliveryDate, value) {
+                var columns = '';
+                for (var date = 1; date <= 31; date++) {
+                    var formattedDate = date < 10 ? '0' + date : date;
+                    var id = 'order-2023-12-' + formattedDate;
+                    if (id === 'order-' + deliveryDate) {
+                        columns += '<td id="' + id + '">' + value + '</td>';
+                    } else {
+                        columns += '<td id="' + id + '"></td>';
+                    }
+
+                }
+
+                return columns;
+            }
+
+
+
+
+            function addDateColumns1(formattedDate, value) {
+                var columns = '';
+                for (var date = 1; date <= 31; date++) {
+                    var formattedDate = date < 10 ? '0' + date : date;
+                    columns += '<td id="plan-2023-12-' + formattedDate + '" onclick="handleClick()"></td>';
+                }
+                return columns;
+            }
+
+            function addDateColumns2(formattedDate, value) {
+                var columns = '';
+                for (var date = 1; date <= 31; date++) {
+                    var formattedDate = date < 10 ? '0' + date : date;
+                    columns += '<td id="performance-2023-12-' + formattedDate + '"></td>';
+                }
+                return columns;
+            }
+
 
 
 
@@ -705,12 +702,12 @@
                                 var quantityChangeInfo = '';
 
                                 if (data[i].orderstatus === '생산보류') {
-                                    orderStatusCell = '<td><a class="orderstatus" onclick="orderstatusmodal(this)" style="cursor:pointer; color:green;">생산보류</a></td>';
-                                    deleteClass = '<td><a class="datadelete" style="cursor:pointer; color:red;" onclick="deleteorderstatus(this)">삭제</a></td>';
+                                    orderStatusCell = '<td><a class="orderstatus" style="cursor:pointer; color:green;">생산보류</a></td>';
+                                    deleteClass = '<td><a class="datadelete" style="cursor:pointer; color:red;">삭제</a></td>';
                                     quantityChangeInfo = '<td class="changequantity"  style="color: navy;">수량변경</td>';
                                 } else if (data[i].orderstatus === '생산확정') {
                                     orderStatusCell = '<td><a class="orderfinish" style="cursor:pointer; color:red;">생산확정</a></td>';
-                                    deleteClass = '<td><a class="finishdelete" style="cursor:pointer; color:red;" onclick="orderstatuscancelmodal(this)">확정취소</a></td>';
+                                    deleteClass = '<td><a class="finishdelete" style="cursor:pointer; color:red;">확정취소</a></td>';
                                     quantityChangeInfo = '<td></td>';
                                 }
 
@@ -758,7 +755,6 @@
                 $('#itemname-edit').val(rowData[5])
                 $('#ad-edit').val(rowData[6])
                 $('#count-edit').val(rowData[7])
-                $('#orderid').val(rowData[11])
                 $('#overlay').fadeIn()
                 $('#editModal4').fadeIn()
             });
@@ -874,12 +870,18 @@
                     }
                     $.ajax({
                         type: 'POST',
-                        url: server + '/api/updatestatusaccountinput',
+                        url: server + '/api/update',
                         dataType: 'json',
                         contentType: 'application/json',
                         data: JSON.stringify({
-                            "orderid": $('#orderid').val(),
-                            "status": '생산지시완료',
+                            "bomno": $('#bomno-edit').val(),
+                            "productdate": insertdate,
+                            "modelname": $('#modelname-edit').val(),
+                            "itemname": $('#itemname-edit').val(),
+                            "lotno": $('#productiondatatbody tr:eq(' + i + ') #lot-input').val(),
+                            "quantity": $('#productiondatatbody tr:eq(' + i + ') #count-input').val(),
+                            "status": 'true',
+                            "orderstatus": '생산보류'
                         }),
                         success: function (result) {
                             // 성공했을 때의 처리

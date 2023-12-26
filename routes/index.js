@@ -2043,20 +2043,20 @@ module.exports = function (app) {
                 .input('bomno', sql.NVarChar, req.body.bomno)
 
                 .query(
-                    "SELECT "+
-                "    m.materialname, "+
-                "    m.codenumber, "+
-                "    m.manufacterer, "+
-                "    m.supplier, "+
-                "    m.typecategory, "+
-                "    m.width, "+
-                "    s.thickness "+
-                "FROM "+
-                "    materialinfoinformation m "+
-                "JOIN "+
-                "    materialinsepctionspec s ON m.materialname = s.materialname "+
-                "WHERE "+
-                "    m.inspection = 'y';")
+                    "SELECT " +
+                    "    m.materialname, " +
+                    "    m.codenumber, " +
+                    "    m.manufacterer, " +
+                    "    m.supplier, " +
+                    "    m.typecategory, " +
+                    "    m.width, " +
+                    "    s.thickness " +
+                    "FROM " +
+                    "    materialinfoinformation m " +
+                    "JOIN " +
+                    "    materialinsepctionspec s ON m.materialname = s.materialname " +
+                    "WHERE " +
+                    "    m.inspection = 'y';")
 
                 .then(result => {
 
@@ -2285,46 +2285,46 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT "+
-                "    COALESCE(insp.inspectiondate, '') AS inspectiondate,		  "+  
-                "    COALESCE(insp.inspectionpeople, '') AS inspectionpeople,	"+	   
-                "    combined.typecategory,"+
-                "    combined.manufacterer, "+
-                "    combined.supplier, "+
-                "    combined.materialname, "+
-                "    combined.materialinput_codenumber, "+
-                "    combined.lotno, "+
-                "    combined.roll, "+
-                "    COALESCE(insp.inspectionroll, '') AS inspectionroll,		    "+
-                "    COALESCE(spec.thickness, '') AS thickness,		   "+ 
-                "    COALESCE(insp.thickness1, '') AS thickness1, "+
-                "    COALESCE(insp.thickness2, '') AS thickness2, "+
-                "    COALESCE(insp.thickness3, '') AS thickness3, "+ 
-                "    COALESCE(insp.thickness4, '') AS thickness4, "+
-                "    COALESCE(insp.thickness5, '') AS thickness5   "+
-                
-                "FROM ( "+
-                "    SELECT "+
-                "        m.materialname, "+
-                "        m.codenumber AS materialinput_codenumber, "+
-                "        i.codenumber AS materialinfoinformation_codenumber, "+
-                "        i.inspection, "+
-                "        i.supplier, "+
-                "        i.manufacterer, "+
-                "        i.typecategory, "+
-                "        m.lotno,m.roll "+
-                
-                "    FROM  "+
-                "        materialinput m "+
-                "    INNER JOIN "+
-                "        materialinfoinformation i ON m.materialname = i.materialname AND m.codenumber = i.codenumber "+
-                "    WHERE "+
-                "        i.inspection = 'y' "+
-                ") AS combined "+
-                "LEFT JOIN "+
-                "    materialinsepctionspec spec ON combined.materialname = spec.materialname "+
-                "LEFT JOIN "+
-                "    materialinsepectioninput insp ON combined.materialname = insp.materialname"
+                    "SELECT " +
+                    "    COALESCE(insp.inspectiondate, '') AS inspectiondate,		  " +
+                    "    COALESCE(insp.inspectionpeople, '') AS inspectionpeople,	" +
+                    "    combined.typecategory," +
+                    "    combined.manufacterer, " +
+                    "    combined.supplier, " +
+                    "    combined.materialname, " +
+                    "    combined.materialinput_codenumber, " +
+                    "    combined.lotno, " +
+                    "    combined.roll, " +
+                    "    COALESCE(insp.inspectionroll, '') AS inspectionroll,		    " +
+                    "    COALESCE(spec.thickness, '') AS thickness,		   " +
+                    "    COALESCE(insp.thickness1, '') AS thickness1, " +
+                    "    COALESCE(insp.thickness2, '') AS thickness2, " +
+                    "    COALESCE(insp.thickness3, '') AS thickness3, " +
+                    "    COALESCE(insp.thickness4, '') AS thickness4, " +
+                    "    COALESCE(insp.thickness5, '') AS thickness5   " +
+
+                    "FROM ( " +
+                    "    SELECT " +
+                    "        m.materialname, " +
+                    "        m.codenumber AS materialinput_codenumber, " +
+                    "        i.codenumber AS materialinfoinformation_codenumber, " +
+                    "        i.inspection, " +
+                    "        i.supplier, " +
+                    "        i.manufacterer, " +
+                    "        i.typecategory, " +
+                    "        m.lotno,m.roll " +
+
+                    "    FROM  " +
+                    "        materialinput m " +
+                    "    INNER JOIN " +
+                    "        materialinfoinformation i ON m.materialname = i.materialname AND m.codenumber = i.codenumber " +
+                    "    WHERE " +
+                    "        i.inspection = 'y' " +
+                    ") AS combined " +
+                    "LEFT JOIN " +
+                    "    materialinsepctionspec spec ON combined.materialname = spec.materialname " +
+                    "LEFT JOIN " +
+                    "    materialinsepectioninput insp ON combined.materialname = insp.materialname"
                 )
 
                 .then(result => {
@@ -2425,6 +2425,32 @@ module.exports = function (app) {
 
                 .query(
                     " update orderlist set status1=@status1 where lotno=@lotno"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatestatusaccountinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    " update accountinput set status=@status where orderid=@orderid"
 
                 )
 
@@ -3377,19 +3403,27 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    " select " +
-                    " id, " +
-                    " bomno, " +
-
-                    " contentname, " +
-                    " productdate, " +
-                    " modelname, " +
-                    " itemname, " +
-                    " lotno, " +
-                    " quantity, " +
-                    " orderid,marchine,a,b,c,d,qrno,orderstatus " +
-                    " from  " +
-                    " orderlist where orderstatus='생산확정' order by orderstatus desc ")
+                    "SELECT " +
+                    "    ol.itemname, " +
+                    "    bm.char, " +
+                    "    MAX(ol.id) AS id, " +
+                    "    MAX(ol.bomno) AS bomno, " +
+                    "    MAX(ol.productdate) AS productdate, " +
+                    "    MAX(ol.modelname) AS modelname, " +
+                    "    MAX(ol.lotno) AS lotno, " +
+                    "    ol.quantity, " +
+                    "    MAX(ol.qrno) AS qrno, " +
+                    "    MAX(ol.orderstatus) AS orderstatus " +
+                    "FROM " +
+                    "    orderlist ol " +
+                    "JOIN " +
+                    "    bommanagement bm ON ol.itemname = bm.itemname " +
+                    "WHERE " +
+                    "    ol.orderstatus = '생산확정' " +
+                    "GROUP BY " +
+                    "    ol.itemname,bm.char,ol.quantity " +
+                    "ORDER BY " +
+                    "    MAX(ol.orderstatus) DESC;                ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -3417,7 +3451,7 @@ module.exports = function (app) {
                     " quantity, " +
                     " orderid,marchine,a,b,c,d,qrno,orderstatus " +
                     " from  " +
-                    " orderlist where status='true' order by orderstatus,productdate asc ")
+                    " orderlist where status='true' order by orderstatus,productdate,modelname,itemname asc ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -4694,36 +4728,37 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                   
-                    "  WITH cte AS (   "+  
-                    "    SELECT     "+
-                    "        a.ad, a.contentname, a.deliverydate, a.customer, a.modelname, a.itemname, a.quantity, a.bomno, a.itemcode, "+
-                    "        SUM(ISNULL(i.quantity, 0)) AS total_quantity,     "+
-                    "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num     "+
-                    "    FROM accountinput a     "+
-                    "    LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname      "+
-                    "    WHERE a.status = '생산발주대기'    "+ 
-                    "    GROUP BY a.ad, a.contentname, a.modelname, a.itemname, a.quantity, a.deliverydate, a.customer, a.bomno, a.itemcode    "+
-                    "), recursive_cte AS (    "+
-                    "    SELECT    "+
-                    "        c.ad, c.bomno, c.contentname, c.deliverydate, c.customer, c.modelname, c.itemname, c.quantity, c.itemcode, c.total_quantity,    "+
-                    "        total_quantity - quantity AS difference,    "+
-                    "        row_num    "+
-                    "    FROM cte c    "+
-                    "    WHERE row_num = 1    "+
-                    "    UNION ALL     "+
-                    "    SELECT    "+
-                    "        c.ad, c.bomno, c.contentname, c.deliverydate, c.customer, c.modelname, c.itemname, c.quantity, c.itemcode, c.total_quantity,    "+
-                    "        rc.difference - c.quantity AS difference,    "+
-                    "        c.row_num    "+
-                    "    FROM cte c    "+
-                    "    JOIN recursive_cte rc ON c.modelname = rc.modelname AND c.itemname = rc.itemname AND c.row_num = rc.row_num + 1    "+
-                    ")    "+
-                    "SELECT   "+
-                    "    contentname, bomno, deliverydate, customer, modelname, itemname, itemcode, "+
-                    "    FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference,  "+ 
-                    "    CASE WHEN (difference) >= 0 THEN '가능' ELSE '부족' END AS possible,  "+
-                    "    ad  "+
+
+                    "  WITH cte AS (    " +
+                    "    SELECT    " +
+                    "        a.ad, a.contentname, a.deliverydate, a.customer, a.modelname, a.itemname, a.quantity, a.bomno, a.itemcode, a.orderid, " +
+                    "        SUM(ISNULL(i.quantity, 0)) AS total_quantity,     " +
+                    "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num     " +
+                    "    FROM accountinput a     " +
+                    "    LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname      " +
+                    "    WHERE a.status = '생산발주대기'     " +
+                    "    GROUP BY a.ad, a.contentname, a.modelname, a.itemname, a.quantity, a.deliverydate, a.customer, a.bomno, a.itemcode, a.orderid     " +
+                    "), recursive_cte AS (     " +
+                    "    SELECT     " +
+                    "        c.ad, c.bomno, c.contentname, c.deliverydate, c.customer, c.modelname, c.itemname, c.quantity, c.itemcode, c.orderid, c.total_quantity,     " +
+                    "        total_quantity - quantity AS difference,     " +
+                    "        row_num     " +
+                    "    FROM cte c     " +
+                    "    WHERE row_num = 1     " +
+                    "    UNION ALL      " +
+                    "    SELECT     " +
+                    "        c.ad, c.bomno, c.contentname, c.deliverydate, c.customer, c.modelname, c.itemname, c.quantity, c.itemcode, c.orderid, c.total_quantity,    " +
+                    "        rc.difference - c.quantity AS difference,    " +
+                    "        c.row_num    " +
+                    "    FROM cte c    " +
+                    "    JOIN recursive_cte rc ON c.modelname = rc.modelname AND c.itemname = rc.itemname AND c.row_num = rc.row_num + 1    " +
+                    ")    " +
+                    "SELECT   " +
+                    "    contentname, bomno, deliverydate, customer, modelname, itemname, itemcode, orderid," +
+                    "    FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference, " +
+                    "    FORMAT(total_quantity, '#,0') AS total_quantity, " +
+                    "    CASE WHEN (difference) >= 0 THEN '가능' ELSE '부족' END AS possible,  " +
+                    "    ad   " +
                     "FROM recursive_cte;                    "
                 )
                 .then(result => {
@@ -5325,6 +5360,54 @@ module.exports = function (app) {
 
                 .query(
                     'update accountinput set status=@status where contentname=@contentname'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateaccountstatus', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('id', sql.Int, req.body.id)
+                .input('orderstatus', sql.NVarChar, req.body.orderstatus)
+
+
+                .query(
+                    'update orderlist set orderstatus=@orderstatus where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/deleteaccountstatus', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('id', sql.Int, req.body.id)
+                // .input('orderstatus', sql.NVarChar, req.body.orderstatus)
+
+
+                .query(
+                    'delete from  orderlist where id=@id'
                 )
                 .then(result => {
 
@@ -6815,20 +6898,20 @@ module.exports = function (app) {
                 .input('finish', sql.NVarChar, req.body.finish)
 
                 .query(
-                    " select   "+
-                    " contentname,  "+
-                    " bomno,  "+
-                    " modelname,  "+
-                    " itemname,  "+
-                    " customer,  "+
-                    " quantity,  "+
-                    " itemcode,  "+
-                    " quantity * itemprice AS totalprice,  "+
-                    " itemprice,  "+
-                    " price,  "+
-                    " deliverydate  "+
-                    " from  "+
-                    " accountinput where deliverydate between @start and @finish "+
+                    " select   " +
+                    " contentname,  " +
+                    " bomno,  " +
+                    " modelname,  " +
+                    " itemname,  " +
+                    " customer,  " +
+                    " quantity,  " +
+                    " itemcode,  " +
+                    " quantity * itemprice AS totalprice,  " +
+                    " itemprice,  " +
+                    " price,  " +
+                    " deliverydate  " +
+                    " from  " +
+                    " accountinput where deliverydate between @start and @finish " +
                     " order by deliverydate asc"
                 )
                 .then(result => {

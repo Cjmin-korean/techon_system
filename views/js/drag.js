@@ -95,13 +95,13 @@ $(document).ready(function () {
                         tableBody.append(
                             '<tr draggable="true">' +
                             '<td>' + data[i].bomno + '</td>' +
+                            '<td>' + data[i].char + '</td>' +
                             '<td style="font-weight:bold;">' + data[i].productdate + '</td>' +
                             '<td>' + data[i].modelname + '</td>' +
                             '<td>' + data[i].itemname + '</td>' +
                             '<td>' + data[i].lotno + '</td>' +
                             '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
-                            '<td><a class="savebutton" style="cursor: pointer; color: navy;">등록</a></td>' +
-                            '<td><a class="datadelete" style=" cursor:pointer; color:red;">취소</a></td>' +
+           
                             '<td class="data-id">' + data[i].id + '</td>' +
                             '</tr>'
                         );

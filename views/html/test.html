@@ -5,137 +5,105 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title></title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesbombass.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Your existing styles here */
 
-    <link rel="stylesheet" href="/css/test.css">
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            display: none;
+        }
+
+        canvas {
+            /* Ensure the chart takes the full width of its container */
+            width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+    <!-- Include Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="text/javascript" src="/html/graph.js"></script>
 </head>
 
 <body>
-    <canvas id="myChart"></canvas>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <b>Loading...</b>
+    </div>
+
+    <div>
+        <canvas id="customerPieChart"></canvas>
+    </div>
+
+    <table id="Datatbody">
+        <!-- Your existing table structure here -->
+    </table>
+
+    <script>
+        function load() {
+            $('#Datatbody').empty();
+
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8080/api/iteminfobom',
+                dataType: 'json',
+                success: function (data) {
+                    // Your existing code here
+
+                    // Create a data structure for the pie chart
+                    var customerData = {};
+                    for (var i = 0; i < data.length; i++) {
+                        var customer = data[i].CUSTOMER;
+                        if (!customerData[customer]) {
+                            customerData[customer] = 1;
+                        } else {
+                            customerData[customer]++;
+                        }
+                    }
+
+                    // Create labels and data for the pie chart
+                    var labels = Object.keys(customerData);
+                    var chartData = Object.values(customerData);
+
+                    // Create the pie chart
+                    var ctx = document.getElementById('customerPieChart').getContext('2d');
+                    var myPieChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: chartData,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.8)',
+                                    'rgba(54, 162, 235, 0.8)',
+                                    'rgba(255, 206, 86, 0.8)',
+                                ],
+                            }],
+                        },
+                    });
+
+                    $('.loading-overlay').hide();
+                },
+            });
+        }
+    </script>
 </body>
-<script>
-    const ctx1 = document.getElementById('myChart');
-
-    new Chart(ctx1, {
-        type: 'bar',
-        data: {
-            labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-            datasets: [{
-                label: '원가합계(₩)',
-                data: [200000000, 300000000, 250000000,450000000, 550000000, 650000000, 600000000, 800000000, 1000000000, 900000000, 1200000000, 1500000000],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 99, 132, 0.2)'
-
-                ],
-                borderColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 99, 132)'
-                ],
-                barThickness: 25,
-                borderWidth: 2
-
-            }, {
-                type: 'bar',
-                label: '단가합계(₩)',
-                data:  [450000000, 600000000, 450000000,600000000, 850000000, 1000000000, 1100000000, 1000000000, 1200000000, 1300000000, 1600000000, 2100000000],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(54, 162, 235, 0.2)'
-
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)',
-                    'rgba(54, 162, 235)'
-                ],
-                barThickness: 25,
-                borderWidth: 2
-            }, {
-                type: 'bar',
-                label: '영업이익(₩)',
-                data:  [250000000, 300000000, 200000000,150000000, 300000000, 350000000, 500000000, 200000000, 200000000, 400000000, 400000000, 600000000],
-                backgroundColor: [
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(255, 205, 86, 0.2)'
-
-                ],
-                borderColor: [
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)',
-                    'rgba(255, 205, 86)'
-                ],
-                barThickness: 25,
-                borderWidth: 2
-            }
-            ]
-
-        },
-
-
-
-
-    });
-</script>
 
 </html>
