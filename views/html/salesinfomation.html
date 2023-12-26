@@ -95,7 +95,7 @@
         </tbody>
 
     </table>
-    <div id="editModal" style="max-height: 600px; overflow-y: auto;">
+    <div id="editModal" style="max-height: 600px;  overflow-y: auto;">
         <div class="mainheader">
             <h1>영업 수주 등록</h1>
             <span class="close" onclick="closeModal()">&times;</span>
@@ -125,17 +125,17 @@
         </div>
     </div>
 
-    <div id="editModal1" style="max-height: 800px; overflow-y: auto;">
+    <div id="editModal1" style="max-height: 800px; width: 1000px; overflow-y: auto;">
         <div class="mainheader">
             <h1>품목 검색</h1>
             <span class="close" onclick="closeModal1()">&times;</span>
             <input type="text" id="numericPart" style="width: 200px; visibility: hidden;">
         </div>
-        <input type="text" id="materialnameinput" placeholder="고객사 코드를 입력 후 Enter를 누르세요"
+        <input type="text" oninput="search()" id="materialnameinput" placeholder="검색어를 입력 하세요"
             style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey(event)" autocomplete="off">
 
         <div>
-            <table class="styled-table" id="datatable">
+            <table class="styled-table" id="datatable1">
                 <thead id="tableHead">
                     <tr>
                         <th style="width: 20px;"></th>
@@ -342,6 +342,43 @@
         function newadd() {
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('editModal').style.display = 'block';
+            var inputValue = document.getElementById("materialnameinput").value.trim();
+
+            document.getElementById("materialnameinput").value = "";
+            $('#searchingmaterialinfobody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/searchbomno',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    itemcode: inputValue
+
+                }),
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+
+
+                        $('#searchingmaterialinfobody').append(
+                            '<tr>' +
+
+                            '<td><input type="checkbox" onclick="insertmaterialdata(this)"  style="cursor:pointer; width: 20px; height: 20px;"></td>' +
+                            '<td>' + result[i].itemcode + '</td>' +
+                            '<td>' + result[i].bomno + '</td>' +
+                            '<td>' + result[i].modelname + '</td>' +
+                            '<td>' + result[i].itemname + '</td>' +
+                            '<td>' + result[i].customer + '</td>' +
+                            '<td id="data-itemprice">' + result[i].itemprice + '</td>' +
+                            '</tr>'
+                        );
+
+                        $("td#data-itemprice").hide();
+
+
+                    }
+                }
+            });
             $('#accountdatatbody').empty()
             var newRow = $('<tr></tr>');
             newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
@@ -380,47 +417,7 @@
             $("#numericPart").val(rowIndex);
         }
 
-        function handleEnterKey(event) {
-            if (event.key === 'Enter') {
-                var inputValue = document.getElementById("materialnameinput").value.trim();
 
-                document.getElementById("materialnameinput").value = "";
-                $('#searchingmaterialinfobody').empty();
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/searchbomno',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        itemcode: inputValue
-
-                    }),
-                    success: function (result) {
-                        for (var i = 0; i < result.length; i++) {
-
-
-                            $('#searchingmaterialinfobody').append(
-                                '<tr>' +
-
-                                '<td><input type="checkbox" onclick="insertmaterialdata(this)"  style="cursor:pointer; width: 20px; height: 20px;"></td>' +
-                                '<td>' + result[i].itemcode + '</td>' +
-                                '<td>' + result[i].bomno + '</td>' +
-                                '<td>' + result[i].modelname + '</td>' +
-                                '<td>' + result[i].itemname + '</td>' +
-                                '<td>' + result[i].customer + '</td>' +
-                                '<td id="data-itemprice">' + result[i].itemprice + '</td>' +
-                                '</tr>'
-                            );
-
-                            $("td#data-itemprice").hide();
-
-
-                        }
-                    }
-                });
-            }
-        }
 
         function insertmaterialdata(row) {
             var rowData = $(row).closest('tr').find('td').map(function () {
@@ -568,7 +565,38 @@
         });
 
 
+        function search() {
+            const searchInput = document.getElementById('materialnameinput');
+            const dataTable = document.getElementById('datatable1');
+            const tableRows = dataTable.getElementsByTagName('tr');
 
+            searchInput.addEventListener('input', function () {
+                const searchValue = this.value.toLowerCase();
+                let count = 0;
+
+                for (let i = 1; i < tableRows.length; i++) {
+                    const rowData = tableRows[i].getElementsByTagName('td');
+                    let found = false;
+
+                    for (let j = 0; j < rowData.length; j++) {
+                        const cellData = rowData[j].textContent.toLowerCase();
+
+                        if (cellData.includes(searchValue)) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found) {
+                        tableRows[i].style.display = '';
+                        count++;
+                    } else {
+                        tableRows[i].style.display = 'none';
+                    }
+                }
+
+            });
+        }
     </script>
 
 
