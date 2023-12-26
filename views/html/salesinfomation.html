@@ -138,6 +138,7 @@
             <table class="styled-table" id="datatable">
                 <thead id="tableHead">
                     <tr>
+                        <th style="width: 20px;"></th>
                         <th style="width: auto; text-align: center;" onclick="sortTable(0)">제품코드</th>
                         <th style="width: auto; text-align: center;" onclick="sortTable(1)">BOMNO</th>
                         <th style="width: auto; text-align: center;" onclick="sortTable(2)">모델명</th>
@@ -293,7 +294,7 @@
                             '<td colspan="5"><b>' + $('#datepicker1').val() + '~' + $('#datepicker2').val() + '</b></td>' +
                             '<td style="text-align:right;"><b>수주 건수:' + result.length.toLocaleString() + '</b></td>' +
                             '<td style="text-align:right;"><b>' + totalQuantity.toLocaleString() + '</b></td>' +
-                            '<td></td>' + // Assuming you don't want to display a total for item price
+                            '<td></td>' +
                             '<td style="text-align:right;"><b>' + totalTotalPrice.toLocaleString() + '</b></td>' +
                             '</tr>'
                         );
@@ -400,7 +401,9 @@
 
 
                             $('#searchingmaterialinfobody').append(
-                                '<tr onclick="insertmaterialdata(this)">' +
+                                '<tr>' +
+
+                                '<td><input type="checkbox" onclick="insertmaterialdata(this)"  style="cursor:pointer; width: 20px; height: 20px;"></td>' +
                                 '<td>' + result[i].itemcode + '</td>' +
                                 '<td>' + result[i].bomno + '</td>' +
                                 '<td>' + result[i].modelname + '</td>' +
@@ -420,22 +423,22 @@
         }
 
         function insertmaterialdata(row) {
-            document.getElementById('editModal1').style.display = 'none';
-            var rowData = $(row).find('td').map(function () {
+            var rowData = $(row).closest('tr').find('td').map(function () {
                 return $(this).text();
             }).get();
 
-            var rowIndex = $('#numericPart').val()
+            var rowCount = $('#accountdatatbody tr').length - 1;
 
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #bomno-input').val(rowData[1]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #itemcode-input').val(rowData[0]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #modelname-input').val(rowData[2]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #itemname-input').val(rowData[3]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #customer-input').val(rowData[4]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').val(rowData[5]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').focus()
-
+            $('#accountdatatbody tr:eq(' + rowCount + ') #bomno-input').val(rowData[2]); // BOMNO
+            $('#accountdatatbody tr:eq(' + rowCount + ') #itemcode-input').val(rowData[1]); // 품목코드
+            $('#accountdatatbody tr:eq(' + rowCount + ') #modelname-input').val(rowData[3]); // 모델명
+            $('#accountdatatbody tr:eq(' + rowCount + ') #itemname-input').val(rowData[4]); // 품목명
+            $('#accountdatatbody tr:eq(' + rowCount + ') #customer-input').val(rowData[5]); // 고객사
+            $('#accountdatatbody tr:eq(' + rowCount + ') #itemprice-input').val(rowData[6]); // 단가
+            $('#accountdatatbody tr:eq(' + rowCount + ') #pocount-input').focus();
+            addnew();
         }
+
         function valuechanged() {
             var currentRow = $(event.target).closest('tr');
             var rowIndex = currentRow.index();
