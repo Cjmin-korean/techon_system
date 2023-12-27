@@ -1,204 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Table Row Reordering</title>
     <style>
         table {
             border-collapse: collapse;
             width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
         }
 
-        th,
-        td {
-            padding: 12px 15px;
+        th, td {
+            border: 1px solid #dddddd;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            padding: 8px;
         }
 
         th {
             background-color: #f2f2f2;
         }
-
-        tbody tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        /* 선택한 행의 스타일 */
-        tbody tr.selected {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        /* 모달 스타일 */
-        .modal {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        select {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
-        }
     </style>
-
+    <title>Product Data</title>
 </head>
-
 <body>
-    <h2>Table Row Reordering</h2>
-    <table>
-        <thead>
-            <tr>
-                <td colspan="5" style="background-color: silver; text-align: center;">1호기</td>
-            </tr>
-            <tr>
-                <th style="width:auto;">설비명</th>
-                <th style="width:auto;">Column 2</th>
-                <th style="width:auto;">Column 3</th>
-                <th style="width:auto;">Action</th>
-                <th style="width:auto;">호기이동</th>
-            </tr>
-        </thead>
-        <tbody>
 
-            <tr>
-                <td>Data 1</td>
-                <td>Data 1</td>
-                <td>Data 1</td>
-                <td>
-                    <div class="button-container">
-                        <button onclick="moveEquipment(this)">↑</button>
-                        <button onclick="moveDown(this)">↓</button>
-                    </div>
-                </td>
-                <td> <button onclick="">이동</button></td>
-            </tr>
-            <!-- 나머지 행 추가 -->
+<table>
+    <thead>
+        <tr>
+            <th>BOM</th>
+            <th>고객사</th>
+            <th>모델명</th>
+            <th>제품명</th>
+            <th>부품Code</th>
+            <th>전장 LSL (mm)</th>
+            <th>전장 USL (mm)</th>
+            <!-- Add more headers based on your data -->
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>HHE-0001-KR</td>
+            <td>한화이센셜</td>
+            <td>[TAB S9+] SM-X818U DIGITIZER R0.4</td>
+            <td>METAL SHEET</td>
+            <td></td> <!-- Add more columns with data -->
+            <td>128.70</td>
+            <td>128.90</td>
+            <!-- Add more data columns based on your data -->
+        </tr>
+        <tr>
+            <td>HHE-0002-KR</td>
+            <td>한화이센셜</td>
+            <td>[TAB ACTIVE5] SM-306B DIGITIZER R0.0</td>
+            <td>METAL SHEET</td>
+            <td></td> <!-- Add more columns with data -->
+            <td>128.70</td>
+            <td>128.90</td>
+            <!-- Add more data columns based on your data -->
+        </tr>
+        <!-- Repeat the above row structure for each data entry -->
+    </tbody>
+</table>
 
-        </tbody>
-    </table>
-    <table>
-        <thead>
-            <tr>
-                <td colspan="5" style="background-color: silver; text-align: center;">2호기</td>
-            </tr>
-            <tr>
-                <th style="width:auto;">설비명</th>
-                <th style="width:auto;">Column 2</th>
-                <th style="width:auto;">Column 3</th>
-                <th style="width:40px;">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            <tr>
-                <td>Data 1</td>
-                <td>Data 1</td>
-                <td>Data 1</td>
-                <td>
-                    <div class="button-container">
-                        <button onclick="moveEquipment(this)">↑</button>
-                        <button onclick="moveDown(this)">↓</button>
-                    </div>
-                </td>
-            </tr>
-            <!-- 나머지 행 추가 -->
-
-        </tbody>
-    </table>
-    <script>
-        // 이동 버튼을 클릭했을 때 호출되는 함수
-        function moveEquipment(button) {
-            const row = button.parentElement.parentElement.parentElement;
-
-            // 호기 선택 창을 나타내는 모달(div) 엘리먼트를 생성
-            const modal = document.createElement("div");
-            modal.classList.add("modal");
-
-            // 모달 내용을 구성
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <h3>호기 선택</h3>
-                    <select id="equipmentSelect">
-                        <option value="1호기">1호기</option>
-                        <option value="2호기">2호기</option>
-                        <!-- 필요한 다른 호기 옵션들을 추가할 수 있습니다. -->
-                    </select>
-                    <button onclick="confirmMove('${row.id}')">확인</button>
-                    <button onclick="cancelMove()">취소</button>
-                </div>
-            `;
-
-            // 모달을 현재 문서에 추가
-            document.body.appendChild(modal);
-        }
-
-        // 이동 확인 버튼을 클릭했을 때 호출되는 함수
-        function confirmMove(rowId) {
-            const modal = document.querySelector(".modal");
-            const select = document.getElementById("equipmentSelect");
-            const selectedEquipment = select.value;
-
-            // 선택한 행을 선택한 호기 아래로 이동
-            const row = document.getElementById(rowId);
-            const targetTable = row.closest("table"); // 행이 속한 테이블을 찾음
-
-            // 호기 선택에 따른 대상 테이블을 찾는 데 사용할 CSS 클래스를 정의합니다.
-            const targetTableClass = selectedEquipment === "1호기" ? "table1" : "table2";
-
-            // 대상 테이블을 찾습니다.
-            const targetEquipment = targetTable.querySelector(`.${targetTableClass} tbody tr td:first-child`);
-
-            if (targetEquipment) {
-                targetEquipment.textContent = selectedEquipment;
-            }
-
-            // 모달을 제거
-            modal.remove();
-        }
-
-
-    </script>
 </body>
-
 </html>

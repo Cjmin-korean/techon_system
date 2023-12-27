@@ -2085,24 +2085,81 @@ module.exports = function (app) {
                 .input('start', sql.NVarChar, req.body.start)
                 .input('finish', sql.NVarChar, req.body.finish)
                 .query(
-                    "SELECT " +
-                    "id," +
-                    "input," +
-                    "date," +
-                    "materialname," +
-                    "classification," +
-                    "customer," +
-                    "lotno," +
-                    "manufacturedate," +
-                    "expirationdate," +
-                    "format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth'," +
-                    "format(convert(int,Isnull(quantity,0)),'##,##0')'quantity'," +
-                    "format(convert(int,Isnull(roll,0)),'##,##0')'roll'," +
-                    "sum,part,house,codenumber," +
-                    "format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'" +
+                    "SELECT  "+
+                   "id, "+
+                   "input, "+
+                   "date, "+
+                   "materialname, "+
+                   "classification, "+
+                   "customer, "+
+                   "lotno, "+
+                   "manufacturedate, "+
+                   "expirationdate, "+
+                   "format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth', "+
+                   "format(convert(int,Isnull(quantity,0)),'##,##0')'quantity', "+ 
+                   "format(convert(int,Isnull(roll,0)),'##,##0')'roll',  "+
+                   "sum,part,house,codenumber,  "+
+                   "format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'  "+
+                
+                   " FROM materialinput  order by materialname,lotno asc ")
+                .then(result => {
 
-                    " FROM materialinput where date between @start and @finish order by materialname,lotno asc")
 
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/capasearching', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+                .query(
+                   "SELECT "+
+           "      *, "+
+           "      custom_condition_column * 60 AS additional_calculated_column1, "+
+           "       custom_condition_column * 80 AS additional_calculated_column2, "+
+           "        custom_condition_column * 10.5 AS additional_calculated_column3 "+
+           "  FROM ( "+
+           "      SELECT  "+
+           "          iteminfo.bomno, "+
+           "          iteminfo.customer, "+
+           "          iteminfo.modelname,  "+
+           "          iteminfo.itemname,  "+
+           "          iteminfo.workpart,  "+
+           "          iteminfo.working, "+
+           "          bommanagement.onepid AS onepidding,  "+
+           "          iteminfo.cavity, "+
+           "          '고속' AS additional_column, "+
+           "          iteminfo.cavity * 0.5 AS calculated_column, "+
+           "          CASE "+
+           "              WHEN bommanagement.onepid < 90 THEN 100 "+
+           "              WHEN bommanagement.onepid < 150 THEN 83 "+
+           "              WHEN bommanagement.onepid < 190 THEN 50 "+
+           "              ELSE 33   "+
+           "          END AS custom_condition_column "+
+           "      FROM iteminfo "+
+           "      JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno "+
+           "      GROUP BY  "+
+           "          iteminfo.bomno,  "+
+           "          iteminfo.modelname, "+
+           "          iteminfo.itemname,  "+
+           "          iteminfo.workpart,  "+
+           "          iteminfo.working,  "+
+           "          iteminfo.cavity, "+
+           "          iteminfo.customer,"+
+           "          bommanagement.onepid,  "+
+           "          iteminfo.onepidding "+
+           "  ) AS subquery_alias;               ")
                 .then(result => {
 
 
