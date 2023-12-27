@@ -76,6 +76,7 @@
 
     <fieldset>
         <legend>검색조건</legend>
+        <input type="text" id="myInput" placeholder="검색어를 입력하세요" onclick="search()" style="width:600px;">
         <button class="saveButton" onclick="openEditModal()">신규추가</button>
 
     </fieldset>
@@ -1914,7 +1915,40 @@
             }
         }
 
+        function search() {
+            const searchInput = document.getElementById('myInput');
+            const dataTable = document.getElementById('datatable');
+            const tableRows = dataTable.getElementsByTagName('tr');
+            const dataCountCell = document.getElementById('dataCount');
 
+            searchInput.addEventListener('input', function () {
+                const searchValue = this.value.toLowerCase();
+                let count = 0;
+
+                for (let i = 1; i < tableRows.length; i++) {
+                    const rowData = tableRows[i].getElementsByTagName('td');
+                    let found = false;
+
+                    for (let j = 0; j < rowData.length; j++) {
+                        const cellData = rowData[j].textContent.toLowerCase();
+
+                        if (cellData.includes(searchValue)) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found) {
+                        tableRows[i].style.display = '';
+                        count++;
+                    } else {
+                        tableRows[i].style.display = 'none';
+                    }
+                }
+
+                dataCountCell.textContent = `검색 결과 개수: ${count - 1}`;
+            });
+        }
 
 
     </script>
