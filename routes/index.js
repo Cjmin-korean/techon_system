@@ -1195,34 +1195,37 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " SELECT  " +
-                    "    I.BOMNO,  " +
-                    "    I.PART,  " +
-                    "    I.MODELNAME,  " +
-                    "    I.ITEMNAME,  " +
-                    "    I.CUSTOMER,  " +
-                    "    I.ITEMCODE,  " +
-                    "    I.ITEMPRICE,  " +
-                    "    I.class,  " +
-                    "    I.additionalnotes,  " +
-                    "                            CAST(COALESCE(SUM(B.COST), 0) AS DECIMAL(10, 2)) AS TOTALCOST,                    " +
-                    "    CASE  " +
-                    "        WHEN I.ITEMPRICE = 0 THEN 0  " +
-                    "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE *100 , 1)  " +
-                    "    END AS COSTPRICERATIO  ," +
-                    "    I.PCS, " +
-                    "    I.CAVITY, " +
-                    "    I.WORKING, " +
-                    "    I.WORKPART, " +
-                    "    I.DIRECTION, " +
-                    "        I.ORDERCOUNT " +
-                    "   FROM  " +
-                    "       ITEMINFO I  " +
-                    "   LEFT JOIN  " +
-                    "       BOMMANAGEMENT B ON I.BOMNO = B.BOMNO  " +
-                    "   GROUP BY  " +
-                    "    I.additionalnotes,  I.class, I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE ,I.PCS,I.CAVITY,I.WORKING,	I.WORKPART,	I.DIRECTION,	I.ORDERCOUNT " +
-                    " order by i.bomno asc")
+                    " SELECT "+
+                "    I.BOMNO, "+
+                "    I.PART, "+
+                "    I.MODELNAME, "+
+                "    I.ITEMNAME, "+
+                "    I.CUSTOMER, "+
+                "    I.ITEMCODE, "+
+                "    I.ITEMPRICE, "+
+                "    I.class, "+
+                "    I.additionalnotes, "+
+                "    CAST(COALESCE(SUM(B.COST), 0) AS DECIMAL(10, 2)) AS TOTALCOST, "+
+                "    CASE  "+
+                "        WHEN I.ITEMPRICE = 0 THEN 0 "+
+                "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE * 100, 1) "+
+                "    END AS COSTPRICERATIO, "+
+                "    I.PCS, "+
+                "    I.CAVITY, "+
+                "    I.WORKING, "+
+                "    I.WORKPART, "+
+                "    I.DIRECTION,  "+
+                "    I.ORDERCOUNT "+
+                "FROM "+
+                "    ITEMINFO I "+
+                "LEFT JOIN "+
+                "    BOMMANAGEMENT B ON I.BOMNO = B.BOMNO "+
+                "WHERE "+
+                "    B.STATUS = 'true' "+
+                "GROUP BY "+
+                "    I.additionalnotes, I.class, I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE, I.PCS, I.CAVITY, I.WORKING, I.WORKPART, I.DIRECTION, I.ORDERCOUNT "+
+                "ORDER BY "+
+                "    I.BOMNO ASC; "  )
                 .then(result => {
 
 
