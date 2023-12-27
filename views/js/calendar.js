@@ -113,190 +113,182 @@ $(document).ready(function () {
                     plansearching()
 
                 }
-                // 선택한 날짜 정보 저장
           
-              
-
-
-
-
             });
             datesContainer.appendChild(dateButton);
         }
 
-        // 이전에 선택된 버튼 제거
         const selectedButton = datesContainer.querySelector('.selected');
         if (selectedButton) {
             selectedButton.classList.remove('selected');
         }
 
-        // 이전에 선택한 날짜 정보를 기반으로 선택된 버튼 설정
         selectDateButton();
 
     }
 
-    // function planload() {
-    //     $('#Datatbody').empty();
-    //     $.ajax({
-    //         type: 'POST',
-    //         url: server + '/api/equipmentname',
-    //         dataType: 'json',
-    //         success: function (data) {
-    //             var tableBody = $('#Datatbody');
-    //             if (data.length === 0) {
-    //             } else {
-    //                 loadTdData = {};
+    function planload() {
+        $('#Datatbody').empty();
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/equipmentname',
+            dataType: 'json',
+            success: function (data) {
+                var tableBody = $('#Datatbody');
+                if (data.length === 0) {
+                } else {
+                    loadTdData = {};
 
-    //                 for (var i = 0; i < data.length; i++) {
-
-
-    //                     // loadTdData 배열에 객체 추가
-    //                     loadTdData[data[i].codenumber] = {};
-    //                     var numRows = 8; // 각 설비당 행 수 지정
-    //                     for (var j = 0; j < numRows; j++) {
+                    for (var i = 0; i < data.length; i++) {
 
 
-    //                         loadTdData[data[i].codenumber][j] = {
-    //                             num: '',
-    //                             bomno: '',
-    //                             customer: '',
-    //                             modelname: '',
-    //                             itemname: '',
-    //                             part: '',
-    //                             linepart: '',
-    //                             lotno: '',
-    //                             pono: '',
-    //                             accumulate: '',
-    //                             remaining: '',
-    //                             planone: '', // 중복된 'planone' 제거
-    //                             siljokone: '',
-    //                             plantwo: '',
-    //                             siljoktwo: '',
-    //                         }
-
-    //                         tableBody.append(
-    //                             '<tr draggable="true">' +
-    //                             (j === 0 ? '<td style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '</td>' : '') +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
-    //                             '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
-    //                             '</tr>'
-    //                         );
-
-    //                     }
-    //                 }
-
-    //                 //console.log('loadTdData2', loadTdData)
-    //                 plansearching()
-    //             }
-    //         }
-    //     });
-    // }
-
-    // function plansearching() {
-
-    //     $.ajax({
-    //         type: 'POST',
-    //         url: server + '/api/plansearchAll',
-    //         dataType: 'json',
-    //         contentType: 'application/json',
-    //         data: JSON.stringify({
-    //             "plandate": $('#plandate').text()
-    //         }),
-    //         success: function (data) {
-    //             //console.log('loadTdData2', loadTdData);
-    //             planSearchData = data;
-    //             //console.log('planSearchData', planSearchData);
-
-    //             for (var i = 0; i < data.length; i++) {
-    //                 loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
-    //                     id:data[i].id,
-    //                     equipmentname:planSearchData[i].equipmentname,
-    //                     num: data[i].num,
-    //                     bomno: data[i].bomno,
-    //                     customer: data[i].customer,
-    //                     modelname: data[i].modelname,
-    //                     itemname: data[i].itemname,
-    //                     part: data[i].part,
-    //                     linepart: data[i].linepart,
-    //                     lotno: data[i].lotno,
-    //                     pono: data[i].pono,
-    //                     accumulate: data[i].accumulate,
-    //                     remaining: data[i].remaining,
-    //                     planone: data[i].planone,
-    //                     siljokone: data[i].siljokone,
-    //                     plantwo: data[i].plantwo,
-    //                     siljoktwo: data[i].siljoktwo,
-    //                     plandate: data[i].plandate
-    //                 };
-    //                 // //console.log('data[i].plandate', data[i].plandate);
-    //             }
-    //             var loadTdDataKeys = Object.keys(loadTdData);
-    //             // //console.log('keys', loadTdDataKeys);
-    //             var numKeys = loadTdDataKeys.length;
-    //             // //console.log(numKeys);
-    //             for (var i = 0; i < numKeys; i++) {
-
-    //                 for(var j=0; j < 8; j++) {
-
-    //                     var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-    //                     var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-
-    //                     // //console.log('ㅓ', i,j);
-    //                     // //console.log('bomno', bomno);
+                        // loadTdData 배열에 객체 추가
+                        loadTdData[data[i].codenumber] = {};
+                        var numRows = 8; // 각 설비당 행 수 지정
+                        for (var j = 0; j < numRows; j++) {
 
 
-    //                     $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
-    //                     $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
-    //                     $('#' + j + modelname + '').text(loadTdData[loadTdDataKeys[i]][j].modelname);
-    //                     $('#' + j + itemname + '').text(loadTdData[loadTdDataKeys[i]][j].itemname);
-    //                     $('#' + j + part + '').text(loadTdData[loadTdDataKeys[i]][j].part);
-    //                     $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].linepart);
-    //                     $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
-    //                     $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono);
-    //                     $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
-    //                     $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
-    //                     $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
-    //                     $('#' + j + siljokone + '').text(loadTdData[loadTdDataKeys[i]][j].siljokone);
-    //                     $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
-    //                     $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
+                            loadTdData[data[i].codenumber][j] = {
+                                num: '',
+                                bomno: '',
+                                customer: '',
+                                modelname: '',
+                                itemname: '',
+                                part: '',
+                                linepart: '',
+                                lotno: '',
+                                pono: '',
+                                accumulate: '',
+                                remaining: '',
+                                planone: '', // 중복된 'planone' 제거
+                                siljokone: '',
+                                plantwo: '',
+                                siljoktwo: '',
+                            }
+
+                            tableBody.append(
+                                '<tr draggable="true">' +
+                                (j === 0 ? '<td style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '</td>' : '') +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+                                '</tr>'
+                            );
+
+                        }
+                    }
+
+                    //console.log('loadTdData2', loadTdData)
+                    plansearching()
+                }
+            }
+        });
+    }
+
+    function plansearching() {
+
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/plansearchAll',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "plandate": $('#plandate').text()
+            }),
+            success: function (data) {
+                //console.log('loadTdData2', loadTdData);
+                planSearchData = data;
+                //console.log('planSearchData', planSearchData);
+
+                for (var i = 0; i < data.length; i++) {
+                    loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
+                        id:data[i].id,
+                        equipmentname:planSearchData[i].equipmentname,
+                        num: data[i].num,
+                        bomno: data[i].bomno,
+                        customer: data[i].customer,
+                        modelname: data[i].modelname,
+                        itemname: data[i].itemname,
+                        part: data[i].part,
+                        linepart: data[i].linepart,
+                        lotno: data[i].lotno,
+                        pono: data[i].pono,
+                        accumulate: data[i].accumulate,
+                        remaining: data[i].remaining,
+                        planone: data[i].planone,
+                        siljokone: data[i].siljokone,
+                        plantwo: data[i].plantwo,
+                        siljoktwo: data[i].siljoktwo,
+                        plandate: data[i].plandate
+                    };
+                    // //console.log('data[i].plandate', data[i].plandate);
+                }
+                var loadTdDataKeys = Object.keys(loadTdData);
+                // //console.log('keys', loadTdDataKeys);
+                var numKeys = loadTdDataKeys.length;
+                // //console.log(numKeys);
+                for (var i = 0; i < numKeys; i++) {
+
+                    for(var j=0; j < 8; j++) {
+
+                        var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+
+                        // //console.log('ㅓ', i,j);
+                        // //console.log('bomno', bomno);
 
 
-    //                     // //console.log('bomno', '#' + j + bomno + '');
-    //                 }
+                        $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
+                        $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
+                        $('#' + j + modelname + '').text(loadTdData[loadTdDataKeys[i]][j].modelname);
+                        $('#' + j + itemname + '').text(loadTdData[loadTdDataKeys[i]][j].itemname);
+                        $('#' + j + part + '').text(loadTdData[loadTdDataKeys[i]][j].part);
+                        $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].linepart);
+                        $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
+                        $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono);
+                        $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
+                        $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
+                        $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
+                        $('#' + j + siljokone + '').text(loadTdData[loadTdDataKeys[i]][j].siljokone);
+                        $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
+                        $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
 
-    //             }
-    //             for (var key in loadTdData) {
-    //                 for (var subKey in loadTdData[key]) {
-    //                     flattenedData.push(loadTdData[key][subKey]);
-    //                 }
-    //             }
-    //         }
-    //     });
-    // }
+
+                        // //console.log('bomno', '#' + j + bomno + '');
+                    }
+
+                }
+                for (var key in loadTdData) {
+                    for (var subKey in loadTdData[key]) {
+                        flattenedData.push(loadTdData[key][subKey]);
+                    }
+                }
+            }
+        });
+    }
 
     // 달력 초기 업데이트
     updateCalendar();
