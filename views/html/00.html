@@ -3,63 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select 및 Input 결합 예제</title>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-
-        th {
-            background-color: #f2f2f2;
+        #combinedInput {
+            width: 200px;
         }
     </style>
-    <title>Product Data</title>
 </head>
 <body>
 
-<table>
-    <thead>
-        <tr>
-            <th>BOM</th>
-            <th>고객사</th>
-            <th>모델명</th>
-            <th>제품명</th>
-            <th>부품Code</th>
-            <th>전장 LSL (mm)</th>
-            <th>전장 USL (mm)</th>
-            <!-- Add more headers based on your data -->
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>HHE-0001-KR</td>
-            <td>한화이센셜</td>
-            <td>[TAB S9+] SM-X818U DIGITIZER R0.4</td>
-            <td>METAL SHEET</td>
-            <td></td> <!-- Add more columns with data -->
-            <td>128.70</td>
-            <td>128.90</td>
-            <!-- Add more data columns based on your data -->
-        </tr>
-        <tr>
-            <td>HHE-0002-KR</td>
-            <td>한화이센셜</td>
-            <td>[TAB ACTIVE5] SM-306B DIGITIZER R0.0</td>
-            <td>METAL SHEET</td>
-            <td></td> <!-- Add more columns with data -->
-            <td>128.70</td>
-            <td>128.90</td>
-            <!-- Add more data columns based on your data -->
-        </tr>
-        <!-- Repeat the above row structure for each data entry -->
-    </tbody>
-</table>
+<form action="your_server_script.php" method="post">
+    <label for="combinedInput">값 선택 또는 입력:</label>
+    <select id="combinedInput" name="combinedInput">
+        <option value="" disabled selected hidden>선택 또는 입력</option>
+        <option value="option1">옵션 1</option>
+        <option value="option2">옵션 2</option>
+        <option value="option3">옵션 3</option>
+    </select>
+
+    <script>
+        // JavaScript 코드로 사용자가 직접 입력할 수 있는 옵션을 추가
+        var combinedInput = document.getElementById('combinedInput');
+        var inputOption = document.createElement('option');
+        inputOption.value = 'userInput';
+        inputOption.text = '직접 입력';
+        combinedInput.add(inputOption);
+        
+        // 이벤트 핸들러를 통해 선택한 옵션이 '직접 입력'일 경우 입력 상자를 표시
+        combinedInput.addEventListener('change', function() {
+            var userInputOption = 'userInput';
+            var selectedOption = combinedInput.value;
+            
+            if (selectedOption === userInputOption) {
+                var userInput = prompt('값을 입력하세요:');
+                
+                // 입력 받은 값으로 새로운 옵션 추가
+                if (userInput !== null && userInput.trim() !== '') {
+                    var newOption = document.createElement('option');
+                    newOption.value = userInput;
+                    newOption.text = userInput;
+                    combinedInput.add(newOption);
+                    combinedInput.value = userInput; // 새로 추가된 옵션을 선택
+                } else {
+                    // 사용자가 취소하거나 빈 값을 입력한 경우 기본 선택 항목으로 변경
+                    combinedInput.value = '';
+                }
+            }
+        });
+    </script>
+
+    <input type="submit" value="전송">
+</form>
 
 </body>
 </html>

@@ -2,64 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>막대 그래프 예제</title>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테이블 행 이동 예제</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-    <div id="chart"></div>
 
-    <script>
-        // 데이터 예제 (서버에서 데이터를 가져와서 적절히 구성해야 함)
-        var data = [
-            { materialname: "Material 1", quantity: 100 },
-            { materialname: "Material 2", quantity: 200 },
-            { materialname: "Material 3", quantity: 150 },
-            // 추가 데이터
-        ];
+<table id="myTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Country</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>John Doe</td>
+            <td>25</td>
+            <td>USA</td>
+            <td>
+                <button onclick="moveRowUp(this)">위로 이동</button>
+                <button onclick="moveRowDown(this)">아래로 이동</button>
+            </td>
+        </tr>
+        <tr>
+            <td>Jane Doe</td>
+            <td>30</td>
+            <td>Canada</td>
+            <td>
+                <button onclick="moveRowUp(this)">위로 이동</button>
+                <button onclick="moveRowDown(this)">아래로 이동</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
-        // SVG 요소의 너비와 높이 설정
-        var width = 600;
-        var height = 400;
+<script>
+    function moveRowUp(button) {
+        var row = button.parentNode.parentNode;
+        var tbody = row.parentNode;
 
-        // SVG 요소 생성
-        var svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
+        if (row.rowIndex > 1) {
+            // 현재 행의 인덱스가 1보다 크면 위로 이동
+            tbody.insertBefore(row, tbody.rows[row.rowIndex - 1]);
+        }
+    }
 
-        // x 축 스케일 설정 (재료명)
-        var xScale = d3.scaleBand()
-            .domain(data.map(function(d) { return d.materialname; }))
-            .range([0, width])
-            .padding(0.1);
+    function moveRowDown(button) {
+        var row = button.parentNode.parentNode;
+        var tbody = row.parentNode;
 
-        // y 축 스케일 설정 (재고량)
-        var yScale = d3.scaleLinear()
-            .domain([0, d3.max(data, function(d) { return d.quantity; })])
-            .nice()
-            .range([height, 0]);
+        if (row.rowIndex < tbody.rows.length - 1) {
+            // 현재 행의 인덱스가 마지막 행의 인덱스보다 작으면 아래로 이동
+            tbody.insertBefore(row, tbody.rows[row.rowIndex + 2]);
+        }
+    }
+</script>
 
-        // x 축 생성
-        svg.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(xScale))
-            .selectAll("text")
-            .style("text-anchor", "end")
-            .attr("transform", "rotate(-45)");
-
-        // y 축 생성
-        svg.append("g")
-            .call(d3.axisLeft(yScale));
-
-        // 막대 그래프 생성
-        svg.selectAll(".bar")
-            .data(data)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", function(d) { return xScale(d.materialname); })
-            .attr("y", function(d) { return yScale(d.quantity); })
-            .attr("width", xScale.bandwidth())
-            .attr("height", function(d) { return height - yScale(d.quantity); });
-    </script>
 </body>
 </html>
