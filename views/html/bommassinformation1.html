@@ -22,6 +22,20 @@
 
 </head>
 <style>
+    option {
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    #RowBtnadd:hover {
+        background-color: white;
+    }
+
+    #updownbtn:hover {
+        background-color: silver;
+        cursor: pointer;
+    }
+
     #bomtableBody {
         max-height: 300px;
         /* Set your desired max height here */
@@ -33,7 +47,7 @@
         padding: 10px;
         box-sizing: border-box;
         /* margin-bottom: 16px; */
-        border: 1px solid #ccc;
+        border: 1px solid #cccccc;
         border-radius: 4px;
         font-size: 15px;
         font-weight: bold;
@@ -60,6 +74,10 @@
         margin-left: 10px;
         cursor: pointer;
 
+    }
+
+    .table-container {
+        overflow-x: auto;
     }
 </style>
 
@@ -143,12 +161,12 @@
                     <td><input type="text" id="itemcode-save" value="" autocomplete="off"></td>
                     <td><label for="editDate">공정구분</label></td>
                     <td><select id="workpart-save" style="font-weight: bold;">
-                            <option style="font-weight: bold; font-size: 15px;" value=""></option>
-                            <option style="font-weight: bold; font-size: 15px;" value="2차피딩작업">2차피딩작업</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="이중피딩작업">이중피딩작업</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="일반피딩작업">일반피딩작업</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="유압6565(본딩)">유압6565(본딩)</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="PP">PP</option>
+                            <option style="font-weight: bold; font-size: 20px;" value=""></option>
+                            <option style="font-weight: bold; font-size: 20px;" value="2차피딩작업">2차피딩작업</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="이중피딩작업">이중피딩작업</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="일반피딩작업">일반피딩작업</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="유압6565(본딩)">유압6565(본딩)</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="PP">PP</option>
 
                         </select></td>
                     <td><label for="editAuthor">작업차수</label></td>
@@ -156,23 +174,23 @@
                             oninput="validateNumericInput(this)" value="" autocomplete="off"></td>
                     <td><label for="editDate">타발방향</label></td>
                     <td><select id="direction-save" style="font-weight: bold;">
-                            <option style="font-weight: bold; font-size: 15px;" value="정">정</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="역">역</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="정-정">정-정</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="역-정">역-정</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="정-역">정-역</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="역-역-정">역-역-정</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="정">정</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="역">역</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="정-정">정-정</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="역-정">역-정</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="정-역">정-역</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="역-역-정">역-역-정</option>
 
                         </select></td>
                     <td><label for="editDate">Type</label></td>
                     <td><select id="type-save" style="font-weight: bold;">
-                            <option style="font-weight: bold; font-size: 15px;" value=""></option>
-                            <option style="font-weight: bold; font-size: 15px;" value="ROLL TYPE">ROLL TYPE</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="SHEET TYPE">SHEET TYPE</option>
-                            <option style="font-weight: bold; font-size: 15px;" value="기타">기타</option>
+                            <option style="font-weight: bold; font-size: 20px;" value=""></option>
+                            <option style="font-weight: bold; font-size: 20px;" value="ROLL TYPE">ROLL TYPE</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="SHEET TYPE">SHEET TYPE</option>
                         </select>
                     </td>
-
+                    <!-- <td><label for="editDate">REV변경</label></td>
+                    <td><input type="checkbox"> </td> -->
                 </tr>
                 <tr style="height:50px;">
                     <td colspan="12">작업특이사항</td>
@@ -184,6 +202,251 @@
                 </tr>
 
             </table>
+            <div style="overflow-x: auto; max-width: 140%; max-height: 800px;">
+                <div style="height: auto; max-height: 600px; overflow-y: auto; display: block;">
+                    <table>
+                        <thead id="tableHead">
+                            <tr style="height: 30px;">
+                                <th style="width: 90px;" rowspan="2"><button id="addRowBtn"
+                                        onclick="addRow()">추가</button>
+                                </th>
+                                <th style="width: 50px;" rowspan="2"> </th>
+                                <th style="width: 50px;" rowspan="2"><button id="addRowBtn"
+                                        onclick="habji()">합지</button>
+                                </th>
+                                <th style="width: 50px;" rowspan="2">작업<br>차수</th>
+                                <th style="width: 130px;" rowspan="2">메인자재</th>
+                                <th style="width: 200px;" rowspan="2">원자재명</th>
+                                <th style="width: 70px;" rowspan="2">자재종류</th>
+                                <th rowspan="2" style="width: 400px;">자재별 특이사항</th>
+                                <th style="width: 70px;">원단폭</th>
+                                <th style="width: 70px;">사용<br>가능폭</th>
+                                <th style="width: 70px;">1차<br>피딩</th>
+                                <th style="width: 70px;">2차<br>피딩</th>
+                                <th style="width: 120px;">1타<br>소요량</th>
+                                <th style="width: 70px;">타</th>
+                                <th style="width: 70px;">All타</th>
+                                <th style="width: 70px;">타길이</th>
+                                <th style="width: 70px;">LOSS</th>
+                                <th style="width: 120px;">원가<br>(1EA)</th>
+                                <th style="width: 70px;">1R/L<br>컷팅수량</th>
+                                <th style="width: 70px;">1R/L<br>생산수량</th>
+                                <th style="width: 70px;">전폭</th>
+                                <th style="width: 70px;">유효폭</th>
+                                <th style="width: 70px;">길이</th>
+                                <th style="width: 70px;">SQM<br>단가</th>
+                                <th style="width: 70px;">롤단가</th>
+                                <th style="width: 70px;" rowspan="2">단위</th>
+                                <th style="width: 130px;" rowspan="2">제조사</th>
+                                <th style="width: 130px;" rowspan="2">공급사</th>
+                                <th style="width: 50px;" rowspan="2">C/V</th>
+                                <th style="width: 50px;" rowspan="2">Code</th>
+
+                            </tr>
+
+                            <tr style="height: 30px;">
+
+                                <th>mm</th>
+                                <th>mm</th>
+                                <th>mm</th>
+                                <th>mm</th>
+                                <th>M</th>
+                                <th>타수</th>
+                                <th>타수</th>
+                                <th>mm</th>
+                                <th>%</th>
+                                <th>￦</th>
+                                <th>Roll</th>
+                                <th>EA</th>
+                                <th>mm</th>
+                                <th>mm</th>
+                                <th>M</th>
+                                <th>￦</th>
+                                <th>￦</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="bomtableBody">
+
+                        </tbody>
+                        <tfoot style="background-color:whitesmoke;">
+                            <tr>
+                                <td></td>
+                                <td><input type="button" id="updownbtn" onClick="rowMoveEvent('up');" value="▲"
+                                        style="width:50px;" /></td>
+                                <td><input type="button" id="updownbtn" onClick="rowMoveEvent('down');" value="▼"
+                                        style="width:50px;" /></td>
+                                <td colspan="28"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div id="editModal1">
+        <div class="mainheader">
+            <h1>양산BOM 상세정보</h1>
+            <span class="close" onclick="closeModal1()">&times;</span>
+        </div>
+
+
+        <div id="editForm">
+            <table>
+                <tr style="height:50px;">
+                    <td colspan="11">제품 정보</td>
+                    <td> <button style="background-color: black; color:white;" class="saveButton"
+                            onclick="update()">수정</button></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">BOMNO</label></td>
+                    <td><input type="text" id="bomno-edit" style="background-color: whitesmoke;"readonly  value="" autocomplete="off"></td>
+                    <td><label for="editAuthor">고객사명</label></td>
+                    <td><input type="text" ondblclick="customerDoubleClick();"
+                            style="background-color: whitesmoke; cursor: pointer;" readonly id="customer-edit" value=""
+                            autocomplete="off"></td>
+                    <td><label for="editDate">모델명</label></td>
+                    <td><input type="text" id="modelname-edit" value="" autocomplete="off"></td>
+                    <td><label for="editDate">제품명</label></td>
+                    <td><input type="text" id="itemname-edit" value="" autocomplete="off"></td>
+
+                    <td><label for="editAuthor">PCS수량</label></td>
+                    <td><input type="text" style="text-align: right;" oninput="validateNumericInput(this)" id="pcs-edit"
+                            value="" autocomplete="off"></td>
+                    <td><label for="editAuthor">Cavity</label></td>
+                    <td><input type="text" style="text-align: right;" id="cavity-edit" value="" autocomplete="off"
+                            oninput="updateCavityInputs();">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><label for="editDate">고객코드</label></td>
+                    <td><input type="text" id="itemcode-edit" value="" autocomplete="off"></td>
+                    <td><label for="editDate">공정구분</label></td>
+                    <td><select id="workpart-edit" style="font-weight: bold;">
+                            <option style="font-weight: bold; font-size: 20px;" value=""></option>
+                            <option style="font-weight: bold; font-size: 20px;" value="2차피딩작업">2차피딩작업</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="이중피딩작업">이중피딩작업</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="일반피딩작업">일반피딩작업</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="유압6565(본딩)">유압6565(본딩)</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="PP">PP</option>
+
+                        </select></td>
+                    <td><label for="editAuthor">작업차수</label></td>
+                    <td><input type="text" style="text-align: right;" id="working-edit"
+                            oninput="validateNumericInput(this)" value="" autocomplete="off"></td>
+                    <td><label for="editDate">타발방향</label></td>
+                    <td><select id="direction-edit" style="font-weight: bold;">
+                            <option style="font-weight: bold; font-size: 20px;" value="정">정</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="역">역</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="정-정">정-정</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="역-정">역-정</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="정-역">정-역</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="역-역-정">역-역-정</option>
+
+                        </select></td>
+                    <td><label for="editDate">Type</label></td>
+                    <td><select id="type-edit" style="font-weight: bold;">
+                            <option style="font-weight: bold; font-size: 20px;" value=""></option>
+                            <option style="font-weight: bold; font-size: 20px;" value="ROLL TYPE">ROLL TYPE</option>
+                            <option style="font-weight: bold; font-size: 20px;" value="SHEET TYPE">SHEET TYPE</option>
+                        </select>
+                    </td>
+                    <td><label for="editDate">REV변경</label></td>
+                    <td><input type="checkbox" id="revchange" style="width:20px; height: 20px; cursor: pointer;"> </td>
+                </tr>
+                <tr style="height:50px;">
+                    <td colspan="12">작업특이사항</td>
+                </tr>
+                <tr>
+                    <td colspan="12" style="max-height: 70%;">
+                        <textarea id="additionalNote" rows="3" autocomplete="off"></textarea>
+                    </td>
+                </tr>
+
+            </table>
+            <div style="overflow-x: auto; max-width: 140%; max-height: 800px;">
+                <div style="height: auto; max-height: 600px; overflow-y: auto; display: block;">
+                    <table>
+                        <thead id="tableHead">
+                            <tr style="height: 30px;">
+                                <th style="width: 90px;" rowspan="2"><button id="addRowBtn"
+                                        onclick="addRow1()">추가</button>
+                                </th>
+                                <th style="width: 50px;" rowspan="2"> </th>
+                                <th style="width: 50px;" rowspan="2"><button id="addRowBtn"
+                                        onclick="habji()">합지</button>
+                                </th>
+                                <th style="width: 50px;" rowspan="2">작업<br>차수</th>
+                                <th style="width: 130px;" rowspan="2">메인자재</th>
+                                <th style="width: 200px;" rowspan="2">원자재명</th>
+                                <th style="width: 70px;" rowspan="2">자재종류</th>
+                                <th rowspan="2" style="width: 400px;">자재별 특이사항</th>
+                                <th style="width: 70px;">원단폭</th>
+                                <th style="width: 70px;">사용<br>가능폭</th>
+                                <th style="width: 70px;">1차<br>피딩</th>
+                                <th style="width: 70px;">2차<br>피딩</th>
+                                <th style="width: 120px;">1타<br>소요량</th>
+                                <th style="width: 70px;">타</th>
+                                <th style="width: 70px;">All타</th>
+                                <th style="width: 70px;">타길이</th>
+                                <th style="width: 70px;">LOSS</th>
+                                <th style="width: 120px;">원가<br>(1EA)</th>
+                                <th style="width: 70px;">1R/L<br>컷팅수량</th>
+                                <th style="width: 70px;">1R/L<br>생산수량</th>
+                                <th style="width: 70px;">전폭</th>
+                                <th style="width: 70px;">유효폭</th>
+                                <th style="width: 70px;">길이</th>
+                                <th style="width: 70px;">SQM<br>단가</th>
+                                <th style="width: 70px;">롤단가</th>
+                                <th style="width: 70px;" rowspan="2">단위</th>
+                                <th style="width: 130px;" rowspan="2">제조사</th>
+                                <th style="width: 130px;" rowspan="2">공급사</th>
+                                <th style="width: 50px;" rowspan="2">C/V</th>
+                                <th style="width: 50px;" rowspan="2">Code</th>
+
+                            </tr>
+
+                            <tr style="height: 30px;">
+
+                                <th>mm</th>
+                                <th>mm</th>
+                                <th>mm</th>
+                                <th>mm</th>
+                                <th>M</th>
+                                <th>타수</th>
+                                <th>타수</th>
+                                <th>mm</th>
+                                <th>%</th>
+                                <th>￦</th>
+                                <th>Roll</th>
+                                <th>EA</th>
+                                <th>mm</th>
+                                <th>mm</th>
+                                <th>M</th>
+                                <th>￦</th>
+                                <th>￦</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="bomtableBody-edit">
+
+                        </tbody>
+                        <tfoot style="background-color:whitesmoke;">
+                            <tr>
+                                <td></td>
+                                <td><input type="button" id="updownbtn" onClick="rowMoveEvent('up');" value="▲"
+                                        style="width:50px;" /></td>
+                                <td><input type="button" id="updownbtn" onClick="rowMoveEvent('down');" value="▼"
+                                        style="width:50px;" /></td>
+                                <td colspan="28"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
 
 
         </div>
@@ -329,6 +592,13 @@
 
 
         });
+        $(document).on('click', '#RowBtnadd', function () {
+            var newRow = $('<tr>');
+            newRow.append('<td>새로운 셀 1</td>');
+            newRow.append('<td>새로운 셀 2</td>');
+
+            $(this).closest('tr').after(newRow);
+        });
         function openEditModal() {
 
             $('#overlay').fadeIn();
@@ -344,6 +614,7 @@
 
             // Append each cell to the new row
             newRow.append('<td><button id="deleteRowBtn" style="background-color: red; color:white; ">삭제</button></td>');
+            newRow.append('<td><button id="RowBtnadd" style="background-color: #4f56b6; color:white; ">+</button></td>');
             newRow.append('<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>');
             newRow.append('<td><select id="main-input"><option value=""></option><option value="메인자재">메인자재</option></select></td>');
@@ -385,8 +656,9 @@
                 return $(this).text();
             }).get();
             document.getElementById('overlay').style.display = 'block';
+            document.getElementById("revchange").checked = false;
 
-            $('#editModal2').fadeIn();
+            $('#editModal1').fadeIn();
             $('#bomtableBody-edit').empty();
             var counter = 1;
             $.ajax({
@@ -395,12 +667,10 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    "bomno": rowData[0],
-                    "status": 'true'
+                    "bomno": rowData[0]
 
                 }),
                 success: function (result) {
-                    console.log(result)
                     if (result.length === 0) {
 
                     } else {
@@ -408,6 +678,7 @@
                             $('#bomtableBody-edit').append(
                                 '<tr>' +
                                 '<td><button id="deleteRowBtn" style="background-color: red; color:white; ">삭제</button></td>' +
+                                '<td><button id="RowBtnadd" style="background-color: #4f56b6; color:white; ">+</button></td>' +
                                 '<td><input type="checkbox" id="check-edit" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                                 '<td><input type="text" id="char-edit" style="text-align:right;" value=' + (result[i].char || '') + ' autocomplete="off"></td>' +
                                 '<td><select id="main-edit">' +
@@ -415,10 +686,10 @@
                                 '<option value="메인자재" ' + (result[i].main === '메인자재' ? 'selected' : '') + '>메인자재</option>' +
                                 '</select></td>' +
                                 '<td><input type="text" id="materialname-edit" style="background-color: whitesmoke; cursor: pointer;" readonly ondblclick="handleDoubleClickedit();" value="' + (result[i].materialname || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" id="materialclassification-edit" style="background-color: whitesmoke; " readonly value="' + (result[i].materialclassification || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="materialclassification-edit" style="background-color: whitesmoke; " readonly value="' + (result[i].typecategory || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" id="etc-edit" value="' + (result[i].etc || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="materialwidth-edit" oninput="updateSoyoValueedit(); updateRlProductInputedit(); updateRlcutValueedit();calculateCostedit();" value="' + (result[i].materialwidth || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" id="using-edit" style="text-align:right;" value="' + (result[i].using || '0') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="using-edit" style="text-align:right;" value="' + (result[i].usable || '0') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="onepidding-edit" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductInputedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].onepid || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="twopidding-edit" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductInputedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].twopid || '0') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-edit" value="' + (result[i].soyo || '') + '" autocomplete="off" readonly></td>' +
@@ -428,7 +699,7 @@
                                 '<td><input type="text" style="text-align:right;" id="loss-edit" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductInputedit(); updateRlcutValueedit();calculateCostedit();" value="' + (result[i].loss || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCostedit();" id="cost-edit" value="' + (result[i].cost || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-edit" value="' + (result[i].rlcut || '') + '" oninput="updateRlProductInputedit()" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-edit" oninput="updateRlProductInputedit()" value="' + (result[i].rlproduct || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-edit" oninput="updateRlProductInputedit()" value="' + (result[i].prdouctcount || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-edit" value="' + (result[i].width || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-edit" oninput="updateRlcutValueedit()" value="' + (result[i].usewidth || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-edit" oninput="updateRlProductInputedit()" value="' + (result[i].length || '') + '" autocomplete="off"></td>' +
@@ -455,18 +726,19 @@
             });
             $('#bomno-edit').val(rowData[0]);
             $('#modelname-edit').val(rowData[2]);
-            $('#itemname-edit').val(rowData[3]);
-            $('#customer-edit').val(rowData[4]);
-            $('#itemcode-edit').val(rowData[5]);
-            $('#pcs-edit').val(rowData[9]);
-            $('#cavity-edit').val(rowData[10]);
-            $('#workpart-edit').val(rowData[12]);
-            $('#working-edit').val(rowData[11]);
-            $('#direction-edit').val(rowData[13]);
-            $('#ordercount-edit').val(rowData[10]);
-            $('#costsum-edit').val(rowData[6]);
+            $('#itemname-edit').val(rowData[4]);
+            $('#customer-edit').val(rowData[5]);
+            $('#itemcode-edit').val(rowData[6]);
+            $('#pcs-edit').val(rowData[10]);
+            $('#cavity-edit').val(rowData[11]);
+            $('#workpart-edit').val(rowData[13]);
+            $('#working-edit').val(rowData[12]);
+            $('#direction-edit').val(rowData[14]);
+            $('#type-edit').val(rowData[16]);
             var additionalNotesValue = rowData[15];
             $('#additionalnotes-edit').val(additionalNotesValue !== null ? additionalNotesValue : '');
+
+            $('#bomtableBody-edit').append(newRow);
 
         }
 
@@ -483,6 +755,10 @@
         function closeModal() {
             $('#overlay').fadeOut();
             $('#editModal').fadeOut();
+        }
+        function closeModal1() {
+            $('#overlay').fadeOut();
+            $('#editModal1').fadeOut();
         }
 
         function closeModal2() {
@@ -519,32 +795,33 @@
                 dataType: 'json',
                 success: function (data) {
                     for (var i = 0; i < data.length; i++) {
-                        var totalCost = data[i].TOTALCOST !== null ? data[i].TOTALCOST : '';
-                        var itemPrice = data[i].ITEMPRICE !== null ? data[i].ITEMPRICE : '';
-                        var costPriceRatio = data[i].COSTPRICERATIO !== null ? data[i].COSTPRICERATIO : '';
+                        var cost = data[i].cost !== null ? data[i].cost : '';
+                        var itemprice = data[i].itemprice !== null ? data[i].itemprice : '';
+                        var costPriceRatio = data[i].costPriceRatio !== null ? data[i].costPriceRatio : '';
 
-                        var itemcode1 = data[i].ITEMCODE !== null ? data[i].ITEMCODE : '';
+                        var itemcode1 = data[i].itemcode !== null ? data[i].itemcode : '';
 
                         var fontColor = data[i].status === '미사용' ? 'silver' : '';
 
                         $('#Datatbody').append(
                             '<tr style="color: ' + fontColor + ';">' +
-                            '<td>' + data[i].BOMNO + '</td>' +
-                            '<td>' + data[i].PART + '</td>' +
-                            '<td>' + data[i].MODELNAME + '</td>' +
-                            '<td>' + data[i].ITEMNAME + '</td>' +
-                            '<td>' + data[i].CUSTOMER + '</td>' +
+                            '<td>' + data[i].bomno + '</td>' +
+                            '<td>' + data[i].part + '</td>' +
+                            '<td>' + data[i].modelname + '</td>' +
+                            '<td>' + data[i].type + '</td>' +
+                            '<td>' + data[i].itemname + '</td>' +
+                            '<td>' + data[i].customer + '</td>' +
                             '<td>' + itemcode1 + '</td>' +
-                            '<td style="text-align:right;">' + totalCost + '</td>' +
-                            '<td style="text-align:right;">' + itemPrice + '</td>' +
+                            '<td style="text-align:right;">' + cost + '</td>' +
+                            '<td style="text-align:right;">' + itemprice + '</td>' +
                             '<td style="text-align:right;">' + costPriceRatio + '</td>' +
-                            '<td id="data-pcs">' + data[i].PCS + '</td>' +
-                            '<td id="data-cavity">' + data[i].CAVITY + '</td>' +
-                            '<td id="data-working">' + data[i].WORKING + '</td>' +
-                            '<td id="data-workpart">' + data[i].WORKPART + '</td>' +
-                            '<td id="data-direction">' + data[i].DIRECTION + '</td>' +
-                            '<td id="data-ordercount">' + data[i].ORDERCOUNT + '</td>' +
+                            '<td id="data-pcs">' + data[i].pcs + '</td>' +
+                            '<td id="data-cavity">' + data[i].cavity + '</td>' +
+                            '<td id="data-working">' + data[i].working + '</td>' +
+                            '<td id="data-workpart">' + data[i].workpart + '</td>' +
+                            '<td id="data-direction">' + data[i].direction + '</td>' +
                             '<td id="data-additionalnotes">' + data[i].additionalnotes + '</td>' +
+                            '<td id="data-type">' + data[i].type + '</td>' +
                             '</tr>'
                         );
                     }
@@ -553,8 +830,8 @@
                     $("td#data-working").hide();
                     $("td#data-workpart").hide();
                     $("td#data-direction").hide();
-                    $("td#data-ordercount").hide();
                     $("td#data-additionalnotes").hide();
+                    $("td#data-type").hide();
 
                 }
             });
@@ -990,6 +1267,7 @@
 
                 // Append each cell to the new row
                 newRow.append('<td><button id="deleteRowBtn" style="background-color: red; color:white; ">삭제</button></td>');
+                newRow.append('<td><button id="RowBtnadd" style="background-color: #4f56b6; color:white; ">+</button></td>');
                 newRow.append('<td><input type="checkbox" id="check-edit" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
                 newRow.append('<td><input type="text" id="char-edit" style="text-align:right;" value="1" autocomplete="off"></td>');
                 newRow.append('<td><select id="main-edit"><option value=""></option><option value="메인자재">메인자재</option></select></td>');
@@ -1041,13 +1319,13 @@
             });
 
 
-            newRow.find('#char-edit').val($('#char-input:last').val());
+            newRow.find('#char-edit').val($('#char-edit:last').val());
             newRow.find('#onepidding-edit').val('');
             newRow.find('#twopidding-edit').val('');
-            newRow.find('#ta-edit').val($('#ta-input:first').val());
-            newRow.find('#allta-edit').val($('#allta-input:first').val());
-            newRow.find('#loss-edit').val($('#loss-input:first').val());
-            newRow.find('#talength-edit').val($('#talength-input:first').val());
+            newRow.find('#ta-edit').val('1');
+            newRow.find('#allta-edit').val($('#allta-edit:first').val());
+            newRow.find('#loss-edit').val($('#loss-edit:first').val());
+            newRow.find('#talength-edit').val($('#talength-edit:first').val());
             newRow.find('#cost-edit').val('0');
             newRow.find('#rlcut-edit').val('');
             newRow.find('#rlproduct-edit').val('');
@@ -1069,168 +1347,128 @@
             newRow.find('#materialclassification-edit').val('');
         }
         function Bomsave() {
-            console.log(document.getElementById('direction-save').value);
-            console.log(document.getElementById('working-save').value);
-            console.log(document.getElementById('part-save').value);
 
-            // var insertdate = new Date().toISOString().slice(0, 10);
-            // var rowCount = $('#bomtableBody tr').length;
-            // for (var i = 0; i < rowCount; i++) {
-            //     $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
-            // }
+            var insertdate = new Date().toISOString().slice(0, 10);
+            var rowCount = $('#bomtableBody tr').length;
+            for (var i = 0; i < rowCount; i++) {
+                $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
+            }
 
-            // var bomno = $('#bomno-save').val();
-            // var customer = $('#customer-save').val();
-            // var modelname = $('#modelname-save').val();
-            // var itemname = $('#itemname-save').val();
-            // var pcs = $('#pcs-save').val();
-            // var cavity = $('#cavity-save').val();
-            // var itemcode = $('#itemcode-save').val();
-            // var workpart = $('#workpart-save').val();
-            // var working = $('#working-save').val();
-            // var direction = $('#direction-save').val();
-            // var costsum = $('#costsum-save').val();
-            // var ordercount = $('#ordercount-save').val();
-            // var additionalnotes = $('#additionalNote').val();
-            // var type = $('#type-save').val();
+            var bomno = $('#bomno-save').val();
+            var customer = $('#customer-save').val();
+            var modelname = $('#modelname-save').val();
+            var itemname = $('#itemname-save').val();
+            var pcs = $('#pcs-save').val();
+            var cavity = $('#cavity-save').val();
+            var itemcode = $('#itemcode-save').val();
+            var workpart = $('#workpart-save').val();
+            var working = $('#working-save').val();
+            var direction = $('#direction-save').val();
+            var costsum = $('#costsum-save').val();
+            var additionalnotes = $('#additionalNote').val();
+            var type = $('#type-save').val();
 
-            // if (bomno !== ''
+            // if (bomno !== '' && modelname !== '') {
+            if (bomno !== '') {
+                if (confirm("BOM정보(양산) 데이터를 저장하시겠습니까?")) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/bommasssaveiteminfo',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "insertdate": insertdate,
+                            "updatedate": insertdate,
+                            "bomno": bomno,
+                            "customer": customer,
+                            "modelname": modelname,
+                            "itemname": itemname,
+                            "pcs": pcs,
+                            "cavity": cavity,
+                            "itemcode": itemcode,
+                            "part": "양산",
+                            "workpart": workpart,
+                            "working": working,
+                            "direction": direction,
+                            "costsum": costsum,
+                            "additionalnotes": additionalnotes,
+                            "type": type,
+                            "itemprice": '0',
+                        }),
+                        success: function (result) {
 
-            // ) {
-            //     if (confirm("BOM정보(양산) 데이터를 저장하시겠습니까?") == true) {
-            //         $.ajax({
-            //             type: 'POST',
-            //             url: server + '/api/bommasssaveiteminfo',
-            //             dataType: 'json',
-            //             contentType: 'application/json',
-            //             data: JSON.stringify({
-            //                 "insertdate": insertdate,
-            //                 "updatedate": insertdate,
-            //                 "bomno": bomno,
-            //                 "customer": customer,
-            //                 "modelname": modelname,
-            //                 "itemname": itemname,
-            //                 "pcs": pcs,
-            //                 "cavity": cavity,
-            //                 "itemcode": itemcode,
-            //                 "part": "양산",
-            //                 "workpart": workpart,
-            //                 "working": working,
-            //                 "direction": direction,
-            //                 "costsum": costsum,
-            //                 "ordercount": ordercount,
-            //                 "additionalnotes": additionalnotes,
-            //                 "type": type,
-            //                 "itemprice": '0',
+                        }
+                    });
+                    $('[id^="num-input"]').each(function (index) {
+                        var cavity = $('#cavity-save').val();
+                        var bomno = $('#bomno-save').val();
+                        var model = $('#modelname-save').val();
+                        var itemname = $('#itemname-save').val();
+                        var materialname = $('[id^="materialname-input"]').eq(index).val();
+                        var char = $('[id^="char-input"]').eq(index).val();
+                        var main = ($('[id^="main-input"]').eq(index).val())
+                        var etc = $('[id^="etc-input"]').eq(index).val();
+                        var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
+                        var using = ($('[id^="use-input"]').eq(index).val());
+                        var onepid = ($('[id^="onepidding-input"]').eq(index).val())
+                        var twopid = ($('[id^="twopidding-input"]').eq(index).val())
+                        var soyo = ($('[id^="soyo-input"]').eq(index).val())
+                        var ta = ($('[id^="ta-input"]').eq(index).val())
+                        var allta = ($('[id^="allta-input"]').eq(index).val())
+                        var talength = ($('[id^="talength-input"]').eq(index).val())
+                        var loss = ($('[id^="loss-input"]').eq(index).val())
+                        var num = ($('[id^="num-input"]').eq(index).val());
+                        var cavity = ($('[id^="cavity-input"]').eq(index).val());
+                        var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
+                        var useable = ($('[id^="use-input"]').eq(index).val());
 
-            //             }),
-            //             success: function (result) {
-            //                 // Handle success
-            //             }
-            //         });
 
-            //         $('[id^="num-input"]').each(function (index) {
-            //             var cavity = $('#cavity-save').val();
 
-            //             var using = ($('[id^="use-input"]').eq(index).val());
-            //             var etc = $('[id^="etc-input"]').eq(index).val();
-            //             var bomno = $('#bomno-save').val();
-            //             var materialname = $('[id^="materialname-input"]').eq(index).val();
-            //             var model = $('#modelname-save').val();
-            //             var itemname = $('#itemname-save').val();
-            //             var char = $('[id^="char-input"]').eq(index).val();
-            //             var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
-            //             var materialclassification = ($('[id^="materialclassification-input"]').eq(index).val())
-            //             var onepid = ($('[id^="onepidding-input"]').eq(index).val())
-            //             var twopid = ($('[id^="twopidding-input"]').eq(index).val())
-            //             var soyo = ($('[id^="soyo-input"]').eq(index).val())
-            //             var ta = ($('[id^="ta-input"]').eq(index).val())
-            //             var allta = ($('[id^="allta-input"]').eq(index).val())
-            //             var talength = ($('[id^="talength-input"]').eq(index).val())
-            //             var loss = ($('[id^="loss-input"]').eq(index).val())
-            //             var main = ($('[id^="main-input"]').eq(index).val())
-            //             var cost = ($('[id^="cost-input"]').eq(index).val())
-            //             var rlcut = parseFloat($('[id^="rlcut-input"]').eq(index).val()) || 0;
-            //             var rlproduct = parseFloat($('[id^="rlproduct-input"]').eq(index).val()) || 0;
-            //             var width = parseFloat($('[id^="width-input"]').eq(index).val()) || 0;
-            //             var length = parseFloat($('[id^="length-input"]').eq(index).val()) || 0;
-            //             var sqmprice = parseFloat($('[id^="sqmprice-input"]').eq(index).val()) || 0;
-            //             var rollprice = parseFloat($('[id^="rollprice-input"]').eq(index).val()) || 0;
-            //             var usewidth = parseFloat($('[id^="usewidth-input"]').eq(index).val()) || 0;
-            //             var unit = ($('[id^="unit-input"]').eq(index).val());
-            //             var manufacterer = ($('[id^="manufacterer-input"]').eq(index).val());
-            //             var supplier = ($('[id^="supplier-input"]').eq(index).val());
-            //             var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
-            //             var num = ($('[id^="num-input"]').eq(index).val());
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/bommasssavebommanagement',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "savedate": insertdate,
+                                "bomno": bomno,
+                                "model": model,
+                                "itemname": itemname,
+                                "materialname": materialname,
+                                "status": 'true',
+                                "char": char,
+                                "main": main,
+                                "etc": etc,
+                                "materialwidth": materialwidth,
+                                "using": using,
+                                "onepid": onepid,
+                                "twopid": twopid,
+                                "ta": ta,
+                                "allta": allta,
+                                "talength": talength,
+                                "loss": loss,
+                                "cavity": cavity,
+                                "codenumber": codenumber,
+                                "useable": useable,
+                                "num": num
+                            }),
+                            success: function (result) {
+                                // Handle success
+                            },
+                            error: function (error) {
+                                // Handle error
+                            },
+                        });
+                    });
+                    $('#overlay').fadeOut();
+                    $('#editModal').fadeOut();
+                } else {
+                    return false;
+                }
+            } else {
+                alert("빈 항목을 입력 바랍니다.");
+            }
 
-            //             $.ajax({
-            //                 type: 'POST',
-            //                 url: server + '/api/bommasssavebommanagement',
-            //                 dataType: 'json',
-            //                 contentType: 'application/json',
-            //                 data: JSON.stringify({
-            //                     "savedate": insertdate,
-            //                     "cavity": cavity,
-            //                     "bomno": bomno,
-            //                     "model": model,
-            //                     "itemname": itemname,
-            //                     "materialname": materialname,
-            //                     "status": 'true',
-            //                     "char": char,
-            //                     "main": main,
-            //                     "etc": etc,
-            //                     "materialwidth": materialwidth,
-            //                     "using": using,
-            //                     "onepid": onepid,
-            //                     "twopid": twopid,
-            //                     "soyo": soyo,
-            //                     "ta": ta,
-            //                     "allta": allta,
-            //                     "talength": talength,
-            //                     "loss": loss,
-            //                     "cost": cost,
-            //                     "rlcut": rlcut,
-            //                     "rlproduct": rlproduct,
-            //                     "width": width,
-            //                     "length": length,
-            //                     "sqmprice": sqmprice,
-            //                     "rollprice": rollprice,
-            //                     "unit": unit,
-            //                     "manufacterer": manufacterer,
-            //                     "supplier": supplier,
-            //                     "codenumber": codenumber,
-            //                     "usewidth": usewidth,
-            //                     "num": num,
-            //                     "materialclassification": materialclassification
-            //                 }),
-            //                 success: function (result) {
-            //                     // Handle success
-            //                 },
-            //                 error: function (error) {
-            //                     // Handle error
-            //                 },
-            //             });
-            //         });
-
-            //         $('#overlay').fadeOut();
-            //         $('#editModal').fadeOut();
-            //         setTimeout(function () {
-            //             load()
-            //         }, 50);
-
-            //         var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">BOM정보 등록 완료</span></div>');
-            //         $('body').append(notification);
-            //         setTimeout(function () {
-            //             notification.fadeOut(function () {
-            //                 $(this).remove();
-            //             });
-            //         }, 3000);
-            //     } else {
-            //         return false;
-            //     }
-            // } else {
-            //     alert("빈 항목을 입력 바랍니다.");
-            // }
         }
 
 
@@ -1280,7 +1518,6 @@
                 var rowIndex = currentRow.index();
                 let materialWidthValue = parseFloat(currentRow.find('#materialwidth-input').val())
                 if (materialWidthValue === '') {
-                    // If materialwidth-input is empty, you can decide to do nothing or handle it accordingly
                     return;
                 }
 
@@ -1299,10 +1536,7 @@
 
                 if (!isNaN(rlproductValue)) {
                     const costValue = rollpriceValue / rlproductValue;
-
                     currentRow.find('#cost-input').val(costValue.toFixed(2));
-
-
                     currentRow.find('#rlproduct-input').val(rlproductValue.toFixed(0));
                 } else {
                 }
@@ -1361,16 +1595,16 @@
 
 
                 $('[id^="index-edit"]').each(function (index) {
-                    var using = ($('[id^="use-edit"]').eq(index).val());
-                    var etc = $('[id^="etc-edit"]').eq(index).val();
-                    var bomno = $('#bomno-edit').val();
                     var cavity = $('#cavity-edit').val();
-                    var materialname = $('[id^="materialname-edit"]').eq(index).val();
+                    var bomno = $('#bomno-edit').val();
                     var model = $('#modelname-edit').val();
                     var itemname = $('#itemname-edit').val();
+                    var materialname = $('[id^="materialname-edit"]').eq(index).val();
                     var char = $('[id^="char-edit"]').eq(index).val();
+                    var main = ($('[id^="main-edit"]').eq(index).val())
+                    var etc = $('[id^="etc-edit"]').eq(index).val();
                     var materialwidth = parseFloat($('[id^="materialwidth-edit"]').eq(index).val()) || 0;
-                    var materialclassification = ($('[id^="materialclassification-edit"]').eq(index).val())
+                    var using = ($('[id^="use-input"]').eq(index).val());
                     var onepid = ($('[id^="onepidding-edit"]').eq(index).val())
                     var twopid = ($('[id^="twopidding-edit"]').eq(index).val())
                     var soyo = ($('[id^="soyo-edit"]').eq(index).val())
@@ -1378,20 +1612,12 @@
                     var allta = ($('[id^="allta-edit"]').eq(index).val())
                     var talength = ($('[id^="talength-edit"]').eq(index).val())
                     var loss = ($('[id^="loss-edit"]').eq(index).val())
-                    var main = ($('[id^="main-edit"]').eq(index).val())
-                    var cost = ($('[id^="cost-edit"]').eq(index).val())
-                    var rlcut = parseFloat($('[id^="rlcut-edit"]').eq(index).val()) || 0;
-                    var rlproduct = parseFloat($('[id^="rlproduct-edit"]').eq(index).val()) || 0;
-                    var width = parseFloat($('[id^="width-edit"]').eq(index).val()) || 0;
-                    var length = parseFloat($('[id^="length-edit"]').eq(index).val()) || 0;
-                    var sqmprice = parseFloat($('[id^="sqmprice-edit"]').eq(index).val()) || 0;
-                    var rollprice = parseFloat($('[id^="rollprice-edit"]').eq(index).val()) || 0;
-                    var usewidth = parseFloat($('[id^="usewidth-edit"]').eq(index).val()) || 0;
-                    var unit = ($('[id^="unit-edit"]').eq(index).val());
-                    var manufacterer = ($('[id^="manufacterer-edit"]').eq(index).val());
-                    var supplier = ($('[id^="supplier-edit"]').eq(index).val());
-                    var codenumber = ($('[id^="codenumber-edit"]').eq(index).val());
                     var num = ($('[id^="index-edit"]').eq(index).val());
+                    var cavity = ($('[id^="cavity-edit"]').eq(index).val());
+                    var codenumber = ($('[id^="codenumber-edit"]').eq(index).val());
+                    var useable = ($('[id^="using-edit"]').eq(index).val());
+
+
 
                     $.ajax({
                         type: 'POST',
@@ -1412,26 +1638,14 @@
                             "using": using,
                             "onepid": onepid,
                             "twopid": twopid,
-                            "soyo": soyo,
                             "ta": ta,
                             "allta": allta,
                             "talength": talength,
                             "loss": loss,
-                            "cost": cost,
-                            "rlcut": rlcut,
-                            "rlproduct": rlproduct,
-                            "width": width,
-                            "length": length,
-                            "sqmprice": sqmprice,
-                            "rollprice": rollprice,
-                            "unit": unit,
-                            "manufacterer": manufacterer,
-                            "supplier": supplier,
-                            "codenumber": codenumber,
-                            "usewidth": usewidth,
-                            "num": num,
                             "cavity": cavity,
-                            "materialclassification": materialclassification
+                            "codenumber": codenumber,
+                            "useable": useable,
+                            "num": num
                         }),
                         success: function (result) {
                             // Handle success
@@ -1455,7 +1669,6 @@
                             "cavity": $('#cavity-edit').val(),
                             "direction": $('#direction-edit').val(),
                             "workpart": $('#workpart-edit').val(),
-                            "ordercount": $('#ordercount-edit').val(),
                             "additionalnotes": $('#additionalnotes-edit').val(),
                             "working": $('#working-edit').val(),
                             "type": $('#type-edit').val(),
@@ -1465,7 +1678,7 @@
                     });
                 });
                 document.getElementById('overlay').style.display = 'none';
-                document.getElementById('editModal2').style.display = 'none';
+                document.getElementById('editModal1').style.display = 'none';
 
 
 

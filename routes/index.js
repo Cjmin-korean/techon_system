@@ -1195,37 +1195,51 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " SELECT "+
-                "    I.BOMNO, "+
-                "    I.PART, "+
-                "    I.MODELNAME, "+
-                "    I.ITEMNAME, "+
-                "    I.CUSTOMER, "+
-                "    I.ITEMCODE, "+
-                "    I.ITEMPRICE, "+
-                "    I.class, "+
-                "    I.additionalnotes, "+
-                "    CAST(COALESCE(SUM(B.COST), 0) AS DECIMAL(10, 2)) AS TOTALCOST, "+
-                "    CASE  "+
-                "        WHEN I.ITEMPRICE = 0 THEN 0 "+
-                "        ELSE ROUND(COALESCE(SUM(B.COST), 0) / I.ITEMPRICE * 100, 1) "+
-                "    END AS COSTPRICERATIO, "+
-                "    I.PCS, "+
-                "    I.CAVITY, "+
-                "    I.WORKING, "+
-                "    I.WORKPART, "+
-                "    I.DIRECTION,  "+
-                "    I.ORDERCOUNT "+
-                "FROM "+
-                "    ITEMINFO I "+
-                "LEFT JOIN "+
-                "    BOMMANAGEMENT B ON I.BOMNO = B.BOMNO "+
-                "WHERE "+
-                "    B.STATUS = 'true' "+
-                "GROUP BY "+
-                "    I.additionalnotes, I.class, I.BOMNO, I.PART, I.MODELNAME, I.ITEMNAME, I.CUSTOMER, I.ITEMCODE, I.ITEMPRICE, I.PCS, I.CAVITY, I.WORKING, I.WORKPART, I.DIRECTION, I.ORDERCOUNT "+
-                "ORDER BY "+
-                "    I.BOMNO ASC; "  )
+                    "      SELECT " +
+                    "       i.bomno, " +
+                    "       i.part, " +
+                    "       i.modelname, " +
+                    "       i.itemname, " +
+                    "       i.itemprice, " +
+                    "       COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) / bm.cavity), 2)), 0) as cost, " +
+                    "       CASE " +
+                    "        WHEN i.itemprice = 0 THEN 0 " +
+                    "        ELSE (COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) / bm.cavity), 2)), 0) / i.itemprice) * 100 " +
+                    "    END AS costPriceRatio, " +
+                    "       i.customer, " +
+                    "       i.itemcode, " +
+                    "       i.working, " +
+                    "       i.pcs, " +
+                    "       i.cavity, " +
+                    "       i.direction, " +
+                    "       i.workpart, " +
+                    "       i.additionalnotes, " +
+                    "       i.class, " +
+                    "       i.type " +
+                    "   FROM " +
+                    "       iteminfo i " +
+                    "   LEFT JOIN " +
+                    "       bommanagement bm ON i.bomno = bm.bomno " +
+                    "   LEFT JOIN " +
+                    "       materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "   WHERE " +
+                    "       bm.status = 'true' " +
+                    "   GROUP BY " +
+                    "       i.bomno, " +
+                    "       i.part, " +
+                    "       i.modelname, " +
+                    "       i.itemname, " +
+                    "       i.itemprice, " +
+                    "       i.customer, " +
+                    "       i.itemcode, " +
+                    "       i.working, " +
+                    "       i.pcs, " +
+                    "       i.cavity, " +
+                    "       i.direction, " +
+                    "       i.workpart, " +
+                    "       i.additionalnotes, " +
+                    "       i.class, " +
+                    "       i.type;         ")
                 .then(result => {
 
 
@@ -2020,10 +2034,45 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('bomno', sql.NVarChar, req.body.bomno)
-                .input('status', sql.NVarChar, req.body.status)
+                // .input('status', sql.NVarChar, req.body.status)
 
                 .query(
-                    "select * from bommanagement where bomno=@bomno and status=@status order by num asc")
+                    "SELECT "+
+                "    bm.char, "+
+                "    bm.main, "+
+                "    bm.materialname, "+
+                "    mi.typecategory, "+
+                "    bm.etc, "+
+                "    bm.materialwidth, "+
+                "    bm.useable, "+
+                "    bm.onepid, "+
+                "    bm.twopid, "+
+                "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)),4) as soyo, "+
+                "    bm.ta, "+
+                "    bm.allta, "+
+                "    bm.talength, "+
+                "    bm.loss, "+
+                "    ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) as cost, "+
+                "    FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, "+
+                "    FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) as prdouctcount, "+
+                "    mi.width, "+
+                "    mi.usewidth, "+
+                "    mi.length, "+
+                "    mi.sqmprice, "+
+                "    mi.rollprice, "+
+                "    mi.unit, "+
+                "    mi.manufacterer, "+
+                "    mi.supplier, "+
+                "    bm.cavity, "+
+                "    mi.codenumber, "+
+                "    bm.num "+
+                "FROM "+
+                "    bommanagement bm "+
+                "JOIN "+
+                "    materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
+                "WHERE "+
+                "    bm.bomno = @bomno and bm.status='true' "+
+                "ORDER BY bm.num ASC; ")
 
                 .then(result => {
 
@@ -2085,23 +2134,23 @@ module.exports = function (app) {
                 .input('start', sql.NVarChar, req.body.start)
                 .input('finish', sql.NVarChar, req.body.finish)
                 .query(
-                    "SELECT  "+
-                   "id, "+
-                   "input, "+
-                   "date, "+
-                   "materialname, "+
-                   "classification, "+
-                   "customer, "+
-                   "lotno, "+
-                   "manufacturedate, "+
-                   "expirationdate, "+
-                   "format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth', "+
-                   "format(convert(int,Isnull(quantity,0)),'##,##0')'quantity', "+ 
-                   "format(convert(int,Isnull(roll,0)),'##,##0')'roll',  "+
-                   "sum,part,house,codenumber,  "+
-                   "format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'  "+
-                
-                   " FROM materialinput  order by materialname,lotno asc ")
+                    "SELECT  " +
+                    "id, " +
+                    "input, " +
+                    "date, " +
+                    "materialname, " +
+                    "classification, " +
+                    "customer, " +
+                    "lotno, " +
+                    "manufacturedate, " +
+                    "expirationdate, " +
+                    "format(convert(int,Isnull(materialwidth,0)),'##,##0')'materialwidth', " +
+                    "format(convert(int,Isnull(quantity,0)),'##,##0')'quantity', " +
+                    "format(convert(int,Isnull(roll,0)),'##,##0')'roll',  " +
+                    "sum,part,house,codenumber,  " +
+                    "format(convert(int,Isnull(sqmprice,0)),'##,##0')'sqmprice'  " +
+
+                    " FROM materialinput  order by materialname,lotno asc ")
                 .then(result => {
 
 
@@ -2124,42 +2173,42 @@ module.exports = function (app) {
                 .input('start', sql.NVarChar, req.body.start)
                 .input('finish', sql.NVarChar, req.body.finish)
                 .query(
-                   "SELECT "+
-           "      *, "+
-           "      custom_condition_column * 60 AS additional_calculated_column1, "+
-           "       custom_condition_column * 80 AS additional_calculated_column2, "+
-           "        custom_condition_column * 10.5 AS additional_calculated_column3 "+
-           "  FROM ( "+
-           "      SELECT  "+
-           "          iteminfo.bomno, "+
-           "          iteminfo.customer, "+
-           "          iteminfo.modelname,  "+
-           "          iteminfo.itemname,  "+
-           "          iteminfo.workpart,  "+
-           "          iteminfo.working, "+
-           "          bommanagement.onepid AS onepidding,  "+
-           "          iteminfo.cavity, "+
-           "          '고속' AS additional_column, "+
-           "          iteminfo.cavity * 0.5 AS calculated_column, "+
-           "          CASE "+
-           "              WHEN bommanagement.onepid < 90 THEN 100 "+
-           "              WHEN bommanagement.onepid < 150 THEN 83 "+
-           "              WHEN bommanagement.onepid < 190 THEN 50 "+
-           "              ELSE 33   "+
-           "          END AS custom_condition_column "+
-           "      FROM iteminfo "+
-           "      JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno "+
-           "      GROUP BY  "+
-           "          iteminfo.bomno,  "+
-           "          iteminfo.modelname, "+
-           "          iteminfo.itemname,  "+
-           "          iteminfo.workpart,  "+
-           "          iteminfo.working,  "+
-           "          iteminfo.cavity, "+
-           "          iteminfo.customer,"+
-           "          bommanagement.onepid,  "+
-           "          iteminfo.onepidding "+
-           "  ) AS subquery_alias;               ")
+                    "SELECT " +
+                    "      *, " +
+                    "      custom_condition_column * 60 AS additional_calculated_column1, " +
+                    "       custom_condition_column * 80 AS additional_calculated_column2, " +
+                    "        custom_condition_column * 10.5 AS additional_calculated_column3 " +
+                    "  FROM ( " +
+                    "      SELECT  " +
+                    "          iteminfo.bomno, " +
+                    "          iteminfo.customer, " +
+                    "          iteminfo.modelname,  " +
+                    "          iteminfo.itemname,  " +
+                    "          iteminfo.workpart,  " +
+                    "          iteminfo.working, " +
+                    "          bommanagement.onepid AS onepidding,  " +
+                    "          iteminfo.cavity, " +
+                    "          '고속' AS additional_column, " +
+                    "          iteminfo.cavity * 0.5 AS calculated_column, " +
+                    "          CASE " +
+                    "              WHEN bommanagement.onepid < 90 THEN 100 " +
+                    "              WHEN bommanagement.onepid < 150 THEN 83 " +
+                    "              WHEN bommanagement.onepid < 190 THEN 50 " +
+                    "              ELSE 33   " +
+                    "          END AS custom_condition_column " +
+                    "      FROM iteminfo " +
+                    "      JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno " +
+                    "      GROUP BY  " +
+                    "          iteminfo.bomno,  " +
+                    "          iteminfo.modelname, " +
+                    "          iteminfo.itemname,  " +
+                    "          iteminfo.workpart,  " +
+                    "          iteminfo.working,  " +
+                    "          iteminfo.cavity, " +
+                    "          iteminfo.customer," +
+                    "          bommanagement.onepid,  " +
+                    "          iteminfo.onepidding " +
+                    "  ) AS subquery_alias;               ")
                 .then(result => {
 
 
@@ -4621,13 +4670,14 @@ module.exports = function (app) {
                 .input('num', sql.Float, req.body.num)
                 .input('materialclassification', sql.NVarChar, req.body.materialclassification)
                 .input('cavity', sql.NVarChar, req.body.cavity)
+                .input('useable', sql.NVarChar, req.body.useable)
 
 
 
 
                 .query(
-                    'insert into bommanagement(materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity)' +
-                    ' values(@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity)'
+                    'insert into bommanagement(useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity)' +
+                    ' values(@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity)'
                 )
                 .then(result => {
 
@@ -5272,7 +5322,7 @@ module.exports = function (app) {
                 //.input('변수',값 형식, 값)
                 .input('status', sql.NVarChar, req.body.status)
                 .input('bomno', sql.NVarChar, req.body.bomno)
-        
+
 
 
                 .query(
