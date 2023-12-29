@@ -1215,7 +1215,8 @@ module.exports = function (app) {
                     "       i.workpart, " +
                     "       i.additionalnotes, " +
                     "       i.class, " +
-                    "       i.type " +
+                    "       i.type, "+
+                    "   COUNT(mi.materialname) as materialcount" +
                     "   FROM " +
                     "       iteminfo i " +
                     "   LEFT JOIN " +
@@ -2535,6 +2536,31 @@ module.exports = function (app) {
 
                 .query(
                     " update orderlist set status1=@status1 where lotno=@lotno"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "select bomno from iteminfo where bomno=@bomno"
 
                 )
 

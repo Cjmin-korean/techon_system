@@ -325,7 +325,7 @@
                             value="" autocomplete="off"></td>
                     <td><label for="editAuthor">Cavity</label></td>
                     <td><input type="text" style="text-align: right;" id="cavity-edit" value="" autocomplete="off"
-                            oninput="updateCavityInputsedit();">
+                            oninput="updateCavityInputs();">
                     </td>
                 </tr>
 
@@ -611,8 +611,6 @@
 
             $(this).closest('tr').after(newRow);
         });
-        document.getElementById('cavity-save').addEventListener('input', updateCavityInputs);
-
         function openEditModal() {
 
             $('#overlay').fadeIn();
@@ -851,11 +849,14 @@
         }
         $(document).on('keypress', 'input[id^="materialname-input"]', function (e) {
             if (e.which === 13) { // 13 is the keycode for Enter
+                console.log('Enter key pressed');
 
-                var cavitySaveValue = $("#cavity-save").val();
+                var cavitySaveValue = $("#cavity-input").val();
+
                 if (cavitySaveValue === '') {
+                    // Show alert when cavity-save is empty
                     alert('Cavity가 누락되었습니다');
-                    return;
+                    return;  // Stop further execution
                 }
 
                 // Assuming you want to perform actions specific to the row
@@ -970,7 +971,7 @@
         }
         function handleEnterKey(event) {
             if (event.key === 'Enter') {
-                var inputValue = document.getElementById("materialnameinput").value.trim();
+                var inputValue = document.getElementById("materialname-input").value.trim();
                 var materialNameValue = currentRow.find('input[id^="materialname-input"]').val().trim();
 
                 document.getElementById("materialnameinput").value = "";
@@ -1268,6 +1269,7 @@
         }
 
 
+        document.getElementById('cavity-edit').addEventListener('input', updateCavityInputsedit);
 
 
 
@@ -1423,41 +1425,6 @@
             newRow.find('#materialclassification-edit').val('');
         }
         function Bomsave() {
-
-            let tableBody = document.getElementById('bomtableBody');
-            if (tableBody) {
-                let rowCount = tableBody.children.length;
-
-                for (let i = 0; i < rowCount; i++) {
-                    var materialname = $('#bomtableBody tr:eq(' + i + ') #materialname-input').val();
-                    var materialwidth = $('#bomtableBody tr:eq(' + i + ') #materialwidth-input').val();
-                    var onepidding = $('#bomtableBody tr:eq(' + i + ') #onepidding-input').val();
-                    var twopidding = $('#bomtableBody tr:eq(' + i + ') #twopidding-input').val();
-
-                    if (materialname === '' || materialwidth === '' || onepidding === '' || twopidding === '') {
-                        alert((i + 1) + '번째 필수 입력 항목이 누락되었습니다.');
-                        return;
-                    }
-
-                }
-            } else {
-            }
-
-            if (tableBody) {
-                let rowCount = tableBody.children.length;
-
-                for (let i = 0; i < rowCount; i++) {
-                    var materialWidthValue = $('#bomtableBody tr:eq(' + i + ') #materialwidth-input').val();
-                    var useWidthValue = $('#bomtableBody tr:eq(' + i + ') #usewidth-input').val();
-
-                    if (parseFloat(materialWidthValue) > parseFloat(useWidthValue)) {
-                        alert(i + 1 + '번째 원단폭이 유효폭보다 클 수 없습니다.');
-                        return;
-                    }
-                }
-            } else {
-            }
-
 
             var insertdate = new Date().toISOString().slice(0, 10);
             var rowCount = $('#bomtableBody tr').length;
