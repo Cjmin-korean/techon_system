@@ -2,7 +2,7 @@
 function updateCavityInputsedit() {
     const cavitySaveValue = parseFloat($("#cavity-edit").val()) || 0;
     const taInputValue = cavitySaveValue !== 0 ? (1 / cavitySaveValue) : 0;
-    $("#ordercount-edit").val(cavitySaveValue);
+    // $("#ordercount-edit").val(cavitySaveValue);
 
     $("[id='cavity-edit']").val(cavitySaveValue);
     // updateRlcutValueedit();
@@ -85,3 +85,4 @@ function calculateCostedit() {
     const costValue = rollpriceValue / rlproductValue;
     $('#bomtableBody-edit tr:eq(' + rowIndex + ') #cost-edit').val(costValue.toFixed(2));
 }
+document.getElementById('cavity-edit').addEventListener('input', updateCavityInputsedit);

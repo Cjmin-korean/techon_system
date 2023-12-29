@@ -1201,7 +1201,7 @@ module.exports = function (app) {
                     "       i.modelname, " +
                     "       i.itemname, " +
                     "       i.itemprice, " +
-                    "       COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) / bm.cavity), 2)), 0) as cost, " +
+                    "       COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) / bm.cavity), 2)), 0) as cost,                    " +
                     "       CASE " +
                     "        WHEN i.itemprice = 0 THEN 0 " +
                     "        ELSE (COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) / bm.cavity), 2)), 0) / i.itemprice) * 100 " +
@@ -2037,42 +2037,42 @@ module.exports = function (app) {
                 // .input('status', sql.NVarChar, req.body.status)
 
                 .query(
-                    "SELECT "+
-                "    bm.char, "+
-                "    bm.main, "+
-                "    bm.materialname, "+
-                "    mi.typecategory, "+
-                "    bm.etc, "+
-                "    bm.materialwidth, "+
-                "    bm.useable, "+
-                "    bm.onepid, "+
-                "    bm.twopid, "+
-                "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)),4) as soyo, "+
-                "    bm.ta, "+
-                "    bm.allta, "+
-                "    bm.talength, "+
-                "    bm.loss, "+
-                "    ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) as cost, "+
-                "    FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, "+
-                "    FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) as prdouctcount, "+
-                "    mi.width, "+
-                "    mi.usewidth, "+
-                "    mi.length, "+
-                "    mi.sqmprice, "+
-                "    mi.rollprice, "+
-                "    mi.unit, "+
-                "    mi.manufacterer, "+
-                "    mi.supplier, "+
-                "    bm.cavity, "+
-                "    mi.codenumber, "+
-                "    bm.num "+
-                "FROM "+
-                "    bommanagement bm "+
-                "JOIN "+
-                "    materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
-                "WHERE "+
-                "    bm.bomno = @bomno and bm.status='true' "+
-                "ORDER BY bm.num ASC; ")
+                    "SELECT " +
+                    "    bm.char, " +
+                    "    bm.main, " +
+                    "    bm.materialname, " +
+                    "    mi.typecategory, " +
+                    "    bm.etc, " +
+                    "    bm.materialwidth, " +
+                    "    bm.useable, " +
+                    "    bm.onepid, " +
+                    "    bm.twopid, " +
+                    "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)),4) as soyo, " +
+                    "    bm.ta, " +
+                    "    bm.allta, " +
+                    "    bm.talength, " +
+                    "    bm.loss, " +
+                    "    ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) as cost, " +
+                    "    FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, " +
+                    "    FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) as prdouctcount, " +
+                    "    mi.width, " +
+                    "    mi.usewidth, " +
+                    "    mi.length, " +
+                    "    mi.sqmprice, " +
+                    "    mi.rollprice, " +
+                    "    mi.unit, " +
+                    "    mi.manufacterer, " +
+                    "    mi.supplier, " +
+                    "    bm.cavity, " +
+                    "    mi.codenumber, " +
+                    "    bm.num " +
+                    "FROM " +
+                    "    bommanagement bm " +
+                    "JOIN " +
+                    "    materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "WHERE " +
+                    "    bm.bomno = @bomno and bm.status='true' " +
+                    "ORDER BY bm.num ASC; ")
 
                 .then(result => {
 
