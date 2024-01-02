@@ -8250,7 +8250,7 @@ module.exports = function (app) {
 
 
                 .query(
-                    "select * from sampleorder where madedate between @start and @finish"
+                    "select * from sampleorder"
                 )
                 .then(result => {
 
@@ -8359,11 +8359,12 @@ module.exports = function (app) {
                 .input('outputprice', sql.Float, req.body.outputprice)
                 .input('partcustomer', sql.NVarChar, req.body.partcustomer)
                 .input('etc', sql.NVarChar, req.body.etc)
+                .input('classification', sql.NVarChar, req.body.classification)
 
 
                 .query(
-                    'insert into sampleorder(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice,partcustomer,etc)' +
-                    ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice,@partcustomer,@etc)'
+                    'insert into sampleorder(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice,partcustomer,etc,classification)' +
+                    ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice,@partcustomer,@etc,@classification)'
                 )
                 .then(result => {
 

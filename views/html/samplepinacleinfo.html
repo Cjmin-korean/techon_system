@@ -80,16 +80,15 @@
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <th style="text-align:center;" onclick="sortTable(0)">등록일자 </th>
-                <th style="text-align:center;" onclick="sortTable(1)">입고일자</th>
-                <th style="text-align:center;" onclick="sortTable(2)">제조사</th>
-                <th style="text-align:center;" onclick="sortTable(3)">TOOL CODE</th>
-                <th style="text-align:center;" onclick="sortTable(4)">BOM NO.</th>
-                <th style="text-align:center;" onclick="sortTable(5)">고객사</th>
-                <th style="text-align:center;" onclick="sortTable(6)">모델명</th>
-                <th style="text-align:center;" onclick="sortTable(7)">품목명</th>
-                <th style="text-align:center;" onclick="sortTable(8)">해당차수</th>
-                <th style="text-align:center;" onclick="sortTable(9)">종류</th>
+                <th style="text-align:center;" onclick="sortTable(0)">구분</th>
+                <th style="text-align:center;" onclick="sortTable(1)">제조사</th>
+                <th style="text-align:center;" onclick="sortTable(2)">TOOL CODE</th>
+                <th style="text-align:center;" onclick="sortTable(3)">BOM NO.</th>
+                <th style="text-align:center;" onclick="sortTable(4)">고객사</th>
+                <th style="text-align:center;" onclick="sortTable(5)">모델명</th>
+                <th style="text-align:center;" onclick="sortTable(6)">품목명</th>
+                <th style="text-align:center;" onclick="sortTable(7)">해당차수</th>
+                <th style="text-align:center;" onclick="sortTable(8)">종류</th>
                 <th style="text-align:center; width:200px;" onclick="sortTable(9)">비고</th>
                 <th style="text-align:center;" onclick="sortTable(10)">입고단가(￦)</th>
                 <th style="text-align:center;" onclick="sortTable(11)">출고단가(￦)</th>
@@ -119,8 +118,7 @@
                     </tr>
                     <tr>
                         <th style="background-color: white;;"></th>
-                        <th style="text-align:center;">등록일자</th>
-                        <th style="text-align:center;">입고일자</th>
+                        <th style="text-align:center;">구분</th>
                         <th style="text-align:center;">BOM NO.</th>
                         <th style="text-align:center;">TOOL<br>CODE</th>
                         <th style="text-align:center;">제조사</th>
@@ -204,8 +202,8 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
-            var today = new Date().toISOString().split('T')[0];
-            $('#date-input').val(today);
+            // var today = new Date().toISOString().split('T')[0];
+            // $('#date-input').val(today);
             settingDate()
             showLoading()
             load()
@@ -252,8 +250,7 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    "start": $('#datepicker1').val(),
-                    "finish": $('#datepicker2').val(),
+
                 }),
                 success: function (data) {
                     var tableFoot = $('#dataCount');
@@ -266,8 +263,8 @@
                             totaloutputprice += data[i].outputprice || 0;
                             $('#Datatbody').append(
                                 '<tr>' +
-                                '<td>' + data[i].madedate + '</td>' +
-                                '<td>' + data[i].insertdate + '</td>' +
+
+                                '<td>' + data[i].classification + '</td>' +
                                 '<td>' + data[i].partcustomer + '</td>' +
                                 '<td>' + data[i].toolcode + '</td>' +
                                 '<td>' + data[i].bomno + '</td>' +
@@ -289,7 +286,7 @@
 
                         $('#Datatbody').append(
                             '<tr style="background-color:whitesmoke;">' +
-                            '<td colspan="11"><b>' + $('#datepicker1').val() + '~' + $('#datepicker2').val() + '</b></td>' +
+                            '<td colspan="10"></td>' +
                             '<td style="text-align:right;"><b>' + totalinputprice.toLocaleString() + '</b></td>' +
                             '<td style="text-align:right;"><b>' + totaloutputprice.toLocaleString() + '</b></td>' +
                             '</tr>'
@@ -379,8 +376,10 @@
             $('#accountdatatbody').empty()
             var newRow = $('<tr></tr>');
             newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
-            newRow.append('<td><input type="date" id="date-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
-            newRow.append('<td><input type="date" id="indate-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
+            // newRow.append('<td><input type="date" id="date-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
+            // newRow.append('<td><input type="date" id="indate-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
+            newRow.append('<td><select id="classification-input"><option value=""></option><option value="양산">양산</option><option value="샘플">샘플</option></select></td>');
+
             newRow.append('<td><input type="text" id="bomno-input" style="cursor:pointer;" ondblclick="handleDoubleClick();" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="toolcode-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="partcustomer-input" style="cursor:pointer;" ondblclick="customerDoubleClick();" value="" autocomplete="off"></td>');
@@ -394,9 +393,9 @@
             newRow.append('<td><input type="text" id="etc-input" value="" autocomplete="off"></td>');
 
             $('#accountdatatbody').append(newRow);
-            var today = new Date().toISOString().split('T')[0];
-            $('#date-input').val(today);
-            $('#indate-input').val(today);
+            // var today = new Date().toISOString().split('T')[0];
+            // $('#date-input').val(today);
+            // $('#indate-input').val(today);
         }
 
         function pinaclesave(row) {
@@ -437,8 +436,7 @@
                             dataType: 'json',
                             contentType: 'application/json',
                             data: JSON.stringify({
-                                "insertdate": $('#accountdatatbody tr:eq(' + i + ') #date-input').val(),
-                                "madedate": $('#accountdatatbody tr:eq(' + i + ') #indate-input').val(),
+                    
                                 "partcustomer": $('#accountdatatbody tr:eq(' + i + ') #partcustomer-input').val(),
                                 "customer": $('#accountdatatbody tr:eq(' + i + ') #customer-input').val(),
                                 "toolcode": 'TOOL-' + $('#accountdatatbody tr:eq(' + i + ') #toolcode-input').val(),
@@ -448,6 +446,7 @@
                                 "char": $('#accountdatatbody tr:eq(' + i + ') #char-input').val(),
                                 "part": $('#accountdatatbody tr:eq(' + i + ') #part-input').val(),
                                 "etc": $('#accountdatatbody tr:eq(' + i + ') #etc-input').val(),
+                                "classification": $('#accountdatatbody tr:eq(' + i + ') #classification-input').val(),
                                 "inputprice": inputPrice,
                                 "outputprice": outputPrice
                             }),
