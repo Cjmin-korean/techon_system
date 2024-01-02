@@ -8245,10 +8245,12 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
+            .input('start', sql.NVarChar, req.body.start)
+            .input('finish', sql.NVarChar, req.body.finish)
 
 
                 .query(
-                    "select * from sampleorder"
+                    "select * from sampleorder where madedate between @start and @finish"
                 )
                 .then(result => {
 
@@ -8356,11 +8358,12 @@ module.exports = function (app) {
                 .input('inputprice', sql.Float, req.body.inputprice)
                 .input('outputprice', sql.Float, req.body.outputprice)
                 .input('partcustomer', sql.NVarChar, req.body.partcustomer)
+                .input('etc', sql.NVarChar, req.body.etc)
 
 
                 .query(
-                    'insert into sampleorder(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice,partcustomer)' +
-                    ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice,@partcustomer)'
+                    'insert into sampleorder(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice,partcustomer,etc)' +
+                    ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice,@partcustomer,@etc)'
                 )
                 .then(result => {
 

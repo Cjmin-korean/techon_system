@@ -80,7 +80,7 @@
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <th style="text-align:center;" onclick="sortTable(0)">발주일자 </th>
+                <th style="text-align:center;" onclick="sortTable(0)">등록일자 </th>
                 <th style="text-align:center;" onclick="sortTable(1)">입고일자</th>
                 <th style="text-align:center;" onclick="sortTable(2)">제조사</th>
                 <th style="text-align:center;" onclick="sortTable(3)">TOOL CODE</th>
@@ -90,6 +90,7 @@
                 <th style="text-align:center;" onclick="sortTable(7)">품목명</th>
                 <th style="text-align:center;" onclick="sortTable(8)">해당차수</th>
                 <th style="text-align:center;" onclick="sortTable(9)">종류</th>
+                <th style="text-align:center; width:200px;" onclick="sortTable(9)">비고</th>
                 <th style="text-align:center;" onclick="sortTable(10)">입고단가(￦)</th>
                 <th style="text-align:center;" onclick="sortTable(11)">출고단가(￦)</th>
             </tr>
@@ -118,18 +119,19 @@
                     </tr>
                     <tr>
                         <th style="background-color: white;;"></th>
-                        <th style="text-align:center;" onclick="sortTable(0)">발주일자 </th>
-                        <th style="text-align:center;" onclick="sortTable(1)">입고일자</th>
-                        <th style="text-align:center;" onclick="sortTable(2)">BOM NO.</th>
-                        <th style="text-align:center;" onclick="sortTable(3)">TOOL CODE</th>
-                        <th style="text-align:center;" onclick="sortTable(4)">제조사</th>
-                        <th style="text-align:center;" onclick="sortTable(5)">고객사</th>
-                        <th style="text-align:center;" onclick="sortTable(6)">모델명</th>
-                        <th style="text-align:center;" onclick="sortTable(7)">품목명</th>
-                        <th style="text-align:center;" onclick="sortTable(8)">해당차수</th>
-                        <th style="text-align:center; width: 140px;" onclick="sortTable(9)">종류</th>
-                        <th style="text-align:center;" onclick="sortTable(10)">입고단가(￦)</th>
-                        <th style="text-align:center;" onclick="sortTable(11)">출고단가(￦)</th>
+                        <th style="text-align:center;">등록일자</th>
+                        <th style="text-align:center;">입고일자</th>
+                        <th style="text-align:center;">BOM NO.</th>
+                        <th style="text-align:center;">TOOL<br>CODE</th>
+                        <th style="text-align:center;">제조사</th>
+                        <th style="text-align:center;">고객사</th>
+                        <th style="text-align:center;">모델명</th>
+                        <th style="text-align:center;">품목명</th>
+                        <th style="text-align:center; width:50px;">해당<br>차수</th>
+                        <th style="text-align:center; width:120px;">종류</th>
+                        <th style="text-align:center; width:120px;">입고<br>단가(￦)</th>
+                        <th style="text-align:center; width:120px;">출고<br>단가(￦)</th>
+                        <th style="text-align:center; width:220px;">비고</th>
                     </tr>
 
                 </thead>
@@ -169,6 +171,30 @@
         </div>
 
     </div>
+    <div id="customernamesearch">
+        <div class="mainheader">
+            <h1>고객사 검색</h1>
+            <span class="close" onclick="customercloseModal()">&times;</span>
+            <input type="text" id="numericPart-edit" style="width: 120px; visibility: hidden; ">
+        </div>
+        <input type="text" id="customernameinput" placeholder="고객사명을 입력 후 Enter를 누르세요"
+            style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey1(event)" autocomplete="off">
+
+        <div style="height:600px; max-height: 600px; overflow-y: auto;">
+            <table class="styled-table" id="datatable">
+                <thead>
+                    <tr>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">고객사명</th>
+
+                    </tr>
+                </thead>
+                <tbody id="searchingcustomernameinfobody">
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
     <script>
         var server = '';
 
@@ -198,6 +224,10 @@
             // $('#overlay').fadeOut();
             $('#editModal1').fadeOut();
         }
+        function closeModal2() {
+            // $('#overlay').fadeOut();
+            $('#editModal2').fadeOut();
+        }
 
         function showLoading() {
             var loadingOverlay = document.getElementById("loadingOverlay");
@@ -208,74 +238,23 @@
         }
 
 
-        function Datasave() {
-            if (confirm("샘플 발주 정보를 등록 하시겠습니까??") == true) {
-
-                var insertdate = new Date().toISOString().slice(0, 10);
-
-                var toolcode = $('#toolcode').val();
-                var madedate = $('#datepicker1').val();
-                var bomno = $('#bomno').val();
-                var customer = $('#customer').val();
-                var modelname = $('#modelname').val();
-                var itemname = $('#itemname').val();
-                var char = $('#char').val();
-                var part = $('#part').val();
-                var inputprice = $('#inputprice').val();
-                var outputprice = $('#outputprice').val();
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertpinacle',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        "insertdate": insertdate,
-                        "toolcode": toolcode,
-                        "madedate": madedate,
-                        "bomno": bomno,
-                        "customer": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "char": char,
-                        "part": part,
-                        "inputprice": inputprice,
-                        "outputprice": outputprice
-
-
-
-
-                    }),
-                    success: function (result) {
-
-
-                    }
-                })
-
-                $('#popupOverlay').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
 
 
         function load() {
+
+            var totalinputprice = 0;
+            var totaloutputprice = 0;
+
             $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
                 url: server + '/api/sampleorder',
                 dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "start": $('#datepicker1').val(),
+                    "finish": $('#datepicker2').val(),
+                }),
                 success: function (data) {
                     var tableFoot = $('#dataCount');
                     if (data.length === 0) {
@@ -283,7 +262,8 @@
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
                         for (var i = 0; i < data.length; i++) {
-
+                            totalinputprice += data[i].inputprice || 0;
+                            totaloutputprice += data[i].outputprice || 0;
                             $('#Datatbody').append(
                                 '<tr>' +
                                 '<td>' + data[i].madedate + '</td>' +
@@ -294,8 +274,9 @@
                                 '<td>' + data[i].customer + '</td>' +
                                 '<td>' + data[i].modelname + '</td>' +
                                 '<td>' + data[i].itemname + '</td>' +
-                                '<td>' + data[i].char + '</td>' +
+                                '<td style="text-align:right;">' + data[i].char + '</td>' +
                                 '<td>' + data[i].part + '</td>' +
+                                '<td>' + data[i].etc + '</td>' +
                                 '<td style="text-align:right;">' + data[i].inputprice.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + data[i].outputprice.toLocaleString() + '</td>' +
                                 '<td id="data-id">' + data[i].id + '</td>' +
@@ -304,8 +285,15 @@
                             )
                             $("td#data-id").hide();
 
-                            tableFoot.text('총 데이터 개수: ' + data.length);
                         }
+
+                        $('#Datatbody').append(
+                            '<tr style="background-color:whitesmoke;">' +
+                            '<td colspan="11"><b>' + $('#datepicker1').val() + '~' + $('#datepicker2').val() + '</b></td>' +
+                            '<td style="text-align:right;"><b>' + totalinputprice.toLocaleString() + '</b></td>' +
+                            '<td style="text-align:right;"><b>' + totaloutputprice.toLocaleString() + '</b></td>' +
+                            '</tr>'
+                        );
                     }
                 }
 
@@ -395,21 +383,15 @@
             newRow.append('<td><input type="date" id="indate-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="bomno-input" style="cursor:pointer;" ondblclick="handleDoubleClick();" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="toolcode-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="partcustomer-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="partcustomer-input" style="cursor:pointer;" ondblclick="customerDoubleClick();" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="customer-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="modelname-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="itemname-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="char-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><select><option value=""></option><option value="피나클">피나클</option><option value="실링">실링</option><option value="알루미늄">알루미늄</option>   <option value="PVC">PVC</option>  <option value="금형">금형</option></select></td>');
-
-
-            newRow.append('<td><input type="text" style="text-align:right;" id="inputprice-input"  value="0" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="outputprice-input"  value="0" autocomplete="off"></td>');
-            // newRow.append('<td><input type="text" style="text-align:right;" id="itemprice-input"  readonly value="" autocomplete="off"></td>');
-            // newRow.append('<td><input type="text" style="text-align:right;" id="pocount-input" oninput="valuechanged()" value="" autocomplete="off"></td>');
-            // newRow.append('<td><input type="text" style="text-align:right;" id="price-input" readonly value="" autocomplete="off"></td>');
-            // newRow.append('<td><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;" readonly value="" autocomplete="off"></td>');
-            // $('#accountdatatbody').append('<tr id="sumRow"><td><button onclick="accountsave()" style="background-color:navy;">저장</button></td><td colspan="6" style="text-align:right;">합계:</td><td id="pocount-sum" style="text-align:right;"></td><td id="price-sum" style="text-align:right;"></td></tr>');
+            newRow.append('<td><select id="part-input"><option value=""></option><option value="피나클">피나클</option><option value="실링">실링</option><option value="알루미늄">알루미늄</option>   <option value="PVC">PVC</option>  <option value="금형">금형</option></select></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="inputprice-input"  oninput="valuechanged()" value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="outputprice-input" oninput="valuechangedOutPrice()" value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="etc-input" value="" autocomplete="off"></td>');
 
             $('#accountdatatbody').append(newRow);
             var today = new Date().toISOString().split('T')[0];
@@ -429,12 +411,14 @@
                         Swal.fire({
                             icon: 'info',
                             title: '누락',
-                            text: (i + 1) + '번째 필수 입력 항목이 누락되었습니다.',
+                            text: (i + 1) + '번째 TOOL CODE가 누락되었습니다.',
                         });
                         return;
                     }
                 }
-
+                function removeCommas(value) {
+                    return value.replace(/,/g, '');
+                }
                 // After validating all rows, ask for confirmation
                 var isConfirmed = confirm('피나클 기초정보를 저장하시겠습니까?');
 
@@ -444,8 +428,8 @@
                         var outputPriceValue = $('#accountdatatbody tr:eq(' + i + ') #outputprice-input').val();
 
                         // Check for null values and replace with 0
-                        var inputPrice = (inputPriceValue !== null) ? inputPriceValue : 0;
-                        var outputPrice = (outputPriceValue !== null) ? outputPriceValue : 0;
+                        var inputPrice = removeCommas($('#accountdatatbody tr:eq(' + i + ') #inputprice-input').val());
+                        var outputPrice = removeCommas($('#accountdatatbody tr:eq(' + i + ') #outputprice-input').val());
 
                         $.ajax({
                             type: 'POST',
@@ -463,8 +447,9 @@
                                 "itemname": $('#accountdatatbody tr:eq(' + i + ') #itemname-input').val(),
                                 "char": $('#accountdatatbody tr:eq(' + i + ') #char-input').val(),
                                 "part": $('#accountdatatbody tr:eq(' + i + ') #part-input').val(),
-                                "inputprice": $('#accountdatatbody tr:eq(' + i + ') #inputprice-input').val(),
-                                "outputprice": $('#accountdatatbody tr:eq(' + i + ') #outputprice-input').val()
+                                "etc": $('#accountdatatbody tr:eq(' + i + ') #etc-input').val(),
+                                "inputprice": inputPrice,
+                                "outputprice": outputPrice
                             }),
                             success: function (result) {
 
@@ -475,19 +460,25 @@
 
                     $('#editModal').fadeOut();
                     $('#overlay').fadeOut();
-                    load()
                     Swal.fire({
                         icon: 'success',
                         title: '저장완료',
                         text: '피나클 정보가 등록되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            load()
+                        }
                     });
+
                 }
             }
         }
 
 
 
-
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
         function searchitem() {
             document.getElementById('overlay').style.display = 'block';
@@ -509,7 +500,19 @@
             $("#numericPart").val(rowIndex);
         }
 
+        function handleDoubleClick2() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('editModal2').style.display = 'block';
+            $('#customerinput').focus()
 
+            var currentRow = $(event.target).closest('tr');
+
+            var rowIndex = currentRow.index();
+
+
+
+            $("#numericPart-edit").val(rowIndex);
+        }
 
         function insertmaterialdata(row) {
             var rowData = $(row).closest('tr').find('td').map(function () {
@@ -523,32 +526,55 @@
             $('#accountdatatbody tr:eq(' + rowCount + ') #customer-input').val(rowData[4]); // 고객사
             $('#accountdatatbody tr:eq(' + rowCount + ') #toolcode-input').focus();
             $('#editModal1').fadeOut();
-            // $('#overlay').fadeOut();
+        }
+        function insertmaterialdata2(row) {
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+            var rowCount = $('#accountdatatbody tr').length - 1;
+
+            $('#accountdatatbody tr:eq(' + rowCount + ') #partcustomer-input').val(rowData[0]); // BOMNO
+
+            $('#editModal2').fadeOut();
         }
 
+
+
         function valuechanged() {
-            var currentRow = $(event.target).closest('tr');
-            var rowIndex = currentRow.index();
-            const itempriceValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').val().replace(/,/g, '')) || 0;
-            const countValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').val().replace(/,/g, '')) || 0;
-            const priceValue = itempriceValue * countValue;
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #price-input').val(priceValue.toLocaleString());
-            let totalPocount = 0;
-            let totalPosumprice = 0;
-            $('#accountdatatbody input#pocount-input').each(function () {
-                const countValue = parseFloat($(this).val().replace(/,/g, '')) || 0;
-                totalPocount += countValue;
-            });
-            $('#accountdatatbody input#price-input').each(function () {
-                const priceValue = parseFloat($(this).val().replace(/,/g, '')) || 0;
-                totalPosumprice += priceValue;
-            });
-            // Update the sum in the designated cell
-            $('#pocount-input').val()
-            $('#price-input').val()
-            $('#pocount-sum').text(totalPocount.toLocaleString());
-            $('#price-sum').text(totalPosumprice.toLocaleString());
+            var inputElement = document.getElementById('inputprice-input');
+            var inputValue = inputElement.value.replace(/,/g, ''); // Remove existing commas
+
+            // Check if the input is a valid number
+            if (inputValue === '') {
+                // If input is empty, set value to 0
+                inputElement.value = '0';
+            } else if (!isNaN(inputValue)) {
+                // Format the input value with commas
+                var formattedValue = numberWithCommas(inputValue);
+                inputElement.value = formattedValue;
+            } else {
+                // Handle non-numeric input or other invalid cases
+                // You may want to add additional logic or provide feedback to the user
+            }
         }
+        function valuechangedOutPrice() {
+            var inputElement1 = document.getElementById('outputprice-input');
+            var inputValue1 = inputElement1.value.replace(/,/g, ''); // Remove existing commas
+
+            // Check if the input is a valid number
+            if (inputValue1 === '') {
+                // If input is empty, set value to 0
+                inputElement1.value = '0';
+            } else if (!isNaN(inputValue1)) {
+                // Format the input value with commas
+                var formattedValue1 = numberWithCommas(inputValue1);
+                inputElement1.value = formattedValue1;
+            } else {
+                // Handle non-numeric input or other invalid cases
+                // You may want to add additional logic or provide feedback to the user
+            }
+        }
+
         function addnew() {
             var newRow = $('<tr></tr>');
 
@@ -690,6 +716,97 @@
 
             });
         }
+        function customerDoubleClick() {
+            document.getElementById('customernamesearch').style.display = 'block';
+            $('#searchingcustomernameinfobody').empty()
+            $("#customernameinput").val('')
+            $("#customernameinput").focus()
+
+            var currentRow = $(event.target).closest('tr');
+
+            var rowIndex = currentRow.index();
+            $("#numericPart-edit").val(rowIndex);
+        }
+        function handleEnterKey1(event) {
+            if (event.key === 'Enter') {
+                var inputValue = document.getElementById("customernameinput").value.trim();
+
+                document.getElementById("customernameinput").value = "";
+                $('#searchingcustomernameinfobody').empty();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchingcustomername',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        customername: inputValue
+
+                    }),
+                    success: function (result) {
+                        // console.log(result)
+                        for (var i = 0; i < result.length; i++) {
+
+
+                            $('#searchingcustomernameinfobody').append(
+                                '<tr style="cursor:pointer;" onclick="insertmaterialdata1(this)">' +
+                                '<td>' + result[i].customername + '</td>' +
+
+
+                                '</tr>'
+                            );
+
+
+                        }
+                    }
+                });
+            }
+        }
+        function insertmaterialdata1(row) {
+            document.getElementById('customernamesearch').style.display = 'none';
+            var rowData = $(row).find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            var rowIndex = $('#numericPart-edit').val()
+
+            // Update the materialname-input in the specified row
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #partcustomer-input').val(rowData[0]);
+        }
+        // $(document).on('keydown', 'input[id^="partcustomer-input"]', function (e) {
+        //     if (e.which === 13 || e.keyCode === 13) { // Check for Enter key
+        //         var currentRow = $(this).closest('tr');
+        //         var rowIndex = currentRow.index();
+
+        //         $('#editModal2').fadeIn();
+
+        //         $("#partcustomerinput").val('').focus();
+        //         $("#numericPart2").val(rowIndex);
+
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: server + '/api/searchingcustomername',
+        //             dataType: 'json',
+        //             contentType: 'application/json',
+        //             data: JSON.stringify({
+        //                 materialname: $("#partcustomer-input").val()
+        //             }),
+        //             success: function (result) {
+        //                 $('#searchingcustomernamebody').empty(); // Clear previous content
+
+        //                 for (var i = 0; i < result.length; i++) {
+        //                     $('#searchingcustomernamebody').append(
+        //                         '<tr onclick="insertmaterialdata(this)">' +
+        //                         '<td>' + result[i].customername + '</td>' +
+        //                         '</tr>'
+        //                     );
+        //                 }
+        //             },
+
+        //         });
+        //     }
+        // });
+
     </script>
 
 
