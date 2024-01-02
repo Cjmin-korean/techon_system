@@ -303,7 +303,6 @@
             <h1>양산BOM 상세정보</h1>
             <span class="close" onclick="closeModal1()">&times;</span>
         </div>
-
         <div id="editForm">
             <table>
                 <tr style="height:50px;">
@@ -339,6 +338,7 @@
                     <td><label for="editDate">고객코드</label></td>
                     <td><input type="text" id="itemcode-edit" value="" autocomplete="off"></td>
                     <td><label for="editDate">공정구분</label></td>
+
                     <td><select id="workpart-edit" style="font-weight: bold;">
                             <option style="font-weight: bold; font-size: 20px;" value=""></option>
                             <option style="font-weight: bold; font-size: 20px;" value="2차피딩작업">2차피딩작업</option>
@@ -353,6 +353,7 @@
                             oninput="validateNumericInput(this)" value="" autocomplete="off"></td>
                     <td><label for="editDate">타발방향</label></td>
                     <td><select id="direction-edit" style="font-weight: bold;">
+                            <option style="font-weight: bold; font-size: 20px;" value=""></option>
                             <option style="font-weight: bold; font-size: 20px;" value="정">정</option>
                             <option style="font-weight: bold; font-size: 20px;" value="역">역</option>
                             <option style="font-weight: bold; font-size: 20px;" value="정-정">정-정</option>
@@ -611,11 +612,11 @@
 
         });
         $(document).on('click', '#RowBtnadd', function () {
-            var newRow = $('<tr>');
-            newRow.append('<td>새로운 셀 1</td>');
-            newRow.append('<td>새로운 셀 2</td>');
+            // var newRow = $('<tr>');
+            // newRow.append('<td>새로운 셀 1</td>');
+            // newRow.append('<td>새로운 셀 2</td>');
 
-            $(this).closest('tr').after(newRow);
+            // $(this).closest('tr').after(newRow);
         });
         document.getElementById('cavity-save').addEventListener('input', updateCavity);
 
@@ -675,12 +676,55 @@
             var rowData = $(row).find('td').map(function () {
                 return $(this).text();
             }).get();
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById("revchange").checked = false;
+            var option = [
+                { value: '2차피딩작업', text: '2차피딩작업' },
+                { value: '이중피딩작업', text: '이중피딩작업' },
+                { value: '일반피딩작업', text: '일반피딩작업' },
+                { value: '유압6565(본딩)', text: '유압6565(본딩)' },
+                { value: 'PP', text: 'PP' }
+            ];
+
+            var selectElement = $('#workpart-edit');
+
+
+            if (!option.some(function (opt) { return rowData[13] === opt.value; })) {
+                selectElement.append('<option style="font-weight: bold; font-size: 20px;" value="' + rowData[13] + '">' + rowData[13] + '</option>');
+            } else {
+                
+            }
+
+            var option1 = [
+                { value: '정', text: '정' },
+                { value: '역', text: '역' },
+                { value: '정-정', text: '정-정' },
+                { value: '역-정', text: '역-정' },
+                { value: '정-역', text: '정-역' },
+                { value: '역-역-정', text: '역-역-정' },
+            ];
+            var selectElement1 = $('#direction-edit');
+            if (!option1.some(function (opt) { return rowData[14] === opt.value; })) {
+                selectElement1.append('<option style="font-weight: bold; font-size: 20px;" value="' + rowData[14] + '">' + rowData[14] + '</option>');
+            } else {
+                
+            }
+
+            var option2 = [
+                { value: 'ROLL TYPE', text: 'ROLL TYPE' },
+                { value: 'SHEET TYPE', text: 'SHEET TYPE' },
+       
+            ];
+            var selectElement2 = $('#type-edit');
+            if (!option2.some(function (opt) { return rowData[16] === opt.value; })) {
+                selectElement2.append('<option style="font-weight: bold; font-size: 20px;" value="' + rowData[16] + '">' + rowData[16] + '</option>');
+            } else {
+                
+            }
 
             $('#editModal1').fadeIn();
             $('#bomtableBody-edit').empty();
             var counter = 1;
+
+
             $('#bomno-edit').val(rowData[0]);
             $('#modelname-edit').val(rowData[2]);
             $('#itemname-edit').val(rowData[4]);
@@ -688,13 +732,15 @@
             $('#itemcode-edit').val(rowData[6]);
             $('#pcs-edit').val(rowData[10]);
             $('#cavity-edit').val(rowData[11]);
-            $('#workpart-edit').val(rowData[13]);
             $('#working-edit').val(rowData[12]);
+            $('#workpart-edit').val(rowData[13]);
             $('#direction-edit').val(rowData[14]);
             $('#type-edit').val(rowData[16]);
             $('#bomid-edit').val(rowData[18]);
             $('#bomidsave').val(new Date().getTime());
             var additionalNotesValue = rowData[15];
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById("revchange").checked = false;
             $('#additionalNote-edit').val(additionalNotesValue !== null ? additionalNotesValue : '');
             $.ajax({
                 type: 'POST',
@@ -732,7 +778,7 @@
                                 '<td><input type="text" style="text-align:right;" id="allta-edit" oninput="updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit();calculateCostedit(); formatDecimalInput(this, 2);" value="' + (result[i].allta || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="talength-edit" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].talength || '0') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="loss-edit" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].loss || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCostedit();" id="cost-edit" value="' + (result[i].cost || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCostedit();" id="cost-edit" value="' + (result[i].cost || '0') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-edit" value="' + (result[i].rlcut || '') + '" oninput="updateRlProductedit()" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-edit" oninput="updateRlProductedit()" value="' + (result[i].prdouctcount || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-edit" value="' + (result[i].width || '') + '" autocomplete="off"></td>' +
@@ -759,6 +805,7 @@
                 }
 
             });
+
 
 
 
@@ -824,7 +871,7 @@
                         var itemcode1 = data[i].itemcode !== null ? data[i].itemcode : '';
 
                         var fontColor = data[i].status === '미사용' ? 'silver' : '';
-
+                        console.log(data)
                         $('#Datatbody').append(
                             '<tr style="color: ' + fontColor + ';">' +
                             '<td>' + data[i].bomno + '</td>' +

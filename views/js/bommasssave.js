@@ -2,9 +2,7 @@
 function updateCavity() {
     const cavitySaveValue = parseFloat($("#cavity-save").val()) || 0;
     const taInputValue = cavitySaveValue !== 0 ? (1 / cavitySaveValue) : 0;
-
     $("[id='cavity-input']").val(cavitySaveValue);
-    
 }
 
 
