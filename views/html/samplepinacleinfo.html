@@ -15,7 +15,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
 </head>
 
@@ -61,7 +62,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">영업수주등록</a>
+        <a style="margin-left: 20px;">TOOL 기초정보</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -79,15 +80,18 @@
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <th style="width: auto; text-align:center;" onclick="sortTable(1)">발주일자</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(2)">고객사</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(3)">품목코드</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(4)">모델명</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(5)">품목명</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(6)">BOM.NO</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(7)">수량(개)</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(8)">단가(원)</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(9)">공급가액(원)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(0)">발주일자 </th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(1)">입고일자</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(2)">제조사</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(3)">TOOL CODE</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(4)">BOM NO.</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(5)">고객사</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(6)">모델명</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(7)">품목명</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(8)">해당차수</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(9)">종류</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(10)">입고단가(￦)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(11)">출고단가(￦)</th>
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -95,9 +99,9 @@
         </tbody>
 
     </table>
-    <div id="editModal" style="max-height: 600px;  overflow-y: auto;">
+    <div id="editModal" style="max-height: 600px;  overflow-y: auto; width: 100%;" >
         <div class="mainheader">
-            <h1>영업 수주 등록1</h1>
+            <h1>TOOL 기초정보 등록</h1>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div id="editForm">
@@ -106,15 +110,18 @@
                     <tr>
                         <th style="width:130px; background-color:white;"><button onclick="addnew()">추가</button>
                         </th>
-                        <th style="width:auto;">BOMNO</th>
-                        <th style="width:auto;">품목코드</th>
-                        <th style="width:auto;">모델명</th>
-                        <th style="width:auto;">품목명</th>
-                        <th style="width:auto;">고객사</th>
-                        <th style="width:auto;">단가(원)</th>
-                        <th style="width:auto;">PO수량(개)</th>
-                        <th style="width:auto;">판매금액(￦)</th>
-                        <th style="width:100px;">영업확정</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(0)">발주일자 </th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(1)">입고일자</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(2)">BOM NO.</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(3)">TOOL CODE</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(4)">제조사</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(5)">고객사</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(6)">모델명</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(7)">품목명</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(8)">해당차수</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(9)">종류</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(10)">입고단가(￦)</th>
+                        <th style="text-align:center; cursor: pointer;" onclick="sortTable(11)">출고단가(￦)</th>
                     </tr>
                 </thead>
                 <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
@@ -163,6 +170,8 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $('#date-input').val(today);
             settingDate()
             showLoading()
             load()
@@ -383,19 +392,29 @@
             var newRow = $('<tr></tr>');
             newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
 
-            newRow.append('<td><input type="text" id="bomno-input" style="background-color: whitesmoke; cursor: pointer;" readonly ondblclick="handleDoubleClick();" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="itemcode-input" readonly value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="date" id="date-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
+            newRow.append('<td><input type="date" id="indate-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
+            // newRow.append('<td><input type="date" id="bomno-input" style="background-color:  cursor: pointer;" readonly ondblclick="handleDoubleClick();" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="bomno-input" style="cursor:pointer;" ondblclick="handleDoubleClick();" readonly value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="toolcode-input" readonly value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="customer-input" readonly value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="partcustomer-input" readonly value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="modelname-input" readonly value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="itemname-input" readonly value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="customer-input" readonly value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="itemprice-input"  readonly value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="pocount-input" oninput="valuechanged()" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="price-input" readonly value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;" readonly value="" autocomplete="off"></td>');
-            $('#accountdatatbody').append('<tr id="sumRow"><td><button onclick="accountsave()" style="background-color:navy;">저장</button></td><td colspan="6" style="text-align:right;">합계:</td><td id="pocount-sum" style="text-align:right;"></td><td id="price-sum" style="text-align:right;"></td></tr>');
+            newRow.append('<td><input type="text" id="char-input" readonly value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="part-input" readonly value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; id="inputprice-input"  value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; id="outputprice-input"  value="" autocomplete="off"></td>');
+            // newRow.append('<td><input type="text" style="text-align:right;" id="itemprice-input"  readonly value="" autocomplete="off"></td>');
+            // newRow.append('<td><input type="text" style="text-align:right;" id="pocount-input" oninput="valuechanged()" value="" autocomplete="off"></td>');
+            // newRow.append('<td><input type="text" style="text-align:right;" id="price-input" readonly value="" autocomplete="off"></td>');
+            // newRow.append('<td><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;" readonly value="" autocomplete="off"></td>');
+            // $('#accountdatatbody').append('<tr id="sumRow"><td><button onclick="accountsave()" style="background-color:navy;">저장</button></td><td colspan="6" style="text-align:right;">합계:</td><td id="pocount-sum" style="text-align:right;"></td><td id="price-sum" style="text-align:right;"></td></tr>');
 
-            // $('#accountdatatbody').append(newRow);
             $('#accountdatatbody').append(newRow);
+            var today = new Date().toISOString().split('T')[0];
+            $('#date-input').val(today);
+            $('#indate-input').val(today);
         }
         function searchitem() {
             document.getElementById('overlay').style.display = 'block';
