@@ -8355,11 +8355,12 @@ module.exports = function (app) {
                 .input('part', sql.NVarChar, req.body.part)
                 .input('inputprice', sql.Float, req.body.inputprice)
                 .input('outputprice', sql.Float, req.body.outputprice)
+                .input('partcustomer', sql.NVarChar, req.body.partcustomer)
 
 
                 .query(
-                    'insert into sampleorder(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice)' +
-                    ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice)'
+                    'insert into sampleorder(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice,partcustomer)' +
+                    ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice,@partcustomer)'
                 )
                 .then(result => {
 
