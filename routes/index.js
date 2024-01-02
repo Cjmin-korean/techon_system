@@ -1204,7 +1204,7 @@ module.exports = function (app) {
                     "      COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,                    " +
                     "       CASE " +
                     "        WHEN i.itemprice = 0 THEN 0 " +
-                    "        ELSE (COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) / bm.cavity), 2)), 0) / i.itemprice) * 100 " +
+                    " ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2) "+
                     "    END AS costPriceRatio, " +
                     "       i.customer, " +
                     "       i.itemcode, " +
