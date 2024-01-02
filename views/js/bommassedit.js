@@ -1,8 +1,7 @@
 //cavity 변동
-function updateCavityInputsedit() {
+function updateCavityedit() {
     const cavitySaveValue = parseFloat($("#cavity-edit").val()) || 0;
     const taInputValue = cavitySaveValue !== 0 ? (1 / cavitySaveValue) : 0;
-    // $("#ordercount-edit").val(cavitySaveValue);
 
     $("[id='cavity-edit']").val(cavitySaveValue);
     // updateRlcutValueedit();
@@ -38,7 +37,7 @@ function updateSoyoValueedit() {
     $('#bomtableBody-edit tr:eq(' + rowIndex + ') #soyo-edit').val(soyoValue);
 }
 
-function updateRlProductInputedit() {
+function updateRlProductedit() {
     var currentRow = $(event.target).closest('tr');
     var rowIndex = currentRow.index();
 
@@ -85,4 +84,4 @@ function calculateCostedit() {
     const costValue = rollpriceValue / rlproductValue;
     $('#bomtableBody-edit tr:eq(' + rowIndex + ') #cost-edit').val(costValue.toFixed(2));
 }
-document.getElementById('cavity-edit').addEventListener('input', updateCavityInputsedit);
+document.getElementById('cavity-edit').addEventListener('input', updateCavityedit);

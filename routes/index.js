@@ -1215,7 +1215,7 @@ module.exports = function (app) {
                     "       i.workpart, " +
                     "       i.additionalnotes, " +
                     "       i.class, " +
-                    "       i.type, "+
+                    "       i.type,bm.bomid, "+
                     "   COUNT(mi.materialname) as materialcount" +
                     "   FROM " +
                     "       iteminfo i " +
@@ -1240,7 +1240,7 @@ module.exports = function (app) {
                     "       i.workpart, " +
                     "       i.additionalnotes, " +
                     "       i.class, " +
-                    "       i.type;         ")
+                    "       i.type,bm.bomid        ")
                 .then(result => {
 
 
@@ -4697,13 +4697,14 @@ module.exports = function (app) {
                 .input('materialclassification', sql.NVarChar, req.body.materialclassification)
                 .input('cavity', sql.NVarChar, req.body.cavity)
                 .input('useable', sql.NVarChar, req.body.useable)
+                .input('bomid', sql.NVarChar, req.body.bomid)
 
 
 
 
                 .query(
-                    'insert into bommanagement(useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity)' +
-                    ' values(@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity)'
+                    'insert into bommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity)'
                 )
                 .then(result => {
 
@@ -5347,12 +5348,12 @@ module.exports = function (app) {
             return pool.request()
                 //.input('변수',값 형식, 값)
                 .input('status', sql.NVarChar, req.body.status)
-                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('bomid', sql.NVarChar, req.body.bomid)
 
 
 
                 .query(
-                    'update bommanagement set status=@status where bomno=@bomno'
+                    'update bommanagement set status=@status where bomid=@bomid'
                 )
                 .then(result => {
 
