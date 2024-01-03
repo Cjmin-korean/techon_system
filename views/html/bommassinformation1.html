@@ -103,7 +103,7 @@
         <legend>검색조건</legend>
         <input type="text" id="myInput" placeholder="검색어를 입력하세요" onclick="search()" style="width:600px;"
             autocomplete="off">
-        <button class="saveButton" onclick="openEditModal()">신규추가</button>
+        <button onclick="openEditModal()">신규추가</button>
         <!-- <button class="saveButton" onclick="deleteitem()">신규추가</button> -->
 
     </fieldset>
@@ -370,8 +370,11 @@
                             <option style="font-weight: bold; font-size: 20px;" value="SHEET TYPE">SHEET TYPE</option>
                         </select>
                     </td>
-                    <td><label for="editDate">REV변경</label></td>
-                    <td><input type="checkbox" id="revchange" style="width:20px; height: 20px; cursor: pointer;"> </td>
+                    <!-- <td><label for="editDate">REV변경</label></td>
+                    <td><input type="checkbox" id="revchange" style="width:20px; height: 20px; cursor: pointer;"> </td> -->
+                    <td><label for="editAuthor">원가합계</label></td>
+                    <td><input type="text" style="text-align: right;" id="costsum-edit" value="" autocomplete="off">
+                    </td>
                 </tr>
                 <tr style="height:50px;">
                     <td colspan="12">작업특이사항</td>
@@ -384,7 +387,7 @@
 
             </table>
             <div style="width: 140%; overflow: auto;">
-                <div style="height: auto; max-height: 500px; overflow-y: auto; display: block;">
+                <div style="height: 500px; max-height: 500px; overflow-y: auto; display: block;">
                     <table style="width: 140%;">
                         <thead id="tableHead">
                             <tr style="height: 30px;">
@@ -755,10 +758,10 @@
             $('#direction-edit').val(rowData[15]);
             $('#type-edit').val(rowData[17]);
             $('#bomid-edit').val(rowData[19]);
+            $('#costsum-edit').val(rowData[8]);
             $('#bomidsave').val(new Date().getTime());
             var additionalNotesValue = rowData[16];
             document.getElementById('overlay').style.display = 'block';
-            document.getElementById("revchange").checked = false;
             $('#additionalNote-edit').val(additionalNotesValue !== null ? additionalNotesValue : '');
             $.ajax({
                 type: 'POST',
@@ -839,47 +842,111 @@
             for (var i = 1; i <= rowData[13]; i++) {
                 var th = document.createElement('th');
                 th.textContent = i + '차';
-                th.style.width = '300px';
+                th.style.width = '380px';
                 tableHead.appendChild(th);
             }
 
-            // Add a new row to the table body with cells dynamically generated based on rowData[13] count
-            var newRow = document.createElement('tr');
 
-            // Create the "설비명" cell
-            var facilityCell = document.createElement('td');
-            facilityCell.textContent = '설비명';
-            newRow.appendChild(facilityCell);
+            // Function to handle the creation of rows with selects
+            function createSelectRow(title, options) {
+                var facilityRow = document.createElement('tr');
+                var facilityCell = document.createElement('td');
+                facilityCell.textContent = title;
+                facilityRow.appendChild(facilityCell);
 
-            // Create a <select> element for each 차수 and add it to the row
-            for (var j = 1; j <= rowData[13]; j++) {
-                var selectCell = document.createElement('td');
-                var selectElement = document.createElement('select');
+                for (var i = 0; i < rowData[13]; i++) {
+                    var selectCell = document.createElement('td');
+                    var selectElement = document.createElement('select');
 
-                // Add options to the select element (customize as needed)
-                var option1 = document.createElement('option');
-           
+                    // Append the pre-created options to the select element
+                    for (var k = 0; k < options.length; k++) {
+                        selectElement.appendChild(options[k].cloneNode(true));
+                    }
 
-                option1.value = '고속1호기';
-                option1.textContent = '고속1호기 3조 3232';
+                    selectCell.appendChild(selectElement);
+                    facilityRow.appendChild(selectCell);
+                }
 
-                var option2 = document.createElement('option');
-                option2.value = '고속2호기';
-                option2.textContent = '고속2호기 3조 3232';
-
-                // Append options to the select element
-                selectElement.appendChild(option1);
-                selectElement.appendChild(option2);
-
-                // Append the select element to the cell
-                selectCell.appendChild(selectElement);
-
-                // Append the cell to the row
-                newRow.appendChild(selectCell);
+                tableBody.appendChild(facilityRow);
             }
 
-            // Append the newRow to the table body
-            tableBody.appendChild(newRow);
+            // First AJAX call
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectequipment',
+                dataType: 'json',
+                success: function (data) {
+                    var options = [];
+
+                    // Create options once based on the data array
+                    for (var i = 0; i < data.length; i++) {
+                        var option = document.createElement('option');
+                        option.value = data[i].part + data[i].size + data[i].customer;
+                        option.textContent = data[i].part + data[i].size + data[i].customer;
+                        option.style.fontWeight = '500';
+
+                        options.push(option);
+                    }
+
+                    // Create the row with "설비명"
+                    createSelectRow('설비명', options);
+
+                    // Second AJAX call
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/selectbompinacle',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "bomno": rowData[0]
+                        }),
+                        success: function (data) {
+                            var options = [];
+
+                            // Create options once based on the data array
+                            for (var i = 0; i < data.length; i++) {
+                                var option = document.createElement('option');
+                                option.value = data[i].toolcode;
+                                option.textContent = data[i].toolcode;
+                                options.push(option);
+                            }
+
+                            // Create the row with "피나클"
+                            createSelectRow('피나클', options);
+
+                            // Third AJAX call
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/selectbommold',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "bomno": rowData[0]
+                                }),
+                                success: function (data) {
+                                    var options = [];
+
+                                    // Create options once based on the data array
+                                    for (var i = 0; i < data.length; i++) {
+                                        var option = document.createElement('option');
+                                        option.value = data[i].toolcode;
+                                        option.textContent = data[i].toolcode;
+                                        options.push(option);
+                                    }
+
+                                    // Create the row with "금형"
+                                    createSelectRow('금형', options);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+
+
+
+
 
 
 
@@ -984,77 +1051,81 @@
             });
         }
         $(document).on('keydown', 'input[id^="materialname-input"]', function (e) {
-            if (e.which === 13 || e.keyCode === 13) { // Check for Enter key
+            if (e.keyCode === 13) { // Check for Enter key
+                e.preventDefault(); // Prevent the default behavior of the Enter key
                 var cavitySaveValue = $("#cavity-save").val();
 
                 if (cavitySaveValue === '') {
                     Swal.fire({
                         icon: 'info',
-                        title: '취소',
+                        title: 'Cavity 누락',
                         text: 'Cavity가 누락되었습니다.',
                     });
                     return;
-                }
-                var currentRow = $(this).closest('tr');
-                var rowIndex = currentRow.index();
+                } else {
+                    var currentRow = $(this).closest('tr');
+                    var rowIndex = currentRow.index();
 
-                document.getElementById('materialnamesearch').style.display = 'block';
-                $("#materialnameinput").val('').focus();
-                $("#numericPart").val(rowIndex);
+                    document.getElementById('materialnamesearch').style.display = 'block';
+                    $("#materialnameinput").val('').focus();
+                    $("#numericPart").val(rowIndex);
 
-                var materialNameValue = currentRow.find('input[id^="materialname-input"]').val().trim();
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/searchingmaterialname',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        materialname: materialNameValue
-                    }),
-                    success: function (result) {
-                        $('#searchingmaterialinfobody').empty(); // Clear previous content
+                    var materialNameValue = currentRow.find('input[id^="materialname-input"]').val().trim();
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/searchingmaterialname',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            materialname: materialNameValue
+                        }),
+                        success: function (result) {
+                            $('#searchingmaterialinfobody').empty(); // Clear previous content
 
-                        for (var i = 0; i < result.length; i++) {
-                            var sqmprice = result[i].sqmprice !== null ? result[i].sqmprice.toLocaleString() : '';
-                            var rollprice = result[i].rollprice !== null ? result[i].rollprice.toLocaleString() : '';
+                            for (var i = 0; i < result.length; i++) {
+                                var sqmprice = result[i].sqmprice !== null ? result[i].sqmprice.toLocaleString() : '';
+                                var rollprice = result[i].rollprice !== null ? result[i].rollprice.toLocaleString() : '';
 
-                            var width = result[i].width !== null ? result[i].width.toLocaleString() : '';
-                            var length = result[i].length !== null ? result[i].length.toLocaleString() : '';
-                            var usewidth = result[i].usewidth !== null ? result[i].usewidth.toLocaleString() : '';
-                            var rollprice = result[i].rollprice !== null ? result[i].rollprice.toLocaleString() : '';
+                                var width = result[i].width !== null ? result[i].width.toLocaleString() : '';
+                                var length = result[i].length !== null ? result[i].length.toLocaleString() : '';
+                                var usewidth = result[i].usewidth !== null ? result[i].usewidth.toLocaleString() : '';
+                                var rollprice = result[i].rollprice !== null ? result[i].rollprice.toLocaleString() : '';
 
-                            $('#searchingmaterialinfobody').append(
-                                '<tr onclick="insertmaterialdata(this)">' +
-                                '<td>' + result[i].materialname + '</td>' +
-                                '<td style="text-align:right;">' + result[i].width + '</td>' +
-                                '<td style="text-align:right;">' + result[i].length + '</td>' +
-                                '<td>' + result[i].supplier + '</td>' +
-                                '<td id="data-width">' + result[i].width + '</td>' +
-                                '<td id="data-usewidth">' + result[i].usewidth + '</td>' +
-                                '<td id="data-length">' + result[i].length + '</td>' +
-                                '<td id="data-sqmprice">' + result[i].sqmprice + '</td>' +
-                                '<td id="data-rollprice">' + result[i].rollprice + '</td>' +
-                                '<td id="data-unit">' + result[i].unit + '</td>' +
-                                '<td id="data-manufacterer">' + result[i].manufacterer + '</td>' +
-                                '<td id="data-supplier">' + result[i].supplier + '</td>' +
-                                '<td id="data-typecategory">' + result[i].typecategory + '</td>' +
-                                '<td id="data-codenumber">' + result[i].codenumber + '</td>' +
-                                '<td>' + result[i].num + '</td>' +
-                                '</tr>'
-                            );
+                                $('#searchingmaterialinfobody').append(
+                                    '<tr onclick="insertmaterialdata(this)">' +
+                                    '<td>' + result[i].materialname + '</td>' +
+                                    '<td style="text-align:right;">' + result[i].width + '</td>' +
+                                    '<td style="text-align:right;">' + result[i].length + '</td>' +
+                                    '<td>' + result[i].supplier + '</td>' +
+                                    '<td id="data-width">' + result[i].width + '</td>' +
+                                    '<td id="data-usewidth">' + result[i].usewidth + '</td>' +
+                                    '<td id="data-length">' + result[i].length + '</td>' +
+                                    '<td id="data-sqmprice">' + result[i].sqmprice + '</td>' +
+                                    '<td id="data-rollprice">' + result[i].rollprice + '</td>' +
+                                    '<td id="data-unit">' + result[i].unit + '</td>' +
+                                    '<td id="data-manufacterer">' + result[i].manufacterer + '</td>' +
+                                    '<td id="data-supplier">' + result[i].supplier + '</td>' +
+                                    '<td id="data-typecategory">' + result[i].typecategory + '</td>' +
+                                    '<td id="data-codenumber">' + result[i].codenumber + '</td>' +
+                                    '<td>' + result[i].num + '</td>' +
+                                    '</tr>'
+                                );
 
-                            $("td#data-width").hide();
-                            $("td#data-usewidth").hide();
-                            $("td#data-length").hide();
-                            $("td#data-sqmprice").hide();
-                            $("td#data-rollprice").hide();
-                            $("td#data-unit").hide();
-                            $("td#data-manufacterer").hide();
-                            $("td#data-supplier").hide();
-                            $("td#data-codenumber").hide();
+                                $("td#data-width").hide();
+                                $("td#data-usewidth").hide();
+                                $("td#data-length").hide();
+                                $("td#data-sqmprice").hide();
+                                $("td#data-rollprice").hide();
+                                $("td#data-unit").hide();
+                                $("td#data-manufacterer").hide();
+                                $("td#data-supplier").hide();
+                                $("td#data-codenumber").hide();
+                            }
                         }
-                    }
-                });
+                    });
+                }
+
+
             }
         });
 
@@ -1064,23 +1135,29 @@
 
 
         function handleDoubleClick() {
-            var cavitySaveValue = $("#cavity-input").val();
-
+            var cavitySaveValue = $("#cavity-save").val();
             if (cavitySaveValue === '') {
-                // Show alert when cavity-save is empty
-                alert('Cavity가 누락되었습니다');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Cavity 누락',
+                    text: 'Cavity가 누락되었습니다.',
+                });
+                $("#cavity-save").focus()
                 return;
+            } else {
+
+
+                document.getElementById('materialnamesearch').style.display = 'block';
+                $('#searchingmaterialinfobody').empty()
+                $("#materialnameinput").val('')
+                $("#materialnameinput").focus()
+
+                var currentRow = $(event.target).closest('tr');
+
+                var rowIndex = currentRow.index();
+                $("#numericPart").val(rowIndex);
             }
 
-            document.getElementById('materialnamesearch').style.display = 'block';
-            $('#searchingmaterialinfobody').empty()
-            $("#materialnameinput").val('')
-            $("#materialnameinput").focus()
-
-            var currentRow = $(event.target).closest('tr');
-
-            var rowIndex = currentRow.index();
-            $("#numericPart").val(rowIndex);
 
         }
         $(document).on('dblclick', 'input[id^="materialname-input"]', handleDoubleClick);
@@ -1092,6 +1169,7 @@
             if (cavitySaveValue === '') {
                 // Show alert when cavity-save is empty
                 alert('Cavity가 누락되었습니다');
+                
                 return;  // Stop further execution
             }
 

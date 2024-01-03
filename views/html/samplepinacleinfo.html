@@ -69,11 +69,11 @@
 
     </div>
 
+
     <fieldset>
         <legend>검색조건</legend>
-        <!-- <input type="date" id="datepicker1">
-        <input type="date" id="datepicker2"> -->
-        <!-- <button onclick="load()">조회</button> -->
+        <input type="text" id="myInput" placeholder="검색어를 입력하세요" onclick="search()" style="width:600px;"
+            autocomplete="off">
         <button onclick="newadd()">신규추가</button>
     </fieldset>
     <div id="overlay"></div>
@@ -146,8 +146,8 @@
             <span class="close" onclick="closeModal1()">&times;</span>
             <input type="text" id="numericPart" style="width: 200px; visibility: hidden;">
         </div>
-        <input type="text" oninput="search()" id="materialnameinput" placeholder="검색어를 입력 하세요"
-            style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey(event)" autocomplete="off">
+        <input type="text" id="materialnameinput" placeholder="검색어를 입력 하세요" style="font-size: 16px; font-weight: bold;"
+            onkeydown="handleEnterKey(event)" autocomplete="off">
 
         <div>
             <table class="styled-table" id="datatable1">
@@ -172,7 +172,7 @@
         <div class="mainheader">
             <h1>고객사 검색</h1>
             <span class="close" onclick="customercloseModal()">&times;</span>
-            <input type="text" id="numericPart-edit" style="width: 120px; visibility: hidden; ">
+            <input type="text" id="numericPart-edit" style="width: 120px;  ">
         </div>
         <input type="text" id="customernameinput" placeholder="고객사명을 입력 후 Enter를 누르세요"
             style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey1(event)" autocomplete="off">
@@ -360,7 +360,6 @@
                             '<tr onclick="insertmaterialdata(this)">' +
                             '<td>' + result[i].bomno + '</td>' +
 
-                            // '<td><input type="checkbox" onclick="insertmaterialdata(this)"  style="cursor:pointer; width: 20px; height: 20px;"></td>' +
                             '<td>' + result[i].itemcode + '</td>' +
                             '<td>' + result[i].modelname + '</td>' +
                             '<td>' + result[i].itemname + '</td>' +
@@ -487,9 +486,22 @@
 
 
         }
+        function customerDoubleClick() {
+            document.getElementById('customernamesearch').style.display = 'block';
+            $('#searchingcustomernameinfobody').empty()
+            $("#customernameinput").val('')
+            $("#customernameinput").focus()
+
+            var currentRow = $(event.target).closest('tr');
+
+            var rowIndex = currentRow.index();
+            $("#numericPart-edit").val(rowIndex);
+        }
         function handleDoubleClick() {
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('editModal1').style.display = 'block';
+            $('#searchingmaterialinfobody').empty()
+            $("#materialnameinput").val('')
             $('#materialnameinput').focus()
 
             var currentRow = $(event.target).closest('tr');
@@ -514,18 +526,29 @@
 
             $("#numericPart-edit").val(rowIndex);
         }
+        function insertmaterialdata1(row) {
+            document.getElementById('customernamesearch').style.display = 'none';
+            var rowData = $(row).find('td').map(function () {
+                return $(this).text();
+            }).get();
 
+            var rowIndex = $('#numericPart-edit').val()
+
+            // Update the materialname-input in the specified row
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #partcustomer-input').val(rowData[0]);
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #toolcode-input').focus()
+        }
         function insertmaterialdata(row) {
             var rowData = $(row).closest('tr').find('td').map(function () {
                 return $(this).text();
             }).get();
-            var rowCount = $('#accountdatatbody tr').length - 1;
+            var rowIndex = $('#numericPart').val()
 
-            $('#accountdatatbody tr:eq(' + rowCount + ') #bomno-input').val(rowData[0]); // BOMNO
-            $('#accountdatatbody tr:eq(' + rowCount + ') #modelname-input').val(rowData[2]); // 모델명
-            $('#accountdatatbody tr:eq(' + rowCount + ') #itemname-input').val(rowData[3]); // 품목명
-            $('#accountdatatbody tr:eq(' + rowCount + ') #customer-input').val(rowData[4]); // 고객사
-            $('#accountdatatbody tr:eq(' + rowCount + ') #toolcode-input').focus();
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #bomno-input').val(rowData[0]); // BOMNO
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #modelname-input').val(rowData[2]); // 모델명
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #itemname-input').val(rowData[3]); // 품목명
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #customer-input').val(rowData[4]); // 고객사
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #toolcode-input').focus();
             $('#editModal1').fadeOut();
         }
         function insertmaterialdata2(row) {
@@ -685,48 +708,44 @@
         });
 
 
-        function search() {
-            const searchInput = document.getElementById('materialnameinput');
-            const dataTable = document.getElementById('datatable1');
-            const tableRows = dataTable.getElementsByTagName('tr');
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                var inputValue = document.getElementById("materialnameinput").value.trim();
 
-            searchInput.addEventListener('input', function () {
-                const searchValue = this.value.toLowerCase();
-                let count = 0;
+                document.getElementById("materialnameinput").value = "";
+                $('#searchingmaterialinfobody').empty();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchingbomno',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
 
-                for (let i = 1; i < tableRows.length; i++) {
-                    const rowData = tableRows[i].getElementsByTagName('td');
-                    let found = false;
+                        bomno: inputValue
 
-                    for (let j = 0; j < rowData.length; j++) {
-                        const cellData = rowData[j].textContent.toLowerCase();
+                    }),
+                    success: function (result) {
+                        // console.log(result)
+                        for (var i = 0; i < result.length; i++) {
 
-                        if (cellData.includes(searchValue)) {
-                            found = true;
-                            break;
+
+                            $('#searchingmaterialinfobody').append(
+                                '<tr style="cursor:pointer;" onclick="insertmaterialdata(this)">' +
+                                '<td>' + result[i].bomno + '</td>' +
+                                '<td>' + result[i].itemcode + '</td>' +
+                                '<td>' + result[i].modelname + '</td>' +
+                                '<td>' + result[i].itemname + '</td>' +
+                                '<td>' + result[i].customer + '</td>' +
+
+
+                                '</tr>'
+                            );
+
+
                         }
                     }
-
-                    if (found) {
-                        tableRows[i].style.display = '';
-                        count++;
-                    } else {
-                        tableRows[i].style.display = 'none';
-                    }
-                }
-
-            });
-        }
-        function customerDoubleClick() {
-            document.getElementById('customernamesearch').style.display = 'block';
-            $('#searchingcustomernameinfobody').empty()
-            $("#customernameinput").val('')
-            $("#customernameinput").focus()
-
-            var currentRow = $(event.target).closest('tr');
-
-            var rowIndex = currentRow.index();
-            $("#numericPart-edit").val(rowIndex);
+                });
+            }
         }
         function handleEnterKey1(event) {
             if (event.key === 'Enter') {
@@ -763,50 +782,47 @@
                 });
             }
         }
-        function insertmaterialdata1(row) {
-            document.getElementById('customernamesearch').style.display = 'none';
-            var rowData = $(row).find('td').map(function () {
-                return $(this).text();
-            }).get();
 
-            var rowIndex = $('#numericPart-edit').val()
+        $(document).on('keydown', 'input[id^="bomno-input"]', function (e) {
+            if (e.keyCode === 13) { // Check for Enter key
+                e.preventDefault(); // Prevent the default behavior of the Enter key
 
-            // Update the materialname-input in the specified row
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #partcustomer-input').val(rowData[0]);
-        }
-        // $(document).on('keydown', 'input[id^="partcustomer-input"]', function (e) {
-        //     if (e.which === 13 || e.keyCode === 13) { // Check for Enter key
-        //         var currentRow = $(this).closest('tr');
-        //         var rowIndex = currentRow.index();
+                var currentRow = $(this).closest('tr');
+                var rowIndex = currentRow.index();
 
-        //         $('#editModal2').fadeIn();
+                document.getElementById('editModal1').style.display = 'block';
+                $("#materialnameinput").val('').focus();
+                $("#numericPart").val(rowIndex);
 
-        //         $("#partcustomerinput").val('').focus();
-        //         $("#numericPart2").val(rowIndex);
+                var bomnovalue = currentRow.find('input[id^="bomno-input"]').val().trim();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchingbomno',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        materialname: bomnovalue
+                    }),
+                    success: function (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            $('#searchingmaterialinfobody').append(
+                                '<tr style="cursor:pointer;" onclick="insertmaterialdata(this)">' +
+                                '<td>' + result[i].bomno + '</td>' +
+                                '<td>' + result[i].itemcode + '</td>' +
+                                '<td>' + result[i].modelname + '</td>' +
+                                '<td>' + result[i].itemname + '</td>' +
+                                '<td>' + result[i].customer + '</td>' +
+                                '</tr>'
+                            );
 
-        //         $.ajax({
-        //             type: 'POST',
-        //             url: server + '/api/searchingcustomername',
-        //             dataType: 'json',
-        //             contentType: 'application/json',
-        //             data: JSON.stringify({
-        //                 materialname: $("#partcustomer-input").val()
-        //             }),
-        //             success: function (result) {
-        //                 $('#searchingcustomernamebody').empty(); // Clear previous content
 
-        //                 for (var i = 0; i < result.length; i++) {
-        //                     $('#searchingcustomernamebody').append(
-        //                         '<tr onclick="insertmaterialdata(this)">' +
-        //                         '<td>' + result[i].customername + '</td>' +
-        //                         '</tr>'
-        //                     );
-        //                 }
-        //             },
+                        }
+                    }
+                });
 
-        //         });
-        //     }
-        // });
+
+            }
+        });
 
     </script>
 

@@ -2164,6 +2164,85 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectequipment', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " select "+
+                    " part,size,customer "+
+                    " from equipment where position='2층 생산' group by part,size,customer")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbompinacle', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "select "+
+                    " toolcode "+
+                    " from  "+
+                    " sampleorder where bomno=@bomno and part='피나클' group by toolcode")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbommold', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "select "+
+                    " toolcode "+
+                    " from  "+
+                    " sampleorder where bomno=@bomno and part='금형' group by toolcode")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
@@ -4583,6 +4662,26 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT * FROM customerinformation WHERE customername LIKE '%' + @customername + '%' order by customername asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/searchingbomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+
+                .query(
+                    "SELECT * FROM iteminfo WHERE bomno LIKE '%' + @bomno + '%' order by bomno asc")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -8288,7 +8387,7 @@ module.exports = function (app) {
          
 
                 .query(
-                    "select * from sampleorder"
+                    "select * from sampleorder order by toolcode asc"
                 )
                 .then(result => {
 
