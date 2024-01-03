@@ -1204,7 +1204,7 @@ module.exports = function (app) {
                     "      COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,                    " +
                     "       CASE " +
                     "        WHEN i.itemprice = 0 THEN 0 " +
-                    " ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2) "+
+                    " ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2) " +
                     "    END AS costPriceRatio, " +
                     "       i.customer, " +
                     "       i.itemcode, " +
@@ -1215,7 +1215,7 @@ module.exports = function (app) {
                     "       i.workpart, " +
                     "       i.additionalnotes, " +
                     "       i.class, " +
-                    "       i.type,bm.bomid, "+
+                    "       i.type,bm.bomid, " +
                     "   COUNT(mi.materialname) as materialcount" +
                     "   FROM " +
                     "       iteminfo i " +
@@ -1326,7 +1326,8 @@ module.exports = function (app) {
 
 
             return pool.request()
-
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
                 .query(
                     " SELECT " +
                     " orderdate, " +
@@ -1349,7 +1350,7 @@ module.exports = function (app) {
                     " deadline, " +
                     " employee " +
                     " from " +
-                    " bomtoolorder")
+                    " bomtoolorder where inputdate between @start and @finish")
 
 
                 .then(result => {
@@ -8245,12 +8246,31 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('start', sql.NVarChar, req.body.start)
-            .input('finish', sql.NVarChar, req.body.finish)
-
+         
 
                 .query(
                     "select * from sampleorder"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/searchingtoolcode', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('searchText', sql.NVarChar, req.body.searchText)
+
+                .query(
+                    "select * from sampleorder where toolcode LIKE '%' + @searchText + '%'"
                 )
                 .then(result => {
 
