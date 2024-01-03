@@ -1834,6 +1834,42 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/insertbomtoolorder', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+       
+                .input('orderdate', sql.NVarChar, req.body.orderdate)
+                .input('inputdate', sql.NVarChar, req.body.inputdate)
+                .input('madecustomer', sql.NVarChar, req.body.madecustomer)
+                .input('toolcode', sql.NVarChar, req.body.toolcode)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('ordercount', sql.Float, req.body.ordercount)
+                .input('orderprice', sql.Float, req.body.orderprice)
+                .input('sheet2', sql.NVarChar, req.body.sheet2)
+                .input('part2', sql.NVarChar, req.body.part2)
+                .input('ordercause', sql.NVarChar, req.body.ordercause)
+                .input('deadline', sql.NVarChar, req.body.deadline)
+
+                .query(
+                    'insert into bomtoolorder(orderdate,inputdate,madecustomer,toolcode,bomno,customer,itemname,char,part,ordercount,orderprice,sheet2,part2,ordercause,deadline)' +
+                    ' values(@orderdate,@inputdate,@madecustomer,@toolcode,@bomno,@customer,@itemname,@char,@part,@ordercount,@orderprice,@sheet2,@part2,@ordercause,@deadline)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/inputexcelmaterial', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
