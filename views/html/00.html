@@ -1,52 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dynamic Table</title>
 </head>
-
 <body>
-    <!-- HTML -->
-    <div style="width: 100%;">
-        <div style="height: auto; max-height: 500px; display: block;">
-            <label for="numberOfColumns">Enter the number of columns: </label>
-            <input type="number" id="numberOfColumns" min="1">
-            <button onclick="generateTable()">Generate Table</button>
-            <table style="width: 100%;">
-                <thead id="tableHead">
-                    <tr style="height: 30px;">
-                        <!-- Table headers will be dynamically added here -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Table body content will be added here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <script>
-        function generateTable() {
-            // Get the input value
-            var numberOfColumns = document.getElementById('numberOfColumns').value;
+<script>
+    function generateTable(rowData) {
+        // Assuming rowData is an integer representing the number of columns
+        var numberOfColumns = parseInt(rowData);
 
-            // Clear the existing table headers
-            var tableHead = document.getElementById('tableHead');
-            tableHead.innerHTML = '';
+        var tableHtml = '<table style="width: auto;">' +
+                            '<thead>' +
+                                '<tr>';
 
-            // Generate table headers dynamically based on the input number
-            for (var i = 1; i <= numberOfColumns; i++) {
-                var th = document.createElement('th');
-                th.textContent = i + '차';
-                tableHead.appendChild(th);
+        for (var i = 1; i <= numberOfColumns; i++) {
+            tableHtml += '<th colspan="2" style="width: 600px;">' + i + '차</th>';
+        }
+
+        tableHtml +=               '</tr>' +
+                                '<tr>' +
+                                    '<th>설비명</th>';
+
+        for (var i = 1; i <= numberOfColumns; i++) {
+            tableHtml += '<th colspan="2"><input type="text"></th>';
+        }
+
+        tableHtml +=               '</tr>' +
+                                '<tr>' +
+                                    '<th rowspan="2"></th>';
+
+        for (var i = 1; i <= numberOfColumns; i++) {
+            tableHtml += '<th style="width:150px;">TOOL CODE</th>' +
+                          '<th style="width:150px;">고객사</th>';
+        }
+
+        tableHtml +=               '</tr>' +
+                                '<tr>';
+
+        for (var i = 1; i <= numberOfColumns; i++) {
+            tableHtml += '<th style="width:150px;">비용</th>' +
+                          '<th style="width:50px;">차수</th>';
+        }
+
+        tableHtml +=               '</tr>' +
+                            '</thead>' +
+                            '<tbody>';
+
+        var facilities = ['피나클', '금형']; // Add more facilities as needed
+
+        for (var i = 0; i < facilities.length; i++) {
+            tableHtml += '<tr>' +
+                            '<td rowspan="2">' + facilities[i] + '</td>';
+
+            for (var j = 1; j <= numberOfColumns; j++) {
+                tableHtml += '<td><input type="text"></td>' +
+                              '<td><input type="text"></td>';
             }
 
-            // You can add additional logic to generate table body content if needed
+            tableHtml += '</tr>' +
+                         '<tr>';
+
+            for (var j = 1; j <= numberOfColumns; j++) {
+                tableHtml += '<td><input type="text"></td>' +
+                              '<td><input type="text"></td>';
+            }
+
+            tableHtml += '</tr>';
         }
-    </script>
+
+        tableHtml += '</tbody></table>';
+
+        // Replace the content of the container with the generated table
+        document.getElementById('tableContainer').innerHTML = tableHtml;
+    }
+</script>
+
+<div style="width: auto;">
+    <div style="height: auto; max-height: 500px; display: block; overflow: auto;" id="tableContainer">
+        <!-- The generated table will be inserted here -->
+    </div>
+</div>
+
+<script>
+    // Call the function with the desired value for rowData
+    generateTable(3); // Change the value as needed
+</script>
 
 </body>
-
 </html>

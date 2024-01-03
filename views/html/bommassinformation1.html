@@ -387,7 +387,7 @@
 
             </table>
             <div style="width: 140%; overflow: auto;">
-                <div style="height: 500px; max-height: 500px; overflow-y: auto; display: block;">
+                <div style="height: 450px; max-height: 450px; overflow-y: auto; display: block;">
                     <table style="width: 140%;">
                         <thead id="tableHead">
                             <tr style="height: 30px;">
@@ -469,21 +469,11 @@
             <div class="mainheader">
                 <h1>TOOL 상세정보</h1>
             </div>
-            <div style="width: 100%;">
-                <div style="height: auto; max-height: 500px; display: block;">
 
-                    <table style="width: auto;">
-                        <thead id="tableHead1">
-                            <tr style="height: 30px;">
-                                <!-- Table headers will be dynamically added here -->
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody1">
-                            <!-- Table body content will be added here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <table id="yourTableId" style="width: auto;">
+            </table>
+
+
 
         </div>
     </div>
@@ -694,9 +684,12 @@
 
 
         function openEditModal2(row) {
+
             var rowData = $(row).find('td').map(function () {
                 return $(this).text();
             }).get();
+
+
             var option = [
                 { value: '2차피딩작업', text: '2차피딩작업' },
                 { value: '이중피딩작업', text: '이중피딩작업' },
@@ -744,7 +737,6 @@
             $('#editModal1').fadeIn();
             $('#bomtableBody-edit').empty();
             var counter = 1;
-            console.log(rowData)
 
             $('#bomno-edit').val(rowData[0]);
             $('#modelname-edit').val(rowData[2]);
@@ -827,130 +819,245 @@
 
             });
 
-            // Clear the existing table headers and rows
-            var tableHead = document.getElementById('tableHead1');
-            var tableBody = document.getElementById('tableBody1');
-            tableHead.innerHTML = '';
-            tableBody.innerHTML = '';
+            // Assuming rowData[9] contains the number of columns
+            var numberOfColumns = parseInt(rowData[13]);
 
-            // Add an empty th element at the beginning
-            var emptyTh = document.createElement('th');
-            emptyTh.style.width = '100px';
-            tableHead.appendChild(emptyTh);
+            // Clear the existing content inside the container
+            $('#yourTableId').html('');
 
-            // Generate table headers dynamically based on the input number
-            for (var i = 1; i <= rowData[13]; i++) {
-                var th = document.createElement('th');
-                th.textContent = i + '차';
-                th.style.width = '380px';
-                tableHead.appendChild(th);
+            var tableHtml = '<table>' +
+                '<thead>' +
+                '<tr>';
+            tableHtml += '<th  colspan="2" style="width: 100px;"></th>';
+
+            for (var i = 1; i <= numberOfColumns; i++) {
+                tableHtml += '<th colspan="2" style="width: 300px;">' + i + '차</th>';
             }
 
+            tableHtml += '</tr>' +
+                '<tr>' +
+                '<th  colspan="2">설비명</th>';
 
-            // Function to handle the creation of rows with selects
-            function createSelectRow(title, options) {
-                var facilityRow = document.createElement('tr');
-                var facilityCell = document.createElement('td');
-                facilityCell.textContent = title;
-                facilityRow.appendChild(facilityCell);
+            for (var i = 1; i <= numberOfColumns; i++) {
+                tableHtml += '<th colspan="2"><select id="equipment' + i + '"></select></th>';
+            }
 
-                for (var i = 0; i < rowData[13]; i++) {
-                    var selectCell = document.createElement('td');
-                    var selectElement = document.createElement('select');
+            tableHtml += '</tr>' +
+                '<tr>' +
+                '<th rowspan="2" style="width:120px;"></th>'
+                + '<th rowspan="2"></th>';
 
-                    // Append the pre-created options to the select element
-                    for (var k = 0; k < options.length; k++) {
-                        selectElement.appendChild(options[k].cloneNode(true));
-                    }
+            for (var i = 1; i <= numberOfColumns; i++) {
+                tableHtml += '<th style="width:150px;">TOOL CODE</th>' +
+                    '<th style="width:150px;">고객사</th>';
+            }
 
-                    selectCell.appendChild(selectElement);
-                    facilityRow.appendChild(selectCell);
+            tableHtml += '</tr>' +
+                '<tr>';
+
+            for (var i = 1; i <= numberOfColumns; i++) {
+                tableHtml += '<th style="width:150px;">비용</th>' +
+                    '<th style="width:50px;">차수</th>';
+            }
+
+            tableHtml += '</tr>' +
+                '</thead>' +
+                '<tbody id="tooltbody">';
+
+            var facilities = ['피나클']; // Add more facilities as needed
+            for (var i = 0; i < facilities.length; i++) {
+                tableHtml += '<tr>' +
+                    '<td rowspan="2">' + facilities[i] + '</td>' +
+                    '<td>합계(￦)</td>';
+
+                for (var j = 1; j <= numberOfColumns; j++) {
+                    tableHtml += '<td><select id="toolcode' + j + '" on></select></td>' +
+                        '<td><input type="text"  id="customer' + j + '"></td>';
                 }
 
-                tableBody.appendChild(facilityRow);
+                tableHtml += '</tr>' +
+                    '<tr>' +
+                    '<td><input type="text" style="text-align:right;" id="sumpinacle"></td>'; // Missing concatenation
+
+                for (var j = 1; j <= numberOfColumns; j++) {
+                    tableHtml +=
+                        '<td><input type="text" style="text-align:right;" id="cost' + j + '"></td>' +
+                        '<td><input type="text" id="char' + j + '"></td>';
+                }
+
+                tableHtml += '</tr>';
+
+
+            }
+            var facilities1 = ['금형']; // Add more facilities as needed
+            for (var i = 0; i < facilities1.length; i++) {
+                tableHtml += '<tr>' +
+                    '<td rowspan="2">' + facilities1[i] + '</td>' +
+                    '<td>합계(￦)</td>';
+
+                for (var j = 1; j <= numberOfColumns; j++) {
+                    tableHtml += '<td><select id="moldtoolcode' + j + '"></select></td>' +
+                        '<td><input type="text" id="moldcustomer' + j + '"></td>';
+                }
+
+                tableHtml += '</tr>' +
+                    '<tr>' +
+                    '<td><input type="text" style="text-align:right;" id="summold"></td>'; // Missing concatenation
+
+                for (var j = 1; j <= numberOfColumns; j++) {
+                    tableHtml +=
+                        '<td><input type="text" style="text-align:right;" id="moldcost' + j + '"></td>' +
+                        '<td><input type="text" id="moldchar' + j + '"></td>';
+                }
+
+                tableHtml += '</tr>';
+
+
             }
 
-            // First AJAX call
+
+            tableHtml += '</tbody></table>';
+
+            $('#yourTableId').html(tableHtml);
+
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectequipment',
                 dataType: 'json',
                 success: function (data) {
-                    var options = [];
-
-                    // Create options once based on the data array
                     for (var i = 0; i < data.length; i++) {
-                        var option = document.createElement('option');
-                        option.value = data[i].part + data[i].size + data[i].customer;
-                        option.textContent = data[i].part + data[i].size + data[i].customer;
-                        option.style.fontWeight = '500';
 
-                        options.push(option);
-                    }
+                        var size = data[i].size;
+                        var selectElement = $('#equipment' + i);
+                        selectElement.empty();
 
-                    // Create the row with "설비명"
-                    createSelectRow('설비명', options);
+                        var emptyOption = '<option value=""></option>';
+                        selectElement.append(emptyOption);
+                        for (var j = 0; j < size.length + 1; j++) {
 
-                    // Second AJAX call
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/selectbompinacle',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "bomno": rowData[0]
-                        }),
-                        success: function (data) {
-                            var options = [];
-
-                            // Create options once based on the data array
-                            for (var i = 0; i < data.length; i++) {
-                                var option = document.createElement('option');
-                                option.value = data[i].toolcode;
-                                option.textContent = data[i].toolcode;
-                                options.push(option);
-                            }
-
-                            // Create the row with "피나클"
-                            createSelectRow('피나클', options);
-
-                            // Third AJAX call
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/selectbommold',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "bomno": rowData[0]
-                                }),
-                                success: function (data) {
-                                    var options = [];
-
-                                    // Create options once based on the data array
-                                    for (var i = 0; i < data.length; i++) {
-                                        var option = document.createElement('option');
-                                        option.value = data[i].toolcode;
-                                        option.textContent = data[i].toolcode;
-                                        options.push(option);
-                                    }
-
-                                    // Create the row with "금형"
-                                    createSelectRow('금형', options);
-                                }
-                            });
+                            var option = '<option value="' + data[j].size + data[j].customer + '">' + data[j].size + data[j].customer + '</option>';
+                            selectElement.append(option);
                         }
-                    });
+                    }
+                }
+            });
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbompinacle',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "bomno": rowData[0]
+                }),
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+
+                        var selectElement = $('#toolcode' + result[i].char);
+                        selectElement.empty();
+
+                        var emptyOption = '<option value=""></option>';
+                        selectElement.append(emptyOption);
+
+                        var option = '<option value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>';
+                        selectElement.append(option);
+
+
+                    }
+                }
+            });
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbommold',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "bomno": rowData[0]
+                }),
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+
+                        var selectElement = $('#moldtoolcode' + result[i].char);
+                        selectElement.empty();
+
+                        var emptyOption = '<option value=""></option>';
+                        selectElement.append(emptyOption);
+
+                        var option = '<option value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>';
+                        selectElement.append(option);
+
+
+                    }
                 }
             });
 
 
 
+        }
+        $(document).on('change', 'select[id^="toolcode"]', function () {
+            var rowNumber = $(this).attr('id').match(/\d+/)[0];
 
+            var selectedValue = $(this).val();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selecttoolcode',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "toolcode": selectedValue
+                }),
+                success: function (result) {
+                    $('#cost' + rowNumber).val(result[0].inputprice);
+                    $('#customer' + rowNumber).val(result[0].customer);
+                    $('#char' + rowNumber).val(result[0].char);
+                    updateSum();
+                }
+            });
+        });
+        $(document).on('change', 'select[id^="moldtoolcode"]', function () {
+            var rowNumber = $(this).attr('id').match(/\d+/)[0];
 
+            var selectedValue = $(this).val();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selecttoolcode',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "toolcode": selectedValue
+                }),
+                success: function (result) {
+                    $('#moldcost' + rowNumber).val(result[0].inputprice);
+                    $('#moldcustomer' + rowNumber).val(result[0].customer);
+                    $('#moldchar' + rowNumber).val(result[0].char);
+                    updateSum1();
+                }
+            });
+        });
 
+        function updateSum() {
+            var sum = 0;
 
+            // 각 cost 요소의 값을 합산
+            for (var i = 1; i <= 5; i++) {
+                var costValue = parseFloat($('#cost' + i).val()) || 0;
+                sum += costValue;
+            }
 
+            // #sumpinacle에 합산된 값 포맷팅하여 설정
+            $('#sumpinacle').val(sum.toLocaleString());
+        }
+        function updateSum1() {
+            var sum = 0;
 
+            // 각 cost 요소의 값을 합산
+            for (var i = 1; i <= 5; i++) {
+                var costValue = parseFloat($('#moldcost' + i).val()) || 0;
+                sum += costValue;
+            }
+
+            // #sumpinacle에 합산된 값 포맷팅하여 설정
+            $('#summold').val(sum.toLocaleString());
         }
 
 
@@ -997,7 +1104,6 @@
             }, 1000);
         }
 
-
         function load() {
             $('#Datatbody').empty();
             $.ajax({
@@ -1013,7 +1119,6 @@
                         var itemcode1 = data[i].itemcode !== null ? data[i].itemcode : '';
 
                         var fontColor = data[i].status === '미사용' ? 'silver' : '';
-                        console.log(data)
                         $('#Datatbody').append(
                             '<tr style="color: ' + fontColor + ';">' +
                             '<td>' + data[i].bomno + '</td>' +
@@ -1169,7 +1274,7 @@
             if (cavitySaveValue === '') {
                 // Show alert when cavity-save is empty
                 alert('Cavity가 누락되었습니다');
-                
+
                 return;  // Stop further execution
             }
 
@@ -1346,7 +1451,6 @@
 
                     }),
                     success: function (result) {
-                        // console.log(result)
                         for (var i = 0; i < result.length; i++) {
 
 
@@ -1826,9 +1930,13 @@
                         icon: 'success',
                         title: 'Bom 저장 완료',
                         text: '데이터가 성공적으로 저장 되었습니다.',
-
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // The user clicked the "Confirm" button
+                            load();
+                        }
                     });
-                    load()
+
                 } else {
                     return false;
                 }

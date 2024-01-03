@@ -2175,7 +2175,7 @@ module.exports = function (app) {
                 .query(
                     " select "+
                     " part,size,customer "+
-                    " from equipment where position='2층 생산' group by part,size,customer")
+                    " from equipment where develop='사용' group by part,size,customer")
 
                 .then(result => {
 
@@ -2200,9 +2200,36 @@ module.exports = function (app) {
 
                 .query(
                     "select "+
-                    " toolcode "+
+                    " toolcode,char "+
                     " from  "+
-                    " sampleorder where bomno=@bomno and part='피나클' group by toolcode")
+                    " sampleorder where bomno=@bomno and part='피나클' group by toolcode,char")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selecttoolcode', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('toolcode', sql.NVarChar, req.body.toolcode)
+
+                .query(
+                    "select "+
+                    " * "+
+                    " from  "+
+                    " sampleorder where toolcode=@toolcode")
 
                 .then(result => {
 
@@ -2227,9 +2254,9 @@ module.exports = function (app) {
 
                 .query(
                     "select "+
-                    " toolcode "+
+                    " toolcode,char "+
                     " from  "+
-                    " sampleorder where bomno=@bomno and part='금형' group by toolcode")
+                    " sampleorder where bomno=@bomno and part='금형' group by toolcode,char")
 
                 .then(result => {
 
