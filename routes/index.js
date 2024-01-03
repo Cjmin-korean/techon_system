@@ -1215,7 +1215,7 @@ module.exports = function (app) {
                     "       i.workpart, " +
                     "       i.additionalnotes, " +
                     "       i.class, " +
-                    "       i.type,bm.bomid, " +
+                    "       i.type,bm.bomid,i.workpart, " +
                     "   COUNT(mi.materialname) as materialcount" +
                     "   FROM " +
                     "       iteminfo i " +
@@ -1240,7 +1240,7 @@ module.exports = function (app) {
                     "       i.workpart, " +
                     "       i.additionalnotes, " +
                     "       i.class, " +
-                    "       i.type,bm.bomid        ")
+                    "       i.type,bm.bomid,i.workpart        ")
                 .then(result => {
 
 
