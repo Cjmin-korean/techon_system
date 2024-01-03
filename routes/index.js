@@ -1195,52 +1195,55 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "      SELECT " +
-                    "       i.bomno, " +
-                    "       i.part, " +
-                    "       i.modelname, " +
-                    "       i.itemname, " +
-                    "       i.itemprice, " +
-                    "      COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,                    " +
-                    "       CASE " +
-                    "        WHEN i.itemprice = 0 THEN 0 " +
-                    " ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2) " +
-                    "    END AS costPriceRatio, " +
-                    "       i.customer, " +
-                    "       i.itemcode, " +
-                    "       i.working, " +
-                    "       i.pcs, " +
-                    "       i.cavity, " +
-                    "       i.direction, " +
-                    "       i.workpart, " +
-                    "       i.additionalnotes, " +
-                    "       i.class, " +
-                    "       i.type,bm.bomid,i.workpart, " +
-                    "   COUNT(mi.materialname) as materialcount" +
-                    "   FROM " +
-                    "       iteminfo i " +
-                    "   LEFT JOIN " +
-                    "       bommanagement bm ON i.bomno = bm.bomno " +
-                    "   LEFT JOIN " +
-                    "       materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
-                    "   WHERE " +
-                    "       bm.status = 'true' " +
-                    "   GROUP BY " +
-                    "       i.bomno, " +
-                    "       i.part, " +
-                    "       i.modelname, " +
-                    "       i.itemname, " +
-                    "       i.itemprice, " +
-                    "       i.customer, " +
-                    "       i.itemcode, " +
-                    "       i.working, " +
-                    "       i.pcs, " +
-                    "       i.cavity, " +
-                    "       i.direction, " +
-                    "       i.workpart, " +
-                    "       i.additionalnotes, " +
-                    "       i.class, " +
-                    "       i.type,bm.bomid,i.workpart        ")
+                    "    SELECT  "+
+               "     i.bomno,  "+
+               "     i.part,  "+
+               "     i.modelname,  "+
+               "     i.itemname,  "+
+               "     i.itemprice,  "+
+               "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    "+                 
+               "     CASE  "+
+               "         WHEN i.itemprice = 0 THEN 0  "+
+               "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  "+
+               "     END AS costPriceRatio,  "+
+               "     i.customer,  "+
+               "     i.itemcode,  "+
+               "     i.working,  "+
+               "     i.pcs,  "+
+               "     i.cavity,  "+
+               "     i.direction,  "+
+               "     i.workpart,  "+
+               "     i.additionalnotes,  "+
+               "     i.class,  "+
+               "     i.type, "+
+               "     bm.bomid, "+
+               "     COUNT(mi.materialname) as materialcount "+
+               " FROM  "+
+               "     iteminfo i  "+
+               " LEFT JOIN  "+
+               "     bommanagement bm ON i.bomno = bm.bomno  "+
+               " LEFT JOIN  "+
+               "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  "+
+               " WHERE  "+
+               "     bm.status = 'true'  "+
+               " GROUP BY  "+
+               "     i.bomno,  "+
+               "     i.part,  "+
+               "     i.modelname,  "+
+               "     i.itemname,  "+
+               "     i.itemprice,  "+
+               "     i.customer,  "+
+               "     i.itemcode,  "+
+               "     i.working,  "+
+               "     i.pcs,  "+
+               "     i.cavity,  "+
+               "     i.direction,  "+
+               "     i.workpart,  "+
+               "     i.additionalnotes,  "+
+               "     i.class,  "+
+               "     i.type,"+
+               "     bm.bomid,"+
+               "     i.workpart;                      ")
                 .then(result => {
 
 
