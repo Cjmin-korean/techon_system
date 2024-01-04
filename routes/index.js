@@ -3509,7 +3509,7 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT "+
+                "    SELECT "+
                 "    ol.bomno, "+
                 "    ol.modelname, "+
                 "    ol.itemname, "+
@@ -3541,23 +3541,24 @@ module.exports = function (app) {
                 "    mi.length, "+
                 "    mi.sqmprice, "+
                 "    SUM(mi.rollprice) AS rollprice, "+
-                "    mi.supplier, "+
-                "    SUM(ol.quantity) AS quantity_sum, "+
-                "    mi.codenumber,mi.manufacterer, "+
-                " mi.rollprice as a1 "+
-                "FROM "+
-                "    orderlist ol "+
-                "JOIN "+
-                "    bommanagement bm ON ol.bomno = bm.bomno "+
-                "LEFT JOIN "+
-                "    Materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
-                "WHERE "+
-                "    ol.orderstatus = '생산확정' "+
-                "GROUP BY "+
-                "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,mi.manufacterer,mi.rollprice ,ol.modelname "+
-                "ORDER BY "+
-                "    ol.bomno, bm.materialwidth ASC;                 "
-                )
+            "     mi.supplier, "+
+            "     SUM(ol.quantity) AS quantity_sum, "+
+            "     mi.codenumber,i.customer, "+
+            "     mi.rollprice as a1 "+
+            " FROM "+
+            "     orderlist ol "+
+            " JOIN "+
+            "     bommanagement bm ON ol.bomno = bm.bomno "+
+            " LEFT JOIN "+
+            "     Materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
+            " LEFT JOIN "+
+            "     iteminfo i ON i.bomno = bm.bomno "+
+            " WHERE "+
+            "     ol.orderstatus = '생산확정' "+
+            " GROUP BY "+
+            "     ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname "+
+            " ORDER BY "+
+            "     ol.bomno, bm.materialwidth ASC; ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -3837,6 +3838,23 @@ module.exports = function (app) {
                     " orderid,marchine,a,b,c,d,qrno,orderstatus " +
                     " from  " +
                     " orderlist where status='true' order by orderstatus,productdate,modelname,itemname asc ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectwon', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    "select * from won ")
                 .then(result => {
 
                     res.json(result.recordset);

@@ -35,6 +35,11 @@
         font-weight: bold;
     }
 
+    #datatable th:hover {
+        background-color: rgb(52, 53, 52);
+        color: white;
+    }
+
     select,
     #checkbox {
 
@@ -64,7 +69,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">자재 구매 발주 등록 및 조회</a>
+        <a style="margin-left: 20px;">환율정보 조회</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -76,28 +81,21 @@
         <input type="date" id="datepicker1">
         <input type="date" id="datepicker2">
         <button onclick="searchData()">조회</button>
-        <button onclick="openSaveModal()" style="background-color: navy;">발주등록</button>
+        <!-- <button onclick="openSaveModal()" style="background-color: navy;">발주등록</button> -->
     </fieldset>
     <div id="overlay"></div>
-    <table class="styled-table" id="datatable">
+    <table class="styled-table" id="datatable" style="width: 50%;">
         <thead id="tableHead">
             <tr>
-                <th style="text-align:center;" onclick="sortTable(0)">발주일자</th>
-                <th style="text-align:center;" onclick="sortTable(1)">품목코드</th>
-                <th style="text-align:center;" onclick="sortTable(2)">자재명</th>
-                <th style="text-align:center;" onclick="sortTable(3)">전폭(mm)</th>
-                <th style="text-align:center;" onclick="sortTable(4)">M</th>
-                <th style="text-align:center;" onclick="sortTable(5)">수량</th>
-                <th style="text-align:center;" onclick="sortTable(6)">단가</th>
-                <th style="text-align:center;" onclick="sortTable(7)">공급가액</th>
-                <th style="text-align:center;" onclick="sortTable(8)">거래처</th>
-                <th style="text-align:center;" onclick="sortTable(9)">고객사</th>
-                <th style="text-align:center;" onclick="sortTable(10)">BOMNO</th>
-                <th style="text-align:center;" onclick="sortTable(11)">발주구분</th>
-                <th style="text-align:center;" onclick="sortTable(12)">비고</th>
-                <th style="text-align:center;" onclick="sortTable(13)">재단규격</th>
+                <th style="text-align:center;" colspan="2">적용날짜</th>
+                <th style="text-align:center;" rowspan="2">통화코드</th>
+                <th style="text-align:center;" rowspan="2">통화명</th>
+                <th style="text-align:center;" rowspan="2">통화가격</th>
 
-
+            </tr>
+            <tr>
+                <th style="text-align:center;">시작</th>
+                <th style="text-align:center;">종료</th>
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -275,57 +273,36 @@
             $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectpurchaseorder',
+                url: server + '/api/selectwon',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
                 }),
 
                 success: function (data) {
-                    var tableFoot = $('#dataCount');
-                    if (data.length === 0) {
-                        tableFoot.text('총 데이터 개수: 0');
-                    } else {
-                        var totalQuantity = 0;
-                        var totalSupplyAmount = 0;
-
-                        for (var i = 0; i < data.length; i++) {
-                            totalQuantity += parseFloat(data[i].quantity) || 0;
-                            totalSupplyAmount += parseFloat(data[i].supplyamount) || 0;
-                            $('#Datatbody').append(
-                                '<tr>' +
-                                '<td id="' + (data[i].orderdate) + '">' + (data[i].orderdate || '') + '</td>' +
-                                '<td id="">' + (data[i].codenumber || '') + '</td>' +
-                                '<td id="">' + (data[i].itemname || '') + '</td>' +
-                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].width || '') + '</td>' +
-                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].length || '') + '</td>' +
-                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].quantity || '') + '</td>' +
-                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].unitprice || '') + '</td>' +
-                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].supplyamount || '') + '</td>' +
-                                '<td id="">' + (data[i].suppliername || '') + '</td>' +
-                                '<td id="">' + (data[i].manufacterer || '') + '</td>' +
-                                '<td id="">' + (data[i].bomno || '') + '</td>' +
-                                '<td id="">' + (data[i].ordertype || '') + '</td>' +
-                                '<td id="">' + (data[i].confirmed || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cutting || '') + '</td>' +
 
 
-                                '<td id="data-id">' + (data[i].id || '') + '</td>' +
-                                '</tr>'
-                            )
-                            $("td#data-id").hide();
-                        }
+
+                    for (var i = 0; i < data.length; i++) {
+
                         $('#Datatbody').append(
                             '<tr>' +
-                            '<td colspan="5" style="text-align:right;"><b>Total:</b></td>' +
-                            '<td style="text-align:right;">' + numberWithCommas(totalQuantity.toFixed(2)) + '</td>' +
-                            '<td ></td>' +
-                            '<td style="text-align:right;">' + numberWithCommas(totalSupplyAmount.toFixed(2)) + '</td>' +
-                            '<td colspan="6"></td>' +
-                            '</tr>'
-                        );
+                            '<td>' + (data[i].startdate || '') + '</td>' +
+                            '<td>' + (data[i].finishdate || '') + '</td>' +
+                            '<td>' + (data[i].currencycode || '') + '</td>' +
+                            '<td>' + (data[i].currencyname || '') + '</td>' +
+                            '<td style="text-align:right;">' + (data[i].currencyprice || '') + '</td>' +
 
+
+
+                            '<td id="data-id">' + (data[i].id || '') + '</td>' +
+                            '</tr>'
+                        )
+                        $("td#data-id").hide();
                     }
+
+
+
                 }
             });
 
@@ -424,7 +401,7 @@
                     if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
-                      
+
 
                         // Iterate through sorted data
                         for (var i = 0; i < data.length; i++) {
