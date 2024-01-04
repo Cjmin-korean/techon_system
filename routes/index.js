@@ -1225,7 +1225,77 @@ module.exports = function (app) {
                " LEFT JOIN  "+
                "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  "+
                " WHERE  "+
-               "     bm.status = 'true'  "+
+               "   i.part='양산' and   bm.status = 'true'  "+
+               " GROUP BY  "+
+               "     i.bomno,  "+
+               "     i.part,  "+
+               "     i.modelname,  "+
+               "     i.itemname,  "+
+               "     i.itemprice,  "+
+               "     i.customer,  "+
+               "     i.itemcode,  "+
+               "     i.working,  "+
+               "     i.pcs,  "+
+               "     i.cavity,  "+
+               "     i.direction,  "+
+               "     i.workpart,  "+
+               "     i.additionalnotes,  "+
+               "     i.class,  "+
+               "     i.type,"+
+               "     bm.bomid,"+
+               "     i.workpart;                      ")
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/iteminfobomsample', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "    SELECT  "+
+               "     i.bomno,  "+
+               "     i.part,  "+
+               "     i.modelname,  "+
+               "     i.itemname,  "+
+               "     i.itemprice,  "+
+               "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    "+                 
+               "     CASE  "+
+               "         WHEN i.itemprice = 0 THEN 0  "+
+               "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  "+
+               "     END AS costPriceRatio,  "+
+               "     i.customer,  "+
+               "     i.itemcode,  "+
+               "     i.working,  "+
+               "     i.pcs,  "+
+               "     i.cavity,  "+
+               "     i.direction,  "+
+               "     i.workpart,  "+
+               "     i.additionalnotes,  "+
+               "     i.class,  "+
+               "     i.type, "+
+               "     bm.bomid, "+
+               "     COUNT(mi.materialname) as materialcount "+
+               " FROM  "+
+               "     iteminfo i  "+
+               " LEFT JOIN  "+
+               "     bommanagementsample bm ON i.bomno = bm.bomno  "+
+               " LEFT JOIN  "+
+               "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  "+
+               " WHERE  "+
+               "   i.part='샘플' and  bm.status = 'true'  "+
                " GROUP BY  "+
                "     i.bomno,  "+
                "     i.part,  "+
@@ -1333,6 +1403,7 @@ module.exports = function (app) {
                 .input('finish', sql.NVarChar, req.body.finish)
                 .query(
                     " SELECT " +
+                    " id, " +
                     " orderdate, " +
                     " inputdate, " +
                     " madecustomer, " +
@@ -2253,6 +2324,25 @@ module.exports = function (app) {
             .input('id', sql.Int, req.body.id)
                 .query(
                     "delete from sampleorder where id=@id")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/deletebomtoolorder', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('id', sql.Int, req.body.id)
+                .query(
+                    "delete from bomtoolorder where id=@id")
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
@@ -4889,6 +4979,64 @@ module.exports = function (app) {
 
                 .query(
                     'insert into bommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/bommasssavebommanagementsample', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('savedate', sql.NVarChar, req.body.savedate)
+                .input('main', sql.NVarChar, req.body.main)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('model', sql.NVarChar, req.body.model)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('materialwidth', sql.Float, req.body.materialwidth)
+                .input('using', sql.NVarChar, req.body.using)
+                .input('onepid', sql.Float, req.body.onepid)
+                .input('twopid', sql.Float, req.body.twopid)
+                .input('soyo', sql.Float, req.body.soyo)
+                .input('ta', sql.Float, req.body.ta)
+                .input('allta', sql.Float, req.body.allta)
+                .input('talength', sql.Float, req.body.talength)
+                .input('loss', sql.Float, req.body.loss)
+                .input('cost', sql.Float, req.body.cost)
+                .input('rlcut', sql.Float, req.body.rlcut)
+                .input('rlproduct', sql.Float, req.body.rlproduct)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('usewidth', sql.Float, req.body.usewidth)
+                .input('num', sql.Float, req.body.num)
+                .input('materialclassification', sql.NVarChar, req.body.materialclassification)
+                .input('cavity', sql.NVarChar, req.body.cavity)
+                .input('useable', sql.NVarChar, req.body.useable)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+
+
+
+
+                .query(
+                    'insert into bommanagementsample(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity)' +
                     ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity)'
                 )
                 .then(result => {
@@ -8433,7 +8581,7 @@ module.exports = function (app) {
          
 
                 .query(
-                    "select * from sampleorder order by toolcode asc"
+                    "select * from sampleorder order by partcustomer,toolcode asc"
                 )
                 .then(result => {
 

@@ -213,12 +213,21 @@
                 openEditModal(this); // Pass the clicked row to the function
             });
             $('#datatable thead input[type="checkbox"]').on('change', function () {
-                // Get the checked state of the "Select All" checkbox
                 var isChecked = $(this).prop('checked');
 
-                // Set the checked state for all checkboxes in the table body
                 $('#datatable tbody input[type="checkbox"]').prop('checked', isChecked);
+
+                if (isChecked) {
+                    // Get the IDs of checked checkboxes
+                    var checkedIds = $('#datatable tbody input[type="checkbox"]:checked').map(function () {
+                        return $(this).closest('tr').find('td#data-id').text();
+                    }).get();
+
+                    console.log(checkedIds);
+                }
             });
+
+
         });
 
         // Function to close edit modal and overlay
@@ -282,7 +291,6 @@
                                 '<td style="text-align:right;">' + result[i].inputprice.toLocaleString() + '</td>' +
                                 '<td style="text-align:right;">' + result[i].outputprice.toLocaleString() + '</td>' +
                                 '<td>' + result[i].etc + '</td>' +
-
                                 '<td id="data-id">' + result[i].id + '</td>' +
                                 '</tr>'
 
@@ -291,13 +299,10 @@
 
                         }
                         $('.select-checkbox').on('change', function () {
-
                             var id = $(this).closest('tr').find('td#data-id').text();
                             if ($(this).prop('checked')) {
-                                // 체크박스가 선택되면 배열에 추가
                                 selectedIds.push(id);
                             } else {
-                                // 체크박스가 해제되면 배열에서 제거
                                 selectedIds = selectedIds.filter(function (value) {
                                     return value !== id;
                                 });
@@ -311,9 +316,12 @@
             })
 
         }
-
         function deletedata() {
-            if (selectedIds.length === 0) {
+            var checkedIds = $('#datatable tbody input[type="checkbox"]:checked').map(function () {
+                return $(this).closest('tr').find('td#data-id').text();
+            }).get();
+
+            if (checkedIds.length === 0) {
                 Swal.fire({
                     icon: 'warning',
                     title: '누락',
@@ -333,44 +341,37 @@
                 cancelButtonText: '취소',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    var tableData = document.getElementById("datatable");
-
                     // Array to store promises for each AJAX request
                     var ajaxPromises = [];
 
-                    for (var i = 0; i < tableData.rows.length; i++) {
-                        var chkbox = tableData.rows[i].cells[0].querySelector('input[type="checkbox"]');
-                        if (chkbox && chkbox.checked) {
-                            var currentId = tableData.rows[i].cells[13].textContent;
-                            console.log(currentId)
-                            // Create a promise for each AJAX request
-                            var ajaxPromise = $.ajax({
-                                type: 'POST',
-                                url: server + '/api/deletetoolcode',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "id": currentId
-                                })
-                            });
+                    checkedIds.forEach(function (currentId) {
+                        // Create a promise for each AJAX request
+                        var ajaxPromise = $.ajax({
+                            type: 'POST',
+                            url: server + '/api/deletetoolcode',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": currentId
+                            })
+                        });
 
-
-                        }
-                    }
-
+                    });
                     selectedIds = [];
                     Swal.fire({
                         icon: 'success',
                         title: '삭제완료',
                         text: '피나클 정보가 삭제되었습니다.',
                     }).then((result) => {
-                        if (result.isConfirmed) {
-                            load()
+                        if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+                            load();
                         }
                     });
+
                 }
             });
         }
+
 
 
 

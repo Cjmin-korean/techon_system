@@ -75,11 +75,15 @@
         <input type="date" id="datepicker2">
         <button onclick="load()">조회</button>
         <button onclick="newadd()">신규추가</button>
+        <button onclick="deletedata()" style="background-color: red;">선택삭제</button>
+
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
+                <th style="text-align:center; width: 20px;"><input type="checkbox"
+                        style="width: 20px; height: 20px; cursor: pointer;"></th>
                 <th style="text-align:center;">등록일자</th>
                 <th style="text-align:center;">입고일자</th>
                 <th style="text-align:center;">제조사</th>
@@ -232,6 +236,20 @@
             $('#Datatbody').on('dblclick', 'tr', function () {
                 openEditModal(this); // Pass the clicked row to the function
             });
+            $('#datatable thead input[type="checkbox"]').on('change', function () {
+                var isChecked = $(this).prop('checked');
+
+                $('#datatable tbody input[type="checkbox"]').prop('checked', isChecked);
+
+                if (isChecked) {
+                    // Get the IDs of checked checkboxes
+                    var checkedIds = $('#datatable tbody input[type="checkbox"]:checked').map(function () {
+                        return $(this).closest('tr').find('td#data-id').text();
+                    }).get();
+                    console.log(checkedIds)
+
+                }
+            })
 
         });
 
@@ -259,9 +277,18 @@
 
 
 
+        var selectedIds = [];
+
+
 
         function load() {
             $('#Datatbody').empty();
+
+            // Variables to store sums
+            var sumA1 = 0;
+            var sumA2 = 0;
+            var sumA3 = 0;
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/bomtoolorder',
@@ -271,21 +298,20 @@
                     "start": $('#datepicker1').val(),
                     "finish": $('#datepicker2').val()
                 }),
-
                 success: function (result) {
                     var tableFoot = $('#dataCount');
                     if (result.length === 0) {
-                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
                         for (var i = 0; i < result.length; i++) {
-                            var deadlineCell = '<td>' + result[i].deadline + '</td>';
-                            if (result[i].deadline === '마감') {
-                                deadlineCell = '<td style="color: red;">' + result[i].deadline + '</td>';
-                            }
+                            // Accumulate sums
+                            sumA1 += result[i].a1;
+                            sumA2 += result[i].a2;
+                            sumA3 += result[i].a3;
 
                             $('#Datatbody').append(
                                 '<tr>' +
+                                '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
                                 '<td>' + result[i].orderdate + '</td>' +
                                 '<td>' + result[i].inputdate + '</td>' +
                                 '<td>' + result[i].madecustomer + '</td>' +
@@ -303,7 +329,7 @@
                                 '<td>' + result[i].part2 + '</td>' +
                                 '<td>' + result[i].sheet2 + '</td>' +
                                 '<td>' + result[i].ordercause + '</td>' +
-                                deadlineCell +
+                                '<td>' + result[i].deadline + '</td>' +
                                 '<td>' + result[i].employee + '</td>' +
 
                                 '<td id="data-id">' + result[i].id + '</td>' +
@@ -313,13 +339,32 @@
                             $("td#data-id").hide();
                         }
 
+                        // Append row for the sum
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td colspan="12" style="text-align:right;">합계:</td>' +
+                            '<td style="text-align:right;">' + sumA1.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + sumA2.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + sumA3.toLocaleString() + '</td>' +
+                            '<td colspan="8"></td>' +
+                            '</tr>'
+                        );
+
+                        $('.select-checkbox').on('change', function () {
+                            var id = $(this).closest('tr').find('td#data-id').text();
+                            if ($(this).prop('checked')) {
+                                selectedIds.push(id);
+                            } else {
+                                selectedIds = selectedIds.filter(function (value) {
+                                    return value !== id;
+                                });
+                            }
+                        });
+
                     }
                 }
             });
         }
-
-
-
 
 
         function settingDate() {
@@ -478,58 +523,68 @@
                 function removeCommas(value) {
                     return value.replace(/,/g, '');
                 }
-                // After validating all rows, ask for confirmation
-                var isConfirmed = confirm('피나클 발주정보를 저장하시겠습니까?');
 
-                if (isConfirmed) {
-                    for (let i = 0; i < rowCount; i++) {
-                     
-                        var ordercount = removeCommas($('#accountdatatbody tr:eq(' + i + ') #ordercount-input').val());
-                        var orderprice = removeCommas($('#accountdatatbody tr:eq(' + i + ') #orderprice-input').val());
+                Swal.fire({
+                    icon: 'success',
+                    title: '저장',
+                    text: 'TOOL 발주 정보를 등록하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        for (let i = 0; i < rowCount; i++) {
 
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/insertbomtoolorder',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "orderdate": $('#accountdatatbody tr:eq(' + i + ') #date-input').val(),
-                                "inputdate": $('#accountdatatbody tr:eq(' + i + ') #indate-input').val(),
-                                "madecustomer": $('#accountdatatbody tr:eq(' + i + ') #madecustomer-input').val(),
-                                "toolcode": $('#accountdatatbody tr:eq(' + i + ') #toolcode-input').val(),
-                                "bomno": $('#accountdatatbody tr:eq(' + i + ') #bomno-input').val(),
-                                "customer": $('#accountdatatbody tr:eq(' + i + ') #customer-input').val(),
-                                "itemname": $('#accountdatatbody tr:eq(' + i + ') #itemname-input').val(),
-                                "char": $('#accountdatatbody tr:eq(' + i + ') #char-input').val(),
-                                "part": $('#accountdatatbody tr:eq(' + i + ') #part-input').val(),
-                                "ordercount": ordercount,
-                                "orderprice": orderprice,
-                                "sheet2": $('#accountdatatbody tr:eq(' + i + ') #sheet2-input').val(),
-                                "part2": $('#accountdatatbody tr:eq(' + i + ') #part2-input').val(),
-                                "ordercause": $('#accountdatatbody tr:eq(' + i + ') #ordercause-input').val(),
-                                "deadline": $('#accountdatatbody tr:eq(' + i + ') #deadline-input').val()
-                   
-                            }),
-                            success: function (result) {
+                            var ordercount = removeCommas($('#accountdatatbody tr:eq(' + i + ') #ordercount-input').val());
+                            var orderprice = removeCommas($('#accountdatatbody tr:eq(' + i + ') #orderprice-input').val());
 
-                            },
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/insertbomtoolorder',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "orderdate": $('#accountdatatbody tr:eq(' + i + ') #date-input').val(),
+                                    "inputdate": $('#accountdatatbody tr:eq(' + i + ') #indate-input').val(),
+                                    "madecustomer": $('#accountdatatbody tr:eq(' + i + ') #madecustomer-input').val(),
+                                    "toolcode": $('#accountdatatbody tr:eq(' + i + ') #toolcode-input').val(),
+                                    "bomno": $('#accountdatatbody tr:eq(' + i + ') #bomno-input').val(),
+                                    "customer": $('#accountdatatbody tr:eq(' + i + ') #customer-input').val(),
+                                    "itemname": $('#accountdatatbody tr:eq(' + i + ') #itemname-input').val(),
+                                    "char": $('#accountdatatbody tr:eq(' + i + ') #char-input').val(),
+                                    "part": $('#accountdatatbody tr:eq(' + i + ') #part-input').val(),
+                                    "ordercount": ordercount,
+                                    "orderprice": orderprice,
+                                    "sheet2": $('#accountdatatbody tr:eq(' + i + ') #sheet2-input').val(),
+                                    "part2": $('#accountdatatbody tr:eq(' + i + ') #part2-input').val(),
+                                    "ordercause": $('#accountdatatbody tr:eq(' + i + ') #ordercause-input').val(),
+                                    "deadline": $('#accountdatatbody tr:eq(' + i + ') #deadline-input').val()
 
+                                }),
+                                success: function (result) {
+
+                                },
+
+                            });
+                        }
+
+                        $('#editModal').fadeOut();
+                        $('#overlay').fadeOut();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '저장완료',
+                            text: 'TOOL 발주 정보가 등록되었습니다.',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                load()
+                            }
                         });
                     }
+                });
 
-                    $('#editModal').fadeOut();
-                    $('#overlay').fadeOut();
-                    Swal.fire({
-                        icon: 'success',
-                        title: '저장완료',
-                        text: '피나클 발주정보가 등록 되었습니다.',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            load()
-                        }
-                    });
 
-                }
             }
         }
 
@@ -866,39 +921,61 @@
         function customercloseModal() {
             $('#customernamesearch').fadeOut()
         }
-        // $(document).on('keydown', 'input[id^="partcustomer-input"]', function (e) {
-        //     if (e.which === 13 || e.keyCode === 13) { // Check for Enter key
-        //         var currentRow = $(this).closest('tr');
-        //         var rowIndex = currentRow.index();
+        function deletedata() {
+            var checkedIds = $('#datatable tbody input[type="checkbox"]:checked').map(function () {
+                return $(this).closest('tr').find('td#data-id').text();
+            }).get();
 
-        //         $('#editModal2').fadeIn();
+            if (checkedIds.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '누락',
+                    text: '선택된 항목이 없습니다.',
+                });
+                return;
+            }
 
-        //         $("#partcustomerinput").val('').focus();
-        //         $("#numericPart2").val(rowIndex);
+            Swal.fire({
+                icon: 'warning',
+                title: '정말로 삭제하시겠습니까?',
+                text: '이 작업은 되돌릴 수 없습니다!',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Array to store promises for each AJAX request
+                    var ajaxPromises = [];
 
-        //         $.ajax({
-        //             type: 'POST',
-        //             url: server + '/api/searchingcustomername',
-        //             dataType: 'json',
-        //             contentType: 'application/json',
-        //             data: JSON.stringify({
-        //                 materialname: $("#partcustomer-input").val()
-        //             }),
-        //             success: function (result) {
-        //                 $('#searchingcustomernamebody').empty(); // Clear previous content
+                    checkedIds.forEach(function (currentId) {
+                        // Create a promise for each AJAX request
+                        var ajaxPromise = $.ajax({
+                            type: 'POST',
+                            url: server + '/api/deletebomtoolorder',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": currentId
+                            })
+                        });
 
-        //                 for (var i = 0; i < result.length; i++) {
-        //                     $('#searchingcustomernamebody').append(
-        //                         '<tr onclick="insertmaterialdata(this)">' +
-        //                         '<td>' + result[i].customername + '</td>' +
-        //                         '</tr>'
-        //                     );
-        //                 }
-        //             },
+                    });
+                    selectedIds = [];
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제완료',
+                        text: '피나클 정보가 삭제되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+                            load();
+                        }
+                    });
 
-        //         });
-        //     }
-        // });
+                }
+            });
+        }
 
     </script>
 
