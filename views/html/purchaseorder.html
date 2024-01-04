@@ -82,18 +82,19 @@
         <thead id="tableHead">
             <tr>
                 <th style="text-align:center;" onclick="sortTable(0)">발주일자</th>
-                <th style="text-align:center;" onclick="sortTable(1)">품목명</th>
-                <th style="text-align:center;" onclick="sortTable(2)">품목코드</th>
+                <th style="text-align:center;" onclick="sortTable(1)">품목코드</th>
+                <th style="text-align:center;" onclick="sortTable(2)">자재명</th>
                 <th style="text-align:center;" onclick="sortTable(3)">전폭(mm)</th>
                 <th style="text-align:center;" onclick="sortTable(4)">M</th>
                 <th style="text-align:center;" onclick="sortTable(5)">수량</th>
                 <th style="text-align:center;" onclick="sortTable(6)">단가</th>
                 <th style="text-align:center;" onclick="sortTable(7)">공급가액</th>
-                <th style="text-align:center;" onclick="sortTable(8)">거래처명</th>
-                <th style="text-align:center;" onclick="sortTable(9)">BOMNO</th>
-                <th style="text-align:center;" onclick="sortTable(10)">발주구분</th>
-                <th style="text-align:center;" onclick="sortTable(11)">재단규격</th>
-                <!-- <th style="text-align:center;" onclick="sortTable(12)">생산확정수량</th> -->
+                <th style="text-align:center;" onclick="sortTable(8)">거래처</th>
+                <th style="text-align:center;" onclick="sortTable(9)">고객사</th>
+                <th style="text-align:center;" onclick="sortTable(10)">BOMNO</th>
+                <th style="text-align:center;" onclick="sortTable(11)">발주구분</th>
+                <th style="text-align:center;" onclick="sortTable(12)">비고</th>
+                <th style="text-align:center;" onclick="sortTable(13)">재단규격</th>
 
 
             </tr>
@@ -289,18 +290,19 @@
                             $('#Datatbody').append(
                                 '<tr>' +
                                 '<td id="' + (data[i].orderdate) + '">' + (data[i].orderdate || '') + '</td>' +
-                                '<td id="">' + (data[i].itemname || '') + '</td>' +
                                 '<td id="">' + (data[i].codenumber || '') + '</td>' +
+                                '<td id="">' + (data[i].itemname || '') + '</td>' +
                                 '<td id="" style="text-align:right;">' + numberWithCommas(data[i].width || '') + '</td>' +
                                 '<td id="" style="text-align:right;">' + numberWithCommas(data[i].length || '') + '</td>' +
                                 '<td id="" style="text-align:right;">' + numberWithCommas(data[i].quantity || '') + '</td>' +
                                 '<td id="" style="text-align:right;">' + numberWithCommas(data[i].unitprice || '') + '</td>' +
                                 '<td id="" style="text-align:right;">' + numberWithCommas(data[i].supplyamount || '') + '</td>' +
                                 '<td id="">' + (data[i].suppliername || '') + '</td>' +
+                                '<td id="">' + (data[i].manufacterer || '') + '</td>' +
                                 '<td id="">' + (data[i].bomno || '') + '</td>' +
                                 '<td id="">' + (data[i].ordertype || '') + '</td>' +
-                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].confirmed || '') + '</td>' +
-                                '<td style="text-align:right;">' + numberWithCommas(data[i].cutting || '') + '</td>' +
+                                '<td id="">' + (data[i].confirmed || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].cutting || '') + '</td>' +
 
 
                                 '<td id="data-id">' + (data[i].id || '') + '</td>' +
@@ -342,6 +344,8 @@
                             var insertdate = new Date().toISOString().slice(0, 10);
                             var roundedResultValue = $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''); // Remove commas
                             var rollPriceValue = $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''); // Remove commas
+                            var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val().replace(/,/g, ''); // Remove commas
+                            var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val().replace(/,/g, ''); // Remove commas
 
                             var quantity = roundedResultValue;
                             var unitprice = rollPriceValue;
@@ -363,8 +367,9 @@
                                     "suppliername": $('#orderlistbombody tr:eq(' + i + ') #supplier-input').val(),
                                     "bomno": $('#orderlistbombody tr:eq(' + i + ') #bomno-input').val(),
                                     "ordertype": '양산',
-                                    "cutting": $('#orderlistbombody tr:eq(' + i + ') #cutting-input').val(),
-                                    // "confirmed": $('#orderlistbombody tr:eq(' + i + ') #confirmed-input').val(),
+                                    "cutting": $('#orderlistbombody tr:eq(' + i + ') #cutmaterialwidth-input').val(),
+                                    "manufacterer": $('#orderlistbombody tr:eq(' + i + ') #manufacterer-input').val(),
+                                    "confirmed": modelname + "/" + itemname + "/" +"100,000"
 
                                 }),
                                 success: function (result) {
@@ -487,7 +492,7 @@
 
                         // Iterate through sorted data
                         for (var i = 0; i < data.length; i++) {
-
+                            console.log(data[i].rollprice)
                             $('#orderlistbombody').append(
                                 '<tr>' +
                                 '<td><input type="text" id="bomno-input" value="' + (data[i].bomno || '') + '"></td>' +
@@ -499,50 +504,30 @@
                                 '<td><input type="text" style="text-align:right;" id="sumquantity-input" value="' + (data[i].sumquantity || '') + '"></td>' +
                                 '<td><input type="text" id="has-input" value="' + (data[i].has || '') + '"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="cut-input" value="' + (data[i].cut || '') + '"></td>' +
-                                '<td style="text-align:right;"><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="' + numberWithCommas(data[i].width) + '">' + numberWithCommas(data[i].width || '') + '</option></select></td>' +
+                                '<td style="text-align:right;"><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="' + numberWithCommas(data[i].width) + '(전폭)' + '">' + numberWithCommas(data[i].width + '(전폭)' || '') + '</option></select></td>' +
                                 '<td><input type="text" id="a-input" value="' + (data[i].a || '') + '"></td>' +
                                 '<td><input type="text" id="roundedResult-input" value="' + (data[i].roundedResult || '0') + '"></td>' +
                                 '<td id="sqmpricetd"><input type="text" id="sqmprice-input" value="' + (data[i].sqmprice || '0') + '"></td>' +
-                                '<td id="rollpricetd"><input type="text" id="rollprice-input" value="' + (data[i].rollprice || '0') + '"></td>' +
+                                '<td id="rollpricetd"><input type="text" id="rollprice-input" value="' + (data[i].a1 || '0') + '"></td>' +
                                 '<td id="quantitytd"><input type="text" id="quantity-input" value="' + (data[i].quantity || '0') + '"></td>' +
                                 '<td id="codenumbertd"><input type="text" id="codenumber-input" value="' + (data[i].codenumber || '0') + '"></td>' +
                                 '<td id="suppliertd"><input type="text" id="supplier-input" value="' + (data[i].supplier || '0') + '"></td>' +
                                 '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
                                 '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
-
-
-                                // '<td id="bomno-input">' + (data[i].bomno || '') + '</td>' +
-                                // '<td id="modelname-input">' + (data[i].modelname || '') + '</td>' +
-                                // '<td id="itemname-input">' + (data[i].itemname || '') + '</td>' +
-                                // '<td id="materialname-input">' + (data[i].materialname || '') + '</td>' +
-
-                                // '<td id="materialwidth-input" style="text-align:right;">' + (data[i].materialwidth || '') + '</td>' +
-                                // '<td id="soyo-input" style="text-align:right;">' + numberWithCommas(data[i].soyo || '') + '</td>' +
-                                // '<td id="sum_quantity-input" style="text-align:right;">' + numberWithCommas(data[i].sum_quantity || '0') + '</td>' +
-                                // '<td id="has-input" style="text-align:right;">' + (data[i].has || '') + '</td>' +
-                                // '<td id="cut-input" style="text-align:right;">' + numberWithCommas(data[i].cut || '0') + '</td>' +
-                                // '<td style="text-align:right;"><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="' + numberWithCommas(data[i].width) + '">' + numberWithCommas(data[i].width || '') + '</option></select></td>' +
-                                // '<td id="Result-input" style="text-align:right;">' + numberWithCommas(data[i].a || '0') + '</td>' +
-                                // '<td><input type="text" id="RoundedResult-input" class="editable-field" value="' + numberWithCommas(data[i].roundedResult || '0') + '"></td>' +
-                                // '<td id="data-sqmprice-input" style="text-align:right;">' + (data[i].sqmprice || '0') + '</td>' +
-                                // '<td id="data-rollprice-input" style="text-align:right;">' + (data[i].rollprice || '0') + '</td>' +
-                                // '<td id="data-olquantity-input" style="text-align:right;">' + (data[i].quantity || '0') + '</td>' +
-                                // '<td id="data-codenumber-input" style="text-align:right;">' + (data[i].codenumber || '0') + '</td>' +
-                                // '<td id="data-supplier-input" style="text-align:right;">' + (data[i].supplier || '0') + '</td>' +
-                                // '<td id="data-width-input" style="text-align:right;">' + (data[i].width || '0') + '</td>' +
-                                // '<td id="data-length-input" style="text-align:right;">' + (data[i].length || '0') + '</td>' +
+                                '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].manufacterer || '0') + '"></td>' +
                                 '</tr>'
 
                             );
-                            $('td#rollpricetd').hide()
-                            $('td#sqmpricetd').hide()
-                            $('td#olquantitytd').hide()
-                            $('td#codenumbertd').hide()
-                            $('td#supplietd').hide()
-                            $('td#widthtd').hide()
-                            $('td#lengthtd').hide()
-                            $('td#quantitytd').hide()
-                            $('td#suppliertd').hide()
+                            // $('td#rollpricetd').hide()
+                            // $('td#sqmpricetd').hide()
+                            // $('td#olquantitytd').hide()
+                            // $('td#codenumbertd').hide()
+                            // $('td#supplietd').hide()
+                            // $('td#widthtd').hide()
+                            // $('td#lengthtd').hide()
+                            // $('td#quantitytd').hide()
+                            // $('td#suppliertd').hide()
+                            // $('td#manufacterertd').hide()
                         }
                     }
                 }

@@ -3513,6 +3513,7 @@ module.exports = function (app) {
                 "    ol.bomno, "+
                 "    ol.modelname, "+
                 "    ol.itemname, "+
+                "    ol.modelname, "+
                 "    bm.materialname, "+
                 "    bm.materialwidth, "+
                 "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, "+
@@ -3542,7 +3543,8 @@ module.exports = function (app) {
                 "    SUM(mi.rollprice) AS rollprice, "+
                 "    mi.supplier, "+
                 "    SUM(ol.quantity) AS quantity_sum, "+
-                "    mi.codenumber "+
+                "    mi.codenumber,mi.manufacterer, "+
+                " mi.rollprice as a1 "+
                 "FROM "+
                 "    orderlist ol "+
                 "JOIN "+
@@ -3552,7 +3554,7 @@ module.exports = function (app) {
                 "WHERE "+
                 "    ol.orderstatus = '생산확정' "+
                 "GROUP BY "+
-                "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber "+
+                "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,mi.manufacterer,mi.rollprice ,ol.modelname "+
                 "ORDER BY "+
                 "    ol.bomno, bm.materialwidth ASC;                 "
                 )
@@ -3685,11 +3687,12 @@ module.exports = function (app) {
                 .input('ordertype', sql.NVarChar, req.body.ordertype)
                 .input('cutting', sql.NVarChar, req.body.cutting)
                 .input('confirmed', sql.NVarChar, req.body.confirmed)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
 
 
                 .query(
-                    'insert into purchaseorder(orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed)' +
-                    ' values(@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed)'
+                    'insert into purchaseorder(orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer)' +
+                    ' values(@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer)'
                 )
                 .then(result => {
 
