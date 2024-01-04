@@ -3520,12 +3520,12 @@ module.exports = function (app) {
                 "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 "+
                 "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) "+
                 "        ELSE 0 "+
-                "    END AS sum_quantity, "+
+                "    END AS sumquantity, "+
                 "    CASE "+
                 "        WHEN EXISTS ( "+
                 "            SELECT 1 "+
                 "            FROM materialinput "+
-                "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth  "+
+                "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth "+
                 "        ) THEN 'Y' "+
                 "        ELSE 'N' "+
                 "    END AS has, "+
@@ -3535,11 +3535,11 @@ module.exports = function (app) {
                 "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut, "+
                 "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test, "+
                 "    ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length), 2) AS a, "+
-                "    CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length))) AS RoundedResult, "+
+                "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)) AS roundedResult, "+
                 "    mi.width, "+
                 "    mi.length, "+
                 "    mi.sqmprice, "+
-                "    SUM(mi.rollprice) AS rollprice_sum, "+
+                "    SUM(mi.rollprice) AS rollprice, "+
                 "    mi.supplier, "+
                 "    SUM(ol.quantity) AS quantity_sum, "+
                 "    mi.codenumber "+
@@ -3554,7 +3554,7 @@ module.exports = function (app) {
                 "GROUP BY "+
                 "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber "+
                 "ORDER BY "+
-                "    ol.bomno, bm.materialwidth ASC;                         "
+                "    ol.bomno, bm.materialwidth ASC;                 "
                 )
                 .then(result => {
 
