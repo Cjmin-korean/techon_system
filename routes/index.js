@@ -3509,61 +3509,52 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT " +
-                    "    ol.bomno, " +
-                    "    ol.modelname, " +
-                    "    ol.itemname, " +
-                    "    bm.materialname, " +
-                    "    bm.materialwidth, " +
-                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, " +
-                    "    CASE " +
-                    "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 " +
-                    "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) " +
-                    "        ELSE 0 " +
-                    "    END AS sum_quantity, " +
-                    "    CASE " +
-                    "        WHEN EXISTS ( " +
-                    "            SELECT 1 " +
-                    "            FROM materialinput " +
-                    "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth " +
-                    "        ) THEN 'Y' " +
-                    "        ELSE 'N' " +
-                    "    END AS has, " +
-                    "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue, " +
-                    "        (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) " +
-                    "     AS calculated_column, " +
-                    "      CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) " +
-                    "     AS soyo, " +
-                    "      floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) " +
-
-                    "     AS cut, " +
-                    "         floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length " +
-                    "     AS test, " +
-                    "       ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03))/ (floor((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length),2) " +
-                    " AS a, " +
-                    "        CEILING( " +
-                    "        (SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / " +
-                    "        (floor((COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length)) " +
-                    "        ) AS RoundedResult, " +
-                    "    MIN(ol.lotno) AS min_lotno, " +
-                    "    MAX(ol.lotno) AS max_lotno, " +
-                    " mi.width, " +
-                    " mi.length, " +
-                    " mi.sqmprice, " +
-                    " 	mi.rollprice, " +
-                    " 	mi.supplier,ol.quantity , mi.codenumber  " +
-                    "FROM " +
-                    "    orderlist ol " +
-                    "JOIN " +
-                    "    bommanagement bm ON ol.bomno = bm.bomno " +
-                    "LEFT JOIN " +
-                    "    Materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
-                    "WHERE " +
-                    "    ol.orderstatus = '생산확정' " +
-                    "GROUP BY " +
-                    "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length , mi.width ,mi.sqmprice, mi.rollprice ,mi.supplier,ol.quantity , mi.codenumber " +
-                    "ORDER BY " +
-                    "    ol.bomno, bm.materialwidth ASC;           "
+                    "SELECT "+
+                "    ol.bomno, "+
+                "    ol.modelname, "+
+                "    ol.itemname, "+
+                "    bm.materialname, "+
+                "    bm.materialwidth, "+
+                "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, "+
+                "    CASE "+
+                "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 "+
+                "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) "+
+                "        ELSE 0 "+
+                "    END AS sum_quantity, "+
+                "    CASE "+
+                "        WHEN EXISTS ( "+
+                "            SELECT 1 "+
+                "            FROM materialinput "+
+                "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth  "+
+                "        ) THEN 'Y' "+
+                "        ELSE 'N' "+
+                "    END AS has, "+
+                "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue, "+
+                "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) AS calculated_column, "+
+                "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS soyo, "+
+                "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut, "+
+                "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test, "+
+                "    ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length), 2) AS a, "+
+                "    CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length))) AS RoundedResult, "+
+                "    mi.width, "+
+                "    mi.length, "+
+                "    mi.sqmprice, "+
+                "    SUM(mi.rollprice) AS rollprice_sum, "+
+                "    mi.supplier, "+
+                "    SUM(ol.quantity) AS quantity_sum, "+
+                "    mi.codenumber "+
+                "FROM "+
+                "    orderlist ol "+
+                "JOIN "+
+                "    bommanagement bm ON ol.bomno = bm.bomno "+
+                "LEFT JOIN "+
+                "    Materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
+                "WHERE "+
+                "    ol.orderstatus = '생산확정' "+
+                "GROUP BY "+
+                "    ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber "+
+                "ORDER BY "+
+                "    ol.bomno, bm.materialwidth ASC;                         "
                 )
                 .then(result => {
 

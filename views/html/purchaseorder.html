@@ -16,16 +16,43 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
 </head>
 
 <style>
-    input,
-    select {
+    #datepicker1,
+    #datepicker2 {
+        width: 10%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    select,
+    #checkbox {
+
         width: 100%;
         padding: 10px;
         box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    input {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 15px;
@@ -45,9 +72,10 @@
 
     <fieldset>
         <legend>검색조건</legend>
-
+        <input type="date" id="datepicker1">
+        <input type="date" id="datepicker2">
         <button onclick="searchData()">조회</button>
-        <button onclick="openSaveModal()">신규</button>
+        <button onclick="openSaveModal()" style="background-color: navy;">발주등록</button>
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
@@ -89,7 +117,7 @@
 
                 <thead id="tableHead">
                     <tr>
-                        <th colspan="12">생산확정</th>
+                        <th colspan="10">생산확정</th>
                         <th><input type="text" id="num"></th>
                         <th><button onclick="insertpurchaseorder()">저장</button></th>
                     </tr>
@@ -101,8 +129,8 @@
                     <th style="text-align:center;">필요소요량</th>
                     <th style="text-align:center;">현재고</th>
                     <th style="text-align:center;">폭이상재고(M)</th>
-                    <th style="text-align:center;">시작LOT</th>
-                    <th style="text-align:center;">마지막LOT</th>
+                    <!-- <th style="text-align:center;">시작LOT</th>
+                    <th style="text-align:center;">마지막LOT</th> -->
                     <th style="text-align:center; width:70px;">1RL<br>컷수</th>
                     <th style="text-align:center; width:100px;">재단폭</th>
                     <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
@@ -134,7 +162,7 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
-
+            settingDate()
             showLoading()
             load()
             $('#Datatbody').on('dblclick', 'tr', function () {
@@ -188,7 +216,31 @@
                 loadingOverlay.style.display = "none";
             }, 1000);
         }
+        function settingDate() {
+            const date = new Date();
 
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+
+
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+            }
+
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+
+
+            $('#datepicker1').val(currentDate);
+            $('#datepicker2').val(currentDate);
+
+        }
 
 
 
@@ -251,7 +303,6 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    // revnum : $('#popupOverlay1').val()
                 }),
 
                 success: function (data) {
@@ -393,13 +444,7 @@
 
                             if (isFirstRow) {
                                 // Add a row for materialname
-                                $('#orderlistbombody').append(
-                                    '<tr class="material-group">' +
-                                    '<td style="background-color:silver;">자재명</td>' +
-                                    '<td style="text-align:center; backgroung-color:white;">' + (data[i].materialname || '') + '</td>' +
-
-                                    '</tr>'
-                                );
+                                
                             }
 
                             $('#orderlistbombody').append(
@@ -412,8 +457,8 @@
                                 '<td id="soyo' + i + '" style="text-align:right;">' + numberWithCommas(data[i].soyo || '') + '</td>' +
                                 '<td id="sum_quantity' + i + '" style="text-align:right;">' + numberWithCommas(data[i].sum_quantity || '0') + '</td>' +
                                 '<td id="has' + i + '" style="text-align:right;">' + (data[i].has || '') + '</td>' +
-                                '<td id="min_lotno' + i + '" style="text-align:right;">' + (data[i].min_lotno || '') + '</td>' +
-                                '<td id="max_lotno' + i + '" style="text-align:right;">' + (data[i].max_lotno || '') + '</td>' +
+                                // '<td id="min_lotno' + i + '" style="text-align:right;">' + (data[i].min_lotno || '') + '</td>' +
+                                // '<td id="max_lotno' + i + '" style="text-align:right;">' + (data[i].max_lotno || '') + '</td>' +
                                 '<td id="cut' + i + '" style="text-align:right;">' + numberWithCommas(data[i].cut || '0') + '</td>' +
                                 '<td style="text-align:right;"><select  id="cutmaterialwidth' + i + '"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="' + numberWithCommas(data[i].width) + '">' + numberWithCommas(data[i].width || '') + '</option></select></td>' +
                                 '<td id="Result' + i + '" style="text-align:right;">' + numberWithCommas(data[i].a || '0') + '</td>' +
