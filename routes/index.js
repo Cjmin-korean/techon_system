@@ -2174,8 +2174,8 @@ module.exports = function (app) {
 
                 .query(
                     " select "+
-                    " part,size,customer "+
-                    " from equipment where develop='사용' group by part,size,customer")
+                    " size,customer "+
+                    " from equipment where develop='사용' group by size,customer")
 
                 .then(result => {
 
@@ -2237,6 +2237,25 @@ module.exports = function (app) {
                     res.json(result.recordset);
                     res.end();
 
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/deletetoolcode', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('id', sql.Int, req.body.id)
+                .query(
+                    "delete from sampleorder where id=@id")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
 
                 });
         });
