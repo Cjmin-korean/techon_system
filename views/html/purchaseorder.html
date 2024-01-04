@@ -285,8 +285,12 @@
                     if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
-                        var sequenceNumber = 1;
+                        var totalQuantity = 0;
+                        var totalSupplyAmount = 0;
+
                         for (var i = 0; i < data.length; i++) {
+                            totalQuantity += parseFloat(data[i].quantity) || 0;
+                            totalSupplyAmount += parseFloat(data[i].supplyamount) || 0;
                             $('#Datatbody').append(
                                 '<tr>' +
                                 '<td id="' + (data[i].orderdate) + '">' + (data[i].orderdate || '') + '</td>' +
@@ -310,7 +314,15 @@
                             )
                             $("td#data-id").hide();
                         }
-
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td colspan="5" style="text-align:right;"><b>Total:</b></td>' +
+                            '<td style="text-align:right;">' + numberWithCommas(totalQuantity.toFixed(2)) + '</td>' +
+                            '<td ></td>' +
+                            '<td style="text-align:right;">' + numberWithCommas(totalSupplyAmount.toFixed(2)) + '</td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>'
+                        );
 
                     }
                 }
@@ -369,7 +381,7 @@
                                     "ordertype": '양산',
                                     "cutting": $('#orderlistbombody tr:eq(' + i + ') #cutmaterialwidth-input').val(),
                                     "manufacterer": $('#orderlistbombody tr:eq(' + i + ') #manufacterer-input').val(),
-                                    "confirmed": modelname + "/" + itemname + "/" +"100,000"
+                                    "confirmed": modelname + "/" + itemname + "/" + "100,000"
 
                                 }),
                                 success: function (result) {
@@ -396,80 +408,6 @@
 
             }
         }
-        // function insertpurchaseorder() {
-        //     let tableBody = document.getElementById('orderlistbombody');
-        //     let rowCount = tableBody.children.length;
-
-        //     Swal.fire({
-        //         icon: 'success',
-        //         title: '저장',
-        //         text: '구매 발주 정보를 등록하시겠습니까?',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#3085d6',
-        //         cancelButtonColor: '#d33',
-        //         confirmButtonText: '확인',
-        //         cancelButtonText: '취소',
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             for (let i = 0; i < rowCount; i++) {
-
-
-        //                 var insertdate = new Date().toISOString().slice(0, 10);
-        //                 var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val()
-        //                 console.log(itemname)
-        //                 $.ajax({
-        //                     type: 'POST',
-        //                     url: server + '/api/insertpurchaseorder',
-        //                     dataType: 'json',
-        //                     contentType: 'application/json',
-        //                     data: JSON.stringify({
-        //                         "orderdate": insertdate,
-        //                         "itemname": $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val(),
-        //                         "codenumber": $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val(),
-        //                         "width": $('#orderlistbombody tr:eq(' + i + ') #width-input').val(),
-        //                         "length": $('#orderlistbombody tr:eq(' + i + ') #length-input').val(),
-        //                         "quantity": $('#orderlistbombody tr:eq(' + i + ') #quantity-input').val(),
-        //                         "unitprice": $('#orderlistbombody tr:eq(' + i + ') #unitprice-input').val(),
-        //                         "supplyamount": $('#orderlistbombody tr:eq(' + i + ') #supplyamount-input').val(),
-        //                         "suppliername": $('#orderlistbombody tr:eq(' + i + ') #suppliername-input').val(),
-        //                         "bomno": $('#orderlistbombody tr:eq(' + i + ') #bomno-input').val(),
-        //                         "ordertype": '양산',
-        //                         "cutting": $('#orderlistbombody tr:eq(' + i + ') #cutting-input').val(),
-        //                         "confirmed": $('#orderlistbombody tr:eq(' + i + ') #confirmed-input').val(),
-        //                     }),
-
-        //                     success: function (result) {
-
-        //                     },
-        //                     error: function (jqXHR, textStatus, errorThrown) {
-        //                         console.error('AJAX Error:', textStatus, errorThrown);
-        //                         // Display an error message to the user
-        //                         Swal.fire({
-        //                             icon: 'error',
-        //                             title: 'Error',
-        //                             text: 'Failed to register purchase order. Please try again.',
-        //                         });
-        //                     }
-        //                 });
-        //             }
-
-
-        //             $('#editModal').fadeOut();
-        //             $('#overlay').fadeOut();
-        //             Swal.fire({
-        //                 icon: 'success',
-        //                 title: '저장완료',
-        //                 text: 'TOOL 발주 정보가 등록되었습니다.',
-        //             }).then((result) => {
-        //                 if (result.isConfirmed) {
-        //                     load()
-        //                 }
-        //             });
-        //         }
-        //     });
-
-
-        // }
 
 
         function load1() {
