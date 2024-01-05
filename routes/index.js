@@ -2299,7 +2299,7 @@ module.exports = function (app) {
                     "select "+
                     " toolcode,char "+
                     " from  "+
-                    " sampleorder where bomno=@bomno and part='피나클' group by toolcode,char")
+                    " sampleorder where bomno=@bomno and part='피나클' or part='실링' group by toolcode,char")
 
                 .then(result => {
 
