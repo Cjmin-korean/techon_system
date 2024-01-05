@@ -235,6 +235,66 @@
                 loadingOverlay.style.display = "none";
             }, 1000);
         }
+        // 예시 데이터
+        var sampleData = {
+            itemCode: '123456',
+            materialName: 'Example Material',
+            width: '1000',
+            length: '10',
+            sqmPrice: '5.00',
+            rollPrice: '50.00',
+            unit: 'meter',
+            // ... (나머지 데이터도 추가)
+        };
+
+        // SweetAlert2로 데이터를 이쁘게 표시하는 함수
+        function showDataDetails(data) {
+            Swal.fire({
+                icon: 'info',
+                title: '자재 상세 정보',
+                html: `
+            <table class="styled-table">
+                <tr>
+                    <td>품목코드</td>
+                    <td>${data.itemCode}</td>
+                </tr>
+                <tr>
+                    <td>자재명</td>
+                    <td>${data.materialName}</td>
+                </tr>
+                <tr>
+                    <td>전폭(mm)</td>
+                    <td>${data.width}</td>
+                </tr>
+                <tr>
+                    <td>유효폭(mm)</td>
+                    <td>${data.width}</td>
+                </tr>
+                <tr>
+                    <td>SQM단가</td>
+                    <td>${data.width}</td>
+                </tr>
+                <tr>
+                    <td>롤단가</td>
+                    <td>${data.width}</td>
+                </tr>
+                <!-- 나머지 데이터도 추가 -->
+            </table>
+        `,
+                showCancelButton: true,
+                showConfirmButton: true,
+                confirmButtonText: '수정',
+                allowOutsideClick: false,
+
+            });
+        }
+        $('.swal2-confirm').click(function () {
+            // 여기에 "수정" 버튼 클릭 시 수행할 동작 추가
+            // 예를 들어, 수정 로직 호출 등
+            alert('수정 버튼이 클릭되었습니다.');
+            // Swal.close(); // 수정이 완료된 후에 닫을지 여부 결정
+        });
+
 
         $('#searchInput').keypress(function (e) {
             // Check if the pressed key is "Enter" (key code 13)
@@ -390,6 +450,26 @@
         }
 
         function load() {
+            // "수정" 버튼의 클래스 이름을 확인하는 코드
+            Swal.fire({
+                icon: 'info',
+                title: '자재 상세 정보',
+                html: '<p>모달 내용</p>',
+                showCancelButton: true,
+                showConfirmButton: true,
+                confirmButtonText: '수정',
+                allowOutsideClick: false,
+                onOpen: () => {
+                    // Confirm 버튼을 클릭하는 이벤트 리스너 등록
+                    const confirmButton = Swal.getPopup().querySelector('.swal2-confirm');
+                    confirmButton.addEventListener('click', () => {
+                        console.log('수정 버튼 클릭됨');
+                        // 여기에 버튼 클릭 시 수행할 동작 추가
+                    });
+                }
+            });
+
+
             $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
@@ -405,7 +485,7 @@
                         var sequenceNumber = 1;
                         for (var i = 0; i < data.length; i++) {
                             $('#Datatbody').append(
-                                '<tr>' +
+                                '<tr ondblclick="showDataDetails(sampleData)">' +
                                 '<td>' + (data[i].codenumber || '') + '</td>' +
                                 '<td>' + (data[i].materialname || '') + '</td>' +
                                 '<td style="text-align:right;">' + (data[i].width.toLocaleString() || '0') + '</td>' +

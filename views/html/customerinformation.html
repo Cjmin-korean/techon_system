@@ -9,16 +9,35 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesiteminformation.css">
+    <!-- <link rel="stylesheet" href="../css/loading.css"> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 
 </head>
 
-
+<style>
+    input {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
 
 <body>
     <div class="main_header">
@@ -29,56 +48,47 @@
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
+    <fieldset style="height: 40px;">
 
-    <fieldset>
-        <legend>검색조건</legend>
-
-        <label for="month">연 :</label>
-        <select id="searchselect1">
-            <option value="2024">2024년</option>
-            <option value="2023">2023년</option>
-
-
-
-        </select>
-        <label for="month">월 :</label>
-        <select id="searchselect2">
-            <option value="1월">1월</option>
-            <option value="2월">2월</option>
-            <option value="3월">3월</option>
-            <option value="4월">4월</option>
-            <option value="5월">5월</option>
-            <option value="6월">6월</option>
-            <option value="7월">7월</option>
-            <option value="8월">8월</option>
-            <option value="9월">9월</option>
-            <option value="10월">10월</option>
-            <option value="11월">11월</option>
-            <option value="12월">12월</option>
+        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
+            autocomplete="off">
+        <button id="newRegistrationBtn" onclick="" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="deleteBtn" onclick="" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i> 삭제
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
+        <button id="exportPdfBtn" class="btn btn-secondary" style="background-color: navy;">
+            <i class="fas fa-file-pdf"></i> PDF로 내보내기
+        </button>
 
 
-        </select>
-        <!-- <input type="text" style="width: 100px;" class="author-cell"> -->
-        <button onclick="searchData()">조회</button>
     </fieldset>
+   
+    <div id="searchResultCount" style="font-size: 20px; font-weight: bold;">Data: 0</div>
+
     <div id="overlay"></div>
     <div style="height:20%;">
         <table class="styled-table" id="datatable" style="height:20%;">
             <thead id="tableHead">
                 <tr>
                     <!-- <th style="text-align:center;" onclick="sortTable(0)">작성자</th> -->
-                    <th style="text-align:center;" onclick="sortTable(0)">날짜</th>
-                    <th style="text-align:center;" onclick="sortTable(1)">유형</th>
-                    <th style="text-align:center;" onclick="sortTable(2)">외주/원부자재/고객사(구분)</th>
-                    <th style="text-align:center;" onclick="sortTable(3)">매입/매출</th>
-                    <th style="text-align:center;" onclick="sortTable(4)">등록사유</th>
-                    <th style="text-align:center;" onclick="sortTable(5)">고객사/적용모델</th>
-                    <th style="text-align:center;" onclick="sortTable(6)">자재 정보</th>
-                    <th style="text-align:center;" onclick="sortTable(7)">사업자등록번호</th>
-                    <th style="text-align:center;" onclick="sortTable(8)">대표자명</th>
-                    <th style="text-align:center;" onclick="sortTable(9)">거래처명</th>
-                    <th style="text-align:center;" onclick="sortTable(10)">거래처이니셜</th>
-                    <th style="text-align:center;" onclick="sortTable(11)">거래처명(영문)</th>
+                    <th style="text-align:center;" onclick="sortTable(0)">거래처명</th>
+                    <th style="text-align:center;" onclick="sortTable(1)">거래처이니셜</th>
+                    <th style="text-align:center;" onclick="sortTable(2)">거래처명(영문)</th>
+                    <th style="text-align:center;" onclick="sortTable(3)">날짜</th>
+                    <th style="text-align:center;" onclick="sortTable(4)">유형</th>
+                    <th style="text-align:center;" onclick="sortTable(5)">외주/원부자재/고객사(구분)</th>
+                    <th style="text-align:center;" onclick="sortTable(6)">매입/매출</th>
+                    <th style="text-align:center;" onclick="sortTable(7)">등록사유</th>
+                    <th style="text-align:center;" onclick="sortTable(8)">고객사/적용모델</th>
+                    <th style="text-align:center;" onclick="sortTable(9)">자재 정보</th>
+                    <th style="text-align:center;" onclick="sortTable(10)">사업자등록번호</th>
+                    <th style="text-align:center;" onclick="sortTable(11)">대표자명</th>
                     <th style="text-align:center;" onclick="sortTable(12)">업태(구분)</th>
                     <th style="text-align:center;" onclick="sortTable(13)">업종(구분)</th>
                     <th style="text-align:center;" onclick="sortTable(14)">주소</th>
@@ -122,6 +132,50 @@
                 openEditModal(this); // Pass the clicked row to the function
             });
 
+        });
+        $('#searchInput').keypress(function (e) {
+            // Check if the pressed key is "Enter" (key code 13)
+            if (e.which === 13) {
+                // Show loading spinner while searching
+                Swal.fire({
+                    icon: 'info',
+                    title: '검색중입니다...',
+                    allowOutsideClick: false,
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timerProgressBar: true,
+                    onBeforeOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Reset previous search results
+                $('#datatable tbody tr').show();
+
+                var searchValue = $(this).val().toLowerCase();
+                var matchingRowCount = 0;
+
+                $('#datatable tbody tr').each(function () {
+                    var rowData = $(this).text().toLowerCase();
+                    var isMatch = rowData.includes(searchValue);
+                    $(this).toggle(isMatch);
+
+                    if (isMatch) {
+                        matchingRowCount++;
+                    }
+                });
+
+                // Display the count of matching rows
+                var resultMessage = 'Data: ' + matchingRowCount;
+                $('#searchResultCount').text(resultMessage);
+
+                // Show message if no matching rows
+
+
+                setTimeout(function () {
+                    Swal.close();
+                }, 1300); // Simulated delay of 1.3 seconds
+            }
         });
 
         // Function to close edit modal and overlay
@@ -255,14 +309,20 @@
                 url: server + '/api/selectcustomerinformation',
                 dataType: 'json',
                 success: function (data) {
+                    updateDataCount(data.length);
+
                     var tableFoot = $('#dataCount');
                     if (data.length === 0) {
+
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
                         var sequenceNumber = 1;
                         for (var i = 0; i < data.length; i++) {
                             $('#Datatbody').append(
                                 '<tr>' +
+                                '<td>' + (data[i].customername || '') + '</td>' +
+                                '<td>' + (data[i].customerinitial || '') + '</td>' +
+                                '<td>' + (data[i].customernameenglish || '') + '</td>' +
                                 '<td>' + (data[i].date || '') + '</td>' +
                                 '<td>' + (data[i].customerregistrationtype || '') + '</td>' +
                                 '<td>' + (data[i].outsourcing || '') + '</td>' +
@@ -272,9 +332,6 @@
                                 '<td>' + (data[i].materialinformation || '') + '</td>' +
                                 '<td>' + (data[i].businessregistrationnumber || '') + '</td>' +
                                 '<td>' + (data[i].representativename || '') + '</td>' +
-                                '<td>' + (data[i].customername || '') + '</td>' +
-                                '<td>' + (data[i].customerinitial || '') + '</td>' +
-                                '<td>' + (data[i].customernameenglish || '') + '</td>' +
                                 '<td>' + (data[i].businesstype || '') + '</td>' +
                                 '<td>' + (data[i].industrytype || '') + '</td>' +
                                 '<td>' + (data[i].address || '') + '</td>' +
@@ -304,6 +361,9 @@
         }
 
 
+        function updateDataCount(count) {
+            $('#searchResultCount').html('Data: ' + count);
+        }
 
 
     </script>
