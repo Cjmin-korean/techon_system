@@ -19,6 +19,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 </head>
 
@@ -75,8 +76,15 @@
         <legend>검색조건</legend>
         <input type="date" id="datepicker1">
         <input type="date" id="datepicker2">
-        <button onclick="searchData()">조회</button>
-        <button onclick="openSaveModal()" style="background-color: navy;">발주등록</button>
+        <button id="searchBtn" onclick="searchData()" class="btn btn-success">
+            <i class="fas fa-search"></i> 조회
+        </button>
+        <button id="searchBtn" onclick="openSaveModal()" class="btn btn-success">
+            <i class="fas fa-shopping-cart"></i> 발주등록
+        </button>
+        <button id="exportToExcelBtn"  class="btn btn-success">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
@@ -218,7 +226,22 @@
 
         }
 
-
+        function searchData() {
+            Swal.fire({
+                icon: 'info',
+                title: '조회중입니다...',
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                onBeforeOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            setTimeout(function () {
+                Swal.close();
+            }, 1300); // Simulated delay of 1.3 seconds
+        }
 
 
         function Dataedit() {
@@ -357,8 +380,8 @@
                             var insertdate = new Date().toISOString().slice(0, 10);
                             var roundedResultValue = $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''); // Remove commas
                             var rollPriceValue = $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''); // Remove commas
-                            var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val().replace(/,/g, ''); // Remove commas
-                            var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val().replace(/,/g, ''); // Remove commas
+                            var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val()
+                            var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val()
 
                             var quantity = roundedResultValue;
                             var unitprice = rollPriceValue;
@@ -424,7 +447,7 @@
                     if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
-                      
+
 
                         // Iterate through sorted data
                         for (var i = 0; i < data.length; i++) {

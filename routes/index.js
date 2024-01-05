@@ -1201,10 +1201,10 @@ module.exports = function (app) {
                "     i.modelname,  "+
                "     i.itemname,  "+
                "     i.itemprice,  "+
-               "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    "+                 
+               "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    "+                 
                "     CASE  "+
                "         WHEN i.itemprice = 0 THEN 0  "+
-               "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  "+
+               "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  "+
                "     END AS costPriceRatio,  "+
                "     i.customer,  "+
                "     i.itemcode,  "+
@@ -1271,10 +1271,10 @@ module.exports = function (app) {
                "     i.modelname,  "+
                "     i.itemname,  "+
                "     i.itemprice,  "+
-               "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    "+                 
+               "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    "+                 
                "     CASE  "+
                "         WHEN i.itemprice = 0 THEN 0  "+
-               "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  "+
+               "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  "+
                "     END AS costPriceRatio,  "+
                "     i.customer,  "+
                "     i.itemcode,  "+
@@ -1893,6 +1893,32 @@ module.exports = function (app) {
                 .query(
                     'insert into materialinput(date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice)' +
                     ' values(@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/inserttoolbom', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('toolcode', sql.NVarChar, req.body.toolcode)
+                .input('char', sql.Float, req.body.char)
+                    
+                .query(
+                    'insert into materialinput(bomno,modelname,itemname,toolcode,char)' +
+                    ' values(@bomno,@modelname,@itemname,@toolcode,@char)'
                 )
                 .then(result => {
 
