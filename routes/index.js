@@ -5143,6 +5143,64 @@ sql.connect(config).then(pool => {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/bomsamplesavebommanagement', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('savedate', sql.NVarChar, req.body.savedate)
+                .input('main', sql.NVarChar, req.body.main)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('model', sql.NVarChar, req.body.model)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('materialwidth', sql.Float, req.body.materialwidth)
+                .input('using', sql.NVarChar, req.body.using)
+                .input('onepid', sql.Float, req.body.onepid)
+                .input('twopid', sql.Float, req.body.twopid)
+                .input('soyo', sql.Float, req.body.soyo)
+                .input('ta', sql.Float, req.body.ta)
+                .input('allta', sql.Float, req.body.allta)
+                .input('talength', sql.Float, req.body.talength)
+                .input('loss', sql.Float, req.body.loss)
+                .input('cost', sql.Float, req.body.cost)
+                .input('rlcut', sql.Float, req.body.rlcut)
+                .input('rlproduct', sql.Float, req.body.rlproduct)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('usewidth', sql.Float, req.body.usewidth)
+                .input('num', sql.Float, req.body.num)
+                .input('materialclassification', sql.NVarChar, req.body.materialclassification)
+                .input('cavity', sql.NVarChar, req.body.cavity)
+                .input('useable', sql.NVarChar, req.body.useable)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+
+
+
+
+                .query(
+                    'insert into bommanagementsample(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/bommasssavebommanagementsample', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -5838,6 +5896,30 @@ sql.connect(config).then(pool => {
 
                 .query(
                     'update bommanagement set status=@status where bomid=@bomid'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updatebomstatussample', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+
+
+
+                .query(
+                    'update bommanagementsample set status=@status where bomid=@bomid'
                 )
                 .then(result => {
 
