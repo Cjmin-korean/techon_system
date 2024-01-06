@@ -103,28 +103,34 @@ module.exports = function (app) {
 
 
     // const downloadPath = '/Users/cjh/Downloads/Techon/sshkey_1'; // 다운로드 받을 경로
-    // **** start       
-    sql.connect(config).then(pool => {
-        app.post('/api/insertimg', function (req, res) {
-            res.header("Access-Control-Allow-Origin", "*");
+    // **** start
+sql.connect(config).then(pool => {
+    app.post('/api/insertimg', function (req, res) {
+        res.header("Access-Control-Allow-Origin", "*");
 
+        const img = req.files.img; // Assuming you are using Express and multer for file upload
 
-            return pool.request()
-                .input('img', sql.VarBinary, req.body.img)
+        if (!img) {
+            return res.status(400).send('No file uploaded.');
+        }
 
-                .query(
-                    'insert into img(img)' +
-                    ' values(@img')
+        const imgBuffer = img.buffer; // Assuming your img object has a 'buffer' property
 
-                .then(result => {
-                    res.json(result.recordset);
-                    res.end();
-
-
-                });
-        });
-
+        return pool.request()
+            .input('img', sql.VarBinary, imgBuffer)
+            .query(
+                'INSERT INTO img (img) VALUES (@img)'
+            )
+            .then(result => {
+                res.json(result.recordset);
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(500).send('Internal Server Error');
+            });
     });
+});
+
     // **** finish
 
     app.get('/down-excel', (req, res) => {
@@ -1225,7 +1231,7 @@ module.exports = function (app) {
                " LEFT JOIN  "+
                "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  "+
                " WHERE  "+
-               "   i.part='양산' and   bm.status = 'true'  "+
+               "    bm.status = 'true'  "+
                " GROUP BY  "+
                "     i.bomno,  "+
                "     i.part,  "+
@@ -2226,6 +2232,52 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectbomsamplesavebommanagement', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT "+
+                "    bm.char, "+
+                "    bm.main, "+
+                "    bm.materialname, "+
+                "    bm.etc, "+
+                "    bm.materialwidth, "+
+                "    bm.useable, "+
+                "    bm.onepid, "+
+                "    bm.twopid, "+
+                "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), 4) as soyo, "+
+                "    bm.ta, "+
+                "    bm.allta, "+
+                "    bm.talength, "+
+                "    bm.loss, "+
+                "    bm.cavity, "+
+                "    bm.num "+
+                "    FROM "+
+                "    bommanagementsample bm "+
+                "    WHERE "+
+                "    bm.bomno=@bomno and bm.status='true' "+
+                "ORDER BY "+
+                "    bm.num ASC;                ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/insepectioninformation', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -2248,6 +2300,66 @@ module.exports = function (app) {
                     "    materialinsepctionspec s ON m.materialname = s.materialname " +
                     "WHERE " +
                     "    m.inspection = 'y';")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selecttoolmain', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    "select * from sampleorder where id=@id")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatapinacledata', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+       
+            return pool.request()
+                .input('id', sql.Int, req.body.id)
+                .input('partcustomer', sql.NVarChar, req.body.partcustomer)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('toolcode', sql.NVarChar, req.body.toolcode)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('classification', sql.NVarChar, req.body.classification)
+                .input('inputprice', sql.Float, req.body.inputprice)
+                .input('outputprice', sql.Float, req.body.outputprice)
+               
+                
+                .query(
+                    "update sampleorder set bomno=@bomno,classification=@classification,partcustomer=@partcustomer,toolcode=@toolcode,customer=@customer,modelname=@modelname,itemname=@itemname,char=@char,part=@part,inputprice=@inputprice,outputprice=@outputprice,etc=@etc where id=@id")
 
                 .then(result => {
 
@@ -2296,10 +2408,11 @@ module.exports = function (app) {
             .input('bomno', sql.NVarChar, req.body.bomno)
 
                 .query(
-                    "select "+
-                    " toolcode,char "+
-                    " from  "+
-                    " sampleorder where bomno=@bomno and part='피나클' or part='실링' group by toolcode,char")
+                    "SELECT "+
+                "     toolcode, char "+
+                " FROM      sampleorder "+
+                " WHERE     bomno = @bomno AND (part = '피나클' OR part = '실링') "+
+                " GROUP BY   toolcode, char;")
 
                 .then(result => {
 

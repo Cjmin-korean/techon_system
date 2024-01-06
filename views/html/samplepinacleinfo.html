@@ -22,6 +22,11 @@
 </head>
 
 <style>
+    .selected-row {
+        background-color: #dff0d8;
+        /* You can adjust the color */
+    }
+
     #datepicker1,
     #datepicker2 {
         width: 10%;
@@ -157,6 +162,46 @@
 
         </div>
     </div>
+    <div id="editModal2" style="height: auto;  overflow-y: auto; width: 100%;">
+        <div class="mainheader">
+            <h1>TOOL 기초정보 수정</h1>
+            <span class="close" onclick="closeModal2()">&times;</span>
+        </div>
+        <div id="editForm">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th style="width:130px; background-color:white;"><button onclick="editdata()">수정</button>
+                        </th>
+
+                        <th colspan="12" style="background-color:white;"><input type="text"  id="edit-id" style="width: 100px; visibility: hidden;" >
+                        </th>
+
+                    </tr>
+                    <tr>
+                        <th style="text-align:center;">구분</th>
+                        <th style="text-align:center;">BOM NO.</th>
+                        <th style="text-align:center;">TOOL<br>CODE</th>
+                        <th style="text-align:center;">제조사</th>
+                        <th style="text-align:center;">고객사</th>
+                        <th style="text-align:center;">모델명</th>
+                        <th style="text-align:center;">품목명</th>
+                        <th style="text-align:center; width:50px;">해당<br>차수</th>
+                        <th style="text-align:center; width:120px;">종류</th>
+                        <th style="text-align:center; width:120px;">입고<br>단가(￦)</th>
+                        <th style="text-align:center; width:120px;">출고<br>단가(￦)</th>
+                        <th style="text-align:center; width:220px;">비고</th>
+                    </tr>
+
+                </thead>
+                <tbody id="bomtableBody-edit" style="max-height: 500px; overflow-y: auto;">
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
 
     <div id="editModal1" style="max-height: 800px; width: 1000px; overflow-y: auto;">
         <div class="mainheader">
@@ -224,9 +269,7 @@
             settingDate()
             showLoading()
             load()
-            $('#Datatbody').on('dblclick', 'tr', function () {
-                openEditModal(this); // Pass the clicked row to the function
-            });
+
             $('#datatable thead input[type="checkbox"]').on('change', function () {
                 var isChecked = $(this).prop('checked');
 
@@ -293,12 +336,17 @@
             $('#overlay').fadeOut();
             $('#editModal').fadeOut();
         }
+        function closeModaledit() {
+            $('#overlay').fadeOut();
+            $('#editModaledit').fadeOut();
+        }
+
         function closeModal1() {
             // $('#overlay').fadeOut();
             $('#editModal1').fadeOut();
         }
         function closeModal2() {
-            // $('#overlay').fadeOut();
+            $('#overlay').fadeOut();
             $('#editModal2').fadeOut();
         }
 
@@ -309,8 +357,110 @@
                 loadingOverlay.style.display = "none";
             }, 1000);
         }
+        function editdata() {
+            Swal.fire({
+                icon: 'info',
+                title: '수정',
+                text: '피나클 정보를 수정 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                   
+                      
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/updatapinacledata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id":$('#edit-id').val(),
+                                "partcustomer": $('#partcustomer-edit').val(),
+                                "customer": $('#customer-edit').val(),
+                                "toolcode": $('#toolcode-edit').val(),
+                                "bomno": $('#bomno-edit').val(),
+                                "modelname": $('#modelname-edit').val(),
+                                "itemname": $('#itemname-edit').val(),
+                                "char": $('#char-edit').val(),
+                                "part": $('#part-edit').val(),
+                                "etc": $('#etc-edit').val(),
+                                "classification": $('#classification-edit').val(),
+                                "inputprice":  $('#inputprice-edit').val(),
+                                "outputprice":  $('#outputprice-edit').val()
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                
+
+                    $('#editModal2').fadeOut();
+                    $('#overlay').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '수정 완료',
+                        text: '피나클 정보가 수정 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            load()
+                        }
+                    });
+                }
+            });
+        }
+        function openEditModal2(row) {
+            var rowData = $(row).find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#overlay').fadeIn();
+            $('#editModal2').fadeIn();
+            $('#bomtableBody-edit').empty()
+            $('#edit-id').val(rowData[13])
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selecttoolmain',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "id": rowData[13]
+
+                }),
+                success: function (result) {
+                    console.log(result)
+                    if (result.length === 0) {
+
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+
+                            $('#bomtableBody-edit').append(
+                                '<tr>' +
+                                '<td><input type="text" id="classification-edit" value="' + (result[i].classification || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="bomno-edit" value="' + (result[i].bomno || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="toolcode-edit" value="' + (result[i].toolcode || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="partcustomer-edit" value="' + (result[i].partcustomer || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="customer-edit" value="' + (result[i].customer || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="modelname-edit" value="' + (result[i].modelname || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="itemname-edit" value="' + (result[i].itemname || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="char-edit" value="' + (result[i].char || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="part-edit" value="' + (result[i].part || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right;" id="inputprice-edit" value="' + (result[i].inputprice || '0') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right;" id="outputprice-edit" value="' + (result[i].outputprice || '0') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="etc-edit" value="' + (result[i].etc || '') + '" autocomplete="off"></td>' +
+                                '</tr>'
+                            )
+                        }
 
 
+
+                    }
+                }
+
+            });
+        }
 
         var selectedIds = [];
 
@@ -338,7 +488,7 @@
                         for (var i = 0; i < result.length; i++) {
 
                             $('#Datatbody').append(
-                                '<tr>' +
+                                '<tr ondblclick="openEditModal2(this)">' +
                                 '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
                                 '<td>' + result[i].bomno + '</td>' +
                                 '<td>' + result[i].classification + '</td>' +
@@ -359,14 +509,18 @@
                             $("td#data-id").hide();
 
                         }
-                        $('.select-checkbox').on('change', function () {
-                            var id = $(this).closest('tr').find('td#data-id').text();
-                            if ($(this).prop('checked')) {
+                        row.find('.select-checkbox').on('change', function () {
+                            var checkbox = $(this);
+                            var id = checkbox.closest('tr').find('td#data-id').text();
+
+                            if (checkbox.prop('checked')) {
                                 selectedIds.push(id);
+                                checkbox.closest('tr').addClass('selected-row');
                             } else {
                                 selectedIds = selectedIds.filter(function (value) {
                                     return value !== id;
                                 });
+                                checkbox.closest('tr').removeClass('selected-row');
                             }
                         });
 
@@ -394,7 +548,46 @@
                 });
                 return;
             }
+            Swal.fire({
+                icon: 'warning',
+                title: '정말로 삭제하시겠습니까?',
+                text: '이 작업은 되돌릴 수 없습니다!',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Array to store promises for each AJAX request
+                    var ajaxPromises = [];
 
+                    checkedIds.forEach(function (currentId) {
+                        // Create a promise for each AJAX request
+                        var ajaxPromise = $.ajax({
+                            type: 'POST',
+                            url: server + '/api/deletetoolcode',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": currentId
+                            })
+                        });
+
+                    });
+                    selectedIds = [];
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제완료',
+                        text: '피나클 정보가 삭제되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+                            load();
+                        }
+                    });
+
+                }
+            });
             Swal.fire({
                 icon: 'warning',
                 title: '정말로 삭제하시겠습니까?',

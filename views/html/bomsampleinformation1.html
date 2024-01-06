@@ -20,6 +20,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 
 </head>
@@ -99,13 +100,16 @@
 
     </div>
 
-    <fieldset>
-        <legend>검색조건</legend>
-        <input type="text" id="myInput" placeholder="검색어를 입력하세요" onclick="search()" style="width:600px;"
+    <fieldset style="height: 40px;">
+        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
             autocomplete="off">
-        <button onclick="openEditModal()">신규추가</button>
-        <!-- <button class="saveButton" onclick="deleteitem()">신규추가</button> -->
-
+        <button id="newRegistrationBtn" onclick="openEditModal()" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
@@ -757,7 +761,7 @@
             $('#additionalNote-edit').val(additionalNotesValue !== null ? additionalNotesValue : '');
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectbommasssavebommanagement',
+                url: server + '/api/selectbomsamplesavebommanagement',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -1844,7 +1848,7 @@
 
             if (bomno !== '') {
                 if (confirm("BOM정보(샘플) 데이터를 저장하시겠습니까?")) {
-                   
+
                     $.ajax({
                         type: 'POST',
                         url: server + '/api/bommasssaveiteminfo',

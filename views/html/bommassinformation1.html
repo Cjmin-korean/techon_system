@@ -107,14 +107,10 @@
         <button id="newRegistrationBtn" onclick="openEditModal()" class="btn btn-primary">
             <i class="fas fa-plus-circle"></i> 신규등록
         </button>
-        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success">
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
             <i class="fas fa-file-excel"></i> 엑셀로 내보내기
         </button>
-        <button id="exportPdfBtn" class="btn btn-secondary">
-            <i class="fas fa-file-pdf"></i> PDF로 내보내기
-        </button>
-
-
     </fieldset>
     <div id="searchResultCount" style="font-size: 20px; font-weight: bold;">Data: 0</div>
 
@@ -1000,22 +996,30 @@
                     "bomno": rowData[0]
                 }),
                 success: function (result) {
-                    for (var i = 0; i < result.length; i++) {
+                    for (var i = 1; i < result; i++) {
+                        var charIndex = i - 1;  // Adjusted the index to start from 0
+                        var size1 = result[charIndex].char;
+                        console.log(size1);
 
-                        var size1 = result[i].toolcode;
                         var selectElement1 = $('#toolcode' + i);
                         selectElement1.empty();
 
+                        // Add an empty option at the beginning
                         var emptyOption1 = '<option value=""></option>';
                         selectElement1.append(emptyOption1);
-                        for (var j = 0; j < result.length; j++) {
 
-                            var option1 = '<option value="">' + result[j].toolcode + '</option>';
+                        for (var j = 0; j < size1.length; j++) {
+                            // Use result[charIndex][size1][j].toolcode instead of result[j][size1].toolcode
+                            var option1 = '<option value="' + result[charIndex][size1][j].toolcode + '">' + result[charIndex][size1][j].toolcode + '</option>';
                             selectElement1.append(option1);
                         }
                     }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX request failed:', status, error);
                 }
             });
+
 
 
 
