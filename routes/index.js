@@ -2000,7 +2000,7 @@ module.exports = function (app) {
                 .input('itemprice', sql.NVarChar, req.body.itemprice)
                 .input('purchaseprice', sql.NVarChar, req.body.purchaseprice)
                 .input('deadline', sql.NVarChar, req.body.deadline)
-            
+
                 .query(
                     'insert into sampleorderinput(insertdate,orderdate,outdate,bomno,customer,modelname,itemname,rev,pcs,pcscount,ordercount,productcount,inspectioncount,part,status,outtime,specification,chung,itemprice,purchaseprice,deadline)' +
                     ' values(@insertdate,@orderdate,@outdate,@bomno,@customer,@modelname,@itemname,@rev,@pcs,@pcscount,@ordercount,@productcount,@inspectioncount,@part,@status,@outtime,@specification,@chung,@itemprice,@purchaseprice,@deadline)'
@@ -2447,7 +2447,7 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('bomid', sql.Int, req.body.id)
-          
+
 
 
                 .query(
@@ -2473,7 +2473,7 @@ module.exports = function (app) {
             return pool.request()
                 .input('bomid', sql.NVarChar, req.body.bomid)
                 .input('status', sql.NVarChar, req.body.status)
-          
+
 
 
                 .query(
@@ -3767,7 +3767,6 @@ module.exports = function (app) {
 
                 .query(
                     "    SELECT " +
-                    "    ol.bomno, " +
                     "    ol.modelname, " +
                     "    ol.itemname, " +
                     "    ol.modelname, " +
@@ -3813,9 +3812,9 @@ module.exports = function (app) {
                     " WHERE " +
                     "     ol.orderstatus = '생산확정' " +
                     " GROUP BY " +
-                    "     ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname " +
+                    "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname " +
                     " ORDER BY " +
-                    "     ol.bomno, bm.materialwidth ASC; ")
+                    "     bm.materialwidth ASC; ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -5106,7 +5105,28 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT * FROM materialinput WHERE codenumber=@codenumber order by expirationdate desc ")
+                    "SELECT * FROM materialinput WHERE codenumber=@codenumber and status='' order by expirationdate asc ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateslt', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('id', sql.Int, req.body.id)
+                .input('status', sql.NVarChar, req.body.status)
+
+
+                .query(
+                    "update materialinput set status=@status where id=@id")
                 .then(result => {
 
                     res.json(result.recordset);
