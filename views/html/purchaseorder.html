@@ -153,14 +153,16 @@
 
                 <thead id="tableHead">
                     <tr>
-                        <th colspan="5">자재재고</th>
+                        <th colspan="7">자재재고</th>
 
                     </tr>
                     <th style="text-align:center;">자재명</th>
                     <th style="text-align:center;">자재코드</th>
                     <th style="text-align:center;">자재폭(mm)</th>
                     <th style="text-align:center;">수량(M)</th>
-
+                    <th style="text-align:center;">제조일자</th>
+                    <th style="text-align:center;">만료일자</th>
+                    <th style="text-align:center; width: 100px;">슬리팅</th>
                 </thead>
                 <tbody id="orderlistbombody1">
                     <!-- Add your table data here -->
@@ -176,6 +178,7 @@
                     <th style="text-align:center;">자재코드</th>
                     <th style="text-align:center;">자재폭(mm)</th>
                     <th style="text-align:center;">수량(M)</th>
+
 
                 </thead>
                 <tbody id="orderlistbombody1">
@@ -500,6 +503,9 @@
                     } else {
                         // Iterate through sorted data
                         for (var i = 0; i < data.length; i++) {
+                            // Display the "상세" button only for rows where has is 'y'
+                            var hasButton = data[i].has === 'Y' ? '<button class="detail-btn" data-row-index="' + i + '">상세</button>' : '';
+
                             $('#orderlistbombody').append(
                                 '<tr class="order-list-row">' +
                                 '<td><input type="text" id="bomno-input" value="' + (data[i].bomno || '') + '"></td>' +
@@ -522,7 +528,7 @@
                                 '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
                                 '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
                                 '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].customer || '0') + '"></td>' +
-                                '<td><button class="detail-btn" data-row-index="' + i + '">상세</button></td>' +
+                                '<td>' + hasButton + '</td>' +
                                 '</tr>'
                             );
                             $('td#rollpricetd').hide();
@@ -553,35 +559,66 @@
                                 }),
 
                                 success: function (result) {
-
                                     var tableFoot = $('#dataCount');
-                                    if (data.length === 0) {
+                                    if (result.length === 0) {
                                         tableFoot.text('총 데이터 개수: 0');
                                     } else {
                                         // Iterate through sorted data
-                                        for (var i = 0; i < data.length; i++) {
+                                        for (var i = 0; i < result.length; i++) {
                                             $('#orderlistbombody1').append(
                                                 '<tr class="order-list-row">' +
                                                 '<td><input type="text" id="bomno-input" value="' + (result[i].materialname || '') + '"></td>' +
                                                 '<td><input type="text" id="modelname-input" value="' + (result[i].codenumber || '') + '"></td>' +
                                                 '<td><input type="text" id="itemname-input" value="' + (result[i].materialwidth || '') + '"></td>' +
                                                 '<td><input type="text" id="materialname-input" value="' + (result[i].quantity || '') + '"></td>' +
-
+                                                '<td><input type="text" id="materialname-input" value="' + (result[i].manufacturedate || '') + '"></td>' +
+                                                '<td><input type="text" id="materialname-input" value="' + (result[i].expirationdate || '') + '"></td>' +
+                                                '<td><button class="slt-btn" data-row-index="' + i + '">슬리팅</button></td>' +
                                                 '</tr>'
                                             );
-
                                         }
+                                        $('.slt-btn').click(function () {
+                                            var rowIndex = $(this).data('row-index');
+                                            var rowData = data[rowIndex];
+                                            var codenumber = rowData.codenumber || '';
+
+                                            Swal.fire({
+                                                icon: 'info',
+                                                title: '등록',
+                                                text: '슬리팅 정보를 수정 하시겠습니까?',
+                                                showCancelButton: true,
+                                                confirmButtonColor: '#3085d6',
+                                                cancelButtonColor: '#d33',
+                                                confirmButtonText: '확인',
+                                                cancelButtonText: '취소',
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
 
 
+                                                    
+
+                                              
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: '지시 완료',
+                                                        text: '슬리팅 지시 정보가 수정 되었습니다.',
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            load()
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        });
                                     }
                                 }
                             });
-
                         });
                     }
                 }
             });
         }
+
 
         var rowData = $(row).find('td').map(function () {
             return $(this).text();
