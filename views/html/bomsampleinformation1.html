@@ -219,7 +219,7 @@
 
             </table>
             <div style="width: 140%; overflow: auto;">
-                <div style="height: auto; max-height: 600px; overflow-y: auto; display: block;">
+                <div style="height: auto; max-height: 800px; overflow-y: auto; display: block;">
                     <table style="width: 140%;">
                         <thead id="tableHead">
                             <tr style="height: 30px;">
@@ -376,8 +376,8 @@
                     </td>
                     <!-- <td><label for="editDate">REV변경</label></td>
                     <td><input type="checkbox" id="revchange" style="width:20px; height: 20px; cursor: pointer;"> </td> -->
-                    <td><label for="editAuthor">원가합계</label></td>
-                    <td><input type="text" style="text-align: right;" id="costsum-edit" value="" autocomplete="off">
+                    <!-- <td><label for="editAuthor">원가합계</label></td>
+                    <td><input type="text" style="text-align: right;" id="costsum-edit" value="" autocomplete="off"> -->
                     </td>
                 </tr>
                 <tr style="height:50px;">
@@ -391,7 +391,7 @@
 
             </table>
             <div style="width: 140%; overflow: auto;">
-                <div style="height: 450px; max-height: 450px; overflow-y: auto; display: block;">
+                <div style="height: auto; max-height: 800px; overflow-y: auto; display: block;">
                     <table style="width: 140%;">
                         <thead id="tableHead">
                             <tr style="height: 30px;">
@@ -470,12 +470,7 @@
                     </table>
                 </div>
             </div>
-            <div class="mainheader">
-                <h1>TOOL 상세정보</h1>
-            </div>
-
-            <table id="yourTableId" style="width: auto;">
-            </table>
+          
 
 
 
@@ -754,7 +749,6 @@
             $('#direction-edit').val(rowData[15]);
             $('#type-edit').val(rowData[17]);
             $('#bomid-edit').val(rowData[19]);
-            $('#costsum-edit').val(rowData[8]);
             $('#bomidsave').val(new Date().getTime());
             var additionalNotesValue = rowData[16];
             document.getElementById('overlay').style.display = 'block';
@@ -824,177 +818,7 @@
             });
 
             // Assuming rowData[9] contains the number of columns
-            var numberOfColumns = parseInt(rowData[13]);
-
-            // Clear the existing content inside the container
-            $('#yourTableId').html('');
-
-            var tableHtml = '<table>' +
-                '<thead>' +
-                '<tr>';
-            tableHtml += '<th  colspan="2" style="width: 100px;"></th>';
-
-            for (var i = 1; i <= numberOfColumns; i++) {
-                tableHtml += '<th colspan="2" style="width: 300px;">' + i + '차</th>';
-            }
-
-            tableHtml += '</tr>' +
-                '<tr>' +
-                '<th  colspan="2">설비명</th>';
-
-            for (var i = 1; i <= numberOfColumns; i++) {
-                tableHtml += '<th colspan="2"><select id="equipment' + i + '"></select></th>';
-            }
-
-            tableHtml += '</tr>' +
-                '<tr>' +
-                '<th rowspan="2" style="width:120px;"></th>'
-                + '<th rowspan="2"></th>';
-
-            for (var i = 1; i <= numberOfColumns; i++) {
-                tableHtml += '<th style="width:150px;">TOOL CODE</th>' +
-                    '<th style="width:150px;">고객사</th>';
-            }
-
-            tableHtml += '</tr>' +
-                '<tr>';
-
-            for (var i = 1; i <= numberOfColumns; i++) {
-                tableHtml += '<th style="width:150px;">비용</th>' +
-                    '<th style="width:50px;">차수</th>';
-            }
-
-            tableHtml += '</tr>' +
-                '</thead>' +
-                '<tbody id="tooltbody">';
-
-            var facilities = ['피나클']; // Add more facilities as needed
-            for (var i = 0; i < facilities.length; i++) {
-                tableHtml += '<tr>' +
-                    '<td rowspan="2">' + facilities[i] + '</td>' +
-                    '<td>합계(￦)</td>';
-
-                for (var j = 1; j <= numberOfColumns; j++) {
-                    tableHtml += '<td><select id="toolcode' + j + '" on></select></td>' +
-                        '<td><input type="text"  id="customer' + j + '"></td>';
-                }
-
-                tableHtml += '</tr>' +
-                    '<tr>' +
-                    '<td><input type="text" style="text-align:right;" id="sumpinacle"></td>'; // Missing concatenation
-
-                for (var j = 1; j <= numberOfColumns; j++) {
-                    tableHtml +=
-                        '<td><input type="text" style="text-align:right;" id="cost' + j + '"></td>' +
-                        '<td><input type="text" id="char' + j + '"></td>';
-                }
-
-                tableHtml += '</tr>';
-
-
-            }
-            var facilities1 = ['금형']; // Add more facilities as needed
-            for (var i = 0; i < facilities1.length; i++) {
-                tableHtml += '<tr>' +
-                    '<td rowspan="2">' + facilities1[i] + '</td>' +
-                    '<td>합계(￦)</td>';
-
-                for (var j = 1; j <= numberOfColumns; j++) {
-                    tableHtml += '<td><select id="moldtoolcode' + j + '"></select></td>' +
-                        '<td><input type="text" id="moldcustomer' + j + '"></td>';
-                }
-
-                tableHtml += '</tr>' +
-                    '<tr>' +
-                    '<td><input type="text" style="text-align:right;" id="summold"></td>'; // Missing concatenation
-
-                for (var j = 1; j <= numberOfColumns; j++) {
-                    tableHtml +=
-                        '<td><input type="text" style="text-align:right;" id="moldcost' + j + '"></td>' +
-                        '<td><input type="text" id="moldchar' + j + '"></td>';
-                }
-
-                tableHtml += '</tr>';
-
-
-            }
-
-
-            tableHtml += '</tbody></table>';
-
-            $('#yourTableId').html(tableHtml);
-
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectequipment',
-                dataType: 'json',
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-
-                        var size = data[i].size;
-                        var selectElement = $('#equipment' + i);
-                        selectElement.empty();
-
-                        var emptyOption = '<option value=""></option>';
-                        selectElement.append(emptyOption);
-                        for (var j = 0; j < size.length + 1; j++) {
-
-                            var option = '<option value="' + data[j].size + data[j].customer + '">' + data[j].size + data[j].customer + '</option>';
-                            selectElement.append(option);
-                        }
-                    }
-                }
-            });
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectbompinacle',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "bomno": rowData[0]
-                }),
-                success: function (result) {
-                    for (var i = 0; i < result.length; i++) {
-
-                        var selectElement = $('#toolcode' + result[i].char);
-                        selectElement.empty();
-
-                        var emptyOption = '<option value=""></option>';
-                        selectElement.append(emptyOption);
-
-                        var option = '<option value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>';
-                        selectElement.append(option);
-
-
-                    }
-                }
-            });
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectbommold',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "bomno": rowData[0]
-                }),
-                success: function (result) {
-                    for (var i = 0; i < result.length; i++) {
-
-                        var selectElement = $('#moldtoolcode' + result[i].char);
-                        selectElement.empty();
-
-                        var emptyOption = '<option value=""></option>';
-                        selectElement.append(emptyOption);
-
-                        var option = '<option value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>';
-                        selectElement.append(option);
-
-
-                    }
-                }
-            });
-
+           
 
 
         }

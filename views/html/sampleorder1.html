@@ -17,7 +17,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 
 <style>
@@ -49,12 +49,12 @@
     input {
 
         width: 100%;
-        padding: 10px;
+        padding: 8px;
         box-sizing: border-box;
         /* margin-bottom: 16px; */
         border: 1px solid #ccc;
         border-radius: 4px;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: bold;
     }
 </style>
@@ -62,48 +62,64 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">TOOL 발주등록</a>
+        <a style="margin-left: 20px;">샘플발주 접수 및 생산지시1</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
 
-    <fieldset>
-        <legend>검색조건</legend>
+
+    <fieldset style="height: 40px; width:auto;">
+
         <input type="date" id="datepicker1">
         <input type="date" id="datepicker2">
-        <button onclick="load()">조회</button>
-        <button onclick="newadd()">신규추가</button>
-        <button onclick="deletedata()" style="background-color: red;">선택삭제</button>
+        <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
+            <i class="fas fa-search"></i> 조회
+        </button>
+        <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i> 선택삭제
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+
+
 
     </fieldset>
-    
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
                 <th style="text-align:center; width: 20px;"><input type="checkbox"
                         style="width: 20px; height: 20px; cursor: pointer;"></th>
-                <th style="text-align:center;">등록일자</th>
-                <th style="text-align:center;">입고일자</th>
-                <th style="text-align:center;">제조사</th>
-                <th style="text-align:center;">TOOL<br>CODE</th>
-                <th style="text-align:center;">BOMNO.</th>
-                <th style="text-align:center;">고객사</th>
-                <th style="text-align:center;">품목명</th>
-                <th style="text-align:center;">차수</th>
-                <th style="text-align:center;">종류</th>
-                <th style="text-align:center;">수량</th>
-                <th style="text-align:center;">입고<br>단가</th>
-                <th style="text-align:center;">공급가액</th>
-                <th style="text-align:center;">부가세</th>
-                <th style="text-align:center;">합계</th>
-                <th style="text-align:center;">양산<br>샘플</th>
-                <th style="text-align:center; ">청구<br>미청구</th>
-                <th style="text-align:center;">발주사유</th>
-                <th style="text-align:center;">마감사유</th>
-                <th style="text-align:center;">작성자</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(1)">발주일자</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(2)">접수일자</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(3)">출하일자</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(4)">BOM NO.</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(5)">고객사</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(6)">모델명</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(7)">품목명</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(8)">고객사코드</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(9)">EA=PCS</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(10)">고객출하수량<br>(PCS)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(11)">고객출하수량<br>(EA)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(12)">생산수량<br>(EA)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(13)">검사수량<br>(EA)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(14)">작업구분</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(15)">입고상태</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(16)">출고시간</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(17)">사양구분</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(18)">청구/미청구</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(19)">판가<br>(￦)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(20)">합계금액<br>(￦)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(21)">매입단가<br>(￦)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(22)">매입합계<br>(￦)</th>
+                <th style="text-align:center; cursor: pointer;" onclick="sortTable(23)">마감유무</th>
+
             </tr>
 
         </thead>
@@ -112,42 +128,47 @@
         </tbody>
 
     </table>
-    <div id="editModal" style="max-height: 600px;  overflow-y: auto; width: 100%;">
-        <div class="mainheader">
-            <h1>TOOL 발주 등록</h1>
+    <div id="editModal" style="max-height: 600px;  overflow-y: auto; width: 100%; ">
+        <div class="mainheader" style="width:140%;">
+            <h1>샘플 발주 등록</h1>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div id="editForm">
-            <table class="styled-table" id="Podatatable">
+            <table class="styled-table" id="Podatatable" style="width: 140%;">
                 <thead id="tableHead">
                     <tr>
                         <th style="width:130px; background-color:white;"><button onclick="addnew()">추가</button>
                         </th>
                         <th style="width:130px; background-color:white;"><button onclick="pinaclesave()">저장</button>
                         </th>
-                        <th colspan="16" style="background-color:white;"></th>
+                        <th colspan="23" style="background-color:white;"></th>
                     </tr>
                     <tr>
                         <th></th>
-                        <th style="text-align:center;">등록일자</th>
-                        <th style="text-align:center;">입고일자</th>
-                        <th style="text-align:center;">제조사</th>
-                        <th style="text-align:center;">TOOL CODE</th>
-                        <th style="text-align:center;">BOMNO.</th>
-                        <th style="text-align:center;">고객사</th>
-                        <th style="text-align:center;">모델명</th>
-                        <th style="text-align:center;">품목명</th>
-                        <th style="text-align:center;">차수</th>
-                        <th style="text-align:center;">종류</th>
-                        <th style="text-align:center;">수량</th>
-                        <th style="text-align:center;">입고단가</th>
-                        <th style="text-align:center;">공급가액</th>
-                        <th style="text-align:center;">부가세</th>
-                        <th style="text-align:center;">합계</th>
-                        <th style="text-align:center;">양산/샘플</th>
-                        <th style="text-align:center; width: 100px;">청구<br>미청구</th>
-                        <th style="text-align:center; width: 100px;">발주<br>사유</th>
-                        <th style="text-align:center; width: 150px;">마감<br>사유</th>
+                        <th style="text-align:center; cursor: pointer;">발주일자</th>
+                        <th style="text-align:center; cursor: pointer;">접수일자</th>
+                        <th style="text-align:center; cursor: pointer;">출하일자</th>
+                        <th style="text-align:center; cursor: pointer;">BOM NO.</th>
+                        <th style="text-align:center; cursor: pointer;">고객사</th>
+                        <th style="text-align:center; cursor: pointer;">모델명</th>
+                        <th style="text-align:center; cursor: pointer;">품목명</th>
+                        <th style="text-align:center; cursor: pointer;">고객사코드</th>
+                        <th style="text-align:center; cursor: pointer;">EA=PCS</th>
+                        <th style="text-align:center; cursor: pointer;">고객출하수량<br>(PCS)</th>
+                        <th style="text-align:center; cursor: pointer;">고객출하수량<br>(EA)</th>
+                        <th style="text-align:center; cursor: pointer;">생산수량<br>(EA)</th>
+                        <th style="text-align:center; cursor: pointer;">검사수량<br>(EA)</th>
+                        <th style="text-align:center; cursor: pointer; width: 100px;">작업구분</th>
+                        <th style="text-align:center; cursor: pointer; width: 100px;">입고상태</th>
+                        <th style="text-align:center; cursor: pointer; width: 100px;">출고시간</th>
+                        <th style="text-align:center; cursor: pointer; width: 100px;">사양구분</th>
+                        <th style="text-align:center; cursor: pointer; width: 100px;">청구/미청구</th>
+                        <th style="text-align:center; cursor: pointer;">판가<br>(￦)</th>
+                        <th style="text-align:center; cursor: pointer;">합계금액<br>(￦)</th>
+                        <th style="text-align:center; cursor: pointer;">매입단가<br>(￦)</th>
+                        <th style="text-align:center; cursor: pointer;">매입합계<br>(￦)</th>
+                        <th style="text-align:center; cursor: pointer; width: 100px">마감유무</th>
+
                     </tr>
 
                 </thead>
@@ -159,13 +180,13 @@
         </div>
     </div>
 
-    <div id="editModal1" style="max-height: 800px; width: 1000px; overflow-y: auto;">
-        <div class="mainheader">
-            <h1>품목 검색</h1>
+    <div id="editModal1" style="max-height: 800px; width: 1000px; overflow-y: auto; ">
+        <div class="mainheader" style="position: sticky; top:0;">
+            <h1>BOM NO 검색</h1>
             <span class="close" onclick="closeModal1()">&times;</span>
-            <input type="text" id="numericPart" style="width: 200px; visibility: hidden;">
+            <input type="text" id="numericPart" style="width: 200px;  position: sticky; top:0; visibility: hidden;">
         </div>
-        <input type="text" oninput="search()" id="materialnameinput" placeholder="검색어를 입력 하세요"
+        <input type="text" oninput="search()" id="materialnameinput" placeholder="BOMNO를 입력 후 Enter를 누르세요"
             style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey(event)" autocomplete="off">
 
         <div>
@@ -173,11 +194,14 @@
                 <thead id="tableHead">
                     <tr>
                         <th style="width: auto; text-align: center;" onclick="sortTable(1)">BOMNO</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(2)">제품코드</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(2)">고객사</th>
                         <th style="width: auto; text-align: center;" onclick="sortTable(3)">모델명</th>
                         <th style="width: auto; text-align: center;" onclick="sortTable(4)">제품명</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(5)">고객사</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(5)">제품코드</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(6)">단가</th>
+
                     </tr>
+
                 </thead>
                 <tbody id="searchingmaterialinfobody" style="max-height: 700px; overflow-y: auto;">
 
@@ -189,11 +213,11 @@
     </div>
     <div id="customernamesearch">
         <div class="mainheader">
-            <h1>TOOL CODE 검색</h1>
+            <h1>BOM NO 검색</h1>
             <span class="close" onclick="customercloseModal()">&times;</span>
             <input type="text" id="numericPart-edit" style="width: 120px; visibility: hidden; ">
         </div>
-        <input type="text" id="customernameinput" placeholder="TOOL CODE를 입력 후 Enter를 누르세요"
+        <input type="text" id="customernameinput" placeholder="BOMNO를 입력 후 Enter를 누르세요"
             style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey1(event)" autocomplete="off">
 
         <div style="height:600px; max-height: 600px; overflow-y: auto;">
@@ -284,89 +308,106 @@
 
         function load() {
             $('#Datatbody').empty();
-
-            // Variables to store sums
-            var sumA1 = 0;
-            var sumA2 = 0;
-            var sumA3 = 0;
-
             $.ajax({
                 type: 'POST',
-                url: server + '/api/bomtoolorder',
+                url: server + '/api/selectsampleorder',
                 dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "start": $('#datepicker1').val(),
-                    "finish": $('#datepicker2').val()
-                }),
-                success: function (result) {
+                success: function (data) {
                     var tableFoot = $('#dataCount');
-                    if (result.length === 0) {
+                    if (data.length === 0) {
+                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
-                        for (var i = 0; i < result.length; i++) {
-                            // Accumulate sums
-                            sumA1 += result[i].a1;
-                            sumA2 += result[i].a2;
-                            sumA3 += result[i].a3;
+                        for (var i = 0; i < data.length; i++) {
+                            var deadlineCell = '<td>' + data[i].deadline + '</td>';
+                            if (data[i].deadline === '마감') {
+                                deadlineCell = '<td style="color: red;">' + data[i].deadline + '</td>';
+                            }
 
                             $('#Datatbody').append(
                                 '<tr>' +
-                                '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
-                                '<td>' + result[i].orderdate + '</td>' +
-                                '<td>' + result[i].inputdate + '</td>' +
-                                '<td>' + result[i].madecustomer + '</td>' +
-                                '<td>' + result[i].toolcode + '</td>' +
-                                '<td>' + result[i].bomno + '</td>' +
-                                '<td>' + result[i].customer + '</td>' +
-                                '<td>' + result[i].itemname + '</td>' +
-                                '<td>' + result[i].char + '</td>' +
-                                '<td>' + result[i].part + '</td>' +
-                                '<td>' + result[i].ordercount + '</td>' +
-                                '<td style="text-align:right;">' + result[i].orderprice.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].a1.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].a2.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].a3.toLocaleString() + '</td>' +
-                                '<td>' + result[i].part2 + '</td>' +
-                                '<td>' + result[i].sheet2 + '</td>' +
-                                '<td>' + result[i].ordercause + '</td>' +
-                                '<td>' + result[i].deadline + '</td>' +
-                                '<td>' + result[i].employee + '</td>' +
-
-                                '<td id="data-id">' + result[i].id + '</td>' +
+                                '<td><input type="checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
+                                '<td>' + data[i].insertdate + '</td>' +
+                                '<td>' + data[i].orderdate + '</td>' +
+                                '<td>' + data[i].outdate + '</td>' +
+                                '<td>' + data[i].bomno + '</td>' +
+                                '<td>' + data[i].customer + '</td>' +
+                                '<td>' + data[i].modelname + '</td>' +
+                                '<td>' + data[i].itemname + '</td>' +
+                                '<td>' + data[i].rev + '</td>' +
+                                '<td>1EA=' + data[i].pcs + 'PCS</td>' +
+                                '<td style="text-align:right;">' + data[i].pcscount.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + data[i].ordercount.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + data[i].productcount.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + data[i].inspectioncount.toLocaleString() + '</td>' +
+                                '<td>' + data[i].part + '</td>' +
+                                '<td>' + data[i].status + '</td>' +
+                                '<td>' + data[i].outtime + '</td>' +
+                                '<td>' + data[i].specification + '</td>' +
+                                '<td>' + data[i].chung + '</td>' +
+                                '<td  style="text-align:right;">' + data[i].itemprice.toLocaleString() + '</td>' +
+                                '<td  style="text-align:right;">' + data[i].sumitemprice.toLocaleString() + '</td>' +
+                                '<td  style="text-align:right;">' + data[i].purchaseprice.toLocaleString() + '</td>' +
+                                '<td  style="text-align:right;">' + data[i].purchprice.toLocaleString() + '</td>' +
+                                '<td>' + data[i].deadline + '</td>' +
+                                '<td id="data-id">' + data[i].id + '</td>' +
                                 '</tr>'
                             );
 
                             $("td#data-id").hide();
                         }
 
-                        // Append row for the sum
-                        $('#Datatbody').append(
-                            '<tr>' +
-                            '<td colspan="12" style="text-align:right;">합계:</td>' +
-                            '<td style="text-align:right;">' + sumA1.toLocaleString() + '</td>' +
-                            '<td style="text-align:right;">' + sumA2.toLocaleString() + '</td>' +
-                            '<td style="text-align:right;">' + sumA3.toLocaleString() + '</td>' +
-                            '<td colspan="8"></td>' +
-                            '</tr>'
-                        );
-
-                        $('.select-checkbox').on('change', function () {
-                            var id = $(this).closest('tr').find('td#data-id').text();
-                            if ($(this).prop('checked')) {
-                                selectedIds.push(id);
-                            } else {
-                                selectedIds = selectedIds.filter(function (value) {
-                                    return value !== id;
-                                });
-                            }
-                        });
-
+                        tableFoot.text('총 데이터 개수: ' + data.length);
                     }
                 }
             });
         }
+        $(document).on('keydown', 'input[id^="bomno-input"]', function (e) {
+            if (e.keyCode === 13) { // Check for Enter key
+                var currentRow = $(this).closest('tr');
+                var rowIndex = currentRow.index();
 
+                document.getElementById('editModal1').style.display = 'block';
+                $("#materialnameinput").val('').focus();
+                $("#numericPart").val(rowIndex);
+
+                var materialNameValue = currentRow.find('input[id^="bomno-input"]').val().trim();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchbomnosampleorder',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        bomno: 'im'
+                    }),
+                    success: function (result) {
+                        $('#searchingmaterialinfobody').empty(); // Clear previous content
+                        console.log(result)
+                        for (var i = 0; i < result.length; i++) {
+                          
+                            $('#searchingmaterialinfobody').append(
+                                '<tr onclick="insertmaterialdata(this)">' +
+                                '<td>' + result[i].bomno + '</td>' +
+                              
+                                '</tr>'
+                            );
+
+                            // $("td#data-width").hide();
+                            // $("td#data-usewidth").hide();
+                            // $("td#data-length").hide();
+                            // $("td#data-sqmprice").hide();
+                            // $("td#data-rollprice").hide();
+                            // $("td#data-unit").hide();
+                            // $("td#data-manufacterer").hide();
+                            // $("td#data-supplier").hide();
+                            // $("td#data-codenumber").hide();
+                        }
+                    }
+                });
+
+
+            }
+        });
 
         function settingDate() {
             const date = new Date();
@@ -392,6 +433,7 @@
             $('#datepicker1').val(currentDate);
             $('#datepicker2').val(currentDate);
 
+
         }
         function deleteRow(button) {
             // 해당 버튼이 속한 행을 찾아서 삭제
@@ -407,12 +449,12 @@
             $('#searchingmaterialinfobody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/searchbomno',
+                url: server + '/api/searchbomnosampleorder',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
 
-                    itemcode: inputValue
+                    bomno: $('#bomno-input').val()
 
                 }),
                 success: function (result) {
@@ -422,12 +464,10 @@
                         $('#searchingmaterialinfobody').append(
                             '<tr onclick="insertmaterialdata(this)">' +
                             '<td>' + result[i].bomno + '</td>' +
-
-                            // '<td><input type="checkbox" onclick="insertmaterialdata(this)"  style="cursor:pointer; width: 20px; height: 20px;"></td>' +
-                            '<td>' + result[i].itemcode + '</td>' +
+                            '<td>' + result[i].customer + '</td>' +
                             '<td>' + result[i].modelname + '</td>' +
                             '<td>' + result[i].itemname + '</td>' +
-                            '<td>' + result[i].customer + '</td>' +
+                            '<td>' + result[i].itemcode + '</td>' +
                             '<td id="data-itemprice">' + result[i].itemprice + '</td>' +
                             '</tr>'
                         );
@@ -443,30 +483,36 @@
 
 
             newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
-            newRow.append('<td><input type="date" id="date-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
-            newRow.append('<td><input type="date" id="indate-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="madecustomer-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="toolcode-input" style="cursor:pointer; background-color:whitesmoke;" ondblclick="customerDoubleClick();" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="bomno-input" style="cursor:pointer;" ondblclick="handleDoubleClick();" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="date" id="insertdate-input" style="background-color:  cursor: pointer;"  autocomplete="off" style="width:60%;"></td>');
+            newRow.append('<td><input type="date" id="orderdate-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
+            newRow.append('<td><input type="date" id="outdate-input" style="background-color:  cursor: pointer;"  autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="bomno-input" style="cursor:pointer; background-color:whitesmoke;" ondblclick="customerDoubleClick();" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="customer-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="modelname-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="modelname-input" style="cursor:pointer;" ondblclick="handleDoubleClick();" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="itemname-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="char-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="part-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="ordercount-input" oninput="ordercountchanged()" style="text-align:right;" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="orderprice-input" style="text-align:right;" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="a1-input" style="text-align:right;" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="a2-input" style="text-align:right;" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="a3-input" style="text-align:right;" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="part2-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><select id="sheet2-input"><option value="청구">청구</option><option value="미청구">미청구</option></select></td>');
-            newRow.append('<td><select id="ordercause-input"><option value="마감">마감</option><option value="이월">이월</option></select></td>');
-            newRow.append('<td><select id="deadline-input"><option value=""></option><option value="양산신규">양산신규</option><option value="양산증작">양산증작</option><option value="양산사양변경">양산사양변경</option><option value="샘플신규">샘플신규</option><option value="샘플형상변경">샘플형상변경</option><option value="샘플증작">샘플증작</option></select></td>');
+            newRow.append('<td><input type="text" id="rev-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="pcs-input" oninput="ordercountchanged()" style="text-align:right;" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="pcscount-input" style="text-align:right;" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="ordercount-input" style="text-align:right;" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="productcount-input" style="text-align:right;" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="inspectioncount-input" style="text-align:right;" value="" autocomplete="off"></td>');
+            newRow.append('<td><select id="part-input"><option value="사내">사내</option><option value="외주">외주</option></select></td>');
+            newRow.append('<td><select id="status-input"><option value="완료">완료</option><option value="미완료">미완료</option></select></td>');
+            newRow.append('<td><select id="outtime-input"><option value="오전">오전</option><option value="오후">오후</option></select></td>');
+            newRow.append('<td><input type="text" id="specification-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><select id="chung-input"><option value="청구">청구</option><option value="미청구">미청구</option></select></td>');
+            newRow.append('<td><input type="text" id="itemprice-input" value="0" autocomplete="off" oninput="valuechanged()"></td>');
+            newRow.append('<td><input type="text" id="sumitemprice-input" value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="purchaseprice-input" oninput="valuechanged1()" value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="purchprice-input" value="0" autocomplete="off"></td>');
+            newRow.append('<td><select id="deadline-input"><option value="마감">마감</option><option value="이월">이월</option></select></td>');
 
             $('#accountdatatbody').append(newRow);
             var today = new Date().toISOString().split('T')[0];
-            $('#date-input').val(today);
-            $('#indate-input').val(today);
+
+            $('#insertdate-input').val(today);
+            $('#orderdate-input').val(today);
+            $('#outdate-input').val(today);
         }
         function ordercountchanged() {
             var currentRow = $(event.target).closest('tr');
@@ -489,13 +535,13 @@
 
 
                 for (let i = 0; i < rowCount; i++) {
-                    var toolcode = $('#accountdatatbody tr:eq(' + i + ') #toolcode-input').val();
+                    var toolcode = $('#accountdatatbody tr:eq(' + i + ') #bomno-input').val();
 
                     if (toolcode === '') {
                         Swal.fire({
                             icon: 'info',
                             title: '누락',
-                            text: (i + 1) + '번째 TOOL CODE가 누락되었습니다.',
+                            text: (i + 1) + '번째 BOM NO가 누락되었습니다.',
                         });
                         return;
                     }
@@ -507,7 +553,7 @@
                 Swal.fire({
                     icon: 'success',
                     title: '저장',
-                    text: 'TOOL 발주 정보를 등록하시겠습니까?',
+                    text: '샘플 발주등록 정보를 등록하시겠습니까?',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
@@ -517,30 +563,35 @@
                     if (result.isConfirmed) {
                         for (let i = 0; i < rowCount; i++) {
 
-                            var ordercount = removeCommas($('#accountdatatbody tr:eq(' + i + ') #ordercount-input').val());
-                            var orderprice = removeCommas($('#accountdatatbody tr:eq(' + i + ') #orderprice-input').val());
-
                             $.ajax({
                                 type: 'POST',
-                                url: server + '/api/insertbomtoolorder',
+                                url: server + '/api/insertsampleorderinput',
                                 dataType: 'json',
                                 contentType: 'application/json',
                                 data: JSON.stringify({
-                                    "orderdate": $('#accountdatatbody tr:eq(' + i + ') #date-input').val(),
-                                    "inputdate": $('#accountdatatbody tr:eq(' + i + ') #indate-input').val(),
-                                    "madecustomer": $('#accountdatatbody tr:eq(' + i + ') #madecustomer-input').val(),
-                                    "toolcode": $('#accountdatatbody tr:eq(' + i + ') #toolcode-input').val(),
+
+
+                                    "insertdate": $('#accountdatatbody tr:eq(' + i + ') #insertdate-input').val(),
+                                    "orderdate": $('#accountdatatbody tr:eq(' + i + ') #orderdate-input').val(),
+                                    "outdate": $('#accountdatatbody tr:eq(' + i + ') #outdate-input').val(),
                                     "bomno": $('#accountdatatbody tr:eq(' + i + ') #bomno-input').val(),
                                     "customer": $('#accountdatatbody tr:eq(' + i + ') #customer-input').val(),
+                                    "modelname": $('#accountdatatbody tr:eq(' + i + ') #modelname-input').val(),
                                     "itemname": $('#accountdatatbody tr:eq(' + i + ') #itemname-input').val(),
-                                    "char": $('#accountdatatbody tr:eq(' + i + ') #char-input').val(),
+                                    "rev": $('#accountdatatbody tr:eq(' + i + ') #rev-input').val(),
+                                    "pcs": $('#accountdatatbody tr:eq(' + i + ') #pcs-input').val(),
+                                    "pcscount": $('#accountdatatbody tr:eq(' + i + ') #pcscount-input').val(),
+                                    "ordercount": $('#accountdatatbody tr:eq(' + i + ') #ordercount-input').val(),
+                                    "productcount": $('#accountdatatbody tr:eq(' + i + ') #productcount-input').val(),
+                                    "inspectioncount": $('#accountdatatbody tr:eq(' + i + ') #inspectioncount-input').val(),
                                     "part": $('#accountdatatbody tr:eq(' + i + ') #part-input').val(),
-                                    "ordercount": ordercount,
-                                    "orderprice": orderprice,
-                                    "sheet2": $('#accountdatatbody tr:eq(' + i + ') #sheet2-input').val(),
-                                    "part2": $('#accountdatatbody tr:eq(' + i + ') #part2-input').val(),
-                                    "ordercause": $('#accountdatatbody tr:eq(' + i + ') #ordercause-input').val(),
-                                    "deadline": $('#accountdatatbody tr:eq(' + i + ') #deadline-input').val()
+                                    "status": $('#accountdatatbody tr:eq(' + i + ') #status-input').val(),
+                                    "outtime": $('#accountdatatbody tr:eq(' + i + ') #outtime-input').val(),
+                                    "specification": $('#accountdatatbody tr:eq(' + i + ') #specification-input').val(),
+                                    "chung": $('#accountdatatbody tr:eq(' + i + ') #chung-input').val(),
+                                    "itemprice": $('#accountdatatbody tr:eq(' + i + ') #itemprice-input').val(),
+                                    "purchaseprice": $('#accountdatatbody tr:eq(' + i + ') #purchaseprice-input').val(),
+                                    "deadline": $('#accountdatatbody tr:eq(' + i + ') #deadline-input').val(),
 
                                 }),
                                 success: function (result) {
@@ -555,7 +606,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: '저장완료',
-                            text: 'TOOL 발주 정보가 등록되었습니다.',
+                            text: '샘플발주 정보가 등록되었습니다.',
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 load()
@@ -615,10 +666,11 @@
             var rowCount = $('#accountdatatbody tr').length - 1;
 
             $('#accountdatatbody tr:eq(' + rowCount + ') #bomno-input').val(rowData[0]); // BOMNO
+            $('#accountdatatbody tr:eq(' + rowCount + ') #customer-input').val(rowData[1]); // 고객사
             $('#accountdatatbody tr:eq(' + rowCount + ') #modelname-input').val(rowData[2]); // 모델명
             $('#accountdatatbody tr:eq(' + rowCount + ') #itemname-input').val(rowData[3]); // 품목명
-            $('#accountdatatbody tr:eq(' + rowCount + ') #customer-input').val(rowData[4]); // 고객사
-            $('#accountdatatbody tr:eq(' + rowCount + ') #toolcode-input').focus();
+            $('#accountdatatbody tr:eq(' + rowCount + ') #rev-input').val(rowData[3]); // 품목명
+            $('#accountdatatbody tr:eq(' + rowCount + ') #pcs-input').focus();
             $('#editModal1').fadeOut();
         }
         function insertmaterialdata2(row) {
@@ -634,40 +686,8 @@
 
 
 
-        function valuechanged() {
-            var inputElement = document.getElementById('inputprice-input');
-            var inputValue = inputElement.value.replace(/,/g, ''); // Remove existing commas
 
-            // Check if the input is a valid number
-            if (inputValue === '') {
-                // If input is empty, set value to 0
-                inputElement.value = '0';
-            } else if (!isNaN(inputValue)) {
-                // Format the input value with commas
-                var formattedValue = numberWithCommas(inputValue);
-                inputElement.value = formattedValue;
-            } else {
-                // Handle non-numeric input or other invalid cases
-                // You may want to add additional logic or provide feedback to the user
-            }
-        }
-        function valuechangedOutPrice() {
-            var inputElement1 = document.getElementById('outputprice-input');
-            var inputValue1 = inputElement1.value.replace(/,/g, ''); // Remove existing commas
 
-            // Check if the input is a valid number
-            if (inputValue1 === '') {
-                // If input is empty, set value to 0
-                inputElement1.value = '0';
-            } else if (!isNaN(inputValue1)) {
-                // Format the input value with commas
-                var formattedValue1 = numberWithCommas(inputValue1);
-                inputElement1.value = formattedValue1;
-            } else {
-                // Handle non-numeric input or other invalid cases
-                // You may want to add additional logic or provide feedback to the user
-            }
-        }
 
         function addnew() {
             var newRow = $('<tr></tr>');
@@ -787,6 +807,15 @@
                     }
                 }
             }
+            var currentRow = $(this).closest('tr');
+            var rowIndex = currentRow.index();
+
+            document.getElementById('materialnamesearch').style.display = 'block';
+            $("#materialnameinput").val('').focus();
+            $("#numericPart").val(rowIndex);
+
+            var materialNameValue = currentRow.find('input[id^="materialname-input"]').val().trim();
+            console.log('123123123')
         });
 
 

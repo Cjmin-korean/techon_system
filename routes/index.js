@@ -1917,14 +1917,15 @@ module.exports = function (app) {
             return pool.request()
                 //.input('변수',값 형식, 값)
                 .input('bomno', sql.NVarChar, req.body.bomno)
-                .input('modelname', sql.NVarChar, req.body.modelname)
-                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('part', sql.NVarChar, req.body.part)
                 .input('toolcode', sql.NVarChar, req.body.toolcode)
                 .input('char', sql.Float, req.body.char)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+                .input('status', sql.NVarChar, req.body.status)
 
                 .query(
-                    'insert into materialinput(bomno,modelname,itemname,toolcode,char)' +
-                    ' values(@bomno,@modelname,@itemname,@toolcode,@char)'
+                    'insert into bomtoolcode(bomno,part,toolcode,char,bomid,status)' +
+                    ' values(@bomno,@part,@toolcode,@char,@bomid,@status)'
                 )
                 .then(result => {
 
@@ -1961,6 +1962,48 @@ module.exports = function (app) {
                 .query(
                     'insert into bomtoolorder(orderdate,inputdate,madecustomer,toolcode,bomno,customer,itemname,char,part,ordercount,orderprice,sheet2,part2,ordercause,deadline)' +
                     ' values(@orderdate,@inputdate,@madecustomer,@toolcode,@bomno,@customer,@itemname,@char,@part,@ordercount,@orderprice,@sheet2,@part2,@ordercause,@deadline)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/insertsampleorderinput', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('insertdate', sql.NVarChar, req.body.insertdate)
+                .input('orderdate', sql.NVarChar, req.body.orderdate)
+                .input('outdate', sql.NVarChar, req.body.outdate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('rev', sql.NVarChar, req.body.rev)
+                .input('pcs', sql.NVarChar, req.body.pcs)
+                .input('pcscount', sql.Float, req.body.pcscount)
+                .input('ordercount', sql.Float, req.body.ordercount)
+                .input('productcount', sql.NVarChar, req.body.productcount)
+                .input('inspectioncount', sql.NVarChar, req.body.inspectioncount)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('outtime', sql.NVarChar, req.body.outtime)
+                .input('specification', sql.NVarChar, req.body.specification)
+                .input('chung', sql.NVarChar, req.body.chung)
+                .input('itemprice', sql.NVarChar, req.body.itemprice)
+                .input('purchaseprice', sql.NVarChar, req.body.purchaseprice)
+                .input('deadline', sql.NVarChar, req.body.deadline)
+            
+                .query(
+                    'insert into sampleorderinput(insertdate,orderdate,outdate,bomno,customer,modelname,itemname,rev,pcs,pcscount,ordercount,productcount,inspectioncount,part,status,outtime,specification,chung,itemprice,purchaseprice,deadline)' +
+                    ' values(@insertdate,@orderdate,@outdate,@bomno,@customer,@modelname,@itemname,@rev,@pcs,@pcscount,@ordercount,@productcount,@inspectioncount,@part,@status,@outtime,@specification,@chung,@itemprice,@purchaseprice,@deadline)'
                 )
                 .then(result => {
 
@@ -2339,6 +2382,30 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectbomtoolcode', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomid', sql.NVarChar, req.body.bomid)
+
+                .query(
+                    "select * from bomtoolcode where bomid=@bomid and status='true'")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/updatapinacledata', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -2360,6 +2427,57 @@ module.exports = function (app) {
 
                 .query(
                     "update sampleorder set bomno=@bomno,classification=@classification,partcustomer=@partcustomer,toolcode=@toolcode,customer=@customer,modelname=@modelname,itemname=@itemname,char=@char,part=@part,inputprice=@inputprice,outputprice=@outputprice,etc=@etc where id=@id")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatapinacledata', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('bomid', sql.Int, req.body.id)
+          
+
+
+                .query(
+                    "update bomtoolcode set status='false' where bomid=@bomid")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatebomtoolcode', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('bomid', sql.NVarChar, req.body.bomid)
+                .input('status', sql.NVarChar, req.body.status)
+          
+
+
+                .query(
+                    "update bomtoolcode set status=@status where bomid=@bomid")
 
                 .then(result => {
 
@@ -4929,6 +5047,26 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT * FROM iteminfo WHERE itemcode LIKE '%' + @itemcode + '%' order by itemcode asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/searchbomnosampleorder', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+
+                .query(
+                    "SELECT * FROM iteminfo where part='샘플' and bomno LIKE '%@bomno%' order by bomno asc")
                 .then(result => {
 
                     res.json(result.recordset);
