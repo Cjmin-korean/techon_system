@@ -5078,15 +5078,35 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
-        app.post('/api/searchingcustomername', function (req, res) {
+        app.post('/api/searchbomnosampleorder', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
-                .input('customername', sql.NVarChar, req.body.customername)
+                .input('bomno', sql.NVarChar, req.body.bomno)
 
 
                 .query(
-                    "SELECT * FROM customerinformation WHERE customername LIKE '%' + @customername + '%' order by customername asc")
+                    "SELECT * FROM iteminfo where part='샘플' and bomno LIKE '%@bomno%' order by bomno asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcodenumber', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+
+
+                .query(
+                    "SELECT * FROM materialinput WHERE codenumber=@codenumber order by expirationdate desc ")
                 .then(result => {
 
                     res.json(result.recordset);

@@ -122,7 +122,7 @@
 
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
-        <div id="editForm" style="max-height: 700px; width: 100%; float: left; overflow-y: auto;">
+        <div id="editForm" style="max-height: 900px; width: 100%; float: left; overflow-y: auto;">
             <table class="styled-table">
 
                 <thead id="tableHead">
@@ -464,7 +464,26 @@
 
             }
         }
-
+        // '<td>' + data[i].bomno || '' + '</td>' +
+        // '<td>' + data[i].modelname || '' + '</td>' +
+        // '<td>' + data[i].itemname || '' + '</td>' +
+        // '<td>' + data[i].materialname || '' + '</td>' +
+        // '<td>' + data[i].materialwidth || '' + '</td>' +
+        // '<td>' + data[i].soyo || '' + '</td>' +
+        // '<td>' + data[i].sumquantity || '' + '</td>' +
+        // '<td>' + data[i].has || '' + '</td>' +
+        // '<td>' + data[i].cut || '' + '</td>' +
+        // '<td>' + data[i].materialwidth || '' + '</td>' +
+        // '<td>' + data[i].a || '' + '</td>' +
+        // '<td>' + data[i].roundedResult || '' + '</td>' +
+        // '<td>' + data[i].sqmprice || '' + '</td>' +
+        // '<td>' + data[i].a1 || '' + '</td>' +
+        // '<td>' + data[i].quantity || '' + '</td>' +
+        // '<td>' + data[i].codenumber || '' + '</td>' +
+        // '<td>' + data[i].supplier || '' + '</td>' +
+        // '<td>' + data[i].width || '' + '</td>' +
+        // '<td>' + data[i].length || '' + '</td>' +
+        // '<td>' + data[i].customer || '' + '</td>' +
 
         function load1() {
             $('#orderlistbombody').empty();
@@ -473,19 +492,16 @@
                 url: server + '/api/selectorderlistinformation',
                 dataType: 'json',
                 success: function (data) {
-                    $('#num').val(data.length)
+                    $('#num').val(data.length);
 
                     var tableFoot = $('#dataCount');
                     if (data.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
                     } else {
-
-
                         // Iterate through sorted data
                         for (var i = 0; i < data.length; i++) {
-                            console.log(data)
                             $('#orderlistbombody').append(
-                                '<tr>' +
+                                '<tr class="order-list-row">' +
                                 '<td><input type="text" id="bomno-input" value="' + (data[i].bomno || '') + '"></td>' +
                                 '<td><input type="text" id="modelname-input" value="' + (data[i].modelname || '') + '"></td>' +
                                 '<td><input type="text" id="itemname-input" value="' + (data[i].itemname || '') + '"></td>' +
@@ -506,25 +522,71 @@
                                 '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
                                 '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
                                 '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].customer || '0') + '"></td>' +
+                                '<td><button class="detail-btn" data-row-index="' + i + '">상세</button></td>' +
                                 '</tr>'
-
                             );
-                            $('td#rollpricetd').hide()
-                            $('td#sqmpricetd').hide()
-                            $('td#olquantitytd').hide()
-                            $('td#codenumbertd').hide()
-                            $('td#supplietd').hide()
-                            $('td#widthtd').hide()
-                            $('td#lengthtd').hide()
-                            $('td#quantitytd').hide()
-                            $('td#suppliertd').hide()
-                            $('td#manufacterertd').hide()
+                            $('td#rollpricetd').hide();
+                            $('td#sqmpricetd').hide();
+                            $('td#olquantitytd').hide();
+                            $('td#codenumbertd').hide();
+                            $('td#supplietd').hide();
+                            $('td#widthtd').hide();
+                            $('td#lengthtd').hide();
+                            $('td#quantitytd').hide();
+                            $('td#suppliertd').hide();
+                            $('td#manufacterertd').hide();
                         }
+
+                        $('.detail-btn').click(function () {
+                            var rowIndex = $(this).data('row-index');
+                            var rowData = data[rowIndex];
+                            var codenumber = rowData.codenumber || '';
+
+                            $('#orderlistbombody1').empty();
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/selectcodenumber',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "codenumber": codenumber,
+                                }),
+
+                                success: function (result) {
+
+                                    var tableFoot = $('#dataCount');
+                                    if (data.length === 0) {
+                                        tableFoot.text('총 데이터 개수: 0');
+                                    } else {
+                                        // Iterate through sorted data
+                                        for (var i = 0; i < data.length; i++) {
+                                            $('#orderlistbombody1').append(
+                                                '<tr class="order-list-row">' +
+                                                '<td><input type="text" id="bomno-input" value="' + (result[i].materialname || '') + '"></td>' +
+                                                '<td><input type="text" id="modelname-input" value="' + (result[i].codenumber || '') + '"></td>' +
+                                                '<td><input type="text" id="itemname-input" value="' + (result[i].materialwidth || '') + '"></td>' +
+                                                '<td><input type="text" id="materialname-input" value="' + (result[i].quantity || '') + '"></td>' +
+
+                                                '</tr>'
+                                            );
+
+                                        }
+
+
+                                    }
+                                }
+                            });
+
+                        });
                     }
                 }
             });
         }
 
+        var rowData = $(row).find('td').map(function () {
+            return $(this).text();
+        }).get();
+        $('#customer-save').val(rowData[0])
 
         // Function to retrieve data for a specific row
         function getDataForRow(rowIndex) {
