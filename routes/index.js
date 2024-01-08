@@ -104,32 +104,32 @@ module.exports = function (app) {
 
     // const downloadPath = '/Users/cjh/Downloads/Techon/sshkey_1'; // 다운로드 받을 경로
     // **** start
-sql.connect(config).then(pool => {
-    app.post('/api/insertimg', function (req, res) {
-        res.header("Access-Control-Allow-Origin", "*");
+    sql.connect(config).then(pool => {
+        app.post('/api/insertimg', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
 
-        const img = req.files.img; // Assuming you are using Express and multer for file upload
+            const img = req.files.img; // Assuming you are using Express and multer for file upload
 
-        if (!img) {
-            return res.status(400).send('No file uploaded.');
-        }
+            if (!img) {
+                return res.status(400).send('No file uploaded.');
+            }
 
-        const imgBuffer = img.buffer; // Assuming your img object has a 'buffer' property
+            const imgBuffer = img.buffer; // Assuming your img object has a 'buffer' property
 
-        return pool.request()
-            .input('img', sql.VarBinary, imgBuffer)
-            .query(
-                'INSERT INTO img (img) VALUES (@img)'
-            )
-            .then(result => {
-                res.json(result.recordset);
-            })
-            .catch(error => {
-                console.error(error);
-                res.status(500).send('Internal Server Error');
-            });
+            return pool.request()
+                .input('img', sql.VarBinary, imgBuffer)
+                .query(
+                    'INSERT INTO img (img) VALUES (@img)'
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                })
+                .catch(error => {
+                    console.error(error);
+                    res.status(500).send('Internal Server Error');
+                });
+        });
     });
-});
 
     // **** finish
 
@@ -1201,55 +1201,55 @@ sql.connect(config).then(pool => {
             return pool.request()
 
                 .query(
-                    "    SELECT  "+
-               "     i.bomno,  "+
-               "     i.part,  "+
-               "     i.modelname,  "+
-               "     i.itemname,  "+
-               "     i.itemprice,  "+
-               "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    "+                 
-               "     CASE  "+
-               "         WHEN i.itemprice = 0 THEN 0  "+
-               "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  "+
-               "     END AS costPriceRatio,  "+
-               "     i.customer,  "+
-               "     i.itemcode,  "+
-               "     i.working,  "+
-               "     i.pcs,  "+
-               "     i.cavity,  "+
-               "     i.direction,  "+
-               "     i.workpart,  "+
-               "     i.additionalnotes,  "+
-               "     i.class,  "+
-               "     i.type, "+
-               "     bm.bomid, "+
-               "     COUNT(mi.materialname) as materialcount "+
-               " FROM  "+
-               "     iteminfo i  "+
-               " LEFT JOIN  "+
-               "     bommanagement bm ON i.bomno = bm.bomno  "+
-               " LEFT JOIN  "+
-               "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  "+
-               " WHERE  "+
-               "    bm.status = 'true'  "+
-               " GROUP BY  "+
-               "     i.bomno,  "+
-               "     i.part,  "+
-               "     i.modelname,  "+
-               "     i.itemname,  "+
-               "     i.itemprice,  "+
-               "     i.customer,  "+
-               "     i.itemcode,  "+
-               "     i.working,  "+
-               "     i.pcs,  "+
-               "     i.cavity,  "+
-               "     i.direction,  "+
-               "     i.workpart,  "+
-               "     i.additionalnotes,  "+
-               "     i.class,  "+
-               "     i.type,"+
-               "     bm.bomid,"+
-               "     i.workpart;                      ")
+                    "    SELECT  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    " +
+                    "     CASE  " +
+                    "         WHEN i.itemprice = 0 THEN 0  " +
+                    "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  " +
+                    "     END AS costPriceRatio,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
+                    "     COUNT(mi.materialname) as materialcount " +
+                    " FROM  " +
+                    "     iteminfo i  " +
+                    " LEFT JOIN  " +
+                    "     bommanagement bm ON i.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  " +
+                    " WHERE  " +
+                    "    bm.status = 'true'  " +
+                    " GROUP BY  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type," +
+                    "     bm.bomid," +
+                    "     i.workpart;                      ")
                 .then(result => {
 
 
@@ -1271,55 +1271,55 @@ sql.connect(config).then(pool => {
             return pool.request()
 
                 .query(
-                    "    SELECT  "+
-               "     i.bomno,  "+
-               "     i.part,  "+
-               "     i.modelname,  "+
-               "     i.itemname,  "+
-               "     i.itemprice,  "+
-               "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    "+                 
-               "     CASE  "+
-               "         WHEN i.itemprice = 0 THEN 0  "+
-               "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  "+
-               "     END AS costPriceRatio,  "+
-               "     i.customer,  "+
-               "     i.itemcode,  "+
-               "     i.working,  "+
-               "     i.pcs,  "+
-               "     i.cavity,  "+
-               "     i.direction,  "+
-               "     i.workpart,  "+
-               "     i.additionalnotes,  "+
-               "     i.class,  "+
-               "     i.type, "+
-               "     bm.bomid, "+
-               "     COUNT(mi.materialname) as materialcount "+
-               " FROM  "+
-               "     iteminfo i  "+
-               " LEFT JOIN  "+
-               "     bommanagementsample bm ON i.bomno = bm.bomno  "+
-               " LEFT JOIN  "+
-               "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  "+
-               " WHERE  "+
-               "   i.part='샘플' and  bm.status = 'true'  "+
-               " GROUP BY  "+
-               "     i.bomno,  "+
-               "     i.part,  "+
-               "     i.modelname,  "+
-               "     i.itemname,  "+
-               "     i.itemprice,  "+
-               "     i.customer,  "+
-               "     i.itemcode,  "+
-               "     i.working,  "+
-               "     i.pcs,  "+
-               "     i.cavity,  "+
-               "     i.direction,  "+
-               "     i.workpart,  "+
-               "     i.additionalnotes,  "+
-               "     i.class,  "+
-               "     i.type,"+
-               "     bm.bomid,"+
-               "     i.workpart;                      ")
+                    "    SELECT  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    " +
+                    "     CASE  " +
+                    "         WHEN i.itemprice = 0 THEN 0  " +
+                    "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  " +
+                    "     END AS costPriceRatio,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
+                    "     COUNT(mi.materialname) as materialcount " +
+                    " FROM  " +
+                    "     iteminfo i  " +
+                    " LEFT JOIN  " +
+                    "     bommanagementsample bm ON i.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  " +
+                    " WHERE  " +
+                    "   i.part='샘플' and  bm.status = 'true'  " +
+                    " GROUP BY  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type," +
+                    "     bm.bomid," +
+                    "     i.workpart;                      ")
                 .then(result => {
 
 
@@ -1921,7 +1921,7 @@ sql.connect(config).then(pool => {
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('toolcode', sql.NVarChar, req.body.toolcode)
                 .input('char', sql.Float, req.body.char)
-                    
+
                 .query(
                     'insert into materialinput(bomno,modelname,itemname,toolcode,char)' +
                     ' values(@bomno,@modelname,@itemname,@toolcode,@char)'
@@ -1941,7 +1941,7 @@ sql.connect(config).then(pool => {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-       
+
                 .input('orderdate', sql.NVarChar, req.body.orderdate)
                 .input('inputdate', sql.NVarChar, req.body.inputdate)
                 .input('madecustomer', sql.NVarChar, req.body.madecustomer)
@@ -2241,28 +2241,28 @@ sql.connect(config).then(pool => {
                 // .input('status', sql.NVarChar, req.body.status)
 
                 .query(
-                    "SELECT "+
-                "    bm.char, "+
-                "    bm.main, "+
-                "    bm.materialname, "+
-                "    bm.etc, "+
-                "    bm.materialwidth, "+
-                "    bm.useable, "+
-                "    bm.onepid, "+
-                "    bm.twopid, "+
-                "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), 4) as soyo, "+
-                "    bm.ta, "+
-                "    bm.allta, "+
-                "    bm.talength, "+
-                "    bm.loss, "+
-                "    bm.cavity, "+
-                "    bm.num "+
-                "    FROM "+
-                "    bommanagementsample bm "+
-                "    WHERE "+
-                "    bm.bomno=@bomno and bm.status='true' "+
-                "ORDER BY "+
-                "    bm.num ASC;                ")
+                    "SELECT " +
+                    "    bm.char, " +
+                    "    bm.main, " +
+                    "    bm.materialname, " +
+                    "    bm.etc, " +
+                    "    bm.materialwidth, " +
+                    "    bm.useable, " +
+                    "    bm.onepid, " +
+                    "    bm.twopid, " +
+                    "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), 4) as soyo, " +
+                    "    bm.ta, " +
+                    "    bm.allta, " +
+                    "    bm.talength, " +
+                    "    bm.loss, " +
+                    "    bm.cavity, " +
+                    "    bm.num " +
+                    "    FROM " +
+                    "    bommanagementsample bm " +
+                    "    WHERE " +
+                    "    bm.bomno=@bomno and bm.status='true' " +
+                    "ORDER BY " +
+                    "    bm.num ASC;                ")
 
                 .then(result => {
 
@@ -2341,7 +2341,7 @@ sql.connect(config).then(pool => {
     sql.connect(config).then(pool => {
         app.post('/api/updatapinacledata', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-       
+
             return pool.request()
                 .input('id', sql.Int, req.body.id)
                 .input('partcustomer', sql.NVarChar, req.body.partcustomer)
@@ -2356,8 +2356,8 @@ sql.connect(config).then(pool => {
                 .input('classification', sql.NVarChar, req.body.classification)
                 .input('inputprice', sql.Float, req.body.inputprice)
                 .input('outputprice', sql.Float, req.body.outputprice)
-               
-                
+
+
                 .query(
                     "update sampleorder set bomno=@bomno,classification=@classification,partcustomer=@partcustomer,toolcode=@toolcode,customer=@customer,modelname=@modelname,itemname=@itemname,char=@char,part=@part,inputprice=@inputprice,outputprice=@outputprice,etc=@etc where id=@id")
 
@@ -2382,8 +2382,8 @@ sql.connect(config).then(pool => {
             return pool.request()
 
                 .query(
-                    " select "+
-                    " size,customer "+
+                    " select " +
+                    " size,customer " +
                     " from equipment where develop='사용' group by size,customer")
 
                 .then(result => {
@@ -2405,14 +2405,14 @@ sql.connect(config).then(pool => {
 
 
             return pool.request()
-            .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('bomno', sql.NVarChar, req.body.bomno)
 
                 .query(
-                    "SELECT "+
-                "     toolcode, char "+
-                " FROM      sampleorder "+
-                " WHERE     bomno = @bomno AND (part = '피나클' OR part = '실링') "+
-                " GROUP BY   toolcode, char;")
+                    "SELECT " +
+                    "     toolcode, char " +
+                    " FROM      sampleorder " +
+                    " WHERE     bomno = @bomno AND (part = '피나클' OR part = '실링') " +
+                    " GROUP BY   toolcode, char;")
 
                 .then(result => {
 
@@ -2433,12 +2433,12 @@ sql.connect(config).then(pool => {
 
 
             return pool.request()
-            .input('toolcode', sql.NVarChar, req.body.toolcode)
+                .input('toolcode', sql.NVarChar, req.body.toolcode)
 
                 .query(
-                    "select "+
-                    " * "+
-                    " from  "+
+                    "select " +
+                    " * " +
+                    " from  " +
                     " sampleorder where toolcode=@toolcode")
 
                 .then(result => {
@@ -2460,7 +2460,7 @@ sql.connect(config).then(pool => {
 
 
             return pool.request()
-            .input('id', sql.Int, req.body.id)
+                .input('id', sql.Int, req.body.id)
                 .query(
                     "delete from sampleorder where id=@id")
                 .then(result => {
@@ -2479,7 +2479,7 @@ sql.connect(config).then(pool => {
 
 
             return pool.request()
-            .input('id', sql.Int, req.body.id)
+                .input('id', sql.Int, req.body.id)
                 .query(
                     "delete from bomtoolorder where id=@id")
                 .then(result => {
@@ -2498,12 +2498,12 @@ sql.connect(config).then(pool => {
 
 
             return pool.request()
-            .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('bomno', sql.NVarChar, req.body.bomno)
 
                 .query(
-                    "select "+
-                    " toolcode,char "+
-                    " from  "+
+                    "select " +
+                    " toolcode,char " +
+                    " from  " +
                     " sampleorder where bomno=@bomno and part='금형' group by toolcode,char")
 
                 .then(result => {
@@ -3648,56 +3648,56 @@ sql.connect(config).then(pool => {
 
 
                 .query(
-                "    SELECT "+
-                "    ol.bomno, "+
-                "    ol.modelname, "+
-                "    ol.itemname, "+
-                "    ol.modelname, "+
-                "    bm.materialname, "+
-                "    bm.materialwidth, "+
-                "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, "+
-                "    CASE "+
-                "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 "+
-                "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) "+
-                "        ELSE 0 "+
-                "    END AS sumquantity, "+
-                "    CASE "+
-                "        WHEN EXISTS ( "+
-                "            SELECT 1 "+
-                "            FROM materialinput "+
-                "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth "+
-                "        ) THEN 'Y' "+
-                "        ELSE 'N' "+
-                "    END AS has, "+
-                "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue, "+
-                "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) AS calculated_column, "+
-                "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS soyo, "+
-                "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut, "+
-                "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test, "+
-                "    ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length), 2) AS a, "+
-                "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)) AS roundedResult, "+
-                "    mi.width, "+
-                "    mi.length, "+
-                "    mi.sqmprice, "+
-                "    SUM(mi.rollprice) AS rollprice, "+
-            "     mi.supplier, "+
-            "     SUM(ol.quantity) AS quantity_sum, "+
-            "     mi.codenumber,i.customer, "+
-            "     mi.rollprice as a1 "+
-            " FROM "+
-            "     orderlist ol "+
-            " JOIN "+
-            "     bommanagement bm ON ol.bomno = bm.bomno "+
-            " LEFT JOIN "+
-            "     Materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
-            " LEFT JOIN "+
-            "     iteminfo i ON i.bomno = bm.bomno "+
-            " WHERE "+
-            "     ol.orderstatus = '생산확정' "+
-            " GROUP BY "+
-            "     ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname "+
-            " ORDER BY "+
-            "     ol.bomno, bm.materialwidth ASC; ")
+                    "    SELECT " +
+                    "    ol.bomno, " +
+                    "    ol.modelname, " +
+                    "    ol.itemname, " +
+                    "    ol.modelname, " +
+                    "    bm.materialname, " +
+                    "    bm.materialwidth, " +
+                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, " +
+                    "    CASE " +
+                    "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 " +
+                    "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) " +
+                    "        ELSE 0 " +
+                    "    END AS sumquantity, " +
+                    "    CASE " +
+                    "        WHEN EXISTS ( " +
+                    "            SELECT 1 " +
+                    "            FROM materialinput " +
+                    "            WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth " +
+                    "        ) THEN 'Y' " +
+                    "        ELSE 'N' " +
+                    "    END AS has, " +
+                    "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue, " +
+                    "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) AS calculated_column, " +
+                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS soyo, " +
+                    "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut, " +
+                    "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test, " +
+                    "    ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length), 2) AS a, " +
+                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)) AS roundedResult, " +
+                    "    mi.width, " +
+                    "    mi.length, " +
+                    "    mi.sqmprice, " +
+                    "    SUM(mi.rollprice) AS rollprice, " +
+                    "     mi.supplier, " +
+                    "     SUM(ol.quantity) AS quantity_sum, " +
+                    "     mi.codenumber,i.customer, " +
+                    "     mi.rollprice as a1 " +
+                    " FROM " +
+                    "     orderlist ol " +
+                    " JOIN " +
+                    "     bommanagement bm ON ol.bomno = bm.bomno " +
+                    " LEFT JOIN " +
+                    "     Materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    " LEFT JOIN " +
+                    "     iteminfo i ON i.bomno = bm.bomno " +
+                    " WHERE " +
+                    "     ol.orderstatus = '생산확정' " +
+                    " GROUP BY " +
+                    "     ol.bomno, ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname " +
+                    " ORDER BY " +
+                    "     ol.bomno, bm.materialwidth ASC; ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -5896,6 +5896,28 @@ sql.connect(config).then(pool => {
 
                 .query(
                     'update bommanagement set status=@status where bomid=@bomid'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updatebomstatussample', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('status', sql.NVarChar, req.body.status)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+
+                .query(
+                    'update bommanagementsample set status=@status where bomid=@bomid'
                 )
                 .then(result => {
 
@@ -8811,10 +8833,10 @@ sql.connect(config).then(pool => {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-         
+
 
                 .query(
-                    "select * from sampleorder order by partcustomer,toolcode asc"
+                    "select * from sampleorder order by bomno,partcustomer,toolcode asc"
                 )
                 .then(result => {
 
