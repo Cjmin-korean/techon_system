@@ -2406,6 +2406,31 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/updateusewidth', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('id', sql.NVarChar, req.body.id)
+                .input('usewidth', sql.Float, req.body.usewidth)
+
+                .query(
+                    "update materialinfoinformation set usewidth=@usewidth where id=@id")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/updatapinacledata', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
