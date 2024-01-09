@@ -318,7 +318,8 @@
                             style="width: 100px; visibility: hidden;"><input type="text" id="bomidsave"
                             style="width: 100px; visibility: hidden;"></td>
                     <td> <button style="background-color: black; color:white;" class="saveButton"
-                            onclick="update()">수정</button></td>
+                            onclick="update()">수정</button><button style="background-color: black; color:white;"
+                            class="saveButton" onclick="test()">test</button></td>
 
                 </tr>
                 <tr>
@@ -730,6 +731,46 @@
 
 
         function openEditModal2(row) {
+            var rowData = $(row).find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomtoolcode',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "bomid": rowData[19]
+                }),
+                success: function (result) {
+
+                    function appendOptions(char) {
+
+
+                        for (var i = 0; i < result.length; i++) {
+                            var selectElement = $('#toolcode' + char + '-edit');
+                            var optionExists = false;
+                            if (result[i].part === "피나클" && result[i].char === char) {
+                                var toolcode = result[i].toolcode;
+                                selectElement.find('option').val(toolcode);
+
+                                // Check if the option already exists
+                                if (!optionExists && !selectElement.find('option[value="' + toolcode + '"]').length) {
+                                    selectElement.append('<option style="font-weight: bold; font-size: 20px;" value="' + toolcode + '">' + toolcode + '</option>');
+                                    optionExists = true;
+                                }
+                            }
+                        }
+                    }
+                    // Call the function for each char value
+                    appendOptions('1');
+                    appendOptions('2');
+                    appendOptions('3');
+                    appendOptions('4');
+                    appendOptions('5');
+                }
+            });
+
             Swal.fire({
                 icon: 'info',
                 title: 'BOM 상세정보',
@@ -868,169 +909,166 @@
                             }
                         }
                     });
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/selectbomtoolcode',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "bomid": rowData[19]
-                        }),
-                        success: function (result) {
-                            console.log(result)
-                            var selectElement1 = $('#toolcode1-edit');
-                            var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "피나클" && result[i].char === '1') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement1.find('option').text(result[i].toolcode);
-                                    console.log(result[i].toolcode)
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement1.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement1.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            var selectElement2 = $('#toolcode2-edit');
-                            var optionExists = false;
+                    // $.ajax({
+                    //     type: 'POST',
+                    //     url: server + '/api/selectbomtoolcode',
+                    //     dataType: 'json',
+                    //     contentType: 'application/json',
+                    //     data: JSON.stringify({
+                    //         "bomid": rowData[19]
+                    //     }),
+                    //     success: function (result) {
+                    //         var selectElement1 = $('#toolcode1-edit');
+                    //         var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "피나클" && result[i].char === '2') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement2.find('option').text(result[i].toolcode);
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "피나클" && result[i].char === '1') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement1.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement1.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement1.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement2 = $('#toolcode2-edit');
+                    //         var optionExists = false;
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement2.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement2.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            var selectElement3 = $('#toolcode3-edit');
-                            var optionExists = false;
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "피나클" && result[i].char === '2') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement2.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement2.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement2.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement3 = $('#toolcode3-edit');
+                    //         var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "피나클" && result[i].char === '3') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement3.find('option').text(result[i].toolcode);
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "피나클" && result[i].char === '3') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement3.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement3.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement3.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement4 = $('#toolcode4-edit');
+                    //         var optionExists = false;
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement3.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement3.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            // var selectElement4 = $('#toolcode4-edit');
-                            // var optionExists = false;
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "피나클" && result[i].char === '4') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement4.find('option').text(result[i].toolcode);
 
-                            // for (var i = 0; i < result.length; i++) {
-                            //     if (result[i].part === "피나클" && result[i].char === '4') {
-                            //         // Assuming result[i].toolcode is the option value you want to select
-                            //         selectElement4.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement4.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement4.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement5 = $('#toolcode5-edit');
+                    //         var optionExists = false;
 
-                            //         // Check if the option already exists
-                            //         if (!optionExists && !selectElement4.find('option[value="' + result[i].toolcode + '"]').length) {
-                            //             selectElement4.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                            //             optionExists = true;
-                            //         }
-                            //     }
-                            // }
-                            // var selectElement5 = $('#toolcode5-edit');
-                            // var optionExists = false;
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "피나클" && result[i].char === '5') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement5.find('option').text(result[i].toolcode);
 
-                            // for (var i = 0; i < result.length; i++) {
-                            //     if (result[i].part === "피나클" && result[i].char === '5') {
-                            //         // Assuming result[i].toolcode is the option value you want to select
-                            //         selectElement5.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement5.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement5.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement1mold = $('#moldtoolcode1-edit');
+                    //         var optionExists = false;
 
-                            //         // Check if the option already exists
-                            //         if (!optionExists && !selectElement5.find('option[value="' + result[i].toolcode + '"]').length) {
-                            //             selectElement5.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                            //             optionExists = true;
-                            //         }
-                            //     }
-                            // }
-                            // var selectElement1mold = $('#moldtoolcode1-edit');
-                            // var optionExists = false;
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "금형" && result[i].char === '1') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement1mold.find('option').text(result[i].toolcode);
 
-                            // for (var i = 0; i < result.length; i++) {
-                            //     if (result[i].part === "금형" && result[i].char === '1') {
-                            //         // Assuming result[i].toolcode is the option value you want to select
-                            //         selectElement1mold.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement1mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement1mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement2mold = $('#moldtoolcode2-edit');
+                    //         var optionExists = false;
 
-                            //         // Check if the option already exists
-                            //         if (!optionExists && !selectElement1mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                            //             selectElement1mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                            //             optionExists = true;
-                            //         }
-                            //     }
-                            // }
-                            // var selectElement2mold = $('#moldtoolcode2-edit');
-                            // var optionExists = false;
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "금형" && result[i].char === '2') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement2mold.find('option').text(result[i].toolcode);
 
-                            // for (var i = 0; i < result.length; i++) {
-                            //     if (result[i].part === "금형" && result[i].char === '2') {
-                            //         // Assuming result[i].toolcode is the option value you want to select
-                            //         selectElement2mold.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement2mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement2mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement3mold = $('#moldtoolcode3-edit');
+                    //         var optionExists = false;
 
-                            //         // Check if the option already exists
-                            //         if (!optionExists && !selectElement2mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                            //             selectElement2mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                            //             optionExists = true;
-                            //         }
-                            //     }
-                            // }
-                            // var selectElement3mold = $('#moldtoolcode3-edit');
-                            // var optionExists = false;
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "금형" && result[i].char === '3') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement3mold.find('option').text(result[i].toolcode);
 
-                            // for (var i = 0; i < result.length; i++) {
-                            //     if (result[i].part === "금형" && result[i].char === '3') {
-                            //         // Assuming result[i].toolcode is the option value you want to select
-                            //         selectElement3mold.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement3mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement3mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement4mold = $('#moldtoolcode4-edit');
+                    //         var optionExists = false;
 
-                            //         // Check if the option already exists
-                            //         if (!optionExists && !selectElement3mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                            //             selectElement3mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                            //             optionExists = true;
-                            //         }
-                            //     }
-                            // }
-                            // var selectElement4mold = $('#moldtoolcode4-edit');
-                            // var optionExists = false;
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "금형" && result[i].char === '4') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement4mold.find('option').text(result[i].toolcode);
 
-                            // for (var i = 0; i < result.length; i++) {
-                            //     if (result[i].part === "금형" && result[i].char === '4') {
-                            //         // Assuming result[i].toolcode is the option value you want to select
-                            //         selectElement4mold.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement4mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement4mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //         var selectElement5mold = $('#moldtoolcode5-edit');
+                    //         var optionExists = false;
 
-                            //         // Check if the option already exists
-                            //         if (!optionExists && !selectElement4mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                            //             selectElement4mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                            //             optionExists = true;
-                            //         }
-                            //     }
-                            // }
-                            // var selectElement5mold = $('#moldtoolcode5-edit');
-                            // var optionExists = false;
+                    //         for (var i = 0; i < result.length; i++) {
+                    //             if (result[i].part === "금형" && result[i].char === '5') {
+                    //                 // Assuming result[i].toolcode is the option value you want to select
+                    //                 selectElement5mold.find('option').text(result[i].toolcode);
 
-                            // for (var i = 0; i < result.length; i++) {
-                            //     if (result[i].part === "금형" && result[i].char === '5') {
-                            //         // Assuming result[i].toolcode is the option value you want to select
-                            //         selectElement5mold.find('option').text(result[i].toolcode);
+                    //                 // Check if the option already exists
+                    //                 if (!optionExists && !selectElement5mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                    //                     selectElement5mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                    //                     optionExists = true;
+                    //                 }
+                    //             }
+                    //         }
+                    //     },
 
-                            //         // Check if the option already exists
-                            //         if (!optionExists && !selectElement5mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                            //             selectElement5mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                            //             optionExists = true;
-                            //         }
-                            //     }
-                            // }
-                        },
-
-                    });
+                    // });
 
 
 
@@ -1166,12 +1204,6 @@
                     });
 
 
-
-
-
-
-
-
                     $.ajax({
                         type: 'POST',
                         url: server + '/api/selectbompinacle',
@@ -1182,7 +1214,7 @@
                         }),
 
                         success: function (result) {
-                            console.log(result)
+                            // console.log(result)
                             for (var i = 1; i <= rowData[13]; i++) {
                                 var selectElement = $('#toolcode1-edit');
                                 selectElement.empty();
@@ -1197,7 +1229,7 @@
                                 }
 
                             }
-                           
+
                             for (var i = 1; i <= rowData[13]; i++) {
                                 var selectElement = $('#toolcode2-edit');
                                 selectElement.empty();
@@ -1280,7 +1312,7 @@
                                 }
 
                             }
-                          
+
                             for (var i = 1; i <= rowData[13]; i++) {
                                 var selectElement = $('#moldtoolcode2-edit');
                                 selectElement.empty();
@@ -1420,7 +1452,45 @@
                 }
             });
         });
+        function test() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomtoolcode',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "bomid": '1704761858596'
+                }),
+                success: function (result) {
 
+                    function appendOptions(char) {
+
+
+                        for (var i = 0; i < result.length; i++) {
+                            var selectElement = $('#toolcode' + char + '-edit');
+                            var optionExists = false;
+                            if (result[i].part === "피나클" && result[i].char === char) {
+                                var toolcode = result[i].toolcode;
+                                console.log(toolcode)
+                                selectElement.find('option').text(toolcode);
+
+                                // Check if the option already exists
+                                if (!optionExists && !selectElement.find('option[value="' + toolcode + '"]').length) {
+                                    selectElement.append('<option style="font-weight: bold; font-size: 20px;" value="' + toolcode + '">' + toolcode + '</option>');
+                                    optionExists = true;
+                                }
+                            }
+                        }
+                    }
+                    // Call the function for each char value
+                    appendOptions('1');
+                    appendOptions('2');
+                    appendOptions('3');
+                    appendOptions('4');
+                    appendOptions('5');
+                }
+            });
+        }
         function updateSum() {
             var sum = 0;
 
