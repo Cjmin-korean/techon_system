@@ -745,7 +745,129 @@
                     var rowData = $(row).find('td').map(function () {
                         return $(this).text();
                     }).get();
+                    // Assuming rowData[9] contains the number of columns
+                    var numberOfColumns = parseInt(rowData[13]);
 
+                    // Clear the existing content inside the container
+                    $('#yourTableId').html('');
+
+                    var tableHtml = '<table>' +
+                        '<thead>' +
+                        '<tr>';
+                    tableHtml += '<th  colspan="2" style="width: 100px;"></th>';
+
+                    for (var i = 1; i <= numberOfColumns; i++) {
+                        tableHtml += '<th colspan="2" style="width: 300px;">' + i + '차</th>';
+                    }
+
+                    tableHtml += '</tr>' +
+                        '<tr>' +
+                        '<th  colspan="2">설비명</th>';
+
+                    for (var i = 1; i <= numberOfColumns; i++) {
+                        tableHtml += '<th colspan="2"><select id="equipment' + i + '"></select></th>';
+                    }
+
+                    tableHtml += '</tr>' +
+                        '<tr>' +
+                        '<th rowspan="2" style="width:120px;"></th>'
+                        + '<th rowspan="2"></th>';
+
+                    for (var i = 1; i <= numberOfColumns; i++) {
+                        tableHtml += '<th style="width:150px;">TOOL CODE</th>' +
+                            '<th style="width:150px;">고객사</th>';
+                    }
+
+                    tableHtml += '</tr>' +
+                        '<tr>';
+
+                    for (var i = 1; i <= numberOfColumns; i++) {
+                        tableHtml += '<th style="width:150px;">비용</th>' +
+                            '<th style="width:50px;">차수</th>';
+                    }
+
+                    tableHtml += '</tr>' +
+                        '</thead>' +
+                        '<tbody id="tooltbody">';
+
+                    var facilities = ['피나클/실링']; // Add more facilities as needed
+                    for (var i = 0; i < facilities.length; i++) {
+                        tableHtml += '<tr>' +
+                            '<td rowspan="2">' + facilities[i] + '</td>' +
+                            '<td>합계(￦)</td>';
+
+                        for (var j = 1; j <= numberOfColumns; j++) {
+                            tableHtml += '<td><select id="toolcode' + j + '-edit" on></select></td>' +
+                                '<td><input type="text"  id="customer' + j + '"></td>';
+                        }
+
+                        tableHtml += '</tr>' +
+                            '<tr>' +
+                            '<td><input type="text" style="text-align:right;" id="sumpinacle"></td>'; // Missing concatenation
+
+                        for (var j = 1; j <= numberOfColumns; j++) {
+                            tableHtml +=
+                                '<td><input type="text" style="text-align:right;" id="cost' + j + '"></td>' +
+                                '<td><input type="text" id="char' + j + '"></td>';
+                        }
+
+                        tableHtml += '</tr>';
+
+
+                    }
+                    var facilities1 = ['금형']; // Add more facilities as needed
+                    for (var i = 0; i < facilities1.length; i++) {
+                        tableHtml += '<tr>' +
+                            '<td rowspan="2">' + facilities1[i] + '</td>' +
+                            '<td>합계(￦)</td>';
+
+                        for (var j = 1; j <= numberOfColumns; j++) {
+                            tableHtml += '<td><select id="moldtoolcode' + j + '-edit"></select></td>' +
+                                '<td><input type="text" id="moldcustomer' + j + '"></td>';
+                        }
+
+                        tableHtml += '</tr>' +
+                            '<tr>' +
+                            '<td><input type="text" style="text-align:right;" id="summold"></td>'; // Missing concatenation
+
+                        for (var j = 1; j <= numberOfColumns; j++) {
+                            tableHtml +=
+                                '<td><input type="text" style="text-align:right;" id="moldcost' + j + '"></td>' +
+                                '<td><input type="text" id="moldchar' + j + '"></td>';
+                        }
+
+                        tableHtml += '</tr>';
+
+
+                    }
+
+
+                    tableHtml += '</tbody></table>';
+
+                    $('#yourTableId').html(tableHtml);
+
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/selectequipment',
+                        dataType: 'json',
+                        success: function (data) {
+                            for (var i = 0; i < data.length; i++) {
+
+                                var equipmentname = data[i].size;
+                                var selectElement = $('#equipment' + i);
+                                selectElement.empty();
+
+                                var emptyOption = '<option value=""></option>';
+                                selectElement.append(emptyOption);
+                                for (var j = 0; j < equipmentname.length + 1; j++) {
+
+                                    var option = '<option value="' + data[j].size + data[j].customer + '">' + data[j].size + data[j].customer + '</option>';
+                                    selectElement.append(option);
+                                }
+                            }
+                        }
+                    });
                     $.ajax({
                         type: 'POST',
                         url: server + '/api/selectbomtoolcode',
@@ -755,6 +877,7 @@
                             "bomid": rowData[19]
                         }),
                         success: function (result) {
+                            console.log(result)
                             var selectElement1 = $('#toolcode1-edit');
                             var optionExists = false;
 
@@ -762,7 +885,7 @@
                                 if (result[i].part === "피나클" && result[i].char === '1') {
                                     // Assuming result[i].toolcode is the option value you want to select
                                     selectElement1.find('option').text(result[i].toolcode);
-
+                                    console.log(result[i].toolcode)
                                     // Check if the option already exists
                                     if (!optionExists && !selectElement1.find('option[value="' + result[i].toolcode + '"]').length) {
                                         selectElement1.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
@@ -800,111 +923,111 @@
                                     }
                                 }
                             }
-                            var selectElement4 = $('#toolcode4-edit');
-                            var optionExists = false;
+                            // var selectElement4 = $('#toolcode4-edit');
+                            // var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "피나클" && result[i].char === '4') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement4.find('option').text(result[i].toolcode);
+                            // for (var i = 0; i < result.length; i++) {
+                            //     if (result[i].part === "피나클" && result[i].char === '4') {
+                            //         // Assuming result[i].toolcode is the option value you want to select
+                            //         selectElement4.find('option').text(result[i].toolcode);
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement4.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement4.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            var selectElement5 = $('#toolcode5-edit');
-                            var optionExists = false;
+                            //         // Check if the option already exists
+                            //         if (!optionExists && !selectElement4.find('option[value="' + result[i].toolcode + '"]').length) {
+                            //             selectElement4.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                            //             optionExists = true;
+                            //         }
+                            //     }
+                            // }
+                            // var selectElement5 = $('#toolcode5-edit');
+                            // var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "피나클" && result[i].char === '5') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement5.find('option').text(result[i].toolcode);
+                            // for (var i = 0; i < result.length; i++) {
+                            //     if (result[i].part === "피나클" && result[i].char === '5') {
+                            //         // Assuming result[i].toolcode is the option value you want to select
+                            //         selectElement5.find('option').text(result[i].toolcode);
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement5.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement5.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            var selectElement1mold = $('#moldtoolcode1-edit');
-                            var optionExists = false;
+                            //         // Check if the option already exists
+                            //         if (!optionExists && !selectElement5.find('option[value="' + result[i].toolcode + '"]').length) {
+                            //             selectElement5.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                            //             optionExists = true;
+                            //         }
+                            //     }
+                            // }
+                            // var selectElement1mold = $('#moldtoolcode1-edit');
+                            // var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "금형" && result[i].char === '1') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement1mold.find('option').text(result[i].toolcode);
+                            // for (var i = 0; i < result.length; i++) {
+                            //     if (result[i].part === "금형" && result[i].char === '1') {
+                            //         // Assuming result[i].toolcode is the option value you want to select
+                            //         selectElement1mold.find('option').text(result[i].toolcode);
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement1mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement1mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            var selectElement2mold = $('#moldtoolcode2-edit');
-                            var optionExists = false;
+                            //         // Check if the option already exists
+                            //         if (!optionExists && !selectElement1mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                            //             selectElement1mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                            //             optionExists = true;
+                            //         }
+                            //     }
+                            // }
+                            // var selectElement2mold = $('#moldtoolcode2-edit');
+                            // var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "금형" && result[i].char === '2') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement2mold.find('option').text(result[i].toolcode);
+                            // for (var i = 0; i < result.length; i++) {
+                            //     if (result[i].part === "금형" && result[i].char === '2') {
+                            //         // Assuming result[i].toolcode is the option value you want to select
+                            //         selectElement2mold.find('option').text(result[i].toolcode);
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement2mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement2mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            var selectElement3mold = $('#moldtoolcode3-edit');
-                            var optionExists = false;
+                            //         // Check if the option already exists
+                            //         if (!optionExists && !selectElement2mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                            //             selectElement2mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                            //             optionExists = true;
+                            //         }
+                            //     }
+                            // }
+                            // var selectElement3mold = $('#moldtoolcode3-edit');
+                            // var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "금형" && result[i].char === '3') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement3mold.find('option').text(result[i].toolcode);
+                            // for (var i = 0; i < result.length; i++) {
+                            //     if (result[i].part === "금형" && result[i].char === '3') {
+                            //         // Assuming result[i].toolcode is the option value you want to select
+                            //         selectElement3mold.find('option').text(result[i].toolcode);
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement3mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement3mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            var selectElement4mold = $('#moldtoolcode4-edit');
-                            var optionExists = false;
+                            //         // Check if the option already exists
+                            //         if (!optionExists && !selectElement3mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                            //             selectElement3mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                            //             optionExists = true;
+                            //         }
+                            //     }
+                            // }
+                            // var selectElement4mold = $('#moldtoolcode4-edit');
+                            // var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "금형" && result[i].char === '4') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement4mold.find('option').text(result[i].toolcode);
+                            // for (var i = 0; i < result.length; i++) {
+                            //     if (result[i].part === "금형" && result[i].char === '4') {
+                            //         // Assuming result[i].toolcode is the option value you want to select
+                            //         selectElement4mold.find('option').text(result[i].toolcode);
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement4mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement4mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
-                            var selectElement5mold = $('#moldtoolcode5-edit');
-                            var optionExists = false;
+                            //         // Check if the option already exists
+                            //         if (!optionExists && !selectElement4mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                            //             selectElement4mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                            //             optionExists = true;
+                            //         }
+                            //     }
+                            // }
+                            // var selectElement5mold = $('#moldtoolcode5-edit');
+                            // var optionExists = false;
 
-                            for (var i = 0; i < result.length; i++) {
-                                if (result[i].part === "금형" && result[i].char === '5') {
-                                    // Assuming result[i].toolcode is the option value you want to select
-                                    selectElement5mold.find('option').text(result[i].toolcode);
+                            // for (var i = 0; i < result.length; i++) {
+                            //     if (result[i].part === "금형" && result[i].char === '5') {
+                            //         // Assuming result[i].toolcode is the option value you want to select
+                            //         selectElement5mold.find('option').text(result[i].toolcode);
 
-                                    // Check if the option already exists
-                                    if (!optionExists && !selectElement5mold.find('option[value="' + result[i].toolcode + '"]').length) {
-                                        selectElement5mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
-                                        optionExists = true;
-                                    }
-                                }
-                            }
+                            //         // Check if the option already exists
+                            //         if (!optionExists && !selectElement5mold.find('option[value="' + result[i].toolcode + '"]').length) {
+                            //             selectElement5mold.append('<option style="font-weight: bold; font-size: 20px;" value="' + result[i].toolcode + '">' + result[i].toolcode + '</option>');
+                            //             optionExists = true;
+                            //         }
+                            //     }
+                            // }
                         },
 
                     });
@@ -1044,130 +1167,11 @@
 
 
 
-                    // Assuming rowData[9] contains the number of columns
-                    var numberOfColumns = parseInt(rowData[13]);
-
-                    // Clear the existing content inside the container
-                    $('#yourTableId').html('');
-
-                    var tableHtml = '<table>' +
-                        '<thead>' +
-                        '<tr>';
-                    tableHtml += '<th  colspan="2" style="width: 100px;"></th>';
-
-                    for (var i = 1; i <= numberOfColumns; i++) {
-                        tableHtml += '<th colspan="2" style="width: 300px;">' + i + '차</th>';
-                    }
-
-                    tableHtml += '</tr>' +
-                        '<tr>' +
-                        '<th  colspan="2">설비명</th>';
-
-                    for (var i = 1; i <= numberOfColumns; i++) {
-                        tableHtml += '<th colspan="2"><select id="equipment' + i + '"></select></th>';
-                    }
-
-                    tableHtml += '</tr>' +
-                        '<tr>' +
-                        '<th rowspan="2" style="width:120px;"></th>'
-                        + '<th rowspan="2"></th>';
-
-                    for (var i = 1; i <= numberOfColumns; i++) {
-                        tableHtml += '<th style="width:150px;">TOOL CODE</th>' +
-                            '<th style="width:150px;">고객사</th>';
-                    }
-
-                    tableHtml += '</tr>' +
-                        '<tr>';
-
-                    for (var i = 1; i <= numberOfColumns; i++) {
-                        tableHtml += '<th style="width:150px;">비용</th>' +
-                            '<th style="width:50px;">차수</th>';
-                    }
-
-                    tableHtml += '</tr>' +
-                        '</thead>' +
-                        '<tbody id="tooltbody">';
-
-                    var facilities = ['피나클/실링']; // Add more facilities as needed
-                    for (var i = 0; i < facilities.length; i++) {
-                        tableHtml += '<tr>' +
-                            '<td rowspan="2">' + facilities[i] + '</td>' +
-                            '<td>합계(￦)</td>';
-
-                        for (var j = 1; j <= numberOfColumns; j++) {
-                            tableHtml += '<td><select id="toolcode' + j + '-edit" on></select></td>' +
-                                '<td><input type="text"  id="customer' + j + '"></td>';
-                        }
-
-                        tableHtml += '</tr>' +
-                            '<tr>' +
-                            '<td><input type="text" style="text-align:right;" id="sumpinacle"></td>'; // Missing concatenation
-
-                        for (var j = 1; j <= numberOfColumns; j++) {
-                            tableHtml +=
-                                '<td><input type="text" style="text-align:right;" id="cost' + j + '"></td>' +
-                                '<td><input type="text" id="char' + j + '"></td>';
-                        }
-
-                        tableHtml += '</tr>';
-
-
-                    }
-                    var facilities1 = ['금형']; // Add more facilities as needed
-                    for (var i = 0; i < facilities1.length; i++) {
-                        tableHtml += '<tr>' +
-                            '<td rowspan="2">' + facilities1[i] + '</td>' +
-                            '<td>합계(￦)</td>';
-
-                        for (var j = 1; j <= numberOfColumns; j++) {
-                            tableHtml += '<td><select id="moldtoolcode' + j + '-edit"></select></td>' +
-                                '<td><input type="text" id="moldcustomer' + j + '"></td>';
-                        }
-
-                        tableHtml += '</tr>' +
-                            '<tr>' +
-                            '<td><input type="text" style="text-align:right;" id="summold"></td>'; // Missing concatenation
-
-                        for (var j = 1; j <= numberOfColumns; j++) {
-                            tableHtml +=
-                                '<td><input type="text" style="text-align:right;" id="moldcost' + j + '"></td>' +
-                                '<td><input type="text" id="moldchar' + j + '"></td>';
-                        }
-
-                        tableHtml += '</tr>';
-
-
-                    }
-
-
-                    tableHtml += '</tbody></table>';
-
-                    $('#yourTableId').html(tableHtml);
 
 
 
-                    // $.ajax({
-                    //     type: 'POST',
-                    //     url: server + '/api/selectequipment',
-                    //     dataType: 'json',
-                    //     success: function (data) {
-                    //         for (var i = 0; i < data.length; i++) {
 
-                    //             var size = data[i].size;
-                    //             var selectElement = $('#equipment' + i);
-                    //             selectElement.empty();
 
-                    //             var emptyOption = '<option value=""></option>';
-                    //             selectElement.append(emptyOption);
-                    //             for (var j = 0; j < size.length + 1; j++) {
-
-                    //                 var option = '<option value="' + data[j].size + data[j].customer + '">' + data[j].size + data[j].customer + '</option>';
-                    //                 selectElement.append(option);
-                    //             }
-                    //         }
-                    //     }
-                    // });
                     $.ajax({
                         type: 'POST',
                         url: server + '/api/selectbompinacle',
@@ -1178,8 +1182,9 @@
                         }),
 
                         success: function (result) {
+                            console.log(result)
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#toolcode1');
+                                var selectElement = $('#toolcode1-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1192,22 +1197,9 @@
                                 }
 
                             }
+                           
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#toolcode3');
-                                selectElement.empty();
-                                var emptyOption = '<option value=""></option>';
-                                selectElement.append(emptyOption);
-
-                                for (var j = 0; j < result.length; j++) {
-                                    if (result[j].char === "3") {
-                                        var option = '<option>' + result[j].toolcode + '</option>';
-                                        selectElement.append(option);
-                                    }
-                                }
-
-                            }
-                            for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#toolcode2');
+                                var selectElement = $('#toolcode2-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1221,7 +1213,7 @@
 
                             }
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#toolcode3');
+                                var selectElement = $('#toolcode3-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1235,7 +1227,7 @@
 
                             }
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#toolcode4');
+                                var selectElement = $('#toolcode4-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1249,7 +1241,7 @@
 
                             }
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#toolcode5');
+                                var selectElement = $('#toolcode5-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1275,7 +1267,7 @@
 
                         success: function (result) {
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#moldtoolcode1');
+                                var selectElement = $('#moldtoolcode1-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1288,22 +1280,9 @@
                                 }
 
                             }
+                          
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#moldtoolcode3');
-                                selectElement.empty();
-                                var emptyOption = '<option value=""></option>';
-                                selectElement.append(emptyOption);
-
-                                for (var j = 0; j < result.length; j++) {
-                                    if (result[j].char === "3") {
-                                        var option = '<option>' + result[j].toolcode + '</option>';
-                                        selectElement.append(option);
-                                    }
-                                }
-
-                            }
-                            for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#moldtoolcode2');
+                                var selectElement = $('#moldtoolcode2-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1317,7 +1296,7 @@
 
                             }
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#moldtoolcode3');
+                                var selectElement = $('#moldtoolcode3-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1331,7 +1310,7 @@
 
                             }
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#moldtoolcode4');
+                                var selectElement = $('#moldtoolcode4-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1345,7 +1324,7 @@
 
                             }
                             for (var i = 1; i <= rowData[13]; i++) {
-                                var selectElement = $('#moldtoolcode5');
+                                var selectElement = $('#moldtoolcode5-edit');
                                 selectElement.empty();
                                 var emptyOption = '<option value=""></option>';
                                 selectElement.append(emptyOption);
@@ -1360,7 +1339,7 @@
                             }
                         }
                     });
-                    // opentoolcode(row)
+                    opentoolcode(row)
 
 
 

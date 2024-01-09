@@ -6090,6 +6090,30 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+
+
+
+                .query(
+                    'update bommanagementsample set status=@status where bomid=@bomid'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updatebomstatussample', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
 
                 .input('status', sql.NVarChar, req.body.status)
                 .input('bomid', sql.NVarChar, req.body.bomid)
@@ -9036,6 +9060,27 @@ module.exports = function (app) {
 
                 .query(
                     "select * from sampleorder where toolcode LIKE '%' + @searchText + '%'"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/searchingsamplebomno', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('searchText', sql.NVarChar, req.body.searchText)
+
+                .query(
+                    "select * from iteminfo where part ='샘플' and bomno LIKE '%' + @searchText + '%'"
                 )
                 .then(result => {
 

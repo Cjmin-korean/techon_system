@@ -62,7 +62,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">샘플발주 접수 및 생산지시1</a>
+        <a style="margin-left: 20px;">샘플발주 접수 및 생산지시</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -161,7 +161,7 @@
                         <th style="text-align:center; cursor: pointer; width: 100px;">작업구분</th>
                         <th style="text-align:center; cursor: pointer; width: 100px;">입고상태</th>
                         <th style="text-align:center; cursor: pointer; width: 100px;">출고시간</th>
-                        <th style="text-align:center; cursor: pointer; width: 100px;">사양구분</th>
+                        <th style="text-align:center; cursor: pointer; width: 130px;">사양구분</th>
                         <th style="text-align:center; cursor: pointer; width: 100px;">청구/미청구</th>
                         <th style="text-align:center; cursor: pointer;">판가<br>(￦)</th>
                         <th style="text-align:center; cursor: pointer;">합계금액<br>(￦)</th>
@@ -224,16 +224,14 @@
             <table class="styled-table" id="datatable">
                 <thead>
                     <tr>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">TOOL CODE</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(1)">제조사</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(2)">BOMNO.</th>
+
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">BOMNO.</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(1)">모델명</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(2)">제품명</th>
                         <th style="width: auto; text-align: center;" onclick="sortTable(3)">거래처</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(4)">모델명</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(5)">제품명</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(6)">차수</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(7)">구분</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(8)">입고단가</th>
-                        <th style="width: auto; text-align: center;" onclick="sortTable(9)">양산/샘플</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(4)">고객사코드</th>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(5)">PCS</th>
+
 
                     </tr>
                 </thead>
@@ -384,11 +382,11 @@
                         $('#searchingmaterialinfobody').empty(); // Clear previous content
                         console.log(result)
                         for (var i = 0; i < result.length; i++) {
-                          
+
                             $('#searchingmaterialinfobody').append(
                                 '<tr onclick="insertmaterialdata(this)">' +
                                 '<td>' + result[i].bomno + '</td>' +
-                              
+
                                 '</tr>'
                             );
 
@@ -499,7 +497,7 @@
             newRow.append('<td><select id="part-input"><option value="사내">사내</option><option value="외주">외주</option></select></td>');
             newRow.append('<td><select id="status-input"><option value="완료">완료</option><option value="미완료">미완료</option></select></td>');
             newRow.append('<td><select id="outtime-input"><option value="오전">오전</option><option value="오후">오후</option></select></td>');
-            newRow.append('<td><input type="text" id="specification-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><select id="specification-input"><option value="형상변경">형상변경</option><option value="기존동일">기존동일</option><option value="양산동일">양산동일</option></select></td>');
             newRow.append('<td><select id="chung-input"><option value="청구">청구</option><option value="미청구">미청구</option></select></td>');
             newRow.append('<td><input type="text" id="itemprice-input" value="0" autocomplete="off" oninput="valuechanged()"></td>');
             newRow.append('<td><input type="text" id="sumitemprice-input" value="0" autocomplete="off"></td>');
@@ -870,7 +868,7 @@
                 $('#searchingcustomernameinfobody').empty();
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/searchingtoolcode',
+                    url: server + '/api/searchingsamplebomno',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -885,18 +883,12 @@
 
                             $('#searchingcustomernameinfobody').append(
                                 '<tr style="cursor:pointer;" onclick="insertmaterialdata1(this)">' +
-                                '<td>' + result[i].toolcode + '</td>' +
-                                '<td>' + result[i].partcustomer + '</td>' +
                                 '<td>' + result[i].bomno + '</td>' +
-                                '<td>' + result[i].customer + '</td>' +
                                 '<td>' + result[i].modelname + '</td>' +
                                 '<td>' + result[i].itemname + '</td>' +
-                                '<td>' + result[i].char + '</td>' +
-                                '<td>' + result[i].part + '</td>' +
-                                '<td>' + result[i].inputprice + '</td>' +
-                                '<td>' + result[i].classification + '</td>' +
-
-
+                                '<td>' + result[i].customer + '</td>' +
+                                '<td>' + result[i].itemcode + '</td>' +
+                                '<td>' + result[i].pcs + '</td>' +
                                 '</tr>'
                             );
 
@@ -915,17 +907,14 @@
             var rowIndex = $('#numericPart-edit').val()
 
             // Update the materialname-input in the specified row
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #toolcode-input').val(rowData[0]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #madecustomer-input').val(rowData[1]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #bomno-input').val(rowData[2]);
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #bomno-input').val(rowData[0]);
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #modelname-input').val(rowData[1]);
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #itemname-input').val(rowData[2]);
             $('#accountdatatbody tr:eq(' + rowIndex + ') #customer-input').val(rowData[3]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #modelname-input').val(rowData[4]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #itemname-input').val(rowData[5]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #part-input').val(rowData[7]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #orderprice-input').val(rowData[8]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #part2-input').val(rowData[9]);
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #char-input').val(rowData[6])
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #ordercount-input').focus()
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #rev-input').val(rowData[4]);
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #pcs-input').val(rowData[5]);
+  
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #pcscount-input').focus()
         }
         function customercloseModal() {
             $('#customernamesearch').fadeOut()
@@ -934,6 +923,7 @@
             var checkedIds = $('#datatable tbody input[type="checkbox"]:checked').map(function () {
                 return $(this).closest('tr').find('td#data-id').text();
             }).get();
+            console.log(checkedIds)
 
             if (checkedIds.length === 0) {
                 Swal.fire({

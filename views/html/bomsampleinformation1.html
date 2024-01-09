@@ -470,7 +470,7 @@
                     </table>
                 </div>
             </div>
-          
+
 
 
 
@@ -687,7 +687,7 @@
             var rowData = $(row).find('td').map(function () {
                 return $(this).text();
             }).get();
-
+            // console.log(rowData)
 
             var option = [
                 { value: '2차피딩작업', text: '2차피딩작업' },
@@ -818,7 +818,7 @@
             });
 
             // Assuming rowData[9] contains the number of columns
-           
+
 
 
         }
@@ -1582,197 +1582,7 @@
             newRow.find('#codenumber-edit').val('');
             newRow.find('#materialclassification-edit').val('');
         }
-        function Bomsave() {
 
-            var cavitySaveValue = $("#cavity-save").val();
-            var bomnoSaveValue = $("#bomno-save").val();
-            if (bomnoSaveValue === '') {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'BOM NO 누락',
-                    text: 'BOM NO가 누락되었습니다.',
-                });
-                return;
-            }
-            if (cavitySaveValue === '') {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Cavity 누락',
-                    text: 'Cavity가 누락되었습니다.',
-                });
-                return;
-            }
-
-            let tableBody = document.getElementById('bomtableBody');
-            if (tableBody) {
-                let rowCount = tableBody.children.length;
-
-                for (let i = 0; i < rowCount; i++) {
-                    var materialname = $('#bomtableBody tr:eq(' + i + ') #materialname-input').val();
-                    var materialwidth = $('#bomtableBody tr:eq(' + i + ') #materialwidth-input').val();
-
-                    if (materialname === '' || materialwidth === '') {
-                        Swal.fire({
-                            icon: 'info',
-                            title: '누락',
-                            text: (i + 1) + '번째 필수 입력 항목이 누락되었습니다.',
-                        });
-                        return;
-                    }
-
-                }
-            } else {
-            }
-
-            if (tableBody) {
-                let rowCount = tableBody.children.length;
-
-                for (let i = 0; i < rowCount; i++) {
-                    var materialWidthValue = $('#bomtableBody tr:eq(' + i + ') #materialwidth-input').val();
-                    var useWidthValue = $('#bomtableBody tr:eq(' + i + ') #usewidth-input').val();
-
-                    if (parseFloat(materialWidthValue) > parseFloat(useWidthValue)) {
-                        alert(i + 1 + '번째 원단폭이 유효폭보다 클 수 없습니다.');
-                        return;
-                    }
-                }
-            } else {
-            }
-
-
-            var insertdate = new Date().toISOString().slice(0, 10);
-            var rowCount = $('#bomtableBody tr').length;
-            for (var i = 0; i < rowCount; i++) {
-                $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
-            }
-
-            var bomno = $('#bomno-save').val();
-            var customer = $('#customer-save').val();
-            var modelname = $('#modelname-save').val();
-            var itemname = $('#itemname-save').val();
-            var pcs = $('#pcs-save').val();
-            var cavity = $('#cavity-save').val();
-            var itemcode = $('#itemcode-save').val();
-            var workpart = $('#workpart-save').val();
-            var working = $('#working-save').val();
-            var direction = $('#direction-save').val();
-            var costsum = $('#costsum-save').val();
-            var additionalnotes = $('#additionalNote').val();
-            var type = $('#type-save').val();
-
-            if (bomno !== '') {
-                if (confirm("BOM정보(샘플) 데이터를 저장하시겠습니까?")) {
-
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/bommasssaveiteminfo',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "insertdate": insertdate,
-                            "updatedate": insertdate,
-                            "bomno": bomno,
-                            "customer": customer,
-                            "modelname": modelname,
-                            "itemname": itemname,
-                            "pcs": pcs,
-                            "cavity": cavity,
-                            "itemcode": itemcode,
-                            "part": "샘플",
-                            "workpart": workpart,
-                            "working": working,
-                            "direction": direction,
-                            "costsum": costsum,
-                            "additionalnotes": additionalnotes,
-                            "type": type,
-                            "itemprice": '0',
-                        }),
-                        success: function (result) {
-
-                        }
-                    });
-                    $('[id^="num-input"]').each(function (index) {
-                        var cavity = $('#cavity-save').val() || 0;
-                        var bomno = $('#bomno-save').val() || 0;
-                        var model = $('#modelname-save').val() || 0;
-                        var itemname = $('#itemname-save').val() || 0;
-                        var materialname = $('[id^="materialname-input"]').eq(index).val() || 0;
-                        var char = $('[id^="char-input"]').eq(index).val() || 0;
-                        var main = $('[id^="main-input"]').eq(index).val() || 0;
-                        var etc = $('[id^="etc-input"]').eq(index).val() || 0;
-                        var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
-                        var onepid = $('[id^="onepidding-input"]').eq(index).val() || 0;
-                        var twopid = $('[id^="twopidding-input"]').eq(index).val() || 0;
-                        var soyo = $('[id^="soyo-input"]').eq(index).val() || 0;
-                        var ta = $('[id^="ta-input"]').eq(index).val() || 0;
-                        var allta = $('[id^="allta-input"]').eq(index).val() || 0;
-                        var talength = $('[id^="talength-input"]').eq(index).val() || 0;
-                        var loss = $('[id^="loss-input"]').eq(index).val() || 0;
-                        var num = $('[id^="num-input"]').eq(index).val() || 0;
-                        var cavity = $('[id^="cavity-input"]').eq(index).val() || 1;
-                        var codenumber = $('[id^="codenumber-input"]').eq(index).val() || 0;
-                        var useable = $('[id^="useable-input"]').eq(index).val() || 0;
-                        var bomid = $('#bomid-save').val() || 0;
-
-
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/bommasssavebommanagementsample',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "savedate": insertdate,
-                                "bomno": bomno,
-                                "model": model,
-                                "itemname": itemname,
-                                "materialname": materialname,
-                                "status": 'true',
-                                "char": char,
-                                "main": main,
-                                "etc": etc,
-                                "materialwidth": materialwidth,
-                                "onepid": onepid,
-                                "twopid": twopid,
-                                "ta": ta,
-                                "allta": allta,
-                                "talength": talength,
-                                "loss": loss,
-                                "cavity": cavity,
-                                "codenumber": codenumber,
-                                "useable": useable,
-                                "num": num,
-                                "bomid": bomid
-                            }),
-                            success: function (result) {
-                                // Handle success
-                            },
-                            error: function (error) {
-                                // Handle error
-                            },
-                        });
-                    });
-
-                    $('#overlay').fadeOut();
-                    $('#editModal').fadeOut();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Bom 저장 완료',
-                        text: '데이터가 성공적으로 저장 되었습니다.',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // The user clicked the "Confirm" button
-                            load();
-                        }
-                    });
-
-                } else {
-                    return false;
-                }
-            } else {
-                alert("빈 항목을 입력 바랍니다.");
-            }
-
-        }
 
 
 
@@ -1894,6 +1704,210 @@
             $('input[type="checkbox"]').prop('checked', false);
         }
 
+        function Bomsave() {
+
+            var cavitySaveValue = $("#cavity-save").val();
+            var bomnoSaveValue = $("#bomno-save").val();
+            if (bomnoSaveValue === '') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'BOM NO 누락',
+                    text: 'BOM NO가 누락되었습니다.',
+                });
+                return;
+            }
+            if (cavitySaveValue === '') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Cavity 누락',
+                    text: 'Cavity가 누락되었습니다.',
+                });
+                return;
+            }
+
+            let tableBody = document.getElementById('bomtableBody');
+            if (tableBody) {
+                let rowCount = tableBody.children.length;
+
+                for (let i = 0; i < rowCount; i++) {
+                    var materialname = $('#bomtableBody tr:eq(' + i + ') #materialname-input').val();
+                    var materialwidth = $('#bomtableBody tr:eq(' + i + ') #materialwidth-input').val();
+
+                    if (materialname === '' || materialwidth === '') {
+                        Swal.fire({
+                            icon: 'info',
+                            title: '누락',
+                            text: (i + 1) + '번째 필수 입력 항목이 누락되었습니다.',
+                        });
+                        return;
+                    }
+                    if (materialwidth === '0') {
+                        Swal.fire({
+                            icon: 'info',
+                            title: '누락',
+                            text: (i + 1) + '번째 자재폭이 0이 불가 합니다.',
+                        });
+                        return;
+                    }
+
+                }
+            } else {
+            }
+
+            if (tableBody) {
+                let rowCount = tableBody.children.length;
+
+                for (let i = 0; i < rowCount; i++) {
+                    var materialWidthValue = $('#bomtableBody tr:eq(' + i + ') #materialwidth-input').val();
+                    var useWidthValue = $('#bomtableBody tr:eq(' + i + ') #usewidth-input').val();
+
+                    if (parseFloat(materialWidthValue) > parseFloat(useWidthValue)) {
+                        alert(i + 1 + '번째 원단폭이 유효폭보다 클 수 없습니다.');
+                        return;
+                    }
+                }
+            } else {
+            }
+
+
+            var insertdate = new Date().toISOString().slice(0, 10);
+            var rowCount = $('#bomtableBody tr').length;
+            for (var i = 0; i < rowCount; i++) {
+                $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
+            }
+
+            var bomno = $('#bomno-save').val();
+            var customer = $('#customer-save').val();
+            var modelname = $('#modelname-save').val();
+            var itemname = $('#itemname-save').val();
+            var pcs = $('#pcs-save').val();
+            var cavity = $('#cavity-save').val();
+            var itemcode = $('#itemcode-save').val();
+            var workpart = $('#workpart-save').val();
+            var working = $('#working-save').val();
+            var direction = $('#direction-save').val();
+            var costsum = $('#costsum-save').val();
+            var additionalnotes = $('#additionalNote').val();
+            var type = $('#type-save').val();
+            Swal.fire({
+                icon: 'info',
+                title: '저장',
+                text: '샘플 BOM 정보를 저장 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/bommasssaveiteminfo',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "insertdate": insertdate,
+                            "updatedate": insertdate,
+                            "bomno": bomno,
+                            "customer": customer,
+                            "modelname": modelname,
+                            "itemname": itemname,
+                            "pcs": pcs,
+                            "cavity": cavity,
+                            "itemcode": itemcode,
+                            "part": "샘플",
+                            "workpart": workpart,
+                            "working": working,
+                            "direction": direction,
+                            "costsum": costsum,
+                            "additionalnotes": additionalnotes,
+                            "type": type,
+                            "itemprice": '0',
+                        }),
+                        success: function (result) {
+
+                        }
+                    });
+                    $('[id^="num-input"]').each(function (index) {
+                        var cavity = $('#cavity-save').val() || 0;
+                        var bomno = $('#bomno-save').val() || 0;
+                        var model = $('#modelname-save').val() || 0;
+                        var itemname = $('#itemname-save').val() || 0;
+                        var materialname = $('[id^="materialname-input"]').eq(index).val() || 0;
+                        var char = $('[id^="char-input"]').eq(index).val() || 0;
+                        var main = $('[id^="main-input"]').eq(index).val() || 0;
+                        var etc = $('[id^="etc-input"]').eq(index).val() || 0;
+                        var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
+                        var onepid = $('[id^="onepidding-input"]').eq(index).val() || 0;
+                        var twopid = $('[id^="twopidding-input"]').eq(index).val() || 0;
+                        var soyo = $('[id^="soyo-input"]').eq(index).val() || 0;
+                        var ta = $('[id^="ta-input"]').eq(index).val() || 0;
+                        var allta = $('[id^="allta-input"]').eq(index).val() || 0;
+                        var talength = $('[id^="talength-input"]').eq(index).val() || 0;
+                        var loss = $('[id^="loss-input"]').eq(index).val() || 0;
+                        var num = $('[id^="num-input"]').eq(index).val() || 0;
+                        var cavity = $('[id^="cavity-input"]').eq(index).val() || 1;
+                        var codenumber = $('[id^="codenumber-input"]').eq(index).val() || 0;
+                        var useable = $('[id^="useable-input"]').eq(index).val() || 0;
+                        var bomid = $('#bomid-save').val() || 0;
+
+
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/bommasssavebommanagementsample',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "savedate": insertdate,
+                                "bomno": bomno,
+                                "model": model,
+                                "itemname": itemname,
+                                "materialname": materialname,
+                                "status": 'true',
+                                "char": char,
+                                "main": main,
+                                "etc": etc,
+                                "materialwidth": materialwidth,
+                                "onepid": onepid,
+                                "twopid": twopid,
+                                "ta": ta,
+                                "allta": allta,
+                                "talength": talength,
+                                "loss": loss,
+                                "cavity": cavity,
+                                "codenumber": codenumber,
+                                "useable": useable,
+                                "num": num,
+                                "bomid": bomid
+                            }),
+                            success: function (result) {
+                                // Handle success
+                            },
+                            error: function (error) {
+                                // Handle error
+                            },
+                        });
+                    });
+
+                    $('#overlay').fadeOut();
+                    $('#editModal').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Bom 저장 완료',
+                        text: '데이터가 성공적으로 저장 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // The user clicked the "Confirm" button
+                            load();
+                        }
+                    });
+
+                }
+            });
+
+
+        }
 
         function update() {
             let tableBody = document.getElementById('bomtableBody-edit');
@@ -1926,75 +1940,76 @@
             for (var i = 0; i < rowCount; i++) {
                 $('#bomtableBody-edit tr:eq(' + i + ') #index-edit').val(i + 1);
             }
+            Swal.fire({
+                icon: 'info',
+                title: '수정',
+                text: '샘플 BOM 정보를 수정 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updateiteminformation',
+                        dataType: 'json',
+                        async: false,
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "bomno": $('#bomno-edit').val(),
+                            "modelname": $('#modelname-edit').val(),
+                            "itemname": $('#itemname-edit').val(),
+                            "customer": $('#customer-edit').val(),
+                            "itemcode": $('#itemcode-edit').val(),
+                            "pcs": $('#pcs-edit').val(),
+                            "cavity": $('#cavity-edit').val(),
+                            "direction": $('#direction-edit').val(),
+                            "workpart": $('#workpart-edit').val(),
+                            "additionalnotes": $('#additionalNote-edit').val(),
+                            "working": $('#working-edit').val(),
+                            "type": $('#type-edit').val(),
+                        }),
+                        success: function (result) {
+                        }
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updatebomstatussample',
+                        dataType: 'json',
+                        async: false,
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "bomid": $('#bomid-edit').val(),
+                            "status": 'false'
+                        }),
+                        success: function (result) {
+
+
+                        }
+                    });
+                    insertbom()
+                    $('#overlay').fadeOut();
+                    $('#editModal1').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '수정 완료',
+                        text: '데이터가 성공적으로 수정 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // The user clicked the "Confirm" button
+                            load();
+                        }
+                    });
+
+                }
+            });
 
 
 
-            var isConfirmed = confirm("BOM 정보를 수정하시겠습니까?");
-            if (isConfirmed) {
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/updateiteminformation',
-                    dataType: 'json',
-                    async: false,
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "bomno": $('#bomno-edit').val(),
-                        "modelname": $('#modelname-edit').val(),
-                        "itemname": $('#itemname-edit').val(),
-                        "customer": $('#customer-edit').val(),
-                        "itemcode": $('#itemcode-edit').val(),
-                        "pcs": $('#pcs-edit').val(),
-                        "cavity": $('#cavity-edit').val(),
-                        "direction": $('#direction-edit').val(),
-                        "workpart": $('#workpart-edit').val(),
-                        "additionalnotes": $('#additionalNote-edit').val(),
-                        "working": $('#working-edit').val(),
-                        "type": $('#type-edit').val(),
-                    }),
-                    success: function (result) {
-                    }
-                });
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/updatebomstatusample',
-                    dataType: 'json',
-                    async: false,
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "bomid": $('#bomid-edit').val(),
-                        "status": 'false'
-                    }),
-                    success: function (result) {
-
-
-                    }
-                });
-                insertbom()
-
-                document.getElementById('overlay').style.display = 'none';
-                document.getElementById('editModal1').style.display = 'none';
-
-
-                load();
-                Swal.fire({
-                    icon: 'success',
-                    title: '수정 완료',
-                    text: '데이터가 성공적으로 수정 되었습니다.',
-                });
-                // Swal.fire({
-                //     icon: 'error',
-                //     title: '저장 실패',
-                //     text: '데이터 저장 중에 문제가 발생했습니다.',
-                // });
-                // Swal.fire({
-                //     icon: 'warning',
-                //     title: '경고',
-                //     text: '주의해야 할 사항이 있습니다.',
-                // });
-            } else {
-            }
         }
         function insertbom() {
             var promises = [];
