@@ -130,7 +130,7 @@
                     <th>생산LOTNO.</th>
                     <th>수량(개)</th>
                     <th>수량변경</th>
-                    <th>
+                    <th></th>
                     <th></th>
 
                 </tr>
@@ -180,8 +180,11 @@
         <div id="editForm">
             <table>
                 <tr style="height:50px;">
-                    <td><button onclick="saveproduction()">저장</button> </td>
-                    <td colspan="1">제품 정보<input type="text" id="orderid" style="visibility: hidden;"></td>
+                    <td> <button id="deleteBtn" onclick="accountsave()" class="btn btn-danger"
+                            style="background-color: blue;">
+                            <i class="fas fa-save"></i> 저장
+                        </button></td>
+                    <td colspan="1">제품 정보<input type="text" id="orderid" style="visibility: hidden; width:20px;"></td>
                 </tr>
                 <tr>
                     <td><label for="editAuthor">BOMNO</label></td>
@@ -215,16 +218,23 @@
                     <td><label for="editAuthor">PO수량</label></td>
                     <td><input type="text" id="count-edit" value="" readonly autocomplete="off"></td>
                 </tr>
+                <tr>
+                    <td><label for="editAuthor">생산CAPA</label></td>
+                    <td><input type="text" id="capa-edit" value="" readonly autocomplete="off"></td>
+                </tr>
 
             </table>
             <table>
                 <tr style="height:50px;">
-                    <td>생산LOT</td>
-                    <td>발주수량(개)</td>
-                    <td>1차피딩(mm)</td>
-                    <td>소요량(M)</td>
-                    <td>소요합계(M)</td>
-                    <td style="width: 100px;"><button onclick="add()">추가</button></td>
+                    <th style="width:250px;">생산LOT</th>
+                    <th>작업지시<br>수량(EA)</th>
+                    <th>1차피딩(mm)</th>
+                    <th>소요량(M)</th>
+                    <th>소요합계(M)</th>
+                    <th style="width: 100px;"><button id="deleteBtn" onclick="add()" class="btn btn-danger"
+                            style="background-color: blue;">
+                            <i class="fas fa-plus"></i> 추가
+                        </button></th>
                 </tr>
                 <tbody id="productiondatatbody">
 
@@ -512,11 +522,6 @@
 
             }
 
-
-
-
-
-
             function settingDate() {
                 const date = new Date();
 
@@ -656,6 +661,7 @@
                 $('#productiondatatbody tr:eq(' + rowIndex + ') #soyosum-input').val(priceValue.toLocaleString());
 
             }
+
             function addnew() {
                 var newRow = $('<tr></tr>');
                 newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
@@ -671,60 +677,7 @@
                 newRow.append('<td><input id="checkbox" style="width:20px; height:20px; cursor:pointer;" type="checkbox"  readonly value="" autocomplete="off"></td>');
                 $('#accountdatatbody').append(newRow);
             }
-            function accountsave(row) {
-                var isConfirmed = confirm('영업 수주 정보를 저장하시겠습니까?');
-                var rowCount = $('#accountdatatbody tr').length;
 
-                if (isConfirmed) {
-                    var insertdate = new Date().toISOString().slice(0, 10);
-
-                    for (var i = 1; i < rowCount; i++) {
-                        var bomno = $('#accountdatatbody tr:eq(' + i + ') #bomno-input').val();
-
-                        // Check if bomno is empty, and skip to the next iteration if it is
-                        if (!bomno.trim()) {
-                            continue;
-                        }
-
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/openinsertdata',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "bomno": bomno,
-                                "modelname": $('#accountdatatbody tr:eq(' + i + ') #modelname-input').val(),
-                                "itemname": $('#accountdatatbody tr:eq(' + i + ') #itemname-input').val(),
-                                "customer": $('#accountdatatbody tr:eq(' + i + ') #customer-input').val(),
-                                "quantity": $('#accountdatatbody tr:eq(' + i + ') #pocount-input').val(),
-                                "itemcode": $('#accountdatatbody tr:eq(' + i + ') #itemcode-input').val(),
-                                "itemprice": $('#accountdatatbody tr:eq(' + i + ') #itemprice-input').val(),
-                                "deliverydate": insertdate
-                            }),
-                            success: function (result) {
-                                // 성공했을 때의 처리
-                            }
-                        });
-                    }
-
-                    $('#editModal').fadeOut();
-                    $('#overlay').fadeOut();
-
-                    setTimeout(function () {
-                        load();
-                    }, 50);
-
-                    var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">정보 등록 완료</span></div>');
-                    $('body').append(notification);
-                    setTimeout(function () {
-                        notification.fadeOut(function () {
-                            $(this).remove();
-                        });
-                    }, 3000);
-                } else {
-                    // 사용자가 취소한 경우의 처리
-                }
-            }
             // 이벤트 핸들러 등록
             $('#accountdatatbody').on('keydown', 'input', function (e) {
                 if (e.key === 'Enter') {
@@ -803,6 +756,18 @@
                 }).get();
                 $.ajax({
                     type: 'POST',
+                    url: server + '/api/capasearchingwherebomno',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "bomno": rowData[0]
+                    }),
+                    success: function (result) {
+                        $('#capa-edit').val(result[0].additional_calculated_column2.toLocaleString())
+                    }
+                });
+                $.ajax({
+                    type: 'POST',
                     url: server + '/api/selectbomsoyo',
                     dataType: 'json',
                     contentType: 'application/json',
@@ -821,7 +786,7 @@
                         newRow.append('<td ><input type="text" readonly style="text-align:right;" id="onepidding-input"  value="' + result[0].onepid + '" autocomplete="off"></td>');
                         newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyo-input"  value="' + result[0].soyo + '" autocomplete="off"></td>');
                         newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyosum-input"  value="0" autocomplete="off"></td>');
-                        newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
+                        newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" class="btn btn-danger" style="background-color: red;"><i class="fas fa-trash-alt"></i>  삭제</button ></td > ');
 
 
 
@@ -843,14 +808,14 @@
                 $('#editModal4').fadeIn()
             });
             function add() {
-                var rowCount = $('#productiondatatbody tr').length + 1;
-                var newRow = $('<tr></tr>');
-                newRow.append('<td><input type="text" id="lot-input" value="' + $('#ad-edit').val() + '-' + $('#bomno-edit').val() + '-' + $('#accountdate-edit').val().replace(/-/g, '') + '-' + rowCount + '" autocomplete="off"></td>');
-                newRow.append('<td ><input type="text"  style="text-align:right;" id="count-input" value="" autocomplete="off"></td>');
-                newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
+                var newRow = $('#productiondatatbody tr:first').clone();
 
-                $('#productiondatatbody').append(newRow);
+                var rowCount = $('#productiondatatbody tr').length + 1;
+                $('#lot-input').val($('#ad-edit').val() + '-' + $('#bomno-edit').val() + '-' + $('#accountdate-edit').val().replace(/-/g, '') + '-' + rowCount);
+
+                newRow.appendTo('#productiondatatbody');
             }
+
 
             function deleteRow(button) {
                 // 해당 버튼이 속한 행을 찾아서 삭제
@@ -875,108 +840,142 @@
                     }
                 }
             });
-            function checkCountInputs() {
-                var hasEmptyCountInput = false;
+            // function checkCountInputs() {
+            //     var hasEmptyCountInput = false;
 
-                // Iterate over each table row
-                $('#productiondatatbody tr').each(function (index) {
-                    // Find the count-input in the current row
-                    var countInput = $(this).find('#count-input');
+            //     // Iterate over each table row
+            //     $('#productiondatatbody tr').each(function (index) {
+            //         // Find the count-input in the current row
+            //         var countInput = $(this).find('#count-input');
 
-                    // Check if count-input exists and is empty
-                    if (countInput.length && countInput.val().trim() === '') {
-                        hasEmptyCountInput = true;
-                        return false; // Exit the loop early if an empty count-input is found
-                    }
-                });
+            //         // Check if count-input exists and is empty
+            //         if (countInput.length && countInput.val().trim() === '') {
+            //             hasEmptyCountInput = true;
+            //             return false; // Exit the loop early if an empty count-input is found
+            //         }
+            //     });
 
-                // Show alert if any count-input is empty
-                if (hasEmptyCountInput) {
-                    alert('발주수량 누락된 항목이 있습니다.');
-                    return false;
+            //     // Show alert if any count-input is empty
+            //     if (hasEmptyCountInput) {
+            //         alert('발주수량 누락된 항목이 있습니다.');
+            //         return false;
 
-                }
-            }
-            function checkCountInputs1() {
-                var hasEmptyCountInput = false;
+            //     }
+            // }
+            // function checkCountInputs1() {
+            //     var hasEmptyCountInput = false;
 
-                // Iterate over each table row
-                $('#productiondatatbody tr').each(function (index) {
-                    // Find the count-input in the current row
-                    var countInput = $(this).find('#lot-input');
+            //     // Iterate over each table row
+            //     $('#productiondatatbody tr').each(function (index) {
+            //         // Find the count-input in the current row
+            //         var countInput = $(this).find('#lot-input');
 
-                    // Check if count-input exists and is empty
-                    if (countInput.length && countInput.val().trim() === '') {
-                        hasEmptyCountInput = true;
-                        return false; // Exit the loop early if an empty count-input is found
-                    }
-                });
+            //         // Check if count-input exists and is empty
+            //         if (countInput.length && countInput.val().trim() === '') {
+            //             hasEmptyCountInput = true;
+            //             return false; // Exit the loop early if an empty count-input is found
+            //         }
+            //     });
 
-                // Show alert if any count-input is empty
-                if (hasEmptyCountInput) {
-                    alert('생산 lot 누락된 항목이 있습니다.');
-                    return false;
-                }
-            }
+            //     // Show alert if any count-input is empty
+            //     if (hasEmptyCountInput) {
+            //         alert('생산 lot 누락된 항목이 있습니다.');
+            //         return false;
+            //     }
+            // }
 
-            function saveproduction() {
-                checkCountInputs();
-                checkCountInputs1();
-                accountsave();
-            }
+            
+
             function accountsave() {
-                var isConfirmed = confirm('생산 지시 정보를 저장하시겠습니까?');
+
                 var rowCount = $('#productiondatatbody tr').length;
+                let tableBody = document.getElementById('productiondatatbody');
+                if (tableBody) {
+                    let rowCount = tableBody.children.length;
 
-                if (isConfirmed) {
-                    var insertdate = new Date().toISOString().slice(0, 10);
+                    for (let i = 0; i < rowCount; i++) {
+                        var count = $('#productiondatatbody tr:eq(' + i + ') #count-input').val();
 
-                    for (var i = 0; i < rowCount; i++) {
+
+                        if (count === '' || count === '0') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: '입력 오류',
+                                text: (i + 1) + '번째 작업지시 수량 확인 바랍니다.',
+                            })
+                            return;
+                        }
+
+                    }
+                } else {
+                }
+                Swal.fire({
+                    icon: 'info',
+                    title: '생산 지시 정보를 저장하시겠습니까??',
+                    text: '생산지시가 저장됩니다.',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var insertdate = new Date().toISOString().slice(0, 10);
+
+                        for (var i = 0; i < rowCount; i++) {
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/productorderinstruction',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "bomno": $('#bomno-edit').val(),
+                                    "productdate": insertdate,
+                                    "modelname": $('#modelname-edit').val(),
+                                    "itemname": $('#itemname-edit').val(),
+                                    "lotno": $('#productiondatatbody tr:eq(' + i + ') #lot-input').val(),
+                                    "quantity": $('#productiondatatbody tr:eq(' + i + ') #count-input').val(),
+                                    "status": 'true',
+                                    "orderstatus": '생산보류'
+                                }),
+                                success: function (result) {
+                                    // 성공했을 때의 처리
+                                }
+                            });
+                        }
                         $.ajax({
                             type: 'POST',
-                            url: server + '/api/productorderinstruction',
+                            url: server + '/api/updatestatusaccountinput',
                             dataType: 'json',
                             contentType: 'application/json',
                             data: JSON.stringify({
-                                "bomno": $('#bomno-edit').val(),
-                                "productdate": insertdate,
-                                "modelname": $('#modelname-edit').val(),
-                                "itemname": $('#itemname-edit').val(),
-                                "lotno": $('#productiondatatbody tr:eq(' + i + ') #lot-input').val(),
-                                "quantity": $('#productiondatatbody tr:eq(' + i + ') #count-input').val(),
-                                "status": 'true',
-                                "orderstatus": '생산보류'
+                                "orderid": $('#orderid').val(),
+                                "status": '생산지시완료',
                             }),
                             success: function (result) {
                                 // 성공했을 때의 처리
                             }
                         });
+                        $('#editModal4').fadeOut();
+                        $('#overlay').fadeOut();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: '저장 완료',
+                            text: '생산지시 정보가 저장 되었습니다.',
+                        }).then((result) => {
+                            if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+                                load();
+                                load1()
+                            }
+                        });
+
                     }
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/updatestatusaccountinput',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "orderid": $('#orderid').val(),
-                            "status": '생산지시완료',
-                        }),
-                        success: function (result) {
-                            // 성공했을 때의 처리
-                        }
-                    });
-                    $('#editModal4').fadeOut();
-                    $('#overlay').fadeOut();
+                });
 
-                    setTimeout(function () {
-                        load();
-                        load1()
-                    }, 50);
-
-
-                } else {
-                }
             }
+
+            
 
             function deletedata() {
                 var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {

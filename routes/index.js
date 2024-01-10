@@ -2847,6 +2847,65 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/capasearchingwherebomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+     
+                .query(
+                    "SELECT " +
+                    "      *, " +
+                    "      custom_condition_column * 60 AS additional_calculated_column1, " +
+                    "       custom_condition_column * 80 AS additional_calculated_column2, " +
+                    "        custom_condition_column * 10.5 AS additional_calculated_column3 " +
+                    "  FROM ( " +
+                    "      SELECT  " +
+                    "          iteminfo.bomno, " +
+                    "          iteminfo.customer, " +
+                    "          iteminfo.modelname,  " +
+                    "          iteminfo.itemname,  " +
+                    "          iteminfo.workpart,  " +
+                    "          iteminfo.working, " +
+                    "          bommanagement.onepid AS onepidding,  " +
+                    "          iteminfo.cavity, " +
+                    "          '고속' AS additional_column, " +
+                    "          iteminfo.cavity * 0.5 AS calculated_column, " +
+                    "          CASE " +
+                    "              WHEN bommanagement.onepid < 90 THEN 100 " +
+                    "              WHEN bommanagement.onepid < 150 THEN 83 " +
+                    "              WHEN bommanagement.onepid < 190 THEN 50 " +
+                    "              ELSE 33   " +
+                    "          END AS custom_condition_column " +
+                    "      FROM iteminfo " +
+                    "      JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno " +
+                    "      WHERE iteminfo.bomno = @bomno " +
+                    "      GROUP BY  " +
+                    "          iteminfo.bomno,  " +
+                    "          iteminfo.modelname, " +
+                    "          iteminfo.itemname,  " +
+                    "          iteminfo.workpart,  " +
+                    "          iteminfo.working,  " +
+                    "          iteminfo.cavity, " +
+                    "          iteminfo.customer," +
+                    "          bommanagement.onepid,  " +
+                    "          iteminfo.onepidding " +
+                    "  ) AS subquery_alias;               ")
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
     sql.connect(config).then(pool => {
         app.post('/api/materialinputsearch1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
