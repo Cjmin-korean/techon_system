@@ -84,19 +84,19 @@
         <table class="styled-table" id="datatable">
             <thead id="tableHead">
                 <tr>
+                    <th style="width: auto; text-align:center;">발주일자</th>.
                     <th style="width: auto; text-align:center;">BOM.NO</th>
-                    <th style="width: auto; text-align:center;">발주일자</th>
                     <th style="width: auto; text-align:center;">고객사</th>
-                    <th style="width: auto; text-align:center;">품목코드</th>
                     <th style="width: auto; text-align:center;">모델명</th>
                     <th style="width: auto; text-align:center;">품목명</th>
-                    <th style="width: auto; text-align:center;">영업구분</th>
-                    <th style="width: auto; text-align:center;">PO수량(개)</th>
+                    <th style="width: auto; text-align:center;">고객사코드</th>
+                    <th style="width: auto; text-align:center;">발주구분</th>
+                    <th style="width: auto; text-align:center;">PO수량(EA)</th>
                     <th style="width: auto; text-align:center;">재공재고</th>
-                    <th style="width: auto; text-align:center;">창고차이</th>
+                    <th style="width: auto; text-align:center;">작업필요수량</th>
                     <th style="width: auto; text-align:center;">가능여부</th>
+                    <th style="width: auto; text-align:center;">작업지시수량</th>
                     <th style="width: auto; text-align:center;">생산지시</th>
-                    <th style="width: auto; text-align:center;">지시수량</th>
 
                 </tr>
             </thead>
@@ -112,7 +112,7 @@
     </div>
     <div style="max-height: 500px; overflow-y: auto;">
         <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
-            <i class="fas fa-trash-alt"></i>선택삭제
+            <i class="fas fa-trash-alt"></i> 선택삭제
         </button></th>
         <button id="exportToExcelBtn" onclick="savedata()" class="btn btn-success" style="background-color: navy;">
             <i class="fas fa-save"></i> 선택확정
@@ -142,35 +142,7 @@
         </table>
     </div>
 
-    <div id="editModal" style="max-height: 600px; overflow-y: auto;">
-        <div class="mainheader">
-            <h1>생산지시등록</h1>
-            <span class="close" onclick="closeModal()">&times;</span>
-        </div>
-        <div id="editForm">
-            <table class="styled-table" id="Podatatable">
-                <thead id="tableHead">
-                    <tr>
-                        <th style="width:130px; background-color:white;"><button onclick="addnew()">추가</button>
-                        </th>
-                        <th style="width:auto;">BOMNO</th>
-                        <th style="width:auto;">품목코드</th>
-                        <th style="width:auto;">모델명</th>
-                        <th style="width:auto;">품목명</th>
-                        <th style="width:auto;">고객사</th>
-                        <th style="width:auto;">단가(원)</th>
-                        <th style="width:auto;">PO수량(개)</th>
-                        <th style="width:auto;">판매금액(￦)</th>
-                        <th style="width:100px;">영업확정</th>
-                    </tr>
-                </thead>
-                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
-                </tbody>
 
-            </table>
-
-        </div>
-    </div>
 
     <div id="editModal4" style="width: 800px; height: auto;">
         <div class="mainheader">
@@ -186,7 +158,9 @@
                             style="background-color: blue;">
                             <i class="fas fa-save"></i> 저장
                         </button></td>
-                    <td colspan="1">제품 정보<input type="text" id="orderid" style="visibility: hidden  ; width:200px;"></td>
+                    <td colspan="1">제품 정보<input type="text" id="orderid"
+                            style="visibility: hidden  ; width:20px;"><input type="text" id="num" style="visibility: hidden; width:20px;">
+                    </td>
                 </tr>
                 <tr>
                     <td><label for="editAuthor">BOMNO</label></td>
@@ -228,7 +202,6 @@
             </table>
             <table>
                 <tr style="height:50px;">
-                    <th style="width:250px;">생산LOT</th>
                     <th>작업지시<br>수량(EA)</th>
                     <th>1차피딩(mm)</th>
                     <th>소요량(M)</th>
@@ -495,20 +468,21 @@
 
                                 tableBody.append(
                                     '<tr>' +
-                                    '<td>' + data[i].bomno + '</td>' +
                                     '<td style="font-weight:bold;">' + data[i].deliverydate + '</td>' +
+                                    '<td>' + data[i].bomno + '</td>' +
                                     '<td>' + data[i].customer + '</td>' +
-                                    '<td>' + data[i].itemcode + '</td>' +
                                     '<td>' + data[i].modelname + '</td>' +
                                     '<td>' + data[i].itemname + '</td>' +
+                                    '<td>' + data[i].itemcode + '</td>' +
                                     '<td style="text-align:center;">' + data[i].ad + '</td>' +
                                     '<td style="text-align:right;">' + data[i].quantity + '</td>' +
                                     '<td style="text-align:right;">' + data[i].total_quantity.toLocaleString() + '</td>' +
                                     '<td style="text-align:right;' + fontColor + '">' + difference.toLocaleString() + '</td>' + // 쉼표 추가하여 숫자로 표시
                                     '<td style="' + possibleColor + '">' + data[i].possible + '</td>' +
                                     '<td id="data-orderid">' + data[i].orderid + '</td>' +
-                                    '<td id="data-exists1">' + data[i].exists1 + '</td>' +
                                     '<td style="text-align:right;">' + data[i].a.toLocaleString() + '</td>' +
+                                    '<td id="data-exists1">' + data[i].exists1 + '</td>' +
+
                                     '</tr>'
                                 );
                                 $('td#data-orderid').hide()
@@ -758,13 +732,14 @@
                 var rowData = $(this).find('td').map(function () {
                     return $(this).text();
                 }).get();
+                console.log(rowData)
                 $.ajax({
                     type: 'POST',
                     url: server + '/api/capasearchingwherebomno',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        "bomno": rowData[0]
+                        "bomno": rowData[1]
                     }),
                     success: function (result) {
                         $('#capa-edit').val(result[0].cv2.toLocaleString())
@@ -776,7 +751,7 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        "bomno": rowData[0]
+                        "bomno": rowData[1]
                     }),
                     success: function (result) {
                         // Perform a case-insensitive comparison after trimming
@@ -785,7 +760,6 @@
                         var newRow = $('<tr></tr>');
                         var rowCount = $('#productiondatatbody tr').length;
 
-                        newRow.append('<td><input type="text" id="lot-input"  value="' + rowData[6] + '-' + rowData[0] + '-' + rowData[1].replace(/-/g, '') + '-' + 1 + '" autocomplete="off"></td>');
                         newRow.append('<td ><input type="text" style="text-align:right;" oninput="valuechanged()" id="count-input"  value="" autocomplete="off"></td>');
                         newRow.append('<td ><input type="text" readonly style="text-align:right;" id="onepidding-input"  value="' + result[0].onepid + '" autocomplete="off"></td>');
                         newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyo-input"  value="' + result[0].soyo + '" autocomplete="off"></td>');
@@ -798,13 +772,25 @@
                     }
                 });
 
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchnum',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderid": rowData[11]
+                    }),
+                    success: function (result) {
+                        $('#num').val(result[0].num)
 
-                $('#bomno-edit').val(rowData[0])
-                $('#accountdate-edit').val(rowData[1])
+                    }
+                });
+                $('#bomno-edit').val(rowData[1])
+                $('#accountdate-edit').val(rowData[0])
                 $('#customer-edit').val(rowData[2])
-                $('#itemcode-edit').val(rowData[3])
-                $('#modelname-edit').val(rowData[4])
-                $('#itemname-edit').val(rowData[5])
+                $('#itemcode-edit').val(rowData[5])
+                $('#modelname-edit').val(rowData[3])
+                $('#itemname-edit').val(rowData[4])
                 $('#ad-edit').val(rowData[6])
                 $('#count-edit').val(rowData[7])
                 $('#orderid').val(rowData[11])
@@ -844,51 +830,9 @@
                     }
                 }
             });
-            // function checkCountInputs() {
-            //     var hasEmptyCountInput = false;
 
-            //     // Iterate over each table row
-            //     $('#productiondatatbody tr').each(function (index) {
-            //         // Find the count-input in the current row
-            //         var countInput = $(this).find('#count-input');
 
-            //         // Check if count-input exists and is empty
-            //         if (countInput.length && countInput.val().trim() === '') {
-            //             hasEmptyCountInput = true;
-            //             return false; // Exit the loop early if an empty count-input is found
-            //         }
-            //     });
 
-            //     // Show alert if any count-input is empty
-            //     if (hasEmptyCountInput) {
-            //         alert('발주수량 누락된 항목이 있습니다.');
-            //         return false;
-
-            //     }
-            // }
-            // function checkCountInputs1() {
-            //     var hasEmptyCountInput = false;
-
-            //     // Iterate over each table row
-            //     $('#productiondatatbody tr').each(function (index) {
-            //         // Find the count-input in the current row
-            //         var countInput = $(this).find('#lot-input');
-
-            //         // Check if count-input exists and is empty
-            //         if (countInput.length && countInput.val().trim() === '') {
-            //             hasEmptyCountInput = true;
-            //             return false; // Exit the loop early if an empty count-input is found
-            //         }
-            //     });
-
-            //     // Show alert if any count-input is empty
-            //     if (hasEmptyCountInput) {
-            //         alert('생산 lot 누락된 항목이 있습니다.');
-            //         return false;
-            //     }
-            // }
-
-            
 
             function accountsave() {
 
@@ -938,7 +882,7 @@
                                     "productdate": insertdate,
                                     "modelname": $('#modelname-edit').val(),
                                     "itemname": $('#itemname-edit').val(),
-                                    "lotno": $('#productiondatatbody tr:eq(' + i + ') #lot-input').val(),
+                                    "lotno": $('#ad-edit').val() + '-' + $('#bomno-edit').val() + '-' + $('#accountdate-edit').val().replace(/-/g, '') + '-' + (parseInt($('#num').val()) + i),
                                     "quantity": $('#productiondatatbody tr:eq(' + i + ') #count-input').val(),
                                     "status": 'true',
                                     "orderstatus": '생산보류'
@@ -956,6 +900,19 @@
                             data: JSON.stringify({
                                 "orderid": $('#orderid').val(),
                                 "status": '생산지시완료',
+                            }),
+                            success: function (result) {
+                                // 성공했을 때의 처리
+                            }
+                        });
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/updatenum',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "orderid": $('#orderid').val(),
+                                "num": (parseInt($('#num').val()) + rowCount)
                             }),
                             success: function (result) {
                                 // 성공했을 때의 처리
@@ -980,7 +937,7 @@
 
             }
 
-            
+
 
             function deletedata() {
                 var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
