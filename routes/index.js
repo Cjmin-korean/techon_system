@@ -5769,84 +5769,96 @@ module.exports = function (app) {
 
                 .query(
 
-                    "  WITH cte AS ( " +
-                    "    SELECT " +
-                    "        a.ad, " +
-                    "        a.contentname, " +
-                    "        a.deliverydate," +
-                    "        a.customer,  " +
-                    "        a.modelname, " +
-                    "        a.itemname, " +
-                    "        a.quantity," +
-                    "        a.bomno,  " +
-                    "        a.itemcode, " +
-                    "        a.orderid, " +
-                    "        SUM(ISNULL(i.quantity, 0)) AS total_quantity, " +
-                    "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num " +
-                    "    FROM accountinput a " +
-                    "    LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname " +
-                    "    GROUP BY " +
-                    "        a.ad, " +
-                    "        a.contentname, " +
-                    "        a.modelname, " +
-                    "        a.itemname, " +
-                    "        a.quantity, " +
-                    "        a.deliverydate, " +
-                    "        a.customer, " +
-                    "        a.bomno, " +
-                    "        a.itemcode, " +
-                    "        a.orderid " +
-                    "), recursive_cte AS ( " +
-                    "    SELECT " +
-                    "        c.ad, " +
-                    "        c.bomno, " +
-                    "        c.contentname, " +
-                    "        c.deliverydate, " +
-                    "        c.customer, " +
-                    "        c.modelname, " +
-                    "        c.itemname, " +
-                    "        c.quantity, " +
-                    "        c.itemcode, " +
-                    "        c.orderid, " +
-                    "        c.total_quantity, " +
-                    "        total_quantity - quantity AS difference, " +
-                    "        row_num " +
-                    "    FROM cte c " +
-                    "    WHERE row_num = 1 " +
-                    "    UNION ALL " +
-                    "    SELECT " +
-                    "        c.ad, " +
-                    "        c.bomno, " +
-                    "        c.contentname, " +
-                    "        c.deliverydate, " +
-                    "        c.customer, " +
-                    "        c.modelname, " +
-                    "        c.itemname, " +
-                    "        c.quantity, " +
-                    "        c.itemcode, " +
-                    "        c.orderid, " +
-                    "        c.total_quantity, " +
-                    "        rc.difference - c.quantity AS difference, " +
-                    "        c.row_num " +
-                    "    FROM cte c " +
-                    "    JOIN recursive_cte rc ON c.modelname = rc.modelname AND c.itemname = rc.itemname AND c.row_num = rc.row_num + 1 " +
-                    ") " +
-                    "SELECT " +
-                    "    contentname, " +
-                    "    bomno, " +
-                    "    deliverydate, " +
-                    "    customer, " +
-                    "    modelname, " +
-                    "    itemname, " +
-                    "    itemcode, " +
-                    "    orderid, " +
-                    "    FORMAT(quantity, '#,0') AS quantity, " +
-                    "    FORMAT(difference, '#,0') AS difference, " +
-                    "    FORMAT(total_quantity, '#,0') AS total_quantity, " +
-                    "    CASE WHEN (difference) >= 0 THEN '가능' ELSE '부족' END AS possible, " +
-                    "    ad, " +
-                    "    CASE WHEN EXISTS (SELECT 1 FROM [Techon].[dbo].[orderlist] o WHERE o.bomno = recursive_cte.bomno AND o.qrno = recursive_cte.orderid) THEN 'Y' ELSE 'N' END AS exists1 " +
-                    "FROM recursive_cte;                      ")
+                    "  WITH cte AS (  "+
+                    "    SELECT  "+
+                    "        a.ad, "+ 
+                    "        a.contentname,  "+
+                    "        a.deliverydate,  "+
+                    "        a.customer,   "+
+                    "        a.modelname,  "+
+                    "        a.itemname,  "+
+                    "        a.quantity, "+
+                    "        a.bomno,   "+
+                    "        a.itemcode,  "+
+                    "        a.orderid,  "+
+                    "        SUM(ISNULL(i.quantity, 0)) AS total_quantity,  "+
+                    "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num "+  
+                    "    FROM accountinput a  "+
+                    "    LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname  "+
+                    "    GROUP BY  "+
+                    "        a.ad,  "+
+                    "        a.contentname,  "+
+                    "        a.modelname,  "+
+                    "        a.itemname,  "+
+                    "        a.quantity,  "+
+                    "        a.deliverydate,  "+
+                    "        a.customer,  "+
+                    "        a.bomno,  "+
+                    "        a.itemcode,  "+
+                    "        a.orderid  "+
+                    "), recursive_cte AS (  "+
+                    "                        SELECT  "+
+                    "                            c.ad,  "+
+                    "                            c.bomno,  "+
+                    "                            c.contentname,  "+
+                    "                            c.deliverydate,  "+
+                    "                            c.customer,  "+
+                    "                            c.modelname,  "+
+                    "                            c.itemname,  "+
+                    "                            c.quantity,  "+
+                    "                            c.itemcode,  "+
+                    "                            c.orderid,  "+
+                    "                            c.total_quantity,  "+
+                    "                            total_quantity - quantity AS difference,  "+
+                    "                            row_num  "+
+                    "                        FROM cte c  "+
+                    "                        WHERE row_num = 1  "+
+                    "                        UNION ALL  "+
+                    "                        SELECT  "+
+                    "                            c.ad,  "+
+                    "                            c.bomno,  "+
+                    "                            c.contentname,  "+
+                    "                            c.deliverydate,  "+
+                    "                            c.customer,  "+
+                    "                            c.modelname,  "+
+                    "                            c.itemname,  "+
+                    "                            c.quantity,  "+
+                    "                            c.itemcode,  "+
+                    "                            c.orderid,  "+
+                    "                            c.total_quantity, "+ 
+                    "                            rc.difference - c.quantity AS difference,  "+
+                    "                            c.row_num  "+
+                    "                        FROM cte c  "+
+                    "                        JOIN recursive_cte rc ON c.modelname = rc.modelname AND c.itemname = rc.itemname AND c.row_num = rc.row_num + 1  "+
+                    "                    )  "+
+                    "                    SELECT  "+
+                    "    rc.contentname,  "+
+                    "    rc.bomno,  "+
+                    "    rc.deliverydate,  "+
+                    "    rc.customer,  "+
+                    "    rc.modelname,  "+
+                    "    rc.itemname,  "+
+                    "    rc.itemcode,  "+
+                    "    rc.orderid,  "+
+                    "    FORMAT(rc.quantity, '#,0') AS quantity,  "+
+                    "    FORMAT(rc.difference, '#,0') AS difference,  "+
+                    "    FORMAT(rc.total_quantity, '#,0') AS total_quantity,  "+
+                    "    CASE WHEN (rc.difference) >= 0 THEN '가능' ELSE '부족' END AS possible,  "+
+                    "    rc.ad,  "+
+                    "    CASE WHEN EXISTS ("+
+                    "            SELECT 1 "+
+                    "            FROM [Techon].[dbo].[orderlist] o "+
+                    "            WHERE o.bomno = rc.bomno AND o.qrno = rc.orderid "+
+                    "    ) THEN 'Y' ELSE 'N' END AS exists1, "+
+                    "    ol_total.total_quantity AS a "+
+                    "FROM recursive_cte rc "+
+                    "JOIN ( "+
+                    "    SELECT  "+
+                    "        qrno, "+
+                    "        SUM(quantity) AS total_quantity "+
+                    "    FROM orderlist "+
+                    "    GROUP BY qrno "+
+                    ") ol_total ON rc.orderid = ol_total.qrno                  ")
                 .then(result => {
 
                     res.json(result.recordset);
