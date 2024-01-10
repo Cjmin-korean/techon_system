@@ -4020,7 +4020,7 @@ module.exports = function (app) {
                     " GROUP BY " +
                     "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname " +
                     " ORDER BY " +
-                    "     bm.materialwidth ASC; ")
+                    "     bm.materialname ASC; ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -4300,6 +4300,35 @@ module.exports = function (app) {
                     " orderid,marchine,a,b,c,d,qrno,orderstatus " +
                     " from  " +
                     " orderlist where status='true' order by orderstatus,productdate,modelname,itemname,lotno asc ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/productorderlist31', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    " select " +
+                    " id, " +
+                    " bomno, " +
+
+                    " contentname, " +
+                    " productdate, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " lotno, " +
+                    " quantity, " +
+                    " orderid,marchine,a,b,c,d,qrno,orderstatus " +
+                    " from  " +
+                    " orderlist where status='true' and orderstatus='생산확정' order by orderstatus,productdate,modelname,itemname,lotno asc ")
                 .then(result => {
 
                     res.json(result.recordset);

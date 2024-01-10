@@ -128,31 +128,34 @@
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div id="editForm" style="max-height: 900px; width: 100%; float: left; overflow-y: auto;">
-            <table class="styled-table">
+            <div style="height: 600px;  overflow-y: auto;">
+                <table class="styled-table" >
 
-                <thead id="tableHead">
-                    <tr>
-                        <th colspan="10">생산확정</th>
-                        <th><input type="text" id="num" style="visibility: hidden;"></th>
-                        <th><button onclick="insertpurchaseorder()">저장</button></th>
-                    </tr>
-                    <th style="text-align:center;">모델명</th>
-                    <th style="text-align:center;">품목명</th>
-                    <th style="text-align:center;">자재명</th>
-                    <th style="text-align:center;">자재폭(mm)</th>
-                    <th style="text-align:center;">필요소요량</th>
-                    <th style="text-align:center;">현재고</th>
-                    <th style="text-align:center;">폭이상재고(M)</th>
-                    <th style="text-align:center; width:70px;">1RL<br>컷수</th>
-                    <th style="text-align:center; width:100px;">재단폭</th>
-                    <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
-                    <th style="text-align:center; width:120px;">발주수량(롤)</th>
-                    <th style="text-align:center; width:100px;"></th>
-                </thead>
-                <tbody id="orderlistbombody">
-                    <!-- Add your table data here -->
-                </tbody>
-            </table>
+                    <thead id="tableHead">
+                        <tr>
+                            <th colspan="10">생산확정</th>
+                            <th><input type="text" id="num" style="visibility: hidden;"></th>
+                            <th><button onclick="insertpurchaseorder()">저장</button></th>
+                        </tr>
+                        <th style="text-align:center;">모델명</th>
+                        <th style="text-align:center;">품목명</th>
+                        <th style="text-align:center;">자재명</th>
+                        <th style="text-align:center;">자재폭(mm)</th>
+                        <th style="text-align:center;">필요소요량</th>
+                        <th style="text-align:center;">현재고</th>
+                        <th style="text-align:center;">폭이상재고(M)</th>
+                        <th style="text-align:center; width:70px;">1RL<br>컷수</th>
+                        <th style="text-align:center; width:100px;">재단폭</th>
+                        <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
+                        <th style="text-align:center; width:120px;">발주수량(롤)</th>
+                        <th style="text-align:center; width:100px;"></th>
+                    </thead>
+                    <tbody id="orderlistbombody">
+                        <!-- Add your table data here -->
+                    </tbody>
+                </table>
+            </div>
+
 
             <table class="styled-table" style="width: 48%; float: left;">
 
@@ -195,6 +198,38 @@
         </div>
 
     </div>
+    <div id="editModal2">
+        <div class="mainheader">
+            <h1>생산확정 리스트 정보</h1>
+
+            <span class="close" onclick="closeModal2()">&times;</span>
+        </div>
+        <button id="searchBtn" onclick="searchData1()" class="btn btn-success">
+            <i class="fas fa-shopping-cart"></i> 발주
+        </button>
+        <div id="editForm" style="max-height: 500px; width: 100%; float: left; overflow-y: auto;">
+            <table class="styled-table">
+
+                <thead id="tableHead">
+
+                    <th>BOMNO.</th>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <th>생산LOTNO.</th>
+                    <th>수량(개)</th>
+
+
+                </thead>
+                <tbody id="databody">
+                    <!-- Add your table data here -->
+                </tbody>
+            </table>
+
+
+
+        </div>
+
+    </div>
 
 
 
@@ -222,9 +257,60 @@
 
 
         function openSaveModal() {
+
+
+            $('#databody').empty();
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/productorderlist31',
+                dataType: 'json',
+                success: function (result) {
+                    var tableBody = $('#databody');
+                    var modelQuantities = {}; // To store model quantities
+
+                    if (result.length === 0) {
+                        tableBody.append('<tr><td colspan="11">생산확정 데이터가 없습니다.</td></tr>');
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            // Accumulate quantity for each model
+                            if (!modelQuantities[result[i].modelname]) {
+                                modelQuantities[result[i].modelname] = { quantity: 0, count: 0 };
+                            }
+                            modelQuantities[result[i].modelname].quantity += result[i].quantity;
+                            modelQuantities[result[i].modelname].count++;
+
+                            $('#databody').append(
+                                '<tr>' +
+                                '<td>' + result[i].bomno + '</td>' +
+                                '<td>' + result[i].modelname + '</td>' +
+                                '<td>' + result[i].itemname + '</td>' +
+                                '<td>' + result[i].lotno + '</td>' +
+                                '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
+                                '<td id="data-id">' + result[i].id + '</td>' +
+                                '</tr>'
+                            );
+                            $('td#data-id').hide();
+                        }
+
+                        // Add rows for model sums
+                        for (var model in modelQuantities) {
+                            $('#databody').append(
+                                '<tr class="model-sum-row">' +
+                                '<td colspan="2">' + model + '</td>' +
+                                '<td>합계</td>' +
+                                '<td>' + modelQuantities[model].count + '건</td>' +
+                                '<td style="text-align:right;">' + modelQuantities[model].quantity.toLocaleString() + '</td>' +
+                                '</tr>'
+                            );
+                        }
+                    }
+                }
+            });
+
+
             document.getElementById('overlay').style.display = 'block';
-            document.getElementById('editModal').style.display = 'block';
-            load1()
+            document.getElementById('editModal2').style.display = 'block';
         }
 
 
@@ -232,6 +318,10 @@
         function closeModal() {
             $('#overlay').fadeOut();
             $('#editModal').fadeOut();
+        }
+        function closeModal2() {
+            $('#overlay').fadeOut();
+            $('#editModal2').fadeOut();
         }
 
         function showLoading() {
@@ -281,6 +371,25 @@
             });
             setTimeout(function () {
                 Swal.close();
+            }, 1300); // Simulated delay of 1.3 seconds
+        }
+        function searchData1() {
+            Swal.fire({
+                icon: 'info',
+                title: '발주 소요량 계산중입니다....',
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                onBeforeOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            setTimeout(function () {
+                Swal.close();
+                $('#editModal2').fadeOut();
+                $('#editModal').fadeIn();
+                load1()
             }, 1300); // Simulated delay of 1.3 seconds
         }
 
@@ -473,26 +582,7 @@
 
             }
         }
-        // '<td>' + data[i].bomno || '' + '</td>' +
-        // '<td>' + data[i].modelname || '' + '</td>' +
-        // '<td>' + data[i].itemname || '' + '</td>' +
-        // '<td>' + data[i].materialname || '' + '</td>' +
-        // '<td>' + data[i].materialwidth || '' + '</td>' +
-        // '<td>' + data[i].soyo || '' + '</td>' +
-        // '<td>' + data[i].sumquantity || '' + '</td>' +
-        // '<td>' + data[i].has || '' + '</td>' +
-        // '<td>' + data[i].cut || '' + '</td>' +
-        // '<td>' + data[i].materialwidth || '' + '</td>' +
-        // '<td>' + data[i].a || '' + '</td>' +
-        // '<td>' + data[i].roundedResult || '' + '</td>' +
-        // '<td>' + data[i].sqmprice || '' + '</td>' +
-        // '<td>' + data[i].a1 || '' + '</td>' +
-        // '<td>' + data[i].quantity || '' + '</td>' +
-        // '<td>' + data[i].codenumber || '' + '</td>' +
-        // '<td>' + data[i].supplier || '' + '</td>' +
-        // '<td>' + data[i].width || '' + '</td>' +
-        // '<td>' + data[i].length || '' + '</td>' +
-        // '<td>' + data[i].customer || '' + '</td>' +
+
 
         function load1() {
             $('#orderlistbombody').empty();
@@ -514,7 +604,7 @@
                             console.log(data)
                             $('#orderlistbombody').append(
                                 '<tr class="order-list-row">' +
-                                '<td><input type="text" id="modelname-input" value="' + (data[0].modelname || '') + '"></td>' +
+                                '<td><input type="text" id="modelname-input" value="' + (data[i].modelname || '') + '"></td>' +
                                 '<td><input type="text" id="itemname-input" value="' + (data[i].itemname || '') + '"></td>' +
                                 '<td><input type="text" id="materialname-input" value="' + (data[i].materialname || '') + '"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="materialwidth-input" value="' + (data[i].materialwidth || '') + '"></td>' +
@@ -523,7 +613,7 @@
                                 '<td><input type="text" id="has-input" value="' + (data[i].has || '') + '"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="cut-input" value="' + (data[i].cut || '') + '"></td>' +
                                 '<td style="text-align:right;"><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="전폭">전폭</option></select></td>' +
-                                '<td><input type="text" id="a-input" value="' + (data[i].a || '') + '"></td>' +
+                                '<td><input type="text" id="a-input" value="' + (data[i].a || '0') + '"></td>' +
                                 '<td><input type="text" id="roundedResult-input" value="' + (data[i].roundedResult || '0') + '"></td>' +
                                 '<td id="sqmpricetd"><input type="text" id="sqmprice-input" value="' + (data[i].sqmprice || '0') + '"></td>' +
                                 '<td id="rollpricetd"><input type="text" id="rollprice-input" value="' + (data[i].a1 || '0') + '"></td>' +
@@ -553,7 +643,7 @@
                             var rowData = data[rowIndex];
                             var codenumber = rowData.codenumber || '';
 
-                            $('#orderlistbombody1').empty();
+                            $('#orderlistbombody').empty();
                             $.ajax({
                                 type: 'POST',
                                 url: server + '/api/selectcodenumber',
@@ -569,7 +659,7 @@
                                     } else {
                                         // Iterate through sorted data
                                         for (var i = 0; i < result.length; i++) {
-                                            $('#orderlistbombody1').append(
+                                            $('#orderlistbombody').append(
                                                 '<tr class="order-list-row">' +
                                                 '<td><input type="text" id="materialname-input" readonly value="' + (result[i].materialname || '') + '"></td>' +
                                                 '<td><input type="text" id="codenumber-input" readonly  value="' + (result[i].codenumber || '') + '"></td>' +
