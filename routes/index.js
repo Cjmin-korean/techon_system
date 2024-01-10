@@ -744,7 +744,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('bomno', sql.NVarChar, req.body.bomno)
 
                 .query(
                     " SELECT " +
@@ -2802,8 +2802,11 @@ module.exports = function (app) {
                     "SELECT " +
                     "      *, " +
                     "      custom_condition_column * 60 AS additional_calculated_column1, " +
-                    "       custom_condition_column * 80 AS additional_calculated_column2, " +
-                    "        custom_condition_column * 10.5 AS additional_calculated_column3 " +
+                    "      custom_condition_column * 60*8 AS additional_calculated_column2, " +
+                    "      custom_condition_column * 60*10.5 AS additional_calculated_column3, " +
+                    "      custom_condition_column * 60 *cavity AS cv1,   " +
+                    "      custom_condition_column * 480 *cavity AS cv2,   " +
+                    "      custom_condition_column * 60*10.5*cavity AS cv3   " +
                     "  FROM ( " +
                     "      SELECT  " +
                     "          iteminfo.bomno, " +
@@ -2855,13 +2858,16 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('bomno', sql.NVarChar, req.body.bomno)
-     
+
                 .query(
                     "SELECT " +
                     "      *, " +
                     "      custom_condition_column * 60 AS additional_calculated_column1, " +
                     "       custom_condition_column * 80 AS additional_calculated_column2, " +
-                    "        custom_condition_column * 10.5 AS additional_calculated_column3 " +
+                    "        custom_condition_column * 10.5 AS additional_calculated_column3, " +
+                    "      custom_condition_column * 60 *cavity AS cv1,   " +
+                    "      custom_condition_column * 480 *cavity AS cv2,   " +
+                    "      custom_condition_column * 60*10.5*cavity AS cv3   " +
                     "  FROM ( " +
                     "      SELECT  " +
                     "          iteminfo.bomno, " +
@@ -4635,10 +4641,11 @@ module.exports = function (app) {
                 .input('c', sql.NVarChar, req.body.c)
                 .input('d', sql.NVarChar, req.body.d)
                 .input('orderstatus', sql.NVarChar, req.body.orderstatus)
+                .input('qrno', sql.NVarChar, req.body.qrno)
 
                 .query(
-                    "insert into orderlist(modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus,qrno,a,b,c,d,orderstatus)" +
-                    " values(@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus,'30AF8B0C-AE78-4E60-8A41-C7F5EA51854A',@a,@b,@c,@d,@orderstatus)"
+                    "insert into orderlist(qrno,modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus,a,b,c,d,orderstatus)" +
+                    " values(@qrno,@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus,@a,@b,@c,@d,@orderstatus)"
                 )
                 .then(result => {
 
@@ -5762,38 +5769,84 @@ module.exports = function (app) {
 
                 .query(
 
-                    "  WITH cte AS (    " +
-                    "    SELECT    " +
-                    "        a.ad, a.contentname, a.deliverydate, a.customer, a.modelname, a.itemname, a.quantity, a.bomno, a.itemcode, a.orderid, " +
-                    "        SUM(ISNULL(i.quantity, 0)) AS total_quantity,     " +
-                    "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num     " +
-                    "    FROM accountinput a     " +
-                    "    LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname      " +
-                    "    WHERE a.status = '생산발주대기'     " +
-                    "    GROUP BY a.ad, a.contentname, a.modelname, a.itemname, a.quantity, a.deliverydate, a.customer, a.bomno, a.itemcode, a.orderid     " +
-                    "), recursive_cte AS (     " +
-                    "    SELECT     " +
-                    "        c.ad, c.bomno, c.contentname, c.deliverydate, c.customer, c.modelname, c.itemname, c.quantity, c.itemcode, c.orderid, c.total_quantity,     " +
-                    "        total_quantity - quantity AS difference,     " +
-                    "        row_num     " +
-                    "    FROM cte c     " +
-                    "    WHERE row_num = 1     " +
-                    "    UNION ALL      " +
-                    "    SELECT     " +
-                    "        c.ad, c.bomno, c.contentname, c.deliverydate, c.customer, c.modelname, c.itemname, c.quantity, c.itemcode, c.orderid, c.total_quantity,    " +
-                    "        rc.difference - c.quantity AS difference,    " +
-                    "        c.row_num    " +
-                    "    FROM cte c    " +
-                    "    JOIN recursive_cte rc ON c.modelname = rc.modelname AND c.itemname = rc.itemname AND c.row_num = rc.row_num + 1    " +
-                    ")    " +
-                    "SELECT   " +
-                    "    contentname, bomno, deliverydate, customer, modelname, itemname, itemcode, orderid," +
-                    "    FORMAT(quantity, '#,0') AS quantity, FORMAT(difference, '#,0') AS difference, " +
+                    "  WITH cte AS ( " +
+                    "    SELECT " +
+                    "        a.ad, " +
+                    "        a.contentname, " +
+                    "        a.deliverydate," +
+                    "        a.customer,  " +
+                    "        a.modelname, " +
+                    "        a.itemname, " +
+                    "        a.quantity," +
+                    "        a.bomno,  " +
+                    "        a.itemcode, " +
+                    "        a.orderid, " +
+                    "        SUM(ISNULL(i.quantity, 0)) AS total_quantity, " +
+                    "        ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num " +
+                    "    FROM accountinput a " +
+                    "    LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname " +
+                    "    GROUP BY " +
+                    "        a.ad, " +
+                    "        a.contentname, " +
+                    "        a.modelname, " +
+                    "        a.itemname, " +
+                    "        a.quantity, " +
+                    "        a.deliverydate, " +
+                    "        a.customer, " +
+                    "        a.bomno, " +
+                    "        a.itemcode, " +
+                    "        a.orderid " +
+                    "), recursive_cte AS ( " +
+                    "    SELECT " +
+                    "        c.ad, " +
+                    "        c.bomno, " +
+                    "        c.contentname, " +
+                    "        c.deliverydate, " +
+                    "        c.customer, " +
+                    "        c.modelname, " +
+                    "        c.itemname, " +
+                    "        c.quantity, " +
+                    "        c.itemcode, " +
+                    "        c.orderid, " +
+                    "        c.total_quantity, " +
+                    "        total_quantity - quantity AS difference, " +
+                    "        row_num " +
+                    "    FROM cte c " +
+                    "    WHERE row_num = 1 " +
+                    "    UNION ALL " +
+                    "    SELECT " +
+                    "        c.ad, " +
+                    "        c.bomno, " +
+                    "        c.contentname, " +
+                    "        c.deliverydate, " +
+                    "        c.customer, " +
+                    "        c.modelname, " +
+                    "        c.itemname, " +
+                    "        c.quantity, " +
+                    "        c.itemcode, " +
+                    "        c.orderid, " +
+                    "        c.total_quantity, " +
+                    "        rc.difference - c.quantity AS difference, " +
+                    "        c.row_num " +
+                    "    FROM cte c " +
+                    "    JOIN recursive_cte rc ON c.modelname = rc.modelname AND c.itemname = rc.itemname AND c.row_num = rc.row_num + 1 " +
+                    ") " +
+                    "SELECT " +
+                    "    contentname, " +
+                    "    bomno, " +
+                    "    deliverydate, " +
+                    "    customer, " +
+                    "    modelname, " +
+                    "    itemname, " +
+                    "    itemcode, " +
+                    "    orderid, " +
+                    "    FORMAT(quantity, '#,0') AS quantity, " +
+                    "    FORMAT(difference, '#,0') AS difference, " +
                     "    FORMAT(total_quantity, '#,0') AS total_quantity, " +
-                    "    CASE WHEN (difference) >= 0 THEN '가능' ELSE '부족' END AS possible,  " +
-                    "    ad   " +
-                    "FROM recursive_cte;                    "
-                )
+                    "    CASE WHEN (difference) >= 0 THEN '가능' ELSE '부족' END AS possible, " +
+                    "    ad, " +
+                    "    CASE WHEN EXISTS (SELECT 1 FROM [Techon].[dbo].[orderlist] o WHERE o.bomno = recursive_cte.bomno AND o.qrno = recursive_cte.orderid) THEN 'Y' ELSE 'N' END AS exists1 " +
+                    "FROM recursive_cte;                      ")
                 .then(result => {
 
                     res.json(result.recordset);
