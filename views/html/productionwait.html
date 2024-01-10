@@ -17,7 +17,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 
 <style>
@@ -107,9 +109,20 @@
         <a style="margin-left: 20px;">생산지시현황</a>
     </div>
     <div style="max-height: 500px; overflow-y: auto;">
+        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i>선택삭제
+        </button></th>
+        <button id="exportToExcelBtn" onclick="savedata()" class="btn btn-success" style="background-color: navy;">
+            <i class="fas fa-save"></i> 선택확정
+        </button>
+        <button id="exportToExcelBtn" onclick="pausedata()" class="btn btn-success" style="background-color: green;">
+            <i class="fas fa-hand-paper"></i> 선택보류
+        </button>
         <table class="styled-table" id="orderdatatable">
             <thead>
                 <tr>
+                    <th style="width: 20px;"><input type="checkbox" style="width: 20px; height: 20px; cursor: pointer;">
+                    </th>
                     <th>BOMNO.</th>
                     <th>생산계획날짜</th>
                     <th>모델명</th>
@@ -117,7 +130,7 @@
                     <th>생산LOTNO.</th>
                     <th>수량(개)</th>
                     <th>수량변경</th>
-                    <th></th>
+                    <th>
                     <th></th>
 
                 </tr>
@@ -262,7 +275,18 @@
                 showLoading()
                 load()
                 load1()
+                $('#orderdatatable thead input[type="checkbox"]').on('change', function () {
+                    var isChecked = $(this).prop('checked');
 
+                    $('#orderdatatable tbody input[type="checkbox"]').prop('checked', isChecked);
+
+                    if (isChecked) {
+                        // Get the IDs of checked checkboxes
+                        var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                            return $(this).closest('tr').find('td#data-id').text();
+                        }).get();
+                    }
+                });
 
             });
 
@@ -288,7 +312,7 @@
                             contentType: 'application/json',
                             data: JSON.stringify({
 
-                                "id": rowData[9],
+                                "id": rowData[10],
                                 "orderstatus": '생산확정'
                             }),
                             success: function (result) {
@@ -330,7 +354,7 @@
                             dataType: 'json',
                             contentType: 'application/json',
                             data: JSON.stringify({
-                                "id": rowData[9]
+                                "id": rowData[10]
                             }),
                             success: function (result) {
 
@@ -375,7 +399,7 @@
                             contentType: 'application/json',
                             data: JSON.stringify({
 
-                                "id": rowData[9],
+                                "id": rowData[10],
                                 "orderstatus": '생산보류'
                             }),
                             success: function (result) {
@@ -428,7 +452,7 @@
                         var tableBody = $('#Datatbody');
                         var tableRowCount = $('#Datatbody tr').length;
                         if (data.length === 0) {
-                            tableBody.append('<tr><td colspan="11">데이터가 없습니다.</td></tr>');
+                            tableBody.append('<tr><td colspan="11" style="text-align:center;">데이터가 없습니다.</td></tr>');
                         } else {
                             for (var i = 0; i < data.length; i++) {
                                 var deliveryDate = new Date(data[i].deliverydate);
@@ -764,6 +788,7 @@
 
                                 tableBody.append(
                                     '<tr>' +
+                                    '<td><input type="checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
                                     '<td>' + data[i].bomno + '</td>' +
                                     '<td style="font-weight:bold;">' + data[i].productdate + '</td>' +
                                     '<td>' + data[i].modelname + '</td>' +
@@ -773,13 +798,14 @@
                                     quantityChangeInfo +
                                     orderStatusCell +
                                     deleteClass +
-                                    '<td class="data-id">' + data[i].id + '</td>' +
+                                    '<td id="data-id">' + data[i].id + '</td>' +
                                     '</tr>'
                                 );
+                                $('td#data-id').hide();
                             }
 
+
                         }
-                        $('.data-id').hide();
                     }
                 });
             }
@@ -946,7 +972,181 @@
                 }
             }
 
+            function deletedata() {
+                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                    return $(this).closest('tr').find('td#data-id').text();
+                }).get();
 
+                if (checkedIds.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '누락',
+                        text: '선택된 항목이 없습니다.',
+                    });
+                    return;
+                }
+                Swal.fire({
+                    icon: 'warning',
+                    title: '정말로 삭제하시겠습니까?',
+                    text: '이 작업은 되돌릴 수 없습니다!',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Array to store promises for each AJAX request
+                        var ajaxPromises = [];
+
+                        checkedIds.forEach(function (currentId) {
+                            // Create a promise for each AJAX request
+                            var ajaxPromise = $.ajax({
+                                type: 'POST',
+                                url: server + '/api/deleteaccountstatus',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "id": currentId
+                                })
+                            });
+
+                        });
+                        selectedIds = [];
+                        Swal.fire({
+                            icon: 'success',
+                            title: '삭제완료',
+                            text: '생산지시정보가 삭제되었습니다.',
+                        }).then((result) => {
+                            if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+                                load();
+                                load1();
+                                $('#orderdatatable thead input[type="checkbox"]').prop('checked', false);
+
+                            }
+                        });
+
+                    }
+                });
+
+            }
+            function savedata() {
+                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                    return $(this).closest('tr').find('td#data-id').text();
+                }).get();
+
+                if (checkedIds.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '누락',
+                        text: '선택된 항목이 없습니다.',
+                    });
+                    return;
+                }
+                Swal.fire({
+                    icon: 'info',
+                    title: '선택항목 생산 확정하시겠습니까?',
+                    text: '선택된 항목이 확정됩니다.',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Array to store promises for each AJAX request
+                        var ajaxPromises = [];
+
+                        checkedIds.forEach(function (currentId) {
+                            // Create a promise for each AJAX request
+                            var ajaxPromise = $.ajax({
+                                type: 'POST',
+                                url: server + '/api/updateaccountstatus',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "id": currentId,
+                                    "orderstatus": '생산확정'
+                                })
+                            });
+
+                        });
+                        selectedIds = [];
+                        Swal.fire({
+                            icon: 'success',
+                            title: '확정 완료',
+                            text: '생산지시정보가 확정 되었습니다.',
+                        }).then((result) => {
+                            if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+                                load();
+                                load1();
+                                $('#orderdatatable thead input[type="checkbox"]').prop('checked', false);
+
+                            }
+                        });
+
+                    }
+                });
+
+            }
+            function pausedata() {
+                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                    return $(this).closest('tr').find('td#data-id').text();
+                }).get();
+
+                if (checkedIds.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '누락',
+                        text: '선택된 항목이 없습니다.',
+                    });
+                    return;
+                }
+                Swal.fire({
+                    icon: 'info',
+                    title: '선택항목 생산 보류하시겠습니까?',
+                    text: '선택된 항목이 보류됩니다.',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Array to store promises for each AJAX request
+                        var ajaxPromises = [];
+
+                        checkedIds.forEach(function (currentId) {
+                            // Create a promise for each AJAX request
+                            var ajaxPromise = $.ajax({
+                                type: 'POST',
+                                url: server + '/api/updateaccountstatus',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "id": currentId,
+                                    "orderstatus": '생산보류'
+                                })
+                            });
+
+                        });
+                        selectedIds = [];
+                        Swal.fire({
+                            icon: 'success',
+                            title: '확정 완료',
+                            text: '생산지시정보가 보류 되었습니다.',
+                        }).then((result) => {
+                            if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+                                load();
+                                load1();
+                                $('#orderdatatable thead input[type="checkbox"]').prop('checked', false);
+                            }
+                        });
+
+                    }
+                });
+
+            }
         </script>
 
 
