@@ -737,6 +737,34 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbomnoonepid', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    " SELECT " +
+                    " *  " +
+                    " FROM bommanagement where bomno=@bomno and status='true' and main='메인자재' order by num asc ")
+
+                .then(result => {
+
+                    // console.log('내가보고싶은거', result.recordset)
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -2200,6 +2228,66 @@ module.exports = function (app) {
 
                 .query(
                     "select * from iteminput")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbomsoyo', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT " +
+                    "    bm.char, " +
+                    "    bm.main, " +
+                    "    bm.materialname, " +
+                    "    mi.typecategory, " +
+                    "    bm.etc, " +
+                    "    bm.materialwidth, " +
+                    "    bm.useable, " +
+                    "    bm.onepid, " +
+                    "    bm.twopid, " +
+                    "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)),4) as soyo, " +
+                    "    bm.ta, " +
+                    "    bm.allta, " +
+                    "    bm.talength, " +
+                    "    bm.loss, " +
+                    "    ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) as cost, " +
+                    "    FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, " +
+                    "    FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) as prdouctcount, " +
+                    "    mi.width, " +
+                    "    mi.usewidth, " +
+                    "    mi.length, " +
+                    "    mi.sqmprice, " +
+                    "    mi.rollprice, " +
+                    "    mi.unit, " +
+                    "    mi.manufacterer, " +
+                    "    mi.supplier, " +
+                    "    bm.cavity, " +
+                    "    mi.codenumber, " +
+                    "    bm.num " +
+                    "FROM " +
+                    "    bommanagement bm " +
+                    "JOIN " +
+                    "    materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "WHERE " +
+                    "    bm.bomno = @bomno and bm.status='true' and bm.main='메인자재'" +
+                    "ORDER BY bm.num ASC; ")
 
                 .then(result => {
 

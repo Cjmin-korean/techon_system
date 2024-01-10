@@ -173,8 +173,6 @@
     <div id="editModal4" style="width: 800px; height: auto;">
         <div class="mainheader">
             <h1>생산지시등록</h1>
-            <!-- <button class="saveButton" onclick="opentool()">TOOL</button> -->
-
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
 
@@ -223,6 +221,9 @@
                 <tr style="height:50px;">
                     <td>생산LOT</td>
                     <td>발주수량(개)</td>
+                    <td>1차피딩(mm)</td>
+                    <td>소요량(M)</td>
+                    <td>소요합계(M)</td>
                     <td style="width: 100px;"><button onclick="add()">추가</button></td>
                 </tr>
                 <tbody id="productiondatatbody">
@@ -649,25 +650,11 @@
             function valuechanged() {
                 var currentRow = $(event.target).closest('tr');
                 var rowIndex = currentRow.index();
-                const itempriceValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').val().replace(/,/g, '')) || 0;
-                const countValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').val().replace(/,/g, '')) || 0;
+                const itempriceValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #soyo-input').val().replace(/,/g, '')) || 0;
+                const countValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #count-input').val().replace(/,/g, '')) || 0;
                 const priceValue = itempriceValue * countValue;
-                $('#accountdatatbody tr:eq(' + rowIndex + ') #price-input').val(priceValue.toLocaleString());
-                let totalPocount = 0;
-                let totalPosumprice = 0;
-                $('#accountdatatbody input#pocount-input').each(function () {
-                    const countValue = parseFloat($(this).val().replace(/,/g, '')) || 0;
-                    totalPocount += countValue;
-                });
-                $('#accountdatatbody input#price-input').each(function () {
-                    const priceValue = parseFloat($(this).val().replace(/,/g, '')) || 0;
-                    totalPosumprice += priceValue;
-                });
-                // Update the sum in the designated cell
-                $('#pocount-input').val()
-                $('#price-input').val()
-                $('#pocount-sum').text(totalPocount.toLocaleString());
-                $('#price-sum').text(totalPosumprice.toLocaleString());
+                $('#productiondatatbody tr:eq(' + rowIndex + ') #soyosum-input').val(priceValue.toLocaleString());
+
             }
             function addnew() {
                 var newRow = $('<tr></tr>');
@@ -814,16 +801,35 @@
                 var rowData = $(this).find('td').map(function () {
                     return $(this).text();
                 }).get();
-                $('#productiondatatbody').empty()
-                var newRow = $('<tr></tr>');
-                var rowCount = $('#productiondatatbody tr').length;
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectbomsoyo',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "bomno": rowData[0]
+                    }),
+                    success: function (result) {
+                        // Perform a case-insensitive comparison after trimming
 
-                newRow.append('<td><input type="text" id="lot-input"  value="' + rowData[6] + '-' + rowData[0] + '-' + rowData[1].replace(/-/g, '') + '-' + 1 + '" autocomplete="off"></td>');
-                newRow.append('<td ><input type="text" style="text-align:right;" id="count-input"  value="" autocomplete="off"></td>');
-                newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
+                        $('#productiondatatbody').empty()
+                        var newRow = $('<tr></tr>');
+                        var rowCount = $('#productiondatatbody tr').length;
+
+                        newRow.append('<td><input type="text" id="lot-input"  value="' + rowData[6] + '-' + rowData[0] + '-' + rowData[1].replace(/-/g, '') + '-' + 1 + '" autocomplete="off"></td>');
+                        newRow.append('<td ><input type="text" style="text-align:right;" oninput="valuechanged()" id="count-input"  value="" autocomplete="off"></td>');
+                        newRow.append('<td ><input type="text" readonly style="text-align:right;" id="onepidding-input"  value="' + result[0].onepid + '" autocomplete="off"></td>');
+                        newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyo-input"  value="' + result[0].soyo + '" autocomplete="off"></td>');
+                        newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyosum-input"  value="0" autocomplete="off"></td>');
+                        newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
 
 
-                $('#productiondatatbody').append(newRow);
+
+                        $('#productiondatatbody').append(newRow);
+                    }
+                });
+
+
                 $('#bomno-edit').val(rowData[0])
                 $('#accountdate-edit').val(rowData[1])
                 $('#customer-edit').val(rowData[2])
