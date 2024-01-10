@@ -3,72 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>테이블 행 이동 예제</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
+    <title>Custom Dropdown with Keyboard Interaction</title>
 </head>
 <body>
 
-<table id="myTable">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Country</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>John Doe</td>
-            <td>25</td>
-            <td>USA</td>
-            <td>
-                <button onclick="moveRowUp(this)">위로 이동</button>
-                <button onclick="moveRowDown(this)">아래로 이동</button>
-            </td>
-        </tr>
-        <tr>
-            <td>Jane Doe</td>
-            <td>30</td>
-            <td>Canada</td>
-            <td>
-                <button onclick="moveRowUp(this)">위로 이동</button>
-                <button onclick="moveRowDown(this)">아래로 이동</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="custom-dropdown" tabindex="0" id="myCustomDropdown">
+    <input type="text" class="dropdown-input" placeholder="Type to search">
+    <div class="dropdown-list">
+        <div class="dropdown-item">Option 1</div>
+        <div class="dropdown-item">Option 2</div>
+        <div class="dropdown-item">Option 3</div>
+    </div>
+</div>
 
 <script>
-    function moveRowUp(button) {
-        var row = button.parentNode.parentNode;
-        var tbody = row.parentNode;
+    document.addEventListener('DOMContentLoaded', function () {
+        var customDropdown = document.getElementById('myCustomDropdown');
+        var dropdownInput = customDropdown.querySelector('.dropdown-input');
+        var dropdownList = customDropdown.querySelector('.dropdown-list');
+        var dropdownItems = customDropdown.querySelectorAll('.dropdown-item');
 
-        if (row.rowIndex > 1) {
-            // 현재 행의 인덱스가 1보다 크면 위로 이동
-            tbody.insertBefore(row, tbody.rows[row.rowIndex - 1]);
+        // Show dropdown on focus
+        customDropdown.addEventListener('focus', function () {
+            dropdownList.style.display = 'block';
+        });
+
+        // Handle keyboard interaction
+        customDropdown.addEventListener('keydown', function (event) {
+            if (event.key === 'ArrowDown') {
+                // Move selection down
+                event.preventDefault(); // prevent page scroll
+                focusNextItem();
+            } else if (event.key === 'ArrowUp') {
+                // Move selection up
+                event.preventDefault(); // prevent page scroll
+                focusPreviousItem();
+            } else if (event.key === 'Enter') {
+                // Select the focused item
+                selectFocusedItem();
+            }
+        });
+
+        // Hide dropdown on blur
+        customDropdown.addEventListener('blur', function () {
+            dropdownList.style.display = 'none';
+        });
+
+        // Handle item selection
+        dropdownItems.forEach(function (item) {
+            item.addEventListener('click', function () {
+                dropdownInput.value = item.textContent;
+                dropdownList.style.display = 'none';
+            });
+        });
+
+        // Utility functions for keyboard interaction
+        function focusNextItem() {
+            var index = Array.from(dropdownItems).indexOf(document.activeElement);
+            var nextIndex = (index + 1) % dropdownItems.length;
+            dropdownItems[nextIndex].focus();
         }
-    }
 
-    function moveRowDown(button) {
-        var row = button.parentNode.parentNode;
-        var tbody = row.parentNode;
-
-        if (row.rowIndex < tbody.rows.length - 1) {
-            // 현재 행의 인덱스가 마지막 행의 인덱스보다 작으면 아래로 이동
-            tbody.insertBefore(row, tbody.rows[row.rowIndex + 2]);
+        function focusPreviousItem() {
+            var index = Array.from(dropdownItems).indexOf(document.activeElement);
+            var prevIndex = (index - 1 + dropdownItems.length) % dropdownItems.length;
+            dropdownItems[prevIndex].focus();
         }
-    }
+
+        function selectFocusedItem() {
+            dropdownInput.value = document.activeElement.textContent;
+            dropdownList.style.display = 'none';
+        }
+    });
 </script>
 
 </body>

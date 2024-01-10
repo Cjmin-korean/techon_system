@@ -25,6 +25,40 @@
 
 </head>
 <style>
+    .custom-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-input {
+        width: 200px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .dropdown-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: none;
+    }
+
+    .dropdown-item1 {
+        padding: 8px;
+        cursor: pointer;
+    }
+
+    .dropdown-item1:hover {
+        background-color: #f0f0f0;
+    }
+
     .error-border {
         border: 1px solid red;
     }
@@ -99,7 +133,13 @@
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
-
+    <!-- <div class="custom-dropdown"><input type="text" class="dropdown-input" onclick="clickdata()" placeholder="옵션을선택하세요">
+        <div class="dropdown-list">
+            <div class="dropdown-item1">Option 1</div>
+            <div class="dropdown-item1">Option 2</div>
+            <div class="dropdown-item1">Option 3</div>
+        </div>
+    </div> -->
 
     <fieldset style="height: 40px;">
         <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
@@ -320,6 +360,7 @@
                             class="saveButton" onclick="test()">test</button></td>
 
                 </tr>
+
                 <tr>
                     <td><label for="editAuthor">BOMNO</label></td>
                     <td><input type="text" id="bomno-edit" style="background-color: whitesmoke;" readonly value=""
@@ -583,6 +624,27 @@
         }
         var clickedRowIndex; // variable to store the clicked row index
         $(document).ready(function () {
+            function clickdata() {
+
+            };
+
+            function clickdata() {
+                var dropdownInput = document.querySelector('.dropdown-input');
+                var dropdownList = document.querySelector('.dropdown-list');
+
+                // Show dropdown on input focus
+                dropdownInput.addEventListener('focus', function () {
+                    dropdownList.style.display = 'block';
+                });
+
+                // Handle item selection
+                dropdownList.addEventListener('click', function (event) {
+                    if (event.target.classList.contains('dropdown-item1')) {
+                        dropdownInput.value = event.target.textContent;
+                        dropdownList.style.display = 'none';
+                    }
+                });
+            }
             showLoading()
             load()
 
@@ -596,7 +658,6 @@
                     $('#customernamesearch').hide();
                 }
             });
-
 
             var inputs = $('input[id$="-input"]');
 
@@ -747,39 +808,7 @@
                         return $(this).text();
                     }).get();
 
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/selectbomtoolcode',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "bomid": rowData[19]
-                        }),
-                        success: function (result) {
-                            function appendOptions(char) {
-                                var selectElement = $('#toolcode' + char + '-edit');
 
-                                // Clear existing options
-                                selectElement.empty();
-
-                                for (var i = 0; i < result.length; i++) {
-                                    if (result[i].part === "피나클" && result[i].char === char) {
-                                        var toolcode = result[i].toolcode;
-
-                                        selectElement.text(toolcode)
-                                        selectElement.append('<option value="' + toolcode + '">' + toolcode + '</option>');
-                                    }
-                                }
-                            }
-
-                            // Call the function for each char value
-                            appendOptions('1');
-                            appendOptions('2');
-                            appendOptions('3');
-                            appendOptions('4');
-                            appendOptions('5');
-                        },
-                    });
 
                     // Assuming rowData[9] contains the number of columns
                     var numberOfColumns = parseInt(rowData[13]);
@@ -801,7 +830,8 @@
                         '<th  colspan="2">설비명</th>';
 
                     for (var i = 1; i <= numberOfColumns; i++) {
-                        tableHtml += '<th colspan="2"><select id="equipment' + i + '"></select></th>';
+                        // tableHtml += '<th colspan="2"><select id="equipment' + i + '"></select></th>';
+                        tableHtml += '<th colspan="2"></th>';
                     }
 
                     tableHtml += '</tr>' +
@@ -811,14 +841,14 @@
 
                     for (var i = 1; i <= numberOfColumns; i++) {
                         tableHtml += '<th style="width:150px;">TOOL CODE</th>' +
-                            '<th style="width:150px;">고객사</th>';
+                            '<th style="width:150px;">제품명</th>';
                     }
 
                     tableHtml += '</tr>' +
                         '<tr>';
 
                     for (var i = 1; i <= numberOfColumns; i++) {
-                        tableHtml += '<th style="width:150px;">비용</th>' +
+                        tableHtml += '<th style="width:150px;"><select id="toolcode' + i + '-edit" on></select></th>' +
                             '<th style="width:50px;">차수</th>';
                     }
 
@@ -826,14 +856,14 @@
                         '</thead>' +
                         '<tbody id="tooltbody">';
 
-                    var facilities = ['피나클/실링']; // Add more facilities as needed
+                    var facilities = ['피나클/씰링']; // Add more facilities as needed
                     for (var i = 0; i < facilities.length; i++) {
                         tableHtml += '<tr>' +
                             '<td rowspan="2">' + facilities[i] + '</td>' +
                             '<td>합계(￦)</td>';
 
                         for (var j = 1; j <= numberOfColumns; j++) {
-                            tableHtml += '<td><select id="toolcode' + j + '-edit" on></select></td>' +
+                            tableHtml += '<td><input type="text"  id="toolcode' + j + '"></td>' +
                                 '<td><input type="text"  id="customer' + j + '"></td>';
                         }
 
@@ -882,6 +912,51 @@
 
                     $('#yourTableId').html(tableHtml);
 
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/selectbomtoolcode',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "bomid": rowData[19]
+                        }),
+                        success: function (result) {
+                            function appendOptions(char) {
+                                var selectElement = $('#toolcode' + char);
+
+                                // Clear existing options
+                                selectElement.empty();
+
+                                for (var i = 0; i < result.length; i++) {
+                                    if (result[i].part === "피나클" && result[i].char === char) {
+                                        var toolcode = result[i].toolcode;
+                                        selectElement.val(toolcode)
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: server + '/api/selecttoolcode',
+                                            dataType: 'json',
+                                            contentType: 'application/json',
+                                            data: JSON.stringify({
+                                                "toolcode": toolcode
+                                            }),
+                                            success: function (result1) {
+                                                // console.log()
+                                                $('#cost' + char).val(result1[0].inputprice);
+                                                $('#customer' + char).val(result1[0].itemname);
+                                                $('#char' + char).val(result1[0].char);
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+
+                            appendOptions('1');
+                            appendOptions('2');
+                            appendOptions('3');
+                            appendOptions('4');
+                            appendOptions('5');
+                        },
+                    });
 
                     $.ajax({
                         type: 'POST',
@@ -1227,8 +1302,9 @@
                     "toolcode": selectedValue
                 }),
                 success: function (result) {
+                    $('#toolcode' + rowNumber).val(result[0].toolcode);
                     $('#cost' + rowNumber).val(result[0].inputprice);
-                    $('#customer' + rowNumber).val(result[0].customer);
+                    $('#customer' + rowNumber).val(result[0].itemname);
                     $('#char' + rowNumber).val(result[0].char);
                     updateSum();
                 }
@@ -1268,17 +1344,15 @@
                 }),
                 success: function (result) {
                     function appendOptions(char) {
-                        var selectElement = $('#toolcode' + char + '-edit');
-
-                        // Clear existing options
+                        var selectElement = $('#toolcode' + char);
                         selectElement.empty();
 
                         for (var i = 0; i < result.length; i++) {
                             if (result[i].part === "피나클" && result[i].char === char) {
                                 var toolcode = result[i].toolcode;
 
-                                selectElement.text(toolcode)
-                                selectElement.append('<option value="' + toolcode + '">' + toolcode + '</option>');
+                                selectElement.val(toolcode)
+                                // selectElement.append('<option value="' + toolcode + '">' + toolcode + '</option>');
                             }
                         }
                     }
@@ -2640,42 +2714,11 @@
                 title: 'Searching...',
                 showConfirmButton: false,
             });
-            // var userName = "홍길동";
 
-            // Swal.fire({
-            //     icon: 'success',
-            //     title: `안녕하세요, ${userName}님!`,
-            //     showConfirmButton: false,
-            //     timer: 2000, // Auto-close after 2 seconds (adjust as needed)
-            // });
-            // Swal.fire({
-            //     title: '데이터 삭제',
-            //     text: '데이터를 삭제하시겠습니까?',
-            //     icon: 'warning',
-            //     showCancelButton: true,
-            //     confirmButtonText: '삭제',
-            //     cancelButtonText: '취소',
-            //     confirmButtonColor: '#d33', // Red color for the confirm button
-            // }).then((result) => {
-            //     if (result.isConfirmed) {
-            //         // User clicked "Delete"
-            //         // Perform the deletion logic here
-
-            //         Swal.fire({
-            //             icon: 'success',
-            //             title: '삭제 완료',
-            //             text: '데이터가 성공적으로 삭제되었습니다.',
-            //         });
-            //     } else {
-            //         // User clicked "Cancel" or closed the dialog
-            // Swal.fire({
-            //     icon: 'info',
-            //     title: '취소',
-            //     text: '데이터 삭제가 취소되었습니다.',
-            // });
-            //     }
-            // });
         }
+
+
+
 
     </script>
 
