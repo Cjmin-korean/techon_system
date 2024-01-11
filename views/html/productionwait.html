@@ -159,7 +159,8 @@
                             <i class="fas fa-save"></i> 저장
                         </button></td>
                     <td colspan="1">제품 정보<input type="text" id="orderid"
-                            style="visibility: hidden  ; width:20px;"><input type="text" id="num" style="visibility: hidden; width:20px;">
+                            style="visibility: hidden  ; width:20px;"><input type="text" id="num"
+                            style="visibility: hidden; width:20px;">
                     </td>
                 </tr>
                 <tr>
@@ -188,7 +189,7 @@
                 </tr>
                 <tr>
                     <td><label for="editAuthor">영업구분</label></td>
-                    <td><input type="text" id="ad-edit" value=""  autocomplete="off"></td>
+                    <td><input type="text" id="ad-edit" value="" autocomplete="off"></td>
                 </tr>
                 <tr>
                     <td><label for="editAuthor">PO수량</label></td>
@@ -869,7 +870,8 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var insertdate = new Date().toISOString().slice(0, 10);
-
+                        let today = new Date();
+                        let formattedTime = today.toLocaleTimeString('en-US', { hour12: false });
                         for (var i = 0; i < rowCount; i++) {
                             $.ajax({
                                 type: 'POST',
@@ -882,10 +884,13 @@
                                     "productdate": insertdate,
                                     "modelname": $('#modelname-edit').val(),
                                     "itemname": $('#itemname-edit').val(),
-                                    "lotno": $('#ad-edit').val() + '-' + $('#bomno-edit').val() + '-' + $('#accountdate-edit').val().replace(/-/g, '') + '-' + (parseInt($('#num').val()) + i),
+                                    "lotno": $('#ad-edit').val() + '-' + $('#bomno-edit').val() + '-' + insertdate.replace(/-/g, '') + '-' + (parseInt($('#num').val()) + i),
                                     "quantity": $('#productiondatatbody tr:eq(' + i + ') #count-input').val(),
                                     "status": 'true',
-                                    "orderstatus": '생산보류'
+                                    "orderstatus": '생산보류',
+                                    "lotdate": insertdate,
+                                    "inserttime": formattedTime,
+
                                 }),
                                 success: function (result) {
                                     // 성공했을 때의 처리

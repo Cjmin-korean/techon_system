@@ -4716,10 +4716,12 @@ module.exports = function (app) {
                 .input('d', sql.NVarChar, req.body.d)
                 .input('orderstatus', sql.NVarChar, req.body.orderstatus)
                 .input('qrno', sql.NVarChar, req.body.qrno)
+                .input('lotdate', sql.NVarChar, req.body.lotdate)
+                .input('inserttime', sql.NVarChar, req.body.inserttime)
 
                 .query(
-                    "insert into orderlist(qrno,modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus,a,b,c,d,orderstatus)" +
-                    " values(@qrno,@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus,@a,@b,@c,@d,@orderstatus)"
+                    "insert into orderlist(inserttime,lotdate,qrno,modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus,a,b,c,d,orderstatus)" +
+                    " values(@inserttime,@lotdate,@qrno,@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus,@a,@b,@c,@d,@orderstatus)"
                 )
                 .then(result => {
 
@@ -4774,6 +4776,59 @@ module.exports = function (app) {
                 .query(
                     'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num)' +
                     ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/polist', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+              
+                .query(
+                    "SELECT "+
+                "    ai.deliverydate, "+
+                "    ai.customer, "+
+                "    ol.lotdate, "+
+                "    ol.bomno, "+
+                "    ol.lotno, "+
+                "    ol.modelname, "+
+                "    ol.itemname, "+
+                "    ai.quantity AS accountinput_quantity, "+
+                "    ol.quantity AS orderlist_quantity, "+
+                "    COALESCE(ii_fast.quantity, 0) AS stock "+
+                "FROM "+
+                "    orderlist ol "+
+                "JOIN "+
+                "    accountinput ai ON ol.qrno = ai.orderid "+
+                "LEFT JOIN ( "+
+                "    SELECT "+
+                "        ii.itemname, "+
+                "        SUM(ii.quantity) AS quantity "+
+                "    FROM "+
+                "        iteminput ii "+
+                "    JOIN ( "+
+                "        SELECT "+
+                "            itemname, "+
+                "            MAX(CONCAT(productdate, ' ', producttime)) AS latest_datetime "+
+                "        FROM "+
+                "            iteminput "+
+                "        GROUP BY "+
+                "            itemname "+
+                "    ) latest ON ii.itemname = latest.itemname AND CONCAT(ii.productdate, ' ', ii.producttime) = latest.latest_datetime "+
+                "    GROUP BY "+
+                "        ii.itemname "+
+                ") ii_fast ON ol.itemname = ii_fast.itemname "+
+                "ORDER BY "+
+                "    ol.lotno ASC;                "
                 )
                 .then(result => {
 
