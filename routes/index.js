@@ -1703,7 +1703,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT " +
                     "*" +
-                    " FROM purchaseorder ")
+                    " FROM purchaseorder order by orderdate,suppliername asc ")
 
                 .then(result => {
 
@@ -3973,7 +3973,6 @@ module.exports = function (app) {
 
                 .query(
                     "    SELECT " +
-                    "    ol.modelname, " +
                     "    ol.itemname, " +
                     "    ol.modelname, " +
                     "    bm.materialname, " +
@@ -4006,7 +4005,9 @@ module.exports = function (app) {
                     "     mi.supplier, " +
                     "     SUM(ol.quantity) AS quantity_sum, " +
                     "     mi.codenumber,i.customer, " +
-                    "     mi.rollprice as a1 " +
+                    "     mi.rollprice as a1, " +
+                    "     bm.bomno, " +
+                    "     ol.qrno " +
                     " FROM " +
                     "     orderlist ol " +
                     " JOIN " +
@@ -4018,7 +4019,7 @@ module.exports = function (app) {
                     " WHERE " +
                     "     ol.orderstatus = '생산확정' " +
                     " GROUP BY " +
-                    "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname " +
+                    "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname ,bm.bomno ,ol.qrno" +
                     " ORDER BY " +
                     "     bm.materialname ASC; ")
                 .then(result => {
@@ -4151,11 +4152,12 @@ module.exports = function (app) {
                 .input('cutting', sql.NVarChar, req.body.cutting)
                 .input('confirmed', sql.NVarChar, req.body.confirmed)
                 .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('productid', sql.NVarChar, req.body.productid)
 
 
                 .query(
-                    'insert into purchaseorder(orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer)' +
-                    ' values(@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer)'
+                    'insert into purchaseorder(productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer)' +
+                    ' values(@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer)'
                 )
                 .then(result => {
 
@@ -4300,6 +4302,28 @@ module.exports = function (app) {
                     " orderid,marchine,a,b,c,d,qrno,orderstatus " +
                     " from  " +
                     " orderlist where status='true' order by orderstatus,productdate,modelname,itemname,lotno asc ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpurchasecount', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('itemname', sql.NVarChar, req.body.itemname)
+
+                .query(
+                    "select " +
+                    " modelname,itemname,sum(quantity)'sumquantity' " +
+                    " from " +
+                    " orderlist   where orderstatus='생산확정' and itemname=@itemname group by modelname,itemname")
                 .then(result => {
 
                     res.json(result.recordset);

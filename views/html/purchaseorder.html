@@ -129,7 +129,7 @@
         </div>
         <div id="editForm" style="max-height: 900px; width: 100%; float: left; overflow-y: auto;">
             <div style="height: 600px;  overflow-y: auto;">
-                <table class="styled-table" >
+                <table class="styled-table">
 
                     <thead id="tableHead">
                         <tr>
@@ -148,7 +148,7 @@
                         <th style="text-align:center; width:100px;">재단폭</th>
                         <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
                         <th style="text-align:center; width:120px;">발주수량(롤)</th>
-                        <th style="text-align:center; width:100px;"></th>
+                        <th style="text-align:center; width:100px;">미발주</th>
                     </thead>
                     <tbody id="orderlistbombody">
                         <!-- Add your table data here -->
@@ -525,44 +525,58 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         for (let i = 0; i < rowCount; i++) {
+                            var roundedResult = parseFloat($('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val());
+                            if (roundedResult !== 0) {
+                                var insertdate = new Date().toISOString().slice(0, 10);
+                                var roundedResultValue = $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''); // Remove commas
+                                var rollPriceValue = $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''); // Remove commas
+                                var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val()
+                                var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val()
 
 
-                            var insertdate = new Date().toISOString().slice(0, 10);
-                            var roundedResultValue = $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''); // Remove commas
-                            var rollPriceValue = $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''); // Remove commas
-                            var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val()
-                            var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val()
+                                var quantity = roundedResultValue;
+                                var unitprice = rollPriceValue;
+                                var supplyamount = quantity * unitprice;
 
-                            var quantity = roundedResultValue;
-                            var unitprice = rollPriceValue;
-                            var supplyamount = quantity * unitprice;
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/insertpurchaseorder',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "orderdate": insertdate,
-                                    "itemname": $('#orderlistbombody tr:eq(' + i + ') #materialname-input').val(),
-                                    "codenumber": $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val(),
-                                    "width": $('#orderlistbombody tr:eq(' + i + ') #width-input').val(),
-                                    "length": $('#orderlistbombody tr:eq(' + i + ') #length-input').val(),
-                                    "quantity": $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val(),
-                                    "unitprice": $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val(),
-                                    "supplyamount": supplyamount,
-                                    "suppliername": $('#orderlistbombody tr:eq(' + i + ') #supplier-input').val(),
-                                    "bomno": $('#orderlistbombody tr:eq(' + i + ') #bomno-input').val(),
-                                    "ordertype": '양산',
-                                    "cutting": $('#orderlistbombody tr:eq(' + i + ') #cutmaterialwidth-input').val(),
-                                    "manufacterer": $('#orderlistbombody tr:eq(' + i + ') #manufacterer-input').val(),
-                                    "confirmed": modelname + "/" + itemname + "/" + "100,000"
-
-                                }),
-                                success: function (result) {
-
-                                },
-
-                            });
+                                // Ajax 요청
+                                $.ajax({
+                                    type: 'POST',
+                                    url: server + '/api/selectpurchasecount',
+                                    dataType: 'json',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({
+                                        "itemname": itemname
+                                    }),
+                                    success: function (result) {
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: server + '/api/insertpurchaseorder',
+                                            dataType: 'json',
+                                            contentType: 'application/json',
+                                            data: JSON.stringify({
+                                                "orderdate": insertdate,
+                                                "itemname": $('#orderlistbombody tr:eq(' + i + ') #materialname-input').val(),
+                                                "codenumber": $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val(),
+                                                "width": $('#orderlistbombody tr:eq(' + i + ') #width-input').val(),
+                                                "length": $('#orderlistbombody tr:eq(' + i + ') #length-input').val(),
+                                                "quantity": $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val(),
+                                                "unitprice": $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val(),
+                                                "supplyamount": supplyamount,
+                                                "suppliername": $('#orderlistbombody tr:eq(' + i + ') #supplier-input').val(),
+                                                "bomno": $('#orderlistbombody tr:eq(' + i + ') #bomno-input').val(),
+                                                "ordertype": '양산',
+                                                "cutting": $('#orderlistbombody tr:eq(' + i + ') #cutmaterialwidth-input').val(),
+                                                "manufacterer": $('#orderlistbombody tr:eq(' + i + ') #manufacterer-input').val(),
+                                                "productid": $('#orderlistbombody tr:eq(' + i + ') #productid-input').val(),
+                                                "confirmed": result[0].modelname + "/" + result[0].itemname + "/" + result[0].sumquantity.toLocaleString()
+                                            }),
+                                            success: function (result) {
+                                                // Ajax 성공 시 수행할 코드
+                                            },
+                                        });
+                                    },
+                                });
+                            }
                         }
 
                         $('#editModal').fadeOut();
@@ -573,10 +587,12 @@
                             text: 'TOOL 발주 정보가 등록되었습니다.',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                load()
+                                load();
                             }
                         });
                     }
+
+
                 });
 
 
@@ -623,6 +639,9 @@
                                 '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
                                 '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
                                 '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].customer || '0') + '"></td>' +
+                                '<td id="bomnotd"><input type="text" id="bomno-input" value="' + (data[i].bomno || '0') + '"></td>' +
+                                '<td id="productidtd"><input type="text" id="productid-input" value="' + (data[i].qrno || '') + '"></td>' +
+                                '<td><input type="checkbox" id="checknoout-input" style="width:20px; height:20px; cursor:pointer;"></td>' +
                                 '<td>' + hasButton + '</td>' +
                                 '</tr>'
                             );
@@ -636,7 +655,20 @@
                             $('td#quantitytd').hide();
                             $('td#suppliertd').hide();
                             $('td#manufacterertd').hide();
+                            $('td#productidtd').hide();
+                            $('td#bomnotd').hide();
                         }
+                        $('#orderlistbombody input[type="checkbox"]').on('change', function () {
+                            var isChecked = $(this).prop('checked');
+
+                            // Set the value of 'roundedResult-input' to '0' for checked checkboxes
+                            $('#orderlistbombody  input[type="checkbox"]:checked').each(function () {
+                                $(this).closest('tr').find('#roundedResult-input').val(isChecked ? '0' : '');
+                            });
+
+                            // Update the state of all checkboxes based on the master checkbox
+                        });
+
 
                         $('.detail-btn').click(function () {
                             var rowIndex = $(this).data('row-index');
