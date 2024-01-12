@@ -1727,9 +1727,15 @@ module.exports = function (app) {
                 .input('suppliername', sql.NVarChar, req.body.suppliername)
 
                 .query(
-                    "SELECT " +
-                    "*" +
-                    " FROM purchaseorder where suppliername=@suppliername")
+                    "SELECT "+
+                "     purchaseorder.*, "+
+                "     materialinfoinformation.sqmprice "+
+                " FROM "+
+                "     purchaseorder "+
+                " JOIN "+
+                "     materialinfoinformation ON purchaseorder.codenumber = materialinfoinformation.codenumber "+
+                " WHERE "+
+                "     purchaseorder.suppliername = @suppliername;")
 
                 .then(result => {
 
@@ -3969,6 +3975,7 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
+            .input('supplier', sql.NVarChar, req.body.supplier)
 
 
                 .query(

@@ -690,23 +690,23 @@
                             '<td>' + result[i].orderdate + '</td>' +
                             '<td>' + result[i].codenumber + '</td>' +
                             '<td>' + result[i].itemname + '</td>' +
-                            '<td><input type="text" id="width-input" style="text-align:right;" value="' + (parseFloat(result[i].width)) + '" oninput="updateWidth(this); valueChanged();" ></td>' +
-                            '<td><input type="text" id="length-input" style="text-align:right;" value="' + (parseFloat(result[i].length)) + '" oninput="updateWidth(this) valueChanged();"></td>' +
-                            '<td><input type="text" id="quantity-input" style="text-align:right;" readonly value="' + (parseFloat(result[i].quantity)) + '" oninput="updateWidth(this)"></td>' +
-                            '<td><input type="text" id="rollprice-input" style="text-align:right;" readonly value="' + (parseFloat(result[i].unitprice)) + '" oninput="updateWidth(this)"></td>' +
-                            '<td><input type="text" id="sumprice-input" style="text-align:right;" readonly value="' + (parseFloat(result[i].quantity * result[i].unitprice)) + '" oninput="updateWidth(this)"></td>' +
+                            '<td style="text-align:right;" id="width-input" contenteditable="true" oninput="valueChanged();">' + parseFloat(result[i].width) + '</td>' +
+                            '<td style="text-align:right;" id="length-input" contenteditable="true">' + parseFloat(result[i].length) + '</td>' +
+                            '<td style="text-align:right;" id="quantity-input" contenteditable="true">' + parseFloat(result[i].quantity) + '</td>' +
+                            '<td style="text-align:right;" id="rollprice-input">' + parseFloat(result[i].unitprice) + '</td>' +
+                            '<td style="text-align:right;" id="sumprice-input">' + parseFloat(result[i].quantity) * parseFloat(result[i].unitprice) + '</td>' +
 
                             '<td>' + result[i].bomno + '</td>' +
                             '<td>' + result[i].ordertype + '</td>' +
                             '<td>' + result[i].suppliername + '</td>' +
                             '<td>' + result[i].cutting + '</td>' +
                             '<td id="qrno">' + result[i].productid + '</td>' +
-                            '<td id="width" style="text-align:right;">' + (result[i].sqmprice) + '</td>' +
+                            '<td style="text-align:right;" id="sqmprice-input">' + (result[i].sqmprice) + '</td>' +
                             '<td id="length" style="text-align:right;">' + (result[i].length) + '</td>' +
                             '</tr>'
                         );
                         $('td#qrno').hide();
-                        $('td#width').hide();
+                        $('td#sqmprice-input').hide();
                         $('td#length').hide();
                     }
                     $('#selectAllCheckbox').change(function () {
@@ -779,20 +779,26 @@
                 input.value = '';
             }
         }
-        function valueChanged() {
-            var currentRow = $(event.target).closest('tr');
+        $('#purchaseorderinfobody').on('input', '#width-input, #length-input , #quantity-input' , function () {
+            var currentRow = $(this).closest('tr');
             var rowIndex = currentRow.index();
-            const lengthValue = parseFloat($('#purchaseorderinfobody tr:eq(' + rowIndex + ') #length-input').val().replace(/,/g, '')) || 0;
-            const widthValue = parseFloat($('#purchaseorderinfobody tr:eq(' + rowIndex + ') #width-input').val().replace(/,/g, '')) || 0;
-            const rollpriceValue = parseFloat($('#purchaseorderinfobody tr:eq(' + rowIndex + ') #rollprice-input').val().replace(/,/g, '')) || 0;
+            console.log(rowIndex);
+
+            const lengthValue = parseFloat(currentRow.find('#length-input').text().replace(/,/g, '')) || 0;
+            const widthValue = parseFloat(currentRow.find('#width-input').text().replace(/,/g, '')) || 0;
+            const rollpriceValue = parseFloat(currentRow.find('#rollprice-input').text().replace(/,/g, '')) || 0;
+            const quantityValue = parseFloat(currentRow.find('#quantity-input').text().replace(/,/g, '')) || 0;
+            const sqmpriceValue = parseFloat(currentRow.find('#sqmprice-input').text().replace(/,/g, '')) || 0;
 
             // Ensure widthValue is not zero to avoid division by zero
-            const sqmpriceValue = widthValue !== 0 ? ((rollpriceValue / widthValue) * lengthValue / 1000) : 0;
-            const sumpriceValue = sqmpriceValue * (widthValue / 1000) * lengthValue;
+            const sumpriceValue = sqmpriceValue * (widthValue / 1000) * lengthValue * quantityValue;
 
             // Update the text of the element with the formatted value
-            $('#purchaseorderinfobody tr:eq(' + rowIndex + ') #sumprice-input').val(sqmpriceValue.toLocaleString());
-        }
+            currentRow.find('#sumprice-input').text(sumpriceValue.toLocaleString());
+        });
+
+
+
 
         function updateWidth(inputElement) {
             // Remove commas and trim the input value
