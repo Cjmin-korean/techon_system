@@ -148,7 +148,7 @@
         <!-- <input type="text" id="customer-select" value="" style="cursor: pointer; width: 600px;"
             onkeydown="handleEnterKey(event)" autocomplete="off" placeholder="거래처명 입력후 ENTER 누르세요"> -->
         <input type="text" id="customer-select" value="" style="cursor: pointer; width: 600px;" oninput="handleInput()"
-            autocomplete="off" placeholder="거래처명 입력 중">
+            onkeydown="handleKeyDown()" autocomplete="off" placeholder="거래처명 입력 중">
         <button id="searchBtn" onclick="openpurchaseorder()" class="btn btn-success" style="background-color: navy;">
             <i class="fas fa-shopping-cart"></i> 발주조회
         </button>
@@ -168,8 +168,9 @@
                 <th style="text-align:center;">입고일자</th>
                 <th style="text-align:center;">구분</th>
                 <th style="text-align:center;">거래처명</th>
-                <th style="text-align:center;">자재명</th>
                 <th style="text-align:center;">자재코드</th>
+                <th style="text-align:center;">자재명</th>
+
                 <th style="text-align:center;">LOTNO</th>
                 <th style="text-align:center;">제조일자</th>
                 <th style="text-align:center;">만료일자</th>
@@ -465,8 +466,8 @@
                                 '<td>' + (data[i].date || '') + '</td>' +
                                 '<td>' + (data[i].input || '') + '</td>' +
                                 '<td>' + (data[i].customer || '') + '</td>' +
-                                '<td>' + (data[i].materialname || '') + '</td>' +
                                 '<td>' + (data[i].codenumber || '') + '</td>' +
+                                '<td>' + (data[i].materialname || '') + '</td>' +
                                 '<td>' + (data[i].lotno || '') + '</td>' +
                                 '<td>' + (data[i].manufacturedate || '') + '</td>' +
                                 '<td>' + (data[i].expirationdate || '') + '</td>' +
@@ -678,8 +679,13 @@
                         // Handle other key events as needed
                         break;
                 }
+            } else {
+                // If no suggestions, you can handle other key events or perform other actions
             }
         }
+
+        // Add keydown event listener to the input field
+        $('#customer-select').on('keydown', handleKeyDown);
 
         // Function to highlight the selected item
         function highlightSelected() {
@@ -792,6 +798,7 @@
                             '<td>' + result[i].orderdate + '</td>' +
                             '<td id="codenumber-input">' + result[i].codenumber + '</td>' +
                             '<td id="materialname-input">' + result[i].itemname + '</td>' +
+
                             '<td style="text-align:right;" id="lotno-input" contenteditable="true" "></td>' +
                             '<td style="text-align:right;" id="width-input" contenteditable="true" ">' + parseFloat(result[i].width).toLocaleString() + '</td>' +
                             '<td style="text-align:right;" id="length-input" contenteditable="true" >' + parseFloat(result[i].length).toLocaleString() + '</td>' +
@@ -813,6 +820,7 @@
                         );
                         $('td#qrno').hide();
                         $('td#length').hide();
+                        $('td#lifetime').hide();
                     }
                     // $('#selectAllCheckbox').change(function () {
                     //     totalQuantity1 = 0;
