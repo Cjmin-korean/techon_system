@@ -474,7 +474,7 @@
                                 '<td id="" style="text-align:right;">' + numberWithCommas(data[i].length || '') + '</td>' +
                                 '<td id="" style="text-align:right;">' + numberWithCommas(data[i].quantity || '') + '</td>' +
                                 '<td id="" style="text-align:right;">' + numberWithCommas(data[i].unitprice || '') + '</td>' +
-                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].supplyamount || '') + '</td>' +
+                                '<td id="" style="text-align:right;">' + numberWithCommas(data[i].quantity * data[i].unitprice || '') + '</td>' +
                                 '<td id="">' + (data[i].suppliername || '') + '</td>' +
                                 '<td id="">' + (data[i].manufacterer || '') + '</td>' +
                                 '<td id="">' + (data[i].bomno || '') + '</td>' +
@@ -506,9 +506,8 @@
         function insertpurchaseorder() {
             let tableBody = document.getElementById('orderlistbombody');
             let rowCount = tableBody.children.length;
+
             if (tableBody) {
-
-
                 function removeCommas(value) {
                     return value.replace(/,/g, '');
                 }
@@ -528,15 +527,11 @@
                             var roundedResult = parseFloat($('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val());
                             if (roundedResult !== 0) {
                                 var insertdate = new Date().toISOString().slice(0, 10);
-                                var roundedResultValue = $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''); // Remove commas
-                                var rollPriceValue = $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''); // Remove commas
-                                var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val()
-                                var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val()
-
-
-                                var quantity = roundedResultValue;
-                                var unitprice = rollPriceValue;
-                                var supplyamount = quantity * unitprice;
+                                var roundedResult1 = parseFloat($('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''));
+                                var rollprice = parseFloat($('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''));
+                                var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val();
+                                var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val();
+                                var supplyamount = roundedResult1 * rollprice;
 
                                 // Ajax 요청
                                 $.ajax({
@@ -591,13 +586,10 @@
                             }
                         });
                     }
-
-
                 });
-
-
             }
         }
+
 
 
         function load1() {

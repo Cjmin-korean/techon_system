@@ -4825,7 +4825,7 @@ module.exports = function (app) {
                 "    ol.bomno, "+
                 "    ol.lotno, "+
                 "    ol.modelname, "+
-                "    ol.itemname, "+
+                "    ol.itemname,ol.qrno, "+
                 "    ai.quantity AS accountinput_quantity, "+
                 "    ol.quantity AS orderlist_quantity, "+
                 "    COALESCE(ii_fast.quantity, 0) AS stock "+
