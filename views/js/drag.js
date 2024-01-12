@@ -101,7 +101,7 @@ $(document).ready(function () {
                             '<td>' + data[i].itemname + '</td>' +
                             '<td>' + data[i].lotno + '</td>' +
                             '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
-           
+
                             '<td class="data-id">' + data[i].id + '</td>' +
                             '</tr>'
                         );
@@ -111,7 +111,7 @@ $(document).ready(function () {
             }
         });
     }
-   
+
     function planload() {
         $('#Datatbody').empty();
         $.ajax({
@@ -148,7 +148,7 @@ $(document).ready(function () {
 
                             tableBody.append(
                                 '<tr draggable="true" >' +
-                                (j === 0 ? '<td onclick="openmodal(this)" style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '</td>' : '') +
+                                (j === 0 ? '<td onclick="openmodal(this)" style="text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
                                 '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
                                 '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
                                 '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
@@ -171,7 +171,7 @@ $(document).ready(function () {
 
 
 
-                    console.log(111)
+                    console.log(1111)
                     plansearching()
                 }
             }
@@ -379,7 +379,7 @@ $(document).ready(function () {
                     $('#popupOverlay').fadeIn();
                     $('#quantity-save').focus()
 
-                  
+
                 }
 
 

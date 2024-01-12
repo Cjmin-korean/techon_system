@@ -4442,7 +4442,10 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    "select equipmentname,codenumber from equipment")
+                    "select "+
+                    " codenumber,equipmentname,part,size,num "+
+                    " from "+
+                    " equipment where product='사용' and eqname='타발기-1' or eqname ='유압타발기'")
                 .then(result => {
                     res.json(result.recordset);
                     res.end();

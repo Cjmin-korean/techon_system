@@ -96,7 +96,7 @@ $(document).ready(function () {
 
 
                 const plandateElement = document.getElementById('plandate');
-                if (plandateElement) {  
+                if (plandateElement) {
                     plandateElement.textContent = formattedDate;
                     plansearching()
                 }
@@ -113,7 +113,7 @@ $(document).ready(function () {
                     plansearching()
 
                 }
-          
+
             });
             datesContainer.appendChild(dateButton);
         }
@@ -134,6 +134,7 @@ $(document).ready(function () {
             url: server + '/api/equipmentname',
             dataType: 'json',
             success: function (data) {
+                console.log('날짜설정후 입력값')
                 var tableBody = $('#Datatbody');
                 if (data.length === 0) {
                 } else {
@@ -168,7 +169,7 @@ $(document).ready(function () {
 
                             tableBody.append(
                                 '<tr draggable="true">' +
-                                (j === 0 ? '<td style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '</td>' : '') +
+                                (j === 0 ? '<td style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '" value="' + data[i].size + '">' : '<td>') + data[i].size + '</td>' +
                                 '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
                                 '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
                                 '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
@@ -213,8 +214,8 @@ $(document).ready(function () {
 
                 for (var i = 0; i < data.length; i++) {
                     loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
-                        id:data[i].id,
-                        equipmentname:planSearchData[i].equipmentname,
+                        id: data[i].id,
+                        equipmentname: planSearchData[i].equipmentname,
                         num: data[i].num,
                         bomno: data[i].bomno,
                         customer: data[i].customer,
@@ -240,22 +241,22 @@ $(document).ready(function () {
                 // //console.log(numKeys);
                 for (var i = 0; i < numKeys; i++) {
 
-                    for(var j=0; j < 8; j++) {
+                    for (var j = 0; j < 8; j++) {
 
-                        var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
-                        var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname ;
+                        var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
 
                         // //console.log('ㅓ', i,j);
                         // //console.log('bomno', bomno);
@@ -339,6 +340,6 @@ $(document).ready(function () {
         return `${year}-${month}-${day}`;
     }
 
-   
+
 
 });
