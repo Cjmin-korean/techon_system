@@ -1727,15 +1727,15 @@ module.exports = function (app) {
                 .input('suppliername', sql.NVarChar, req.body.suppliername)
 
                 .query(
-                    "SELECT "+
-                "     purchaseorder.*, "+
-                "     materialinfoinformation.sqmprice "+
-                " FROM "+
-                "     purchaseorder "+
-                " JOIN "+
-                "     materialinfoinformation ON purchaseorder.codenumber = materialinfoinformation.codenumber "+
-                " WHERE "+
-                "     purchaseorder.suppliername = @suppliername;")
+                    "SELECT " +
+                    "     purchaseorder.*, " +
+                    "     materialinfoinformation.sqmprice ,materialinfoinformation.lifetime" +
+                    " FROM " +
+                    "     purchaseorder " +
+                    " JOIN " +
+                    "     materialinfoinformation ON purchaseorder.codenumber = materialinfoinformation.codenumber " +
+                    " WHERE " +
+                    "     purchaseorder.suppliername = @suppliername;")
 
                 .then(result => {
 
@@ -1758,9 +1758,25 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT " +
-                    "*" +
-                    " FROM materialinput ")
+                    "SELECT "+
+                "     id, "+
+                "     date, "+
+                "     input, "+
+                "     materialname, "+
+                "     codenumber, "+
+                "     lotno, "+
+                "     manufacturedate, "+
+                "     expirationdate, "+
+                "     materialwidth, "+
+                "     quantity, "+
+                "     roll, "+ 
+                "     sqmprice, "+
+                "     rollprice, "+
+                "     bomno, "+
+                "     customer, "+
+                "     roll * rollprice AS totalprice "+
+                " FROM "+
+                "     materialinput;                 ")
 
                 .then(result => {
 
@@ -1928,11 +1944,14 @@ module.exports = function (app) {
                 .input('accountnumber', sql.NVarChar, req.body.accountnumber)
                 .input('contents', sql.NVarChar, req.body.contents)
                 .input('part', sql.NVarChar, req.body.part)
+                .input('bomno', sql.NVarChar, req.body.bomno)
                 .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('customer', sql.NVarChar, req.body.customer)
 
                 .query(
-                    'insert into materialinput(date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice)' +
-                    ' values(@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice)'
+                    'insert into materialinput(customer,bomno,rollprice,date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice)' +
+                    ' values(@customer,@bomno,@rollprice,@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice)'
                 )
                 .then(result => {
 
@@ -3975,7 +3994,7 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-            .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('supplier', sql.NVarChar, req.body.supplier)
 
 
                 .query(
@@ -4324,7 +4343,7 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
 
                 .query(
                     "select " +
@@ -4823,43 +4842,43 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-              
+
                 .query(
-                    "SELECT "+
-                "    ai.deliverydate, "+
-                "    ai.customer, "+
-                "    ol.lotdate, "+
-                "    ol.bomno, "+
-                "    ol.lotno, "+
-                "    ol.modelname, "+
-                "    ol.itemname,ol.qrno, "+
-                "    ai.quantity AS accountinput_quantity, "+
-                "    ol.quantity AS orderlist_quantity, "+
-                "    COALESCE(ii_fast.quantity, 0) AS stock "+
-                "FROM "+
-                "    orderlist ol "+
-                "JOIN "+
-                "    accountinput ai ON ol.qrno = ai.orderid "+
-                "LEFT JOIN ( "+
-                "    SELECT "+
-                "        ii.itemname, "+
-                "        SUM(ii.quantity) AS quantity "+
-                "    FROM "+
-                "        iteminput ii "+
-                "    JOIN ( "+
-                "        SELECT "+
-                "            itemname, "+
-                "            MAX(CONCAT(productdate, ' ', producttime)) AS latest_datetime "+
-                "        FROM "+
-                "            iteminput "+
-                "        GROUP BY "+
-                "            itemname "+
-                "    ) latest ON ii.itemname = latest.itemname AND CONCAT(ii.productdate, ' ', ii.producttime) = latest.latest_datetime "+
-                "    GROUP BY "+
-                "        ii.itemname "+
-                ") ii_fast ON ol.itemname = ii_fast.itemname "+
-                "ORDER BY "+
-                "    ol.lotno ASC;                "
+                    "SELECT " +
+                    "    ai.deliverydate, " +
+                    "    ai.customer, " +
+                    "    ol.lotdate, " +
+                    "    ol.bomno, " +
+                    "    ol.lotno, " +
+                    "    ol.modelname, " +
+                    "    ol.itemname,ol.qrno, " +
+                    "    ai.quantity AS accountinput_quantity, " +
+                    "    ol.quantity AS orderlist_quantity, " +
+                    "    COALESCE(ii_fast.quantity, 0) AS stock " +
+                    "FROM " +
+                    "    orderlist ol " +
+                    "JOIN " +
+                    "    accountinput ai ON ol.qrno = ai.orderid " +
+                    "LEFT JOIN ( " +
+                    "    SELECT " +
+                    "        ii.itemname, " +
+                    "        SUM(ii.quantity) AS quantity " +
+                    "    FROM " +
+                    "        iteminput ii " +
+                    "    JOIN ( " +
+                    "        SELECT " +
+                    "            itemname, " +
+                    "            MAX(CONCAT(productdate, ' ', producttime)) AS latest_datetime " +
+                    "        FROM " +
+                    "            iteminput " +
+                    "        GROUP BY " +
+                    "            itemname " +
+                    "    ) latest ON ii.itemname = latest.itemname AND CONCAT(ii.productdate, ' ', ii.producttime) = latest.latest_datetime " +
+                    "    GROUP BY " +
+                    "        ii.itemname " +
+                    ") ii_fast ON ol.itemname = ii_fast.itemname " +
+                    "ORDER BY " +
+                    "    ol.lotno ASC;                "
                 )
                 .then(result => {
 
