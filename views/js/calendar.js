@@ -1,6 +1,5 @@
 
 $(document).ready(function () {
-
     const monthYearElement = document.getElementById('month-year');
     const datesContainer = document.querySelector('.dates');
     const prevMonthButton = document.querySelector('.prev-month');
@@ -30,7 +29,7 @@ $(document).ready(function () {
 
     // 이전에 선택한 날짜 정보 가져오기
     selectedDate = getSelectedDate();
-    console.log(selectedDate)
+    // console.log(selectedDate)
     // 만약 저장된 날짜 정보가 없을 경우 현재 날짜를 기본으로 선택
     // if (!selectedDate) {
     selectedDate = new Date(currentYear, currentMonth, new Date().getDate());
@@ -126,7 +125,6 @@ $(document).ready(function () {
         selectDateButton();
 
     }
-
     function planload() {
         $('#Datatbody').empty();
         $.ajax({
@@ -134,7 +132,123 @@ $(document).ready(function () {
             url: server + '/api/equipmentname',
             dataType: 'json',
             success: function (data) {
-                console.log('날짜설정후 입력값')
+                var tableBody = $('#Datatbody');
+                if (data.length === 0) {
+                } else {
+                    loadTdData = {};
+
+                    for (var i = 0; i < data.length; i++) {
+                        loadTdData[data[i].codenumber] = {};
+                        var numRows = 8;
+                        for (var j = 0; j < numRows; j++) {
+                            loadTdData[data[i].codenumber][j] = {
+                                num: '',
+                                bomno: '',
+                                customer: '',
+                                modelname: '',
+                                itemname: '',
+                                part: '',
+                                linepart: '',
+                                lotno: '',
+                                pono: '',
+                                accumulate: '',
+                                remaining: '',
+                                planone: '',
+                                siljokone: '',
+                                plantwo: '',
+                                siljoktwo: '',
+                            }
+
+                            tableBody.append(
+                                '<tr draggable="true"  >' +
+                                (j === 0 ? '<td style="text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+                                '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
+                                '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
+                                '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
+                                '</tr>'
+                            );
+
+                        }
+                    }
+
+
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/plansearchAll',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "plandate": $('#plandate').text()
+                        }),
+                        success: function (result) {
+                            console.log(result)
+                            var elementWithNumOne = result.find(function (element) {
+                                return element.num === 1;
+                            });
+
+                            if (elementWithNumOne) {
+                                // If an element with num=1 is found, you can access its properties
+                                var equipmentname = elementWithNumOne.equipmentname;
+                                console.log(equipmentname);
+                                $('#0' + 'bomno' + equipmentname).text(elementWithNumOne.bomno);
+                            } else {
+                                console.log("No element with num=1 found");
+                            }
+                        }
+                    });
+
+
+
+
+
+                    // $.ajax({
+                    //     type: 'POST',
+                    //     url: server + '/api/selectequipment',
+                    //     dataType: 'json',
+                    //     success: function (data) {
+                    //         for (var i = 0; i < data.length; i++) {
+
+                    //             var equipmentname = data[i].size;
+                    //             var selectElement = $('#equipment' + i);
+                    //             selectElement.empty();
+
+                    //             var emptyOption = '<option value=""></option>';
+                    //             selectElement.append(emptyOption);
+                    //             for (var j = 0; j < equipmentname.length + 1; j++) {
+
+                    //                 var option = '<option value="' + data[j].size + data[j].customer + '">' + data[j].size + data[j].customer + '</option>';
+                    //                 selectElement.append(option);
+                    //             }
+                    //         }
+                    //     }
+                    // });
+
+                }
+            }
+        });
+    }
+    function planload() {
+        $('#Datatbody').empty();
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/equipmentname',
+            dataType: 'json',
+            success: function (data) {
                 var tableBody = $('#Datatbody');
                 if (data.length === 0) {
                 } else {
@@ -168,22 +282,25 @@ $(document).ready(function () {
                             }
 
                             tableBody.append(
-                                '<tr draggable="true">' +
-                                (j === 0 ? '<td style="width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '" value="' + data[i].size + '">' : '<td>') + data[i].size + '</td>' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
-                                '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+                                '<tr>' +
+                                (j === 0 ? '<td style="text-align:center; width:8%;  font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+                                '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
+                                '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
+                                '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
                                 '</tr>'
                             );
 
@@ -208,7 +325,6 @@ $(document).ready(function () {
                 "plandate": $('#plandate').text()
             }),
             success: function (data) {
-                //console.log('loadTdData2', loadTdData);
                 planSearchData = data;
                 //console.log('planSearchData', planSearchData);
 
@@ -282,11 +398,11 @@ $(document).ready(function () {
                     }
 
                 }
-                for (var key in loadTdData) {
-                    for (var subKey in loadTdData[key]) {
-                        flattenedData.push(loadTdData[key][subKey]);
-                    }
-                }
+                // for (var key in loadTdData) {
+                //     for (var subKey in loadTdData[key]) {
+                //         flattenedData.push(loadTdData[key][subKey]);
+                //     }
+                // }
             }
         });
     }

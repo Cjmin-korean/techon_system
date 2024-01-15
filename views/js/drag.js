@@ -18,7 +18,8 @@ $(document).ready(function () {
         $('#popupOverlay').fadeOut();
     });
     load()
-
+    planload()
+    plansearching()
     // setTimeout(plansearch(), 500);
     var today = new Date();
 
@@ -51,8 +52,6 @@ $(document).ready(function () {
             },
         });
     }
-    planload()
-
     $(document).on("click", ".savebutton", function () {
         var str = "";
         var tdArr = new Array();// 배열 선언            
@@ -118,8 +117,8 @@ $(document).ready(function () {
                             }
 
                             tableBody.append(
-                                '<tr draggable="true"  >' +
-                                (j === 0 ? '<td style="text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
+                                '<tr>' +
+                                (j === 0 ? '<td style="text-align:center; width:8%;  font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
@@ -145,54 +144,9 @@ $(document).ready(function () {
 
 
 
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/plansearchAll',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "plandate": $('#plandate').text()
-                        }),
-                        success: function (result) {
-                            // Initialize loadTdData outside the loop
-                            var loadTdData = {};
-                            console.log(result)
-                            for (var i = 0; i < result.length; i++) {
-                                var equipmentname = result[i].equipmentname;
 
-                                // Check if loadTdData[equipmentname] is initialized
-                                if (!loadTdData[equipmentname]) {
-                                    loadTdData[equipmentname] = {};
-                                }
-                                $('#' + i + 'bomno' + result[i].equipmentname + '').text(result[i].bomno);
+                    plansearching()
 
-
-                            }
-                        }
-                    });
-
-
-                    // $.ajax({
-                    //     type: 'POST',
-                    //     url: server + '/api/selectequipment',
-                    //     dataType: 'json',
-                    //     success: function (data) {
-                    //         for (var i = 0; i < data.length; i++) {
-
-                    //             var equipmentname = data[i].size;
-                    //             var selectElement = $('#equipment' + i);
-                    //             selectElement.empty();
-
-                    //             var emptyOption = '<option value=""></option>';
-                    //             selectElement.append(emptyOption);
-                    //             for (var j = 0; j < equipmentname.length + 1; j++) {
-
-                    //                 var option = '<option value="' + data[j].size + data[j].customer + '">' + data[j].size + data[j].customer + '</option>';
-                    //                 selectElement.append(option);
-                    //             }
-                    //         }
-                    //     }
-                    // });
 
                 }
             }
@@ -232,7 +186,97 @@ $(document).ready(function () {
     }
 
 
+    function plansearching() {
 
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/plansearchAll',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "plandate": $('#plandate').text()
+            }),
+            success: function (data) {
+                //console.log('loadTdData2', loadTdData);
+                planSearchData = data;
+                //console.log('planSearchData', planSearchData);
+
+                for (var i = 0; i < data.length; i++) {
+                    loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
+                        id: data[i].id,
+                        equipmentname: planSearchData[i].equipmentname,
+                        num: data[i].num,
+                        bomno: data[i].bomno,
+                        customer: data[i].customer,
+                        modelname: data[i].modelname,
+                        itemname: data[i].itemname,
+                        part: data[i].part,
+                        linepart: data[i].linepart,
+                        lotno: data[i].lotno,
+                        pono: data[i].pono,
+                        accumulate: data[i].accumulate,
+                        remaining: data[i].remaining,
+                        planone: data[i].planone,
+                        siljokone: data[i].siljokone,
+                        plantwo: data[i].plantwo,
+                        siljoktwo: data[i].siljoktwo,
+                        plandate: data[i].plandate
+                    };
+                    // //console.log('data[i].plandate', data[i].plandate);
+                }
+                var loadTdDataKeys = Object.keys(loadTdData);
+                // //console.log('keys', loadTdDataKeys);
+                var numKeys = loadTdDataKeys.length;
+                // //console.log(numKeys);
+                for (var i = 0; i < numKeys; i++) {
+
+                    for (var j = 0; j < 8; j++) {
+
+                        var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                        var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+
+                
+
+
+                        $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
+                        $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
+                        $('#' + j + modelname + '').text(loadTdData[loadTdDataKeys[i]][j].modelname);
+                        $('#' + j + itemname + '').text(loadTdData[loadTdDataKeys[i]][j].itemname);
+                        $('#' + j + part + '').text(loadTdData[loadTdDataKeys[i]][j].part);
+                        $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].linepart);
+                        $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
+                        $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono);
+                        $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
+                        $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
+                        $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
+                        $('#' + j + siljokone + '').text(loadTdData[loadTdDataKeys[i]][j].siljokone);
+                        $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
+                        $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
+
+                       
+                    }
+                   
+                }
+                // for (var key in loadTdData) {
+                //     for (var subKey in loadTdData[key]) {
+                //         flattenedData.push(loadTdData[key][subKey]);
+                //     }
+                // }
+            }
+        });
+    }
 
     // 계획변경
     function updateGrid() {

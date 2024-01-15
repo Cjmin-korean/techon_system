@@ -172,39 +172,7 @@
             </tbody>
         </table>
     </div>
-    <!-- <div id="datatable-container" style="width: 31%; height: 100%; float: right; border: 1px solid silver;">
-        <table class="styled-table" id="planstauts">
 
-            <thead id="tableHead1">
-                <tr>
-                    <th colspan="7" rowspan="1"
-                        style="width: auto; font-size: 20px; font-weight: bold; border: 1px solid rgb(231, 228, 228);">
-                        생산확정리스트
-                    </th>
-
-                </tr>
-                <tr>
-
-
-                </tr>
-
-                <tr>
-                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">BOM NO.</th>
-                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">차수</th>
-                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">생산계획날짜</th>
-                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">모델명</th>
-                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">품명</th>
-                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">생산LOT</th>
-                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">수량</th>
-
-
-                </tr>
-
-            </thead>
-            <tbody id="planstatustbody">
-            </tbody>
-        </table>
-    </div> -->
 
     <div id="popupOverlay2" style="display: none;">
         <div id="popupContent">
@@ -267,7 +235,7 @@
         function logRowData(index) {
             // Retrieve the corresponding row data and log it to the console
             var rowData = loadData[index];
-            console.log('Row Data:', loadData[0].bomno);
+            // console.log('Row Data:', loadData[0].bomno);
 
 
             Swal.fire({
@@ -296,7 +264,7 @@
                             "itemname": loadData[0].itemname,
                             "lotno": loadData[0].lotno,
                             "equipmentname": $('#dataid').val(),
-                            "num": $('#num').val(),
+                            "num": parseFloat($('#num').val()) + 1,
 
                         }),
                         success: function (result) {
@@ -315,6 +283,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             load()
+                            plansearching()
                         }
                     });
                 }
@@ -322,74 +291,6 @@
         }
 
 
-        function planinsert() {
-            var plandate = $('#plandate-save').val();
-            var bomno = $('#bomno-save').val();
-            var modelname = $('#modelname-save').val();
-            var itemname = $('#itemname-save').val();
-            var lotno = $('#lotno-save').val();
-            var pono = $('#quantity-save').val();
-            var equipmentname = $('#equipment-select').val();
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/searchequipmentcodenumber',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "equipmentname": equipmentname
-                }),
-                success: function (data) {
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/planinsert',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "plandate": plandate,
-                            "bomno": bomno,
-                            "modelname": modelname,
-                            "itemname": itemname,
-                            "lotno": lotno,
-                            "pono": pono,
-                            "equipmentname": data[0].codenumber,
-                            "num": '1'
-
-                        }),
-                        success: function (result) {
-                        },
-                        error: function (error) {
-                        }
-                    });
-                },
-                error: function (error) {
-                }
-            });
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/statusfalse',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "orderstatus": '생산확정완료',
-                    "lotno": lotno
-
-                }),
-                success: function (data) {
-
-                },
-                error: function (error) {
-                }
-            });
-
-            $('#popupOverlay').fadeOut();
-
-            load()
-            planload()
-            plansearching()
-
-        }
 
 
 
@@ -397,7 +298,7 @@
             var rowData = $(element).closest('tr').find('td').map(function () {
                 return $(this).text();
             }).get();
-            console.log($('#plandate').val())
+            // console.log($('#plandate').val())
             $('#overlay').fadeIn();
             $('#editModal3').fadeIn();
 
@@ -432,7 +333,103 @@
     <script src="../js/calendar.js"></script>
     <script src="../js/drag.js"></script>
 
+    <script>
+        function plansearching() {
 
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/plansearchAll',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "plandate": $('#plandate').text()
+                }),
+                success: function (data) {
+                    //console.log('loadTdData2', loadTdData);
+                    planSearchData = data;
+                    //console.log('planSearchData', planSearchData);
+
+                    for (var i = 0; i < data.length; i++) {
+                        loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
+                            id: data[i].id,
+                            equipmentname: planSearchData[i].equipmentname,
+                            num: data[i].num,
+                            bomno: data[i].bomno,
+                            customer: data[i].customer,
+                            modelname: data[i].modelname,
+                            itemname: data[i].itemname,
+                            part: data[i].part,
+                            linepart: data[i].linepart,
+                            lotno: data[i].lotno,
+                            pono: data[i].pono,
+                            accumulate: data[i].accumulate,
+                            remaining: data[i].remaining,
+                            planone: data[i].planone,
+                            siljokone: data[i].siljokone,
+                            plantwo: data[i].plantwo,
+                            siljoktwo: data[i].siljoktwo,
+                            plandate: data[i].plandate
+                        };
+                        // //console.log('data[i].plandate', data[i].plandate);
+                    }
+                    var loadTdDataKeys = Object.keys(loadTdData);
+                    // //console.log('keys', loadTdDataKeys);
+                    var numKeys = loadTdDataKeys.length;
+                    // //console.log(numKeys);
+                    for (var i = 0; i < numKeys; i++) {
+
+                        for (var j = 0; j < 8; j++) {
+
+                            var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+
+                            // //console.log('ㅓ', i,j);
+                            // //console.log('bomno', bomno);
+
+
+                            $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
+                            $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
+                            $('#' + j + modelname + '').text(loadTdData[loadTdDataKeys[i]][j].modelname);
+                            $('#' + j + itemname + '').text(loadTdData[loadTdDataKeys[i]][j].itemname);
+                            $('#' + j + part + '').text(loadTdData[loadTdDataKeys[i]][j].part);
+                            $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].linepart);
+                            $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
+                            $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono);
+                            $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
+                            $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
+                            $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
+                            $('#' + j + siljokone + '').text(loadTdData[loadTdDataKeys[i]][j].siljokone);
+                            $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
+                            $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
+
+
+                            // //console.log('bomno', '#' + j + bomno + '');
+                        }
+
+                    }
+                    for (var key in loadTdData) {
+                        for (var subKey in loadTdData[key]) {
+                            flattenedData.push(loadTdData[key][subKey]);
+                        }
+                    }
+                }
+            });
+        }
+
+    </script>
 </body>
 
 </html>
