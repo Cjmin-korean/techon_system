@@ -1,81 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Dropdown</title>
-    <style>
-        .custom-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-input {
-            width: 200px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .dropdown-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            z-index: 1000;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-top: none;
-            border-radius: 0 0 4px 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: none;
-        }
-
-        .dropdown-item1 {
-            padding: 8px;
-            cursor: pointer;
-        }
-
-        .dropdown-item1:hover {
-            background-color: #f0f0f0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Explosion</title>
+  <style>
+    #countdown {
+      font-size: 36px;
+      text-align: center;
+      margin-top: 100px;
+    }
+    #explosion {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
-<div class="custom-dropdown">
-    <input type="text" class="dropdown-input" placeholder="옵션을 선택하세요">
-    <div class="dropdown-list">
-        <div class="dropdown-item1">Option 1</div>
-        <div class="dropdown-item1">Option 2</div>
-        <div class="dropdown-item1">Option 3</div>
-    </div>
-</div>
+<div id="countdown">3</div>
+<img id="explosion" src="https://i.imgur.com/5B3J7Aa.gif" alt="Explosion">
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var dropdownInput = document.querySelector('.dropdown-input');
-        var dropdownList = document.querySelector('.dropdown-list');
+  var countdownElement = document.getElementById('countdown');
+  var explosionElement = document.getElementById('explosion');
 
-        // Show/hide dropdown on input focus/blur
-        dropdownInput.addEventListener('focus', function () {
-            dropdownList.style.display = 'block';
-        });
+  function startCountdown() {
+    var count = 3;
 
-        dropdownInput.addEventListener('blur', function () {
-            // Use a timeout to allow time for the click event to trigger before hiding the dropdown
-            setTimeout(function () {
-                dropdownList.style.display = 'none';
-            }, 200);
-        });
+    var countdownInterval = setInterval(function() {
+      countdownElement.innerText = count;
 
-        // Handle item selection
-        dropdownList.addEventListener('click', function (event) {
-            if (event.target.classList.contains('dropdown-item1')) {
-                dropdownInput.value = event.target.textContent;
-                dropdownList.style.display = 'none';
-            }
-        });
-    });
+      if (count === 0) {
+        clearInterval(countdownInterval);
+        countdownElement.style.display = 'none';
+        explosionElement.style.display = 'block';
+
+        setTimeout(function() {
+          explosionElement.style.display = 'none';
+        }, 2000);
+      }
+
+      count--;
+    }, 1000);
+  }
+
+  setTimeout(startCountdown, 3000);
 </script>
 
 </body>

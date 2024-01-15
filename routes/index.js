@@ -4537,7 +4537,116 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
-                .query("select * from produceplan where plandate=@plandate")
+                .query("SELECT "+
+           "     p.id, "+
+           "     p.plandate, "+
+           "     p.equipmentname, "+
+           "     p.bomno, "+
+           "     p.customer, "+
+           "     p.modelname, "+
+           "     p.itemname, "+
+           "     p.part, "+
+           "     p.linepart, "+
+           "     p.lotno, "+
+           "     p.pono, "+
+           "     p.accumulate, "+
+           "     p.remaining, "+
+           "     p.planone, "+
+           "     p.siljokone,  "+
+           "     p.plantwo, "+
+           "     p.siljoktwo, "+
+           "     p.num,"+
+           "     p.capa,  "+
+           "     p.plantime, "+
+           "     480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0) ) AS ratio, "+
+           "     630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0) ) AS ratio1 "+
+           " FROM "+
+           "     [Techon].[dbo].[produceplan] p "+
+           " JOIN ( "+
+           "     SELECT "+
+           "         pono, "+
+           "         SUM(pono) OVER () AS totalPono "+
+           "     FROM "+
+           "         [Techon].[dbo].[produceplan] where plandate=@plandate "+
+           "     GROUP BY "+
+           "         pono "+
+           " ) mainquery ON p.pono = mainquery.pono "+
+           " JOIN ( "+
+           "     SELECT "+
+           "         bomno, "+
+           "         customer, "+
+           "         modelname, "+
+           "         itemname, "+
+           "         workpart, "+
+           "         working, "+
+           "         onepidding, "+
+           "         cavity, "+
+           "         '고속' AS additional_column, "+
+           "         cavity * 0.5 AS calculated_column, "+
+           "         CASE "+
+           "             WHEN onepidding < 90 THEN 100 "+
+           "             WHEN onepidding < 150 THEN 83 "+
+           "             WHEN onepidding < 190 THEN 50 "+
+           "             ELSE 33 "+
+           "         END AS custom_condition_column,  "+
+           "         custom_condition_column * 60 * 8 * cavity AS cv2, "+
+           "         custom_condition_column * 60 * 8 * cavity AS cv3 "+
+           "     FROM "+
+           "         ( "+
+           "             SELECT "+
+           "                 iteminfo.bomno, "+
+           "                 iteminfo.customer, "+
+           "                 iteminfo.modelname, "+
+           "                 iteminfo.itemname, "+
+           "                 iteminfo.workpart, "+
+           "                 iteminfo.working, "+
+           "                 bommanagement.onepid AS onepidding, "+
+           "                 iteminfo.cavity, "+
+           "                 CASE "+
+           "                     WHEN bommanagement.onepid < 90 THEN 100 "+
+           "                     WHEN bommanagement.onepid < 150 THEN 83 "+
+           "                     WHEN bommanagement.onepid < 190 THEN 50 "+
+           "                     ELSE 33 "+
+           "                 END AS custom_condition_column "+
+           "             FROM  "+
+           "                 iteminfo "+
+           "             JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno "+
+           "             GROUP BY "+
+           "                 iteminfo.bomno, "+
+           "                 iteminfo.customer, "+
+           "                 iteminfo.modelname, "+
+           "                 iteminfo.itemname, "+
+           "                 iteminfo.workpart, "+
+           "                 iteminfo.working, "+
+           "                 iteminfo.cavity, "+
+           "                 bommanagement.onepid "+
+           "         ) AS subquery_alias "+
+           " ) subquery ON p.bomno = subquery.bomno "+
+           " GROUP BY "+
+           "     p.id, "+
+           "     p.plandate, "+
+           "     p.equipmentname, "+
+           "     p.bomno, "+
+           "     p.customer,"+
+           "     p.modelname,"+
+           "     p.itemname,"+
+           "     p.part,"+
+           "     p.linepart,"+
+           "     p.lotno,"+
+           "     p.pono,"+
+           "     p.accumulate,"+
+           "     p.remaining,"+
+           "     p.planone,"+
+           "     p.siljokone,"+
+           "     p.plantwo,"+
+           "     p.siljoktwo,"+
+           "     p.num,"+
+           "     p.capa,"+
+           "     p.plantime,"+
+           "     480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)),"+
+           "     630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0));  ")
+
+                        
                 .then(result => {
 
                     res.json(result.recordset);
@@ -4829,14 +4938,16 @@ module.exports = function (app) {
                 .input('modelname', sql.NVarChar, req.body.modelname)
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('lotno', sql.NVarChar, req.body.lotno)
-                .input('pono', sql.NVarChar, req.body.pono)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
                 .input('customer', sql.NVarChar, req.body.customer)
                 .input('num', sql.Int, req.body.num)
                 .input('capa', sql.Int, req.body.capa)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('pono', sql.Float, req.body.pono)
+                .input('plantime', sql.Float, req.body.plantime)
                 .query(
-                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa)' +
-                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa)'
+                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa,part,plantime)' +
+                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa,@part,@plantime)'
                 )
                 .then(result => {
 

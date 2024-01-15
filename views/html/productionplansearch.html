@@ -156,10 +156,16 @@
                     <th rowspan="2" style="width: 100px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
                         셋팅여부
                     </th>
-                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
-                        예상작업시간
+                    <th rowspan="2" style="width: 50px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        셋팅<br>시간<br>(분)
                     </th>
-                    <th colspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                    <th rowspan="2" style="width: 50px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        예상<br>작업시간<br>(분)
+                    </th>
+                    <th rowspan="2" style="width: 50px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        작업<br>잔여시간<br>(분)
+                    </th>
+                    <th colspan="2" style="width: 50px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
                         반제품 계획실적
                     </th>
                     <th colspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
@@ -237,7 +243,7 @@
                                 '<td>' + data[i].itemname + '</td>' +
                                 '<td>' + data[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
-                                '<td><button onclick="logRowData(' + i + ')">계획등록</button></td>' +
+                                '<td><button onclick="logRowData(this)">계획등록</button></td>' +
                                 '<td class="data-id">' + data[i].id + '</td>' +
                                 '<td class="data-capa">' + data[i].capa + '</td>' +
                                 '</tr>'
@@ -250,12 +256,12 @@
             });
         }
 
-        function logRowData(index) {
+        function logRowData(row) {
             // Retrieve the corresponding row data and log it to the console
-            var rowData = loadData[index];
-            // console.log('Row Data:', loadData[0].bomno);
 
-
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
             Swal.fire({
                 icon: 'info',
                 title: '저장',
@@ -269,28 +275,32 @@
                 if (result.isConfirmed) {
 
 
+                    var numCommas = (rowData[1].split(',').length ) || 0;
+                    var plantime = (numCommas === 0) ? 30 : numCommas * 30;
+
                     $.ajax({
                         type: 'POST',
                         url: server + '/api/planinsert',
                         dataType: 'json',
                         contentType: 'application/json',
                         data: JSON.stringify({
-
                             "plandate": $('#plandatein').val(),
-                            "bomno": loadData[0].bomno,
-                            "modelname": loadData[0].modelname,
-                            "itemname": loadData[0].itemname,
-                            "lotno": loadData[0].lotno,
+                            "bomno": rowData[0],
+                            "modelname": rowData[3],
+                            "itemname": rowData[4],
+                            "lotno": rowData[5],
                             "equipmentname": $('#dataid').val(),
-                            "capa": loadData[0].capa,
+                            "capa": rowData[9],
+                            "part": rowData[1],
                             "num": parseFloat($('#num').val()) + 1,
-
+                            "pono": parseFloat(rowData[6].replace(',', '')),
+                            "plantime": plantime
                         }),
                         success: function (result) {
-
+                            // Handle success
                         },
-
                     });
+
 
 
                     $('#editModal3').fadeOut();
@@ -303,19 +313,7 @@
                         if (result.isConfirmed) {
                             load()
                             plansearching()
-                            var selectedValue = selectElement.value;
-                            var settingTimeElementId = selectElement.id.replace('settingtime', 'prevproducttime');
-                            var settingTimeElement = document.getElementById(settingTimeElementId);
 
-                            // Find the index in the id to get the row number
-                            var rowIndex = parseInt(selectElement.id, 10);
-
-                            // Update 'prevproducttime' element
-                            if (selectedValue === '셋팅X') {
-                                settingTimeElement.innerHTML = '셋팅 : 0HR<br>잔여작업시간: 8HR<br>작업시간 생산가능수량: 20,000EA';
-                            } else if (selectedValue === '셋팅O') {
-                                settingTimeElement.innerHTML = '셋팅 : 0HR<br>잔여작업시간: 8HR<br>작업시간 생산가능수량: 20,000EA';
-                            }
                         }
                     });
                 }
@@ -334,15 +332,15 @@
             $('#overlay').fadeIn();
             $('#editModal3').fadeIn();
 
-            if (rowData.length === 21) {
-                $('#equipmentname').val(rowData[18]);
-                $('#num').val(rowData[17]);
-                $('#dataid').val(rowData[19]);
+            if (rowData.length === 23) {
+                $('#equipmentname').val(rowData[20]);
+                $('#num').val(rowData[19]);
+                $('#dataid').val(rowData[21]);
                 $('#plandatein').val($('#plandate').text());
             } else {
-                $('#equipmentname').val(rowData[17]);
-                $('#num').val(rowData[16]);
-                $('#dataid').val(rowData[18]);
+                $('#equipmentname').val(rowData[19]);
+                $('#num').val(rowData[18]);
+                $('#dataid').val(rowData[20]);
                 $('#plandatein').val($('#plandate').text());
             }
 
@@ -411,19 +409,21 @@
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
-                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
-                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
-                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
                                     '<td ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';">' +
                                     (j === 0 ?
-                                        '<select id="' + j + 'producttime' + data[i].codenumber + '"><option>주간 8HR</option><option>잔업10.5HR</option></select>' :
+                                        '<select id="' + j + 'producttime' + data[i].codenumber + '"><option value="480">주간 8HR</option><option value="630">잔업10.5HR</option></select>' :
                                         ''
                                     ) +
                                     '</td> ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" ><select onchange="updateSettingTime(this)" id="' + j + 'settingtime' + data[i].codenumber + '"><option>셋팅X</option><option>셋팅O</option></select></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'settime' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'prevproducttime' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'subproducttime' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
@@ -432,6 +432,8 @@
                                     '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
                                     '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
                                     '<td style="display: none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'capa' + data[i].codenumber + '"></td>' +
+                                    '<td style=" text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'ratio' + data[i].codenumber + '"></td>' +
+                                    '<td style=" text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'ratio1' + data[i].codenumber + '"></td>' +
                                     '</tr>'
                                 );
                             }
@@ -478,7 +480,10 @@
                             plantwo: data[i].plantwo,
                             siljoktwo: data[i].siljoktwo,
                             plandate: data[i].plandate,
-                            capa: data[i].capa
+                            capa: data[i].capa,
+                            plantime: data[i].plantime,
+                            ratio: data[i].ratio,
+                            ratio1: data[i].ratio1
                         };
                         // //console.log('data[i].plandate', data[i].plandate);
                     }
@@ -505,6 +510,9 @@
                             var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
                             var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
                             var capa = 'capa' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var plantime = 'settime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var ratio = 'ratio' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var ratio1 = 'ratio1' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
 
                             // //console.log('ㅓ', i,j);
                             // //console.log('bomno', bomno);
@@ -517,7 +525,7 @@
                             $('#' + j + part + '').text(loadTdData[loadTdDataKeys[i]][j].part);
                             $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].linepart);
                             $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
-                            $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono);
+                            $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono.toLocaleString());
                             $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
                             $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
                             $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
@@ -525,6 +533,9 @@
                             $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
                             $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
                             $('#' + j + capa + '').text(loadTdData[loadTdDataKeys[i]][j].capa);
+                            $('#' + j + plantime + '').text(loadTdData[loadTdDataKeys[i]][j].plantime);
+                            $('#' + j + ratio + '').text(loadTdData[loadTdDataKeys[i]][j].ratio);
+                            $('#' + j + ratio1 + '').text(loadTdData[loadTdDataKeys[i]][j].ratio1);
 
 
                             // //console.log('bomno', '#' + j + bomno + '');
@@ -553,12 +564,12 @@
             }).get();
 
             // Assuming capa is in the first column (adjust the index if needed)
-            var capaValue = rowData[20];
+            var capaValue = rowData[22];
 
             if (selectedValue === '셋팅O') {
-                settingTimeElement.innerHTML = '셋팅 : ' + capaValue +'분'+'<br>잔여작업시간: 8HR<br>작업시간 생산가능수량: 20,000EA';
+                settingTimeElement.innerHTML = '' + capaValue + '분';
             } else if (selectedValue === '셋팅X') {
-                settingTimeElement.innerHTML = '셋팅 :0분<br>잔여작업시간: 8HR<br>작업시간 생산가능수량: 20,000EA';
+                settingTimeElement.innerHTML = '' + 0 + '분';
             }
         }
 
