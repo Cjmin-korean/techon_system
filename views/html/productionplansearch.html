@@ -10,11 +10,25 @@
 <link rel="stylesheet" href="../css/mesmaterialinput.css">
 <link rel="stylesheet" href="../css/calendar.css">
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <head>
     <style>
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
         #datatable th {
             text-align: center;
         }
@@ -30,7 +44,7 @@
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
         <a style="margin-left: 20px;">생산계획등록</a>
     </div>
-    
+
     <div id="overlay"></div>
     <div id="editModal3" style="max-height: 600px;  overflow-y: auto;">
         <div class="mainheader">
@@ -38,19 +52,22 @@
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div id="editForm">
-
+            <input type="text" style="width:200px;" id="equipmentname">
+            <input type="text" style="width:200px;" id="num">
+            <input type="text" style="width:200px;" id="dataid">
+            <input type="text" style="width:200px;" id="plandatein">
             <table class="styled-table" id="planstauts">
 
                 <thead id="tableHead">
                     <tr>
-                        <th colspan="7" rowspan="1"
+                        <th colspan="8" rowspan="1"
                             style="width: auto; font-size: 20px; font-weight: bold; border: 1px solid rgb(231, 228, 228);">
                             생산확정 리스트
                         </th>
                     </tr>
-                   
 
-                    <tr >
+
+                    <tr>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">BOM NO.</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">차수</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">생산계획날짜</th>
@@ -58,6 +75,7 @@
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">품명</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">생산LOT</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">수량</th>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);"></th>
 
 
                     </tr>
@@ -214,7 +232,7 @@
 
     <script>
         function load() {
-            $('#planstatustbody').empty()
+            $('#planstatustbody').empty();
             $.ajax({
                 type: 'POST',
                 url: server + '/api/productorderlist',
@@ -223,6 +241,7 @@
                     var tableBody = $('#planstatustbody');
                     if (data.length === 0) {
                     } else {
+                        loadData = data;
 
                         for (var i = 0; i < data.length; i++) {
                             tableBody.append(
@@ -234,17 +253,74 @@
                                 '<td>' + data[i].itemname + '</td>' +
                                 '<td>' + data[i].lotno + '</td>' +
                                 '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
+                                '<td><button onclick="logRowData(' + i + ')">계획등록</button></td>' +
                                 '<td class="data-id">' + data[i].id + '</td>' +
                                 '</tr>'
                             );
                         }
                     }
-                    // $('.data-id').hide();
+                    $('.data-id').hide();
                 }
             });
         }
-        
-        
+
+        function logRowData(index) {
+            // Retrieve the corresponding row data and log it to the console
+            var rowData = loadData[index];
+            console.log('Row Data:', loadData[0].bomno);
+       
+
+            Swal.fire({
+                icon: 'info',
+                title: '저장',
+                text: '생산계획을 저장하시겠습니까??',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/planinsert',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+
+                            "plandate": $('#plandatein').val(),
+                            "bomno": loadData[0].bomno,
+                            "modelname": loadData[0].modelname,
+                            "itemname": loadData[0].itemname,
+                            "lotno": loadData[0].lotno,
+                            "equipmentname": $('#dataid').val(),
+                            "num": $('#num').val(),
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+
+
+                    $('#editModal3').fadeOut();
+                    $('#overlay').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '저장 완료',
+                        text: '생산계획 정보가 수정 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            load()
+                        }
+                    });
+                }
+            });
+        }
+
 
         function planinsert() {
             var plandate = $('#plandate-save').val();
@@ -315,24 +391,41 @@
 
         }
 
-       
-        function openmodal(row){
-            var rowData = $(row).closest('tr').find('td').map(function () {
+
+
+        function openmodal(element) {
+            var rowData = $(element).closest('tr').find('td').map(function () {
                 return $(this).text();
             }).get();
-            console.log(rowData)
+            console.log($('#plandate').val())
             $('#overlay').fadeIn();
             $('#editModal3').fadeIn();
+
+            if (rowData.length === 18) {
+                $('#equipmentname').val(rowData[16]);
+                $('#num').val(rowData[15]);
+                $('#dataid').val(rowData[17]);
+                $('#plandatein').val($('#plandate').text());
+            } else {
+                $('#equipmentname').val(rowData[15]);
+                $('#num').val(rowData[14]);
+                $('#dataid').val(rowData[16]);
+                $('#plandatein').val($('#plandate').text());
+            }
+
+
+
         }
         function closeModal() {
             $('#overlay').fadeOut();
             $('#editModal3').fadeOut();
         }
-        function save(row){
+        function save(row) {
             var rowData = $(row).closest('tr').find('td').map(function () {
                 return $(this).text();
             }).get();
         }
+
     </script>
 
 

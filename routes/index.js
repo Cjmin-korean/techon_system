@@ -4825,10 +4825,11 @@ module.exports = function (app) {
                 .input('lotno', sql.NVarChar, req.body.lotno)
                 .input('pono', sql.NVarChar, req.body.pono)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('customer', sql.NVarChar, req.body.customer)
                 .input('num', sql.Int, req.body.num)
                 .query(
-                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num)' +
-                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num)'
+                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer)' +
+                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer)'
                 )
                 .then(result => {
 
