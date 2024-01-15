@@ -4279,26 +4279,32 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    "SELECT " +
-                    "    ol.itemname, " +
-                    "    bm.char, " +
-                    "    MAX(ol.id) AS id, " +
-                    "    MAX(ol.bomno) AS bomno, " +
-                    "    MAX(ol.productdate) AS productdate, " +
-                    "    MAX(ol.modelname) AS modelname, " +
-                    "    MAX(ol.lotno) AS lotno, " +
-                    "    ol.quantity, " +
-                    "    MAX(ol.qrno) AS qrno, " +
-                    "    MAX(ol.orderstatus) AS orderstatus " +
-                    "FROM " +
-                    "    orderlist ol " +
-                    "JOIN " +
-                    "    bommanagement bm ON ol.itemname = bm.itemname " +
-                    "WHERE " +
-                    "    ol.orderstatus = '생산확정' " +
-                    "GROUP BY " +
-                    "    ol.itemname,bm.char,ol.quantity " +
-                    "ORDER BY " +
+                    "SELECT   "+
+                    "ol.itemname,  "+
+                    "bm.char,  "+
+                    "MAX(ol.id) AS id,  "+
+                    "MAX(ol.bomno) AS bomno,  "+
+                    "MAX(ol.productdate) AS productdate,  "+
+                    "MAX(ol.modelname) AS modelname,  "+
+                    "MAX(ol.lotno) AS lotno,  "+
+                    "ol.quantity,  "+
+                    "MAX(ol.qrno) AS qrno,  "+
+                    "MAX(ol.orderstatus) AS orderstatus  , "+ 
+                    " CASE "+
+                    "WHEN bm.onepid < 90 THEN 100 "+
+                    "WHEN bm.onepid < 150 THEN 83 "+
+                    "WHEN bm.onepid < 190 THEN 50 "+
+                    "ELSE 33 "+
+                    "END AS capa "+
+                    "FROM   "+
+                    "    orderlist ol   "+
+                    "JOIN   "+
+                    "    bommanagement bm ON ol.itemname = bm.itemname   "+
+                    "WHERE   "+
+                    "    ol.orderstatus = '생산확정'   "+
+                    "GROUP BY   "+
+                    "    ol.itemname,bm.char,ol.quantity ,bm.onepid  "+
+                    "ORDER BY   "+
                     "    MAX(ol.orderstatus) DESC;                ")
                 .then(result => {
 
@@ -4827,9 +4833,10 @@ module.exports = function (app) {
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
                 .input('customer', sql.NVarChar, req.body.customer)
                 .input('num', sql.Int, req.body.num)
+                .input('capa', sql.Int, req.body.capa)
                 .query(
-                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer)' +
-                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer)'
+                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa)' +
+                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa)'
                 )
                 .then(result => {
 

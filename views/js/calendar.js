@@ -187,56 +187,7 @@ $(document).ready(function () {
 
 
 
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/plansearchAll',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "plandate": $('#plandate').text()
-                        }),
-                        success: function (result) {
-                            console.log(result)
-                            var elementWithNumOne = result.find(function (element) {
-                                return element.num === 1;
-                            });
-
-                            if (elementWithNumOne) {
-                                // If an element with num=1 is found, you can access its properties
-                                var equipmentname = elementWithNumOne.equipmentname;
-                                console.log(equipmentname);
-                                $('#0' + 'bomno' + equipmentname).text(elementWithNumOne.bomno);
-                            } else {
-                                console.log("No element with num=1 found");
-                            }
-                        }
-                    });
-
-
-
-
-
-                    // $.ajax({
-                    //     type: 'POST',
-                    //     url: server + '/api/selectequipment',
-                    //     dataType: 'json',
-                    //     success: function (data) {
-                    //         for (var i = 0; i < data.length; i++) {
-
-                    //             var equipmentname = data[i].size;
-                    //             var selectElement = $('#equipment' + i);
-                    //             selectElement.empty();
-
-                    //             var emptyOption = '<option value=""></option>';
-                    //             selectElement.append(emptyOption);
-                    //             for (var j = 0; j < equipmentname.length + 1; j++) {
-
-                    //                 var option = '<option value="' + data[j].size + data[j].customer + '">' + data[j].size + data[j].customer + '</option>';
-                    //                 selectElement.append(option);
-                    //             }
-                    //         }
-                    //     }
-                    // });
+                    
 
                 }
             }
