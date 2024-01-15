@@ -1758,25 +1758,25 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT "+
-                "     id, "+
-                "     date, "+
-                "     input, "+
-                "     materialname, "+
-                "     codenumber, "+
-                "     lotno, "+
-                "     manufacturedate, "+
-                "     expirationdate, "+
-                "     materialwidth, "+
-                "     quantity, "+
-                "     roll, "+ 
-                "     sqmprice, "+
-                "     rollprice, "+
-                "     bomno, "+
-                "     customer, "+
-                "     roll * rollprice AS totalprice "+
-                " FROM "+
-                "     materialinput;                 ")
+                    "SELECT " +
+                    "     id, " +
+                    "     date, " +
+                    "     input, " +
+                    "     materialname, " +
+                    "     codenumber, " +
+                    "     lotno, " +
+                    "     manufacturedate, " +
+                    "     expirationdate, " +
+                    "     materialwidth, " +
+                    "     quantity, " +
+                    "     roll, " +
+                    "     sqmprice, " +
+                    "     rollprice, " +
+                    "     bomno, " +
+                    "     customer, " +
+                    "     roll * rollprice AS totalprice " +
+                    " FROM " +
+                    "     materialinput;                 ")
 
                 .then(result => {
 
@@ -4279,32 +4279,32 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    "SELECT   "+
-                    "ol.itemname,  "+
-                    "bm.char,  "+
-                    "MAX(ol.id) AS id,  "+
-                    "MAX(ol.bomno) AS bomno,  "+
-                    "MAX(ol.productdate) AS productdate,  "+
-                    "MAX(ol.modelname) AS modelname,  "+
-                    "MAX(ol.lotno) AS lotno,  "+
-                    "ol.quantity,  "+
-                    "MAX(ol.qrno) AS qrno,  "+
-                    "MAX(ol.orderstatus) AS orderstatus  , "+ 
-                    " CASE "+
-                    "WHEN bm.onepid < 90 THEN 100 "+
-                    "WHEN bm.onepid < 150 THEN 83 "+
-                    "WHEN bm.onepid < 190 THEN 50 "+
-                    "ELSE 33 "+
-                    "END AS capa "+
-                    "FROM   "+
-                    "    orderlist ol   "+
-                    "JOIN   "+
-                    "    bommanagement bm ON ol.itemname = bm.itemname   "+
-                    "WHERE   "+
-                    "    ol.orderstatus = '생산확정'   "+
-                    "GROUP BY   "+
-                    "    ol.itemname,bm.char,ol.quantity ,bm.onepid  "+
-                    "ORDER BY   "+
+                    "SELECT   " +
+                    "ol.itemname,  " +
+                    "bm.char,  " +
+                    "MAX(ol.id) AS id,  " +
+                    "MAX(ol.bomno) AS bomno,  " +
+                    "MAX(ol.productdate) AS productdate,  " +
+                    "MAX(ol.modelname) AS modelname,  " +
+                    "MAX(ol.lotno) AS lotno,  " +
+                    "ol.quantity,  " +
+                    "MAX(ol.qrno) AS qrno,  " +
+                    "MAX(ol.orderstatus) AS orderstatus  , " +
+                    " CASE " +
+                    "WHEN bm.onepid < 90 THEN 100 " +
+                    "WHEN bm.onepid < 150 THEN 83 " +
+                    "WHEN bm.onepid < 190 THEN 50 " +
+                    "ELSE 33 " +
+                    "END AS capa " +
+                    "FROM   " +
+                    "    orderlist ol   " +
+                    "JOIN   " +
+                    "    bommanagement bm ON ol.itemname = bm.itemname   " +
+                    "WHERE   " +
+                    "    ol.orderstatus = '생산확정'   " +
+                    "GROUP BY   " +
+                    "    ol.itemname,bm.char,ol.quantity ,bm.onepid  " +
+                    "ORDER BY   " +
                     "    MAX(ol.orderstatus) DESC;                ")
                 .then(result => {
 
@@ -4448,9 +4448,9 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    "select "+
-                    " codenumber,equipmentname,part,size,num "+
-                    " from "+
+                    "select " +
+                    " codenumber,equipmentname,part,size,num " +
+                    " from " +
                     " equipment where product='사용' and eqname='타발기-1' or eqname ='유압타발기'")
                 .then(result => {
                     res.json(result.recordset);
@@ -4537,116 +4537,116 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
-                .query("SELECT "+
-           "     p.id, "+
-           "     p.plandate, "+
-           "     p.equipmentname, "+
-           "     p.bomno, "+
-           "     p.customer, "+
-           "     p.modelname, "+
-           "     p.itemname, "+
-           "     p.part, "+
-           "     p.linepart, "+
-           "     p.lotno, "+
-           "     p.pono, "+
-           "     p.accumulate, "+
-           "     p.remaining, "+
-           "     p.planone, "+
-           "     p.siljokone,  "+
-           "     p.plantwo, "+
-           "     p.siljoktwo, "+
-           "     p.num,"+
-           "     p.capa,  "+
-           "     p.plantime, "+
-           "     480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0) ) AS ratio, "+
-           "     630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0) ) AS ratio1 "+
-           " FROM "+
-           "     [Techon].[dbo].[produceplan] p "+
-           " JOIN ( "+
-           "     SELECT "+
-           "         pono, "+
-           "         SUM(pono) OVER () AS totalPono "+
-           "     FROM "+
-           "         [Techon].[dbo].[produceplan] where plandate=@plandate "+
-           "     GROUP BY "+
-           "         pono "+
-           " ) mainquery ON p.pono = mainquery.pono "+
-           " JOIN ( "+
-           "     SELECT "+
-           "         bomno, "+
-           "         customer, "+
-           "         modelname, "+
-           "         itemname, "+
-           "         workpart, "+
-           "         working, "+
-           "         onepidding, "+
-           "         cavity, "+
-           "         '고속' AS additional_column, "+
-           "         cavity * 0.5 AS calculated_column, "+
-           "         CASE "+
-           "             WHEN onepidding < 90 THEN 100 "+
-           "             WHEN onepidding < 150 THEN 83 "+
-           "             WHEN onepidding < 190 THEN 50 "+
-           "             ELSE 33 "+
-           "         END AS custom_condition_column,  "+
-           "         custom_condition_column * 60 * 8 * cavity AS cv2, "+
-           "         custom_condition_column * 60 * 8 * cavity AS cv3 "+
-           "     FROM "+
-           "         ( "+
-           "             SELECT "+
-           "                 iteminfo.bomno, "+
-           "                 iteminfo.customer, "+
-           "                 iteminfo.modelname, "+
-           "                 iteminfo.itemname, "+
-           "                 iteminfo.workpart, "+
-           "                 iteminfo.working, "+
-           "                 bommanagement.onepid AS onepidding, "+
-           "                 iteminfo.cavity, "+
-           "                 CASE "+
-           "                     WHEN bommanagement.onepid < 90 THEN 100 "+
-           "                     WHEN bommanagement.onepid < 150 THEN 83 "+
-           "                     WHEN bommanagement.onepid < 190 THEN 50 "+
-           "                     ELSE 33 "+
-           "                 END AS custom_condition_column "+
-           "             FROM  "+
-           "                 iteminfo "+
-           "             JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno "+
-           "             GROUP BY "+
-           "                 iteminfo.bomno, "+
-           "                 iteminfo.customer, "+
-           "                 iteminfo.modelname, "+
-           "                 iteminfo.itemname, "+
-           "                 iteminfo.workpart, "+
-           "                 iteminfo.working, "+
-           "                 iteminfo.cavity, "+
-           "                 bommanagement.onepid "+
-           "         ) AS subquery_alias "+
-           " ) subquery ON p.bomno = subquery.bomno "+
-           " GROUP BY "+
-           "     p.id, "+
-           "     p.plandate, "+
-           "     p.equipmentname, "+
-           "     p.bomno, "+
-           "     p.customer,"+
-           "     p.modelname,"+
-           "     p.itemname,"+
-           "     p.part,"+
-           "     p.linepart,"+
-           "     p.lotno,"+
-           "     p.pono,"+
-           "     p.accumulate,"+
-           "     p.remaining,"+
-           "     p.planone,"+
-           "     p.siljokone,"+
-           "     p.plantwo,"+
-           "     p.siljoktwo,"+
-           "     p.num,"+
-           "     p.capa,"+
-           "     p.plantime,"+
-           "     480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)),"+
-           "     630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0));  ")
+                .query("SELECT " +
+                    "     p.id, " +
+                    "     p.plandate, " +
+                    "     p.equipmentname, " +
+                    "     p.bomno, " +
+                    "     p.customer, " +
+                    "     p.modelname, " +
+                    "     p.itemname, " +
+                    "     p.part, " +
+                    "     p.linepart, " +
+                    "     p.lotno, " +
+                    "     p.pono, " +
+                    "     p.accumulate, " +
+                    "     p.remaining, " +
+                    "     p.planone, " +
+                    "     p.siljokone,  " +
+                    "     p.plantwo, " +
+                    "     p.siljoktwo, " +
+                    "     p.num," +
+                    "     p.capa,  " +
+                    "     p.plantime, " +
+                    "     480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0) ) AS ratio, " +
+                    "     630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0) ) AS ratio1 " +
+                    " FROM " +
+                    "     [Techon].[dbo].[produceplan] p " +
+                    " JOIN ( " +
+                    "     SELECT " +
+                    "         pono, " +
+                    "         SUM(pono) OVER () AS totalPono " +
+                    "     FROM " +
+                    "         [Techon].[dbo].[produceplan] where plandate=@plandate " +
+                    "     GROUP BY " +
+                    "         pono " +
+                    " ) mainquery ON p.pono = mainquery.pono " +
+                    " JOIN ( " +
+                    "     SELECT " +
+                    "         bomno, " +
+                    "         customer, " +
+                    "         modelname, " +
+                    "         itemname, " +
+                    "         workpart, " +
+                    "         working, " +
+                    "         onepidding, " +
+                    "         cavity, " +
+                    "         '고속' AS additional_column, " +
+                    "         cavity * 0.5 AS calculated_column, " +
+                    "         CASE " +
+                    "             WHEN onepidding < 90 THEN 100 " +
+                    "             WHEN onepidding < 150 THEN 83 " +
+                    "             WHEN onepidding < 190 THEN 50 " +
+                    "             ELSE 33 " +
+                    "         END AS custom_condition_column,  " +
+                    "         custom_condition_column * 60 * 8 * cavity AS cv2, " +
+                    "         custom_condition_column * 60 * 8 * cavity AS cv3 " +
+                    "     FROM " +
+                    "         ( " +
+                    "             SELECT " +
+                    "                 iteminfo.bomno, " +
+                    "                 iteminfo.customer, " +
+                    "                 iteminfo.modelname, " +
+                    "                 iteminfo.itemname, " +
+                    "                 iteminfo.workpart, " +
+                    "                 iteminfo.working, " +
+                    "                 bommanagement.onepid AS onepidding, " +
+                    "                 iteminfo.cavity, " +
+                    "                 CASE " +
+                    "                     WHEN bommanagement.onepid < 90 THEN 100 " +
+                    "                     WHEN bommanagement.onepid < 150 THEN 83 " +
+                    "                     WHEN bommanagement.onepid < 190 THEN 50 " +
+                    "                     ELSE 33 " +
+                    "                 END AS custom_condition_column " +
+                    "             FROM  " +
+                    "                 iteminfo " +
+                    "             JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno " +
+                    "             GROUP BY " +
+                    "                 iteminfo.bomno, " +
+                    "                 iteminfo.customer, " +
+                    "                 iteminfo.modelname, " +
+                    "                 iteminfo.itemname, " +
+                    "                 iteminfo.workpart, " +
+                    "                 iteminfo.working, " +
+                    "                 iteminfo.cavity, " +
+                    "                 bommanagement.onepid " +
+                    "         ) AS subquery_alias " +
+                    " ) subquery ON p.bomno = subquery.bomno " +
+                    " GROUP BY " +
+                    "     p.id, " +
+                    "     p.plandate, " +
+                    "     p.equipmentname, " +
+                    "     p.bomno, " +
+                    "     p.customer," +
+                    "     p.modelname," +
+                    "     p.itemname," +
+                    "     p.part," +
+                    "     p.linepart," +
+                    "     p.lotno," +
+                    "     p.pono," +
+                    "     p.accumulate," +
+                    "     p.remaining," +
+                    "     p.planone," +
+                    "     p.siljokone," +
+                    "     p.plantwo," +
+                    "     p.siljoktwo," +
+                    "     p.num," +
+                    "     p.capa," +
+                    "     p.plantime," +
+                    "     480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0))," +
+                    "     630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0));  ")
 
-                        
+
                 .then(result => {
 
                     res.json(result.recordset);
@@ -5042,6 +5042,29 @@ module.exports = function (app) {
                     'equipmentname=@equipmentname,' +
                     'num=@num' +
                     ' where id=@id'
+
+                )
+                .then(result => {
+                    // console.log(result)
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+
+    sql.connect(config).then(pool => {
+        app.post('/api/updateplan', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('plantime', sql.Float, req.body.plantime)
+                .input('id', sql.Int, req.body.id)
+                .query(
+
+                    'update produceplan set plantime=@plantime where id=@id'
 
                 )
                 .then(result => {
