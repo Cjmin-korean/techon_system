@@ -139,7 +139,6 @@ $(document).ready(function () {
                                 '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
                                 '</tr>'
                             );
-                            $('#1bomno' + data[i].equipmentname).val('123');
 
                         }
                     }
@@ -157,7 +156,7 @@ $(document).ready(function () {
                         success: function (result) {
                             // Initialize loadTdData outside the loop
                             var loadTdData = {};
-
+                            console.log(result)
                             for (var i = 0; i < result.length; i++) {
                                 var equipmentname = result[i].equipmentname;
 
@@ -165,16 +164,9 @@ $(document).ready(function () {
                                 if (!loadTdData[equipmentname]) {
                                     loadTdData[equipmentname] = {};
                                 }
+                                $('#' + i + 'bomno' + result[i].equipmentname + '').text(result[i].bomno);
 
-                                for (var j = 0; j < 8; j++) {
-                                    // Check if the property 'bomno' exists for the current result item and index
-                                    if (result[i][j] && result[i][j].hasOwnProperty('bomno')) {
-                                        // Use j as the index to access the corresponding result item
-                                        var bomno = result[i][j].bomno;
 
-                                        // Update the text with the correct value from the result
-                                    }
-                                }
                             }
                         }
                     });
