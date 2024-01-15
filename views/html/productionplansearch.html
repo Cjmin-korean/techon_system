@@ -19,6 +19,16 @@
 
 <head>
     <style>
+        select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
         input {
             width: 100%;
             padding: 10px;
@@ -106,7 +116,7 @@
         <table class="styled-table" id="datatable">
             <thead id="tableHead">
                 <tr>
-                    <th colspan="16" style="width: auto;  border: 1px solid rgb(231, 228, 228);;" id="plandate"></th>
+                    <th colspan="19" style="width: auto;  border: 1px solid rgb(231, 228, 228);;" id="plandate"></th>
                 </tr>
                 <tr>
                     <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
@@ -140,8 +150,14 @@
                         누적
                         생산<br>실적
                     </th>
+                    <th rowspan="2" style="width: 130px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        작업시간
+                    </th>
+                    <th rowspan="2" style="width: 100px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        셋팅여부
+                    </th>
                     <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
-                        작업지시<br>생산 잔량<br>(PO)
+                        예상작업시간
                     </th>
                     <th colspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
                         반제품 계획실적
@@ -302,15 +318,15 @@
             $('#overlay').fadeIn();
             $('#editModal3').fadeIn();
 
-            if (rowData.length === 18) {
-                $('#equipmentname').val(rowData[16]);
-                $('#num').val(rowData[15]);
-                $('#dataid').val(rowData[17]);
+            if (rowData.length === 20) {
+                $('#equipmentname').val(rowData[18]);
+                $('#num').val(rowData[17]);
+                $('#dataid').val(rowData[19]);
                 $('#plandatein').val($('#plandate').text());
             } else {
-                $('#equipmentname').val(rowData[15]);
-                $('#num').val(rowData[14]);
-                $('#dataid').val(rowData[16]);
+                $('#equipmentname').val(rowData[17]);
+                $('#num').val(rowData[16]);
+                $('#dataid').val(rowData[18]);
                 $('#plandatein').val($('#plandate').text());
             }
 
@@ -427,6 +443,101 @@
                     }
                 }
             });
+        }
+
+        function planload() {
+            $('#Datatbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/equipmentname',
+                dataType: 'json',
+                success: function (data) {
+                    var tableBody = $('#Datatbody');
+                    if (data.length === 0) {
+                    } else {
+                        loadTdData = {};
+
+                        for (var i = 0; i < data.length; i++) {
+                            loadTdData[data[i].codenumber] = {};
+                            var numRows = 8;
+                            for (var j = 0; j < numRows; j++) {
+                                loadTdData[data[i].codenumber][j] = {
+                                    num: '',
+                                    bomno: '',
+                                    customer: '',
+                                    modelname: '',
+                                    itemname: '',
+                                    part: '',
+                                    linepart: '',
+                                    lotno: '',
+                                    pono: '',
+                                    accumulate: '',
+                                    remaining: '',
+                                    planone: '',
+                                    siljokone: '',
+                                    plantwo: '',
+                                    siljoktwo: '',
+                                }
+
+
+                                tableBody.append(
+
+                                    '<tr>' +
+                                    (j === 0 ? '<td style="text-align:center; width:8%;  font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';">' +
+                                    (j === 0 ?
+                                        '<select id="' + j + 'producttime' + data[i].codenumber + '"><option>주간 8HR</option><option>잔업10.5HR</option></select>' :
+                                        ''
+                                    ) +
+                                    '</td> ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" ><select onchange="updateSettingTime(this)" id="' + j + 'settingtime' + data[i].codenumber + '"><option>셋팅X</option><option>셋팅O</option></select></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'prevproducttime' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
+                                    '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
+                                    '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
+                                    '</tr>'
+                                );
+                            }
+                        }
+
+                        plansearching()
+                    }
+                }
+            });
+        }
+
+        function updateSettingTime(selectElement) {
+            var selectedValue = selectElement.value;
+            var settingTimeElementId = selectElement.id.replace('settingtime', 'prevproducttime');
+            var settingTimeElement = document.getElementById(settingTimeElementId);
+
+            // Find the index in the id to get the row number
+            var rowIndex = parseInt(selectElement.id, 10);
+
+            // Update 'prevproducttime' element
+            if (selectedValue === '셋팅X') {
+                settingTimeElement.textContent = '셋팅 : 0시간 잔여작업시간: 8HR';
+            } else if (selectedValue === '셋팅O') {
+                settingTimeElement.textContent = '셋팅 : 1시간 잔여작업시간: 7HR';
+            }
+
+            // Update 'remaining' element
+            var remainingElementId = rowIndex + 'remaining' + selectElement.id.replace('settingtime', '');
+            var remainingElement = document.getElementById(remainingElementId);
+            remainingElement.textContent = '잔여작업시간: 8HR'; // You can modify this based on your actual logic
         }
 
     </script>

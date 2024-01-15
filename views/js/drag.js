@@ -116,7 +116,9 @@ $(document).ready(function () {
                                 siljoktwo: '',
                             }
 
+
                             tableBody.append(
+
                                 '<tr>' +
                                 (j === 0 ? '<td style="text-align:center; width:8%;  font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
@@ -128,7 +130,14 @@ $(document).ready(function () {
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
+                                '<td ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';">' +
+                                (j === 0 ?
+                                    '<select id="' + j + 'producttime' + data[i].codenumber + '"><option>주간 8HR</option><option>잔업10.5HR</option></select>' :
+                                    ''
+                                ) +
+                                '</td> ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" ><select onchange="updateSettingTime(this)" id="' + j + 'settingtime' + data[i].codenumber + '"><option>셋팅X</option><option>셋팅O</option></select></td > ' +
+                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'prevproducttime' + data[i].codenumber + '" ></td > ' +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
                                 '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
@@ -138,22 +147,27 @@ $(document).ready(function () {
                                 '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
                                 '</tr>'
                             );
-
                         }
                     }
 
-
-
-
                     plansearching()
-
-
                 }
             }
         });
     }
 
+    function updateSettingTime(selectElement) {
+        var selectedValue = selectElement.value;
+        var settingTimeElementId = selectElement.id.replace('settingtime', 'prevproducttime');
+        var settingTimeElement = document.getElementById(settingTimeElementId);
 
+        if (selectedValue === '셋팅X') {
+            settingTimeElement.textContent = '셋팅 : 0시간';
+            console.log('셋팅x')
+        } else if (selectedValue === '셋팅O') {
+            settingTimeElement.textContent = '셋팅 : 1시간';
+        }
+    }
 
 
 
@@ -247,7 +261,7 @@ $(document).ready(function () {
                         var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
                         var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
 
-                
+
 
 
                         $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
@@ -265,9 +279,9 @@ $(document).ready(function () {
                         $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
                         $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
 
-                       
+
                     }
-                   
+
                 }
                 // for (var key in loadTdData) {
                 //     for (var subKey in loadTdData[key]) {
