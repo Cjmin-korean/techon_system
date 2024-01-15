@@ -416,7 +416,7 @@
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
                                     '<td ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';">' +
                                     (j === 0 ?
-                                        '<select id="' + j + 'producttime' + data[i].codenumber + '"><option value="480">주간 8HR</option><option value="630">잔업10.5HR</option></select>' :
+                                        '<select id="' + j + 'producttime' + data[i].codenumber + '" onchange="updateSettingTime1(this)"><option value="480">주간 8HR</option><option value="630">잔업10.5HR</option></select>' :
                                         ''
                                     ) +
                                     '</td> ' +
@@ -518,6 +518,7 @@
                             var prevproducttime = 'prevproducttime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
                             var id = 'id' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
                             var subproducttime = 'subproducttime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var producttime = 'producttime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
 
 
 
@@ -542,15 +543,28 @@
                             $('#' + j + prevproducttime + '').text(loadTdData[loadTdDataKeys[i]][j].ratio);
                             $('#' + j + id + '').text(loadTdData[loadTdDataKeys[i]][j].id);
                             $('#' + j + plantime + '').text(loadTdData[loadTdDataKeys[i]][j].plantime);
-
-                            $('#' + j + subproducttime + '').text(parseFloat(480) - parseFloat(loadTdData[loadTdDataKeys[i]][j].ratio) - parseFloat(loadTdData[loadTdDataKeys[i]][j].plantime));
-
+                            if (j === 0) {
+                                $('#' + j + subproducttime + '').text(
+                                    parseFloat($('#' + j + producttime + '').val()) -
+                                    parseFloat(loadTdData[loadTdDataKeys[i]][j].ratio) -
+                                    parseFloat(loadTdData[loadTdDataKeys[i]][j].plantime)
+                                );
+                            } else {
+                                $('#' + j + subproducttime + '').text(
+                                    parseFloat($('#' + (j - 1) + subproducttime + '').text()) -
+                                    parseFloat(loadTdData[loadTdDataKeys[i]][j].ratio) -
+                                    parseFloat(loadTdData[loadTdDataKeys[i]][j].plantime)
+                                );
+                            }
                         }
 
                     }
 
                 }
             });
+        }
+        function updateSettingTime1(selectElement) {
+            plansearching()
         }
         function updateSettingTime(selectElement) {
             var selectedValue = selectElement.value;
@@ -561,10 +575,9 @@
             var row = $(selectElement).closest('tr');
 
             // Extract data from each cell in the row
-            var rowData = $(row).find('td').map(function () {
+            var rowData = $(selectElement).find('td').map(function () {
                 return $(this).text();
             }).get();
-            console.log(rowData[25])
             // Assuming capa is in the first column (adjust the index if needed)
             // var capaValue = rowData[22];
 
@@ -573,7 +586,13 @@
             // } else if (selectedValue === '셋팅X') {
             //     settingTimeElement.innerHTML = '' + 0 + '분';
             // }
-            if (selectedValue === '셋팅O') {
+            var rowData = $(selectElement).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+         
+
+            if (rowData.length === 26) {
+                if (selectedValue === '셋팅O') {
                 Swal.fire({
                     icon: 'info',
                     title: '저장',
@@ -665,6 +684,102 @@
                     }
                 });
             }
+            } else {
+                if (selectedValue === '셋팅O') {
+                Swal.fire({
+                    icon: 'info',
+                    title: '저장',
+                    text: '셋팅 정보 저장하시겠습니까??',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        var numCommas = (rowData[5].split(',').length) || 0;
+                        var plantime = (numCommas === 0) ? 30 : numCommas * 30;
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/updateplan',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": rowData[24],
+                                "plantime": plantime
+                            }),
+                            success: function (result) {
+                                // Handle success
+                            },
+                        });
+
+
+
+
+                        $('#editModal3').fadeOut();
+                        $('#overlay').fadeOut();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '저장 완료',
+                            text: '셋팅 정보가 등록 되었습니다.',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                plansearching()
+
+                            }
+                        });
+                    }
+                });
+            } else if (selectedValue === '셋팅X') {
+                Swal.fire({
+                    icon: 'info',
+                    title: '저장',
+                    text: '셋팅 정보 저장하시겠습니까??',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        var numCommas = (rowData[5].split(',').length) || 0;
+                        var plantime = (numCommas === 0) ? 30 : numCommas * 30;
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/updateplan',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "id": rowData[24],
+                                "plantime": '0'
+                            }),
+                            success: function (result) {
+                                // Handle success
+                            },
+                        });
+
+
+
+                        $('#editModal3').fadeOut();
+                        $('#overlay').fadeOut();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '저장 완료',
+                            text: '셋팅 정보가 등록 되었습니다.',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                plansearching()
+
+                            }
+                        });
+                    }
+                });
+            }
+            }
+
+            
         }
 
 
