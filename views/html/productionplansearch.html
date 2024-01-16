@@ -699,21 +699,24 @@
                             // if ($('#' + j + bomno + '').text() === '') {
                             //     $('#' + (parseInt(j) - 1) + subproducttime + '').text('11');
                             // }
-                            if ($('#' + j + producttype + '').text() === '완제품') {
-                                $('#' + j + plantwo + '').text(
-                                    loadTdData[loadTdDataKeys[i]][j].pono.toLocaleString()
-                                );
-                            } else {
-                                $('#' + j + planone + '').text(
-                                    loadTdData[loadTdDataKeys[i]][j].pono.toLocaleString()
-                                );
-                            }
+
+
+
                             if (j === 0) {
                                 var calculatedValue = parseFloat($('#' + j + producttime + '').val()) -
                                     parseFloat(loadTdData[loadTdDataKeys[i]][j].ratio) -
                                     parseFloat(loadTdData[loadTdDataKeys[i]][j].plantime);
 
-                                $('#' + j + subproducttime + '').text(isNaN(calculatedValue) ? 0 : Math.max(calculatedValue, 0));
+                                $('#' + j + subproducttime + '').text(calculatedValue)
+                                if ($('#' + j + producttype + '').text() === '완제품') {
+                                    $('#' + j + plantwo + '').text(
+                                        loadTdData[loadTdDataKeys[i]][j].pono.toLocaleString()
+                                    );
+                                } else {
+                                    $('#' + j + planone + '').text(
+                                        loadTdData[loadTdDataKeys[i]][j].pono.toLocaleString()
+                                    );
+                                }
                             } else {
                                 var prevSubProductTime = parseFloat($('#' + (j - 1) + subproducttime + '').text());
 
@@ -722,17 +725,35 @@
                                     parseFloat(loadTdData[loadTdDataKeys[i]][j].plantime);
 
                                 $('#' + j + subproducttime + '').text(isNaN(calculatedValue) ? 0 : Math.max(calculatedValue, 0));
+                                $('#' + j + prevproducttime + '').text(isNaN(calculatedValue) ? 0 : Math.max($('#' + (j - 1) + subproducttime + '').text(), 0));
 
-                                $('#' + j + planone + '').text(
-                                    (parseFloat(loadTdData[loadTdDataKeys[i]][j].capa) * prevSubProductTime).toLocaleString()
-                                );
+
+
+                                if ($('#' + j + producttype + '').text() === '완제품') {
+                                    if (parseFloat($('#' + j + subproducttime + '').text()) === 0) {
+                                        $('#' + j + plantwo + '').text(
+                                            (parseFloat($('#' + j + capa + '').text()) * parseFloat($('#' + j + prevproducttime + '').text())).toLocaleString()
+                                        );
+                                        $('#' + j + planone + '').text('');
+                                    } else {
+                                        $('#' + j + planone + '').text(
+                                            (parseFloat(loadTdData[loadTdDataKeys[i]][j].capa) * prevSubProductTime).toLocaleString()
+                                        );
+                                    }
+                                } else if ($('#' + j + producttype + '').text() === '반제품') {
+                                    if (parseFloat($('#' + j + subproducttime + '').text()) === 0) {
+                                        $('#' + j + plantwo + '').text(
+                                            (parseFloat($('#' + j + capa + '').text()) * parseFloat($('#' + j + prevproducttime + '').text())).toLocaleString()
+                                        );
+                                    } else {
+                                        $('#' + j + planone + '').text(
+                                            (parseFloat(loadTdData[loadTdDataKeys[i]][j].pono)).toLocaleString()
+                                        );
+                                    }
+                                }
+
+
                             }
-
-
-                            // console.log($('#' + 2 + bomno + '').text())
-
-
-
 
                             if ($('#' + j + bompart + '').text() === '양산') {
                                 $('#' + j + bompart + '').closest('tr').css('background-color', 'lightblue');

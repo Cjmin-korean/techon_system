@@ -4608,13 +4608,13 @@ module.exports = function (app) {
                 "    [Techon].[dbo].[produceplan] p  "+
                 "JOIN (   "+
                 "    SELECT   "+
-                "        pono,   "+
-                "        SUM(pono) OVER () AS totalPono   "+
+                "        pono   "+
+                "        AS totalPono   "+
                 "    FROM   "+
                 "        [Techon].[dbo].[produceplan] "+
                 "    GROUP BY  "+
                 "        pono  "+
-                ") mainquery ON p.pono = mainquery.pono   "+
+                ") mainquery ON p.pono = mainquery.totalPono   "+
                 "JOIN (   "+
                 "                         SELECT   "+
                 "                             bomno,  "+
