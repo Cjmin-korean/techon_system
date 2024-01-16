@@ -4537,114 +4537,141 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
-                .query("SELECT " +
-                    "     p.id, " +
-                    "     p.plandate, " +
-                    "     p.equipmentname, " +
-                    "     p.bomno, " +
-                    "     p.customer, " +
-                    "     p.modelname, " +
-                    "     p.itemname, " +
-                    "     p.part, " +
-                    "     p.linepart, " +
-                    "     p.lotno, " +
-                    "     p.pono, " +
-                    "     p.accumulate, " +
-                    "     p.remaining, " +
-                    "     p.planone, " +
-                    "     p.siljokone,  " +
-                    "     p.plantwo, " +
-                    "     p.siljoktwo, " +
-                    "     p.num," +
-                    "     p.capa,  " +
-                    "     p.plantime, " +
-                    "     480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0) ) AS ratio, " +
-                    "     630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0) ) AS ratio1 " +
-                    " FROM " +
-                    "     [Techon].[dbo].[produceplan] p " +
-                    " JOIN ( " +
-                    "     SELECT " +
-                    "         pono, " +
-                    "         SUM(pono) OVER () AS totalPono " +
-                    "     FROM " +
-                    "         [Techon].[dbo].[produceplan] where plandate=@plandate " +
-                    "     GROUP BY " +
-                    "         pono " +
-                    " ) mainquery ON p.pono = mainquery.pono " +
-                    " JOIN ( " +
-                    "     SELECT " +
-                    "         bomno, " +
-                    "         customer, " +
-                    "         modelname, " +
-                    "         itemname, " +
-                    "         workpart, " +
-                    "         working, " +
-                    "         onepidding, " +
-                    "         cavity, " +
-                    "         '고속' AS additional_column, " +
-                    "         cavity * 0.5 AS calculated_column, " +
-                    "         CASE " +
-                    "             WHEN onepidding < 90 THEN 100 " +
-                    "             WHEN onepidding < 150 THEN 83 " +
-                    "             WHEN onepidding < 190 THEN 50 " +
-                    "             ELSE 33 " +
-                    "         END AS custom_condition_column,  " +
-                    "         custom_condition_column * 60 * 8 * cavity AS cv2, " +
-                    "         custom_condition_column * 60 * 8 * cavity AS cv3 " +
-                    "     FROM " +
-                    "         ( " +
-                    "             SELECT " +
-                    "                 iteminfo.bomno, " +
-                    "                 iteminfo.customer, " +
-                    "                 iteminfo.modelname, " +
-                    "                 iteminfo.itemname, " +
-                    "                 iteminfo.workpart, " +
-                    "                 iteminfo.working, " +
-                    "                 bommanagement.onepid AS onepidding, " +
-                    "                 iteminfo.cavity, " +
-                    "                 CASE " +
-                    "                     WHEN bommanagement.onepid < 90 THEN 100 " +
-                    "                     WHEN bommanagement.onepid < 150 THEN 83 " +
-                    "                     WHEN bommanagement.onepid < 190 THEN 50 " +
-                    "                     ELSE 33 " +
-                    "                 END AS custom_condition_column " +
-                    "             FROM  " +
-                    "                 iteminfo " +
-                    "             JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno " +
-                    "             GROUP BY " +
-                    "                 iteminfo.bomno, " +
-                    "                 iteminfo.customer, " +
-                    "                 iteminfo.modelname, " +
-                    "                 iteminfo.itemname, " +
-                    "                 iteminfo.workpart, " +
-                    "                 iteminfo.working, " +
-                    "                 iteminfo.cavity, " +
-                    "                 bommanagement.onepid " +
-                    "         ) AS subquery_alias " +
-                    " ) subquery ON p.bomno = subquery.bomno " +
-                    " GROUP BY " +
-                    "     p.id, " +
-                    "     p.plandate, " +
-                    "     p.equipmentname, " +
-                    "     p.bomno, " +
-                    "     p.customer," +
-                    "     p.modelname," +
-                    "     p.itemname," +
-                    "     p.part," +
-                    "     p.linepart," +
-                    "     p.lotno," +
-                    "     p.pono," +
-                    "     p.accumulate," +
-                    "     p.remaining," +
-                    "     p.planone," +
-                    "     p.siljokone," +
-                    "     p.plantwo," +
-                    "     p.siljoktwo," +
-                    "     p.num," +
-                    "     p.capa," +
-                    "     p.plantime," +
-                    "     480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0))," +
-                    "     630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0));  ")
+                .query("WITH LastCharCTE AS ( "+
+                "    SELECT "+
+                "        p.bomno, "+
+                "        ( "+
+                "            SELECT TOP(1) "+
+                "                char "+
+                "            FROM "+
+                "                bommanagement "+
+                "            WHERE "+
+                "                bomno = p.bomno "+
+                "            ORDER BY "+
+                "                num DESC "+
+                "        ) AS last_char "+
+                "    FROM "+
+                "        [Techon].[dbo].[produceplan] p "+
+                "    WHERE  "+
+                "        plandate = @plandate "+
+                ") "+
+                "SELECT   "+
+                "    p.id,   "+
+                "    p.plandate,   "+
+                "    p.equipmentname,   "+
+                "    p.bomno,   "+
+                "    p.customer,   "+
+                "    p.modelname,   "+
+                "    p.itemname,   "+
+                "    p.part,  "+
+                "    p.linepart,  "+
+                "    p.lotno,  "+
+                "    p.pono,  "+
+                "    p.accumulate,  "+
+                "    p.remaining,  "+
+                "    p.planone,  "+
+                "    p.siljokone,   "+
+                "    p.plantwo,  "+
+                "    p.siljoktwo,  "+
+                "    p.num, "+
+                "    p.capa,   "+
+                "    p.plantime,  "+
+                "    480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)) AS ratio,  "+
+                "    630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0)) AS ratio1, "+
+                "    lastcharcte.last_char AS lastchar, "+
+                "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END AS producttype "+
+                " "+
+                "FROM   "+
+                "    [Techon].[dbo].[produceplan] p  "+
+                "JOIN (   "+
+                "    SELECT   "+
+                "        pono,   "+
+                "        SUM(pono) OVER () AS totalPono   "+
+                "    FROM   "+
+                "        [Techon].[dbo].[produceplan] "+
+                "    GROUP BY  "+
+                "        pono  "+
+                ") mainquery ON p.pono = mainquery.pono   "+
+                "JOIN (   "+
+                "                         SELECT   "+
+                "                             bomno,  "+
+                "                             customer,  "+
+                "                             modelname,  "+
+                "                             itemname,  "+
+                "                             workpart,  "+
+                "                             working,  "+
+                "                             onepidding,  "+
+                "                             cavity,  "+
+                "                             '고속' AS additional_column,  "+
+                "                             cavity * 0.5 AS calculated_column, "+ 
+                "                             CASE  "+
+                "                                 WHEN onepidding < 90 THEN 100  "+
+                "                                 WHEN onepidding < 150 THEN 83  "+
+                "                                 WHEN onepidding < 190 THEN 50  "+
+                "                                 ELSE 33  "+
+                "                             END AS custom_condition_column,   "+
+                "                             custom_condition_column * 60 * 8 * cavity AS cv2,  "+
+                "                             custom_condition_column * 60 * 8 * cavity AS cv3  "+
+                "                         FROM  "+
+                "                             (  "+
+                "                                 SELECT  "+
+                "                                     iteminfo.bomno,  "+
+                "                                     iteminfo.customer,  "+
+                "                                     iteminfo.modelname,  "+
+                "                                     iteminfo.itemname,  "+
+                "                                     iteminfo.workpart,  "+
+                "                                     iteminfo.working,  "+
+                "                                     bommanagement.onepid AS onepidding,  "+
+                "                                     iteminfo.cavity,  "+
+                "                                     CASE  "+
+                "                                         WHEN bommanagement.onepid < 90 THEN 100  "+
+                "                                         WHEN bommanagement.onepid < 150 THEN 83  "+
+                "                                         WHEN bommanagement.onepid < 190 THEN 50  "+
+                "                                         ELSE 33  "+
+                "                                     END AS custom_condition_column  "+
+                "                                 FROM   "+
+                "                                     iteminfo  "+
+                "                                 JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno  "+
+                "                                 GROUP BY  "+
+                "                                     iteminfo.bomno,  "+
+                "                                     iteminfo.customer,  "+
+                "                                     iteminfo.modelname,  "+
+                "                                     iteminfo.itemname,  "+
+                "                                     iteminfo.workpart,  "+
+                "                                     iteminfo.working,  "+
+                "                                     iteminfo.cavity,  "+
+                "                                     bommanagement.onepid  "+
+                "                             ) AS subquery_alias  "+
+                "                    "+
+                ") subquery ON p.bomno = subquery.bomno   "+
+                "LEFT JOIN LastCharCTE lastcharcte ON p.bomno = lastcharcte.bomno -- 마지막 char 값을 가져오기 "+
+                "WHERE  "+
+                "    plandate=@plandate "+  
+                "GROUP BY  "+
+                "    p.id,  "+
+                "    p.plandate,  "+
+                "    p.equipmentname,  "+
+                "    p.bomno,  "+
+                "    p.customer, "+
+                "    p.modelname, "+
+                "    p.itemname, "+
+                "    p.part, "+
+                "    p.linepart, "+
+                "    p.lotno, "+
+                "    p.pono, "+
+                "    p.accumulate, "+
+                "    p.remaining, "+
+                "    p.planone, "+
+                "    p.siljokone, "+
+                "    p.plantwo, "+
+                "    p.siljoktwo, "+
+                "    p.num, "+
+                "    p.capa, "+
+                "    p.plantime, "+
+                "    480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)),  "+
+                "    630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0)), "+
+                "    lastcharcte.last_char, "+
+                "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END; ")
 
 
                 .then(result => {
