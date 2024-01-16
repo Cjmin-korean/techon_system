@@ -332,7 +332,7 @@
             $('#overlay').fadeIn();
             $('#editModal3').fadeIn();
 
-            if (rowData.length === 27) {
+            if (rowData.length === 28) {
                 $('#equipmentname').val(rowData[20]);
                 $('#num').val(rowData[19]);
                 $('#dataid').val(rowData[21]);
@@ -423,7 +423,7 @@
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" ><select onchange="updateSettingTime(this)" id="' + j + 'settingtime' + data[i].codenumber + '"><option>셋팅X</option><option>셋팅O</option></select></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'settime' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'prevproducttime' + data[i].codenumber + '" ></td > ' +
-                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:center; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'subproducttime' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'subproducttime' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
                                     '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
@@ -436,6 +436,7 @@
                                     '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'ratio1' + data[i].codenumber + '"></td>' +
                                     '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'id' + data[i].codenumber + '"></td>' +
                                     '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'producttype' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'bompart' + data[i].codenumber + '"></td>' +
                                     '</tr>'
                                 );
                             }
@@ -456,12 +457,11 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    "plandate": '2024-01-16'
+                    "plandate": $('#plandate').text()
                 }),
                 success: function (data) {
                     console.log(data)
                     planSearchData = data;
-                    //console.log('planSearchData', planSearchData);
 
                     for (var i = 0; i < data.length; i++) {
                         loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
@@ -488,7 +488,8 @@
                             ratio: data[i].ratio,
                             ratio1: data[i].ratio1,
                             id: data[i].id,
-                            producttype: data[i].producttype
+                            producttype: data[i].producttype,
+                            bompart: data[i].bompart
                         };
                         // //console.log('data[i].plandate', data[i].plandate);
                     }
@@ -527,6 +528,7 @@
                             var subproducttime = 'subproducttime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
                             var producttime = 'producttime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
                             var producttype = 'producttype' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var bompart = 'bompart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
 
 
 
@@ -552,6 +554,7 @@
                             $('#' + j + id + '').text(loadTdData[loadTdDataKeys[i]][j].id);
                             $('#' + j + plantime + '').text(loadTdData[loadTdDataKeys[i]][j].plantime);
                             $('#' + j + producttype + '').text(loadTdData[loadTdDataKeys[i]][j].producttype);
+                            $('#' + j + bompart + '').text(loadTdData[loadTdDataKeys[i]][j].bompart);
 
                             if ($('#' + j + producttype + '').text() === '완제품') {
                                 $('#' + j + plantwo + '').text(
@@ -574,6 +577,9 @@
                                     parseFloat(loadTdData[loadTdDataKeys[i]][j].ratio) -
                                     parseFloat(loadTdData[loadTdDataKeys[i]][j].plantime)
                                 );
+                            }
+                            if ($('#' + j + bompart + '').text() === '양산') {
+                                $('#' + j + bompart + '').closest('tr').css('background-color', 'lightblue');
                             }
                         }
 
@@ -610,7 +616,7 @@
             }).get();
 
 
-            if (rowData.length === 27) {
+            if (rowData.length === 28) {
                 if (selectedValue === '셋팅O') {
                     Swal.fire({
                         icon: 'info',

@@ -4579,7 +4579,8 @@ module.exports = function (app) {
                 "    480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)) AS ratio,  "+
                 "    630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0)) AS ratio1, "+
                 "    lastcharcte.last_char AS lastchar, "+
-                "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END AS producttype "+
+                "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END AS producttype, "+
+                "    p.bompart  "+
                 " "+
                 "FROM   "+
                 "    [Techon].[dbo].[produceplan] p  "+
@@ -4670,7 +4671,7 @@ module.exports = function (app) {
                 "    p.plantime, "+
                 "    480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)),  "+
                 "    630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0)), "+
-                "    lastcharcte.last_char, "+
+                "    lastcharcte.last_char,p.bompart,  "+
                 "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END; ")
 
 
