@@ -2843,7 +2843,7 @@ module.exports = function (app) {
                     "          bommanagement.onepid AS onepidding,  " +
                     "          iteminfo.cavity, " +
                     "          '고속' AS additional_column, " +
-                    "          iteminfo.cavity * 0.5 AS calculated_column, " +
+                    "          iteminfo.working * 30 AS calculated_column, " +
                     "          CASE " +
                     "              WHEN bommanagement.onepid < 90 THEN 100 " +
                     "              WHEN bommanagement.onepid < 150 THEN 83 " +
