@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>생산현황</title>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="../css/mesmain.css">
+<link rel="stylesheet" href="../css/mesmaterialinput.css">
+<link rel="stylesheet" href="../css/calendar.css">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<head>
+    <style>
+        select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        #datatable th {
+            text-align: center;
+        }
+
+        #datatable td {
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">생산현황</a>
+    </div>
+
+
+
+    <div id="datatable-container" style="width: 100%; float: left;">
+        <table class="styled-table" id="datatable">
+            <thead id="tableHead">
+                <tr>
+                    <th colspan="14" style="width: auto;  border: 1px solid rgb(231, 228, 228);;" id="plandate">
+                    </th>
+                </tr>
+                <tr>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
+                        호기(설비명)
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
+                        BOM NO.
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
+                        고객사
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        모델명
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        품명
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        총작업<br>차수
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        작업차수
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        자재준비
+                    </th>
+                    <th colspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        계획
+                    </th>
+                    <th colspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        실적
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        작업자
+                    </th>
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        생산진행현황
+                    </th>
+                </tr>
+                <tr>
+                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        반제품
+                    </th>
+                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        완제품
+                    </th>
+                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        반제품
+                    </th>
+                    <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        완제품
+                    </th>
+                </tr>
+
+            </thead>
+            <tbody id="Datatbody">
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            // load();
+            planload()
+        });
+        // function load() {
+        //     // 현재 날짜 객체 생성
+        //     var currentDate = new Date();
+
+        //     // 날짜 포맷 지정
+        //     var year = currentDate.getFullYear();
+        //     var month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // 월은 0부터 시작하므로 1을 더하고, 두 자리로 포맷팅
+        //     var day = currentDate.getDate().toString().padStart(2, '0'); // 날짜도 두 자리로 포맷팅
+
+        //     var formattedDate = year + '-' + month + '-' + day;
+
+        //     // 해당 th 요소에 날짜 설정
+        //     $('#plandate').text(formattedDate);
+
+
+        //     $('#Datatbody').empty();
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: server + '/api/plansearchAll',
+        //         data: JSON.stringify({
+        //             "plandate": $('#plandate').text()
+        //         }),
+        //         success: function (data) {
+        //             var tableBody = $('#Datatbody');
+        //             if (data.length === 0) {
+        //             } else {
+        //                 console.log(data)
+        //                 for (var i = 0; i < data.length; i++) {
+        //                     tableBody.append(
+        //                         '<tr>' +
+        //                         '<td>' + data[i].equipmentname + '</td>' +
+        //                         '<td>' + data[i].bomno + '</td>' +
+        //                         '<td>' + data[i].customer + '</td>' +
+        //                         '<td>' + data[i].modelname + '</td>' +
+        //                         '<td>' + data[i].itemname + '</td>' +
+        //                         '<td>' + data[i].lastchar + '</td>' +
+        //                         '<td>' + data[i].part + '</td>' +
+        //                         '<td>자재 준비중</td>' +
+
+
+        //                         '</tr>'
+        //                     );
+        //                 }
+        //             }
+        //             $('.data-id').hide();
+        //             $('.data-capa').hide();
+        //         }
+        //     });
+        // }
+
+
+        function planload() {
+            var currentDate = new Date();
+            // 날짜 포맷 지정
+            var year = currentDate.getFullYear();
+            var month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // 월은 0부터 시작하므로 1을 더하고, 두 자리로 포맷팅
+            var day = currentDate.getDate().toString().padStart(2, '0'); // 날짜도 두 자리로 포맷팅
+            var formattedDate = year + '-' + month + '-' + day;
+            // 해당 th 요소에 날짜 설정
+            $('#plandate').text(formattedDate);
+            $('#Datatbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/equipmentname',
+                dataType: 'json',
+                success: function (data) {
+                    var tableBody = $('#Datatbody');
+                    if (data.length === 0) {
+                    } else {
+                        loadTdData = {};
+
+                        for (var i = 0; i < data.length; i++) {
+                            loadTdData[data[i].codenumber] = {};
+                            var numRows = 8;
+                            for (var j = 0; j < numRows; j++) {
+                                loadTdData[data[i].codenumber][j] = {
+                                    num: '',
+                                    bomno: '',
+                                    customer: '',
+                                    modelname: '',
+                                    itemname: '',
+                                    part: '',
+                                    linepart: '',
+                                    lotno: '',
+                                    pono: '',
+                                    accumulate: '',
+                                    remaining: '',
+                                    planone: '',
+                                    siljokone: '',
+                                    plantwo: '',
+                                    siljoktwo: '',
+                                }
+
+
+                                tableBody.append(
+
+                                    '<tr>' +
+                                    (j === 0 ? '<td style="text-align:center; width:auto;  font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
+                                    '<td  ondblclick="openmodal(this)" style="width: 80px; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'materialstatus' + data[i].codenumber + '" ></td > ' +
+                                    '<td style="display:none;"><select  id="' + j + 'producttime' + data[i].codenumber + '" onchange="updateSettingTime1(this)"><option value="460">주간 8HR</option><option value="610">잔업10.5HR</option></select>   </td> ' +
+                                    '<td ondblclick="openmodal(this)" style="width: auto; display:none; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" ><select onchange="updateSettingTime(this)" id="' + j + 'settingtime' + data[i].codenumber + '"><option>셋팅X</option><option>셋팅O</option></select></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="width: auto; display:none; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'settime' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="width: auto; display:none; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'prevproducttime' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="width: auto; display:none; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'subproducttime' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
+                                    '<td style="display:none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
+                                    '<td style="display:none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'capa' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'ratio' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'ratio1' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'id' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'producttype' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'bompart' + data[i].codenumber + '"></td>' +
+                                    '<td style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linetest' + data[i].codenumber + '" ></td > ' +
+                                    '<td style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'issue' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'people' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'productstatus' + data[i].codenumber + '" ></td > ' +
+                                    '</tr>'
+                                );
+                            }
+
+                        }
+
+
+                        plansearching()
+
+
+                    }
+                }
+            });
+        }
+        function plansearching() {
+
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/plansearchAll',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "plandate": $('#plandate').text()
+                }),
+                success: function (data) {
+                    planSearchData = data;
+
+                    for (var i = 0; i < data.length; i++) {
+                        loadTdData[planSearchData[i].equipmentname][planSearchData[i].num - 1] = {
+                            id: data[i].id,
+                            equipmentname: planSearchData[i].equipmentname,
+                            num: data[i].num,
+                            bomno: data[i].bomno,
+                            customer: data[i].customer,
+                            modelname: data[i].modelname,
+                            itemname: data[i].itemname,
+                            part: data[i].part,
+                            linepart: data[i].lastchar,
+                            lotno: data[i].lotno,
+                            pono: data[i].pono,
+                            accumulate: data[i].accumulate,
+                            remaining: data[i].remaining,
+                            planone: data[i].planone,
+                            siljokone: data[i].siljokone,
+                            plantwo: data[i].plantwo,
+                            siljoktwo: data[i].siljoktwo,
+                            plandate: data[i].plandate,
+                            capa: data[i].capa,
+                            plantime: data[i].plantime,
+                            ratio: data[i].ratio,
+                            ratio1: data[i].ratio1,
+                            id: data[i].id,
+                            producttype: data[i].producttype,
+                            bompart: data[i].bompart,
+                            materialstatus: data[i].materialstatus,
+                            productstatus: data[i].productstatus,
+                            people: data[i].people
+                        };
+                        // //console.log('data[i].plandate', data[i].plandate);
+                    }
+                    var loadTdDataKeys = Object.keys(loadTdData);
+                    var numKeys = loadTdDataKeys.length;
+                    // console.log(numKeys);
+                    for (var i = 0; i < numKeys; i++) {
+
+
+                        for (var j = 0; j < 8; j++) {
+                            var match = loadTdData[loadTdDataKeys[i]][j].linepart.match(/\d+$/);
+
+                            var lastNumber = match && match.length > 0 ? match[0] : null;
+
+
+                            var bomno = 'bomno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var customer = 'customer' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var modelname = 'modelname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var itemname = 'itemname' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var part = 'part' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var linepart = 'linepart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var lotno = 'lotno' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var pono = 'pono' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var accumulate = 'accumulate' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var remaining = 'remaining' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var planone = 'planone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var siljokone = 'siljokone' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var plantwo = 'plantwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var siljoktwo = 'siljoktwo' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var capa = 'capa' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var plantime = 'settime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var ratio = 'ratio' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var ratio1 = 'ratio1' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var prevproducttime = 'prevproducttime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var id = 'id' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var subproducttime = 'subproducttime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var producttime = 'producttime' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var producttype = 'producttype' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var bompart = 'bompart' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var materialstatus = 'materialstatus' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var productstatus = 'productstatus' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+                            var people = 'people' + loadTdData[loadTdDataKeys[i]][j].equipmentname;
+
+
+
+                            $('#' + j + bomno + '').text(loadTdData[loadTdDataKeys[i]][j].bomno);
+                            $('#' + j + customer + '').text(loadTdData[loadTdDataKeys[i]][j].customer);
+                            $('#' + j + modelname + '').text(loadTdData[loadTdDataKeys[i]][j].modelname);
+                            $('#' + j + itemname + '').text(loadTdData[loadTdDataKeys[i]][j].itemname);
+                            $('#' + j + part + '').text(lastNumber);
+                            $('#' + j + linepart + '').text(loadTdData[loadTdDataKeys[i]][j].part);
+                            $('#' + j + lotno + '').text(loadTdData[loadTdDataKeys[i]][j].lotno);
+                            $('#' + j + pono + '').text(loadTdData[loadTdDataKeys[i]][j].pono.toLocaleString());
+                            $('#' + j + accumulate + '').text(loadTdData[loadTdDataKeys[i]][j].accumulate);
+                            $('#' + j + remaining + '').text(loadTdData[loadTdDataKeys[i]][j].remaining);
+                            $('#' + j + planone + '').text(loadTdData[loadTdDataKeys[i]][j].planone);
+                            $('#' + j + siljokone + '').text(loadTdData[loadTdDataKeys[i]][j].siljokone);
+                            $('#' + j + plantwo + '').text(loadTdData[loadTdDataKeys[i]][j].plantwo);
+                            $('#' + j + siljoktwo + '').text(loadTdData[loadTdDataKeys[i]][j].siljoktwo);
+                            $('#' + j + capa + '').text(loadTdData[loadTdDataKeys[i]][j].capa);
+                            $('#' + j + plantime + '').text(loadTdData[loadTdDataKeys[i]][j].plantime);
+                            $('#' + j + ratio + '').text(loadTdData[loadTdDataKeys[i]][j].ratio);
+                            $('#' + j + ratio1 + '').text(loadTdData[loadTdDataKeys[i]][j].ratio1);
+                            $('#' + j + prevproducttime + '').text(loadTdData[loadTdDataKeys[i]][j].ratio);
+                            $('#' + j + id + '').text(loadTdData[loadTdDataKeys[i]][j].id);
+                            $('#' + j + plantime + '').text(loadTdData[loadTdDataKeys[i]][j].plantime);
+                            $('#' + j + producttype + '').text(loadTdData[loadTdDataKeys[i]][j].producttype);
+                            $('#' + j + bompart + '').text(loadTdData[loadTdDataKeys[i]][j].bompart);
+                            $('#' + j + materialstatus + '').text(loadTdData[loadTdDataKeys[i]][j].materialstatus);
+                            $('#' + j + productstatus + '').text(loadTdData[loadTdDataKeys[i]][j].productstatus);
+                            $('#' + j + people + '').text(loadTdData[loadTdDataKeys[i]][j].people);
+                            // if ($('#' + j + bomno + '').text() === '') {
+                            //     $('#' + (parseInt(j) - 1) + subproducttime + '').text('11');
+                            // }
+
+
+
+                            if (j === 0) {
+                                var calculatedValue = parseFloat($('#' + j + producttime + '').val()) -
+                                    parseFloat(loadTdData[loadTdDataKeys[i]][j].ratio) -
+                                    parseFloat(loadTdData[loadTdDataKeys[i]][j].plantime);
+
+                                $('#' + j + subproducttime + '').text(calculatedValue)
+                                if ($('#' + j + producttype + '').text() === '완제품') {
+                                    $('#' + j + plantwo + '').text(
+                                        loadTdData[loadTdDataKeys[i]][j].pono.toLocaleString()
+                                    );
+                                } else {
+                                    $('#' + j + planone + '').text(
+                                        loadTdData[loadTdDataKeys[i]][j].pono.toLocaleString()
+                                    );
+                                }
+                            } else {
+                                var prevSubProductTime = parseFloat($('#' + (j - 1) + subproducttime + '').text());
+
+                                var calculatedValue = prevSubProductTime -
+                                    parseFloat(loadTdData[loadTdDataKeys[i]][j].ratio) -
+                                    parseFloat(loadTdData[loadTdDataKeys[i]][j].plantime);
+
+                                $('#' + j + subproducttime + '').text(isNaN(calculatedValue) ? 0 : Math.max(calculatedValue, 0));
+                                $('#' + j + prevproducttime + '').text(isNaN(calculatedValue) ? 0 : Math.max($('#' + (j - 1) + subproducttime + '').text(), 0));
+
+
+
+                                if ($('#' + j + producttype + '').text() === '완제품') {
+                                    if (parseFloat($('#' + j + subproducttime + '').text()) === 0) {
+                                        $('#' + j + plantwo + '').text(
+                                            (parseFloat($('#' + j + capa + '').text()) * parseFloat($('#' + j + prevproducttime + '').text())).toLocaleString()
+                                        );
+                                        $('#' + j + planone + '').text('');
+                                    } else {
+                                        $('#' + j + planone + '').text(
+                                            (parseFloat(loadTdData[loadTdDataKeys[i]][j].capa) * prevSubProductTime).toLocaleString()
+                                        );
+                                    }
+                                } else if ($('#' + j + producttype + '').text() === '반제품') {
+                                    if (parseFloat($('#' + j + subproducttime + '').text()) === 0) {
+                                        $('#' + j + plantwo + '').text(
+                                            (parseFloat($('#' + j + capa + '').text()) * parseFloat($('#' + j + prevproducttime + '').text())).toLocaleString()
+                                        );
+                                    } else {
+                                        $('#' + j + planone + '').text(
+                                            (parseFloat(loadTdData[loadTdDataKeys[i]][j].pono)).toLocaleString()
+                                        );
+                                    }
+                                }
+
+
+                            }
+
+                            // if ($('#' + j + bompart + '').text() === '양산') {
+                            //     $('#' + j + bompart + '').closest('tr').css('background-color', 'lightblue');
+                            // }
+
+                        }
+
+                    }
+
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

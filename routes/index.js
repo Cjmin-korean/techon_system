@@ -4598,7 +4598,7 @@ module.exports = function (app) {
                 "    p.siljoktwo,  "+
                 "    p.num, "+
                 "    p.capa,   "+
-                "    p.plantime,  "+
+                "    p.plantime,p.materialstatus,p.productstatus,p.people,  "+
                 "    480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)) AS ratio,  "+
                 "    630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0)) AS ratio1, "+
                 "    lastcharcte.last_char AS lastchar, "+
@@ -4690,7 +4690,7 @@ module.exports = function (app) {
                 "    p.siljoktwo, "+
                 "    p.num, "+
                 "    p.capa, "+
-                "    p.plantime, "+
+                "    p.plantime,p.materialstatus,p.productstatus,p.people, "+
                 "    480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)),  "+
                 "    630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0)), "+
                 "    lastcharcte.last_char,p.bompart,  "+
