@@ -3913,10 +3913,11 @@ module.exports = function (app) {
                 .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
                 .input('processname', sql.NVarChar, req.body.processname)
                 .input('num', sql.Float, req.body.num)
+                .input('part', sql.NVarChar, req.body.part)
 
                 .query(
-                    'insert into accountinput(num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname)' +
-                    ' values(@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname)'
+                    'insert into accountinput(num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part)' +
+                    ' values(@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part)'
                 )
                 .then(result => {
 
@@ -4281,6 +4282,8 @@ module.exports = function (app) {
                 .query(
                     "SELECT   " +
                     "ol.itemname,  " +
+                    "ol.customer,  " +
+                    "ol.part,  " +
                     "bm.char,  " +
                     "MAX(ol.id) AS id,  " +
                     "MAX(ol.bomno) AS bomno,  " +
@@ -4303,7 +4306,7 @@ module.exports = function (app) {
                     "WHERE   " +
                     "    ol.orderstatus = '생산확정'   " +
                     "GROUP BY   " +
-                    "    ol.itemname,bm.char,ol.quantity ,bm.onepid  " +
+                    "    ol.itemname,bm.char,ol.quantity ,bm.onepid ,ol.customer,ol.part   " +
                     "ORDER BY   " +
                     "    MAX(ol.orderstatus) DESC;                ")
                 .then(result => {
@@ -4326,7 +4329,7 @@ module.exports = function (app) {
                     " bomno, " +
 
                     " contentname, " +
-                    " productdate, " +
+                    " customer,part, " +
                     " modelname, " +
                     " itemname, " +
                     " lotno, " +
@@ -4444,6 +4447,25 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/equipmentname', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    "select " +
+                    " codenumber,equipmentname,part,size,num " +
+                    " from " +
+                    " equipment where product='사용' and eqname='타발기-1' or eqname ='유압타발기'")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/equipmentnamesolt', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
@@ -4914,10 +4936,12 @@ module.exports = function (app) {
                 .input('qrno', sql.NVarChar, req.body.qrno)
                 .input('lotdate', sql.NVarChar, req.body.lotdate)
                 .input('inserttime', sql.NVarChar, req.body.inserttime)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('part', sql.NVarChar, req.body.part)
 
                 .query(
-                    "insert into orderlist(inserttime,lotdate,qrno,modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus,a,b,c,d,orderstatus)" +
-                    " values(@inserttime,@lotdate,@qrno,@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus,@a,@b,@c,@d,@orderstatus)"
+                    "insert into orderlist(inserttime,lotdate,qrno,modelname,itemname,lotno,marchine,quantity,productdate,status,contentname,bomno,orderid,materialstatus,a,b,c,d,orderstatus,customer,part)" +
+                    " values(@inserttime,@lotdate,@qrno,@modelname,@itemname,@lotno,@marchine,@quantity,@productdate,@status,@contentname,@bomno,@orderid,@materialstatus,@a,@b,@c,@d,@orderstatus,@customer,@part)"
                 )
                 .then(result => {
 
@@ -4973,9 +4997,10 @@ module.exports = function (app) {
                 .input('part', sql.NVarChar, req.body.part)
                 .input('pono', sql.Float, req.body.pono)
                 .input('plantime', sql.Float, req.body.plantime)
+                .input('bompart', sql.NVarChar, req.body.bompart)
                 .query(
-                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa,part,plantime)' +
-                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa,@part,@plantime)'
+                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa,part,plantime,bompart)' +
+                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa,@part,@plantime,@bompart)'
                 )
                 .then(result => {
 
@@ -6132,7 +6157,7 @@ module.exports = function (app) {
                     "		a.quantity, " +
                     "		a.bomno,   " +
                     "		a.itemcode,  " +
-                    "		a.orderid,  " +
+                    "		a.orderid,a.part,  " +
                     "		SUM(ISNULL(i.quantity, 0)) AS total_quantity,  " +
                     "		ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num   " +
                     "	FROM accountinput a  " +
@@ -6147,7 +6172,7 @@ module.exports = function (app) {
                     "		a.customer,  " +
                     "		a.bomno,  " +
                     "		a.itemcode,  " +
-                    "		a.orderid  " +
+                    "		a.orderid,a.part  " +
                     "), recursive_cte AS (  " +
                     "   SELECT  " +
                     "	   c.ad,  " +
@@ -6159,7 +6184,7 @@ module.exports = function (app) {
                     "	   c.itemname,  " +
                     "	   c.quantity,  " +
                     "	   c.itemcode,  " +
-                    "	   c.orderid,  " +
+                    "	   c.orderid,c.part,  " +
                     "	   c.total_quantity,  " +
                     "	   total_quantity - quantity AS difference,  " +
                     "	   row_num  " +
@@ -6177,7 +6202,7 @@ module.exports = function (app) {
                     "	   c.itemname,  " +
                     "	   c.quantity,  " +
                     "	   c.itemcode,  " +
-                    "	   c.orderid,  " +
+                    "	   c.orderid,c.part,  " +
                     "	   c.total_quantity,  " +
                     "	   rc.difference - c.quantity AS difference,  " +
                     "	   c.row_num  " +
@@ -6192,7 +6217,7 @@ module.exports = function (app) {
                     "	   rc.modelname, " +
                     "	   rc.itemname, " +
                     "	   rc.itemcode, " +
-                    "	   rc.orderid, " +
+                    "	   rc.orderid,rc.part, " +
                     "	   FORMAT(rc.quantity, '#,0') AS quantity, " +
                     "	   FORMAT(rc.difference, '#,0') AS difference, " +
                     "	   FORMAT(rc.total_quantity, '#,0') AS total_quantity, " +

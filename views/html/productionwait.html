@@ -91,6 +91,7 @@
                     <th style="width: auto; text-align:center;">품목명</th>
                     <th style="width: auto; text-align:center;">고객사코드</th>
                     <th style="width: auto; text-align:center;">발주구분</th>
+                    <th style="width: auto; text-align:center;">구분</th>
                     <th style="width: auto; text-align:center;">PO수량(EA)</th>
                     <th style="width: auto; text-align:center;">재공재고</th>
                     <th style="width: auto; text-align:center;">작업필요수량</th>
@@ -126,7 +127,8 @@
                     <th style="width: 20px;"><input type="checkbox" style="width: 20px; height: 20px; cursor: pointer;">
                     </th>
                     <th>BOMNO.</th>
-                    <th>생산계획날짜</th>
+                    <th>고객사</th>
+                    <th>구분</th>
                     <th>모델명</th>
                     <th>제품명</th>
                     <th>생산LOTNO.</th>
@@ -159,7 +161,7 @@
                             <i class="fas fa-save"></i> 저장
                         </button></td>
                     <td colspan="1">제품 정보<input type="text" id="orderid"
-                            style="visibility: hidden  ; width:20px;"><input type="text" id="num"
+                            style="visibility: hidden; width:20px;"><input type="text" id="num"
                             style="visibility: hidden; width:20px;">
                     </td>
                 </tr>
@@ -190,6 +192,10 @@
                 <tr>
                     <td><label for="editAuthor">영업구분</label></td>
                     <td><input type="text" id="ad-edit" value="" autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">구분</label></td>
+                    <td><input type="text" id="part-edit" value="" autocomplete="off"></td>
                 </tr>
                 <tr>
                     <td><label for="editAuthor">PO수량</label></td>
@@ -299,7 +305,7 @@
                             contentType: 'application/json',
                             data: JSON.stringify({
 
-                                "id": rowData[10],
+                                "id": rowData[11],
                                 "orderstatus": '생산확정'
                             }),
                             success: function (result) {
@@ -341,7 +347,7 @@
                             dataType: 'json',
                             contentType: 'application/json',
                             data: JSON.stringify({
-                                "id": rowData[10]
+                                "id": rowData[11]
                             }),
                             success: function (result) {
 
@@ -386,7 +392,7 @@
                             contentType: 'application/json',
                             data: JSON.stringify({
 
-                                "id": rowData[10],
+                                "id": rowData[11],
                                 "orderstatus": '생산보류'
                             }),
                             success: function (result) {
@@ -476,6 +482,7 @@
                                     '<td>' + data[i].itemname + '</td>' +
                                     '<td>' + data[i].itemcode + '</td>' +
                                     '<td style="text-align:center;">' + data[i].ad + '</td>' +
+                                    '<td >' + data[i].part + '</td>' +
                                     '<td style="text-align:right;">' + data[i].quantity + '</td>' +
                                     '<td style="text-align:right;">' + data[i].total_quantity.toLocaleString() + '</td>' +
                                     '<td style="text-align:right;' + fontColor + '">' + difference.toLocaleString() + '</td>' + // 쉼표 추가하여 숫자로 표시
@@ -709,7 +716,8 @@
                                     '<tr>' +
                                     '<td><input type="checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
                                     '<td>' + data[i].bomno + '</td>' +
-                                    '<td style="font-weight:bold;">' + data[i].productdate + '</td>' +
+                                    '<td>' + data[i].customer + '</td>' +
+                                    '<td>' + data[i].part + '</td>' +
                                     '<td>' + data[i].modelname + '</td>' +
                                     '<td>' + data[i].itemname + '</td>' +
                                     '<td>' + data[i].lotno + '</td>' +
@@ -779,7 +787,7 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        "orderid": rowData[11]
+                        "orderid": rowData[12]
                     }),
                     success: function (result) {
                         $('#num').val(result[0].num)
@@ -793,8 +801,9 @@
                 $('#modelname-edit').val(rowData[3])
                 $('#itemname-edit').val(rowData[4])
                 $('#ad-edit').val(rowData[6])
-                $('#count-edit').val(rowData[7])
-                $('#orderid').val(rowData[11])
+                $('#part-edit').val(rowData[7])
+                $('#count-edit').val(rowData[8])
+                $('#orderid').val(rowData[12])
                 $('#overlay').fadeIn()
                 $('#editModal4').fadeIn()
             });
@@ -890,6 +899,8 @@
                                     "orderstatus": '생산보류',
                                     "lotdate": insertdate,
                                     "inserttime": formattedTime,
+                                    "customer": $('#customer-edit').val(),
+                                    "part": $('#part-edit').val()
 
                                 }),
                                 success: function (result) {

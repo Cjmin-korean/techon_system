@@ -70,7 +70,7 @@
 
                 <thead id="tableHead">
                     <tr>
-                        <th colspan="8" rowspan="1"
+                        <th colspan="9" rowspan="1"
                             style="width: auto; font-size: 20px; font-weight: bold; border: 1px solid rgb(231, 228, 228);">
                             생산확정 리스트
                         </th>
@@ -78,9 +78,10 @@
 
 
                     <tr>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">고객사</th>
+                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">구분</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">BOM NO.</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">차수</th>
-                        <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">생산계획날짜</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">모델명</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">품명</th>
                         <th style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);">생산LOT</th>
@@ -96,7 +97,74 @@
             </table>
         </div>
     </div>
+    <div id="editModal4" style="width: 800px; height: auto;">
+        <div class="mainheader">
+            <h1>생산 계획 수정</h1>
+            <span class="close" onclick="closeModal4()">&times;</span>
+        </div>
 
+
+        <div id="editForm">
+            <table>
+                <tr style="height:50px;">
+                    <td> <button id="deleteBtn" onclick="accountsave()" class="btn btn-danger"
+                            style="background-color: blue;">
+                            <i class="fas fa-save"></i> 저장
+                        </button>
+                        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger"
+                            style="background-color: red;">
+                            <i class="fas fa-trash"></i> 삭제
+                        </button>
+                    </td>
+                    <td colspan="1">생산계획 정보<input type="text" id="orderid"
+                            style="visibility: hidden; width:20px;"><input type="text" id="id-edit"
+                            style="visibility: hidden; width:50px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">BOMNO</label></td>
+                    <td><input type="text" id="bomno-edit" value="" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">고객사</label></td>
+                    <td><input type="text" id="customer-edit" value="" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">모델명</label></td>
+                    <td><input type="text" id="modelname-edit" value="" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">품명</label></td>
+                    <td><input type="text" id="itemname-edit" value="" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">총작업차수</label></td>
+                    <td><input type="text" id="part-edit" value="" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">라인계획차수</label></td>
+                    <td><input type="text" id="linepart-edit" value="" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">생산LOT</label></td>
+                    <td><input type="text" id="lotno-edit" value="" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">작업지시수량</label></td>
+                    <td><input type="text" id="pono-edit" value="" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">설비연동</label></td>
+                    <td><select id="equipmentname-edit"></select></td>
+                    <td><button>설비연동</button></td>
+                </tr>
+
+
+            </table>
+
+
+        </div>
+    </div>
     <div class="calendar">
         <div class="month">
             <button class="prev-month">
@@ -116,13 +184,15 @@
         <table class="styled-table" id="datatable">
             <thead id="tableHead">
                 <tr>
-                    <th colspan="19" style="width: auto;  border: 1px solid rgb(231, 228, 228);;" id="plandate"></th>
+                    <th colspan="19" style="width: auto;  border: 1px solid rgb(231, 228, 228);;" id="plandate">
+                    </th>
                 </tr>
                 <tr>
                     <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
                         호기(설비명)
                     </th>
-                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">BOM
+                    <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
+                        BOM
                         NO.
                     </th>
                     <th rowspan="2" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
@@ -235,10 +305,11 @@
 
                         for (var i = 0; i < data.length; i++) {
                             tableBody.append(
-                                '<tr draggable="true">' +
+                                '<tr>' +
+                                '<td>' + data[i].customer + '</td>' +
+                                '<td>' + data[i].part + '</td>' +
                                 '<td>' + data[i].bomno + '</td>' +
                                 '<td>' + data[i].char + '</td>' +
-                                '<td style="font-weight:bold;">' + data[i].productdate + '</td>' +
                                 '<td>' + data[i].modelname + '</td>' +
                                 '<td>' + data[i].itemname + '</td>' +
                                 '<td>' + data[i].lotno + '</td>' +
@@ -285,15 +356,17 @@
                         contentType: 'application/json',
                         data: JSON.stringify({
                             "plandate": $('#plandatein').val(),
-                            "bomno": rowData[0],
-                            "modelname": rowData[3],
-                            "itemname": rowData[4],
-                            "lotno": rowData[5],
+                            "customer": rowData[0],
+                            "bompart": rowData[1],
+                            "bomno": rowData[2],
+                            "modelname": rowData[4],
+                            "itemname": rowData[5],
+                            "lotno": rowData[6],
                             "equipmentname": $('#dataid').val(),
-                            "capa": rowData[9],
-                            "part": rowData[1],
+                            "capa": rowData[10],
+                            "part": rowData[3],
                             "num": parseFloat($('#num').val()) + 1,
-                            "pono": parseFloat(rowData[6].replace(',', '')),
+                            "pono": parseFloat(rowData[7].replace(',', '')),
                             "plantime": '0',
                         }),
                         success: function (result) {
@@ -328,21 +401,69 @@
             var rowData = $(element).closest('tr').find('td').map(function () {
                 return $(this).text();
             }).get();
-            console.log(rowData)
-            $('#overlay').fadeIn();
-            $('#editModal3').fadeIn();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/equipmentnamesolt',
+                dataType: 'json',
+                contentType: 'application/json',
+                async: false, // 동기 호출로 변경
+                data: JSON.stringify({}),
+                success: function (result) {
+                    for (var s = 0; s < result.length; s++) {
+                        var codenumber = result[s].codenumber;
+                        var equipmentname1 = result[s].equipmentname;
 
-            if (rowData.length === 28) {
-                $('#equipmentname').val(rowData[20]);
-                $('#num').val(rowData[19]);
-                $('#dataid').val(rowData[21]);
-                $('#plandatein').val($('#plandate').text());
+                        // Create an option element and append it to the select element
+                        $('#equipmentname-edit').append($('<option>', {
+                            value: codenumber,
+                            text: equipmentname1
+                        }));
+                    }
+                },
+            });
+            if (rowData[1].length > 0) {
+                $('#overlay').fadeIn();
+                $('#editModal4').fadeIn();
+                if (rowData.length === 28) {
+                    $('#id-edit').val(rowData[25]);
+                    $('#bomno-edit').val(rowData[1]);
+                    $('#customer-edit').val(rowData[2]);
+                    $('#modelname-edit').val(rowData[3]);
+                    $('#itemname-edit').val(rowData[4]);
+                    $('#part-edit').val(rowData[5]);
+                    $('#linepart-edit').val(rowData[6]);
+                    $('#lotno-edit').val(rowData[7]);
+                    $('#pono-edit').val(rowData[8]);
+
+                } else {
+                    $('#id-edit').val(rowData[24]);
+                    $('#bomno-edit').val(rowData[0]);
+                    $('#customer-edit').val(rowData[1]);
+                    $('#modelname-edit').val(rowData[2]);
+                    $('#itemname-edit').val(rowData[3]);
+                    $('#part-edit').val(rowData[4]);
+                    $('#linepart-edit').val(rowData[5]);
+                    $('#lotno-edit').val(rowData[6]);
+                    $('#pono-edit').val(rowData[7]);
+
+                }
             } else {
-                $('#equipmentname').val(rowData[19]);
-                $('#num').val(rowData[18]);
-                $('#dataid').val(rowData[20]);
-                $('#plandatein').val($('#plandate').text());
+                $('#overlay').fadeIn();
+                $('#editModal3').fadeIn();
+                if (rowData.length === 28) {
+                    $('#equipmentname').val(rowData[20]);
+                    $('#num').val(rowData[19]);
+                    $('#dataid').val(rowData[21]);
+                    $('#plandatein').val($('#plandate').text());
+                } else {
+                    $('#equipmentname').val(rowData[19]);
+                    $('#num').val(rowData[18]);
+                    $('#dataid').val(rowData[20]);
+                    $('#plandatein').val($('#plandate').text());
+                }
             }
+
+
 
 
 
@@ -350,6 +471,10 @@
         function closeModal() {
             $('#overlay').fadeOut();
             $('#editModal3').fadeOut();
+        }
+        function closeModal4() {
+            $('#overlay').fadeOut();
+            $('#editModal4').fadeOut();
         }
         function save(row) {
             var rowData = $(row).closest('tr').find('td').map(function () {
@@ -416,7 +541,7 @@
                                     '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
                                     '<td ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';">' +
                                     (j === 0 ?
-                                        '<select id="' + j + 'producttime' + data[i].codenumber + '" onchange="updateSettingTime1(this)"><option value="480">주간 8HR</option><option value="630">잔업10.5HR</option></select>' :
+                                        '<select id="' + j + 'producttime' + data[i].codenumber + '" onchange="updateSettingTime1(this)"><option value="460">주간 8HR</option><option value="610">잔업10.5HR</option></select>' :
                                         ''
                                     ) +
                                     '</td> ' +
@@ -437,9 +562,12 @@
                                     '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'id' + data[i].codenumber + '"></td>' +
                                     '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'producttype' + data[i].codenumber + '"></td>' +
                                     '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'bompart' + data[i].codenumber + '"></td>' +
+                                    // '<td style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" ><select onchange="updateSettingTime2(this)" id="' + j + 'equipmentname' + data[i].codenumber + '"></select></td > ' +
+
                                     '</tr>'
                                 );
                             }
+
                         }
 
                         plansearching()
@@ -451,6 +579,7 @@
         }
         function plansearching() {
 
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/plansearchAll',
@@ -460,7 +589,6 @@
                     "plandate": $('#plandate').text()
                 }),
                 success: function (data) {
-                    console.log(data)
                     planSearchData = data;
 
                     for (var i = 0; i < data.length; i++) {
@@ -615,7 +743,7 @@
                 return $(this).text();
             }).get();
 
-
+            console.log(rowData)
             if (rowData.length === 28) {
                 if (selectedValue === '셋팅O') {
                     Swal.fire({
@@ -630,7 +758,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
 
-                            var numCommas = (rowData[5].split(',').length) || 0;
+                            var numCommas = (rowData[6].split(',').length) || 0;
                             var plantime = (numCommas === 0) ? 30 : numCommas * 30;
                             $.ajax({
                                 type: 'POST',
@@ -676,7 +804,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
 
-                            var numCommas = (rowData[5].split(',').length) || 0;
+                            var numCommas = (rowData[6].split(',').length) || 0;
                             var plantime = (numCommas === 0) ? 30 : numCommas * 30;
                             $.ajax({
                                 type: 'POST',
@@ -724,7 +852,7 @@
                         if (result.isConfirmed) {
 
                             var numCommas = (rowData[5].split(',').length) || 0;
-                            var plantime = (numCommas === 0) ? 30 : parseFloat(numCommas + 1) * 30;
+                            var plantime = (numCommas === 0) ? 30 : parseFloat(numCommas) * 30;
                             $.ajax({
                                 type: 'POST',
                                 url: server + '/api/updateplan',
