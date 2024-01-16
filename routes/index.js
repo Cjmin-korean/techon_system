@@ -4559,7 +4559,8 @@ module.exports = function (app) {
 
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
-                .query("WITH LastCharCTE AS ( "+
+                .query(
+                " WITH LastCharCTE AS ( "+
                 "    SELECT "+
                 "        p.bomno, "+
                 "        ( "+
@@ -4603,7 +4604,6 @@ module.exports = function (app) {
                 "    lastcharcte.last_char AS lastchar, "+
                 "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END AS producttype, "+
                 "    p.bompart  "+
-                " "+
                 "FROM   "+
                 "    [Techon].[dbo].[produceplan] p  "+
                 "JOIN (   "+
