@@ -10,7 +10,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
     <link rel="stylesheet" href="../css/mesmaterialinput.css">
-    <link rel="stylesheet" href="../css/mesmaterialinput.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -128,6 +127,10 @@
         border: 1px solid #ccc;
         border-radius: 4px;
     }
+
+    .select-checkbox:hover {
+        background-color: red;
+    }
 </style>
 <div id="overlay"></div>
 
@@ -147,8 +150,8 @@
         <b>거래처명</b>
         <!-- <input type="text" id="customer-select" value="" style="cursor: pointer; width: 600px;"
             onkeydown="handleEnterKey(event)" autocomplete="off" placeholder="거래처명 입력후 ENTER 누르세요"> -->
-        <input type="text" id="customer-select" value="" style="cursor: pointer; width: 600px;" oninput="handleInput()"
-            onkeydown="handleKeyDown()" autocomplete="off" placeholder="거래처명 입력 중">
+        <input type="text" id="customer-select" value="다센" style="cursor: pointer; width: 600px;"
+            oninput="handleInput()" onkeydown="handleKeyDown()" autocomplete="off" placeholder="거래처명 검색하세요">
         <button id="searchBtn" onclick="openpurchaseorder()" class="btn btn-success" style="background-color: navy;">
             <i class="fas fa-shopping-cart"></i> 발주조회
         </button>
@@ -305,6 +308,37 @@
         </div>
 
     </div>
+    <div id="purchaseorder1" style="width:30%;">
+        <div class="mainheader">
+            <h1>미입고현황</h1>
+            <span class="close" onclick="purchaseordercloseModal1()">&times;</span>
+            <input type="text" id="numericPart" style="width: 20px; visibility: hidden;">
+        </div>
+        <div style="width:100%; height: 50px;">
+
+            <button id="newRegistrationBtn" onclick="newadd1()" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> 발주조회
+            </button>
+        </div>
+
+        <div style="height:600px; max-height: 600px; overflow-y: auto;">
+            <table class="styled-table" id="datatable">
+                <thead>
+                    <tr>
+                        <th style="width: 20px;"><input type="checkbox"
+                                style="width:20px; height: 20px; cursor: pointer;" id="selectAllCheckbox"
+                                onchange="toggleSelectAll()"></th>
+                        <th style="width: 100px; text-align: center;">발주일자</th>
+                        <th style="width: auto; text-align: center;">미입고현황</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseorderinfobody1">
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 
 
 
@@ -328,6 +362,17 @@
             load()
             $('#Datatbody').on('dblclick', 'tr', function () {
                 openEditModal(this); // Pass the clicked row to the function
+            });
+            $('#purchaseorderinfobody1 input[type="checkbox"]').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // 체크박스가 체크되었을 때 수행할 작업
+                    console.log('Checkbox Checked');
+                    var orderDate = $(this).closest('tr').find('td:nth-child(2)').text();
+                    console.log('Order Date:', orderDate);
+                } else {
+                    // 체크박스가 체크 해제되었을 때 수행할 작업
+                    console.log('Checkbox Unchecked');
+                }
             });
 
         });
@@ -412,6 +457,11 @@
 
         }
 
+
+
+
+
+
         // Function to close edit modal and overlay
         function closeModal() {
             $('#overlay').fadeOut();
@@ -431,6 +481,8 @@
 
         function load() {
             $('#Datatbody').empty();
+            var customerTotals = {}; // 각 고객사별 합계를 저장할 객체
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectmaterialinputinformation',
@@ -446,19 +498,7 @@
                             '</tr>'
                         );
                     } else {
-                        var customerSums = {};
-
                         for (var i = 0; i < data.length; i++) {
-                            var customerKey = data[i].customer || 'No Customer';
-
-                            customerSums[customerKey] = customerSums[customerKey] || {
-                                totalRoll: 0,
-                                totalTotalPrice: 0
-                            };
-
-                            customerSums[customerKey].totalRoll += data[i].roll || 0;
-                            customerSums[customerKey].totalTotalPrice += data[i].totalprice || 0;
-
                             // Display individual data rows
                             $('#Datatbody').append(
                                 '<tr>' +
@@ -481,19 +521,21 @@
                                 '<td id="data-id">' + (data[i].id || '') + '</td>' +
                                 '</tr>'
                             );
-                            $("td#data-id").hide();
+                            $('td#data-id').hide()
+                            // Calculate customer totals
+                            var customer = data[i].customer || '';
+                            if (!customerTotals[customer]) {
+                                customerTotals[customer] = 0;
+                            }
+                            customerTotals[customer] += parseFloat(data[i].totalprice) || 0;
                         }
 
-                        // Display the total for each customer group
-                        for (var customer in customerSums) {
-                            // Display customer row
+                        // Display customer total rows
+                        for (var customer in customerTotals) {
                             $('#Datatbody').append(
                                 '<tr>' +
-                                '<td colspan="11" style="text-align:right;"><strong>' + customer + '</strong></td>' +
-                                '<td style="text-align:right;">' + customerSums[customer].totalRoll.toLocaleString() + '</td>' +
-                                '<td></td>' +   '<td></td>' +
-                                '<td style="text-align:right;">' + customerSums[customer].totalTotalPrice.toLocaleString() + '</td>' +
-                                '<td></td>' +
+                                '<td colspan="15" style="text-align:right;">' + customer + ' 합계:</td>' +
+                                '<td style="text-align:right;">' + customerTotals[customer].toLocaleString() + '</td>' +
                                 '</tr>'
                             );
                         }
@@ -501,7 +543,6 @@
                 }
             });
         }
-
 
 
 
@@ -549,45 +590,7 @@
 
             $('#customernamesearch').fadeOut();
         }
-        // function handleEnterKey(event) {
-        //     if (event.key === 'Enter') {
-        //         $("#overlay").fadeIn()
-        //         $('#customernamesearch').fadeIn();
-        //         var inputValue = document.getElementById("customer-select").value.trim();
 
-        //         document.getElementById("customernameinput").value = "";
-        //         $('#searchingcustomernameinfobody').empty();
-        //         $.ajax({
-        //             type: 'POST',
-        //             url: server + '/api/searchingcustomer',
-        //             dataType: 'json',
-        //             contentType: 'application/json',
-        //             data: JSON.stringify({
-
-        //                 supplier: inputValue
-
-        //             }),
-        //             success: function (result) {
-        //                 console.log(result)
-        //                 for (var i = 0; i < result.length; i++) {
-
-
-        //                     $('#searchingcustomernameinfobody').append(
-        //                         '<tr style="cursor:pointer;" onclick="insertmaterialdata1(this)">' +
-        //                         '<td>' + result[i].supplier + '</td>' +
-
-
-        //                         '</tr>'
-        //                     );
-
-
-        //                 }
-        //             }
-        //         });
-
-        //     }
-
-        // }
         // Function to handle input events
         var selectedSuggestionIndex = -1;
 
@@ -714,7 +717,6 @@
 
                     }),
                     success: function (result) {
-                        console.log(result)
                         for (var i = 0; i < result.length; i++) {
 
 
@@ -736,6 +738,10 @@
             $("#overlay").fadeOut()
             $('#purchaseorder').fadeOut();
         }
+        function purchaseordercloseModal1() {
+            $("#overlay").fadeOut()
+            $('#purchaseorder1').fadeOut();
+        }
 
         function toggleSelectAll() {
             var checkboxes = document.querySelectorAll('#purchaseorderinfobody input[type="checkbox"]');
@@ -753,6 +759,10 @@
             $('#customer-select').val(rowData[0])
             $('#overlay').fadeOut()
         }
+
+        var selectedOrderDates1 = [];
+
+
         function openpurchaseorder() {
             if ($('#customer-select').val() === '') {
                 Swal.fire({
@@ -762,117 +772,168 @@
                 });
                 return;
             }
-            $("#overlay").fadeIn()
-            $('#purchaseorder').fadeIn();
+            $("#overlay").fadeIn();
+            $('#purchaseorder1').fadeIn();
             var inputValue = document.getElementById("customer-select").value.trim();
 
-            $('#purchaseorderinfobody').empty();
-            var totalQuantity = 0;
-            var totalSupplyAmount = 0;
-            var totalQuantity1 = 0;
-            var totalSupplyAmount1 = 0;
-            var today = new Date().toISOString().split('T')[0];
+            $('#purchaseorderinfobody1').empty();
 
-            // ...
-
+            // 배열 초기화
+            var selectedOrderDates1 = [];
 
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectpurchaseordersupplier',
+                url: server + '/api/purchaseordernoinput',
                 dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    suppliername: inputValue
-                }),
-                success: function (result) {
-                    console.log(result);
-                    for (var i = 0; i < result.length; i++) {
-                        totalQuantity += result[i].quantity;
-                        totalSupplyAmount += result[i].supplyamount;
-
-
-                        $('#purchaseorderinfobody').append(
-                            '<tr style="cursor:pointer;">' +
-                            '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px;"></td>' +
-                            '<td>' + result[i].orderdate + '</td>' +
-                            '<td id="codenumber-input">' + result[i].codenumber + '</td>' +
-                            '<td id="materialname-input">' + result[i].itemname + '</td>' +
-
-                            '<td style="text-align:right;" id="lotno-input" contenteditable="true" "></td>' +
-                            '<td style="text-align:right;" id="width-input" contenteditable="true" ">' + parseFloat(result[i].width).toLocaleString() + '</td>' +
-                            '<td style="text-align:right;" id="length-input" contenteditable="true" >' + parseFloat(result[i].length).toLocaleString() + '</td>' +
-                            '<td style="text-align:right;" id="quantity-input" contenteditable="true">' + parseFloat(result[i].quantity) + '</td>' +
-                            '<td style="text-align:right;" id="sqmprice-input">' + parseFloat(result[i].sqmprice).toLocaleString() + '</td>' +
-                            '<td style="text-align:right;" id="rollprice-input">' + parseFloat(result[i].unitprice).toLocaleString() + '</td>' +
-                            '<td style="text-align:right;" id="sumprice-input">' + (parseFloat(result[i].quantity) * parseFloat(result[i].unitprice)).toLocaleString() + '</td>' +
-
-                            '<td  id="bomno-input">' + result[i].bomno + '</td>' +
-                            '<td>' + result[i].ordertype + '</td>' +
-                            '<td id="customer-input">' + result[i].suppliername + '</td>' +
-                            '<td>' + result[i].cutting + '</td>' +
-                            '<td id="qrno">' + result[i].productid + '</td>' +
-                            '<td id="length" style="text-align:right;">' + (result[i].length) + '</td>' +
-                            '<td><input type="date" id="date-input" value="' + today + '"></td>' +
-                            '<td id="lifetime">' + result[i].lifetime + '</td>' +
-
+                success: function (data) {
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        tableFoot.text('총 데이터 개수: 0');
+                        // Display a message if there is no data
+                        $('#purchaseorderinfobody1').append(
+                            '<tr>' +
+                            '<td colspan="17" style="text-align:center;">데이터가 없습니다.</td>' +
                             '</tr>'
                         );
-                        $('td#qrno').hide();
-                        $('td#length').hide();
-                        $('td#lifetime').hide();
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
+                            // Display individual data rows
+                            $('#purchaseorderinfobody1').append(
+                                '<tr>' +
+                                '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px;"></td>' +
+                                '<td>' + (data[i].orderdate || '') + '</td>' +
+                                '<td>' + (data[i].orderSummary || '') + '</td>' +
+                                '</tr>'
+                            );
+                        }
+
+                        $('.select-checkbox').on('change', function () {
+                            if ($(this).is(':checked')) {
+                                var orderDate = $(this).closest('tr').find('td:nth-child(2)').text();
+                                if (!selectedOrderDates1.includes(orderDate)) {
+                                    selectedOrderDates1.push(orderDate);
+                                }
+                            } else {
+                                var orderDate = $(this).closest('tr').find('td:nth-child(2)').text();
+                                var index = selectedOrderDates1.indexOf(orderDate);
+                                if (index !== -1) {
+                                    selectedOrderDates1.splice(index, 1);
+                                }
+                            }
+
+                            // 배열 내용 확인
+                            console.log(selectedOrderDates1);
+                        });
                     }
-                    // $('#selectAllCheckbox').change(function () {
-                    //     totalQuantity1 = 0;
-                    //     totalSupplyAmount1 = 0;
-
-                    //     // Iterate through checked checkboxes and update totals
-                    //     $('.select-checkbox:checked').each(function () {
-                    //         var index = $(this).closest('tr').index();
-                    //         totalQuantity1 += result[index].quantity;
-                    //         totalSupplyAmount1 += result[index].supplyamount;
-                    //     });
-
-                    //     // Update totals in the display
-                    //     $('#totalQuantity').text('선택 수량: ' + numberWithCommas(totalQuantity1));
-                    //     $('#totalSupplyAmount').text('선택 합계: ' + numberWithCommas(totalSupplyAmount1));
-                    // })
-                    // $('.select-checkbox').change(function () {
-                    //     totalQuantity1 = 0;
-                    //     totalSupplyAmount1 = 0;
-
-                    //     // Iterate through checked checkboxes and update totals
-                    //     $('.select-checkbox:checked').each(function () {
-                    //         var index = $(this).closest('tr').index();
-                    //         totalQuantity1 += result[index].quantity;
-                    //         totalSupplyAmount1 += result[index].supplyamount;
-                    //     });
-
-                    //     // Update totals in the display
-                    //     $('#totalQuantity').text('선택 수량: ' + numberWithCommas(totalQuantity1));
-                    //     $('#totalSupplyAmount').text('선택 합계: ' + numberWithCommas(totalSupplyAmount1));
-                    // });
-                    // // Display totals at the end of the table
-                    // $('#purchaseorderinfobody').append(
-                    //     '<tr>' +
-                    //     '<td colspan="6"></td>' +
-                    //     '<td style="text-align:right;">합계 수량: ' + numberWithCommas(totalQuantity) + '</td>' +
-                    //     '<td ></td>' +
-                    //     '<td style="text-align:right;">합계 금액: ' + numberWithCommas(totalSupplyAmount) + '</td>' +
-                    //     '<td colspan="4"></td>' +
-                    //     '</tr>'
-                    // );
-                    // $('#purchaseorderinfobody').append(
-                    //     '<tr>' +
-                    //     '<td colspan="6"></td>' +
-                    //     '<td style="text-align:right;" id="totalQuantity">선택 수량: ' + numberWithCommas(totalQuantity1) + '</td>' +
-                    //     '<td ></td>' +
-                    //     '<td style="text-align:right;" id="totalSupplyAmount">선택 합계: ' + numberWithCommas(totalSupplyAmount1) + '</td>' +
-                    //     '<td colspan="4"></td>' +
-                    //     '</tr>'
-                    // );
                 }
             });
         }
+
+        function newadd1() {
+
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+            // 체크된 체크박스의 데이터를 배열에 저장합니다.
+            const checkedData = [];
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    checkedData.push(checkbox.value);
+                }
+            });
+
+            // 배열 내용 확인
+            console.log(checkedData);
+
+            $('#purchaseorderinfobody1 input[type="checkbox"]').on('change', function () {
+                console.log('123');
+
+                // If checkbox is checked, log the orderdate to console
+                var orderDate = $(this).closest('tr').find('td:nth-child(2)').text();
+                console.log(orderDate);
+
+                // Add or remove the orderdate from the array based on checkbox state
+                if ($(this).is(':checked')) {
+                    selectedOrderDates.push(orderDate);
+                } else {
+                    var index = selectedOrderDates.indexOf(orderDate);
+                    if (index !== -1) {
+                        selectedOrderDates.splice(index, 1);
+                    }
+                }
+            });
+
+            Swal.fire({
+                icon: 'success',
+                title: '조회',
+                text: '발주조회를 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $("#overlay").fadeIn();
+                    $('#purchaseorder').fadeIn();
+                    $('#purchaseorder1').fadeOut();
+
+                    // 배열에 있는 각 orderdate를 사용하여 처리
+                    (function processOrderDates(index) {
+                        if (index < selectedOrderDates.length) {
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/selectpurchaseordersupplier',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    suppliername: '다센',
+                                    orderdate: selectedOrderDates[index]
+                                }),
+                                success: function (result) {
+                                    for (var i = 0; i < result.length; i++) {
+                                        $('#purchaseorderinfobody').append(
+                                            '<tr style="cursor:pointer;">' +
+                                            '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px;"></td>' +
+                                            '<td>' + result[i].orderdate + '</td>' +
+                                            '<td id="codenumber-input">' + result[i].codenumber + '</td>' +
+                                            '<td id="materialname-input">' + result[i].itemname + '</td>' +
+                                            '<td style="text-align:right;" id="lotno-input" contenteditable="true" "></td>' +
+                                            '<td style="text-align:right;" id="width-input" contenteditable="true" ">' + parseFloat(result[i].width).toLocaleString() + '</td>' +
+                                            '<td style="text-align:right;" id="length-input" contenteditable="true" >' + parseFloat(result[i].length).toLocaleString() + '</td>' +
+                                            '<td style="text-align:right;" id="quantity-input" contenteditable="true">' + parseFloat(result[i].quantity) + '</td>' +
+                                            '<td style="text-align:right;" id="sqmprice-input">' + parseFloat(result[i].sqmprice).toLocaleString() + '</td>' +
+                                            '<td style="text-align:right;" id="rollprice-input">' + parseFloat(result[i].unitprice).toLocaleString() + '</td>' +
+                                            '<td style="text-align:right;" id="sumprice-input">' + (parseFloat(result[i].quantity) * parseFloat(result[i].unitprice)).toLocaleString() + '</td>' +
+
+                                            '<td  id="bomno-input">' + result[i].bomno + '</td>' +
+                                            '<td>' + result[i].ordertype + '</td>' +
+                                            '<td id="customer-input">' + result[i].suppliername + '</td>' +
+                                            '<td>' + result[i].cutting + '</td>' +
+                                            '<td id="qrno">' + result[i].productid + '</td>' +
+                                            '<td id="length" style="text-align:right;">' + (result[i].length) + '</td>' +
+                                            '<td id="lifetime">' + result[i].lifetime + '</td>' +
+
+                                            '</tr>'
+                                        );
+                                        $('td#qrno').hide();
+                                        $('td#length').hide();
+                                        $('td#lifetime').hide();
+                                        $('td#sqmprice-input').hide();
+                                        $('td#rollprice-input').hide();
+                                    }
+
+                                    // Process the next order date
+                                    processOrderDates(index + 1);
+                                }
+                            });
+                        }
+                    })(0); // Start processing from index 0
+                }
+            });
+        }
+
+
+
 
 
         function updateWidth(input) {

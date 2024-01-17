@@ -1,152 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>가지마가지마</title>
-    <style>
-        #countdown1 {
-            font-size: 136px;
-            text-align: center;
-            margin-top: 100px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      overflow: hidden;
+      margin: 0;
+      background-color: #222;
+    }
 
-        #dynamite {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            cursor: pointer;
-        }
+    .snowflake {
+      position: absolute;
+      background-color: #fff;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      animation: falling linear infinite;
+      pointer-events: none;
+    }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f0f0;
-        }
-
-        #countdown {
-            font-size: 2em;
-            text-align: center;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            /* Adjust spacing */
-        }
-
-        #countdown1 {
-            font-size: 2em;
-            text-align: center;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #dynamite {
-            width: 100px;
-            height: auto;
-            margin-top: 20px;
-        }
-
-        #progress-bar {
-            width: 100%;
-            height: 30px;
-            background: linear-gradient(to right, #4CAF50 var(--progress), transparent var(--progress));
-            margin-top: 30px;
-            /* Adjust spacing */
-        }
-    </style>
+    @keyframes falling {
+      to {
+        transform: translateY(10vh);
+      }
+    }
+  </style>
+  <title>집에가자</title>
 </head>
-
 <body>
-    <b id="countdown1">3</b>
-    <b style="font-size: 800px;" id="dynamite">펑</b>
+    <b style="font-size: 200px; color: white;">집에 가자 눈온다</b>
+  <script>
+    
+    document.addEventListener("DOMContentLoaded", function () {
+      const snowContainer = document.body;
+      const numberOfSnowflakes = 50;
 
-    <div id="countdown1"> <b>테크온 전역 남은시간</b></div>
+      for (let i = 0; i < numberOfSnowflakes; i++) {
+        createSnowflake();
+      }
 
+      function createSnowflake() {
+        const snowflake = document.createElement("div");
+        snowflake.className = "snowflake";
 
-    <div id="countdown"> </div>
+        // Set initial position
+        const initialX = Math.random() * window.innerWidth;
+        const initialY = Math.random() * window.innerHeight;
+        snowflake.style.left = `${initialX}px`;
+        snowflake.style.top = `${initialY}px`;
 
-    <div id="progress-bar"></div>
+        snowContainer.appendChild(snowflake);
 
-    <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Set the target date (D-day)
-            const targetDate = new Date('2024-02-28T18:00:00').getTime();
-            const startDate = new Date('2023-12-01').getTime(); // Adjusted starting date
+        // Set random animation duration
+        const duration = Math.random() * 3 + 1; // between 1s and 4s
+        snowflake.style.animationDuration = `${duration}s`;
 
-            // Update the countdown and progress bar every second
-            const interval = setInterval(function () {
-                const currentDate = new Date().getTime();
-                const timeDifference = targetDate - currentDate;
+        // Set a delay so that snowflakes start falling at different times
+        const delay = Math.random() * 2; // between 0s and 2s
+        snowflake.style.animationDelay = `-${delay}s`;
+      }
+    });
+  </script>
 
-                if (timeDifference <= 0) {
-                    // Display a message when the countdown reaches zero
-                    document.getElementById('countdown').innerHTML = 'D-DAY!';
-                    clearInterval(interval);
-                } else {
-                    // Calculate days, hours, minutes, and seconds
-                    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-
-                    // Display the countdown
-                    document.getElementById('countdown').innerHTML = `
-            ${days}일 ${hours}시간 ${minutes}분 ${seconds}초`;
-
-                    // Update the progress bar based on time remaining
-                    const totalDuration = targetDate - startDate; // Updated calculation
-                    const remainingDuration = targetDate - currentDate;
-                    const progress = 1 - (remainingDuration / totalDuration);
-
-                    // Set the custom property (--progress) for the gradient
-                    document.documentElement.style.setProperty('--progress', progress);
-                }
-            }, 1000);
-        });
-
-
-
-    </script>
-    <script>
-        var countdownElement = document.getElementById('countdown1');
-        var explosionElement = document.getElementById('dynamite');
-
-        function startCountdown() {
-            var count = 3;
-
-            var countdownInterval = setInterval(function () {
-                countdownElement.innerText = count;
-
-                if (count === 0) {
-                    clearInterval(countdownInterval);
-                    countdownElement.style.display = 'none';
-                    explosionElement.style.display = 'block';
-
-                    setTimeout(function () {
-                        explosionElement.style.display = 'none';
-                    }, 2000);
-                }
-
-                count--;
-            }, 1000);
-        }
-
-        setTimeout(startCountdown, 1000);
-    </script>
 </body>
-
 </html>
