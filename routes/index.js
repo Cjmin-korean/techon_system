@@ -4756,12 +4756,14 @@ module.exports = function (app) {
 
 
             return pool.request()
+            .input('suppliername', sql.NVarChar, req.body.suppliername)
+
                 .query(
                     "SELECT  " +
                     "   orderdate, " +
                     " CAST(COUNT(*) AS  NVARCHAR(10)) + '건의 미입고 현황이 존재합니다' AS orderSummary " +
                     " FROM " +
-                    "    purchaseorder where status='미입고'" +
+                    "    purchaseorder where status='미입고' and suppliername=@suppliername" +
                     " GROUP BY  " +
                     "     orderdate " +
                     " ORDER BY  " +

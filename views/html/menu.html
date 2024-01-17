@@ -1,67 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      overflow: hidden;
-      margin: 0;
-      background-color: #222;
+    table {
+      border-collapse: collapse;
+      width: 100%;
     }
 
-    .snowflake {
-      position: absolute;
-      background-color: #fff;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      animation: falling linear infinite;
-      pointer-events: none;
+    th,
+    td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
     }
 
-    @keyframes falling {
-      to {
-        transform: translateY(10vh);
-      }
+    th {
+      cursor: pointer;
+    }
+
+    .filter-container {
+      margin-bottom: 10px;
+    }
+
+    .filter-container input {
+      margin-right: 10px;
+    }
+
+    #columnDataDisplay {
+      background-color: #f7f7f7;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    #columnDataDisplay strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 16px;
     }
   </style>
-  <title>집에가자</title>
+  <title>Table Example</title>
 </head>
+
 <body>
-    <b style="font-size: 200px; color: white;">집에 가자 눈온다</b>
+
+  <div class="filter-container">
+    <label for="header1Filter">Filter Header 1:</label>
+    <input type="text" id="header1Filter" oninput="filterTable(0)">
+  </div>
+
+  <div class="filter-container">
+    <label for="header2Filter">Filter Header 2:</label>
+    <input type="text" id="header2Filter" oninput="filterTable(1)">
+  </div>
+
+  <div class="filter-container">
+    <label for="header3Filter">Filter Header 3:</label>
+    <input type="text" id="header3Filter" oninput="filterTable(2)">
+  </div>
+
+  <table>
+    <tr>
+      <th onclick="showColumnData(0)">Header 1</th>
+      <th onclick="showColumnData(1)">Header 2</th>
+      <th onclick="showColumnData(2)">Header 3</th>
+      <th>Checkbox</th>
+    </tr>
+    <tr>
+      <td>Data 1-1</td>
+      <td>Data 1-2</td>
+      <td>Data 1-3</td>
+      <td><input type="checkbox" class="checkbox"></td>
+    </tr>
+    <tr>
+      <td>Data 2-1</td>
+      <td>Data 2-2</td>
+      <td>Data 2-3</td>
+      <td><input type="checkbox" class="checkbox"></td>
+    </tr>
+    <tr>
+      <td>Data 3-1</td>
+      <td>Data 3-2</td>
+      <td>Data 3-3</td>
+      <td><input type="checkbox" class="checkbox"></td>
+    </tr>
+  </table>
+
+  <div id="columnDataDisplay"></div>
+
+  <button onclick="logCheckedRowData()">Log Checked Row Data</button>
+
   <script>
-    
-    document.addEventListener("DOMContentLoaded", function () {
-      const snowContainer = document.body;
-      const numberOfSnowflakes = 50;
+    function logCheckedRowData() {
+      const checkboxes = document.querySelectorAll('.checkbox:checked');
+      const rowData = [];
 
-      for (let i = 0; i < numberOfSnowflakes; i++) {
-        createSnowflake();
-      }
+      checkboxes.forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        const secondCellData = row.querySelector('td:nth-child(2)').innerText;
+        rowData.push(secondCellData);
+      });
 
-      function createSnowflake() {
-        const snowflake = document.createElement("div");
-        snowflake.className = "snowflake";
+      console.log('Checked Row Data:', rowData);
+    }
 
-        // Set initial position
-        const initialX = Math.random() * window.innerWidth;
-        const initialY = Math.random() * window.innerHeight;
-        snowflake.style.left = `${initialX}px`;
-        snowflake.style.top = `${initialY}px`;
+    function filterTable(columnIndex) {
+      const input = document.getElementById(`header${columnIndex + 1}Filter`);
+      const filterValue = input.value.toUpperCase();
+      const table = document.querySelector('table');
+      const rows = table.querySelectorAll('tr');
 
-        snowContainer.appendChild(snowflake);
+      rows.forEach(row => {
+        const td = row.querySelector(`td:nth-child(${columnIndex + 1})`);
+        if (td) {
+          const textValue = td.textContent || td.innerText;
+          row.style.display = textValue.toUpperCase().includes(filterValue) ? '' : 'none';
+        }
+      });
+    }
 
-        // Set random animation duration
-        const duration = Math.random() * 3 + 1; // between 1s and 4s
-        snowflake.style.animationDuration = `${duration}s`;
+    function showColumnData(columnIndex) {
+      const table = document.querySelector('table');
+      const rows = table.querySelectorAll('tr');
+      const columnDataDisplay = document.getElementById('columnDataDisplay');
+      let columnDataHTML = '<strong>Column Data:</strong><br>';
 
-        // Set a delay so that snowflakes start falling at different times
-        const delay = Math.random() * 2; // between 0s and 2s
-        snowflake.style.animationDelay = `-${delay}s`;
-      }
-    });
+      let th; // Store the th element outside the loop
+
+      rows.forEach(row => {
+        th = th || document.querySelector(`th:nth-child(${columnIndex + 1})`);
+        const td = row.querySelector(`td:nth-child(${columnIndex + 1})`);
+        if (td) {
+          const textValue = td.textContent || td.innerText;
+          columnDataHTML += `<div style="margin-bottom: 5px;"><strong>${th.innerText}:</strong> ${textValue}</div>`;
+        }
+      });
+
+      columnDataDisplay.innerHTML = columnDataHTML;
+      columnDataDisplay.style.width = th.offsetWidth + 'px';
+      columnDataDisplay.style.display = 'block';
+    }
   </script>
 
 </body>
+
 </html>

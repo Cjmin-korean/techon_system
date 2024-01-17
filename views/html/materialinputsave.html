@@ -131,6 +131,39 @@
     .select-checkbox:hover {
         background-color: red;
     }
+
+    #container {
+        text-align: center;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #qrcodetext {
+        width: 60%;
+        height: 30px;
+        padding: 5px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-right: 10px;
+        font-size: 14px;
+    }
+
+    #newRegistrationBtn1 {
+        height: 40px;
+        background-color: #413e77;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    #newRegistrationBtn1:hover {
+        background-color: #752ba7;
+    }
 </style>
 <div id="overlay"></div>
 
@@ -173,7 +206,6 @@
                 <th style="text-align:center;">거래처명</th>
                 <th style="text-align:center;">자재코드</th>
                 <th style="text-align:center;">자재명</th>
-
                 <th style="text-align:center;">LOTNO</th>
                 <th style="text-align:center;">제조일자</th>
                 <th style="text-align:center;">만료일자</th>
@@ -184,7 +216,6 @@
                 <th style="text-align:center;">롤단가</th>
                 <th style="text-align:center;">공급가액</th>
                 <th style="text-align:center;">BOMNO</th>
-
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -269,13 +300,13 @@
             <span class="close" onclick="purchaseordercloseModal()">&times;</span>
             <input type="text" id="numericPart" style="width: 20px; visibility: hidden;">
         </div>
-        <div style="width:100%; height: 50px;">
 
+        <fieldset style="height: 40px;">
+            <!-- <input type="text" id="qrcodetext" placeholder="QR코드를 리딩하세요"> -->
             <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
-                <i class="fas fa-plus-circle"></i> 신규등록
+                <i class="fas fa-plus-circle"></i> 입고저장
             </button>
-        </div>
-
+        </fieldset>
         <div style="height:600px; max-height: 600px; overflow-y: auto;">
             <table class="styled-table" id="datatable">
                 <thead>
@@ -286,18 +317,16 @@
                         <th style="width: auto; text-align: center;">발주일자</th>
                         <th style="width: auto; text-align: center;">품목코드</th>
                         <th style="width: auto; text-align: center;">품목명</th>
-                        <th style="width: auto; text-align: center; width: 300px;">LOTNO</th>
-                        <th style="width: auto; text-align: center;">자재폭</th>
-                        <th style="width: auto; text-align: center;">길이</th>
+                        <th style="width: auto; text-align: center;">재단폭</th>
                         <th style="width: auto; text-align: center;">수량</th>
-                        <th style="width: auto; text-align: center;">SQM단가</th>
-                        <th style="width: auto; text-align: center;">롤단가</th>
+                        <th style="width: auto; text-align: center;">롤수량</th>
+                        <th style="width: auto; text-align: center;">총M</th>
                         <th style="width: auto; text-align: center;">공급가액</th>
                         <th style="width: auto; text-align: center;">BOMNO</th>
                         <th style="width: auto; text-align: center;">구분</th>
                         <th style="width: auto; text-align: center;">거래처명</th>
-                        <th style="width: auto; text-align: center;">재단폭</th>
-                        <th style="width: auto; text-align: center; width: 100px;">제조일자</th>
+                        <th style="width: auto; text-align: center;">검수</th>
+       
 
                     </tr>
                 </thead>
@@ -316,9 +345,11 @@
         </div>
         <div style="width:100%; height: 50px;">
 
-            <button id="newRegistrationBtn" onclick="newadd1()" class="btn btn-primary">
+            <button id="newRegistrationBtn1" onclick="newadd1()" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i> 발주조회
+
             </button>
+
         </div>
 
         <div style="height:600px; max-height: 600px; overflow-y: auto;">
@@ -326,7 +357,7 @@
                 <thead>
                     <tr>
                         <th style="width: 20px;"><input type="checkbox"
-                                style="width:20px; height: 20px; cursor: pointer;" id="selectAllCheckbox"
+                                style="width:20px; height: 20px; cursor: pointer;" id="selectAllCheckbox1"
                                 onchange="toggleSelectAll()"></th>
                         <th style="width: 100px; text-align: center;">발주일자</th>
                         <th style="width: auto; text-align: center;">미입고현황</th>
@@ -367,7 +398,7 @@
                 if ($(this).is(':checked')) {
                     // 체크박스가 체크되었을 때 수행할 작업
                     console.log('Checkbox Checked');
-                    var orderDate = $(this).closest('tr').find('td:nth-child(2)').text();
+                    var orderDate = $(this).closest('tr').find('td:nth-child(1)').text();
                     console.log('Order Date:', orderDate);
                 } else {
                     // 체크박스가 체크 해제되었을 때 수행할 작업
@@ -744,8 +775,8 @@
         }
 
         function toggleSelectAll() {
-            var checkboxes = document.querySelectorAll('#purchaseorderinfobody input[type="checkbox"]');
-            var selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            var checkboxes = document.querySelectorAll('#purchaseorderinfobody1 input[type="checkbox"]');
+            var selectAllCheckbox = document.getElementById('selectAllCheckbox1');
 
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].checked = selectAllCheckbox.checked;
@@ -773,21 +804,27 @@
                 return;
             }
             $("#overlay").fadeIn();
-            $('#purchaseorder1').fadeIn();
+            $('#purchaseorder1').fadeIn('slow', function () {
+                $('#qrcodetext').focus();
+            });
+
             var inputValue = document.getElementById("customer-select").value.trim();
 
             $('#purchaseorderinfobody1').empty();
 
             // 배열 초기화
             var selectedOrderDates1 = [];
-
             $.ajax({
                 type: 'POST',
                 url: server + '/api/purchaseordernoinput',
                 dataType: 'json',
-                success: function (data) {
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    suppliername: inputValue,
+                }),
+                success: function (result) {
                     var tableFoot = $('#dataCount');
-                    if (data.length === 0) {
+                    if (result.length === 0) {
                         tableFoot.text('총 데이터 개수: 0');
                         // Display a message if there is no data
                         $('#purchaseorderinfobody1').append(
@@ -796,18 +833,18 @@
                             '</tr>'
                         );
                     } else {
-                        for (var i = 0; i < data.length; i++) {
+                        for (var i = 0; i < result.length; i++) {
                             // Display individual data rows
                             $('#purchaseorderinfobody1').append(
                                 '<tr>' +
-                                '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px;"></td>' +
-                                '<td>' + (data[i].orderdate || '') + '</td>' +
-                                '<td>' + (data[i].orderSummary || '') + '</td>' +
+                                '<td><input type="checkbox" class="checkbox" style="width:20px; height:20px;"></td>' +
+                                '<td>' + (result[i].orderdate || '') + '</td>' +
+                                '<td>' + (result[i].orderSummary || '') + '</td>' +
                                 '</tr>'
                             );
                         }
 
-                        $('.select-checkbox').on('change', function () {
+                        $('.checkbox').on('change', function () {
                             if ($(this).is(':checked')) {
                                 var orderDate = $(this).closest('tr').find('td:nth-child(2)').text();
                                 if (!selectedOrderDates1.includes(orderDate)) {
@@ -829,38 +866,22 @@
             });
         }
 
+
+
+
         function newadd1() {
+            // 선택된 체크박스를 모두 가져오기
+            const checkboxes = document.querySelectorAll('.checkbox:checked');
+            const rowData = [];
 
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-
-            // 체크된 체크박스의 데이터를 배열에 저장합니다.
-            const checkedData = [];
             checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    checkedData.push(checkbox.value);
-                }
+                // 체크된 체크박스의 가장 가까운 행 찾기
+                const row = checkbox.closest('tr');
+                // 행에서 두 번째 셀 데이터 가져오기
+                const secondCellData = row.querySelector('td:nth-child(2)').innerText;
+                rowData.push(secondCellData);
             });
 
-            // 배열 내용 확인
-            console.log(checkedData);
-
-            $('#purchaseorderinfobody1 input[type="checkbox"]').on('change', function () {
-                console.log('123');
-
-                // If checkbox is checked, log the orderdate to console
-                var orderDate = $(this).closest('tr').find('td:nth-child(2)').text();
-                console.log(orderDate);
-
-                // Add or remove the orderdate from the array based on checkbox state
-                if ($(this).is(':checked')) {
-                    selectedOrderDates.push(orderDate);
-                } else {
-                    var index = selectedOrderDates.indexOf(orderDate);
-                    if (index !== -1) {
-                        selectedOrderDates.splice(index, 1);
-                    }
-                }
-            });
 
             Swal.fire({
                 icon: 'success',
@@ -873,13 +894,14 @@
                 cancelButtonText: '취소',
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // AJAX 요청 시작 전에 overlay를 보여주고, purchaseorder1은 fadeOut
                     $("#overlay").fadeIn();
                     $('#purchaseorder').fadeIn();
                     $('#purchaseorder1').fadeOut();
 
                     // 배열에 있는 각 orderdate를 사용하여 처리
                     (function processOrderDates(index) {
-                        if (index < selectedOrderDates.length) {
+                        if (index < rowData.length) {
                             $.ajax({
                                 type: 'POST',
                                 url: server + '/api/selectpurchaseordersupplier',
@@ -887,52 +909,61 @@
                                 contentType: 'application/json',
                                 data: JSON.stringify({
                                     suppliername: '다센',
-                                    orderdate: selectedOrderDates[index]
+                                    orderdate: rowData[index]
                                 }),
                                 success: function (result) {
-                                    for (var i = 0; i < result.length; i++) {
-                                        $('#purchaseorderinfobody').append(
-                                            '<tr style="cursor:pointer;">' +
-                                            '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px;"></td>' +
-                                            '<td>' + result[i].orderdate + '</td>' +
-                                            '<td id="codenumber-input">' + result[i].codenumber + '</td>' +
-                                            '<td id="materialname-input">' + result[i].itemname + '</td>' +
-                                            '<td style="text-align:right;" id="lotno-input" contenteditable="true" "></td>' +
-                                            '<td style="text-align:right;" id="width-input" contenteditable="true" ">' + parseFloat(result[i].width).toLocaleString() + '</td>' +
-                                            '<td style="text-align:right;" id="length-input" contenteditable="true" >' + parseFloat(result[i].length).toLocaleString() + '</td>' +
-                                            '<td style="text-align:right;" id="quantity-input" contenteditable="true">' + parseFloat(result[i].quantity) + '</td>' +
-                                            '<td style="text-align:right;" id="sqmprice-input">' + parseFloat(result[i].sqmprice).toLocaleString() + '</td>' +
-                                            '<td style="text-align:right;" id="rollprice-input">' + parseFloat(result[i].unitprice).toLocaleString() + '</td>' +
-                                            '<td style="text-align:right;" id="sumprice-input">' + (parseFloat(result[i].quantity) * parseFloat(result[i].unitprice)).toLocaleString() + '</td>' +
-
-                                            '<td  id="bomno-input">' + result[i].bomno + '</td>' +
-                                            '<td>' + result[i].ordertype + '</td>' +
-                                            '<td id="customer-input">' + result[i].suppliername + '</td>' +
-                                            '<td>' + result[i].cutting + '</td>' +
-                                            '<td id="qrno">' + result[i].productid + '</td>' +
-                                            '<td id="length" style="text-align:right;">' + (result[i].length) + '</td>' +
-                                            '<td id="lifetime">' + result[i].lifetime + '</td>' +
-
-                                            '</tr>'
-                                        );
-                                        $('td#qrno').hide();
-                                        $('td#length').hide();
-                                        $('td#lifetime').hide();
-                                        $('td#sqmprice-input').hide();
-                                        $('td#rollprice-input').hide();
-                                    }
+                                    // 테이블에 새로운 데이터 추가
+                                    appendTableData(result);
 
                                     // Process the next order date
                                     processOrderDates(index + 1);
                                 }
                             });
+                        } else {
+                            // AJAX 요청이 끝나면 overlay를 감춤
+                            // $("#overlay").fadeOut();
                         }
                     })(0); // Start processing from index 0
                 }
             });
         }
 
+        function appendTableData(result) {
+            for (var i = 0; i < result.length; i++) {
+                // 테이블에 새로운 데이터 추가
+                $('#purchaseorderinfobody').append(
+                    '<tr style="cursor:pointer;">' +
+                    '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px;"></td>' +
+                    '<td>' + result[i].orderdate + '</td>' +
+                    '<td id="codenumber-input">' + result[i].codenumber + '</td>' +
+                    '<td id="materialname-input">' + result[i].itemname + '</td>' +
+                    '<td style="text-align:right;">' + result[i].cutting + '</td>' +
+                    '<td style="text-align:right;" id="length-input" contenteditable="true" >' + parseFloat(result[i].length).toLocaleString() + '</td>' +
+                    '<td style="text-align:right;" id="quantity-input" contenteditable="true">' + parseFloat(result[i].quantity) + '</td>' +
+                    '<td style="text-align:right;" id="sumquantity-input">' + (parseFloat(result[i].length) * parseFloat(result[i].quantity)).toLocaleString() + '</td>' +
+                    '<td style="text-align:right;" id="sumprice-input">' + (parseFloat(result[i].quantity) * parseFloat(result[i].unitprice)).toLocaleString() + '</td>' +
+                    '<td  id="bomno-input">' + result[i].bomno + '</td>' +
+                    '<td>' + result[i].ordertype + '</td>' +
+                    '<td id="customer-input">' + result[i].suppliername + '</td>' +
+                    '<td id="inputdata-input"><button>검수</button></td>' +
 
+                    '<td style="text-align:right;" id="lotno-input" contenteditable="true" "></td>' +
+                    '<td style="text-align:right;" id="sqmprice-input">' + parseFloat(result[i].sqmprice).toLocaleString() + '</td>' +
+                    '<td style="text-align:right;" id="rollprice-input">' + parseFloat(result[i].unitprice).toLocaleString() + '</td>' +
+                    '<td id="qrno">' + result[i].productid + '</td>' +
+                    '<td id="length" style="text-align:right;">' + (result[i].length) + '</td>' +
+                    '<td id="lifetime">' + result[i].lifetime + '</td>' +
+
+                    '</tr>'
+                );
+                $('td#qrno').hide();
+                $('td#length').hide();
+                $('td#lifetime').hide();
+                $('td#sqmprice-input').hide();
+                $('td#rollprice-input').hide();
+                $('td#lotno-input').hide();
+            }
+        }
 
 
 
