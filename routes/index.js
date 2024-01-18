@@ -4035,7 +4035,7 @@ module.exports = function (app) {
                     "     mi.codenumber,i.customer, " +
                     "     mi.rollprice as a1, " +
                     "     bm.bomno, " +
-                    "     ol.qrno " +
+                    "     ol.qrno,bm.etc " +
                     " FROM " +
                     "     orderlist ol " +
                     " JOIN " +
@@ -4047,7 +4047,7 @@ module.exports = function (app) {
                     " WHERE " +
                     "     ol.orderstatus = '생산확정' " +
                     " GROUP BY " +
-                    "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname ,bm.bomno ,ol.qrno" +
+                    "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname ,bm.bomno ,ol.qrno,bm.etc" +
                     " ORDER BY " +
                     "     bm.materialname ASC; ")
                 .then(result => {
@@ -5688,7 +5688,7 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT * FROM materialinput WHERE codenumber=@codenumber and status='' order by expirationdate asc ")
+                    "SELECT * FROM materialinput WHERE codenumber=@codenumber and status is null order by expirationdate asc ")
                 .then(result => {
 
                     res.json(result.recordset);

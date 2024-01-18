@@ -25,6 +25,7 @@
     #datatable th {
         text-align: center;
     }
+
     .selected-row {
         background-color: #dff0d8;
         /* You can adjust the color */
@@ -102,7 +103,7 @@
 
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
-     
+
         <thead id="tableHead">
             <tr>
                 <th colspan="2" style="border:1px solid silver; font-size: 18px;"></th>
@@ -141,7 +142,7 @@
         <tbody id="Datatbody">
         </tbody>
     </table>
-    
+
     <div id="editModal" style="max-height: 600px;  overflow-y: auto; width: 100%;">
         <div class="mainheader">
             <h1>TOOL 기초정보 등록</h1>
@@ -285,11 +286,11 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
-            // var today = new Date().toISOString().split('T')[0];
-            // $('#date-input').val(today);
+
+
             settingDate()
             showLoading()
-            // load()
+            load()
 
             $('#datatable thead input[type="checkbox"]').on('change', function () {
                 var isChecked = $(this).prop('checked');
@@ -483,75 +484,147 @@
             });
         }
 
-        var selectedIds = [];
 
         function load() {
-
-
-            $('#Datatbody').empty()
+            $('#Datatbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/sampleorder',
+                url: server + '/api/selectslitingplan',
                 dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
+                success: function (data) {
+                    console.log(data)
+                    if (!Array.isArray(data) || data.length === 0) {
+                        // Handle empty data or invalid data, if required.
+                        return;
+                    }
 
-                }),
-                success: function (result) {
-                    updateDataCount(result.length);
+                    var groupedData = groupBySlitingDate(data);
+
+                    for (var date in groupedData) {
+                        if (groupedData.hasOwnProperty(date)) {
+                            var groupsByPart = groupedData[date];
+                            var rowCount = 0;
+
+                            for (var part in groupsByPart) {
+                                if (groupsByPart.hasOwnProperty(part)) {
+                                    var groupByPart = groupsByPart[part];
+                                    var rows = groupByPart.rows;
+                                    var rowSpan = rows.length;
+
+                                    for (var i = 0; i < rows.length; i++) {
+                                        var rowData = rows[i];
+                                        var slitingDateCell = rowCount === 0 ? `<td style="border:1px solid silver;" rowspan="${rowSpan}">${rowData.slitingdate}</td>` : '';
+                                        var partCell = rowCount === 0 ? `<td style="border:1px solid silver;" rowspan="${rowSpan}">${rowData.part}</td>` : '';
 
 
-                    var tableFoot = $('#dataCount');
-                    if (result.length === 0) {
-                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
-                        tableFoot.text('총 데이터 개수: 0');
-                    } else {
-                        for (var i = 0; i < result.length; i++) {
+                                        var isHapjiSlitting = rowData.part === "합지슬리팅";
 
-                            $('#Datatbody').append(
-                                '<tr ondblclick="openEditModal2(this)">' +
-                                '<td><input type="checkbox" class="select-checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
-                                '<td>' + result[i].bomno + '</td>' +
-                                '<td>' + result[i].classification + '</td>' +
-                                '<td>' + result[i].partcustomer + '</td>' +
-                                '<td>' + result[i].toolcode + '</td>' +
-                                '<td>' + result[i].customer + '</td>' +
-                                '<td>' + result[i].modelname + '</td>' +
-                                '<td>' + result[i].itemname + '</td>' +
-                                '<td style="text-align:right;">' + result[i].char + '</td>' +
-                                '<td>' + result[i].part + '</td>' +
-                                '<td style="text-align:right;">' + result[i].inputprice.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].outputprice.toLocaleString() + '</td>' +
-                                '<td>' + result[i].etc + '</td>' +
-                                '<td id="data-id">' + result[i].id + '</td>' +
-                                '</tr>'
+                                        var afterMaterialWidthCell, afterMCell, afterRollCell, afterTotalCell;
+                                        if (isHapjiSlitting) {
+                                            partCell = rowCount === 0 ? `<td style="text-align:center; background-color:whitesmoke; border:1px solid silver;" rowspan="${rowSpan}">${rowData.part}</td>` : '';
+                                            materialNameCell = `<td style="text-align:center; border:1px solid silver;">${rowData.materialname}</td>`;
+                                            classificationCell = `<td style="text-align:center; border:1px solid silver;">${rowData.classification}</td>`;
+                                            materialWidthCell = `<td style="text-align:right; border:1px solid silver;">${rowData.materialwidth}</td>`;
+                                            mCell = `<td style="text-align:right; border:1px solid silver;">${rowData.m}</td>`;
+                                            rollCell = `<td style="text-align:center; border:1px solid silver;">${rowData.roll}</td>`;
+                                            totalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.total}</td>`;
+                                            afterMaterialWidthCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;"  rowspan="${rowSpan}">${rowData.aftermaterialwidth}</td>` : '';
+                                            afterMCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.afterm}</td>` : '';
+                                            afterRollCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.afterroll}</td>` : '';
+                                            afterTotalCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.aftertotal}</td>` : '';
+                                        } else {
+                                            partCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.part}</td>` : '';
+                                            materialNameCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.materialname}</td>` : '';
+                                            classificationCell = rowCount === 0 ? `<td style="text-align:center; border:1px solid silver;" rowspan="${rowSpan}">${rowData.classification}</td>` : '';
+                                            materialWidthCell = rowCount === 0 ? `<td style="text-align:right; border:1px solid silver;" rowspan="${rowSpan}">${rowData.materialwidth}</td>` : '';
+                                            mCell = `<td style="text-align:right; border:1px solid silver;">${rowData.m}</td>`;
+                                            rollCell = `<td style="text-align:right; border:1px solid silver;">${rowData.roll}</td>`;
+                                            totalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.total}</td>`;
+                                            lotnoCell = `<td style="text-align:right; border:1px solid silver;">${rowData.lotno}</td>`;
+                                            afterlotnoCell = `<td style="text-align:right; border:1px solid silver;">${rowData.afterlotno}</td>`;
+                                            afterMaterialWidthCell = `<td style="text-align:right; border:1px solid silver; ">${rowData.aftermaterialwidth}</td>`;
+                                            afterMCell = `<td style="text-align:right; border:1px solid silver;">${rowData.afterm}</td>`;
+                                            afterRollCell = `<td style="text-align:right; border:1px solid silver;">${rowData.afterroll}</td>`;
+                                            afterTotalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.aftertotal}</td>`;
+                                        }
+                                        var trash = `<td style="color:red; border:1px solid silver;">${rowData.trash}</td>`;
 
-                            )
-                            $("td#data-id").hide();
+                                        var finalMaterialWidthCell = `<td style="text-align:right; border:1px solid silver;">${rowData.finalmaterialwidth === null ? '' : rowData.finalmaterialwidth}</td>`;
+                                        var finalMCell = `<td style="text-align:right; border:1px solid silver;">${rowData.finalm === null ? '' : rowData.finalm}</td>`;
+                                        var finalRollCell = `<td style="text-align:right; border:1px solid silver;">${rowData.finalroll === null ? '' : rowData.finalroll}</td>`;
+                                        var finalTotalCell = `<td style="text-align:right; border:1px solid silver;">${rowData.finaltotal === null ? '' : rowData.finaltotal}</td>`;
+                                        var finalTrash = `<td style="color:red; border:1px solid silver;">${rowData.finaltrash === null ? '' : rowData.finaltrash}</td>`;
 
-                        }
-                        row.find('.select-checkbox').on('change', function () {
-                            var checkbox = $(this);
-                            var id = checkbox.closest('tr').find('td#data-id').text();
+                                        var inputCell = rowCount === 0 ? `<td style="border:1px solid silver;" rowspan="${rowSpan}"><a class="data-edit1" style="cursor:pointer; color:navy;">실적입력</a></td>` : '';
+                                        var idCell = `<td style="color:red;" id="data-id">${rowData.id === null ? '' : rowData.id}</td>`;
+                                        var ordernoCell = `<td style="color:red;" id="data-id1">${rowData.orderno === null ? '' : rowData.orderno}</td>`;
 
-                            if (checkbox.prop('checked')) {
-                                selectedIds.push(id);
-                                checkbox.closest('tr').addClass('selected-row');
-                            } else {
-                                selectedIds = selectedIds.filter(function (value) {
-                                    return value !== id;
-                                });
-                                checkbox.closest('tr').removeClass('selected-row');
+                                        $('#Datatbody').append(
+                                            '<tr>' +
+                                            slitingDateCell +
+                                            partCell +
+                                            materialNameCell +
+                                            classificationCell +
+                                            lotnoCell +
+                                            materialWidthCell.toLocaleString() +
+                                            mCell.toLocaleString() +
+                                            rollCell.toLocaleString() +
+                                            totalCell.toLocaleString() +
+                                            afterlotnoCell +
+                                            afterMaterialWidthCell.toLocaleString() +
+                                            afterMCell.toLocaleString() +
+                                            afterRollCell.toLocaleString() +
+                                            afterTotalCell.toLocaleString() +
+                                            trash +
+                                            finalMaterialWidthCell.toLocaleString() +
+                                            finalMCell.toLocaleString() +
+                                            finalRollCell.toLocaleString() +
+                                            finalTotalCell.toLocaleString() +
+                                            finalTrash +
+                                            inputCell +
+                                            idCell +
+                                            ordernoCell +
+                                            '</tr>'
+                                        );
+                                        $("td#data-id").hide();
+                                        $("td#data-id1").hide();
+                                        rowCount++;
+                                    }
+                                }
                             }
-                        });
-
+                        }
                     }
                 }
-
-
-            })
-
+            });
         }
+
+        function groupBySlitingDate(data) {
+            var groupedData = {};
+            if (!Array.isArray(data)) {
+                return groupedData; // Return empty object if data is not an array
+            }
+
+            for (var i = 0; i < data.length; i++) {
+                var date = data[i].slitingdate;
+                var part = data[i].part;
+                var materialname = data[i].materialname;
+                var orderno = data[i].orderno;
+                var groupKey = date + "-" + orderno;
+
+                if (!groupedData[groupKey]) {
+                    groupedData[groupKey] = {};
+                }
+
+                if (!groupedData[groupKey][part]) {
+                    groupedData[groupKey][part] = { rows: [] };
+                }
+
+                groupedData[groupKey][part].rows.push(data[i]);
+            }
+
+            return groupedData;
+        }
+
         function updateDataCount(count) {
             $('#searchResultCount').html('Data: ' + count);
         }
@@ -609,7 +682,7 @@
 
                 }
             });
-            
+
         }
 
 

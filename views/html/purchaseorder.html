@@ -133,7 +133,7 @@
 
                     <thead id="tableHead">
                         <tr>
-                            <th colspan="10">생산확정</th>
+                            <th colspan="11">생산확정</th>
                             <th><input type="text" id="num" style="visibility: hidden;"></th>
                             <th><button onclick="insertpurchaseorder()">저장</button></th>
                         </tr>
@@ -148,7 +148,8 @@
                         <th style="text-align:center; width:100px;">재단폭</th>
                         <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
                         <th style="text-align:center; width:120px;">발주수량(롤)</th>
-                        <th style="text-align:center; width:100px;">미발주</th>
+                        <th style="text-align:center; width:100px;">자재상세</th>
+                        <th style="text-align:center; width:300px;">자재특이사항</th>
                     </thead>
                     <tbody id="orderlistbombody">
                         <!-- Add your table data here -->
@@ -394,52 +395,7 @@
         }
 
 
-        function Dataedit() {
-            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
 
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/accountupdatedata',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        id: $('#id-edit').val(),
-                        accountcode: $('#accountcode-edit').val(),
-                        accountname: $('#accountname-edit').val(),
-                        representativename: $('#representativename-edit').val(),
-                        phone: $('#phone-edit').val(),
-                        adress: $('#adress-edit').val(),
-                        number: $('#number-edit').val(),
-                        mobile: $('#mobile-edit').val(),
-                        fax: $('#fax-edit').val(),
-                        email: $('#email-edit').val(),
-                        etc: $('#etc-edit').val()
-
-
-
-
-                    }),
-                    success: function (result) {
-                        console.log(result)
-                    }
-                })
-
-                $('#popupOverlay1').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
         function numberWithCommas(x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
@@ -605,38 +561,73 @@
                     if (data.length === 0) {
                         $('#orderlistbombody').html('<tr><td colspan="23">데이터가 없습니다.</td></tr>');
                     } else {
-                        // Iterate through sorted data
                         for (var i = 0; i < data.length; i++) {
-                            // Display the "상세" button only for rows where has is 'y'
                             var hasButton = data[i].has === 'Y' ? '<button class="detail-btn" data-row-index="' + i + '">상세</button>' : '';
-                            console.log(data)
-                            $('#orderlistbombody').append(
-                                '<tr class="order-list-row">' +
-                                '<td><input type="text" id="modelname-input" value="' + (data[i].modelname || '') + '"></td>' +
-                                '<td><input type="text" id="itemname-input" value="' + (data[i].itemname || '') + '"></td>' +
-                                '<td><input type="text" id="materialname-input" value="' + (data[i].materialname || '') + '"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="materialwidth-input" value="' + (data[i].materialwidth || '') + '"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="soyo-input" value="' + (data[i].soyo || '') + '"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="sumquantity-input" value="' + (data[i].sumquantity || '0') + '"></td>' +
-                                '<td><input type="text" id="has-input" value="' + (data[i].has || '') + '"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="cut-input" value="' + (data[i].cut || '') + '"></td>' +
-                                '<td style="text-align:right;"><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="전폭">전폭</option></select></td>' +
-                                '<td><input type="text" id="a-input" value="' + (data[i].a || '0') + '"></td>' +
-                                '<td><input type="text" id="roundedResult-input" value="' + (data[i].roundedResult || '0') + '"></td>' +
-                                '<td id="sqmpricetd"><input type="text" id="sqmprice-input" value="' + (data[i].sqmprice || '0') + '"></td>' +
-                                '<td id="rollpricetd"><input type="text" id="rollprice-input" value="' + (data[i].a1 || '0') + '"></td>' +
-                                '<td id="quantitytd"><input type="text" id="quantity-input" value="' + (data[i].quantity || '0') + '"></td>' +
-                                '<td id="codenumbertd"><input type="text" id="codenumber-input" value="' + (data[i].codenumber || '0') + '"></td>' +
-                                '<td id="suppliertd"><input type="text" id="supplier-input" value="' + (data[i].supplier || '0') + '"></td>' +
-                                '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
-                                '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
-                                '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].customer || '0') + '"></td>' +
-                                '<td id="bomnotd"><input type="text" id="bomno-input" value="' + (data[i].bomno || '0') + '"></td>' +
-                                '<td id="productidtd"><input type="text" id="productid-input" value="' + (data[i].qrno || '') + '"></td>' +
-                                '<td><input type="checkbox" id="checknoout-input" style="width:20px; height:20px; cursor:pointer;"></td>' +
-                                '<td>' + hasButton + '</td>' +
-                                '</tr>'
-                            );
+                            var etcValue = data[i].etc || '';
+                            var isHapjiIncluded = etcValue.includes('합지');
+
+                            // Check if "합지" is included in the value
+                            if (isHapjiIncluded) {
+                                // If included, set red color
+                                $('#orderlistbombody').append(
+                                    '<tr class="order-list-row">' +
+                                    '<tr class="order-list-row">' +
+                                    '<td id="modelname-input">' + (data[i].modelname || '') + '</td>' +
+                                    '<td id="itemname-input">' + (data[i].itemname || '') + '</td>' +
+                                    '<td id="materialname-input">' + (data[i].materialname || '') + '</td>' +
+                                    '<td id="materialwidth-input">' + (data[i].materialwidth.toLocaleString() || '') + '</td>' +
+                                    '<td id="soyo-input">' + (data[i].soyo.toLocaleString() || '') + '</td>' +
+                                    '<td id="sumquantity-input">' + (data[i].sumquantity.toLocaleString() || '0') + '</td>' +
+                                    '<td id="has-input">' + (data[i].has || '') + '</td>' +
+                                    '<td id="cut-input">' + (data[i].cut || '') + '</td>' +
+                                    '<td style="text-align:right;"><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="전폭">전폭</option></select></td>' +
+                                    '<td id="a-input">' + (data[i].a || '') + '</td>' +
+                                    '<td><input type="text" style="text-align:right;" id="roundedResult-input" value="' + (data[i].roundedResult || '0') + '" autocomplete="off"></td>' +
+                                    '<td id="sqmpricetd"><input type="text" id="sqmprice-input" value="' + (data[i].sqmprice || '0') + '"></td>' +
+                                    '<td id="rollpricetd"><input type="text" id="rollprice-input" value="' + (data[i].a1 || '0') + '"></td>' +
+                                    '<td id="quantitytd"><input type="text" id="quantity-input" value="' + (data[i].quantity || '0') + '"></td>' +
+                                    '<td id="codenumbertd"><input type="text" id="codenumber-input" value="' + (data[i].codenumber || '0') + '"></td>' +
+                                    '<td id="suppliertd"><input type="text" id="supplier-input" value="' + (data[i].supplier || '0') + '"></td>' +
+                                    '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
+                                    '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
+                                    '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].customer || '0') + '"></td>' +
+                                    '<td id="bomnotd"><input type="text" id="bomno-input" value="' + (data[i].bomno || '0') + '"></td>' +
+                                    '<td id="productidtd"><input type="text" id="productid-input" value="' + (data[i].qrno || '') + '"></td>' +
+                                    '<td>' + hasButton + '</td>' +
+                                    '<td><input type="text" id="etc-input" value="' + etcValue + '" style="color: red; " readonly></td>' +
+                                    '</tr>'
+                                );
+                            } else {
+                                $('#orderlistbombody').append(
+                                    '<tr class="order-list-row">' +
+                                    '<tr class="order-list-row">' +
+                                    '<td id="modelname-input">' + (data[i].modelname || '') + '</td>' +
+                                    '<td id="itemname-input">' + (data[i].itemname || '') + '</td>' +
+                                    '<td id="materialname-input">' + (data[i].materialname || '') + '</td>' +
+                                    '<td id="materialwidth-input">' + (data[i].materialwidth.toLocaleString() || '') + '</td>' +
+                                    '<td id="soyo-input">' + (data[i].soyo.toLocaleString() || '') + '</td>' +
+                                    '<td id="sumquantity-input">' + (data[i].sumquantity.toLocaleString() || '0') + '</td>' +
+                                    '<td id="has-input">' + (data[i].has || '') + '</td>' +
+                                    '<td id="cut-input">' + (data[i].cut || '') + '</td>' +
+                                    '<td style="text-align:right;"><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="전폭">전폭</option></select></td>' +
+                                    '<td id="a-input">' + (data[i].a || '') + '</td>' +
+                                    '<td><input type="text" style="text-align:right;" id="roundedResult-input" value="' + (data[i].roundedResult || '0') + '" autocomplete="off"></td>' +
+                                    '<td id="sqmpricetd"><input type="text" id="sqmprice-input" value="' + (data[i].sqmprice || '0') + '"></td>' +
+                                    '<td id="rollpricetd"><input type="text" id="rollprice-input" value="' + (data[i].a1 || '0') + '"></td>' +
+                                    '<td id="quantitytd"><input type="text" id="quantity-input" value="' + (data[i].quantity || '0') + '"></td>' +
+                                    '<td id="codenumbertd"><input type="text" id="codenumber-input" value="' + (data[i].codenumber || '0') + '"></td>' +
+                                    '<td id="suppliertd"><input type="text" id="supplier-input" value="' + (data[i].supplier || '0') + '"></td>' +
+                                    '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
+                                    '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
+                                    '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].customer || '0') + '"></td>' +
+                                    '<td id="bomnotd"><input type="text" id="bomno-input" value="' + (data[i].bomno || '0') + '"></td>' +
+                                    '<td id="productidtd"><input type="text" id="productid-input" value="' + (data[i].qrno || '') + '"></td>' +
+                                    '<td>' + hasButton + '</td>' +
+                                    '<td><input type="text" id="etc-input" value="' + etcValue + '" style="color: black; readonly"></td>' +
+                                    '</tr>'
+                                );
+                            }
+                            
                             $('td#rollpricetd').hide();
                             $('td#sqmpricetd').hide();
                             $('td#olquantitytd').hide();
@@ -666,8 +657,8 @@
                             var rowIndex = $(this).data('row-index');
                             var rowData = data[rowIndex];
                             var codenumber = rowData.codenumber || '';
-
-                            $('#orderlistbombody').empty();
+                            console.log(codenumber)
+                            $('#orderlistbombody1').empty();
                             $.ajax({
                                 type: 'POST',
                                 url: server + '/api/selectcodenumber',
@@ -683,7 +674,7 @@
                                     } else {
                                         // Iterate through sorted data
                                         for (var i = 0; i < result.length; i++) {
-                                            $('#orderlistbombody').append(
+                                            $('#orderlistbombody1').append(
                                                 '<tr class="order-list-row">' +
                                                 '<td><input type="text" id="materialname-input" readonly value="' + (result[i].materialname || '') + '"></td>' +
                                                 '<td><input type="text" id="codenumber-input" readonly  value="' + (result[i].codenumber || '') + '"></td>' +
