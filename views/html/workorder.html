@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
             text-align: center;
-            margin: 0;  
+            margin: 0;
             padding: 0;
         }
 
@@ -63,14 +63,7 @@
             <div id="result-1"></div>
         </div>
     </div>
-    <div class="slideshow-container">
-        <!-- 설비 리딩 슬라이드 -->
-        <div class="mySlides">
-            <h1>설비를 리딩하세요</h1>
-            <input type="text" id="qr-input-2" placeholder="설비의 QR을 리딩해주세요" autofocus>
-            <div id="result-2"></div>
-        </div>
-    </div>
+
 
     <script>
         const slides = document.getElementsByClassName("mySlides"); // slides 변수를 전역으로 정의
@@ -95,7 +88,6 @@
 
             slides[slideIndex - 1].style.display = "block";
         }
-
         const inputElement1 = document.getElementById('qr-input-1');
         const inputElement2 = document.getElementById('qr-input-2');
         const resultContainer1 = document.getElementById('result-1');
@@ -105,24 +97,37 @@
             if (event.key === 'Enter') {
                 const inputValue = inputElement1.value;
 
+                if (inputValue === 'D4BC7015-261F-44D2-8787-31A5CDEC7741') {
+                    // Close the window
+                    window.close();
+                    var newWindow = window.open('/html/sheet.html', '_blank', 'width=1900,height=1200');
+                    var leftPosition = (screen.width - newWindow.outerWidth)/2;
+                    var topPosition = (screen.height - newWindow.outerHeight) / 2;
+                    newWindow.moveTo(leftPosition, topPosition);
 
-                slides[0].style.display = "none"; // 작업지시서 리딩 슬라이드 숨김
-                slides[1].style.display = "block"; // 설비 리딩 슬라이드 보임
+                    newWindow.onload = function () {
+                        // 발주서 창이 로딩되면 해당 데이터를 전달
+                        newWindow.document.getElementById("suppliername").innerText = rowData[1] || ''; // 수정: suppliername은 두 번째 열에 위치한다고 가정
 
+                        // 예시로 테이블에 데이터 추가 (이 부분은 실제 데이터에 맞게 수정)
+                        var table = newWindow.document.getElementById("invoice-items");
+                        for (var i = 0; i < rowData.length; i++) {
+                            var row = table.insertRow(-1);
+                            var cell = row.insertCell(0);
+                            cell.innerHTML = rowData[i] || '';
+                        }
+                    };
 
-                inputElement2.focus();
-
+                } else {
+                    // Handle incorrect input or show an error message
+                    console.log('Incorrect input. Please try again.');
+                }
             }
         });
 
-        inputElement2.addEventListener('keyup', function (event) {
-            if (event.key === 'Enter') {
-                // 엔터 키를 눌렀을 때 처리할 내용
-                const inputValue = inputElement2.value;
-                const equipmentResult = "설비 처리 결과";
-                resultContainer2.innerHTML = equipmentResult;
-            }
-        });
+
+
+
     </script>
 </body>
 

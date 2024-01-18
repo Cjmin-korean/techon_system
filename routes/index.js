@@ -4752,6 +4752,24 @@ module.exports = function (app) {
     });
     // **** finish
     sql.connect(config).then(pool => {
+        app.post('/api/plansearch2', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('plandate', sql.NVarChar, req.body.plandate)
+
+                .query(
+                    "select * from produceplan where plandate=@plandate")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    sql.connect(config).then(pool => {
         app.post('/api/purchaseordernoinput', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -4801,6 +4819,34 @@ module.exports = function (app) {
 
                     " from  " +
                     " orderlist ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/purchaseorderload', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    " SELECT orderdate, "+
+                "     suppliername, "+
+                "     CAST(COUNT(*) AS NVARCHAR(10)) + '건의 발주건이 있습니다' AS orderSummary, "+
+                "     SUM(supplyamount) AS totalSupplyAmount "+
+                " FROM "+
+                "     purchaseorder "+
+                " WHERE "+
+                "     status IS NULL "+
+                " GROUP BY "+
+                "     suppliername ,orderdate "+
+                " ORDER BY "+
+                "     suppliername;")
                 .then(result => {
 
                     res.json(result.recordset);
