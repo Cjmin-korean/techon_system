@@ -100,7 +100,7 @@
                 <th style="text-align:center;" onclick="sortTable(2)">자재명</th>
                 <th style="text-align:center;" onclick="sortTable(3)">전폭(mm)</th>
                 <th style="text-align:center;" onclick="sortTable(4)">M</th>
-                <th style="text-align:center;" onclick="sortTable(5)">수량</th>
+                <th style="text-align:center;" onclick="sortTable(5)">수량(롤)</th>
                 <th style="text-align:center;" onclick="sortTable(6)">단가</th>
                 <th style="text-align:center;" onclick="sortTable(7)">공급가액</th>
                 <th style="text-align:center;" onclick="sortTable(8)">거래처</th>
@@ -109,6 +109,7 @@
                 <th style="text-align:center;" onclick="sortTable(11)">발주구분</th>
                 <th style="text-align:center;" onclick="sortTable(12)">비고</th>
                 <th style="text-align:center;" onclick="sortTable(13)">재단규격</th>
+                <th style="text-align:center;">자재특이사항</th>
 
 
             </tr>
@@ -128,27 +129,28 @@
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div id="editForm" style="width: 100%; overflow: hidden;">
-            <div style="width: 80%; max-height: 900px; float: left; overflow-y: auto;">
+            <div style="width: 100%; max-height: 500px; overflow-y: auto;">
                 <table class="styled-table" style="width: 100%;">
                     <thead id="tableHead">
                         <tr>
-                            <th colspan="11">생산확정</th>
-                            <th><input type="text" id="num" style="visibility: hidden;"></th>
+                            <th colspan="14">생산확정<input type="text" id="num" style="width:20px; visibility: hidden;"></th>
                             <th><button onclick="insertpurchaseorder()">저장</button></th>
                         </tr>
+                        <th style="text-align:center;">BOMNO</th>
                         <th style="text-align:center;">모델명</th>
-                        <th style="text-align:center;">품목명</th>
+                        <th style="text-align:center;">품목명</th>  
                         <th style="text-align:center;">자재명</th>
-                        <th style="text-align:center;">자재폭(mm)</th>
+                        <th style="text-align:center;">자재폭<br>(mm)</th>
                         <th style="text-align:center;">필요소요량</th>
                         <th style="text-align:center;">현재고</th>
-                        <th style="text-align:center;">폭이상재고(M)</th>
+                        <th style="text-align:center;">폭이상재고<br>(M)</th>
                         <th style="text-align:center; width:70px;">1RL<br>컷수</th>
                         <th style="text-align:center; width:100px;">재단폭</th>
-                        <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
-                        <th style="text-align:center; width:120px;">발주수량(롤)</th>
+                        <th style="text-align:center; width:70px;">필요 발주수량<br>(롤)</th>
+                        <th style="text-align:center; width:120px;">발주수량<br>(롤)</th>
                         <th style="text-align:center; width:100px;">자재상세</th>
-                        <th style="text-align:center; width:300px;">자재특이사항</th>
+                        <th style="text-align:center; width:300px;">개발특이사항</th>
+                        <th style="text-align:center; width:300px;">구매특이사항</th>
                     </thead>
                     <tbody id="orderlistbombody">
                         <!-- Add your table data here -->
@@ -156,25 +158,25 @@
                 </table>
             </div>
 
-            <div style="width: 19%; float: right;">
-                <table class="styled-table" style="width: 100%;">
-                    <thead id="tableHead">
-                        <tr>
-                            <th colspan="7">자재재고</th>
-
-                        </tr>
-                        <th style="text-align:center;">자재명</th>
-                        <th style="text-align:center;">자재코드</th>
-                        <th style="text-align:center;">자재폭<br>(mm)</th>
-                        <th style="text-align:center;">수량<br>(M)</th>
-                    </thead>
-                    <tbody id="orderlistbombody1">
-                        <!-- Add your table data here -->
-                    </tbody>
-                </table>
-            </div>
+            
         </div>
+        <div style="width: 100%;">
+            <table class="styled-table" style="width: 100%;">
+                <thead id="tableHead">
+                    <tr>
+                        <th colspan="7">자재재고</th>
 
+                    </tr>
+                    <th style="text-align:center;">자재명</th>
+                    <th style="text-align:center;">자재코드</th>
+                    <th style="text-align:center;">자재폭<br>(mm)</th>
+                    <th style="text-align:center;">수량<br>(M)</th>
+                </thead>
+                <tbody id="orderlistbombody1">
+                    <!-- Add your table data here -->
+                </tbody>
+            </table>
+        </div>
     </div>
     <div id="editModal2">
         <div class="mainheader">
@@ -447,6 +449,7 @@
                                 '<td id="">' + (data[i].ordertype || '') + '</td>' +
                                 '<td id="">' + (data[i].confirmed || '') + '</td>' +
                                 '<td style="text-align:right;">' + (data[i].cutting || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].etc || '') + '</td>' +
 
 
                                 '<td id="data-id">' + (data[i].id || '') + '</td>' +
@@ -460,7 +463,7 @@
                             '<td style="text-align:right;">' + numberWithCommas(totalQuantity.toFixed(2)) + '</td>' +
                             '<td ></td>' +
                             '<td style="text-align:right;">' + numberWithCommas(totalSupplyAmount.toFixed(2)) + '</td>' +
-                            '<td colspan="6"></td>' +
+                            '<td colspan="7"></td>' +
                             '</tr>'
                         );
 
@@ -481,7 +484,7 @@
                 Swal.fire({
                     icon: 'success',
                     title: '저장',
-                    text: '구매 발주 정보를 등록하시겠습니까?',
+                    text: '구매 발주 정보를 저장하시겠습니까?',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
@@ -495,8 +498,8 @@
                                 var insertdate = new Date().toISOString().slice(0, 10);
                                 var roundedResult1 = parseFloat($('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''));
                                 var rollprice = parseFloat($('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''));
-                                var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val();
-                                var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val();
+                                var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').text();
+                                var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').text();
                                 var supplyamount = roundedResult1 * rollprice;
 
                                 // Ajax 요청
@@ -516,20 +519,21 @@
                                             contentType: 'application/json',
                                             data: JSON.stringify({
                                                 "orderdate": insertdate,
-                                                "itemname": $('#orderlistbombody tr:eq(' + i + ') #materialname-input').val(),
+                                                "itemname": $('#orderlistbombody tr:eq(' + i + ') #materialname-input').text(),
                                                 "codenumber": $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val(),
-                                                "width": $('#orderlistbombody tr:eq(' + i + ') #width-input').val(),
+                                                "width": $('#orderlistbombody tr:eq(' + i + ') #materialwidth-input').text(),
                                                 "length": $('#orderlistbombody tr:eq(' + i + ') #length-input').val(),
                                                 "quantity": $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val(),
                                                 "unitprice": $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val(),
                                                 "supplyamount": supplyamount,
                                                 "suppliername": $('#orderlistbombody tr:eq(' + i + ') #supplier-input').val(),
-                                                "bomno": $('#orderlistbombody tr:eq(' + i + ') #bomno-input').val(),
+                                                "bomno": $('#orderlistbombody tr:eq(' + i + ') #bomno-input').text(),
                                                 "ordertype": '양산',
                                                 "cutting": $('#orderlistbombody tr:eq(' + i + ') #cutmaterialwidth-input').val(),
                                                 "manufacterer": $('#orderlistbombody tr:eq(' + i + ') #manufacterer-input').val(),
                                                 "productid": $('#orderlistbombody tr:eq(' + i + ') #productid-input').val(),
-                                                "confirmed": result[0].modelname + "/" + result[0].itemname + "/" + result[0].sumquantity.toLocaleString()
+                                                "confirmed": result[0].modelname + "/" + result[0].itemname + "/" + result[0].sumquantity.toLocaleString(),
+                                                "etc": $('#orderlistbombody tr:eq(' + i + ') #puretc-input').val(),
                                             }),
                                             success: function (result) {
                                                 // Ajax 성공 시 수행할 코드
@@ -545,7 +549,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: '저장완료',
-                            text: 'TOOL 발주 정보가 등록되었습니다.',
+                            text: '발주 정보가 등록되었습니다.',
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 load();
@@ -581,7 +585,7 @@
                                 // If included, set red color
                                 $('#orderlistbombody').append(
                                     '<tr class="order-list-row">' +
-                                    '<tr class="order-list-row">' +
+                                    '<td id="bomno-input">' + (data[i].bomno || '') + '</td>' +
                                     '<td id="modelname-input">' + (data[i].modelname || '') + '</td>' +
                                     '<td id="itemname-input">' + (data[i].itemname || '') + '</td>' +
                                     '<td id="materialname-input">' + (data[i].materialname || '') + '</td>' +
@@ -605,12 +609,13 @@
                                     '<td id="productidtd"><input type="text" id="productid-input" value="' + (data[i].qrno || '') + '"></td>' +
                                     '<td>' + hasButton + '</td>' +
                                     '<td><input type="text" id="etc-input" value="' + etcValue + '" style="color: red; " readonly></td>' +
+                                    '<td><input type="text" id="puretc-input" value="" ></td>' +
                                     '</tr>'
                                 );
                             } else {
                                 $('#orderlistbombody').append(
                                     '<tr class="order-list-row">' +
-                                    '<tr class="order-list-row">' +
+                                    '<td id="bomno-input">' + (data[i].bomno || '') + '</td>' +
                                     '<td id="modelname-input">' + (data[i].modelname || '') + '</td>' +
                                     '<td id="itemname-input">' + (data[i].itemname || '') + '</td>' +
                                     '<td id="materialname-input">' + (data[i].materialname || '') + '</td>' +
@@ -634,6 +639,7 @@
                                     '<td id="productidtd"><input type="text" id="productid-input" value="' + (data[i].qrno || '') + '"></td>' +
                                     '<td>' + hasButton + '</td>' +
                                     '<td><input type="text" id="etc-input" value="' + etcValue + '" style="color: black; readonly"></td>' +
+                                    '<td><input type="text" id="puretc-input" value="" ></td>' +
                                     '</tr>'
                                 );
                             }

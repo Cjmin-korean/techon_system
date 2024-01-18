@@ -1703,7 +1703,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT " +
                     "*" +
-                    " FROM purchaseorder order by orderdate,suppliername asc ")
+                    " FROM purchaseorder order by orderdate,itemname asc ")
 
                 .then(result => {
 
@@ -4181,11 +4181,12 @@ module.exports = function (app) {
                 .input('confirmed', sql.NVarChar, req.body.confirmed)
                 .input('manufacterer', sql.NVarChar, req.body.manufacterer)
                 .input('productid', sql.NVarChar, req.body.productid)
+                .input('etc', sql.NVarChar, req.body.etc)
 
 
                 .query(
-                    'insert into purchaseorder(productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer)' +
-                    ' values(@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer)'
+                    'insert into purchaseorder(productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc)' +
+                    ' values(@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc)'
                 )
                 .then(result => {
 
