@@ -133,12 +133,15 @@
                 <table class="styled-table" style="width: 100%;">
                     <thead id="tableHead">
                         <tr>
-                            <th colspan="14">생산확정<input type="text" id="num" style="width:20px; visibility: hidden;"></th>
-                            <th><button onclick="insertpurchaseorder()">저장</button></th>
+                            <th colspan="15">생산확정<input type="text" id="num" style="width:20px; visibility: hidden;">
+                            </th>
+                            <th><button onclick="insertpurchaseorder()">저장</button><button style="margin-left: 10px;;"
+                                    onclick="habji()">BOM적용</button></th>
                         </tr>
+                        <th style="width:20px;"></th>
                         <th style="text-align:center;">BOMNO</th>
                         <th style="text-align:center;">모델명</th>
-                        <th style="text-align:center;">품목명</th>  
+                        <th style="text-align:center;">품목명</th>
                         <th style="text-align:center;">자재명</th>
                         <th style="text-align:center;">자재폭<br>(mm)</th>
                         <th style="text-align:center;">필요소요량</th>
@@ -150,7 +153,7 @@
                         <th style="text-align:center; width:120px;">발주수량<br>(롤)</th>
                         <th style="text-align:center; width:100px;">자재상세</th>
                         <th style="text-align:center; width:300px;">개발특이사항</th>
-                        <th style="text-align:center; width:300px;">구매특이사항</th>
+                        <th style="text-align:center; width:300px;">적용BOM</th>
                     </thead>
                     <tbody id="orderlistbombody">
                         <!-- Add your table data here -->
@@ -158,7 +161,7 @@
                 </table>
             </div>
 
-            
+
         </div>
         <div style="width: 100%;">
             <table class="styled-table" style="width: 100%;">
@@ -585,6 +588,7 @@
                                 // If included, set red color
                                 $('#orderlistbombody').append(
                                     '<tr class="order-list-row">' +
+                                    '<td><input type="checkbox" style="width:20px; height:20px;"></td>' +
                                     '<td id="bomno-input">' + (data[i].bomno || '') + '</td>' +
                                     '<td id="modelname-input">' + (data[i].modelname || '') + '</td>' +
                                     '<td id="itemname-input">' + (data[i].itemname || '') + '</td>' +
@@ -615,6 +619,7 @@
                             } else {
                                 $('#orderlistbombody').append(
                                     '<tr class="order-list-row">' +
+                                    '<td><input type="checkbox" style="width:20px; height:20px;"></td>' +
                                     '<td id="bomno-input">' + (data[i].bomno || '') + '</td>' +
                                     '<td id="modelname-input">' + (data[i].modelname || '') + '</td>' +
                                     '<td id="itemname-input">' + (data[i].itemname || '') + '</td>' +
@@ -690,7 +695,7 @@
                                                 '<td id="codenumber-input">' + (result[i].codenumber || '') + '</td>' +
                                                 '<td style="text-align:right;" id="materialwidth-input">' + (result[i].materialwidth || '').toLocaleString() + '</td>' +
                                                 '<td style="text-align:right;" id="quantity-input">' + (result[i].quantity || '').toLocaleString() + '</td>' +
-                      
+
 
                                                 '<td id="id-input">' + result[i].id + '</td>' +
                                                 '</tr>'
@@ -741,6 +746,32 @@
 
             return rowData;
         }
+        function habji() {
+            var checkedMaterialnames = [];
+            $('input[type="checkbox"]').each(function () {
+                if (this.checked) {
+                    var materialnameValue = $(this).closest('tr').find('#bomno-input').text();
+                    checkedMaterialnames.push(materialnameValue);
+                }
+            });
+
+            // Concatenate the checked materialnames with '/' and add "(합지)" at the end
+            var concatenatedValue = checkedMaterialnames.join('/');
+            if (checkedMaterialnames.length > 1) {
+                concatenatedValue += '';
+            }
+
+            // Set the concatenated value to the puretc-input in the same row
+            $('input[type="checkbox"]').each(function () {
+                if (this.checked) {
+                    $(this).closest('tr').find('#puretc-input').val(concatenatedValue);
+                }
+            });
+
+            // Uncheck all checkboxes
+            $('input[type="checkbox"]').prop('checked', false);
+        }
+
     </script>
 
 
