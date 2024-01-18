@@ -4024,8 +4024,8 @@ module.exports = function (app) {
                     "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS soyo, " +
                     "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut, " +
                     "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test, " +
-                    "    ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length), 2) AS a, " +
-                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)) AS roundedResult, " +
+                    "   ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length), 2) AS a, "+
+                    "                           CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)) AS roundedResult,  " +
                     "    mi.width, " +
                     "    mi.length, " +
                     "    mi.sqmprice, " +
