@@ -5688,7 +5688,7 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT * FROM materialinput WHERE codenumber=@codenumber and status is null order by expirationdate asc ")
+                    "SELECT * FROM materialinput WHERE codenumber=@codenumber and status is null and materialwidth>300 order by expirationdate asc ")
                 .then(result => {
 
                     res.json(result.recordset);

@@ -127,10 +127,9 @@
 
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
-        <div id="editForm" style="max-height: 900px; width: 100%; float: left; overflow-y: auto;">
-            <div style="height: 600px;  overflow-y: auto;">
-                <table class="styled-table">
-
+        <div id="editForm" style="width: 100%; overflow: hidden;">
+            <div style="width: 80%; max-height: 900px; float: left; overflow-y: auto;">
+                <table class="styled-table" style="width: 100%;">
                     <thead id="tableHead">
                         <tr>
                             <th colspan="11">생산확정</th>
@@ -157,45 +156,23 @@
                 </table>
             </div>
 
+            <div style="width: 19%; float: right;">
+                <table class="styled-table" style="width: 100%;">
+                    <thead id="tableHead">
+                        <tr>
+                            <th colspan="7">자재재고</th>
 
-            <table class="styled-table" style="width: 48%; float: left;">
-
-                <thead id="tableHead">
-                    <tr>
-                        <th colspan="7">자재재고</th>
-
-                    </tr>
-                    <th style="text-align:center; width:200px;">자재명</th>
-                    <th style="text-align:center; width:200px;">자재코드</th>
-                    <th style="text-align:center;">자재폭(mm)</th>
-                    <th style="text-align:center;">수량(M)</th>
-                    <th style="text-align:center;">제조일자</th>
-                    <th style="text-align:center;">만료일자</th>
-                    <th style="text-align:center; width: 100px;">슬리팅</th>
-                </thead>
-                <tbody id="orderlistbombody1">
-                    <!-- Add your table data here -->
-                </tbody>
-            </table>
-            <table class="styled-table" style="width: 48%; float: right;">
-
-                <thead id="tableHead">
-                    <tr>
-                        <th colspan="5">슬리팅 작업지시 현황</th>
-                    </tr>
-                    <th style="text-align:center;">BOMNO</th>
-                    <th style="text-align:center;">자재명</th>
-                    <th style="text-align:center;">자재코드</th>
-                    <th style="text-align:center;">자재폭(mm)</th>
-                    <th style="text-align:center;">수량(M)</th>
-
-
-                </thead>
-                <tbody id="orderlistbombody2">
-                    <!-- Add your table data here -->
-                </tbody>
-            </table>
-
+                        </tr>
+                        <th style="text-align:center;">자재명</th>
+                        <th style="text-align:center;">자재코드</th>
+                        <th style="text-align:center;">자재폭<br>(mm)</th>
+                        <th style="text-align:center;">수량<br>(M)</th>
+                    </thead>
+                    <tbody id="orderlistbombody1">
+                        <!-- Add your table data here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>
@@ -231,8 +208,37 @@
         </div>
 
     </div>
+    <div id="editModal3">
+        <div class="mainheader">
+            <h1>자재정보 리스트</h1>
+
+            <span class="close" onclick="closeModal3()">&times;</span>
+        </div>
+        <button id="searchBtn" onclick="searchData1()" class="btn btn-success">
+            <i class="fas fa-shopping-cart"></i> 발주적용
+        </button>
+        <div id="editForm" style="max-height: 500px; width: 100%; float: left; overflow-y: auto;">
+            <table class="styled-table">
+
+                <thead id="tableHead">
+                    <th></th>
+                    <th>자재명</th>
+                    <th>자재코드</th>
+                    <th>자재폭</th>
+                    <th>수량(M)</th>
+                </thead>
+                <tbody id="databodymaterial">
+                    <!-- Add your table data here -->
+                </tbody>
+            </table>
 
 
+
+        </div>
+
+    </div>
+
+    <div id="overlay3"></div>
 
 
 
@@ -323,6 +329,10 @@
         function closeModal2() {
             $('#overlay').fadeOut();
             $('#editModal2').fadeOut();
+        }
+        function closeModal3() {
+            $('#overlay3').fadeOut();
+            $('#editModal3').fadeOut();
         }
 
         function showLoading() {
@@ -627,7 +637,7 @@
                                     '</tr>'
                                 );
                             }
-                            
+
                             $('td#rollpricetd').hide();
                             $('td#sqmpricetd').hide();
                             $('td#olquantitytd').hide();
@@ -641,24 +651,16 @@
                             $('td#productidtd').hide();
                             $('td#bomnotd').hide();
                         }
-                        $('#orderlistbombody input[type="checkbox"]').on('change', function () {
-                            var isChecked = $(this).prop('checked');
-
-                            // Set the value of 'roundedResult-input' to '0' for checked checkboxes
-                            $('#orderlistbombody  input[type="checkbox"]:checked').each(function () {
-                                $(this).closest('tr').find('#roundedResult-input').val(isChecked ? '0' : '');
-                            });
-
-                            // Update the state of all checkboxes based on the master checkbox
-                        });
 
 
                         $('.detail-btn').click(function () {
+                            $('#editModal3').fadeIn();
+                            $('#overlay3').fadeIn();
                             var rowIndex = $(this).data('row-index');
                             var rowData = data[rowIndex];
                             var codenumber = rowData.codenumber || '';
                             console.log(codenumber)
-                            $('#orderlistbombody1').empty();
+                            $('#databodymaterial').empty();
                             $.ajax({
                                 type: 'POST',
                                 url: server + '/api/selectcodenumber',
@@ -669,20 +671,21 @@
                                 }),
 
                                 success: function (result) {
+                                    console.log(result)
                                     var tableFoot = $('#dataCount');
                                     if (result.length === 0) {
                                     } else {
                                         // Iterate through sorted data
                                         for (var i = 0; i < result.length; i++) {
-                                            $('#orderlistbombody1').append(
+                                            $('#databodymaterial').append(
                                                 '<tr class="order-list-row">' +
-                                                '<td><input type="text" id="materialname-input" readonly value="' + (result[i].materialname || '') + '"></td>' +
-                                                '<td><input type="text" id="codenumber-input" readonly  value="' + (result[i].codenumber || '') + '"></td>' +
-                                                '<td><input type="text" id="materialwidth-input" readonly  value="' + (result[i].materialwidth || '') + '"></td>' +
-                                                '<td><input type="text" id="quantity-input" readonly value="' + (result[i].quantity || '') + '"></td>' +
-                                                '<td><input type="text" id="manufacturedate-input" readonly value="' + (result[i].manufacturedate || '') + '"></td>' +
-                                                '<td><input type="text" id="expirationdate-input" readonly value="' + (result[i].expirationdate || '') + '"></td>' +
-                                                '<td><button class="slt-btn" data-row-index1="' + i + '">슬리팅</button></td>' +
+                                                '<td><input type="checkbox" style="width:20px; height:20px;"></td>' +
+                                                '<td id="materialname-input">' + (result[i].materialname || '') + '</td>' +
+                                                '<td id="codenumber-input">' + (result[i].codenumber || '') + '</td>' +
+                                                '<td id="materialwidth-input">' + (result[i].materialwidth || '') + '</td>' +
+                                                '<td id="quantity-input">' + (result[i].quantity || '') + '</td>' +
+                      
+
                                                 '<td id="id-input">' + result[i].id + '</td>' +
                                                 '</tr>'
                                             );
@@ -690,63 +693,7 @@
                                         }
 
 
-                                        $('.slt-btn').click(function () {
-                                            var rowIndex = $(this).data('row-index1'); // Correct attribute name
-                                            var rowData = result[rowIndex]; // Assuming `result` is the correct array
-                                            var id = rowData.id || '';
-                                            var materialwidth = rowData.quantity || '';
-                                            var materialname = rowData.materialname || '';
 
-                                            Swal.fire({
-                                                icon: 'info',
-                                                title: "자재명: " + materialname + "<br>자재폭: " + materialwidth,
-                                                html:
-                                                    '<label for="slitting-type">적용 BOM NO :</label>' +
-                                                    '<select id="slitting-type" style="width:100px;" class="swal2-select">' +
-                                                    '<option value="type1">YPE-1-002-G</option>' +
-                                                    '<option value="type2">YPE-2-002-G</option>' +
-                                                    '</select>' +
-                                                    '<p>슬리팅 정보를 등록 하시겠습니까?</p>', // Include the text here                                                showCancelButton: true,
-                                                confirmButtonColor: '#3085d6',
-                                                cancelButtonColor: '#d33',
-                                                confirmButtonText: '확인',
-                                                cancelButtonText: '취소',
-                                                showCancelButton: true,
-
-
-                                            }).then((result) => {
-                                                if (result.isConfirmed) {
-
-
-                                                    $.ajax({
-                                                        type: 'POST',
-                                                        url: server + '/api/updateslt',
-                                                        dataType: 'json',
-                                                        contentType: 'application/json',
-                                                        data: JSON.stringify({
-
-                                                            id: id,
-                                                            status: '구매발주대기'
-
-
-                                                        }),
-                                                        success: function (result) {
-                                                            console.log(result)
-                                                        }
-                                                    })
-
-                                                    Swal.fire({
-                                                        icon: 'success',
-                                                        title: '지시 완료',
-                                                        text: '슬리팅 지시 정보가 등록 되었습니다.',
-                                                    }).then((result) => {
-                                                        if (result.isConfirmed) {
-                                                            load()
-                                                        }
-                                                    });
-                                                }
-                                            });
-                                        });
                                     }
                                 }
                             });
