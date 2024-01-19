@@ -308,6 +308,9 @@
             <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i> 입고저장
             </button>
+            <button id="newRegistrationBtn" onclick="console()" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> 입고저장
+            </button>
         </fieldset>
         <div style="height:600px; max-height: 600px; overflow-y: auto;">
             <table class="styled-table" id="datatable">
@@ -956,6 +959,7 @@
                     '<td style="text-align:right;" id="sqmprice-input">' + parseFloat(result[i].sqmprice).toLocaleString() + '</td>' +
                     '<td style="text-align:right;" id="rollprice-input">' + parseFloat(result[i].unitprice).toLocaleString() + '</td>' +
                     '<td id="qrno-input">' + result[i].itemname + '/' + result[i].cutting + '/' + result[i].length + '/LOT/제조일자/만료일자/20240117-1</td>' +
+                    '<td id="qrnosplit-input">' + result[i].itemname + '/' + result[i].cutting + '</td>' +
 
                     '<td id="qrno">' + result[i].productid + '</td>' +
                     '<td id="length" style="text-align:right;">' + (result[i].length) + '</td>' +
@@ -968,6 +972,8 @@
                 $('td#lifetime').hide();
                 $('td#sqmprice-input').hide();
                 $('td#rollprice-input').hide();
+                $('td#qrno-input').hide();
+                $('td#qrnosplit-input').hide();
                 // $('td#qrno-input').hide();
             }
         }
@@ -1111,37 +1117,36 @@
                 updateTable();
             }
         }
+        function console() {
+
+        }
         function updateTable() {
             var textBoxValue = document.getElementById("qr-input-1").value;
 
-            // 테이블의 행 수를 얻어옵니다.
+            var splitData = textBoxValue.split('/');
+
             var rowCount = document.getElementById("purchaseorderinfobody").rows.length;
-
-            // 각 행에 대해 반복하면서 처리합니다.
             for (var i = 0; i < rowCount; i++) {
-                var materialNo = document.getElementById("purchaseorderinfobody").rows[i].cells[18].textContent;
-                var statusCell = document.getElementsByClassName("statusCell")[i];
-                var countCell = document.getElementById("purchaseorderinfobody").rows[i].cells[12];
 
-                // 입력된 값이 각 행의 자재번호에 포함되어 있다면 "OK"를 표시하고 카운터를 증가시킵니다.
-                if (materialNo.includes(textBoxValue)) {
-                    // Extract values after the fourth slash in textBoxValue
-                    var parts = textBoxValue.split('/');
+                if (document.getElementById("purchaseorderinfobody").rows[i].cells[19].textContent === splitData[0] + '/' + splitData[1]) {
+                    var materialNoCell = document.getElementById("purchaseorderinfobody").rows[i].cells[18];
+                    var countCell = document.getElementById("purchaseorderinfobody").rows[i].cells[12];
 
-                    // Check if there are enough parts
-                    if (parts.length >= 5) {
-                        // Set the values in the specified cells dynamically based on the length of parts
-                        document.getElementById("purchaseorderinfobody").rows[i].cells[13].textContent = parts[3];  // Lot
-                        document.getElementById("purchaseorderinfobody").rows[i].cells[14].textContent = parts[4];  // 제조일자
-                        document.getElementById("purchaseorderinfobody").rows[i].cells[15].textContent = parts[5];  // 만료일자
-                    }
 
-                    // Increase the counter
-                    countCell.textContent = parseInt(countCell.textContent) + 1;
+                    document.getElementById("purchaseorderinfobody").rows[i].cells[13].textContent = splitData[3];
+                    document.getElementById("purchaseorderinfobody").rows[i].cells[14].textContent = splitData[4];
+                    document.getElementById("purchaseorderinfobody").rows[i].cells[15].textContent = splitData[5];
+                    countCell.textContent = parseInt(countCell.textContent) + 1; // 카운터를 증가시킵니다.
                     document.getElementById("qr-input-1").value = "";
+
                 }
             }
+
         }
+
+
+
+
 
 
 
