@@ -44,34 +44,38 @@
                 <th>자재명</th>
                 <th>검수</th>
                 <th>NO</th>
+                <th>입력횟수</th>
             </tr>
         </thead>
         <tbody id="tableBody">
             <tr>
                 <td>TOOL-A</td>
                 <td class="statusCell"></td>
-                <td>TOOL-123</td>
+                <td>데이터A/데이터B/데이터C/D</td>
+                <td>0</td>
             </tr>
+           
             <tr>
                 <td>TOOL-B</td>
                 <td class="statusCell"></td>
-                <td>TOOL-1234</td>
+                <td>데이터1/데이터2/데이터3/데이터4</td>
+                <td>0</td>
             </tr>
+           
             <tr>
-                <td>자재A</td>
+                <td>TOOL-C</td>
                 <td class="statusCell"></td>
-                <td>M123</td>
+                <td>데이터5/데이터6/데이터7/데이터8</td>
+                <td>0</td>
             </tr>
+           
             <tr>
-                <td>자재B</td>
+                <td>TOOL-D</td>
                 <td class="statusCell"></td>
-                <td>M1234</td>
+                <td>데이터100/데이터111/데이터112/데이터13</td>
+                <td>0</td>
             </tr>
-            <tr>
-                <td>금형A</td>
-                <td class="statusCell"></td>
-                <td>A12345</td>
-            </tr>
+           
             <!-- 추가 행을 여기에 반복하여 추가할 수 있습니다. -->
         </tbody>
     </table>
@@ -94,12 +98,23 @@
             for (var i = 0; i < rowCount; i++) {
                 var materialNo = document.getElementById("tableBody").rows[i].cells[2].textContent;
                 var statusCell = document.getElementsByClassName("statusCell")[i];
+                var countCell = document.getElementById("tableBody").rows[i].cells[3];
 
-                if (textBoxValue === materialNo) {
+                // 입력된 값이 "데이터1/데이터2/데이터3/" 구조의 처음 세 부분과 일치할 경우에만 "OK"를 표시하고 카운터를 증가시킵니다.
+                var pattern = new RegExp("^" + textBoxValue.replace(/\//g, "\\/") + "\\w*");
+                if (materialNo.match(pattern)) {
                     statusCell.textContent = "OK";
                     statusCell.classList.add("ok"); // "OK"인 경우 클래스를 추가하여 배경색을 변경합니다.
+                    countCell.textContent = parseInt(countCell.textContent) + 1; // 카운터를 증가시킵니다.
                     document.getElementById("myTextBox").value = "";
+                    console.log("일치함:", materialNo.replace(/\/\w*$/, ''));
+                    break; // 일치하는 경우가 발견되면 반복문을 종료합니다.
                 } else {
+                    // 일치하지 않는 경우에는 "OK"와 카운터를 초기화합니다.
+                    statusCell.textContent = "";
+                    statusCell.classList.remove("ok");
+                    countCell.textContent = 0;
+                    console.log("일치하지 않음:", materialNo);
                 }
             }
         }

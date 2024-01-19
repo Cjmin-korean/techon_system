@@ -183,7 +183,7 @@
         <b>거래처명</b>
         <!-- <input type="text" id="customer-select" value="" style="cursor: pointer; width: 600px;"
             onkeydown="handleEnterKey(event)" autocomplete="off" placeholder="거래처명 입력후 ENTER 누르세요"> -->
-        <input type="text" id="customer-select" value="다센" style="cursor: pointer; width: 600px;"
+        <input type="text" id="customer-select" value="성진산업" style="cursor: pointer; width: 600px;"
             oninput="handleInput()" onkeydown="handleKeyDown()" autocomplete="off" placeholder="거래처명 검색하세요">
         <button id="searchBtn" onclick="openpurchaseorder()" class="btn btn-success" style="background-color: navy;">
             <i class="fas fa-shopping-cart"></i> 발주조회
@@ -302,7 +302,9 @@
         </div>
 
         <fieldset style="height: 40px;">
-            <!-- <input type="text" id="qrcodetext" placeholder="QR코드를 리딩하세요"> -->
+            <input type="text" id="qr-input-1" style="width:500px;" placeholder="작업지시서의 QR을 리딩해주세요"
+                onkeypress="handleKeyPress()" autofocus>
+
             <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i> 입고저장
             </button>
@@ -317,17 +319,18 @@
                         <th style="width: auto; text-align: center;">발주일자</th>
                         <th style="width: auto; text-align: center;">품목코드</th>
                         <th style="width: auto; text-align: center;">품목명</th>
-                        <th style="width: auto; text-align: center;">재단폭</th>
-                        <th style="width: auto; text-align: center;">수량</th>
+                        <th style="width: auto; text-align: center;">재단폭(mm)</th>
+                        <th style="width: auto; text-align: center;">수량(M)</th>
                         <th style="width: auto; text-align: center;">롤수량</th>
                         <th style="width: auto; text-align: center;">총M</th>
                         <th style="width: auto; text-align: center;">공급가액</th>
                         <th style="width: auto; text-align: center;">BOMNO</th>
                         <th style="width: auto; text-align: center;">구분</th>
                         <th style="width: auto; text-align: center;">거래처명</th>
-                        <th style="width: auto; text-align: center;">검수</th>
-       
-
+                        <th style="width: auto; text-align: center;">검수수량</th>
+                        <th style="width: auto; text-align: center;">자재LOT</th>
+                        <th style="width: auto; text-align: center;">제조일자</th>
+                        <th style="width: auto; text-align: center;">만료일자</th>
                     </tr>
                 </thead>
                 <tbody id="purchaseorderinfobody">
@@ -896,9 +899,10 @@
                 if (result.isConfirmed) {
                     // AJAX 요청 시작 전에 overlay를 보여주고, purchaseorder1은 fadeOut
                     $("#overlay").fadeIn();
-                    $('#purchaseorder').fadeIn();
                     $('#purchaseorder1').fadeOut();
-
+                    $('#purchaseorder').fadeIn(() => {
+                        $('#qr-input-1').focus();
+                    });
                     // 배열에 있는 각 orderdate를 사용하여 처리
                     (function processOrderDates(index) {
                         if (index < rowData.length) {
@@ -908,7 +912,7 @@
                                 dataType: 'json',
                                 contentType: 'application/json',
                                 data: JSON.stringify({
-                                    suppliername: '다센',
+                                    suppliername: '성진산업',
                                     orderdate: rowData[index]
                                 }),
                                 success: function (result) {
@@ -945,11 +949,14 @@
                     '<td  id="bomno-input">' + result[i].bomno + '</td>' +
                     '<td>' + result[i].ordertype + '</td>' +
                     '<td id="customer-input">' + result[i].suppliername + '</td>' +
-                    '<td id="inputdata-input"><button>검수</button></td>' +
-
-                    '<td style="text-align:right;" id="lotno-input" contenteditable="true" "></td>' +
+                    '<td style="text-align:center;"  id="count-input">0</td>' +
+                    '<td id="lotno-input"></td>' +
+                    '<td id="manufacturedate-input"></td>' +
+                    '<td id="expirationdate-input"></td>' +
                     '<td style="text-align:right;" id="sqmprice-input">' + parseFloat(result[i].sqmprice).toLocaleString() + '</td>' +
                     '<td style="text-align:right;" id="rollprice-input">' + parseFloat(result[i].unitprice).toLocaleString() + '</td>' +
+                    '<td id="qrno-input">' + result[i].itemname + '/' + result[i].cutting + '/' + result[i].length + '/LOT/제조일자/만료일자/20240117-1</td>' +
+
                     '<td id="qrno">' + result[i].productid + '</td>' +
                     '<td id="length" style="text-align:right;">' + (result[i].length) + '</td>' +
                     '<td id="lifetime">' + result[i].lifetime + '</td>' +
@@ -961,7 +968,7 @@
                 $('td#lifetime').hide();
                 $('td#sqmprice-input').hide();
                 $('td#rollprice-input').hide();
-                $('td#lotno-input').hide();
+                // $('td#qrno-input').hide();
             }
         }
 
@@ -1077,6 +1084,67 @@
                 checkboxes[i].checked = false;
             }
         }
+        // function handleKeyPress() {
+        //     if (event.key === "Enter") {
+        //         event.preventDefault();
+        //         parseAndExtract();
+        //     }
+        // }
+
+        // function parseAndExtract() {
+
+        //     var inputText = document.getElementById("qr-input-1").value;
+        //     var parts = inputText.split('/');
+
+        //     if (parts.length >= 4) {
+        //         var extractedValue = parts[3];
+        //         alert("추출된 값: " + extractedValue);
+        //         // 여기에서 추출된 값을 사용하거나 다른 작업을 수행할 수 있습니다.
+        //     } else {
+        //         alert("입력된 값에서 4번째 요소가 없습니다.");
+        //     }
+        // }
+
+        function handleKeyPress() {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                updateTable();
+            }
+        }
+        function updateTable() {
+            var textBoxValue = document.getElementById("qr-input-1").value;
+
+            // 테이블의 행 수를 얻어옵니다.
+            var rowCount = document.getElementById("purchaseorderinfobody").rows.length;
+
+            // 각 행에 대해 반복하면서 처리합니다.
+            for (var i = 0; i < rowCount; i++) {
+                var materialNo = document.getElementById("purchaseorderinfobody").rows[i].cells[18].textContent;
+                var statusCell = document.getElementsByClassName("statusCell")[i];
+                var countCell = document.getElementById("purchaseorderinfobody").rows[i].cells[12];
+
+                // 입력된 값이 각 행의 자재번호에 포함되어 있다면 "OK"를 표시하고 카운터를 증가시킵니다.
+                if (materialNo.includes(textBoxValue)) {
+                    // Extract values after the fourth slash in textBoxValue
+                    var parts = textBoxValue.split('/');
+
+                    // Check if there are enough parts
+                    if (parts.length >= 5) {
+                        // Set the values in the specified cells dynamically based on the length of parts
+                        document.getElementById("purchaseorderinfobody").rows[i].cells[13].textContent = parts[3];  // Lot
+                        document.getElementById("purchaseorderinfobody").rows[i].cells[14].textContent = parts[4];  // 제조일자
+                        document.getElementById("purchaseorderinfobody").rows[i].cells[15].textContent = parts[5];  // 만료일자
+                    }
+
+                    // Increase the counter
+                    countCell.textContent = parseInt(countCell.textContent) + 1;
+                    document.getElementById("qr-input-1").value = "";
+                }
+            }
+        }
+
+
+
 
     </script>
 
