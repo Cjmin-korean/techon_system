@@ -1235,7 +1235,7 @@ module.exports = function (app) {
                     "     i.modelname,  " +
                     "     i.itemname,  " +
                     "     i.itemprice,  " +
-                    "     COALESCE(SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta)) ), 2)), 5) as cost,    " +
+                    "      COALESCE(SUM(ROUND(mi.rollprice/FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2)), 5) as cost,   " +
                     "     CASE  " +
                     "         WHEN i.itemprice = 0 THEN 0  " +
                     "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  " +
@@ -2353,7 +2353,7 @@ module.exports = function (app) {
                     "    bm.allta, " +
                     "    bm.talength, " +
                     "    bm.loss, " +
-                    "    ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) as cost, " +
+                    "    ROUND(mi.rollprice/FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2) as cost, " +
                     "    FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, " +
                     "    FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) as prdouctcount, " +
                     "    mi.width, " +
