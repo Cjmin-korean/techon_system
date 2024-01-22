@@ -1,36 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <!-- <iframe src="https://docs.google.com/spreadsheets/d/e/your_sheet_id/pubhtml?gid=0"></iframe> -->
-
+    <title>Number to Korean Words</title>
 </head>
-
 <body>
-    <div id="excelContainer"></div>
-    <script src="https://handsontable.com/docs/7.4.2/components/handsontable/dist/handsontable.full.js"></script>
-    <link rel="stylesheet" type="text/css"
-        href="https://handsontable.com/docs/7.4.2/components/handsontable/dist/handsontable.full.css">
 
-</body>
+<h2>Number to Korean Words Converter</h2>
+<label for="numberInput">Enter a number:</label>
+<input type="number" id="numberInput" min="0">
+<button onclick="convertToKorean()">Convert</button>
+
+<p id="result"></p>
+
 <script>
-    var data = [
-        ['고객사', '모델명', '제품명' ,''],
-        ['A2', 'B2', 'C2'],
-        // ...
-    ];
+function convertToKorean() {
+    const numberInput = document.getElementById('numberInput').value;
+    const resultElement = document.getElementById('result');
 
-    var container = document.getElementById('excelContainer');
-    var hot = new Handsontable(container, {
-        data: data,
-        colHeaders: true,
-        rowHeaders: true,
-        stretchH: 'all'
-    });
-    $('#hot-display-license-info').hide()
+    if (!isNaN(numberInput) && Number.isInteger(Number(numberInput))) {
+        const koreanWords = convertNumberToKorean(Number(numberInput));
+        resultElement.textContent = `In Korean: ${koreanWords}`;
+    } else {
+        resultElement.textContent = 'Please enter a valid integer.';
+    }
+}
+
+function convertNumberToKorean(number) {
+    const units = ['', '만', '억', '조', '경']; // Add more units if needed
+    const digits = ['일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+    const tens = ['', '십', '백', '천'];
+
+    let result = '';
+
+    const numberString = String(number);
+
+    for (let i = 0; i < numberString.length; i++) {
+        const digit = Number(numberString[i]);
+
+        if (digit !== 0) {
+            result += digits[digit - 1] + tens[numberString.length - i - 1];
+        }
+
+        if (i !== numberString.length - 1 && (i + 1) % 4 === 0) {
+            result += units[(i + 1) / 4 - 1];
+        }
+    }
+
+    return result;
+}
 </script>
 
+</body>
 </html>

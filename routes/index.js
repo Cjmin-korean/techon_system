@@ -1699,11 +1699,13 @@ module.exports = function (app) {
 
 
             return pool.request()
+            .input('orderdate', sql.NVarChar, req.body.orderdate)
+            .input('suppliername', sql.NVarChar, req.body.suppliername)
 
                 .query(
                     "SELECT " +
                     "*" +
-                    " FROM purchaseorder order by orderdate,itemname asc ")
+                    " FROM purchaseorder where orderdate=@orderdate and suppliername=@suppliername order by orderdate,itemname asc ")
 
                 .then(result => {
 
@@ -4182,11 +4184,12 @@ module.exports = function (app) {
                 .input('manufacterer', sql.NVarChar, req.body.manufacterer)
                 .input('productid', sql.NVarChar, req.body.productid)
                 .input('etc', sql.NVarChar, req.body.etc)
+                .input('orderno', sql.NVarChar, req.body.orderno)
 
 
                 .query(
-                    'insert into purchaseorder(productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc)' +
-                    ' values(@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc)'
+                    'insert into purchaseorder(orderno,productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc)' +
+                    ' values(@orderno,@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc)'
                 )
                 .then(result => {
 

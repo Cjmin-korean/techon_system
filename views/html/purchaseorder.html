@@ -100,7 +100,7 @@
                 <th style="text-align:center;">발주일자</th>
                 <th style="text-align:center;">고객사명</th>
                 <th style="text-align:center;">품목내용</th>
-                <th style="text-align:center;">금액 합계</th>
+                <th style="text-align:center;">금액 합계(원)</th>
                 <th style="text-align:center; width:70px;">인쇄</th>
 
 
@@ -451,7 +451,7 @@
                                 '<td>' + (data[i].orderdate || '') + '</td>' +
                                 '<td>' + (data[i].suppliername || '') + '</td>' +
                                 '<td>' + (data[i].orderSummary || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].totalSupplyAmount.toLocaleString() + '￦' || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].totalSupplyAmount.toLocaleString() || '') + '</td>' +
                                 '<td><button onclick="openInvoice(this)">발주서</button></td>' +
 
                                 '</tr>'
@@ -464,66 +464,7 @@
             });
 
         }
-        // function load() {
-        //     $('#Datatbody').empty()
-        //     $.ajax({
-        //         type: 'POST',
-        //         url: server + '/api/selectpurchaseorder',
-        //         dataType: 'json',
-        //         contentType: 'application/json',
-        //         data: JSON.stringify({
-        //         }),
 
-        //         success: function (data) {
-        //             var tableFoot = $('#dataCount');
-        //             if (data.length === 0) {
-        //                 tableFoot.text('총 데이터 개수: 0');
-        //             } else {
-        //                 var totalQuantity = 0;
-        //                 var totalSupplyAmount = 0;
-
-        //                 for (var i = 0; i < data.length; i++) {
-        //                     totalQuantity += parseFloat(data[i].quantity) || 0;
-        //                     totalSupplyAmount += parseFloat(data[i].supplyamount) || 0;
-        //                     $('#Datatbody').append(
-        //                         '<tr>' +
-        //                         '<td id="' + (data[i].orderdate) + '">' + (data[i].orderdate || '') + '</td>' +
-        //                         '<td id="">' + (data[i].codenumber || '') + '</td>' +
-        //                         '<td id="">' + (data[i].itemname || '') + '</td>' +
-        //                         '<td id="" style="text-align:right;">' + numberWithCommas(data[i].width || '') + '</td>' +
-        //                         '<td id="" style="text-align:right;">' + numberWithCommas(data[i].length || '') + '</td>' +
-        //                         '<td id="" style="text-align:right;">' + numberWithCommas(data[i].quantity || '') + '</td>' +
-        //                         '<td id="" style="text-align:right;">' + numberWithCommas(data[i].unitprice || '') + '</td>' +
-        //                         '<td id="" style="text-align:right;">' + numberWithCommas(data[i].quantity * data[i].unitprice || '') + '</td>' +
-        //                         '<td id="">' + (data[i].suppliername || '') + '</td>' +
-        //                         '<td id="">' + (data[i].manufacterer || '') + '</td>' +
-        //                         '<td id="">' + (data[i].bomno || '') + '</td>' +
-        //                         '<td id="">' + (data[i].ordertype || '') + '</td>' +
-        //                         '<td id="">' + (data[i].confirmed || '') + '</td>' +
-        //                         '<td style="text-align:right;">' + (data[i].cutting || '') + '</td>' +
-        //                         '<td style="text-align:right;">' + (data[i].etc || '') + '</td>' +
-
-
-        //                         '<td id="data-id">' + (data[i].id || '') + '</td>' +
-        //                         '</tr>'
-        //                     )
-        //                     $("td#data-id").hide();
-        //                 }
-        //                 $('#Datatbody').append(
-        //                     '<tr>' +
-        //                     '<td colspan="5" style="text-align:right;"><b>Total:</b></td>' +
-        //                     '<td style="text-align:right;">' + numberWithCommas(totalQuantity.toFixed(2)) + '</td>' +
-        //                     '<td ></td>' +
-        //                     '<td style="text-align:right;">' + numberWithCommas(totalSupplyAmount.toFixed(2)) + '</td>' +
-        //                     '<td colspan="7"></td>' +
-        //                     '</tr>'
-        //                 );
-
-        //             }
-        //         }
-        //     });
-
-        // }
         function insertpurchaseorder() {
             let tableBody = document.getElementById('orderlistbombody');
             let rowCount = tableBody.children.length;
@@ -544,15 +485,38 @@
                     cancelButtonText: '취소',
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        const currentDate = new Date();
+                        const formattedDate = currentDate
+                            .toISOString()
+                            .slice(2, 10)
+                            .replace(/-/g, '/');
+
+                        const orderCountMap = {};
+
                         for (let i = 0; i < rowCount; i++) {
-                            var roundedResult = parseFloat($('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val());
+                            var roundedResult = parseFloat(
+                                $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val()
+                            );
                             if (roundedResult !== 0) {
+                                const suppliername = $('#orderlistbombody tr:eq(' + i + ') #supplier-input').val();
                                 var insertdate = new Date().toISOString().slice(0, 10);
                                 var roundedResult1 = parseFloat($('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''));
                                 var rollprice = parseFloat($('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''));
                                 var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').text();
                                 var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').text();
-                                var supplyamount = roundedResult1 * rollprice;
+
+                                // Initialize orderCount for the suppliername if not already present
+                                if (!orderCountMap[suppliername]) {
+                                    orderCountMap[suppliername] = 1;
+                                }
+
+                                const orderCount = orderCountMap[suppliername];
+                                const orderno = `${formattedDate}-${orderCount}-${suppliername}`;
+
+                                // Increment orderCount for the suppliername
+                                orderCountMap[suppliername]++;
+
+                                // Other variable assignments...
 
                                 // Ajax 요청
                                 $.ajax({
@@ -561,7 +525,7 @@
                                     dataType: 'json',
                                     contentType: 'application/json',
                                     data: JSON.stringify({
-                                        "itemname": itemname
+                                        "itemname": itemname,
                                     }),
                                     success: function (result) {
                                         $.ajax({
@@ -571,13 +535,14 @@
                                             contentType: 'application/json',
                                             data: JSON.stringify({
                                                 "orderdate": insertdate,
+                                                "orderno": orderno,
                                                 "itemname": $('#orderlistbombody tr:eq(' + i + ') #materialname-input').text(),
                                                 "codenumber": $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val(),
                                                 "width": $('#orderlistbombody tr:eq(' + i + ') #materialwidth-input').text(),
                                                 "length": $('#orderlistbombody tr:eq(' + i + ') #length-input').val(),
                                                 "quantity": $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val(),
                                                 "unitprice": $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val(),
-                                                "supplyamount": supplyamount,
+                                                "supplyamount": parseFloat($('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, '')) * parseFloat($('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, '')),
                                                 "suppliername": $('#orderlistbombody tr:eq(' + i + ') #supplier-input').val(),
                                                 "bomno": $('#orderlistbombody tr:eq(' + i + ') #bomno-input').text(),
                                                 "ordertype": '양산',
@@ -611,6 +576,8 @@
                 });
             }
         }
+
+
 
 
 
@@ -824,25 +791,91 @@
 
     </script>
     <script>
+
+
         function openInvoice(button) {
             var row = button.closest('tr'); // Find the parent row
             var rowData = $(row).find('td').map(function () {
                 return $(this).text();
             }).get();
+
             var newWindow = window.open('/html/puroutput.html', '_blank', 'width=1000,height=800');
+
             newWindow.onload = function () {
                 // 발주서 창이 로딩되면 해당 데이터를 전달
-                newWindow.document.getElementById("suppliername").innerText = rowData[1] || ''; // 수정: suppliername은 두 번째 열에 위치한다고 가정
+                newWindow.document.getElementById("orderno").innerText = rowData[0] || '';
+                newWindow.document.getElementById("suppliername").innerText = rowData[2] || '';
+                newWindow.document.getElementById("price").innerText = '금액 합계: ' + numberWithCommas(rowData[4]) + '￦' || '';
 
                 // 예시로 테이블에 데이터 추가 (이 부분은 실제 데이터에 맞게 수정)
-                var table = newWindow.document.getElementById("invoice-items");
-                for (var i = 0; i < rowData.length; i++) {
-                    var row = table.insertRow(-1);
-                    var cell = row.insertCell(0);
-                    cell.innerHTML = rowData[i] || '';
-                }
+                var table = newWindow.document.getElementById("purtbody");
+
+                // Clear existing data in '#purtbody' using jQuery
+                $(table).empty();
+
+                // Fetch additional data using AJAX
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectpurchaseorder',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "suppliername": rowData[2],
+                        "orderdate": rowData[1]
+                    }),
+                    success: function (data) {
+                        console.log(data);
+                        var tableFoot = $('#dataCount');
+                        if (data.length === 0) {
+                            tableFoot.text('총 데이터 개수: 0');
+                        } else {
+                            var totalQuantity = 0;
+                            var totalSupplyAmount = 0;
+
+                            for (var i = 0; i < data.length; i++) {
+                                totalQuantity += parseFloat(data[i].quantity) || 0;
+                                totalSupplyAmount += parseFloat(data[i].supplyamount) || 0;
+
+                                // Append data to '#purtbody'
+                                $(table).append('<tr>' +
+                                    // '<td>' + (data[i].orderdate || '') + '</td>' +
+                                    '<td>' + (data[i].codenumber || '') + '</td>' +
+                                    '<td>' + (data[i].itemname || '') + '</td>' +
+                                    '<td></td>' +
+                                    // '<td style="text-align:right;">' + numberWithCommas(data[i].width || '') + '</td>' +
+                                    // '<td style="text-align:right;">' + numberWithCommas(data[i].length || '') + '</td>' +
+                                    '<td style="text-align:right;">' + numberWithCommas(data[i].unitprice || '') + '</td>' +
+                                    '<td style="text-align:right;">' + numberWithCommas(data[i].quantity || '') + '</td>' +
+
+                                    '<td style="text-align:right;">' + numberWithCommas(data[i].quantity * data[i].unitprice || '') + '</td>' +
+                                    // '<td>' + (data[i].suppliername || '') + '</td>' +
+                                    // '<td>' + (data[i].manufacterer || '') + '</td>' +
+                                    // '<td>' + (data[i].bomno || '') + '</td>' +
+                                    '<td>' + (data[i].ordertype || '') + '</td>' +
+                                    '<td>' + (data[i].confirmed || '') + '</td>' +
+                                    '<td style="text-align:right;">' + (data[i].cutting || '') + '</td>' +
+                                    // '<td style="text-align:right;">' + (data[i].etc || '') + '</td>' +
+                                    // '<td id="data-id">' + (data[i].id || '') + '</td>' +
+                                    '</tr>');
+
+                                $("td#data-id").hide();
+                            }
+
+                            // Append total row
+                            $(table).append('<tr>' +
+                                '<td colspan="4" style="text-align:right;"><b>Total:</b></td>' +
+                                '<td style="text-align:right;">' + numberWithCommas(totalQuantity.toFixed(2)) + '</td>' +
+                                
+                                '<td style="text-align:right;">' + numberWithCommas(totalSupplyAmount.toFixed(2)) + '</td>' +
+                                '<td colspan="7"></td>' +
+                                '</tr>');
+                        }
+                    }
+                });
             };
         }
+
+
 
 
 
