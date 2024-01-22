@@ -4005,7 +4005,7 @@ module.exports = function (app) {
                     "    ol.modelname, " +
                     "    bm.materialname, " +
                     "    bm.materialwidth, " +
-                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS totalquantity1, " +
+                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)/bm.cavity) AS totalquantity1, " +
                     "    CASE " +
                     "        WHEN ROW_NUMBER() OVER (PARTITION BY bm.materialname ORDER BY bm.materialname) = 1 " +
                     "        THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0) " +
@@ -4021,11 +4021,11 @@ module.exports = function (app) {
                     "    END AS has, " +
                     "    FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue, " +
                     "    (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) AS calculated_column, " +
-                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) AS soyo, " +
+                    "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)/bm.cavity) AS soyo, " +
                     "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut, " +
                     "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test, " +
-                    "   ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length), 2) AS a, "+
-                    "                           CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)) AS roundedResult,  " +
+                    "   ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)/bm.cavity, 2) AS a, "+
+                    "                           CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)/bm.cavity) AS roundedResult,  " +
                     "    mi.width, " +
                     "    mi.length, " +
                     "    mi.sqmprice, " +
@@ -4047,7 +4047,7 @@ module.exports = function (app) {
                     " WHERE " +
                     "     ol.orderstatus = '생산확정' " +
                     " GROUP BY " +
-                    "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname ,bm.bomno ,ol.qrno,bm.etc" +
+                    "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname ,bm.bomno ,ol.qrno,bm.etc ,bm.cavity" +
                     " ORDER BY " +
                     "     bm.materialname ASC; ")
                 .then(result => {
@@ -4835,18 +4835,31 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    " SELECT orderdate, "+
-                "     suppliername, "+
-                "     CAST(COUNT(*) AS NVARCHAR(10)) + '건의 발주건이 있습니다' AS orderSummary, "+
-                "     SUM(supplyamount) AS totalSupplyAmount "+
-                " FROM "+
-                "     purchaseorder "+
-                " WHERE "+
-                "     status IS NULL "+
-                " GROUP BY "+
-                "     suppliername ,orderdate "+
-                " ORDER BY "+
-                "     suppliername;")
+                    "WITH OrderedOrders AS ( "+
+                    "    SELECT "+
+                    "        CONVERT(NVARCHAR, orderdate, 23) + '-' + RIGHT('00' + CAST(ROW_NUMBER() OVER (PARTITION BY orderdate ORDER BY suppliername) AS NVARCHAR(2)), 2) AS orderno, "+
+                    "        orderdate, "+
+                    "        suppliername, "+
+                    "        COUNT(*) AS orderCount, "+
+                    "        SUM(supplyamount) AS totalSupplyAmount "+
+                    "    FROM "+
+                    "        purchaseorder "+
+                    "    WHERE "+
+                    "        status IS NULL "+
+                    "        AND orderdate = '2024-01-22'  "+
+                    "    GROUP BY "+
+                    "        orderdate, suppliername "+
+                    ") "+
+                    "SELECT "+
+                    "    orderno, "+
+                    "    orderdate, "+
+                    "    suppliername, "+
+                    "    CAST(orderCount AS NVARCHAR(10)) + '건의 발주건이 있습니다' AS orderSummary, "+
+                    "    totalSupplyAmount "+
+                    "FROM "+
+                    "    OrderedOrders "+
+                    "ORDER BY "+
+                    "    suppliername, orderno;                    ")
                 .then(result => {
 
                     res.json(result.recordset);
