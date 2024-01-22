@@ -76,9 +76,9 @@ function calculateCost() {
     let taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
     let twopiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #twopidding-input').val()) || 0;
     let alltaValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #allta-input').val()) || 0;
-    let lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #loss-input').val()) || 0;
+    let lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #costloss-input').val()) || 0;
 
-    let rlproductValue = ((lengthValue * 1000 * rlcutValue * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+    let rlproductValue = ((lengthValue * 1000 * rlcutValue * cavitySaveValue * (1 - (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
     const costValue = rollpriceValue / rlproductValue;
     $('#bomtableBody tr:eq(' + rowIndex + ') #cost-input').val(costValue.toFixed(2));
 }

@@ -1,81 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Dropdown with Keyboard Interaction</title>
+    <title>Handsontable Example</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
 
-<div class="custom-dropdown" tabindex="0" id="myCustomDropdown">
-    <input type="text" class="dropdown-input" placeholder="Type to search">
-    <div class="dropdown-list">
-        <div class="dropdown-item">Option 1</div>
-        <div class="dropdown-item">Option 2</div>
-        <div class="dropdown-item">Option 3</div>
-    </div>
-</div>
+    <div id="handsontable-container"></div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var customDropdown = document.getElementById('myCustomDropdown');
-        var dropdownInput = customDropdown.querySelector('.dropdown-input');
-        var dropdownList = customDropdown.querySelector('.dropdown-list');
-        var dropdownItems = customDropdown.querySelectorAll('.dropdown-item');
+    <script>
+        var server = '';
 
-        // Show dropdown on focus
-        customDropdown.addEventListener('focus', function () {
-            dropdownList.style.display = 'block';
-        });
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
 
-        // Handle keyboard interaction
-        customDropdown.addEventListener('keydown', function (event) {
-            if (event.key === 'ArrowDown') {
-                // Move selection down
-                event.preventDefault(); // prevent page scroll
-                focusNextItem();
-            } else if (event.key === 'ArrowUp') {
-                // Move selection up
-                event.preventDefault(); // prevent page scroll
-                focusPreviousItem();
-            } else if (event.key === 'Enter') {
-                // Select the focused item
-                selectFocusedItem();
-            }
-        });
+        function load() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcustomerinformation',
+                dataType: 'json',
+                success: function (data) {
+                    updateDataCount(data.length);
 
-        // Hide dropdown on blur
-        customDropdown.addEventListener('blur', function () {
-            dropdownList.style.display = 'none';
-        });
+                    var container = document.getElementById('handsontable-container');
 
-        // Handle item selection
-        dropdownItems.forEach(function (item) {
-            item.addEventListener('click', function () {
-                dropdownInput.value = item.textContent;
-                dropdownList.style.display = 'none';
+                    // Define new column headers
+                    var newColumnHeaders = ['NewHeader1', '이름', '날짜', /* Add more headers as needed */];
+
+                    // Handsontable configuration
+                    var hot = new Handsontable(container, {
+                        data: data,
+                        rowHeaders: true,
+                        colHeaders: newColumnHeaders, // Use the new column headers array
+                        contextMenu: true,
+                        stretchH: 'all',
+                        height: 600,
+                        filters: true, // Enable column filters
+                        dropdownMenu: true, // Enable dropdown menu for column headers
+                        licenseKey: 'non-commercial-and-evaluation' // For non-commercial use
+                    });
+                }
             });
+        }
+
+        function updateDataCount(count) {
+            var tableFoot = $('#dataCount');
+            tableFoot.text('총 데이터 개수: ' + count);
+        }
+
+        $(document).ready(function () {
+            load();
         });
-
-        // Utility functions for keyboard interaction
-        function focusNextItem() {
-            var index = Array.from(dropdownItems).indexOf(document.activeElement);
-            var nextIndex = (index + 1) % dropdownItems.length;
-            dropdownItems[nextIndex].focus();
-        }
-
-        function focusPreviousItem() {
-            var index = Array.from(dropdownItems).indexOf(document.activeElement);
-            var prevIndex = (index - 1 + dropdownItems.length) % dropdownItems.length;
-            dropdownItems[prevIndex].focus();
-        }
-
-        function selectFocusedItem() {
-            dropdownInput.value = document.activeElement.textContent;
-            dropdownList.style.display = 'none';
-        }
-    });
-</script>
+    </script>
 
 </body>
+
 </html>

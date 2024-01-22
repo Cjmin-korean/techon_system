@@ -1,140 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Drag and Drop Table Example</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Example</title>
     <style>
-        /* Global styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
         }
 
-        /* Table styles */
-        .table-container {
-            width: 45%;
+        .tabs {
+            display: flex;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background-color: #111611;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .tab-content {
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+            display: flex;
+            width: 1300px;
+        }
+
+        .styled-input-container {
+            width: 300px;
+            margin-right: 2%;
+        }
+
+        .styled-input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 10px;
+            box-sizing: border-box;
             border: 1px solid #ccc;
             border-radius: 5px;
-            padding: 10px;
-            float: left;
-            margin-right: 20px;
+            font-size: 16px;
+            margin-bottom: 10px;
         }
 
-        .table-container:last-child {
-            margin-right: 0;
+        .styled-input-label {
+            font-size: 18px;
+            margin-bottom: 5px;
         }
 
-        table {
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
             width: 100%;
-            border-collapse: collapse;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
         }
 
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
         }
 
-        th {
-            background-color: #f2f2f2;
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
             font-weight: bold;
         }
 
-        /* Alternate row colors for better readability */
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        /* Buttons styles */
-        .button-container {
-            clear: both;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            background-color: #291e53;
-            color: white;
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
             cursor: pointer;
-            border-radius: 5px;
-            margin-right: 10px;
-        }
-
-        /* Add hover effect to buttons */
-        button:hover {
-            background-color: #2f5031;
         }
     </style>
 </head>
+
 <body>
-    <div class="table-container">
-        <table id="sourceTable">
-            <thead>
-                <tr>
-                    <th>설비명</th>
-                    <th>BOM NO</th>
-                    <th>고객사</th>
-                    <!-- Add more columns here -->
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>고속1호기</td>
-                    <td>YPE-2-182</td>
-                    <td>영풍전자</td>
-                    <!-- Add more data here -->
-                </tr>
-                <!-- Add more rows here -->
-            </tbody>
-        </table>
+
+    <div class="tabs">
+        <button class="tab" onclick="openModal('tab1')">자재정보 등록</button>
     </div>
 
-    <div class="table-container">
-        <table id="destinationTable">
-            <thead>
-                <tr>
-                    <th>설비명</th>
-                    <th>BOM NO</th>
-                    <th>고객사</th>
-                    <!-- Add more columns here -->
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Add more rows here -->
-            </tbody>
-        </table>
-    </div>
+    <div id="tab1" class="tab-content">
 
-    <div class="button-container">
-        <button id="prevDayButton">1주전</button>
-        <button id="prevDayButton">이전날</button>
-        <button id="nextDayButton">다음날</button>
-        <button id="nextDayButton">1주후</button>
+        <div class="styled-input-container">
+            <label class="styled-input-label" for="materialName">자재명:</label><br>
+            <input type="text" id="materialName" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="width">전폭(mm):</label><br>
+            <input type="text" id="width" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="length">길이(M):</label><br>
+            <input type="text" id="length" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="effectiveWidth">유효폭(mm):</label><br>
+            <input type="text" id="effectiveWidth" class="styled-input" style="width:300px;"><br>
+
+        </div>
+
+        <div class="styled-input-container">
+            <label class="styled-input-label" for="materialName">SQM단가:</label><br>
+            <input type="text" id="materialName" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="width">롤단가</label><br>
+            <input type="text" id="width" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="length">단위:</label><br>
+            <input type="text" id="length" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="effectiveWidth">유수명(일):</label><br>
+            <input type="text" id="effectiveWidth" class="styled-input" style="width:300px;"><br>
+        </div>
+
+        <div class="styled-input-container">
+            <label class="styled-input-label" for="materialName">제조사:</label><br>
+            <input type="text" id="materialName" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="width">공급사:</label><br>
+            <input type="text" id="width" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="length">적용순번:</label><br>
+            <input type="text" id="length" class="styled-input" style="width:300px;"><br>
+
+
+        </div>
+        <div class="styled-input-container">
+            <label class="styled-input-label" for="materialName">사용별:</label><br>
+            <input type="text" id="materialName" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="width">유형별:</label><br>
+            <input type="text" id="width" class="styled-input" style="width:300px;"><br>
+
+            <label class="styled-input-label" for="length">업체별:</label><br>
+            <input type="text" id="length" class="styled-input" style="width:300px;"><br>
+
+
+        </div>
+
+    </div>
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent" class="tab-content"></div>
+        </div>
     </div>
 
     <script>
-        const sourceTable = document.getElementById('sourceTable');
-        const destinationTable = document.getElementById('destinationTable');
-
-        sourceTable.addEventListener('dragstart', handleDragStart);
-        destinationTable.addEventListener('dragover', allowDrop);
-        destinationTable.addEventListener('drop', handleDrop);
-
-        function handleDragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.innerHTML);
+        function openModal(tabId) {
+            var selectedTab = document.getElementById(tabId);
+            document.getElementById('modalContent').innerHTML = selectedTab.innerHTML;
+            document.getElementById('myModal').style.display = 'block';
         }
 
-        function allowDrop(e) {
-            e.preventDefault();
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            const data = e.dataTransfer.getData('text/plain');
-            const newRow = destinationTable.insertRow();
-            const newCell = newRow.insertCell();
-            newCell.innerHTML = data;
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
         }
     </script>
+
 </body>
+
 </html>

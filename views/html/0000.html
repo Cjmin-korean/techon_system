@@ -4,104 +4,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Example</title>
     <style>
-        /* 테이블 전체에 대한 스타일 */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+        /* ... (previous styles) ... */
+
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
         }
 
-        /* 테이블 헤더에 대한 스타일 */
-        th,
-        td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
         }
 
-        th {
-            background-color: #f2f2f2;
-        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
 
-        /* 홀수 행에 대한 스타일 */
-        tr:nth-child(odd) {
-            background-color: #f9f9f9;
-        }
-
-        /* 마우스 호버 시 행에 대한 스타일 */
-        tr:hover {
-            background-color: #e5e5e5;
-        }
-
-        .textbox {
-            width: 200px;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        /* 텍스트 박스에 포커스 시 스타일 */
-        .textbox:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
-
-        .button {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-        }
-
-        /* 버튼 호버 시 스타일 */
-        .button:hover {
-            background-color: #0056b3;
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
-    <title>테이블</title>
 </head>
 
 <body>
-    <label for="inputText">데이터:</label>
-    <input type="text" id="inputText" class="textbox" placeholder="데이터를 입력하세요" autocomplete="off">
-    <button id="addDataButton" class="button">데이터 추가</button>
-    <table id="dataTable">
-        <thead>
-            <tr>
-                <th>데이터</th>
-                <th>분할</th>
-            </tr>
-        </thead>
-        <tbody>
-          
-        </tbody>
-    </table>
+
+    <div class="tabs">
+        <button class="tab" onclick="openModal('tab1')">자재정보 등록</button>
+    </div>
+
+    <div id="tab1" class="tab-content">
+        <div class="styled-input-container">
+            <!-- Your tab content here... -->
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent" class="tab-content"></div>
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("addDataButton").addEventListener("click", function () {
-                let inputData = document.getElementById("inputText").value;
-             // 새로운 행 추가
-                let newRow = document.getElementById("dataTable").insertRow();
-                let cell1 = newRow.insertCell(0);
-                let cell2 = newRow.insertCell(1);
+        function openModal(tabId) {
+            var selectedTab = document.getElementById(tabId);
+            var modalContent = document.getElementById('modalContent');
+            var loadingSpinner = document.getElementById('loadingSpinner');
 
-                // 데이터 삽입
-                cell1.textContent = inputData;
-                let splitData = inputData.split('/');
-                cell2.textContent = splitData[0] + '/' + splitData[1]; // 처음 2개의 값만 표시
+            // Display loading spinner
+            loadingSpinner.style.display = 'block';
 
-                // 텍스트 박스 초기화
-                document.getElementById("inputText").value = "";
-            });
-        });
+            // Hide modal content
+            modalContent.style.display = 'none';
+
+            setTimeout(function () {
+                // Simulate loading delay (replace this with your actual loading logic)
+                modalContent.innerHTML = selectedTab.innerHTML;
+
+                // Hide loading spinner
+                loadingSpinner.style.display = 'none';
+
+                // Show modal content
+                modalContent.style.display = 'block';
+            }, 2000); // Adjust the timeout duration as needed
+        }
+
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
     </script>
+
 </body>
 
 </html>
