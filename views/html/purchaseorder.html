@@ -87,10 +87,14 @@
         <button id="searchBtn" onclick="openSaveModal()" class="btn btn-success" style="background-color: navy;">
             <i class="fas fa-shopping-cart"></i> 발주등록
         </button>
-        <button id="searchBtn" onclick="openSaveModal()" class="btn btn-success"
-            style="background-color: rgb(23, 34, 33);">
+        <button id="searchBtn" onclick="openSaveModal1()" class="btn btn-success" style="background-color:rgb(4, 4, 24);">
+            <i class="fas fa-shopping-cart"></i> 베트남발주
+        </button>
+        <button id="searchBtn" onclick="openSaveModal2()" class="btn btn-success" style="background-color:rgb(46, 46, 71);">
             <i class="fas fa-shopping-cart"></i> 외주발주
         </button>
+    
+
         <button id="exportToExcelBtn" class="btn btn-success" style="background-color: green;">
             <i class="fas fa-file-excel"></i> 엑셀로 내보내기
         </button>
@@ -143,7 +147,7 @@
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div id="editForm" style="width: 100%; overflow: hidden;">
-            <div style="width: 100%; max-height: 500px; overflow-y: auto;">
+            <div style="width: 100%; max-height: 700px; overflow-y: auto;">
                 <table class="styled-table" style="width: 100%;">
                     <thead id="tableHead">
                         <tr>
@@ -256,15 +260,28 @@
         </div>
 
     </div>
-    <!-- <div id="editModal4" style="width:800px;">
+    <div id="editModal4" style="width:1800px;">
         <div class="mainheader">
-            <h1>외주정보 리스트</h1>
+            <h1>베트남발주</h1>
 
-            <span class="close" onclick="closeModal3()">&times;</span>
+            <span class="close" onclick="closeModal4()">&times;</span>
         </div>
-        <button id="searchBtn" onclick="searchData2()" class="btn btn-success">
-            <i class="fas fa-shopping-cart"></i> 발주적용
-        </button>
+        <fieldset>
+            <legend>검색조건</legend>
+            <b>BOMNO :</b>
+            <input type="text" id="bomno-input" style="width:300px;" autocomplete="off">
+            <b>발주수량 :</b>
+            <input type="text" id="count-input" style="width:300px;" autocomplete="off">
+
+            <button id="searchBtn" onclick="searchData()" class="btn btn-success">
+                <i class="fas fa-search"></i> 조회
+            </button>
+            <button id="searchBtn" onclick="openSaveModal()" class="btn btn-success" style="background-color: navy;">
+                <i class="fas fa-shopping-cart"></i> 발주등록
+            </button>
+
+        </fieldset>
+
         <div id="editForm" style="max-height: 500px; width: 100%; float: left; overflow-y: auto;">
             <table class="styled-table">
 
@@ -280,7 +297,7 @@
             </table>
         </div>
 
-    </div> -->
+    </div>
 
     <div id="overlay3"></div>
 
@@ -363,6 +380,62 @@
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('editModal2').style.display = 'block';
         }
+        function openSaveModal1() {
+
+
+            $('#databody').empty();
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/productorderlist31',
+                dataType: 'json',
+                success: function (result) {
+                    var tableBody = $('#databody');
+                    var modelQuantities = {}; // To store model quantities
+
+                    if (result.length === 0) {
+                        tableBody.append('<tr><td colspan="11">생산확정 데이터가 없습니다.</td></tr>');
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            // Accumulate quantity for each model
+                            if (!modelQuantities[result[i].modelname]) {
+                                modelQuantities[result[i].modelname] = { quantity: 0, count: 0 };
+                            }
+                            modelQuantities[result[i].modelname].quantity += result[i].quantity;
+                            modelQuantities[result[i].modelname].count++;
+
+                            $('#databody').append(
+                                '<tr>' +
+                                '<td>' + result[i].bomno + '</td>' +
+                                '<td>' + result[i].modelname + '</td>' +
+                                '<td>' + result[i].itemname + '</td>' +
+                                '<td>' + result[i].lotno + '</td>' +
+                                '<td style="text-align:right;">' + result[i].quantity.toLocaleString() + '</td>' +
+                                '<td id="data-id">' + result[i].id + '</td>' +
+                                '</tr>'
+                            );
+                            $('td#data-id').hide();
+                        }
+
+                        // Add rows for model sums
+                        for (var model in modelQuantities) {
+                            $('#databody').append(
+                                '<tr class="model-sum-row">' +
+                                '<td colspan="2">' + model + '</td>' +
+                                '<td>합계</td>' +
+                                '<td>' + modelQuantities[model].count + '건</td>' +
+                                '<td style="text-align:right;">' + modelQuantities[model].quantity.toLocaleString() + '</td>' +
+                                '</tr>'
+                            );
+                        }
+                    }
+                }
+            });
+
+
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('editModal4').style.display = 'block';
+        }
 
 
         // Function to close edit modal and overlay
@@ -377,6 +450,10 @@
         function closeModal3() {
             $('#overlay3').fadeOut();
             $('#editModal3').fadeOut();
+        }
+        function closeModal4() {
+            $('#overlay').fadeOut();
+            $('#editModal4').fadeOut();
         }
 
         function showLoading() {
@@ -493,17 +570,17 @@
                             )
 
                         }
-                        $('#Datatbody').append(
-                            '<tr>' +
-                            '<td>' + (data[0].orderno || '') + '</td>' +
-                            '<td>' + (data[0].orderdate || '') + '</td>' +
-                            '<td>' + (data[0].suppliername || '') + '</td>' +
-                            '<td>' + (data[0].orderSummary || '') + '</td>' +
-                            '<td style="text-align:right;">' + (data[0].totalSupplyAmount.toLocaleString() || '') + '</td>' +
-                            '<td><button onclick="openInvoice(this)">발주서</button></td>' +
-                            '<td>' + korean1Flag + '</td>' +
-                            '</tr>'
-                        )
+                        // $('#Datatbody').append(
+                        //     '<tr>' +
+                        //     '<td>' + (data[0].orderno || '') + '</td>' +
+                        //     '<td>' + (data[0].orderdate || '') + '</td>' +
+                        //     '<td>' + (data[0].suppliername || '') + '</td>' +
+                        //     '<td>' + (data[0].orderSummary || '') + '</td>' +
+                        //     '<td style="text-align:right;">' + (data[0].totalSupplyAmount.toLocaleString() || '') + '</td>' +
+                        //     '<td><button onclick="openInvoice(this)">발주서</button></td>' +
+                        //     '<td>' + korean1Flag + '</td>' +
+                        //     '</tr>'
+                        // )
                     }
                 }
 

@@ -4772,6 +4772,26 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/plansearch3', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('plandate', sql.NVarChar, req.body.plandate)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+
+                .query(
+                    "select * from produceplan where plandate=@plandate and equipmentname=@equipmentname")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
     sql.connect(config).then(pool => {
         app.post('/api/purchaseordernoinput', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -5672,6 +5692,26 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT * FROM materialinfoinformation WHERE materialname LIKE '%' + @materialname + '%' order by materialname,num asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/suppliername', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+
+                .query(
+                    "SELECT supplier FROM materialinfoinformation group by supplier order by supplier asc")
                 .then(result => {
 
                     res.json(result.recordset);

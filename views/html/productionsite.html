@@ -110,11 +110,14 @@
 
     <fieldset>
         <legend>검색조건</legend>
-        <select>
-            <option></option>
-        </select>
-        <button onclick="load()">조회</button>
-        <button onclick="newadd()">신규추가</button>
+        <div class="action-buttons">
+            <div>
+                <b>설비 QR CODE:</b>
+                <input type="text" style="width:800px; margin-left: 20px;" id="qr-input" pattern="[A-Za-z]*"
+                    placeholder="설비코드를 스캔하세요">
+            </div>
+
+        </div>
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
@@ -208,6 +211,14 @@
             load()
             $('#Datatbody').on('dblclick', 'tr', function () {
                 openEditModal(this); // Pass the clicked row to the function
+            });
+            var qrInput = document.getElementById('qr-input');
+            qrInput.focus();
+
+            // Add a click event listener to the document
+            document.addEventListener('click', function () {
+                // Set focus on the qr-input text box when any part of the document is clicked
+                qrInput.focus();
             });
 
         });
@@ -342,45 +353,30 @@
         }
 
 
+
         function startProduction(button) {
             var row = button.closest('tr'); // Find the parent row
             var rowData = $(row).find('td').map(function () {
                 return $(this).text();
             }).get();
             console.log(rowData)
-            Swal.fire({
-                icon: 'info',
-                title: '시작',
-                text: '생산을 시작 하시겠습니까?',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: '확인',
-                cancelButtonText: '취소',
-            }).then((result) => {
-                if (result.isConfirmed) {
+            var newWindow = window.open('/html/workorder.html', '_blank', 'width=800,height=500');
+            var leftPosition = (screen.width - newWindow.outerWidth) / 2;
+            var topPosition = (screen.height - newWindow.outerHeight) / 2;
+            newWindow.moveTo(leftPosition, topPosition);
 
-                    var newWindow = window.open('/html/workorder.html', '_blank', 'width=800,height=500');
-                    var leftPosition = (screen.width - newWindow.outerWidth)/2;
-                    var topPosition = (screen.height - newWindow.outerHeight) / 2;
-                    newWindow.moveTo(leftPosition, topPosition);
+            newWindow.onload = function () {
+                // 발주서 창이 로딩되면 해당 데이터를 전달
+                newWindow.document.getElementById("orderno").innerText = rowData[9] || ''; // 수정: suppliername은 두 번째 열에 위치한다고 가정
 
-                    newWindow.onload = function () {
-                        // 발주서 창이 로딩되면 해당 데이터를 전달
-                        newWindow.document.getElementById("orderno").innerText = rowData[9] || ''; // 수정: suppliername은 두 번째 열에 위치한다고 가정
-
-                        // 예시로 테이블에 데이터 추가 (이 부분은 실제 데이터에 맞게 수정)
-                        var table = newWindow.document.getElementById("invoice-items");
-                        for (var i = 0; i < rowData.length; i++) {
-                            var row = table.insertRow(-1);
-                            var cell = row.insertCell(0);
-                            cell.innerHTML = rowData[i] || '';
-                        }
-                    };
-
-
+                // 예시로 테이블에 데이터 추가 (이 부분은 실제 데이터에 맞게 수정)
+                var table = newWindow.document.getElementById("invoice-items");
+                for (var i = 0; i < rowData.length; i++) {
+                    var row = table.insertRow(-1);
+                    var cell = row.insertCell(0);
+                    cell.innerHTML = rowData[i] || '';
                 }
-            });
+            };
 
         }
 
@@ -648,6 +644,61 @@
 
             });
         }
+        const inputElement1 = document.getElementById('qr-input');
+
+
+        inputElement1.addEventListener('keyup', function (event) {
+            if (event.key === 'Enter') {
+                const inputValue = inputElement1.value;
+
+                $('#Datatbody').empty();
+                var currentDateElement = document.getElementById('current-date');
+                var today = new Date();
+                var year = today.getFullYear();
+                var month = String(today.getMonth() + 1).padStart(2, '0');
+                var day = String(today.getDate()).padStart(2, '0');
+                var insertdate = year + '-' + month + '-' + day;
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/plansearch3',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        plandate: insertdate,
+                        equipmentname: inputValue,
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                        if (result.length === 0) {
+                        } else {
+                            for (var i = 0; i < result.length; i++) {
+
+                                $('#Datatbody').append(
+                                    '<tr>' +
+                                    '<td>' + (result[i].equipmentname || '') + '</td>' +
+                                    '<td>' + (result[i].bomno || '') + '</td>' +
+                                    '<td>' + (result[i].customer || '') + '</td>' +
+                                    '<td>' + (result[i].modelname || '') + '</td>' +
+                                    '<td>' + (result[i].itemname || '') + '</td>' +
+                                    '<td>' + (result[i].part || '') + '</td>' +
+                                    '<td>' + (result[i].lotno || '') + '</td>' +
+                                    '<td>' + (result[i].pono.toLocaleString() || '') + '</td>' +
+                                    '<td><button onclick="startProduction(this)">생산시작</button></td>' +
+                                    '<td style="display:none;">' + (result[i].orderno || '') + '</td>' +
+
+                                    '</tr>'
+                                );
+                            }
+
+
+
+
+                        }
+                    }
+                });
+            }
+        });
     </script>
 
 

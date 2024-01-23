@@ -215,10 +215,11 @@
     <fieldset>
         <legend>검색조건</legend>
         <b>거래처명</b>
-        <!-- <input type="text" id="customer-select" value="" style="cursor: pointer; width: 600px;"
-            onkeydown="handleEnterKey(event)" autocomplete="off" placeholder="거래처명 입력후 ENTER 누르세요"> -->
-        <input type="text" id="customer-select" value="성진산업" style="cursor: pointer; width: 600px;"
-            oninput="handleInput()" onkeydown="handleKeyDown()" autocomplete="off" placeholder="거래처명 검색하세요">
+        <input type="text" class="form-tag text ess" id="customer-select" name="funeralName" list="funeralList"
+            placeholder="거래처명 검색하세요" autocomplete="off">
+        <datalist id="funeralList"> </datalist>
+        <!-- <input type="text" id="customer-select" value="성진산업" style="cursor: pointer; width: 600px;"
+            oninput="handleInput()" onkeydown="handleKeyDown()" autocomplete="off" placeholder="거래처명 검색하세요"> -->
         <button id="searchBtn" onclick="openpurchaseorder()" class="btn btn-success" style="background-color: navy;">
             <i class="fas fa-shopping-cart"></i> 발주조회
         </button>
@@ -226,7 +227,7 @@
             <i class="fas fa-file-excel"></i> 엑셀로 내보내기
         </button>
         <!-- Container for the suggestion list -->
-        <ul id="suggestion-list" style="list-style-type: none; padding: 0; margin: 0;"></ul>
+        <!-- <ul id="suggestion-list" style="list-style-type: none; padding: 0; margin: 0;"></ul> -->
 
     </fieldset>
     <div id="overlay"></div>
@@ -468,7 +469,35 @@
                     console.log('Checkbox Unchecked');
                 }
             });
+            function updateDatalist(options) {
+                var datalist = $('#funeralList');
+                datalist.empty(); // Clear existing options
 
+                // Add new options based on the results
+                options.forEach(function (option) {
+                    datalist.append('<option value="' + option.supplier + '" >' + option.supplier + '</option>');
+                });
+            }
+
+            // Event listener for input changes
+            $('#customer-select').on('input', function () {
+                var inputValue = $(this).val();
+
+                // AJAX request to fetch data
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/suppliername',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        // supplier: inputValue
+                    }),
+                    success: function (result) {
+                        updateDatalist(result); // Update datalist options with the results
+                    },
+                  
+                });
+            });
         });
         function newadd() {
             var rowCount = $('#purchaseorderinfobody tr').length - 1;
@@ -1031,7 +1060,7 @@
                 $('td#rollprice-input').hide();
                 $('td#qrno-input').hide();
                 $('td#qrnosplit-input').hide();
-                // $('td#qrno-input').hide();
+                $('td#qrno-input').hide();
             }
         }
 
