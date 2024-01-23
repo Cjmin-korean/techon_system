@@ -5,8 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.rawgit.com/zxing-js/instascan/1.0.0/instascan.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
 
     <style>
+        .confirmation-complete {
+            background-color: lime;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
         }
@@ -63,7 +69,8 @@
     <div class="action-buttons">
         <div>
             <b>QR CODE:</b>
-            <input type="text" style="width:800px; margin-left: 20px;" id="qr-input" pattern="[A-Za-z]*" placeholder="스캔된 QR 코드가 여기에 표시됩니다.">
+            <input type="text" style="width:800px; margin-left: 20px;" onkeypress="handleKeyPress(event)" id="qr-input"
+                pattern="[A-Za-z]*" placeholder="QR CODE를 리딩하세요">
         </div>
 
     </div>
@@ -84,7 +91,15 @@
                 <th>생산 LOT</th>
 
             </tr>
+            <tr>
+                <td style="font-weight: bold;" id="bomno"></td>
+                <td style="font-weight: bold;" id="modelname"></td>
+                <td style="font-weight: bold;" id="itemname"></td>
+                <td style="font-weight: bold;" id="itemcode"></td>
+                <td style="font-weight: bold;" id="lotno"></td>
 
+
+            </tr>
         </thead>
         <tbody>
 
@@ -112,17 +127,46 @@
             <tr>
                 <th>TOOL & 금형</th>
                 <th>구분</th>
-                <th>QR리딩</th>
                 <th>결과</th>
             </tr>
 
         </thead>
-        <tbody>
+        <tbody id="productiontoolbody">
 
         </tbody>
     </table>
 </body>
 <script>
+    function handleKeyPress(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            updateTable();
+        }
+    }
+
+    function updateTable() {
+        var textBoxValue = document.getElementById("qr-input").value.trim(); // Trim leading and trailing whitespaces
+
+        // Loop through each row in the table
+        var rows = document.getElementById("productiontoolbody").rows;
+        for (var i = 0; i < rows.length; i++) {
+            var materialNo = rows[i].cells[0].textContent.trim(); // Trim leading and trailing whitespaces
+            var statusCell = rows[i].cells[2];
+
+            // Check if the materialNo starts with the entered value
+            if (materialNo.startsWith(textBoxValue)) {
+                statusCell.textContent = "확인완료";
+                statusCell.classList.add("confirmation-complete"); // Add a class for styling
+                document.getElementById("qr-input").value = '';
+            } else {
+                // If the condition is not met, you may want to reset the background color and text
+                statusCell.textContent = "";
+                statusCell.classList.remove("confirmation-complete"); // Remove the class
+            }
+        }
+    }
+
+
     document.addEventListener('DOMContentLoaded', function () {
         // Set focus on the qr-input text box
         var qrInput = document.getElementById('qr-input');
@@ -136,6 +180,31 @@
 
 
     });
+    // Add this script to your a.html file
+    window.addEventListener('message', function (event) {
+        // Check the origin of the data to ensure it's from a trusted source
+        if (event.origin !== window.location.origin) {
+            return;
+        }
+
+        // Handle the received data (production tool data)
+        const productionToolData = event.data;
+
+        // Clear existing rows in the table
+        $('#productiontoolbody').empty();
+
+        // Append new rows to the table
+        productionToolData.forEach(item => {
+            $('#productiontoolbody').append(
+                '<tr>' +
+                '<td>' + (item.toolcode || '') + '</td>' +
+                '<td>' + (item.part || '') + '</td>' +
+                '<td></td>' +
+                '</tr>'
+            );
+        });
+    });
+
 </script>
 
 </html>

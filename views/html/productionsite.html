@@ -208,10 +208,8 @@
         }
         $(document).ready(function () {
             showLoading()
-            load()
-            $('#Datatbody').on('dblclick', 'tr', function () {
-                openEditModal(this); // Pass the clicked row to the function
-            });
+
+
             var qrInput = document.getElementById('qr-input');
             qrInput.focus();
 
@@ -220,6 +218,7 @@
                 // Set focus on the qr-input text box when any part of the document is clicked
                 qrInput.focus();
             });
+            load()
 
         });
 
@@ -644,12 +643,11 @@
 
             });
         }
-        const inputElement1 = document.getElementById('qr-input');
 
 
-        inputElement1.addEventListener('keyup', function (event) {
+        document.getElementById('qr-input').addEventListener('keyup', function (event) {
             if (event.key === 'Enter') {
-                const inputValue = inputElement1.value;
+                const inputValue = document.getElementById('qr-input').value;
 
                 $('#Datatbody').empty();
                 var currentDateElement = document.getElementById('current-date');
@@ -669,7 +667,6 @@
 
                     }),
                     success: function (result) {
-                        console.log(result)
                         if (result.length === 0) {
                         } else {
                             for (var i = 0; i < result.length; i++) {
@@ -691,12 +688,33 @@
                                 );
                             }
 
+                            document.getElementById('qr-input').value = '';
+
+                            var newWindow = window.open('/html/workorder.html', '_blank', 'width=800,height=500');
+                            var leftPosition = (screen.width - newWindow.outerWidth) / 2;
+                            var topPosition = (screen.height - newWindow.outerHeight) / 2;
+                            newWindow.moveTo(leftPosition, topPosition);
+
+                            newWindow.onload = function () {
+                                // 발주서 창이 로딩되면 해당 데이터를 전달
+                                newWindow.document.getElementById("orderno").innerText = result[0].orderno || ''; // 수정: suppliername은 두 번째 열에 위치한다고 가정
+
+                                // 예시로 테이블에 데이터 추가 (이 부분은 실제 데이터에 맞게 수정)
+                                // var table = newWindow.document.getElementById("invoice-items");
+                                // for (var i = 0; i < rowData.length; i++) {
+                                //     var row = table.insertRow(-1);
+                                //     var cell = row.insertCell(0);
+                                //     cell.innerHTML = rowData[i] || '';
+                                // }
+                            };
 
 
 
                         }
                     }
+
                 });
+
             }
         });
     </script>

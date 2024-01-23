@@ -122,48 +122,82 @@
 
             slides[slideIndex - 1].style.display = "block";
         }
-        const inputElement1 = document.getElementById('qr-input-1');
-        const inputElement2 = document.getElementById('qr-input-2');
-        const resultContainer1 = document.getElementById('result-1');
-        const resultContainer2 = document.getElementById('result-2');
 
-        inputElement1.addEventListener('keyup', function (event) {
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        const inputElement1 = document.getElementById('qr-input-1');
+
+        inputElement1.addEventListener('keyup', async function (event) {
             if (event.key === 'Enter') {
                 const inputValue = inputElement1.value;
+                const ordernoText = $('#orderno').text();
 
-                if (inputValue === $('#orderno').text()) {
-                    // Close the window
-                    window.close();
-                    var newWindow = window.open('/html/00.html', '_blank', 'width=900,height=1000');
-                    var leftPosition = (screen.width - newWindow.outerWidth) / 2;
-                    var topPosition = (screen.height - newWindow.outerHeight) / 2;
-                    newWindow.moveTo(leftPosition, topPosition)
+                if (inputValue === ordernoText) {
+                    try {
+                        const result = await $.ajax({
+                            type: 'POST',
+                            url: server + '/api/searchorderno',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                orderno: inputValue
+                            }),
+                        });
 
-                    newWindow.onload = function () {
-                        newWindow.document.getElementById("suppliername").innerText = rowData[1] || ''; // 수정: suppliername은 두 번째 열에 위치한다고 가정
+                        const newWindow = window.open('/html/a.html', '_blank', 'width=1800,height=1200');
 
-                        var table = newWindow.document.getElementById("invoice-items");
-                        for (var i = 0; i < rowData.length; i++) {
-                            var row = table.insertRow(-1);
-                            var cell = row.insertCell(0);
-                            cell.innerHTML = rowData[i] || '';
-                        }
-                    };
+                        const result1 = await $.ajax({
+                            type: 'POST',
+                            url: server + '/api/selectbomnobomtoolcode',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                bomno: result[0]?.bomno
+                            }),
+                        });
 
+                        newWindow.onload = function () {
+                            window.close();
+                            const leftPosition = (screen.width - newWindow.outerWidth) / 2;
+                            const topPosition = (screen.height - newWindow.outerHeight) / 2;
+                            newWindow.moveTo(leftPosition, topPosition);
+
+                            // Update elements in the new window with result data
+                            newWindow.document.getElementById("bomno").innerText = result[0]?.bomno || '';
+                            newWindow.document.getElementById("modelname").innerText = result[0]?.modelname || '';
+                            newWindow.document.getElementById("itemname").innerText = result[0]?.itemname || '';
+                            newWindow.document.getElementById("itemcode").innerText = result[0]?.bomno || '';
+                            newWindow.document.getElementById("lotno").innerText = result[0]?.lotno || '';
+
+                            // Post a message to the child window with the production tool data
+                            newWindow.postMessage(result1, '*');
+                            console.log(result1)
+                        };
+                    } catch (error) {
+                        console.error(error);
+                        // Handle error as needed
+                    }
                 } else {
-                    $('#qr-input-1').val('')
-                    $('#qr-input-1').focus()
+                    $('#qr-input-1').val('');
+                    $('#qr-input-1').focus();
                     Swal.fire({
                         icon: 'error',
                         title: '불일치',
-                        text: '작업지시시NO가 일치하지 않습니다.',
+                        text: '작업지시번호가 일치하지 않습니다.',
                         showCancelButton: true,
-                        confirmButton:false,
-                       
-                    })
+                        confirmButton: false,
+                    });
                 }
             }
         });
+
+
+
 
 
 

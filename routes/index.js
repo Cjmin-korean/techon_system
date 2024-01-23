@@ -2522,6 +2522,35 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectbomnobomtoolcode', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "SELECT * FROM bomtoolcode "+
+                    " WHERE bomno = @bomno "+
+                    "   AND status = 'true' "+
+                    "   AND toolcode IS NOT NULL "+
+                    "   AND toolcode != '' "+ 
+                    " order by part asc ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/updateusewidth', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -4784,6 +4813,25 @@ module.exports = function (app) {
 
                 .query(
                     "select * from produceplan where plandate=@plandate and equipmentname=@equipmentname")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/searchorderno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+                .query(
+                    "select * from produceplan where orderno=@orderno")
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
