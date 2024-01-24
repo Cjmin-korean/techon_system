@@ -7,10 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
     <link rel="stylesheet" href="../css/mesaccountinput.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
@@ -101,7 +100,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">생산현장</a>
+        <a style="margin-left: 20px;">일일 최종검사 현황</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -114,40 +113,47 @@
             <div>
                 <b>작업지시서 QR CODE:</b>
                 <input type="text" style="width:800px; margin-left: 20px;" id="qr-input" pattern="[A-Za-z]*"
-                    placeholder="작업지시서 QR 스캔하세요">
+                    autocomplete="off" placeholder="작업지시서 QR 스캔하세요">
             </div>
 
         </div>
     </fieldset>
     <div id="overlay"></div>
-    <table class="styled-table" id="datatable">
+    <table class="styled-table" id="datatable" style="width: 140%;">
         <thead id="tableHead">
             <tr>
                 <th style="text-align:center;">BOMNO.</th>
                 <th style="text-align:center;">검사일</th>
+                <th style="text-align:center;">고객사</th>
                 <th style="text-align:center;">모델명</th>
                 <th style="text-align:center;">제품명</th>
                 <th style="text-align:center;">LOTNO</th>
-                <th style="text-align:center;">작업수량(EA)</th>
-                <th style="text-align:center;">생산날짜</th>
-                <th style="text-align:center;">양품율(%)</th>
-                <th style="text-align:center;">불량율(%)</th>
-                <th style="text-align:center;">양품수량(EA)</th>
-                <th style="text-align:center;">불량수량(EA)</th>
+                <th style="text-align:center;">작업일자</th>
+                <th style="text-align:center;">작업<br>호기</th>
+                <th style="text-align:center;">작업자</th>
+                <th style="text-align:center;">작업수량<br>(pcs)</th>
+                <th style="text-align:center;">검사<br>(pcs)</th>
+                <th style="text-align:center;">양품<br>(pcs)</th>
+                <th style="text-align:center;">불량<br>(pcs)</th>
+                <th style="text-align:center;">불량율<br>(%)</th>
+
                 <th style="text-align:center;">이물</th>
                 <th style="text-align:center;">Burr</th>
+                <th style="text-align:center;">미스크랩</th>
                 <th style="text-align:center;">구김</th>
                 <th style="text-align:center;">찐</th>
-                <th style="text-align:center;">기호</th>
+                <th style="text-align:center;">기포</th>
                 <th style="text-align:center;">누락</th>
                 <th style="text-align:center;">펜싱</th>
                 <th style="text-align:center;">홀찍힘</th>
-                <th style="text-align:center;">이음배</th>
+                <th style="text-align:center;">이음매</th>
                 <th style="text-align:center;">잘림</th>
                 <th style="text-align:center;">컬</th>
                 <th style="text-align:center;">홀막힘</th>
                 <th style="text-align:center;">스크래치</th>
                 <th style="text-align:center;">원단</th>
+                <th style="text-align:center;">수량부족</th>
+                <th style="text-align:center;">기타</th>
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -225,16 +231,14 @@
         $(document).ready(function () {
             showLoading()
 
-
             var qrInput = document.getElementById('qr-input');
             qrInput.focus();
 
-            // Add a click event listener to the document
-            document.addEventListener('click', function () {
-                // Set focus on the qr-input text box when any part of the document is clicked
-                qrInput.focus();
-            });
-            load()
+            // // Add a click event listener to the document
+            // document.addEventListener('click', function () {
+            //     // Set focus on the qr-input text box when any part of the document is clicked
+            //     qrInput.focus();
+            // });
 
         });
 
@@ -319,135 +323,135 @@
         }
 
 
-        function load() {
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/alltest',
-                dataType: 'json',
-                success: function (data) {
-                    var itemGroups = {}; // itemname을 기준으로 그룹화된 데이터를 저장할 객체
-                    var totalCount = 0;
-                    var okCountTotal = 0;
-                    var ngCountTotal = 0;
-                    var tableBody = $('#datatable');
+        // function load() {
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: server + '/api/alltest',
+        //         dataType: 'json',
+        //         success: function (data) {
+        //             var itemGroups = {}; // itemname을 기준으로 그룹화된 데이터를 저장할 객체
+        //             var totalCount = 0;
+        //             var okCountTotal = 0;
+        //             var ngCountTotal = 0;
+        //             var tableBody = $('#datatable');
 
-                    if (data.length === 0) {
-                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
-                        tableBody.append('<tr><td colspan="25">데이터가 없습니다.</td></tr>');
-                    } else {
-                        for (var i = 0; i < data.length; i++) {
-                            var itemname = data[i].itemname;
-                            var count = parseInt(data[i].count);
-                            var okcount = parseInt(data[i].okcount);
-                            var ngcount = parseInt(data[i].ngcount);
+        //             if (data.length === 0) {
+        //                 // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
+        //                 tableBody.append('<tr><td colspan="25">데이터가 없습니다.</td></tr>');
+        //             } else {
+        //                 for (var i = 0; i < data.length; i++) {
+        //                     var itemname = data[i].itemname;
+        //                     var count = parseInt(data[i].count);
+        //                     var okcount = parseInt(data[i].okcount);
+        //                     var ngcount = parseInt(data[i].ngcount);
 
-                            // itemname으로 그룹화된 데이터가 없으면 초기화
-                            if (!itemGroups[itemname]) {
-                                itemGroups[itemname] = {
-                                    rows: [],
-                                    ngTotals: Array(15).fill(0),
-                                    okCountTotal: 0,
-                                    ngCountTotal: 0,
-                                    totalCount: 0,
-                                    yieldRate: 0,
-                                    defectRate: 0
-                                };
-                            }
+        //                     // itemname으로 그룹화된 데이터가 없으면 초기화
+        //                     if (!itemGroups[itemname]) {
+        //                         itemGroups[itemname] = {
+        //                             rows: [],
+        //                             ngTotals: Array(15).fill(0),
+        //                             okCountTotal: 0,
+        //                             ngCountTotal: 0,
+        //                             totalCount: 0,
+        //                             yieldRate: 0,
+        //                             defectRate: 0
+        //                         };
+        //                     }
 
-                            // 각 ng 값을 더하여 합계 계산
-                            for (var j = 0; j < itemGroups[itemname].ngTotals.length; j++) {
-                                itemGroups[itemname].ngTotals[j] += data[i]['ng' + (j + 1)];
-                            }
+        //                     // 각 ng 값을 더하여 합계 계산
+        //                     for (var j = 0; j < itemGroups[itemname].ngTotals.length; j++) {
+        //                         itemGroups[itemname].ngTotals[j] += data[i]['ng' + (j + 1)];
+        //                     }
 
-                            // okcount와 ngcount 합계 계산
-                            itemGroups[itemname].okCountTotal += okcount;
-                            itemGroups[itemname].ngCountTotal += ngcount;
+        //                     // okcount와 ngcount 합계 계산
+        //                     itemGroups[itemname].okCountTotal += okcount;
+        //                     itemGroups[itemname].ngCountTotal += ngcount;
 
-                            // 그룹에 속하는 행 추가
-                            itemGroups[itemname].rows.push(data[i]);
+        //                     // 그룹에 속하는 행 추가
+        //                     itemGroups[itemname].rows.push(data[i]);
 
-                            totalCount += count;
-                            okCountTotal += okcount;
-                            ngCountTotal += ngcount;
-                            itemGroups[itemname].totalCount += count;
-                        }
+        //                     totalCount += count;
+        //                     okCountTotal += okcount;
+        //                     ngCountTotal += ngcount;
+        //                     itemGroups[itemname].totalCount += count;
+        //                 }
 
-                        for (var item in itemGroups) {
-                            var itemGroup = itemGroups[item];
-                            var rows = itemGroup.rows;
-                            var ngTotals = itemGroup.ngTotals;
-                            var okCountTotal = itemGroup.okCountTotal;
-                            var ngCountTotal = itemGroup.ngCountTotal;
-                            var totalCount = itemGroup.totalCount;
-                            var yieldRate = ((okCountTotal / totalCount) * 100).toFixed(2) + "%";
-                            var defectRate = ((ngCountTotal / totalCount) * 100).toFixed(2) + "%";
+        //                 for (var item in itemGroups) {
+        //                     var itemGroup = itemGroups[item];
+        //                     var rows = itemGroup.rows;
+        //                     var ngTotals = itemGroup.ngTotals;
+        //                     var okCountTotal = itemGroup.okCountTotal;
+        //                     var ngCountTotal = itemGroup.ngCountTotal;
+        //                     var totalCount = itemGroup.totalCount;
+        //                     var yieldRate = ((okCountTotal / totalCount) * 100).toFixed(2) + "%";
+        //                     var defectRate = ((ngCountTotal / totalCount) * 100).toFixed(2) + "%";
 
-                            // item 그룹 표시
-                            $('#datatable').append('<tr><td colspan="27" style="font-weight: bold;">' + item + '</td></tr>');
+        //                     // item 그룹 표시
+        //                     $('#datatable').append('<tr><td colspan="27" style="font-weight: bold;">' + item + '</td></tr>');
 
-                            // item 그룹 내 행 표시
-                            for (var k = 0; k < rows.length; k++) {
-                                var rowData = rows[k];
-                                var count = parseInt(rowData.count);
-                                var okcount = parseInt(rowData.okcount);
-                                var ngcount = parseInt(rowData.ngcount);
-                                var yieldRate = ((okcount / count) * 100).toFixed(2) + "%";
-                                var defectRate = ((ngcount / count) * 100).toFixed(2) + "%";
-                                var rowHtml = '<tr>' +
-                                    '<td>' + rowData.bom + '</td>' +
-                                    '<td>' + rowData.testdate + '</td>' +
-                                    '<td>' + rowData.modelname + '</td>' +
-                                    '<td>' + rowData.itemname + '</td>' +
-                                    '<td>' + rowData.lotno + '</td>' +
-                                    '<td style="text-align:right;">' + rowData.count.toLocaleString() + '</td>' +
-                                    '<td>' + rowData.productdate + '</td>' +
-                                    '<td style="color:blue;">' + yieldRate + '</td>' +
-                                    '<td style="color:red;">' + defectRate + '</td>' +
-                                    '<td style="text-align:right; background-color: blue; color: white;">' + rowData.okcount.toLocaleString() + '</td>' +
-                                    '<td style="text-align:right; background-color: red; color: white;">' + rowData.ngcount.toLocaleString() + '</td>';
+        //                     // item 그룹 내 행 표시
+        //                     for (var k = 0; k < rows.length; k++) {
+        //                         var rowData = rows[k];
+        //                         var count = parseInt(rowData.count);
+        //                         var okcount = parseInt(rowData.okcount);
+        //                         var ngcount = parseInt(rowData.ngcount);
+        //                         var yieldRate = ((okcount / count) * 100).toFixed(2) + "%";
+        //                         var defectRate = ((ngcount / count) * 100).toFixed(2) + "%";
+        //                         var rowHtml = '<tr>' +
+        //                             '<td>' + rowData.bom + '</td>' +
+        //                             '<td>' + rowData.testdate + '</td>' +
+        //                             '<td>' + rowData.modelname + '</td>' +
+        //                             '<td>' + rowData.itemname + '</td>' +
+        //                             '<td>' + rowData.lotno + '</td>' +
+        //                             '<td style="text-align:right;">' + rowData.count.toLocaleString() + '</td>' +
+        //                             '<td>' + rowData.productdate + '</td>' +
+        //                             '<td style="color:blue;">' + yieldRate + '</td>' +
+        //                             '<td style="color:red;">' + defectRate + '</td>' +
+        //                             '<td style="text-align:right; background-color: blue; color: white;">' + rowData.okcount.toLocaleString() + '</td>' +
+        //                             '<td style="text-align:right; background-color: red; color: white;">' + rowData.ngcount.toLocaleString() + '</td>';
 
-                                for (var l = 1; l <= 15; l++) {
-                                    if (rowData['ng' + l] !== 0) {
-                                        rowHtml += '<td style="color: red; text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
-                                    } else {
-                                        rowHtml += '<td style="text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
-                                    }
-                                }
+        //                         for (var l = 1; l <= 15; l++) {
+        //                             if (rowData['ng' + l] !== 0) {
+        //                                 rowHtml += '<td style="color: red; text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
+        //                             } else {
+        //                                 rowHtml += '<td style="text-align:right;">' + rowData['ng' + l].toLocaleString() + '</td>';
+        //                             }
+        //                         }
 
-                                rowHtml += '' +
+        //                         rowHtml += '' +
 
-                                    '</tr>';
-                                $('#datatable').append(rowHtml);
-                            }
+        //                             '</tr>';
+        //                         $('#datatable').append(rowHtml);
+        //                     }
 
-                            // 그룹 합계 표시
-                            var ngTotalHtml = '<tr>' +
-                                '<td colspan="9">합계</td>' +
-                                '<td style="color: blue; text-align:right;">' + okCountTotal.toLocaleString() + '</td>' +
-                                '<td style="color: red; text-align:right;">' + ngCountTotal.toLocaleString() + '</td>';
+        //                     // 그룹 합계 표시
+        //                     var ngTotalHtml = '<tr>' +
+        //                         '<td colspan="9">합계</td>' +
+        //                         '<td style="color: blue; text-align:right;">' + okCountTotal.toLocaleString() + '</td>' +
+        //                         '<td style="color: red; text-align:right;">' + ngCountTotal.toLocaleString() + '</td>';
 
-                            for (var m = 0; m < ngTotals.length; m++) {
-                                ngTotalHtml += '<td style="text-align:right;">' + ngTotals[m].toLocaleString() + '</td>';
-                            }
+        //                     for (var m = 0; m < ngTotals.length; m++) {
+        //                         ngTotalHtml += '<td style="text-align:right;">' + ngTotals[m].toLocaleString() + '</td>';
+        //                     }
 
-                            ngTotalHtml += '<td></td>' +
-
-
-                                '</tr>';
-
-                            $('#datatable').append(ngTotalHtml);
-                        }
-
-                        var overallYieldRate = ((okCountTotal / totalCount) * 100).toFixed(2) + "%";
-                        var overallDefectRate = ((ngCountTotal / totalCount) * 100).toFixed(2) + "%";
+        //                     ngTotalHtml += '<td></td>' +
 
 
+        //                         '</tr>';
+
+        //                     $('#datatable').append(ngTotalHtml);
+        //                 }
+
+        //                 var overallYieldRate = ((okCountTotal / totalCount) * 100).toFixed(2) + "%";
+        //                 var overallDefectRate = ((ngCountTotal / totalCount) * 100).toFixed(2) + "%";
 
 
-                    }
-                }
-            });
-        }
+
+
+        //             }
+        //         }
+        //     });
+        // }
 
 
 
@@ -745,12 +749,66 @@
 
         document.getElementById('qr-input').addEventListener('keyup', function (event) {
             if (event.key === 'Enter') {
-                const inputValue = document.getElementById('qr-input').value;
-                var newWindow = window.open('/html/insepectionorder.html', '_blank', 'width=800,height=900');
-                var leftPosition = (screen.width - newWindow.outerWidth) / 2;
-                var topPosition = (screen.height - newWindow.outerHeight) / 2;
-                newWindow.moveTo(leftPosition, topPosition);
+                const qrInput = document.getElementById('qr-input');
 
+                if (!qrInput) {
+                    console.error('QR input element not found.');
+                    return;
+                }
+
+                const inputValue = qrInput.value;
+                const inspectionCountInput = document.getElementById('inspectioncount-input');
+                const okCountInput = document.getElementById('okcount-input');
+                const ngCountInput = document.getElementById('ngcount-input');
+                const ngPercentInput = document.getElementById('ngpercent-input');
+
+                $('#Datatbody').empty();
+                var newRow = $('<tr></tr>');
+
+                // 행 추가
+                newRow.append('<td id="bomno-input">YPE-2-019</td>');
+                newRow.append('<td id="inspectiondate-input">2024-01-24</td>');
+                newRow.append('<td id="customer-input">영풍전자(주)</td>');
+                newRow.append('<td id="modelname-input">T6_1</td>');
+                newRow.append('<td id="itemname-input">1CS-COV</td>');
+                newRow.append('<td id="lotno-input">A-YPE-2-019-20240122-1</td>');
+                newRow.append('<td id="productiondate-input">2024-01-23</td>');
+                newRow.append('<td id="productionmarchine-input">1호기</td>');
+                newRow.append('<td id="people-input">송민우</td>');
+                newRow.append('<td id="count-input">40000</td>');
+                newRow.append('<td><input type="text" value="0" style="text-align:right" id="inspectioncount-input"></td>');
+                newRow.append('<td id="okcount-input">0</td>');
+                newRow.append('<td id="ngcount-input">0</td>');
+                newRow.append('<td id="ngpercent-input">0</td>');
+
+                for (let i = 1; i <= 17; i++) {
+                    newRow.append(`<td><input type="text" value="0" style="text-align:right" id="ng${i}-input"></td>`);
+                }
+
+                $('#Datatbody').append(newRow);
+
+                // ng1-input ~ ng17-input 값이 변경될 때 이벤트 처리
+                for (let i = 1; i <= 17; i++) {
+                    const ngInput = document.getElementById('ng' + i + '-input');
+
+                    ngInput.addEventListener('input', function () {
+                        // ng1-input ~ ng17-input 값을 모두 더한 값
+                        let ngTotal = 0;
+                        for (let j = 1; j <= 17; j++) {
+                            const ngValue = parseInt(document.getElementById('ng' + j + '-input').value) || 0;
+                            ngTotal += ngValue;
+                        }
+
+                        // okcount-input에 inspectioncount-input 값을 할당
+                        okCountInput.textContent = inspectionCountInput.value;
+
+                        // ngcount-input에 ngTotal 값을 할당
+                        ngCountInput.textContent = ngTotal;
+
+                        // ngpercent-input에 ngcount/inspectioncount * 100 값을 할당
+                        ngPercentInput.textContent = ((ngTotal / parseInt(inspectionCountInput.value)) * 100).toFixed(2);
+                    });
+                }
             }
         });
     </script>
