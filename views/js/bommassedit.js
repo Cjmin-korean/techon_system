@@ -78,9 +78,9 @@ function calculateCostedit() {
     let taLengthValue = parseFloat($('#bomtableBody-edit tr:eq(' + rowIndex + ') #talength-edit').val()) || 0;
     let twopiddingValue = parseFloat($('#bomtableBody-edit tr:eq(' + rowIndex + ') #twopidding-edit').val()) || 0;
     let alltaValue = parseFloat($('#bomtableBody-edit tr:eq(' + rowIndex + ') #allta-edit').val()) || 0;
-    let lossValue = parseFloat($('#bomtableBody-edit tr:eq(' + rowIndex + ') #loss-edit').val()) || 0;
+    let lossValue = parseFloat($('#bomtableBody-edit tr:eq(' + rowIndex + ') #costloss-edit').val()) || 0;
 
-    let rlproductValue = ((lengthValue * 1000 * rlcutValue * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+    let rlproductValue = ((lengthValue * 1000 * rlcutValue * cavitySaveValue * (1 - (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
     const costValue = rollpriceValue / rlproductValue;
     $('#bomtableBody-edit tr:eq(' + rowIndex + ') #cost-edit').val(costValue.toFixed(2));
 }

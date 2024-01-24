@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이미지 파일 선택 및 미리보기</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesaccountinput.css">
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+ 
+</head>
+
+<body>
+
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="insertImage()">이미지 저장</button>
+    <div id="imagePreviewContainer">
+        <img style="width:300px; height: 300px;" id="imagePreview" alt="이미지 미리보기">
+    </div>
+
+    <script>
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        document.getElementById('imageInput').addEventListener('change', function (e) {
+            var fileInput = document.getElementById('imageInput');
+            var file = fileInput.files[0];
+
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imagePreview').setAttribute('src', e.target.result);
+                    document.getElementById('imagePreviewContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreviewContainer').style.display = 'none';
+            }
+        });
+        function insertImage() {
+            var fileInput = document.getElementById('imageInput');
+            var file = fileInput.files[0];
+
+            if (!file) {
+                alert('이미지를 선택하세요.');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('housecode', file.name);
+            formData.append('filedata', file);
+
+            console.log('FormData:', formData);
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/houseinsertdata',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (result) {
+                    try {
+                        var parsedResult = JSON.parse(result);
+                        if (parsedResult && parsedResult.recordset) {
+                            console.log('Image uploaded successfully:', parsedResult);
+                        } else {
+                            console.log('Empty response received or unexpected format.');
+                        }
+                    } catch (error) {
+                        console.log('Error parsing JSON:', error);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log('Error:', xhr, status, error);
+                }
+            });
+        }
+
+
+
+
+
+    </script>
+
+</body>
+
+</html>

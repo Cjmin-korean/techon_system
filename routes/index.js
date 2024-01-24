@@ -1,24 +1,60 @@
-// routes/index.jsvert
 const multer = require('multer');
 const xlsx = require('xlsx');
 const fs = require('fs');
-const sql = require("mssql");
+const cors = require('cors');
+const express = require('express');
+const app = express();
+
+
 module.exports = function (app) {
     const sql = require('mssql');
-    var config = {
+    const config = {
         user: 'pswel1',
         password: '1234',
         server: '118.46.215.214',
         database: 'Techon',
-        // connectTimeout: 10000,
-        // stream: false,
         options: {
             encrypt: false,
             enableArithAbort: true
         }
     };
+    const pool = new sql.ConnectionPool(config);
+    const poolConnect = pool.connect();
 
+    // Configure multer for file uploads
+    const storage = multer.memoryStorage(); // Store files in memory
+    const upload = multer({ storage: storage });
 
+    // Route handler for inserting data into the 'house' table
+    app.post('/api/houseinsertdata', upload.single('filedata'), function (req, res) {
+        res.header("Access-Control-Allow-Origin", "*");
+
+        const { housecode, housename, part, partname } = req.body;
+        const filedata = req.file.buffer;
+
+        poolConnect.then(() => {
+            return pool.request()
+                .input('housecode', sql.NVarChar, housecode)
+                .input('housename', sql.NVarChar, housename)
+                .input('part', sql.NVarChar, part)
+                .input('partname', sql.NVarChar, partname)
+                .input('filedata', sql.VarBinary, filedata)
+                .query(
+                    'INSERT INTO house (housecode, housename, part, partname, filedata)' +
+                    ' VALUES (@housecode, @housename, @part, @partname, @filedata)'
+                );
+        }).then(result => {
+            console.log('Server Response:', result); // Log the response
+            res.json(result.recordset);
+            res.end();
+        })
+            .catch(error => {
+                console.error('Error inserting into database:', error);
+                res.status(500).send('Internal Server Error');
+            });
+    });
+
+    module.exports = app;
     // **** start
     sql.connect(config).then(pool => {
         app.post('/api/users', function (req, res) {
@@ -65,8 +101,7 @@ module.exports = function (app) {
     });
     // **** finish
 
-
-    const upload = multer({ dest: 'uploads/' });
+    // const upload = multer({ dest: 'uploads/' });
 
     app.post('/upload-excel', upload.single('excelFile'), (req, res) => {
         // 클라이언트가 업로드한 파일을 읽음
@@ -102,6 +137,37 @@ module.exports = function (app) {
     });
 
 
+    app.post('/api/insertimage', upload.single('imageFile'), (req, res) => {
+        const { filename } = req.body;
+        const buffer = fs.readFileSync(req.file.path);
+
+        sql.connect(config)
+            .then(() => {
+                const request = new sql.Request();
+                request.input('filename', sql.NVarChar(sql.MAX), filename);
+                request.input('filedata', sql.VarBinary(sql.MAX), buffer);
+                request.query('INSERT INTO filesave (filename, filedata) VALUES (@filename, @filedata)', (err, result) => {
+                    if (err) {
+                        console.error('Error inserting image into the database:', err);
+                        res.status(500).send('이미지 삽입 중 오류가 발생했습니다.');
+                    } else {
+                        console.log('Image inserted successfully!');
+                        // Delete the uploaded image file
+                        fs.unlink(req.file.path, (unlinkErr) => {
+                            if (unlinkErr) console.log('Error deleting image file:', unlinkErr);
+                            else console.log('Image file deleted successfully!');
+                        });
+
+                        res.send('이미지 업로드 및 삽입 완료');
+                    }
+                });
+            })
+            .catch((connectErr) => {
+                console.error('Error connecting to the database:', connectErr);
+                res.status(500).send('서버 오류');
+            });
+    });
+
     // const downloadPath = '/Users/cjh/Downloads/Techon/sshkey_1'; // 다운로드 받을 경로
     // **** start
     sql.connect(config).then(pool => {
@@ -117,9 +183,9 @@ module.exports = function (app) {
             const imgBuffer = img.buffer; // Assuming your img object has a 'buffer' property
 
             return pool.request()
-                .input('img', sql.VarBinary, imgBuffer)
+                .input('filename', sql.VarBinary, req.body.filename)
                 .query(
-                    'INSERT INTO img (img) VALUES (@img)'
+                    'INSERT INTO filesave (filename) VALUES (@filename)'
                 )
                 .then(result => {
                     res.json(result.recordset);
@@ -1699,8 +1765,8 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('orderdate', sql.NVarChar, req.body.orderdate)
-            .input('suppliername', sql.NVarChar, req.body.suppliername)
+                .input('orderdate', sql.NVarChar, req.body.orderdate)
+                .input('suppliername', sql.NVarChar, req.body.suppliername)
 
                 .query(
                     "SELECT " +
@@ -1992,6 +2058,39 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    // app.post('/api/insertimage', function (req, res) {
+    //     res.header("Access-Control-Allow-Origin", "*");
+
+    //     // 파일 이름 및 데이터 추출
+    //     const filename = req.body.filename;
+    //     const filedata = req.body.filedata;
+
+    //     // SQL 쿼리 실행
+    //     return pool.request()
+    //         .input('filename', sql.NVarChar, filename)
+    //         // .input('filedata', sql.VarBinary, filedata)
+    //         .query(
+    //             'INSERT INTO filesave (filename) VALUES (@filename)'
+    //         )
+    //         .then(result => {
+    //             console.log(result); // 콘솔에 .query의 결과 출력
+    //             res.json({ success: true, message: '이미지가 성공적으로 삽입되었습니다.' });
+    //         })
+    //         .catch(error => {
+    //             console.error(error);
+    //             res.status(500).json({ success: false, message: '이미지 삽입 중 오류가 발생했습니다.' });
+    //         });
+
+    // });
+    // **** finish
+
+
+    // **** start       
+
+    // **** finish
+
+
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/insertbomtoolorder', function (req, res) {
@@ -2530,11 +2629,11 @@ module.exports = function (app) {
                 .input('bomno', sql.NVarChar, req.body.bomno)
 
                 .query(
-                    "SELECT * FROM bomtoolcode "+
-                    " WHERE bomno = @bomno "+
-                    "   AND status = 'true' "+
-                    "   AND toolcode IS NOT NULL "+
-                    "   AND toolcode != '' "+ 
+                    "SELECT * FROM bomtoolcode " +
+                    " WHERE bomno = @bomno " +
+                    "   AND status = 'true' " +
+                    "   AND toolcode IS NOT NULL " +
+                    "   AND toolcode != '' " +
                     " order by part asc ")
 
                 .then(result => {
@@ -3414,6 +3513,28 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  품목등록    
+    sql.connect(config).then(pool => {
+        app.post('/api/insertfilename', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('filename', sql.NVarChar, req.body.filename)
+
+                .query(
+                    'insert into filesave(filename)' +
+                    ' values(@filename)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/updatemtstatus', function (req, res) {
@@ -4055,7 +4176,7 @@ module.exports = function (app) {
                     "    CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)/bm.cavity) AS soyo, " +
                     "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut, " +
                     "    FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test, " +
-                    "   ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)/bm.cavity, 2) AS a, "+
+                    "   ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)/bm.cavity, 2) AS a, " +
                     "                           CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = bm.materialname AND materialwidth = bm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length)/bm.cavity) AS roundedResult,  " +
                     "    mi.width, " +
                     "    mi.length, " +
@@ -4846,7 +4967,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('suppliername', sql.NVarChar, req.body.suppliername)
+                .input('suppliername', sql.NVarChar, req.body.suppliername)
 
                 .query(
                     "SELECT  " +
@@ -4906,30 +5027,30 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    "WITH OrderedOrders AS ( "+
-                    "    SELECT "+
-                    "        CONVERT(NVARCHAR, orderdate, 23) + '-' + RIGHT('00' + CAST(ROW_NUMBER() OVER (PARTITION BY orderdate ORDER BY suppliername) AS NVARCHAR(2)), 2) AS orderno, "+
-                    "        orderdate, "+
-                    "        suppliername, "+
-                    "        COUNT(*) AS orderCount, "+
-                    "        SUM(supplyamount) AS totalSupplyAmount "+
-                    "    FROM "+
-                    "        purchaseorder "+
-                    "    WHERE "+
-                    "        status IS NULL "+
-                    "        AND orderdate = '2024-01-22'  "+
-                    "    GROUP BY "+
-                    "        orderdate, suppliername "+
-                    ") "+
-                    "SELECT "+
-                    "    orderno, "+
-                    "    orderdate, "+
-                    "    suppliername, "+
-                    "    CAST(orderCount AS NVARCHAR(10)) + '건의 발주건이 있습니다' AS orderSummary, "+
-                    "    totalSupplyAmount "+
-                    "FROM "+
-                    "    OrderedOrders "+
-                    "ORDER BY "+
+                    "WITH OrderedOrders AS ( " +
+                    "    SELECT " +
+                    "        CONVERT(NVARCHAR, orderdate, 23) + '-' + RIGHT('00' + CAST(ROW_NUMBER() OVER (PARTITION BY orderdate ORDER BY suppliername) AS NVARCHAR(2)), 2) AS orderno, " +
+                    "        orderdate, " +
+                    "        suppliername, " +
+                    "        COUNT(*) AS orderCount, " +
+                    "        SUM(supplyamount) AS totalSupplyAmount " +
+                    "    FROM " +
+                    "        purchaseorder " +
+                    "    WHERE " +
+                    "        status IS NULL " +
+                    "        AND orderdate = '2024-01-22'  " +
+                    "    GROUP BY " +
+                    "        orderdate, suppliername " +
+                    ") " +
+                    "SELECT " +
+                    "    orderno, " +
+                    "    orderdate, " +
+                    "    suppliername, " +
+                    "    CAST(orderCount AS NVARCHAR(10)) + '건의 발주건이 있습니다' AS orderSummary, " +
+                    "    totalSupplyAmount " +
+                    "FROM " +
+                    "    OrderedOrders " +
+                    "ORDER BY " +
                     "    suppliername, orderno;                    ")
                 .then(result => {
 
@@ -7852,32 +7973,28 @@ module.exports = function (app) {
 
     });
     // **** finish
-    // **** start  창고등록    
-    sql.connect(config).then(pool => {
-        app.post('/api/houseinsertdata', function (req, res) {
+    // sql.connect(config).then(pool => {
+    //     app.post('/api/houseinsertdata', function (req, res) {
+    //         res.header("Access-Control-Allow-Origin", "*");
+    //         console.log('Received POST request at /api/houseinsertdata');
 
-            res.header("Access-Control-Allow-Origin", "*");
-            return pool.request()
-                //.input('변수',값 형식, 값)
-                .input('housecode', sql.NVarChar, req.body.housecode)
-                .input('housename', sql.NVarChar, req.body.housename)
-                .input('part', sql.NVarChar, req.body.part)
-                .input('partname', sql.NVarChar, req.body.partname)
+    //         return pool.request()
+    //             .input('housecode', sql.NVarChar, req.body.housecode)
+    //             .input('housename', sql.NVarChar, req.body.housename)
+    //             .input('part', sql.NVarChar, req.body.part)
+    //             .input('partname', sql.NVarChar, req.body.partname)
+    //             .input('filedata', sql.VarBinary, req.body.filedata)
+    //             .query(
+    //                 'INSERT INTO house (housecode, housename, part, partname, filedata)' +
+    //                 ' VALUES (@housecode, @housename, @part, @partname, @filedata)'
+    //             )
+    //             .then(result => {
+    //                 res.json(result.recordset);
+    //                 res.end();
+    //             });
+    //     });
+    // });
 
-
-                .query(
-                    'insert into house(housecode,housename,part,partname)' +
-                    ' values(@housecode,@housename,@part,@partname)'
-                )
-                .then(result => {
-
-                    res.json(result.recordset);
-                    res.end();
-                });
-        });
-
-    });
-    // **** finish
     // **** start  품목등록    
     sql.connect(config).then(pool => {
         app.post('/api/iteminfoinsertdata', function (req, res) {
