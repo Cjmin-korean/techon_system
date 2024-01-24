@@ -1117,6 +1117,44 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  최종검사 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/materialstock', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .query(
+                    " SELECT "+
+                "     mi.*, "+
+                "     m.*, "+
+                "     mi.sqmprice * m.materialwidth / 1000 * COALESCE(m.sumquantity, 0) AS calculated "+
+                " FROM "+
+                "     materialinfoinformation mi "+
+                " JOIN "+
+                "     ( "+
+                "         SELECT "+
+                "             codenumber, "+
+                "             materialname, "+
+                "             lotno, "+
+                "             manufacturedate, "+
+                "             expirationdate, "+
+                "             materialwidth, "+
+                "             SUM(quantity) AS sumquantity, "+
+                "             SUM(roll) AS sumroll "+
+                "         FROM "+
+                "             materialinput "+
+                "         GROUP BY "+
+                "             codenumber, materialname, lotno, manufacturedate, expirationdate, materialwidth "+
+                "     ) AS m ON mi.codenumber = m.codenumber;                ")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
 
     // **** start  거래처정보 조회 쿼리  
