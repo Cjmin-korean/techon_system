@@ -248,37 +248,44 @@
         }
 
         function load() {
-            $('#Datatbody').empty();
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/productstock',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({}),
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        // Replace null with 0 for quantity
-                        var quantity = data[i].quantity !== null ? data[i].quantity.toLocaleString() : 0;
+    $('#Datatbody').empty();
+    $.ajax({
+        type: 'POST',
+        url: server + '/api/productstock',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({}),
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                // Replace null with 0 for quantity
+                var quantity = data[i].quantity !== null ? data[i].quantity : 0;
 
-                        $('#Datatbody').append(
-                            '<tr>' +
-                            '<td>' + data[i].bomno + '</td>' +
-                            '<td>' + data[i].modelname + '</td>' +
-                            '<td>' + data[i].itemname + '</td>' +
-                            '<td>' + data[i].customer + '</td>' +
-                            '<td>' + data[i].itemcode + '</td>' +
-                            '<td>' + quantity + '</td>' + // Display quantity (replaced with 0 if null)
+                // Calculate quantity * itemprice
+                var calculatedValue = quantity * data[i].itemprice;
 
-                            '<td>' + data[i].itemprice.toLocaleString() + '</td>' +
-                            '<td>' + data[i].total_amount.toLocaleString() + '</td>' +
-                            '</tr>'
-                        );
-                    }
+                // Format calculated value without commas
+                var formattedCalculatedValue = calculatedValue.toLocaleString()
 
-                    $('.data-id').hide();
-                }
-            });
+                $('#Datatbody').append(
+                    '<tr>' +
+                    '<td>' + data[i].bomno + '</td>' +
+                    '<td>' + data[i].modelname + '</td>' +
+                    '<td>' + data[i].itemname + '</td>' +
+                    '<td>' + data[i].customer + '</td>' +
+                    '<td>' + data[i].itemcode + '</td>' +
+                    '<td>' + quantity.toLocaleString() + '</td>' + // Display quantity (replaced with 0 if null)
+                    '<td>' + data[i].itemprice.toLocaleString() + '</td>' +
+                    '<td>' + formattedCalculatedValue + '</td>' + // Display formatted calculated value
+                    '</tr>'
+                );
+            }
+
+            $('.data-id').hide();
         }
+    });
+}
+
+
 
 
 
