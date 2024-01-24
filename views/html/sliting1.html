@@ -150,7 +150,7 @@
                     <b>자재 QR CODE:</b>
                     <input type="text" style="width:800px; margin-left: 20px;" id="qr-input"
                         onkeypress="handleEnterKey3(event)" placeholder="슬리팅 자재 QR 리딩하세요" autocomplete="off">
-                    <button onclick="focusqrinput">QR 리딩</button>
+                    <button onclick="focusqrinput()">QR 리딩</button>
                 </div>
 
             </div>
@@ -180,7 +180,8 @@
                         <td><input type="text" id="roll-input" value="" autocomplete="off"
                                 oninput="updateSumQuantity()"></td>
                         <td><input type="text" id="sumquantity-input" value="" autocomplete="off"></td>
-                        <td style="visibility: hidden;"><input type="text" id="qrno-input" value="" autocomplete="off"></td>
+                        <td><input type="text" id="qrno-input" value="" autocomplete="off">
+                        </td>
                     </tr>
                 </tbody>
 
@@ -414,6 +415,7 @@
             $('#editModal2').fadeOut();
         }
 
+
         function showLoading() {
             var loadingOverlay = document.getElementById("loadingOverlay");
             loadingOverlay.style.display = "flex";
@@ -483,16 +485,10 @@
             }
         }
 
-        // 데이터 처리 함수
         var previousQrno = '';
 
         function processData(input) {
             var dataArray = input.split('/');
-
-            console.log("분리된 데이터:");
-            for (var i = 0; i < dataArray.length; i++) {
-                console.log(dataArray[i]);
-            }
 
             // 각각의 값을 입력란에 설정
             $('#materialname-input').val(dataArray[0]);
@@ -523,6 +519,22 @@
             // 기존 코드
             document.getElementById('qr-input').addEventListener('keyup', handleEnterKey);
             document.getElementById('qr-input').value = '';
+
+            // qr-input과 qrno-input이 다른 경우에만 행 추가
+            if ($('#qr-input').val() !== $('#qrno-input').val() || $('#accountdatatbody3 tr:first input').filter(function () { return !!this.value; }).length === 0) {
+                addNewRow();
+            }
+        }
+
+        function addNewRow() {
+            // 현재 행의 개수 확인
+            var rowCount = $('#accountdatatbody3 tr').length;
+
+            // 현재 행이 1개 이상이고, qrno-input의 값이 빈 문자열인 경우에만 새로운 행 추가
+            if (rowCount >= 1 && $('#qrno-input').val() === '') {
+                var newRow = $('#accountdatatbody3 tr:first').clone();
+                $('#accountdatatbody3').append(newRow);
+            }
         }
 
 
