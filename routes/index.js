@@ -1155,6 +1155,40 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  최종검사 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/productstock', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .query(
+                    "SELECT "+
+                "     bom.bomno, "+
+                "     bom.model, "+
+                "     bom.itemname, "+
+                "     MAX(item.modelname) AS modelname, "+
+                "     MAX(item.customer) AS customer, "+
+                "     MAX(item.itemcode) AS itemcode, "+
+                "     MAX(item.itemprice) AS itemprice, "+
+                "     max(ii.quantity) as quantity, "+
+                "     COALESCE(SUM(ii.quantity * item.itemprice), 0) AS total_amount "+
+                " FROM "+
+                "     bommanagement bom "+
+                " JOIN "+
+                "     iteminfo item ON bom.bomno = item.bomno AND bom.model = item.modelname AND bom.itemname = item.itemname "+
+                " LEFT JOIN "+
+                "     iteminput ii ON bom.bomno = ii.bomno  "+
+                " GROUP BY "+
+                "     bom.bomno, bom.model, bom.itemname;                          ")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
 
     // **** start  거래처정보 조회 쿼리  

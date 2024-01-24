@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesaccountinput.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</head>
+
+<style>
+    input {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
+
+<body>
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">완제품 통합 조회</a>
+    </div>
+    <div id="loadingOverlay">
+        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
+
+    </div>
+
+    <fieldset style="height: 40px;">
+
+        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
+            autocomplete="off">
+        <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i> 삭제
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
+        <button id="exportPdfBtn" class="btn btn-secondary" style="background-color: navy;">
+            <i class="fas fa-file-pdf"></i> PDF로 내보내기
+        </button>
+
+
+    </fieldset>
+    <div id="overlay"></div>
+    <table class="styled-table" id="datatable">
+        <thead id="tableHead">
+            <tr>
+                <!-- '<td>' + data[i].materialname + '</td>' +
+                '<td>' + data[i].codenumber + '</td>' +
+                '<td>' + data[i].width.toLocaleString() + '</td>' +
+                '<td>' + data[i].length.toLocaleString() + '</td>' +
+                '<td>' + data[i].usewidth.toLocaleString() + '</td>' +
+                '<td>' + data[i].sqmprice + '</td>' +
+                '<td>' + data[i].unit + '</td>' +
+                '<td>' + data[i].manufacterer + '</td>' +
+                '<td>' + data[i].supplier + '</td>' +
+                '<td>' + data[i].materialtype + '</td>' +
+                '<td>' + data[i].lotno + '</td>' +
+                '<td>' + data[i].manufacturedate + '</td>' +
+                '<td>' + data[i].expirationdate + '</td>' +
+                '<td>' + data[i].sumquantity.toLocaleString() + '</td>' +
+                '<td>' + data[i].sumroll.toLocaleString() + '</td>' +
+                '<td>' + data[i].calculated.toLocaleString() + '</td>' +
+                '<td style="text-align:right;">' + data[i].materialwidth.toLocaleString() + '</td>' + -->
+                <th style="text-align:center;" onclick="sortTable(0)">BOMNO.</th>
+                <th style="text-align:center;" onclick="sortTable(1)">모델명</th>
+                <th style="text-align:center;" onclick="sortTable(2)">제품명</th>
+                <th style="text-align:center;" onclick="sortTable(2)">고객사</th>
+                <th style="text-align:center;" onclick="sortTable(3)">고객사코드</th>
+                <th style="text-align:center;" onclick="sortTable(3)">수량</th>
+                <th style="text-align:center;" onclick="sortTable(5)">단가</th>
+                <th style="text-align:center;" onclick="sortTable(3)">단가합계</th>
+
+
+
+            </tr>
+        </thead>
+        <tbody id="Datatbody">
+
+        </tbody>
+
+    </table>
+
+    <script>
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        $(document).ready(function () {
+
+            showLoading()
+            load()
+            $('#Datatbody').on('dblclick', 'tr', function () {
+                openEditModal(this); // Pass the clicked row to the function
+            });
+
+        });
+
+        // Function to close edit modal and overlay
+        function closeModal() {
+            $('#overlay').fadeOut();
+            $('#editModal').fadeOut();
+        }
+
+        function showLoading() {
+            var loadingOverlay = document.getElementById("loadingOverlay");
+            loadingOverlay.style.display = "flex";
+            setTimeout(function () {
+                loadingOverlay.style.display = "none";
+            }, 1000);
+        }
+
+
+
+        function Datasave() {
+            if (confirm("샘플 발주 정보를 등록 하시겠습니까??") == true) {
+
+                var insertdate = new Date().toISOString().slice(0, 10);
+
+                var toolcode = $('#toolcode').val();
+                var madedate = $('#datepicker1').val();
+                var bomno = $('#bomno').val();
+                var customer = $('#customer').val();
+                var modelname = $('#modelname').val();
+                var itemname = $('#itemname').val();
+                var char = $('#char').val();
+                var part = $('#part').val();
+                var inputprice = $('#inputprice').val();
+                var outputprice = $('#outputprice').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertpinacle',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "insertdate": insertdate,
+                        "toolcode": toolcode,
+                        "madedate": madedate,
+                        "bomno": bomno,
+                        "customer": customer,
+                        "modelname": modelname,
+                        "itemname": itemname,
+                        "char": char,
+                        "part": part,
+                        "inputprice": inputprice,
+                        "outputprice": outputprice
+
+
+
+
+                    }),
+                    success: function (result) {
+
+
+                    }
+                })
+
+                $('#popupOverlay').fadeOut();
+                setTimeout(function () {
+                    // load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+        }
+
+        function Dataedit() {
+            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/accountupdatedata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        id: $('#id-edit').val(),
+                        accountcode: $('#accountcode-edit').val(),
+                        accountname: $('#accountname-edit').val(),
+                        representativename: $('#representativename-edit').val(),
+                        phone: $('#phone-edit').val(),
+                        adress: $('#adress-edit').val(),
+                        number: $('#number-edit').val(),
+                        mobile: $('#mobile-edit').val(),
+                        fax: $('#fax-edit').val(),
+                        email: $('#email-edit').val(),
+                        etc: $('#etc-edit').val()
+
+
+
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                    }
+                })
+
+                $('#popupOverlay1').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+        }
+
+        function load() {
+            $('#Datatbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/productstock',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        // Replace null with 0 for quantity
+                        var quantity = data[i].quantity !== null ? data[i].quantity.toLocaleString() : 0;
+
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td>' + data[i].bomno + '</td>' +
+                            '<td>' + data[i].modelname + '</td>' +
+                            '<td>' + data[i].itemname + '</td>' +
+                            '<td>' + data[i].customer + '</td>' +
+                            '<td>' + data[i].itemcode + '</td>' +
+                            '<td>' + quantity + '</td>' + // Display quantity (replaced with 0 if null)
+
+                            '<td>' + data[i].itemprice.toLocaleString() + '</td>' +
+                            '<td>' + data[i].total_amount.toLocaleString() + '</td>' +
+                            '</tr>'
+                        );
+                    }
+
+                    $('.data-id').hide();
+                }
+            });
+        }
+
+
+
+
+
+    </script>
+
+
+</body>
+
+</html>
