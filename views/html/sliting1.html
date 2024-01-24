@@ -138,7 +138,7 @@
         </tbody>
     </table>
 
-    <div id="editModal" style="max-height: 600px;  overflow-y: auto; width: 50%;">
+    <div id="editModal" style="height: 1000px;  overflow-y: auto; width: 50%; ">
         <div class="mainheader">
             <h1>슬리팅 작업지시</h1>
             <span class="close" onclick="closeModal()">&times;</span>
@@ -149,8 +149,8 @@
                 <div>
                     <b>자재 QR CODE:</b>
                     <input type="text" style="width:800px; margin-left: 20px;" id="qr-input"
-                        onkeypress="handleEnterKey3(event)" placeholder="데이터를 입력하고 엔터 키를 누르세요">
-                    <button>RESET</button>
+                        onkeypress="handleEnterKey3(event)" placeholder="슬리팅 자재 QR 리딩하세요" autocomplete="off">
+                    <button onclick="focusqrinput">QR 리딩</button>
                 </div>
 
             </div>
@@ -163,24 +163,30 @@
 
                     </tr>
                     <tr>
-
                         <th style="border:1px solid silver;">자재명</th>
                         <th style="border:1px solid silver;">LOTNO</th>
                         <th style="border:1px solid silver;">규격폭(mm)</th>
                         <th style="border:1px solid silver;">M</th>
                         <th style="border:1px solid silver;">롤수량</th>
                         <th style="border:1px solid silver;">입고수량(M)</th>
-
-
                     </tr>
+                </thead>
+                <tbody id="accountdatatbody3" style="max-height: 500px; overflow-y: auto;">
                     <tr>
                         <td><input type="text" id="materialname-input" value="" autocomplete="off"></td>
                         <td><input type="text" id="lotno-input" value="" autocomplete="off"></td>
                         <td><input type="text" id="materialwidth-input" value="" autocomplete="off"></td>
                         <td><input type="text" id="length-input" value="" autocomplete="off"></td>
-                        <td><input type="text" id="roll-input" value="" autocomplete="off"></td>
+                        <td><input type="text" id="roll-input" value="" autocomplete="off"
+                                oninput="updateSumQuantity()"></td>
                         <td><input type="text" id="sumquantity-input" value="" autocomplete="off"></td>
+                        <td style="visibility: hidden;"><input type="text" id="qrno-input" value="" autocomplete="off"></td>
                     </tr>
+                </tbody>
+
+            </table>
+            <table class="styled-table" id="Podatatable1" style="width:100%;">
+                <thead id="tableHead">
                     <tr>
                         <th colspan="6" style="border:1px solid silver; font-size: 18px;">작업지시내용</th>
                     </tr>
@@ -204,7 +210,7 @@
                         <td><input type="text" id="input" value="" autocomplete="off"></td>
                     </tr>
                 </thead>
-                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
+                <tbody id="accountdatatbody1" style="max-height: 500px; overflow-y: auto;">
                 </tbody>
 
             </table>
@@ -478,23 +484,45 @@
         }
 
         // 데이터 처리 함수
+        var previousQrno = '';
+
         function processData(input) {
             var dataArray = input.split('/');
 
+            console.log("분리된 데이터:");
             for (var i = 0; i < dataArray.length; i++) {
                 console.log(dataArray[i]);
             }
 
+            // 각각의 값을 입력란에 설정
+            $('#materialname-input').val(dataArray[0]);
+            $('#lotno-input').val(dataArray[3]);
+            $('#materialwidth-input').val(dataArray[1]);
+            $('#length-input').val(dataArray[2]);
 
-           $('#materialname-input').val(dataArray[0])
-           $('#lotno-input').val(dataArray[3])
-           $('#materialwidth-input').val(dataArray[1])
-           $('#length-input').val(dataArray[2])
-           $('#roll-input').val('1')
-           $('#sumquantity-input').val(parseFloat(dataArray[2])*parseFloat('1'))
+            // 이전에 입력된 qrno와 현재 입력된 qrno 비교
+            var currentQrno = $('#qr-input').val();
+            if (currentQrno === previousQrno) {
+                // 동일한 qrno인 경우 roll-input 1씩 증가
+                var rollValue = parseInt($('#roll-input').val()) + 1;
+                $('#roll-input').val(rollValue);
+            } else {
+                // 새로운 qrno인 경우 roll-input 초기화
+                $('#roll-input').val('1');
+            }
+
+            // sumquantity-input 업데이트
+            $('#sumquantity-input').val(parseFloat(dataArray[2]) * parseFloat($('#roll-input').val()));
+
+            // qrno-input 업데이트
+            $('#qrno-input').val(currentQrno);
+
+            // 이전에 입력된 qrno 값 업데이트
+            previousQrno = currentQrno;
+
+            // 기존 코드
             document.getElementById('qr-input').addEventListener('keyup', handleEnterKey);
-            document.getElementById('qr-input').value='';
-
+            document.getElementById('qr-input').value = '';
         }
 
 
@@ -1375,6 +1403,15 @@
                 }
             });
 
+        }
+        function updateSumQuantity() {
+            // 롤 수량과 길이를 가져와서 곱한 값을 sumquantity-input에 할당
+            var rollInput = parseFloat(document.getElementById('roll-input').value) || 0;
+            var lengthInput = parseFloat(document.getElementById('length-input').value) || 0;
+            var sumQuantity = rollInput * lengthInput;
+
+            // 결과를 sumquantity-input에 업데이트
+            document.getElementById('sumquantity-input').value = isNaN(sumQuantity) ? '' : sumQuantity;
         }
     </script>
 
