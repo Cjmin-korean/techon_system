@@ -9,16 +9,31 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesaccountinput.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 </head>
 
+<style>
+    input {
 
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
 
 <body>
     <div class="main_header">
@@ -30,53 +45,44 @@
 
     </div>
 
-    <fieldset>
-        <legend>검색조건</legend>
+    <fieldset style="height: 40px;">
 
-        <label for="month">연 :</label>
-        <select id="searchselect1">
-            <option value="2024">2024년</option>
-            <option value="2023">2023년</option>
-
-
-
-        </select>
-        <label for="month">월 :</label>
-        <select id="searchselect2">
-            <option value="1월">1월</option>
-            <option value="2월">2월</option>
-            <option value="3월">3월</option>
-            <option value="4월">4월</option>
-            <option value="5월">5월</option>
-            <option value="6월">6월</option>
-            <option value="7월">7월</option>
-            <option value="8월">8월</option>
-            <option value="9월">9월</option>
-            <option value="10월">10월</option>
-            <option value="11월">11월</option>
-            <option value="12월">12월</option>
+        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
+            autocomplete="off">
+        <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i> 삭제
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
+        <button id="exportPdfBtn" class="btn btn-secondary" style="background-color: navy;">
+            <i class="fas fa-file-pdf"></i> PDF로 내보내기
+        </button>
 
 
-        </select>
-        <!-- <input type="text" style="width: 100px;" class="author-cell"> -->
-        <button onclick="searchData()">조회</button>
     </fieldset>
     <div id="overlay"></div>
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <!-- <th style="text-align:center;" onclick="sortTable(0)">작성자</th> -->
-                <th style="text-align:center;" onclick="sortTable(0)">자재명</th>
-                <th style="text-align:center;" onclick="sortTable(1)">자재LOT</th>
-                <th style="text-align:center;" onclick="sortTable(2)">자재코드</th>
-                <th style="text-align:center;" onclick="sortTable(3)">분류</th>
-                <th style="text-align:center;" onclick="sortTable(4)">제조일자</th>
-                <th style="text-align:center;" onclick="sortTable(5)">만료일자</th>
+                <th style="text-align:center;" onclick="sortTable(0)">BOMNO</th>
+                <th style="text-align:center;" onclick="sortTable(1)">모델명</th>
+                <th style="text-align:center;" onclick="sortTable(2)">품목명</th>
+                <th style="text-align:center;" onclick="sortTable(2)">자재명</th>
+                <th style="text-align:center;" onclick="sortTable(3)">품목코드</th>
                 <th style="text-align:center;" onclick="sortTable(5)">자재폭(mm)</th>
-                <th style="text-align:center;" onclick="sortTable(5)">수량(M)</th>
-                <th style="text-align:center;" onclick="sortTable(5)">유통기한</th>
-      
-              
+                <th style="text-align:center;" onclick="sortTable(3)">구분</th>
+        
+                <th style="text-align:center;" onclick="sortTable(5)">분류</th>
+                <th style="text-align:center;" onclick="sortTable(5)">현재고(M)</th>
+                <th style="text-align:center;" onclick="sortTable(5)">재고금액</th>
+                <th style="text-align:center;" onclick="sortTable(5)">생산가능수량</th>
+
+
 
             </tr>
         </thead>
@@ -85,7 +91,7 @@
         </tbody>
 
     </table>
-   
+
     <script>
         var server = '';
 
@@ -232,44 +238,30 @@
             $('#Datatbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/materialinputsearch1',
+                url: server + '/api/stocksearching',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({}),
                 success: function (data) {
-                    var totalQuantity = 0;
-                    var totalPrice = 0;
-                    var totalRoll = 0;
+                 
 
                     for (var i = 0; i < data.length; i++) {
-                        var quantity = data[i].quantity;
-                        var materialWidth = data[i].materialwidth;
-                        var sqmPrice = data[i].sqmprice;
-                        var roll = data[i].roll;
-
-                        var totalItemPrice = materialWidth * quantity / 1000 * sqmPrice;
-
-                        totalQuantity += quantity;
-                        totalPrice += totalItemPrice;
-                        totalRoll += roll;
-
-                        // expirationdate를 계산하여 표시합니다.
-                        var remainingDays = calculateRemainingDays(data[i].expirationdate);
-                        var expirationDateText = remainingDays + '일 남음';
+                        
 
                         $('#Datatbody').append(
                             '<tr>' +
+                            '<td>' + data[i].bomno + '</td>' +
+                            '<td>' + data[i].model + '</td>' +
+                            '<td>' + data[i].itemname + '</td>' +
                             '<td>' + data[i].materialname + '</td>' +
-                            '<td>' + data[i].lotno + '</td>' +
                             '<td>' + data[i].codenumber + '</td>' +
-                            '<td>' + data[i].classification + '</td>' +
-                            '<td>' + data[i].manufacturedate + '</td>' +
-                            '<td>' + data[i].expirationdate + '</td>' +
                             '<td style="text-align:right;">' + data[i].materialwidth.toLocaleString() + '</td>' +
-                            '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
-                            '<td style="color:blue;">' + expirationDateText + '</td>' + // 변경된 부분
 
-                            '<td class="data-id">' + data[i].id + '</td>' +
+                            '<td style="background-color:green; color:white; text-align:center;">가용</td>' +
+                            '<td>' + data[i].typecategory + '</td>' +
+                            '<td style="text-align:right;">' + data[i].sumquantity.toLocaleString() + '</td>' +
+                            '<td style="text-align:right;">' + data[i].calculated.toLocaleString() + '</td>' +
+
                             '</tr>'
                         );
                     }

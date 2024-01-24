@@ -1057,6 +1057,108 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  최종검사 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/stocksearching', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "     joined.bomno, " +
+                    "                     joined.model, " +
+                    "                     joined.itemname, " +
+                    "                     joined.materialname, " +
+                    "                     joined.codenumber, " +
+                    "                     joined.materialwidth, " +
+                    "                     joined.typecategory, " +
+                    "                     COALESCE(materialinput.sum_quantity, 0) AS sumquantity, " +
+                    "                     joined.sqmprice * joined.materialwidth / 1000 * COALESCE(materialinput.sum_quantity, 0) AS calculated " +
+                    " FROM " +
+                    "                          ( " +
+                    "                             SELECT " +
+                    "             bm.bomno, " +
+                    "                             bm.model, " +
+                    "                             bm.itemname, " +
+                    "                             bm.materialname, " +
+                    "                             bm.codenumber, " +
+                    "                             bm.materialwidth, " +
+                    "                             mi.typecategory," +
+                    "                             mi.sqmprice" +
+                    "         FROM " +
+                    "             bommanagement bm " +
+                    "         JOIN " +
+                    "             materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "         WHERE " +
+                    "             bm.status = 'true' " +
+                    "         GROUP BY " +
+                    "             bm.bomno, bm.model, bm.itemname, bm.materialname, bm.codenumber, bm.materialwidth, mi.typecategory, mi.sqmprice " +
+                    "                         ) AS joined " +
+                    " LEFT JOIN " +
+                    "                     ( " +
+                    "                         SELECT " +
+                    "             codenumber, " +
+                    "                         materialwidth, " +
+                    "                         SUM(quantity) AS sum_quantity " +
+                    "         FROM " +
+                    "             materialinput " +
+                    "         GROUP BY " +
+                    "             codenumber, materialwidth " +
+                    "                     ) AS materialinput ON joined.codenumber = materialinput.codenumber AND joined.materialwidth = materialinput.materialwidth " +
+                    " 	ORDER BY " +
+                    "     joined.materialname ASC; " +
+                    "  " +
+                    "             SELECT " +
+                    "             joined.bomno, " +
+                    "                 joined.model, " +
+                    "                 joined.itemname, " +
+                    "                 joined.materialname, " +
+                    "                 joined.codenumber, " +
+                    "                 joined.materialwidth, " +
+                    "                 joined.typecategory, " +
+                    "                 COALESCE(materialinput.sum_quantity, 0) AS sumquantity, " +
+                    "                     joined.sqmprice * joined.materialwidth / 1000 * COALESCE(materialinput.sum_quantity, 0) AS calculated " +
+                    "             FROM " +
+                    "                 ( " +
+                    "                     SELECT " +
+                    "             bm.bomno, " +
+                    "                     bm.model, " +
+                    "                     bm.itemname, " +
+                    "                     bm.materialname, " +
+                    "                     bm.codenumber, " +
+                    "                     bm.materialwidth, " +
+                    "                     mi.typecategory, " +
+                    "                     mi.sqmprice " +
+                    "         FROM " +
+                    "             bommanagement bm " +
+                    "         JOIN " +
+                    "             materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "         WHERE " +
+                    "             bm.status = 'true' " +
+                    "         GROUP BY " +
+                    "             bm.bomno, bm.model, bm.itemname, bm.materialname, bm.codenumber, bm.materialwidth, mi.typecategory, mi.sqmprice " +
+                    "                 ) AS joined " +
+                    " LEFT JOIN " +
+                    "                 ( " +
+                    "                     SELECT " +
+                    "             codenumber, " +
+                    "                     materialwidth, " +
+                    "                     SUM(quantity) AS sum_quantity " +
+                    "         FROM " +
+                    "             materialinput " +
+                    "         GROUP BY " +
+                    "             codenumber, materialwidth " +
+                    "                 ) AS materialinput ON joined.codenumber = materialinput.codenumber AND joined.materialwidth = materialinput.materialwidth " +
+                    " 	ORDER BY            joined.materialname ASC;            ")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
 
     // **** start  거래처정보 조회 쿼리  
