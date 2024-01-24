@@ -1064,92 +1064,50 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT " +
-                    "     joined.bomno, " +
-                    "                     joined.model, " +
-                    "                     joined.itemname, " +
-                    "                     joined.materialname, " +
-                    "                     joined.codenumber, " +
-                    "                     joined.materialwidth, " +
-                    "                     joined.typecategory, " +
-                    "                     COALESCE(materialinput.sum_quantity, 0) AS sumquantity, " +
-                    "                     joined.sqmprice * joined.materialwidth / 1000 * COALESCE(materialinput.sum_quantity, 0) AS calculated " +
-                    " FROM " +
-                    "                          ( " +
-                    "                             SELECT " +
-                    "             bm.bomno, " +
-                    "                             bm.model, " +
-                    "                             bm.itemname, " +
-                    "                             bm.materialname, " +
-                    "                             bm.codenumber, " +
-                    "                             bm.materialwidth, " +
-                    "                             mi.typecategory," +
-                    "                             mi.sqmprice" +
-                    "         FROM " +
-                    "             bommanagement bm " +
-                    "         JOIN " +
-                    "             materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
-                    "         WHERE " +
-                    "             bm.status = 'true' " +
-                    "         GROUP BY " +
-                    "             bm.bomno, bm.model, bm.itemname, bm.materialname, bm.codenumber, bm.materialwidth, mi.typecategory, mi.sqmprice " +
-                    "                         ) AS joined " +
-                    " LEFT JOIN " +
-                    "                     ( " +
-                    "                         SELECT " +
-                    "             codenumber, " +
-                    "                         materialwidth, " +
-                    "                         SUM(quantity) AS sum_quantity " +
-                    "         FROM " +
-                    "             materialinput " +
-                    "         GROUP BY " +
-                    "             codenumber, materialwidth " +
-                    "                     ) AS materialinput ON joined.codenumber = materialinput.codenumber AND joined.materialwidth = materialinput.materialwidth " +
-                    " 	ORDER BY " +
-                    "     joined.materialname ASC; " +
-                    "  " +
-                    "             SELECT " +
-                    "             joined.bomno, " +
-                    "                 joined.model, " +
-                    "                 joined.itemname, " +
-                    "                 joined.materialname, " +
-                    "                 joined.codenumber, " +
-                    "                 joined.materialwidth, " +
-                    "                 joined.typecategory, " +
-                    "                 COALESCE(materialinput.sum_quantity, 0) AS sumquantity, " +
-                    "                     joined.sqmprice * joined.materialwidth / 1000 * COALESCE(materialinput.sum_quantity, 0) AS calculated " +
-                    "             FROM " +
-                    "                 ( " +
-                    "                     SELECT " +
-                    "             bm.bomno, " +
-                    "                     bm.model, " +
-                    "                     bm.itemname, " +
-                    "                     bm.materialname, " +
-                    "                     bm.codenumber, " +
-                    "                     bm.materialwidth, " +
-                    "                     mi.typecategory, " +
-                    "                     mi.sqmprice " +
-                    "         FROM " +
-                    "             bommanagement bm " +
-                    "         JOIN " +
-                    "             materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
-                    "         WHERE " +
-                    "             bm.status = 'true' " +
-                    "         GROUP BY " +
-                    "             bm.bomno, bm.model, bm.itemname, bm.materialname, bm.codenumber, bm.materialwidth, mi.typecategory, mi.sqmprice " +
-                    "                 ) AS joined " +
-                    " LEFT JOIN " +
-                    "                 ( " +
-                    "                     SELECT " +
-                    "             codenumber, " +
-                    "                     materialwidth, " +
-                    "                     SUM(quantity) AS sum_quantity " +
-                    "         FROM " +
-                    "             materialinput " +
-                    "         GROUP BY " +
-                    "             codenumber, materialwidth " +
-                    "                 ) AS materialinput ON joined.codenumber = materialinput.codenumber AND joined.materialwidth = materialinput.materialwidth " +
-                    " 	ORDER BY            joined.materialname ASC;            ")
+                    " SELECT "+
+                    "    joined.bomno, "+
+                    "    joined.model, "+
+                    "    joined.itemname, "+
+                    "    joined.materialname, "+
+                    "    joined.codenumber, "+
+                    "    joined.materialwidth, "+
+                    "    joined.typecategory, "+
+                    "    COALESCE(materialinput.sum_quantity, 0) AS sumquantity, "+
+                    "    joined.sqmprice * joined.materialwidth / 1000 * COALESCE(materialinput.sum_quantity, 0) AS calculated "+
+                    " FROM "+
+                    "    ( "+
+                    "        SELECT "+
+                    "            bm.bomno, "+
+                    "            bm.model, "+
+                    "            bm.itemname, "+
+                    "            bm.materialname, "+
+                    "            bm.codenumber, "+
+                    "            bm.materialwidth, "+
+                    "            mi.typecategory, "+
+                    "            mi.sqmprice, "+
+                    "			bm.num "+
+                    "        FROM "+
+                    "            bommanagement bm  "+
+                    "        JOIN "+
+                    "            materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
+                    "        WHERE "+
+                    "            bm.status = 'true' "+
+                    "        GROUP BY "+
+                    "            bm.bomno, bm.model, bm.itemname, bm.materialname, bm.codenumber, bm.materialwidth, mi.typecategory, mi.sqmprice ,bm.num "+
+                    "    ) AS joined "+
+                    " LEFT JOIN "+
+                    "    ( "+
+                    "        SELECT "+
+                    "            codenumber, "+
+                    "            materialwidth, "+
+                    "            SUM(quantity) AS sum_quantity "+
+                    "        FROM "+
+                    "            materialinput "+
+                    "        GROUP BY "+
+                    "            codenumber, materialwidth "+
+                    "    ) AS materialinput ON joined.codenumber = materialinput.codenumber AND joined.materialwidth = materialinput.materialwidth "+
+                    "	ORDER BY "+
+                    "    joined.bomno,joined.num ASC;")
 
                 .then(result => {
                     res.json(result.recordset);
