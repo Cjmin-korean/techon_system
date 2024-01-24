@@ -131,10 +131,10 @@
                 <th style="text-align:center;">작업일자</th>
                 <th style="text-align:center;">작업<br>호기</th>
                 <th style="text-align:center;">작업자</th>
-                <th style="text-align:center;">작업수량<br>(pcs)</th>
-                <th style="text-align:center;">검사<br>(pcs)</th>
-                <th style="text-align:center;">양품<br>(pcs)</th>
-                <th style="text-align:center;">불량<br>(pcs)</th>
+                <th style="text-align:center;">작업수량<br>(EA)</th>
+                <th style="text-align:center;">검사<br>(EA)</th>
+                <th style="text-align:center;">양품<br>(EA)</th>
+                <th style="text-align:center;">불량<br>(EA)</th>
                 <th style="text-align:center;">불량율<br>(%)</th>
 
                 <th style="text-align:center;">이물</th>
@@ -584,29 +584,29 @@
             addnew();
         }
 
-        function valuechanged() {
-            var currentRow = $(event.target).closest('tr');
-            var rowIndex = currentRow.index();
-            const itempriceValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').val().replace(/,/g, '')) || 0;
-            const countValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').val().replace(/,/g, '')) || 0;
-            const priceValue = itempriceValue * countValue;
-            $('#accountdatatbody tr:eq(' + rowIndex + ') #price-input').val(priceValue.toLocaleString());
-            let totalPocount = 0;
-            let totalPosumprice = 0;
-            $('#accountdatatbody input#pocount-input').each(function () {
-                const countValue = parseFloat($(this).val().replace(/,/g, '')) || 0;
-                totalPocount += countValue;
-            });
-            $('#accountdatatbody input#price-input').each(function () {
-                const priceValue = parseFloat($(this).val().replace(/,/g, '')) || 0;
-                totalPosumprice += priceValue;
-            });
-            // Update the sum in the designated cell
-            $('#pocount-input').val()
-            $('#price-input').val()
-            $('#pocount-sum').text(totalPocount.toLocaleString());
-            $('#price-sum').text(totalPosumprice.toLocaleString());
-        }
+        // function valuechanged() {
+        //     var currentRow = $(event.target).closest('tr');
+        //     var rowIndex = currentRow.index();
+        //     const itempriceValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').val().replace(/,/g, '')) || 0;
+        //     const countValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').val().replace(/,/g, '')) || 0;
+        //     const priceValue = itempriceValue * countValue;
+        //     $('#accountdatatbody tr:eq(' + rowIndex + ') #price-input').val(priceValue.toLocaleString());
+        //     let totalPocount = 0;
+        //     let totalPosumprice = 0;
+        //     $('#accountdatatbody input#pocount-input').each(function () {
+        //         const countValue = parseFloat($(this).val().replace(/,/g, '')) || 0;
+        //         totalPocount += countValue;
+        //     });
+        //     $('#accountdatatbody input#price-input').each(function () {
+        //         const priceValue = parseFloat($(this).val().replace(/,/g, '')) || 0;
+        //         totalPosumprice += priceValue;
+        //     });
+        //     // Update the sum in the designated cell
+        //     $('#pocount-input').val()
+        //     $('#price-input').val()
+        //     $('#pocount-sum').text(totalPocount.toLocaleString());
+        //     $('#price-sum').text(totalPosumprice.toLocaleString());
+        // }
         function addnew() {
             var newRow = $('<tr></tr>');
             newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" style="background-color: red; color:white; ">삭제</button></td>');
@@ -777,40 +777,42 @@
                 newRow.append('<td id="people-input">송민우</td>');
                 newRow.append('<td id="count-input">40000</td>');
                 newRow.append('<td><input type="text" value="0" style="text-align:right" id="inspectioncount-input"></td>');
-                newRow.append('<td id="okcount-input">0</td>');
-                newRow.append('<td id="ngcount-input">0</td>');
-                newRow.append('<td id="ngpercent-input">0</td>');
+                newRow.append('<td id="okcount-input" style="text-align:right; background-color:blue; color:white;">0</td>');
+                newRow.append('<td id="ngcount-input" style="text-align:right; background-color:red; color:white;">0</td>');
+                newRow.append('<td id="ngpercent-input" style="text-align:right; background-color:red; color:white;">0</td>');
 
                 for (let i = 1; i <= 17; i++) {
-                    newRow.append(`<td><input type="text" value="0" style="text-align:right" id="ng${i}-input"></td>`);
+                    newRow.append(`<td><input type="text" value="0" oninput="valuechanged()" style="text-align:right" id="ng${i}-input"></td>`);
                 }
 
                 $('#Datatbody').append(newRow);
 
-                // ng1-input ~ ng17-input 값이 변경될 때 이벤트 처리
-                for (let i = 1; i <= 17; i++) {
-                    const ngInput = document.getElementById('ng' + i + '-input');
 
-                    ngInput.addEventListener('input', function () {
-                        // ng1-input ~ ng17-input 값을 모두 더한 값
-                        let ngTotal = 0;
-                        for (let j = 1; j <= 17; j++) {
-                            const ngValue = parseInt(document.getElementById('ng' + j + '-input').value) || 0;
-                            ngTotal += ngValue;
-                        }
 
-                        // okcount-input에 inspectioncount-input 값을 할당
-                        okCountInput.textContent = inspectionCountInput.value;
-
-                        // ngcount-input에 ngTotal 값을 할당
-                        ngCountInput.textContent = ngTotal;
-
-                        // ngpercent-input에 ngcount/inspectioncount * 100 값을 할당
-                        ngPercentInput.textContent = ((ngTotal / parseInt(inspectionCountInput.value)) * 100).toFixed(2);
-                    });
-                }
             }
         });
+        function valuechanged() {
+            const inspectionCountInput = document.getElementById('inspectioncount-input');
+            const okCountInput = document.getElementById('okcount-input');
+            const ngCountInput = document.getElementById('ngcount-input');
+            const ngPercentInput = document.getElementById('ngpercent-input');
+            // ng1-input ~ ng17-input 값을 모두 더한 값
+            let ngTotal = 0;
+            for (let j = 1; j <= 17; j++) {
+                const currentNgInput = document.getElementById('ng' + j + '-input');
+                const ngValue = parseInt(currentNgInput.value) || 0;
+                ngTotal += ngValue;
+            }
+
+            // okcount-input에 inspectioncount-input 값을 할당
+            okCountInput.textContent = parseFloat(inspectionCountInput.value) - parseFloat(ngTotal) || 0;
+
+            // ngcount-input에 ngTotal 값을 할당
+            ngCountInput.textContent = ngTotal;
+
+            // ngpercent-input에 ngcount/inspectioncount * 100 값을 할당
+            ngPercentInput.textContent = ((ngTotal / parseInt(inspectionCountInput.value || 1)) * 100).toFixed(2);
+        };
     </script>
 
 
