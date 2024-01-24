@@ -38,7 +38,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">재고 통합 조회</a>
+        <a style="margin-left: 20px;">재고 통합 조회1</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -86,22 +86,23 @@
                 '<td>' + data[i].sumroll.toLocaleString() + '</td>' +
                 '<td>' + data[i].calculated.toLocaleString() + '</td>' +
                 '<td style="text-align:right;">' + data[i].materialwidth.toLocaleString() + '</td>' + -->
-                <th style="text-align:center;" onclick="sortTable(0)">자재명</th>
-                <th style="text-align:center;" onclick="sortTable(1)">자재코드</th>
-                <th style="text-align:center;" onclick="sortTable(2)">자재폭</th>
-                <th style="text-align:center;" onclick="sortTable(2)">길이</th>
-                <th style="text-align:center;" onclick="sortTable(3)">유효폭</th>
-                <th style="text-align:center;" onclick="sortTable(5)">SQM단가</th>
-                <th style="text-align:center;" onclick="sortTable(3)">단위</th>
-                <th style="text-align:center;" onclick="sortTable(5)">제조사</th>
-                <th style="text-align:center;" onclick="sortTable(5)">공급사</th>
-                <th style="text-align:center;" onclick="sortTable(5)">분류</th>
-                <th style="text-align:center;" onclick="sortTable(5)">LOTNO</th>
-                <th style="text-align:center;" onclick="sortTable(5)">제조일자</th>
-                <th style="text-align:center;" onclick="sortTable(5)">만료일자</th>
-                <th style="text-align:center;" onclick="sortTable(5)">수량 합계</th>
-                <th style="text-align:center;" onclick="sortTable(5)">롤 합계</th>
-                <th style="text-align:center;" onclick="sortTable(5)">재고단가</th>
+                <th style="text-align:center;" >자재명</th>
+                <th style="text-align:center;" >자재코드</th>
+                <th style="text-align:center;" >자재폭</th>
+                <th style="text-align:center;" >길이</th>
+                <th style="text-align:center;" >유효폭</th>
+                <th style="text-align:center;" >SQM단가</th>
+                <th style="text-align:center;" >단위</th>
+                <th style="text-align:center;" >제조사</th>
+                <th style="text-align:center;" >공급사</th>
+                <th style="text-align:center;" >분류</th>
+                <th style="text-align:center;" >LOTNO</th>
+                <th style="text-align:center;" >제조일자</th>
+                <th style="text-align:center;" >만료일자</th>
+                <th style="text-align:center;" >수량 합계</th>
+                <th style="text-align:center;" >롤 합계</th>
+                <th style="text-align:center;" >재고단가</th>
+                <th style="text-align:center;" >창고</th>
 
 
 
@@ -264,39 +265,62 @@
                 contentType: 'application/json',
                 data: JSON.stringify({}),
                 success: function (data) {
-
+                    // Create an object to store grouped data
+                    var groupedData = {};
 
                     for (var i = 0; i < data.length; i++) {
+                        var house = data[i].house;
 
+                        // If the house is not in groupedData, create an array for it
+                        if (!groupedData[house]) {
+                            groupedData[house] = [];
+                        }
 
-                        $('#Datatbody').append(
-                            '<tr>' +
-                            '<td>' + data[i].materialname + '</td>' +
-                            '<td>' + data[i].codenumber + '</td>' +
-                            '<td>' + data[i].width.toLocaleString() + '</td>' +
-                            '<td>' + data[i].length.toLocaleString() + '</td>' +
-                            '<td>' + data[i].usewidth.toLocaleString() + '</td>' +
-                            '<td>' + data[i].sqmprice + '</td>' +
-                            '<td>' + data[i].unit + '</td>' +
-                            '<td>' + data[i].manufacterer + '</td>' +
-                            '<td>' + data[i].supplier + '</td>' +
-                            '<td>' + data[i].materialtype + '</td>' +
-                            '<td>' + data[i].lotno + '</td>' +
-                            '<td>' + data[i].manufacturedate + '</td>' +
-                            '<td>' + data[i].expirationdate + '</td>' +
-                            '<td>' + data[i].sumquantity.toLocaleString() + '</td>' +
-                            '<td>' + data[i].sumroll.toLocaleString() + '</td>' +
-                            '<td>' + data[i].calculated.toLocaleString() + '</td>' +
+                        // Push the current data to the corresponding house in groupedData
+                        groupedData[house].push(data[i]);
+                    }
 
+                    // Iterate over the groupedData to display the grouped results
+                    for (var house in groupedData) {
+                        if (groupedData.hasOwnProperty(house)) {
+                            // Display the house as a header row
+                            $('#Datatbody').append('<tr><th colspan="17">' + house + '</th></tr>');
 
-                            '</tr>'
-                        );
+                            // Iterate over the items in the current house
+                            for (var j = 0; j < groupedData[house].length; j++) {
+                                var currentItem = groupedData[house][j];
+
+                                // Display each item in the house
+                                $('#Datatbody').append(
+                                    '<tr>' +
+                                    '<td>' + currentItem.materialname + '</td>' +
+                                    '<td>' + currentItem.codenumber + '</td>' +
+                                    '<td>' + currentItem.width.toLocaleString() + '</td>' +
+                                    '<td>' + currentItem.length.toLocaleString() + '</td>' +
+                                    '<td>' + currentItem.usewidth.toLocaleString() + '</td>' +
+                                    '<td>' + currentItem.sqmprice + '</td>' +
+                                    '<td>' + currentItem.unit + '</td>' +
+                                    '<td>' + currentItem.manufacterer + '</td>' +
+                                    '<td>' + currentItem.supplier + '</td>' +
+                                    '<td>' + currentItem.materialtype + '</td>' +
+                                    '<td>' + currentItem.lotno + '</td>' +
+                                    '<td>' + currentItem.manufacturedate + '</td>' +
+                                    '<td>' + currentItem.expirationdate + '</td>' +
+                                    '<td>' + currentItem.sumquantity.toLocaleString() + '</td>' +
+                                    '<td>' + currentItem.sumroll.toLocaleString() + '</td>' +
+                                    '<td>' + currentItem.calculated.toLocaleString() + '</td>' +
+                                    '<td>' + currentItem.house + '</td>' +
+                                    '</tr>'
+                                );
+                            }
+                        }
                     }
 
                     $('.data-id').hide();
                 }
             });
         }
+
 
 
 

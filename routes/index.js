@@ -1139,12 +1139,13 @@ module.exports = function (app) {
                 "             manufacturedate, "+
                 "             expirationdate, "+
                 "             materialwidth, "+
+                "             house, "+
                 "             SUM(quantity) AS sumquantity, "+
                 "             SUM(roll) AS sumroll "+
                 "         FROM "+
                 "             materialinput "+
                 "         GROUP BY "+
-                "             codenumber, materialname, lotno, manufacturedate, expirationdate, materialwidth "+
+                "             codenumber, materialname, lotno, manufacturedate, expirationdate, materialwidth,house "+
                 "     ) AS m ON mi.codenumber = m.codenumber;                ")
 
                 .then(result => {
