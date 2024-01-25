@@ -4247,7 +4247,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/purchaseorder', function (req, res) {
 
-            console.log("11", req)
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
@@ -4411,7 +4410,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/materialinfoinsertdata', function (req, res) {
 
-            console.log("11", req)
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
@@ -4446,7 +4444,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/insertpurchaseorder', function (req, res) {
 
-            // console.log("11", req)
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
@@ -4468,11 +4465,12 @@ module.exports = function (app) {
                 .input('productid', sql.NVarChar, req.body.productid)
                 .input('etc', sql.NVarChar, req.body.etc)
                 .input('orderno', sql.NVarChar, req.body.orderno)
+                .input('inputcode', sql.NVarChar, req.body.inputcode)
 
 
                 .query(
-                    'insert into purchaseorder(orderno,productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc)' +
-                    ' values(@orderno,@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc)'
+                    'insert into purchaseorder(orderno,productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc,inputcode)' +
+                    ' values(@orderno,@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc,@inputcode)'
                 )
                 .then(result => {
 
@@ -4487,7 +4485,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/productorderinsertdata', function (req, res) {
 
-            console.log("11", req)
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 //.input('변수',값 형식, 값)
@@ -4519,7 +4516,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/productorder1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            console.log("11", req)
             return pool.request()
                 .query(
                     'select ' +
@@ -4546,7 +4542,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/bucakcustomer', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            console.log("11", req)
             return pool.request()
                 .query(
                     'SELECT * FROM bucakcustomer')
@@ -4994,28 +4989,6 @@ module.exports = function (app) {
 
     });
 
-    // sql.connect(config).then(pool => {
-    //     app.post('/api/plansearch', function (req, res) {
-    //         res.header("Access-Control-Allow-Origin", "*");
-
-    //         return pool.request()
-    //             .input('plandate', sql.NVarChar, req.body.plandate)
-    //             .query("select * from produceplan where plandate=@plandate")
-    //             .then(result => {
-    //             res.json(result.recordset);
-    //             res.end();
-    //             })
-    //             .catch(err => {
-    //             console.error('SQL error:', err);
-    //             res.status(500).send('Database error');
-    //             });
-    //         });
-    // })
-    // .catch(err => {
-    //     console.error('Database connection error:', err);
-    // });
-
-    // **** finish
 
 
     sql.connect(config).then(pool => {
@@ -5171,7 +5144,7 @@ module.exports = function (app) {
                     "        purchaseorder " +
                     "    WHERE " +
                     "        status IS NULL " +
-                    "        AND orderdate = '2024-01-22'  " +
+                    "        AND orderdate = '2024-01-25'  " +
                     "    GROUP BY " +
                     "        orderdate, suppliername " +
                     ") " +
@@ -5484,8 +5457,7 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/planupdate', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            // console.log('req', req)
-            // console.log('req', req.body.id, req.body.num)
+            
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
                 .input('bomno', sql.NVarChar, req.body.bomno)
