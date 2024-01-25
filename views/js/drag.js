@@ -115,7 +115,6 @@ $(document).ready(function () {
 
 
     function plansearching() {
-
         $.ajax({
             type: 'POST',
             url: server + '/api/plansearchAll',

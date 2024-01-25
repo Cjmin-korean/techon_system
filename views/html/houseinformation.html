@@ -14,10 +14,25 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 
 </head>
+<style>
+    input {
 
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
 
 
 <body>
@@ -29,8 +44,28 @@
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
+    <fieldset style="height: 40px;">
 
-   
+        <input type="text" style="width:400px;" class="form-tag text ess" id="funeralName" name="funeralName" list="funeralList"
+            placeholder="창고명을 입력하세요">
+        <datalist id="funeralList">
+
+        </datalist>
+        <button id="newRegistrationBtn" onclick="" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="deleteBtn" onclick="" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i>선택삭제
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
+
+
+
+    </fieldset>
+
     <div id="overlay"></div>
     <table class="styled-table" id="datatable" style="width:60%;">
         <thead id="tableHead">
@@ -222,7 +257,25 @@
         }
 
 
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/housegroup',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
+                var datalist = document.getElementById('funeralList');
 
+                // Loop through the result and append options to the datalist
+                for (var i = 0; i < result.length; i++) {
+                    var option = document.createElement('option');
+                    option.value = result[i].housename;
+                    option.setAttribute('data-no', result[i].id); // Change 'houseId' to the actual property name
+
+                    datalist.appendChild(option);
+                }
+            }
+        });
     </script>
 
 

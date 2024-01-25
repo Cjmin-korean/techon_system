@@ -198,7 +198,7 @@
                     <td><input type="text" id="bomno-save" oninput="bomchanged()" value="" autocomplete="off"></td>
                     <td><label for="editAuthor">고객사명</label></td>
                     <td><input type="text" ondblclick="customerDoubleClick();"
-                            style="background-color: whitesmoke; cursor: pointer;" readonly id="customer-save" value=""
+                            style="cursor: pointer;"  id="customer-save" value=""
                             autocomplete="off"></td>
                     <td><label for="editDate">모델명</label></td>
                     <td><input type="text" id="modelname-save" value="" autocomplete="off"></td>
@@ -284,7 +284,8 @@
                                 <th style="width: 70px;">타</th>
                                 <th style="width: 70px;">All타</th>
                                 <th style="width: 70px;">타길이</th>
-                                <th style="width: 70px;">LOSS</th>
+                                <th style="width: 70px;">소요<br>LOSS</th>
+                                <th style="width: 70px;">원가<br>LOSS</th>
                                 <th style="width: 120px;">원가<br>(1EA)</th>
                                 <th style="width: 70px;">1R/L<br>컷팅수량</th>
                                 <th style="width: 70px;">1R/L<br>생산수량</th>
@@ -311,6 +312,7 @@
                                 <th>타수</th>
                                 <th>타수</th>
                                 <th>mm</th>
+                                <th>%</th>
                                 <th>%</th>
                                 <th>￦</th>
                                 <th>Roll</th>
@@ -365,8 +367,8 @@
                     <td><input type="text" id="bomno-edit" style="background-color: whitesmoke;" readonly value=""
                             autocomplete="off"></td>
                     <td><label for="editAuthor">고객사명</label></td>
-                    <td><input type="text" ondblclick="customerDoubleClick();"
-                            style="background-color: whitesmoke; cursor: pointer;" readonly id="customer-edit" value=""
+                    <td><input type="text" ondblclick="customerDoubleClick1();"
+                            style="cursor: pointer;"  id="customer-edit" value=""
                             autocomplete="off"></td>
                     <td><label for="editDate">모델명</label></td>
                     <td><input type="text" id="modelname-edit" value="" autocomplete="off"></td>
@@ -604,6 +606,30 @@
                     </tr>
                 </thead>
                 <tbody id="searchingcustomernameinfobody">
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div id="customernamesearch1">
+        <div class="mainheader">
+            <h1>고객사 검색</h1>
+            <span class="close" onclick="customercloseModal1()">&times;</span>
+            <input type="text" id="numericPart" style="width: 20px; visibility: hidden;">
+        </div>
+        <input type="text" id="customernameinput1" placeholder="고객사명을 입력 후 Enter를 누르세요"
+            style="font-size: 16px; font-weight: bold;" onkeydown="handleEnterKey3(event)" autocomplete="off">
+
+        <div style="height:600px; max-height: 600px; overflow-y: auto;">
+            <table class="styled-table" id="datatable">
+                <thead>
+                    <tr>
+                        <th style="width: auto; text-align: center;" onclick="sortTable(0)">고객사명</th>
+
+                    </tr>
+                </thead>
+                <tbody id="searchingcustomernameinfobody2">
 
                 </tbody>
             </table>
@@ -1428,6 +1454,9 @@
         function customercloseModal() {
             $('#customernamesearch').fadeOut();
         }
+        function customercloseModal1() {
+            $('#customernamesearch1').fadeOut();
+        }
 
         function showLoading() {
             var loadingOverlay = document.getElementById("loadingOverlay");
@@ -1640,6 +1669,14 @@
 
 
         }
+        function customerDoubleClick1() {
+            document.getElementById('customernamesearch1').style.display = 'block';
+            $('#searchingcustomernameinfobody2').empty()
+            $("#customernameinput1").val('')
+            $("#customernameinput1").focus()
+
+
+        }
         function handleEnterKey(event) {
             if (event.key === 'Enter') {
                 var inputValue = document.getElementById("materialnameinput").value.trim();
@@ -1807,12 +1844,53 @@
                 });
             }
         }
+        function handleEnterKey3(event) {
+            if (event.key === 'Enter') {
+                var inputValue = document.getElementById("customernameinput1").value.trim();
+
+                document.getElementById("customernameinput1").value = "";
+                $('#searchingcustomernameinfobody2').empty();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/searchingcustomername',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        customername: inputValue
+
+                    }),
+                    success: function (result) {
+                        for (var i = 0; i < result.length; i++) {
+
+
+                            $('#searchingcustomernameinfobody2').append(
+                                '<tr style="cursor:pointer;" onclick="insertmaterialdata2(this)">' +
+                                '<td>' + result[i].customername + '</td>' +
+
+
+                                '</tr>'
+                            );
+
+
+                        }
+                    }
+                });
+            }
+        }
         function insertmaterialdata1(row) {
             document.getElementById('customernamesearch').style.display = 'none';
             var rowData = $(row).find('td').map(function () {
                 return $(this).text();
             }).get();
             $('#customer-save').val(rowData[0])
+        }
+        function insertmaterialdata2(row) {
+            document.getElementById('customernamesearch1').style.display = 'none';
+            var rowData = $(row).find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#customer-edit').val(rowData[0])
         }
         function insertmaterialdata(row) {
             document.getElementById('materialnamesearch').style.display = 'none';
@@ -2225,6 +2303,7 @@
                         var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
                         var useable = ($('[id^="useable-input"]').eq(index).val());
                         var bomid = $('#bomid-save').val();
+                        var costloss = ($('[id^="costloss-input"]').eq(index).val());
 
                         $.ajax({
                             type: 'POST',
@@ -2252,6 +2331,7 @@
                                 "codenumber": codenumber,
                                 "useable": useable,
                                 "num": num,
+                                "costloss": costloss,
                                 "bomid": bomid
                             }),
                             success: function (result) {
@@ -2597,6 +2677,7 @@
                 var talength = $('[id^="talength-edit"]').eq(index).val();
                 var loss = $('[id^="loss-edit"]').eq(index).val();
                 var num = $('[id^="index-edit"]').eq(index).val();
+                var costloss = $('[id^="costloss-edit"]').eq(index).val();
                 var codenumber = $('[id^="codenumber-edit"]').eq(index).val();
                 var useableEdit = $('[id^="useable-edit"]').eq(index).val();
                 var bomid = $('#bomidsave').val();
@@ -2628,6 +2709,7 @@
                         "codenumber": codenumber,
                         "useable": useableEdit,
                         "num": num,
+                        "costloss": costloss,
                         "bomid": bomid
                     }),
                     success: function (result) {

@@ -1904,7 +1904,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT " +
                     "*" +
-                    " FROM purchaseorder where orderdate=@orderdate and suppliername=@suppliername order by orderdate,itemname asc ")
+                    " FROM purchaseorder where orderdate=@orderdate and suppliername=@suppliername order by itemname,cutting asc ")
 
                 .then(result => {
 
@@ -6045,6 +6045,26 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/searchingcustomername', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('customername', sql.NVarChar, req.body.customername)
+
+
+                .query(
+                    "SELECT * FROM customerinformation WHERE customername LIKE '%' + @customername + '%' order by customername asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/searchbomnosampleorder', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -6290,13 +6310,14 @@ module.exports = function (app) {
                 .input('cavity', sql.NVarChar, req.body.cavity)
                 .input('useable', sql.NVarChar, req.body.useable)
                 .input('bomid', sql.NVarChar, req.body.bomid)
+                .input('costloss', sql.Float, req.body.costloss)
 
 
 
 
                 .query(
-                    'insert into bommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity)' +
-                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity)'
+                    'insert into bommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss)'
                 )
                 .then(result => {
 
