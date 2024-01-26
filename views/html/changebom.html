@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesiteminformation.css">
+    <!-- <link rel="stylesheet" href="../css/loading.css"> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+
+<style>
+    input {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    select {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
+
+<body>
+
+
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">BOM 이력관리</a>
+    </div>
+    <div id="loadingOverlay">
+        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
+
+    </div>
+    <fieldset style="height: 40px;">
+
+        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
+            autocomplete="off">
+       
+     
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
+        <button id="exportPdfBtn" class="btn btn-secondary" style="background-color: navy;">
+            <i class="fas fa-file-pdf"></i> PDF로 내보내기
+        </button>
+
+
+    </fieldset>
+    
+    <div id="searchResultCount" style="font-size: 20px; font-weight: bold;">Data: 0</div>
+
+    <div id="overlay">
+
+    </div>
+    <table class="styled-table" id="datatable">
+        <thead id="tableHead">
+            <tr>
+                <th style="text-align:center;" onclick="sortTable(0)">BOMNO</th>
+                <th style="text-align:center;" onclick="sortTable(1)">구분</th>
+                <th style="text-align:center;" onclick="sortTable(2)">모델명</th>
+                <th style="text-align:center;" onclick="sortTable(3)">품목명</th>
+                <th style="text-align:center;" onclick="sortTable(4)">납품처</th>
+                <th style="text-align:center;" onclick="sortTable(5)">고객사코드</th>
+                <th style="text-align:center;" onclick="sortTable(6)">변경횟수</th>
+     
+            </tr>
+        </thead>
+        <tbody id="Datatbody">
+            <!-- Your table rows go here -->
+        </tbody>
+    </table>
+
+    <div id="editModal">
+        <div class="mainheader">
+            <h1>제품 상세 정보</h1>
+            <!-- <button class="saveButton" onclick="opentool()">TOOL</button> -->
+
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+
+
+        <div id="editForm">
+            <table>
+                <tr style="height:50px;">
+                    <td colspan="3">제품 정보</td>
+
+                    <td><button onclick="saveitemprice()">저장</button> </td>
+                </tr>
+
+                <tr>
+                    <td><label for="editAuthor">BOMNO</label></td>
+                    <td><input type="text" id="bomno-edit" value="" readonly autocomplete="off"></td>
+                    <td><label for="editAuthor">구분</label></td>
+                    <td><input type="text" id="part-edit" value="" readonly autocomplete="off"></td>
+
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">모델명</label></td>
+                    <td><input type="text" id="modelname-edit" value="" readonly autocomplete="off"></td>
+                    <td><label for="editAuthor">품목명</label></td>
+                    <td><input type="text" id="itemname-edit" value="" readonly autocomplete="off"></td>
+
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">납품처</label></td>
+                    <td><input type="text" id="customer-edit" value="" readonly autocomplete="off"></td>
+                    <td><label for="editAuthor">고객사코드</label></td>
+                    <td><input type="text" id="itemcode-edit" value="" readonly autocomplete="off"></td>
+
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">판매단가</label></td>
+                    <td><input type="text" id="itemprice-edit" value="" autocomplete="off"></td>
+                    <td><label for="editAuthor">원가(재료비)</label></td>
+                    <td><input type="text" id="costprice-edit" value="" readonly autocomplete="off"></td>
+
+                </tr>
+                <tr>
+                    <td><label for="editAuthor">제품군</label></td>
+                    <td>
+                        <select id="class-edit">
+                            <option id=""></option>
+                            <option id="FPCB">FPCB</option>
+                            <option id="OLED">OLED</option>
+                            <option id="MOBILE">MOBILE</option>
+                            <option id="ANT">ANT</option>
+                            <option id="PBA">PBA</option>
+                            <option id="전장">전장</option>
+                            <option id="의료">의료</option>
+                            <option id="기타">기타</option>
+                        </select>
+                    </td>
+                </tr>
+
+            </table>
+
+        </div>
+    </div>
+    <script>
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        $(document).ready(function () {
+            showLoading()
+            load()
+        });
+
+        // Function to close edit modal and overlay
+        function closeModal() {
+            $('#overlay').fadeOut();
+            $('#editModal').fadeOut();
+        }
+
+        function showLoading() {
+            var loadingOverlay = document.getElementById("overlay");
+            loadingOverlay.style.display = "flex";
+            setTimeout(function () {
+                loadingOverlay.style.display = "none";
+            }, 1000);
+        }
+
+        $('#searchInput').keypress(function (e) {
+            // Check if the pressed key is "Enter" (key code 13)
+            if (e.which === 13) {
+                // Show loading spinner while searching
+                Swal.fire({
+                    icon: 'info',
+                    title: '검색중입니다....',
+                    allowOutsideClick: false,
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timerProgressBar: true,
+                    onBeforeOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Reset previous search results
+                $('#datatable tbody tr').show();
+
+                var searchValue = $(this).val().toLowerCase();
+                var matchingRowCount = 0;
+
+                $('#datatable tbody tr').each(function () {
+                    var rowData = $(this).text().toLowerCase();
+                    var isMatch = rowData.includes(searchValue);
+                    $(this).toggle(isMatch);
+
+                    if (isMatch) {
+                        matchingRowCount++;
+                    }
+                });
+
+                // Display the count of matching rows
+                var resultMessage = 'Data: ' + matchingRowCount;
+                $('#searchResultCount').text(resultMessage);
+
+                // Show message if no matching rows
+
+
+                setTimeout(function () {
+                    Swal.close();
+                }, 1300); // Simulated delay of 1.3 seconds
+            }
+        });
+
+
+
+
+        function load() {
+            $('#Datatbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/iteminfobom',
+                dataType: 'json',
+                success: function (data) {
+                    updateDataCount(data.length);
+
+                    if (data.length === 0) {
+                        $('#Datatbody').append('<tr><td colspan="11" style="text-align: center;">데이터가 없습니다.</td></tr>');
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
+                            var cost = data[i].cost !== null ? data[i].cost.toFixed(2) : '';
+                            var itemprice = data[i].itemprice !== null ? data[i].itemprice : '';
+                            var costPriceRatio = data[i].costPriceRatio !== null ? data[i].costPriceRatio : '';
+                            var class1 = data[i].class !== null ? data[i].class : '';
+                            var itemcode1 = data[i].itemcode !== null ? data[i].itemcode : '';
+                            var priceDifference = itemprice !== '' && cost !== '' ? (parseFloat(itemprice) - parseFloat(cost)).toFixed(2) : '';
+                            var fontColor = data[i].status === '미사용' ? 'silver' : '';
+
+                            $('#Datatbody').append(
+                                '<tr ondblclick="openEditModal2(this)" style="color: ' + fontColor + ';">' +
+                                '<td>' + data[i].bomno + '</td>' +
+                                '<td>' + data[i].part + '</td>' +
+                                '<td>' + data[i].modelname + '</td>' +
+                                '<td>' + data[i].itemname + '</td>' +
+                                '<td>' + data[i].customer + '</td>' +
+                                '<td>' + itemcode1 + '</td>' +
+                                '<td style="text-align:right;">0</td>' +
+                
+                                '</tr>'
+                            );
+                        }
+                    }
+                }
+            });
+        }
+        updateDataCount(data.length);
+      
+        function updateDataCount(count) {
+            $('#searchResultCount').html('Data: ' + count);
+        }
+
+
+        function openEditModal2(row) {
+            var rowData = $(row).find('td').map(function () {
+                return $(this).text();
+            }).get();
+            document.getElementById('overlay').style.display = 'block';
+
+            $('#editModal').fadeIn();
+            $('#bomno-edit').val(rowData[0])
+            $('#part-edit').val(rowData[1])
+            $('#modelname-edit').val(rowData[2])
+            $('#itemname-edit').val(rowData[3])
+            $('#customer-edit').val(rowData[4])
+            $('#itemcode-edit').val(rowData[5])
+            $('#class-edit').val(rowData[6])
+            $('#itemprice-edit').val(rowData[7])
+            $('#costprice-edit').val(rowData[8])
+        }
+
+
+        function saveitemprice() {
+            Swal.fire({
+                icon: 'info',
+                title: '수정',
+                text: '품목 정보를 수정 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updateiteminfoitemprice',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+
+                            itemprice: $('#itemprice-edit').val(),
+                            class: $('#class-edit').val(),
+                            bomno: $('#bomno-edit').val()
+                        }),
+                        success: function (result) {
+                        }
+                    })
+                    $('#overlay').fadeOut();
+                    $('#editModal').fadeOut();
+
+
+
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '저장 완료',
+                        text: '데이터가 수정 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+                            load()
+                        }
+                    });
+
+                }
+            });
+
+        }
+    </script>
+    <script>
+        function exportToExcel() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Excel',
+                text: '엑셀로 저장 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    var table = document.getElementById("datatable");
+                    var rows = table.getElementsByTagName("tr");
+                    var data = [];
+
+                    var columnIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+                    var headerRow = rows[0];
+                    var headerCols = headerRow.getElementsByTagName("th");
+                    var headerData = [];
+
+                    // 1번부터 9번 열까지의 헤더를 추가합니다.
+                    for (var i = 0; i < columnIndices.length; i++) {
+                        headerData.push(headerCols[columnIndices[i]].textContent);
+                    }
+
+                    data.push(headerData);
+
+                    for (var i = 1; i < rows.length; i++) {
+                        var row = rows[i];
+                        var cols = row.getElementsByTagName("td");
+                        var rowData = [];
+
+                        // 1번부터 9번 열까지의 데이터만 추출합니다.
+                        for (var j = 0; j < columnIndices.length; j++) {
+                            rowData.push(cols[columnIndices[j]].textContent);
+                        }
+
+                        data.push(rowData);
+                    }
+
+                    // 엑셀 파일 생성
+                    var ws = XLSX.utils.aoa_to_sheet(data);
+                    var wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "테이블 데이터");
+
+                    // 엑셀 파일을 저장하고 다운로드합니다.
+                    XLSX.writeFile(wb, "단가원가정보.xlsx");
+
+
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '저장 완료',
+                        text: '데이터가 EXCEL로 저장되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.overlay) {
+
+                        }
+                    });
+
+                }
+            });
+
+        }
+    </script>
+
+</body>
+
+</html>

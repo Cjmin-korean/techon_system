@@ -216,10 +216,9 @@
         <legend>검색조건</legend>
         <b>거래처명</b>
         <input type="text" class="form-tag text ess" id="customer-select" name="funeralName" list="funeralList"
-            placeholder="거래처명 검색하세요" autocomplete="off">
+            placeholder="거래처명 검색하세요" autocomplete="off" value="성진산업">
         <datalist id="funeralList"> </datalist>
-        <!-- <input type="text" id="customer-select" value="성진산업" style="cursor: pointer; width: 600px;"
-            oninput="handleInput()" onkeydown="handleKeyDown()" autocomplete="off" placeholder="거래처명 검색하세요"> -->
+
         <button id="searchBtn" onclick="openpurchaseorder()" class="btn btn-success" style="background-color: navy;">
             <i class="fas fa-shopping-cart"></i> 발주조회
         </button>
@@ -339,8 +338,8 @@
         <fieldset style="height: 60px;">
             <label for="inputText">QR NO:</label>
 
-            <input type="text" id="qr-input-1" style="width:500px;" placeholder="작업지시서의 QR을 리딩해주세요"
-                onkeypress="handleKeyPress()" autofocus class="textbox">
+            <input type="text" id="nameInput" style="width:500px;" placeholder="작업지시서의 QR을 리딩해주세요"
+                onkeypress="handleKeyPress()" autofocus class="textbox" autocomplete="off">
 
             <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i> 입고저장
@@ -361,13 +360,14 @@
                             <th style="width: auto; text-align: center;">품목명</th>
                             <th style="width: auto; text-align: center;">수량(M)</th>
                             <th style="width: auto; text-align: center;">롤수량</th>
-                            <th style="width: auto; text-align: center;">총M</th>
+                            <th style="width: auto; text-align: center;">롤M</th>
                             <th style="width: auto; text-align: center;">공급가액</th>
                             <th style="width: auto; text-align: center;">BOMNO</th>
                             <th style="width: auto; text-align: center;">구분</th>
                             <th style="width: auto; text-align: center;">거래처명</th>
                             <th style="width: auto; text-align: center;">재단폭(mm)</th>
-                            <th style="width: auto; text-align: center;">총M</th>
+                            <th style="width: auto; text-align: center;">컷M</th>
+                            <th style="width: auto; text-align: center;">입고수량</th>
 
                         </tr>
                     </thead>
@@ -381,16 +381,14 @@
                 <table class="styled-table" id="datatable2">
                     <thead>
                         <tr>
-                            <th style="width: 20px;"><input type="checkbox"
-                                    style="width:20px; height: 20px; cursor: pointer;" id="selectAllCheckbox"
-                                    onchange="toggleSelectAll()"></th>
-                            <th style="width: auto; text-align: center;">자재명</th>
+
                             <th style="width: auto; text-align: center;">자재코드</th>
-                            <th style="width: auto; text-align: center;">검수수량</th>
-                            <th style="width: auto; text-align: center;">검수수량</th>
+                            <th style="width: auto; text-align: center;">자재폭</th>
+                            <th style="width: auto; text-align: center;">수량</th>
                             <th style="width: auto; text-align: center;">자재LOT</th>
                             <th style="width: auto; text-align: center;">제조일자</th>
                             <th style="width: auto; text-align: center;">만료일자</th>
+                            <th style="width: auto; text-align: center;"></th>
 
                         </tr>
                     </thead>
@@ -497,10 +495,94 @@
                     success: function (result) {
                         updateDatalist(result); // Update datalist options with the results
                     },
-                  
+
                 });
             });
         });
+        function addToTable() {
+            var fullName = document.getElementById("nameInput").value;
+            var parts = fullName.split('/');
+
+            var name = parts[0];
+            var codenumberValue = parts[1];
+
+            var targetRow = findRowByCodenumber(codenumberValue);
+
+            if (targetRow) {
+                // 이미 행이 존재하는 경우에는 해당 행에 데이터를 추가
+                updateRowWithLength(targetRow, parts);
+                // 추가: 찾은 행에 "OK" 표시
+                if (targetRow.cells[2]) {
+                    targetRow.cells[2].innerHTML = "OK";
+                }
+            } else {
+                // 존재하지 않는 경우에는 새로운 행을 생성하고 데이터를 추가
+                var tableBody = document.getElementById("purchaseorderinfobody2");
+                var newRow = tableBody.insertRow();
+
+                for (var i = 0; i < parts.length; i++) {
+                    var cell = newRow.insertCell(i);
+                    cell.innerHTML = parts[i];
+                }
+
+                // 추가 정보(버튼 등)를 삽입
+                var cellAction = newRow.insertCell(parts.length);
+                cellAction.innerHTML = "<button onclick='removeRow(this)'>삭제</button>";
+
+                // countCell 업데이트
+                var countCell = document.getElementById("count" + name);
+                if (countCell) {
+                    countCell.innerHTML = parseInt(countCell.innerHTML) + 1;
+                }
+            }
+
+            document.getElementById("nameInput").value = "";
+        }
+
+        function findRowByCodenumber(codenumber) {
+            var table = document.getElementById("purchaseorderinfobody2");
+            for (var i = 0, row; row = table.rows[i]; i++) {
+                var currentCodenumber = row.cells[2] ? row.cells[2].innerHTML : null;
+                if (currentCodenumber === codenumber) {
+                    return row;
+                }
+            }
+            return null;
+        }
+
+        // 나머지 함수는 동일하게 유지
+
+
+        function updateRowWithLength(targetRow, data) {
+            // 기존 행이 존재하는 경우 해당 행에 데이터를 추가
+            for (var i = 0; i < data.length; i++) {
+                var cell = targetRow.insertCell(i);
+                cell.innerHTML = data[i];
+            }
+
+            // 추가 정보(버튼 등)를 삽입
+            var cellAction = targetRow.insertCell(data.length);
+            cellAction.innerHTML = "<button onclick='removeRow(this)'>삭제</button>";
+
+            // countCell 업데이트
+            var name = data[0];
+            var countCell = document.getElementById("count" + name);
+            if (countCell) {
+                countCell.innerHTML = parseInt(countCell.innerHTML) + 1;
+            }
+        }
+
+        function removeRow(button) {
+            var row = button.parentNode.parentNode;
+            var table = row.parentNode;
+            table.deleteRow(row.rowIndex);
+        }
+
+
+
+
+
+
         function newadd() {
             var rowCount = $('#purchaseorderinfobody tr').length - 1;
 
@@ -992,7 +1074,7 @@
                     $("#overlay").fadeIn();
                     $('#purchaseorder1').fadeOut();
                     $('#purchaseorder').fadeIn(() => {
-                        $('#qr-input-1').focus();
+                        $('#nameInput').focus();
                     });
                     // 배열에 있는 각 orderdate를 사용하여 처리
                     (function processOrderDates(index) {
@@ -1023,8 +1105,11 @@
             });
         }
 
+
         function appendTableData(result) {
             for (var i = 0; i < result.length; i++) {
+                var codenumber = result[i].inputcode; // 변경된 부분: codenumber 가져오기
+                console.log(codenumber)
                 // 테이블에 새로운 데이터 추가
                 $('#purchaseorderinfobody').append(
                     '<tr style="cursor:pointer;">' +
@@ -1032,20 +1117,17 @@
                     '<td>' + result[i].orderdate + '</td>' +
                     '<td id="codenumber-input">' + result[i].inputcode + '</td>' +
                     '<td id="materialname-input">' + result[i].itemname + '</td>' +
-                    '<td style="text-align:right;" id="length-input" contenteditable="true" >' + parseFloat(result[i].length).toLocaleString() + '</td>' +
-                    '<td style="text-align:right;" id="quantity-input" contenteditable="true">' + parseFloat(result[i].quantity) + '</td>' +
+                    '<td style="text-align:right;" id="length-input">' + parseFloat(result[i].length).toLocaleString() + '</td>' +
+                    '<td style="text-align:right;" id="quantity-input">' + parseFloat(result[i].quantity) + '</td>' +
                     '<td style="text-align:right;" id="sumquantity-input">' + (parseFloat(result[i].length) * parseFloat(result[i].quantity)).toLocaleString() + '</td>' +
                     '<td style="text-align:right;" id="sumprice-input">' + (parseFloat(result[i].quantity) * parseFloat(result[i].unitprice)).toLocaleString() + '</td>' +
                     '<td  id="bomno-input">' + result[i].bomno + '</td>' +
                     '<td>' + result[i].ordertype + '</td>' +
                     '<td id="customer-input">' + result[i].suppliername + '</td>' +
                     '<td style="text-align:right;">' + result[i].cutting + '</td>' +
-                    '<td style="text-align:right;">' + (parseInt(1080/parseFloat(result[i].cutting))*parseFloat(result[i].length)).toLocaleString() + '</td>' +
+                    '<td style="text-align:right;">' + (parseInt(1080 / parseFloat(result[i].cutting)) * parseFloat(result[i].length) * parseFloat(result[i].quantity)).toLocaleString() + '</td>' +
+                    '<td style="text-align:right;" id="inputsumquantity-input">0</td>' +
 
-                    '<td style="text-align:center;"  id="count-input">0</td>' +
-                    '<td id="lotno-input"></td>' +
-                    '<td id="manufacturedate-input"></td>' +
-                    '<td id="expirationdate-input"></td>' +
                     '<td style="text-align:right;" id="sqmprice-input">' + parseFloat(result[i].sqmprice).toLocaleString() + '</td>' +
                     '<td style="text-align:right;" id="rollprice-input">' + parseFloat(result[i].unitprice).toLocaleString() + '</td>' +
                     '<td id="qrno-input">' + result[i].itemname + '/' + result[i].cutting + '/' + result[i].length + '/LOT/제조일자/만료일자/20240117-1</td>' +
@@ -1057,6 +1139,8 @@
 
                     '</tr>'
                 );
+
+                // 변경된 부분: 같은 codenumber인 경우 inputsumquantity-input의 값을 증가
                 $('td#qrno').hide();
                 $('td#length').hide();
                 $('td#lifetime').hide();
@@ -1065,9 +1149,37 @@
                 $('td#qrno-input').hide();
                 $('td#qrnosplit-input').hide();
                 $('td#qrno-input').hide();
+
+                // 변경된 부분: 같은 codenumber인 경우 inputsumquantity-input의 값을 증가
+                $('td#inputsumquantity-input').filter(function () {
+                    return $(this).closest('tr').find('#nameInput').text() === codenumber;
+                }).text(function (index, currentValue) {
+                    return parseInt(currentValue) + 1;
+                });
+
             }
         }
 
+        function calculateTotalLength() {
+            var totalLength = 0;
+
+            // 첫 번째 테이블 계산
+            $('#purchaseorderinfobody tr').each(function () {
+                var lengthInput = parseFloat($(this).find('#length-input').text().replace(',', '')) || 0;
+                totalLength += lengthInput;
+            });
+
+            // 두 번째 테이블 계산
+            $('#purchaseorderinfobody2 tr').each(function () {
+                var lengthInput = parseFloat($(this).find('#length-input').text().replace(',', '')) || 0;
+                totalLength += lengthInput;
+            });
+
+            // 결과 출력 또는 다른 작업 수행
+            console.log('총 Length:', totalLength);
+        }
+
+        // 이 함수를 호출하여 총 length를 계산할 수 있습니다.
 
 
         function updateWidth(input) {
@@ -1204,7 +1316,10 @@
         function handleKeyPress() {
             if (event.key === "Enter") {
                 event.preventDefault();
-                updateTable();
+                // updateTable();
+                addToTable()
+
+
             }
         }
 

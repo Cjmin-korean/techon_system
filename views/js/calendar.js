@@ -4,7 +4,6 @@ $(document).ready(function () {
     const datesContainer = document.querySelector('.dates');
     const prevMonthButton = document.querySelector('.prev-month');
     const nextMonthButton = document.querySelector('.next-month');
-
     // 이전에 선택한 날짜 정보를 저장하고 불러오기 위한 키
     const selectedDateKey = 'selectedDate';
 
@@ -98,6 +97,8 @@ $(document).ready(function () {
                 if (plandateElement) {
                     plandateElement.textContent = formattedDate;
                     plansearching()
+                  
+
                 }
 
                 // 이미 선택된 날짜와 같다면 선택 취소
@@ -107,6 +108,7 @@ $(document).ready(function () {
                 } else {
                     selectedDate = clickedDate;
                     planload()
+                    console.log('121212')
                     updateCalendar();
                     setSelectedDate(selectedDate);
                     plansearching()
@@ -125,145 +127,146 @@ $(document).ready(function () {
         selectDateButton();
 
     }
-    function planload() {
-        $('#Datatbody').empty();
-        $.ajax({
-            type: 'POST',
-            url: server + '/api/equipmentname',
-            dataType: 'json',
-            success: function (data) {
-                var tableBody = $('#Datatbody');
-                if (data.length === 0) {
-                } else {
-                    loadTdData = {};
+    // function planload() {
+    //     $('#Datatbody').empty();
+    //     $.ajax({
+    //         type: 'POST',
+    //         url: server + '/api/equipmentname',
+    //         dataType: 'json',
+    //         success: function (data) {
+    //             var tableBody = $('#Datatbody');
+    //             if (data.length === 0) {
+    //             } else {
+    //                 loadTdData = {};
 
-                    for (var i = 0; i < data.length; i++) {
-                        loadTdData[data[i].codenumber] = {};
-                        var numRows = 8;
-                        for (var j = 0; j < numRows; j++) {
-                            loadTdData[data[i].codenumber][j] = {
-                                num: '',
-                                bomno: '',
-                                customer: '',
-                                modelname: '',
-                                itemname: '',
-                                part: '',
-                                linepart: '',
-                                lotno: '',
-                                pono: '',
-                                accumulate: '',
-                                remaining: '',
-                                planone: '',
-                                siljokone: '',
-                                plantwo: '',
-                                siljoktwo: '',
-                            }
+    //                 for (var i = 0; i < data.length; i++) {
+    //                     loadTdData[data[i].codenumber] = {};
+    //                     var numRows = 8;
+    //                     for (var j = 0; j < numRows; j++) {
+    //                         loadTdData[data[i].codenumber][j] = {
+    //                             num: '',
+    //                             bomno: '',
+    //                             customer: '',
+    //                             modelname: '',
+    //                             itemname: '',
+    //                             part: '',
+    //                             linepart: '',
+    //                             lotno: '',
+    //                             pono: '',
+    //                             accumulate: '',
+    //                             remaining: '',
+    //                             planone: '',
+    //                             siljokone: '',
+    //                             plantwo: '',
+    //                             siljoktwo: '',
+    //                         }
 
-                            tableBody.append(
-                                '<tr draggable="true"  >' +
-                                (j === 0 ? '<td style="text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
-                                '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
-                                '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
-                                '</tr>'
-                            );
+    //                         tableBody.append(
+    //                             '<tr draggable="true"  >' +
+    //                             (j === 0 ? '<td style="text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+    //                             '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
+    //                             '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
+    //                             '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
+    //                             '</tr>'
+    //                         );
 
-                        }
-                    }
+    //                     }
+    //                 }
 
 
 
                     
 
-                }
-            }
-        });
-    }
-    function planload() {
-        $('#Datatbody').empty();
-        $.ajax({
-            type: 'POST',
-            url: server + '/api/equipmentname',
-            dataType: 'json',
-            success: function (data) {
-                var tableBody = $('#Datatbody');
-                if (data.length === 0) {
-                } else {
-                    loadTdData = {};
+    //             }
+    //         }
+    //     });
+    // }
+    // function planload() {
+    //     console.log('afsdasdf')
+    //     $('#Datatbody').empty();
+    //     $.ajax({
+    //         type: 'POST',
+    //         url: server + '/api/equipmentname',
+    //         dataType: 'json',
+    //         success: function (data) {
+    //             var tableBody = $('#Datatbody');
+    //             if (data.length === 0) {
+    //             } else {
+    //                 loadTdData = {};
 
-                    for (var i = 0; i < data.length; i++) {
-
-
-                        // loadTdData 배열에 객체 추가
-                        loadTdData[data[i].codenumber] = {};
-                        var numRows = 8; // 각 설비당 행 수 지정
-                        for (var j = 0; j < numRows; j++) {
+    //                 for (var i = 0; i < data.length; i++) {
 
 
-                            loadTdData[data[i].codenumber][j] = {
-                                num: '',
-                                bomno: '',
-                                customer: '',
-                                modelname: '',
-                                itemname: '',
-                                part: '',
-                                linepart: '',
-                                lotno: '',
-                                pono: '',
-                                accumulate: '',
-                                remaining: '',
-                                planone: '', // 중복된 'planone' 제거
-                                siljokone: '',
-                                plantwo: '',
-                                siljoktwo: '',
-                            }
+    //                     // loadTdData 배열에 객체 추가
+    //                     loadTdData[data[i].codenumber] = {};
+    //                     var numRows = 8; // 각 설비당 행 수 지정
+    //                     for (var j = 0; j < numRows; j++) {
 
-                            tableBody.append(
-                                '<tr>' +
-                                (j === 0 ? '<td style="text-align:center; width:8%;  font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
-                                '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
-                                '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
-                                '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
-                                '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
-                                '</tr>'
-                            );
 
-                        }
-                    }
+    //                         loadTdData[data[i].codenumber][j] = {
+    //                             num: '',
+    //                             bomno: '',
+    //                             customer: '',
+    //                             modelname: '',
+    //                             itemname: '',
+    //                             part: '',
+    //                             linepart: '',
+    //                             lotno: '',
+    //                             pono: '',
+    //                             accumulate: '',
+    //                             remaining: '',
+    //                             planone: '', // 중복된 'planone' 제거
+    //                             siljokone: '',
+    //                             plantwo: '',
+    //                             siljoktwo: '',
+    //                         }
 
-                    //console.log('loadTdData2', loadTdData)
-                    plansearching()
-                }
-            }
-        });
-    }
+    //                         tableBody.append(
+    //                             '<tr>' +
+    //                             (j === 0 ? '<td style="text-align:center; width:8%;  font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="' + numRows + '" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'remaining' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+    //                             '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+    //                             '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 7 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
+    //                             '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
+    //                             '<td style="display: none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
+    //                             '</tr>'
+    //                         );
+
+    //                     }
+    //                 }
+
+    //                 //console.log('loadTdData2', loadTdData)
+    //                 plansearching()
+    //             }
+    //         }
+    //     });
+    // }
 
     
 

@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Darken the background color of rows */
+        .ht_master .htRow {
+            background-color: rgba(0, 120, 215, 0.1); /* Adjust the color and opacity as needed */
+        }
+    </style>
 </head>
 
 <body>
@@ -30,32 +36,30 @@
                 url: server + '/api/selectcustomerinformation',
                 dataType: 'json',
                 success: function (data) {
-                    updateDataCount(data.length);
-
                     var container = document.getElementById('handsontable-container');
-
-                    // Define new column headers
-                    var newColumnHeaders = ['NewHeader1', '이름', '날짜', /* Add more headers as needed */];
 
                     // Handsontable configuration
                     var hot = new Handsontable(container, {
                         data: data,
                         rowHeaders: true,
-                        colHeaders: newColumnHeaders, // Use the new column headers array
+                        colHeaders: true,
                         contextMenu: true,
                         stretchH: 'all',
-                        height:'1000',
+                        height: '1000',
                         filters: true, // Enable column filters
                         dropdownMenu: true, // Enable dropdown menu for column headers
-                        licenseKey: 'non-commercial-and-evaluation' // For non-commercial use
+                        licenseKey: 'non-commercial-and-evaluation', // For non-commercial use
+                    });
+
+                    // Event handler for cell double click
+                    hot.addHook('afterOnCellMouseDown', function (event, coords, elem) {
+                        if (event.type === 'dblclick') {
+                            var cellData = hot.getDataAtCell(coords.row, coords.col);
+                            alert('Double clicked! Cell data: ' + cellData);
+                        }
                     });
                 }
             });
-        }
-
-        function updateDataCount(count) {
-            var tableFoot = $('#dataCount');
-            tableFoot.text('총 데이터 개수: ' + count);
         }
 
         $(document).ready(function () {
