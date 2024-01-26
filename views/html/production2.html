@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesaccountinput.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</head>
+
+<style>
+    .selected-row {
+        background-color: #dff0d8;
+        /* You can adjust the color */
+    }
+
+    #datepicker1,
+    #datepicker2 {
+        width: 10%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    select,
+    #checkbox {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    input {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
+
+<body>
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">일일 생산 계획대비 실적 ISSUE 사항</a>
+    </div>
+    <div id="loadingOverlay">
+        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
+
+    </div>
+
+    <fieldset style="height: 40px;">
+
+        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
+            autocomplete="off">
+        <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i> 삭제
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
+        <button id="exportPdfBtn" class="btn btn-secondary" style="background-color: navy;">
+            <i class="fas fa-file-pdf"></i> PDF로 내보내기
+        </button>
+
+
+    </fieldset>
+    <table class="styled-table" id="datatable">
+        <thead id="tableHead">
+            <tr>
+                <th style="text-align:center;" colspan="26">생산 현황</th>
+            </tr>
+            <tr>
+
+                <th style="text-align:center;">생산일자</th>
+                <th style="text-align:center;">생산호기</th>
+                <th style="text-align:center;">생산기사</th>
+                <th style="text-align:center;">BOMNO</th>
+                <th style="text-align:center;">고객사</th>
+                <th style="text-align:center;">모델명</th>
+                <th style="text-align:center;">제품명</th>
+                <th style="text-align:center;">작업차수</th>
+                <th style="text-align:center;">LOTNO</th>
+                <th style="text-align:center;">PO</th>
+                <th style="text-align:center;">누적실적</th>
+                <th style="text-align:center;">PO잔량</th>
+                <th style="text-align:center;">반제품계획</th>
+                <th style="text-align:center;">반제품실적</th>
+                <th style="text-align:center;">완제품실적</th>
+                <th style="text-align:center;">완제품실적</th>
+                <th style="text-align:center;">달성율</th>
+                <th style="text-align:center;">판매단가</th>
+                <th style="text-align:center;">생산단가</th>
+                <th style="text-align:center;">생산원가</th>
+                <th style="text-align:center;">원가기준생산금액</th>
+                <th style="text-align:center;">차액</th>
+                <th style="text-align:center;">생산ISSUE</th>
+                <th style="text-align:center;">작업시간</th>
+                <th style="text-align:center;">무작업</th>
+
+
+            </tr>
+        </thead>
+        <tbody id="Datatbody">
+
+        </tbody>
+
+    </table>
+
+
+    <script>
+        $(document).ready(function () {
+            // 예제 데이터 배열
+            var exampleData = [
+                ["2023-12-01", "1호기", "이정준", "HST-0012-KR", "한솔테크닉스", "SM-S921B (E1) - DF", "Carrier(ADH)", "4차 고속", "23/10/27-39", "40.K", "15.K", "25.K", "25.K", "", "", "", "0%", "104.8", "", "", "", "", "1,2,3,4호기 연동", "", "이정준"],
+                ["2023-12-01", "1호기", "이정준", "HST-0012-KR", "한솔테크닉스", "SM-S921B (E1) - DF", "Carrier(ADH)", "4차 고속", "23/10/27-39", "40.K", "15.K", "25.K", "25.K", "", "", "", "0%", "104.8", "", "", "", "", "1,2,3,4호기 연동", "", "이정준"],
+                ["2023-12-01", "2호기", "원용수", "HST-0012-KR", "한솔테크닉스", "SM-S921B (E1) - DF", "Carrier(ADH)", "4차 고속", "23/10/27-39", "40.K", "15.K", "25.K", "25.K", "", "", "", "0%", "104.8", "", "", "", "", "1,2,3,4호기 연동", "", "원용수"],
+                ["2023-12-01", "2호기", "원용수", "HST-0012-KR", "한솔테크닉스", "SM-S921B (E1) - DF", "Carrier(ADH)", "4차 고속", "23/10/27-40", "40.K", "", "40.K", "27.K", "", "", "", "0%", "104.8", "", "", "", "", "6시 52K 예상", "", "원용수"],
+                ["2023-12-01", "3호기", "최종철", "HST-0012-KR", "한솔테크닉스", "SM-S921B (E1) - DF", "Carrier(ADH)", "4차 고속", "23/10/27-39", "40.K", "15.K", "25.K", "25.K", "", "", "", "100%", "104.8", "2,620,000", "", "", "", "1,2,3,4호기 연동", "", "최종철"],
+                ["2023-12-01", "3호기", "최종철", "HST-0012-KR", "한솔테크닉스", "SM-S921B (E1) - DF", "Carrier(ADH)", "4차 고속", "23/10/27-40", "40.K", "", "40.K", "27.K", "", "", "", "100%", "104.8", "2,829,600", "", "", "", "6시 52K 예상", "", "최종철"],
+                ["2023-12-01", "4호기", "김한흥", "HST-0012-KR", "한솔테크닉스", "SM-S921B (E1) - DF", "Carrier(ADH)", "4차 고속", "23/10/27-39", "40.K", "15.K", "25.K", "25.K", "", "", "", "0%", "104.8", "", "", "", "", "1,2,3,4호기 연동", ""],
+                ["2023-12-01", "4호기", "김한흥", "HST-0012-KR", "한솔테크닉스", "SM-S921B (E1) - DF", "Carrier(ADH)", "4차 고속", "23/10/27-40", "40.K", "", "40.K", "27.K", "", "", "", "0%", "104.8", "", "", "", "", "6시 52K 예상", ""],
+                ["2023-12-01", "6호기", "송덕선", "YPE-3-2010", "영풍전자", "T6_1 롤타입 - DF_구형", "2CS-COV [HGCS-A305RB(G)A + HGCS-A305YA]", "2차 고속", "23/11/29-4", "40.K", "", "40.K", "22.K", "22.K", "22.K", "22.K", "100%", "222.6", "4,897,200", "86.37", "1,900,064", "2,997,136", "6,7호기 연동", "-", "송덕선"],
+                ["2023-12-01", "7호기", "권재형", "YPE-3-2010", "영풍전자", "T6_1 롤타입 - DF_구형", "2CS-COV [HGCS-A305RB(G)A + HGCS-A305YA]", "2차 고속", "23/11/29-4", "40.K", "", "40.K", "", "", "", "", "0%", "222.6", "-", "86.37", "-", "-", "6,7호기 연동", "-", "권재형"]
+            ]
+
+                ;
+
+
+            // tbody 찾기
+            var tbody = $("#Datatbody");
+
+            // 데이터 추가
+            for (var i = 0; i < exampleData.length; i++) {
+                var row = "<tr>";
+
+                for (var j = 0; j < exampleData[i].length; j++) {
+                    // TOTAL 행에 대한 rowspan 추가
+                    var rowspan = (i === exampleData.length - 1 && j === 0) ? 4 : 1;
+
+                    // 첫 번째 열에만 rowspan 적용
+                    if (j === 0) {
+                        row += "<td rowspan='" + rowspan + "'>" + exampleData[i][j] + "</td>";
+                    } else {
+                        row += "<td >" + exampleData[i][j] + "</td>";
+                    }
+                }
+
+                row += "</tr>";
+                tbody.append(row);
+            }
+
+        });
+
+
+    </script>
+
+
+</body>
+
+</html>

@@ -68,7 +68,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">월간 영업계획대비 진행율</a>
+        <a style="margin-left: 20px;">누적PO대비 진도율</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -100,31 +100,20 @@
         <thead id="tableHead">
             <tr>
 
-                <th style="text-align:center;" rowspan="2">BOM NO.</th>
-                <th style="text-align:center;" rowspan="2">고객사</th>
-                <th style="text-align:center;" rowspan="2">모델명</th>
-                <th style="text-align:center;" rowspan="2">품목명</th>
-                <th style="text-align:center;" colspan="6">영업 PO 현황</th>
-                <th style="text-align:center;" colspan="8">생산 진행 현황</th>
-            </tr>
-            <tr>
-
-                <th style="text-align:center;">영업계획</th>
-                <th style="text-align:center;">전월PO잔량</th>
-                <th style="text-align:center;">당월PO</th>
-                <th style="text-align:center;">당월PO합계</th>
-                <th style="text-align:center;">PO차이</th>
-                <th style="text-align:center;">계획대비<br>PO접수율</th>
-                <th style="text-align:center;">전월재고</th>
-                <th style="text-align:center;">전월 생산 잔량</th>
-                <th style="text-align:center;">당월<br>생산지시수량</th>
+                <th style="text-align:center;">BOM NO.</th>
+                <th style="text-align:center;">고객사</th>
+                <th style="text-align:center;">모델명</th>
+                <th style="text-align:center;">품목명</th>
+                <th style="text-align:center;">영업합계</th>
+                <th style="text-align:center;">납품수량</th>
+                <th style="text-align:center;">PO납품잔량</th>
                 <th style="text-align:center;">생산지시합계</th>
                 <th style="text-align:center;">생산실적</th>
                 <th style="text-align:center;">생산잔량</th>
-                <th style="text-align:center;">작업지시대비<br>생산진행율</th>
-                <th style="text-align:center;">영업계획대비<br>생산진행율</th>
-
+                <th style="text-align:center;">작업지시대비<br>진행율</th>
+                <th style="text-align:center;">영업PO대비<br>진행율</th>
             </tr>
+
         </thead>
         <tbody id="Datatbody">
 
@@ -136,29 +125,18 @@
         <thead id="tableHead">
             <tr>
 
-                <th style="text-align:center;" rowspan="2">BOM NO.</th>
-                <th style="text-align:center;" rowspan="2">고객사</th>
-                <th style="text-align:center;" rowspan="2">모델명</th>
-                <th style="text-align:center;" rowspan="2">품목명</th>
-                <th style="text-align:center;" colspan="6">영업 PO 현황</th>
-                <th style="text-align:center;" colspan="8">생산 진행 현황</th>
-            </tr>
-            <tr>
-
-                <th style="text-align:center;">영업계획</th>
-                <th style="text-align:center;">전월PO잔량</th>
-                <th style="text-align:center;">당월PO</th>
-                <th style="text-align:center;">당월PO합계</th>
-                <th style="text-align:center;">PO차이</th>
-                <th style="text-align:center;">계획대비<br>PO접수율</th>
-                <th style="text-align:center;">전월재고</th>
-                <th style="text-align:center;">전월 생산 잔량</th>
-                <th style="text-align:center;">당월<br>생산지시수량</th>
+                <th style="text-align:center;">BOM NO.</th>
+                <th style="text-align:center;">고객사</th>
+                <th style="text-align:center;">모델명</th>
+                <th style="text-align:center;">품목명</th>
+                <th style="text-align:center;">영업합계</th>
+                <th style="text-align:center;">납품수량</th>
+                <th style="text-align:center;">PO납품잔량</th>
                 <th style="text-align:center;">생산지시합계</th>
                 <th style="text-align:center;">생산실적</th>
                 <th style="text-align:center;">생산잔량</th>
-                <th style="text-align:center;">작업지시대비<br>생산진행율</th>
-                <th style="text-align:center;">영업계획대비<br>생산진행율</th>
+                <th style="text-align:center;">작업지시대비<br>진행율</th>
+                <th style="text-align:center;">영업PO대비<br>진행율</th>
 
             </tr>
         </thead>
@@ -172,22 +150,24 @@
         $(document).ready(function () {
             // 예제 데이터 배열
             var exampleData = [
-                ["HST-0001-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Graphite (Auto)", "4,000,000", "1,000,000", "2,000,000", "3,000,000", "- 1,000,000", "75%", "500,000", "500,000", "2,000,000", "2,500,000", "2,104,700", "- 395,300", "84%", "65%"],
-                ["HST-0002-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Carrier (Auto)", "4,000,000", "1,000,000", "2,000,000", "3,000,000", "- 1,000,000", "75%", "500,000", "500,000", "2,000,000", "2,500,000", "2,104,700", "- 395,300", "84%", "65%"],
-                ["HST-0005-KR", "한솔테크닉스", "DM3 - DF", "A/S-Wing ADH", "10,000", "3,000", "2,000", "5,000", "- 5,000", "50%", "3,000", "", "2,000", "2,000", "2,000", " 0", "100%", "50%"],
-                ["HST-0006-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH1", "10,000", "3,000", "2,000", "5,000", "- 5,000", "50%", "3,000", "", "2,000", "2,000", "2,000", " 0", "100%", "50%"],
-                ["HST-0005-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH2", "10,000", "3,000", "2,000", "5,000", "- 5,000", "50%", "3,000", "", "2,000", "2,000", "2,000", " 0", "100%", "50%"],
-                ["HST-0006-KR", "한솔테크닉스", "DM3", "A/S-Protective Film", "10,000", "3,000", "2,000", "5,000", "- 5,000", "50%", "3,000", "", "2,000", "2,000", "2,000", " 0", "100%", "50%"],
-                ["", "", "", "TOTAL", "8,040,000", "2,012,000", "4,008,000", "6,020,000", "- 2,020,000", "75%", "1,012,000", "1,000,000", "4,008,000", "5,008,000", "4,217,400", "- 790,600", "84%", "65%"]
+                ["HST-0001-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Graphite (Auto)", "4,000,000", "2,104,700", "- 1,895,300", "4,100,000", "2,104,700", "- 1,995,300", "51%", "53%"],
+                ["HST-0002-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Carrier (Auto)", "4,000,000", "2,104,700", "- 1,895,300", "4,120,000", "2,104,700", "- 2,015,300", "51%", "53%"],
+                ["HST-0005-KR", "한솔테크닉스", "DM3 - DF", "A/S-Wing ADH", "3,000", "2,000", "- 1,000", "3,000", "2,000", "- 1,000", "67%", "67%"],
+                ["HST-0006-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH1", "3,000", "2,000", "- 1,000", "3,000", "2,000", "- 1,000", "67%", "67%"],
+                ["HST-0007-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH2", "3,000", "2,000", "- 1,000", "3,000", "2,000", "- 1,000", "67%", "67%"],
+                ["HST-0008-KR", "한솔테크닉스", "DM3", "A/S-Protective Film", "3,000", "2,000", "- 1,000", "3,000", "2,000", "- 1,000", "67%", "67%"],
+                ["", "", "", "TOTAL", "8,012,000", "4,217,400", "-3,794,600", "8,212,000", "4,217,400", "-4,014,600", "51%", "53%"]
+
             ];
             var exampleData1 = [
-                ["HST-0001-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Graphite (Auto)", "1,406,400,000", "351,600,000", "703,200,000", "1,054,800,000", "- 351,600,000", "75%", "175,800,000", "175,800,000", "703,200,000", "879,000,000", "740,012,520", "- 138,987,480", "84%", "65%"],
-                ["HST-0002-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Carrier (Auto)", "676,800,000", "169,200,000", "338,400,000", "507,600,000", "- 169,200,000", "75%", "84,600,000", "84,600,000", "338,400,000", "423,000,000", "356,115,240", "- 66,884,760", "84%", "65%"],
-                ["HST-0005-KR", "한솔테크닉스", "DM3 - DF", "A/S-Wing ADH", "432,000", "129,600", "86,400", "216,000", "- 216,000", "50%", "129,600", "", "86,400", "86,400", "86,400", " 0", "100%", "50%"],
-                ["HST-0006-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH1", "396,000", "118,800", "79,200", "198,000", "- 198,000", "50%", "118,800", "", "79,200", "79,200", "79,200", " 0", "100%", "50%"],
-                ["HST-0007-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH2", "324,000", "97,200", "64,800", "162,000", "- 162,000", "50%", "97,200", "", "64,800", "64,800", "64,800", " 0", "100%", "50%"],
-                ["HST-0008-KR", "한솔테크닉스", "DM3", "A/S-Protective Film", "854,924", "256,477", "170,985", "427,462", "- 427,462", "50%", "256,477", "", "170,985", "170,985", "170,985", " 0", "100%", "50%"],
-                ["", "", "", "TOTAL", "2,826,864,000", "521,402,077", "1,042,001,385", "1,563,403,462", "- 1,263,460,538", "55%", "261,002,077", "260,400,000", "1,042,001,385", "1,302,401,385", "1,096,529,145", "- 205,872,240", "84%", "48%"]
+                ["HST-0001-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Graphite (Auto)", "4,000,000", "2,104,700", "- 1,895,300", "4,100,000", "2,104,700", "- 1,995,300",  "51%", "53%"],
+                ["HST-0002-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Carrier (Auto)", "4,000,000", "2,104,700", "- 1,895,300", "4,120,000", "2,104,700", "- 2,015,300",  "51%", "53%"],
+                ["HST-0005-KR", "한솔테크닉스", "DM3 - DF", "A/S-Wing ADH", "3,000", "2,000", "- 1,000", "3,000", "2,000", "- 1,000",  "67%", "67%"],
+                ["HST-0006-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH1", "3,000", "2,000", "- 1,000", "3,000", "2,000", "- 1,000",  "67%", "67%"],
+                ["HST-0007-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH2", "3,000", "2,000", "- 1,000", "3,000", "2,000", "- 1,000",  "67%", "67%"],
+                ["HST-0008-KR", "한솔테크닉스", "DM3", "A/S-Protective Film", "3,000", "2,000", "- 1,000", "3,000", "2,000", "- 1,000", "67%", "67%"],
+                ["", "", "", "TOTAL", "8,012,000", "4,217,400", "-3,794,600", "8,212,000", "4,217,400", "-4,014,600", "51%", "53%"]
+
             ];
 
             // tbody 찾기

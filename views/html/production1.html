@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesaccountinput.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</head>
+
+<style>
+    .selected-row {
+        background-color: #dff0d8;
+        /* You can adjust the color */
+    }
+
+    #datepicker1,
+    #datepicker2 {
+        width: 10%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    select,
+    #checkbox {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    input {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
+
+<body>
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">모델별 생산 계획대비 실적</a>
+    </div>
+    <div id="loadingOverlay">
+        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
+
+    </div>
+
+    <fieldset style="height: 40px;">
+
+        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
+            autocomplete="off">
+        <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i> 삭제
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
+        <button id="exportPdfBtn" class="btn btn-secondary" style="background-color: navy;">
+            <i class="fas fa-file-pdf"></i> PDF로 내보내기
+        </button>
+
+
+    </fieldset>
+    <table class="styled-table" id="datatable">
+        <thead id="tableHead">
+            <tr>
+                <th>BOM.NO</th>
+                <th>고객사</th>
+                <th>모델</th>
+                <th>품목</th>
+                <th>구분</th>
+                <th>누계</th>
+                <th>전월까지 누적</th>
+                <th>12/1</th>
+                <th>12/2</th>
+                <th>12/3</th>
+                <th>12/4</th>
+                <th>12/5</th>
+                <th>12/6</th>
+                <th>12/7</th>
+                <th>12/8</th>
+                <th>12/9</th>
+                <th>12/10</th>
+                <th>12/11</th>
+                <th>12/12</th>
+                <th>12/13</th>
+                <th>12/14</th>
+                <th>12/15</th>
+                <th>12/16</th>
+                <th>12/17</th>
+                <th>12/18</th>
+                <th>12/19</th>
+                <th>12/20</th>
+                <th>12/21</th>
+                <th>12/22</th>
+                <th>12/23</th>
+                <th>12/24</th>
+                <th>12/25</th>
+                <th>12/26</th>
+                <th>12/27</th>
+                <th>12/28</th>
+                <th>12/29</th>
+                <th>12/30</th>
+                <th>12/31</th>
+            </tr>
+        </thead>
+        <tbody id="Datatbody">
+            <tr>
+                <td rowspan="4">HST-0012-KR</td>
+                <td rowspan="4">한솔테크닉스</td>
+                <td rowspan="4">SM-S921B (E1) - DF</td>
+                <td rowspan="4">Carrier(ADH)</td>
+                <td>생산계획</td>
+                <td>2,670,000</td>
+                <td>1,000,000</td>
+                <td>100,000</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td>생산실적</td>
+                <td>2,670,000</td>
+                <td>1,000,000</td>
+                <td>100,000</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td>과부족</td>
+                <td>2,670,000</td>
+                <td>1,000,000</td>
+                <td>100,000</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td>달성율</td>
+                <td>92%</td>
+                <td>1,000,000</td>
+                <td>100,000</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td rowspan="4">HST-0012-KR</td>
+                <td rowspan="4">한솔테크닉스</td>
+                <td rowspan="4">SM-S921B (E1) - DF</td>
+                <td rowspan="4">Carrier(ADH)</td>
+                <td>생산계획</td>
+                <td>2,600,000</td>
+                <td>1,000,000</td>
+                <td>100,000</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td>생산실적</td>
+                <td>2,370,750</td>
+                <td>900,000</td>
+                <td>95,000</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td>과부족</td>
+                <td>-229,250</td>
+                <td>-100,000</td>
+                <td>-234,250</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td>달성율</td>
+                <td>91%</td>
+                <td>1,000,000</td>
+                <td>100,000</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+        </tbody>
+
+    </table>
+    
+
+ 
+
+</body>
+
+</html>
