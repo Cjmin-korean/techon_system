@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전월과 금월 표</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .triangle-up {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 15px solid green;
+            display: inline-block;
+        }
+
+        .triangle-down {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid red;
+            display: inline-block;
+        }
+
+        canvas {
+            display: block;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <table>
+        <thead>
+            <tr>
+                <th>전월</th>
+                <th>금월</th>
+                <th>차이</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="previousMonth1">100</td>
+                <td id="currentMonth1">120</td>
+                <td id="difference1"></td>
+            </tr>
+            <tr>
+                <td id="previousMonth2">120</td>
+                <td id="currentMonth2">80</td>
+                <td id="difference2"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <canvas id="myChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const previousMonth1 = parseInt(document.getElementById("previousMonth1").textContent);
+        const currentMonth1 = parseInt(document.getElementById("currentMonth1").textContent);
+        const difference1 = currentMonth1 - previousMonth1;
+
+        const previousMonth2 = parseInt(document.getElementById("previousMonth2").textContent);
+        const currentMonth2 = parseInt(document.getElementById("currentMonth2").textContent);
+        const difference2 = currentMonth2 - previousMonth2;
+
+        // 차이에 따라 이미지를 표시합니다.
+        const triangleUp = '<div class="triangle-up"></div>';
+        const triangleDown = '<div class="triangle-down"></div>';
+
+        document.getElementById("difference1").innerHTML = difference1 > 0 ? triangleUp : triangleDown;
+        document.getElementById("difference2").innerHTML = difference2 > 0 ? triangleUp : triangleDown;
+
+        // Chart.js를 사용하여 차트를 그립니다.
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['차이1', '차이2'],
+                datasets: [{
+                    label: '차이',
+                    data: [difference1, difference2],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)',
+                    ],
+                    borderWidth: 1 // 여기서 두께를 조절합니다.
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

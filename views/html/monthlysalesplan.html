@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesaccountinput.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</head>
+
+<style>
+    .selected-row {
+        background-color: #dff0d8;
+        /* You can adjust the color */
+    }
+
+    #datepicker1,
+    #datepicker2 {
+        width: 10%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    select,
+    #checkbox {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    input {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
+
+<body>
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">월간 영업계획대비 진행율</a>
+    </div>
+    <div id="loadingOverlay">
+        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
+
+    </div>
+
+    <fieldset style="height: 40px;">
+
+        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
+            autocomplete="off">
+        <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> 신규등록
+        </button>
+        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
+            <i class="fas fa-trash-alt"></i> 삭제
+        </button>
+        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
+            style="background-color: green;">
+            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
+        </button>
+        <button id="exportPdfBtn" class="btn btn-secondary" style="background-color: navy;">
+            <i class="fas fa-file-pdf"></i> PDF로 내보내기
+        </button>
+
+
+    </fieldset>
+    <b style="font-size: 25px;;">■ 수량기준</b>
+    <table class="styled-table" id="datatable">
+        <thead id="tableHead">
+            <tr>
+
+                <th style="text-align:center;" rowspan="2">BOM NO.</th>
+                <th style="text-align:center;" rowspan="2">고객사</th>
+                <th style="text-align:center;" rowspan="2">모델명</th>
+                <th style="text-align:center;" rowspan="2">품목명</th>
+                <th style="text-align:center;" colspan="6">영업 PO 현황</th>
+                <th style="text-align:center;" colspan="8">생산 진행 현황</th>
+            </tr>
+            <tr>
+
+                <th style="text-align:center;">영업계획</th>
+                <th style="text-align:center;">전월PO잔량</th>
+                <th style="text-align:center;">당월PO</th>
+                <th style="text-align:center;">당월PO합계</th>
+                <th style="text-align:center;">PO차이</th>
+                <th style="text-align:center;">계획대비<br>PO접수율</th>
+                <th style="text-align:center;">전월재고</th>
+                <th style="text-align:center;">전월 생산 잔량</th>
+                <th style="text-align:center;">당월<br>생산지시수량</th>
+                <th style="text-align:center;">생산지시합계</th>
+                <th style="text-align:center;">생산실적</th>
+                <th style="text-align:center;">생산잔량</th>
+                <th style="text-align:center;">작업지시대비<br>생산진행율</th>
+                <th style="text-align:center;">영업계획대비<br>생산진행율</th>
+
+            </tr>
+        </thead>
+        <tbody id="Datatbody">
+
+        </tbody>
+
+    </table>
+    <b style="font-size: 25px;;">■ 금액 기준</b>
+    <table class="styled-table" id="datatable">
+        <thead id="tableHead">
+            <tr>
+
+                <th style="text-align:center;" rowspan="2">BOM NO.</th>
+                <th style="text-align:center;" rowspan="2">고객사</th>
+                <th style="text-align:center;" rowspan="2">모델명</th>
+                <th style="text-align:center;" rowspan="2">품목명</th>
+                <th style="text-align:center;" colspan="6">영업 PO 현황</th>
+                <th style="text-align:center;" colspan="8">생산 진행 현황</th>
+            </tr>
+            <tr>
+
+                <th style="text-align:center;">영업계획</th>
+                <th style="text-align:center;">전월PO잔량</th>
+                <th style="text-align:center;">당월PO</th>
+                <th style="text-align:center;">당월PO합계</th>
+                <th style="text-align:center;">PO차이</th>
+                <th style="text-align:center;">계획대비<br>PO접수율</th>
+                <th style="text-align:center;">전월재고</th>
+                <th style="text-align:center;">전월 생산 잔량</th>
+                <th style="text-align:center;">당월<br>생산지시수량</th>
+                <th style="text-align:center;">생산지시합계</th>
+                <th style="text-align:center;">생산실적</th>
+                <th style="text-align:center;">생산잔량</th>
+                <th style="text-align:center;">작업지시대비<br>생산진행율</th>
+                <th style="text-align:center;">영업계획대비<br>생산진행율</th>
+
+            </tr>
+        </thead>
+        <tbody id="Datatbody1">
+
+        </tbody>
+
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            // 예제 데이터 배열
+            var exampleData = [
+                ["HST-0001-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Graphite (Auto)", "4,000,000", "1,000,000", "2,000,000", "3,000,000", "▼ 1,000,000", "75%", "500,000", "500,000", "2,000,000", "2,500,000", "2,104,700", "▼ 395,300", "84%", "65%"],
+                ["HST-0002-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Carrier (Auto)", "4,000,000", "1,000,000", "2,000,000", "3,000,000", "▼ 1,000,000", "75%", "500,000", "500,000", "2,000,000", "2,500,000", "2,104,700", "▼ 395,300", "84%", "65%"],
+                ["HST-0005-KR", "한솔테크닉스", "DM3 - DF", "A/S-Wing ADH", "10,000", "3,000", "2,000", "5,000", "▼ 5,000", "50%", "3,000", "", "2,000", "2,000", "2,000", "▲ 0", "100%", "50%"],
+                ["HST-0006-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH1", "10,000", "3,000", "2,000", "5,000", "▼ 5,000", "50%", "3,000", "", "2,000", "2,000", "2,000", "▲ 0", "100%", "50%"],
+                ["HST-0005-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH2", "10,000", "3,000", "2,000", "5,000", "▼ 5,000", "50%", "3,000", "", "2,000", "2,000", "2,000", "▲ 0", "100%", "50%"],
+                ["HST-0006-KR", "한솔테크닉스", "DM3", "A/S-Protective Film", "10,000", "3,000", "2,000", "5,000", "▼ 5,000", "50%", "3,000", "", "2,000", "2,000", "2,000", "▲ 0", "100%", "50%"],
+                ["", "", "", "TOTAL", "8,040,000", "2,012,000", "4,008,000", "6,020,000", "▼ 2,020,000", "75%", "1,012,000", "1,000,000", "4,008,000", "5,008,000", "4,217,400", "▼ 790,600", "84%", "65%"]
+            ];
+            var exampleData1 = [
+                ["HST-0001-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Graphite (Auto)", "1,406,400,000", "351,600,000", "703,200,000", "1,054,800,000", "▼ 351,600,000", "75%", "175,800,000", "175,800,000", "703,200,000", "879,000,000", "740,012,520", "▼ 138,987,480", "84%", "65%"],
+                ["HST-0002-KR", "한솔테크닉스", "SM-S918U (DM3) - DF", "Carrier (Auto)", "676,800,000", "169,200,000", "338,400,000", "507,600,000", "▼ 169,200,000", "75%", "84,600,000", "84,600,000", "338,400,000", "423,000,000", "356,115,240", "▼ 66,884,760", "84%", "65%"],
+                ["HST-0005-KR", "한솔테크닉스", "DM3 - DF", "A/S-Wing ADH", "432,000", "129,600", "86,400", "216,000", "▼ 216,000", "50%", "129,600", "", "86,400", "86,400", "86,400", "▲ 0", "100%", "50%"],
+                ["HST-0006-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH1", "396,000", "118,800", "79,200", "198,000", "▼ 198,000", "50%", "118,800", "", "79,200", "79,200", "79,200", "▲ 0", "100%", "50%"],
+                ["HST-0007-KR", "한솔테크닉스", "DM3 - DF", "A/S-BOT ADH2", "324,000", "97,200", "64,800", "162,000", "▼ 162,000", "50%", "97,200", "", "64,800", "64,800", "64,800", "▲ 0", "100%", "50%"],
+                ["HST-0008-KR", "한솔테크닉스", "DM3", "A/S-Protective Film", "854,924", "256,477", "170,985", "427,462", "▼ 427,462", "50%", "256,477", "", "170,985", "170,985", "170,985", "▲ 0", "100%", "50%"],
+                ["", "", "", "TOTAL", "2,826,864,000", "521,402,077", "1,042,001,385", "1,563,403,462", "▼ 1,263,460,538", "55%", "261,002,077", "260,400,000", "1,042,001,385", "1,302,401,385", "1,096,529,145", "▼ 205,872,240", "84%", "48%"]
+            ];
+
+            // tbody 찾기
+            var tbody = $("#Datatbody");
+            var tbody1 = $("#Datatbody1");
+
+            // 데이터 추가
+            for (var i = 0; i < exampleData.length; i++) {
+                var row = "<tr>";
+
+                for (var j = 0; j < exampleData[i].length; j++) {
+                    // TOTAL 행에 대한 rowspan 추가
+                    var rowspan = (i === exampleData.length - 1 && j === 0) ? 4 : 1;
+
+                    // 첫 번째 열에만 rowspan 적용
+                    if (j === 0) {
+                        row += "<td rowspan='" + rowspan + "'>" + exampleData[i][j] + "</td>";
+                    } else {
+                        row += "<td >" + exampleData[i][j] + "</td>";
+                    }
+                }
+
+                row += "</tr>";
+                tbody.append(row);
+            }
+            for (var i = 0; i < exampleData1.length; i++) {
+                var row = "<tr>";
+
+                for (var j = 0; j < exampleData1[i].length; j++) {
+                    // TOTAL 행에 대한 rowspan 추가
+                    var rowspan = (i === exampleData1.length - 1 && j === 0) ? 4 : 1;
+
+                    // 첫 번째 열에만 rowspan 적용
+                    if (j === 0) {
+                        row += "<td rowspan='" + rowspan + "'>" + exampleData1[i][j] + "</td>";
+                    } else {
+                        row += "<td >" + exampleData1[i][j] + "</td>";
+                    }
+                }
+
+                row += "</tr>";
+                tbody1.append(row);
+            }
+        });
+
+
+    </script>
+
+
+</body>
+
+</html>
