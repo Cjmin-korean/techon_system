@@ -23,7 +23,7 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">생산 CAPA 분석</a>
+        <a style="margin-left: 20px;">고객사별 손익보고</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -34,44 +34,24 @@
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <!-- <th style="text-align:center;" onclick="sortTable(0)">작성자</th> -->
-                <th style="text-align:center;" rowspan="3">BOM NO</th>
-                <th style="text-align:center;" rowspan="3">고객사</th>
-                <th style="text-align:center;" rowspan="3">모델명</th>
-                <th style="text-align:center;" rowspan="3">품목명</th>
-                <th style="text-align:center;" rowspan="3">작업구분</th>
-                <th style="text-align:center;" rowspan="3">차수</th>
-                <th style="text-align:center;" rowspan="3">1차피딩</th>
-                <th style="text-align:center;" rowspan="3">2차피딩</th>
-                <th style="text-align:center;" rowspan="3">Cavity</th>
-                <th style="text-align:center;" rowspan="3">설비</th>
-                <th style="text-align:center;" colspan="2">작업표준시간</th>
-                <th style="text-align:center;" colspan="7">생산 CAPA</th>
-                <th style="text-align:center;" colspan="3">검사 CAPA</th>
-                <th style="text-align:center;" rowspan="3">타발ST</th>
-                <th style="text-align:center;" rowspan="3">검사ST</th>
+                <th style="text-align:center;">Site</th>
+                <th style="text-align:center;">고객사</th>
+                <th style="text-align:center;">구분</th>
+                <th style="text-align:center;">모델명</th>
+                <th style="text-align:center;">출고수량</th>
+                <th style="text-align:center;">판가<br>(원)</th>
+                <th style="text-align:center;">재료비<br>(원)</th>
+                <th style="text-align:center;">MC율</th>
+                <th style="text-align:center;">LOSS</th>
+                <th style="text-align:center;">제조원가<br>(원)</th>
+                <th style="text-align:center;">매출금액<br>(백만원)</th>
+                <th style="text-align:center;">비용<br>(백만원)</th>
+                <th style="text-align:center;">손익<br>(백만원)</th>
+                <th style="text-align:center;">이익율</th>
+                <th style="text-align:center;">비고</th>
 
             </tr>
-            <tr>
-                <th style="text-align:center;" rowspan="2">셋팅시간</th>
-                <th style="text-align:center;" rowspan="2">표준분당타수</th>
-                <th style="text-align:center;" colspan="3">타발기준</th>
-                <th style="text-align:center;" colspan="3">수량기준</th>
-                <th style="text-align:center;" rowspan="3">필요설비대수</th>
-                <th style="text-align:center;" colspan="3">검사기준</th>
-            </tr>
-            <tr>
 
-                <th style="text-align:center;">시간당 타발</th>
-                <th style="text-align:center;">주간 타발<br>(8시간)</th>
-                <th style="text-align:center;">잔업기준 타발<br>(10.5시간)</th>
-                <th style="text-align:center;">시간당 타발</th>
-                <th style="text-align:center;">주간 타발<br>(8시간)</th>
-                <th style="text-align:center;">잔업기준 타발<br>(10.5시간)</th>
-                <th style="text-align:center;">시간당<br>검사수량</th>
-                <th style="text-align:center;">주간검사수량<br>(8시간)</th>
-                <th style="text-align:center;">잔업검사수량<br>(10.5시간)</th>
-            </tr>
         </thead>
         <tbody id="Datatbody">
 
@@ -220,12 +200,11 @@
                 return false;
             }
         }
-
         function load() {
             $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/capasearching',
+                url: server + '/api/customerminus',
                 dataType: 'json',
                 success: function (data) {
                     var tableFoot = $('#dataCount');
@@ -234,45 +213,63 @@
                     } else {
                         var sequenceNumber = 1;
                         for (var i = 0; i < data.length; i++) {
-                            $('#Datatbody').append(
-                                '<tr>' +
-                                '<td>' + (data[i].bomno || '') + '</td>' +
-                                '<td>' + (data[i].customer || '') + '</td>' +
-                                '<td>' + (data[i].modelname || '') + '</td>' +
-                                '<td>' + (data[i].itemname || '') + '</td>' +
-                                '<td>' + (data[i].workpart || '') + '</td>' +
-                                '<td>' + (data[i].working || '') + '</td>' +
-                                '<td>' + (data[i].onepidding || '') + '</td>' +
-                                '<td>0</td>' +
-                                '<td style="text-align:right;">' + (data[i].cavity || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].additional_column || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].calculated_column|| '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].custom_condition_column || '') + '</td>' +
-                                // '<td style="text-align:right;">' + (data[i].calculated_column || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].additional_calculated_column1.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].additional_calculated_column2.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].additional_calculated_column3.toLocaleString() || '') + '</td>' +
-                                '<td>2</td>' +
-
-                                '<td style="text-align:right;">' + (data[i].cv1.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cv2.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cv3.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cv4.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cv5.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cv6.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cv7.toLocaleString() || '') + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cv8.toLocaleString() || '') + '</td>' +
-
-                                '</tr>'
-                            )
+                            if (i === 0 || data[i].a !== data[i - 1].a) {
+                                // Apply rowspan only to the first row of each group
+                                $('#Datatbody').append(
+                                    '<tr>' +
+                                    '<td rowspan="' + getRowCount(data, i) + '">1팀</td>' +
+                                    '<td rowspan="' + getRowCount(data, i) + '">영풍전자</td>' +
+                                    '<td>' + (data[i].a || '') + '</td>' +
+                                    '<td>' + (data[i].b || '') + '</td>' +
+                                    '<td>' + (data[i].c || '') + '</td>' +
+                                    '<td>' + (data[i].d || '') + '</td>' +
+                                    '<td>' + (data[i].e || '') + '</td>' +
+                                    '<td>' + (data[i].f || '') + '</td>' +
+                                    '<td>' + (data[i].g || '') + '</td>' +
+                                    '<td>' + (data[i].h || '') + '</td>' +
+                                    '<td>' + (data[i].i || '') + '</td>' +
+                                    '<td>' + (data[i].j || '') + '</td>' +
+                                    '<td>' + (data[i].k || '') + '</td>' +
+                                    '<td>' + (data[i].l || '') + '</td>' +
+                                    '<td>' + (data[i].m || '') + '</td>' +
+                                    '</tr>'
+                                );
+                            } else {
+                                // For subsequent rows in the same group, don't repeat the "1팀" cell
+                                $('#Datatbody').append(
+                                    '<tr>' +
+                                    '<td>' + (data[i].a || '') + '</td>' +
+                                    '<td>' + (data[i].b || '') + '</td>' +
+                                    '<td>' + (data[i].c || '') + '</td>' +
+                                    '<td>' + (data[i].d || '') + '</td>' +
+                                    '<td>' + (data[i].e || '') + '</td>' +
+                                    '<td>' + (data[i].f || '') + '</td>' +
+                                    '<td>' + (data[i].g || '') + '</td>' +
+                                    '<td>' + (data[i].h || '') + '</td>' +
+                                    '<td>' + (data[i].i || '') + '</td>' +
+                                    '<td>' + (data[i].j || '') + '</td>' +
+                                    '<td>' + (data[i].k || '') + '</td>' +
+                                    '<td>' + (data[i].l || '') + '</td>' +
+                                    '<td>' + (data[i].m || '') + '</td>' +
+                                    '</tr>'
+                                );
+                            }
                             $("td#data-id").hide();
                         }
-
-
                     }
                 }
             });
         }
+
+        // Function to get the count of rows for rowspan
+        function getRowCount(data, index) {
+            var count = 1;
+            for (var i = index + 1; i < data.length && data[i].a === data[index].a; i++) {
+                count++;
+            }
+            return count;
+        }
+
 
 
 

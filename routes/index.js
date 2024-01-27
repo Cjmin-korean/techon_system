@@ -1064,49 +1064,49 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " SELECT "+
-                    "    joined.bomno, "+
-                    "    joined.model, "+
-                    "    joined.itemname, "+
-                    "    joined.materialname, "+
-                    "    joined.codenumber, "+
-                    "    joined.materialwidth, "+
-                    "    joined.typecategory, "+
-                    "    COALESCE(materialinput.sum_quantity, 0) AS sumquantity, "+
-                    "    joined.sqmprice * joined.materialwidth / 1000 * COALESCE(materialinput.sum_quantity, 0) AS calculated "+
-                    " FROM "+
-                    "    ( "+
-                    "        SELECT "+
-                    "            bm.bomno, "+
-                    "            bm.model, "+
-                    "            bm.itemname, "+
-                    "            bm.materialname, "+
-                    "            bm.codenumber, "+
-                    "            bm.materialwidth, "+
-                    "            mi.typecategory, "+
-                    "            mi.sqmprice, "+
-                    "			bm.num "+
-                    "        FROM "+
-                    "            bommanagement bm  "+
-                    "        JOIN "+
-                    "            materialinfoinformation mi ON bm.codenumber = mi.codenumber "+
-                    "        WHERE "+
-                    "            bm.status = 'true' "+
-                    "        GROUP BY "+
-                    "            bm.bomno, bm.model, bm.itemname, bm.materialname, bm.codenumber, bm.materialwidth, mi.typecategory, mi.sqmprice ,bm.num "+
-                    "    ) AS joined "+
-                    " LEFT JOIN "+
-                    "    ( "+
-                    "        SELECT "+
-                    "            codenumber, "+
-                    "            materialwidth, "+
-                    "            SUM(quantity) AS sum_quantity "+
-                    "        FROM "+
-                    "            materialinput "+
-                    "        GROUP BY "+
-                    "            codenumber, materialwidth "+
-                    "    ) AS materialinput ON joined.codenumber = materialinput.codenumber AND joined.materialwidth = materialinput.materialwidth "+
-                    "	ORDER BY "+
+                    " SELECT " +
+                    "    joined.bomno, " +
+                    "    joined.model, " +
+                    "    joined.itemname, " +
+                    "    joined.materialname, " +
+                    "    joined.codenumber, " +
+                    "    joined.materialwidth, " +
+                    "    joined.typecategory, " +
+                    "    COALESCE(materialinput.sum_quantity, 0) AS sumquantity, " +
+                    "    joined.sqmprice * joined.materialwidth / 1000 * COALESCE(materialinput.sum_quantity, 0) AS calculated " +
+                    " FROM " +
+                    "    ( " +
+                    "        SELECT " +
+                    "            bm.bomno, " +
+                    "            bm.model, " +
+                    "            bm.itemname, " +
+                    "            bm.materialname, " +
+                    "            bm.codenumber, " +
+                    "            bm.materialwidth, " +
+                    "            mi.typecategory, " +
+                    "            mi.sqmprice, " +
+                    "			bm.num " +
+                    "        FROM " +
+                    "            bommanagement bm  " +
+                    "        JOIN " +
+                    "            materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "        WHERE " +
+                    "            bm.status = 'true' " +
+                    "        GROUP BY " +
+                    "            bm.bomno, bm.model, bm.itemname, bm.materialname, bm.codenumber, bm.materialwidth, mi.typecategory, mi.sqmprice ,bm.num " +
+                    "    ) AS joined " +
+                    " LEFT JOIN " +
+                    "    ( " +
+                    "        SELECT " +
+                    "            codenumber, " +
+                    "            materialwidth, " +
+                    "            SUM(quantity) AS sum_quantity " +
+                    "        FROM " +
+                    "            materialinput " +
+                    "        GROUP BY " +
+                    "            codenumber, materialwidth " +
+                    "    ) AS materialinput ON joined.codenumber = materialinput.codenumber AND joined.materialwidth = materialinput.materialwidth " +
+                    "	ORDER BY " +
                     "    joined.bomno,joined.num ASC;")
 
                 .then(result => {
@@ -1124,29 +1124,29 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " SELECT "+
-                "     mi.*, "+
-                "     m.*, "+
-                "     mi.sqmprice * m.materialwidth / 1000 * COALESCE(m.sumquantity, 0) AS calculated "+
-                " FROM "+
-                "     materialinfoinformation mi "+
-                " JOIN "+
-                "     ( "+
-                "         SELECT "+
-                "             codenumber, "+
-                "             materialname, "+
-                "             lotno, "+
-                "             manufacturedate, "+
-                "             expirationdate, "+
-                "             materialwidth, "+
-                "             house, "+
-                "             SUM(quantity) AS sumquantity, "+
-                "             SUM(roll) AS sumroll "+
-                "         FROM "+
-                "             materialinput "+
-                "         GROUP BY "+
-                "             codenumber, materialname, lotno, manufacturedate, expirationdate, materialwidth,house "+
-                "     ) AS m ON mi.codenumber = m.codenumber;                ")
+                    " SELECT " +
+                    "     mi.*, " +
+                    "     m.*, " +
+                    "     mi.sqmprice * m.materialwidth / 1000 * COALESCE(m.sumquantity, 0) AS calculated " +
+                    " FROM " +
+                    "     materialinfoinformation mi " +
+                    " JOIN " +
+                    "     ( " +
+                    "         SELECT " +
+                    "             codenumber, " +
+                    "             materialname, " +
+                    "             lotno, " +
+                    "             manufacturedate, " +
+                    "             expirationdate, " +
+                    "             materialwidth, " +
+                    "             house, " +
+                    "             SUM(quantity) AS sumquantity, " +
+                    "             SUM(roll) AS sumroll " +
+                    "         FROM " +
+                    "             materialinput " +
+                    "         GROUP BY " +
+                    "             codenumber, materialname, lotno, manufacturedate, expirationdate, materialwidth,house " +
+                    "     ) AS m ON mi.codenumber = m.codenumber;                ")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -1163,24 +1163,24 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT "+
-                "     bom.bomno, "+
-                "     bom.model, "+
-                "     bom.itemname, "+
-                "     MAX(item.modelname) AS modelname, "+
-                "     MAX(item.customer) AS customer, "+
-                "     MAX(item.itemcode) AS itemcode, "+
-                "     MAX(item.itemprice) AS itemprice, "+
-                "     max(ii.quantity) as quantity, "+
-                "     COALESCE(SUM(ii.quantity * item.itemprice), 0) AS total_amount "+
-                " FROM "+
-                "     bommanagement bom "+
-                " JOIN "+
-                "     iteminfo item ON bom.bomno = item.bomno AND bom.model = item.modelname AND bom.itemname = item.itemname "+
-                " LEFT JOIN "+
-                "     iteminput ii ON bom.bomno = ii.bomno  "+
-                " GROUP BY "+
-                "     bom.bomno, bom.model, bom.itemname;                          ")
+                    "SELECT " +
+                    "     bom.bomno, " +
+                    "     bom.model, " +
+                    "     bom.itemname, " +
+                    "     MAX(item.modelname) AS modelname, " +
+                    "     MAX(item.customer) AS customer, " +
+                    "     MAX(item.itemcode) AS itemcode, " +
+                    "     MAX(item.itemprice) AS itemprice, " +
+                    "     max(ii.quantity) as quantity, " +
+                    "     COALESCE(SUM(ii.quantity * item.itemprice), 0) AS total_amount " +
+                    " FROM " +
+                    "     bommanagement bom " +
+                    " JOIN " +
+                    "     iteminfo item ON bom.bomno = item.bomno AND bom.model = item.modelname AND bom.itemname = item.itemname " +
+                    " LEFT JOIN " +
+                    "     iteminput ii ON bom.bomno = ii.bomno  " +
+                    " GROUP BY " +
+                    "     bom.bomno, bom.model, bom.itemname;                          ")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -3095,7 +3095,12 @@ module.exports = function (app) {
                     "      custom_condition_column * 60*10.5 AS additional_calculated_column3, " +
                     "      custom_condition_column * 60 *cavity AS cv1,   " +
                     "      custom_condition_column * 480 *cavity AS cv2,   " +
-                    "      custom_condition_column * 60*10.5*cavity AS cv3   " +
+                    "      custom_condition_column * 60*10.5*cavity AS cv3,   " +
+                    "    	 custom_condition_column *20*cavity AS cv4, " +
+                    "    						 custom_condition_column *160*cavity AS cv5, " +
+                    "    						 custom_condition_column *210*cavity AS cv6, " +
+                    "    						 custom_condition_column *0.004*cavity AS cv7, " +
+                    "    						 custom_condition_column *0.003*cavity AS cv8 " +
                     "  FROM ( " +
                     "      SELECT  " +
                     "          iteminfo.bomno, " +
@@ -3489,6 +3494,55 @@ module.exports = function (app) {
 
                 .query(
                     " select * from orderlist where status1='생산중'"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/modelminus', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " select * from modelminus"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/customerminus', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " select * from customerminus"
 
                 )
 
@@ -5457,7 +5511,7 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/planupdate', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            
+
             return pool.request()
                 .input('plandate', sql.NVarChar, req.body.plandate)
                 .input('bomno', sql.NVarChar, req.body.bomno)
