@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../css/mesmain.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+
+</head>
+
+
+
+<body>
+    <div class="main_header">
+        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
+        <a style="margin-left: 20px;">설비별 수율</a>
+    </div>
+    <div id="loadingOverlay">
+        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
+
+    </div>
+
+    <div id="overlay"></div>
+    <table class="styled-table" id="datatable">
+        <thead id="tableHead">
+            <tr>
+                <th style="text-align: center;">생산호기</th>
+                <th style="text-align: center;">생산가능수량</th>
+                <th style="text-align: center;">생산수량</th>
+                <th style="text-align: center;">생산수율</th>
+                <th style="text-align: center;">검사불량</th>
+                <th style="text-align: center;">검사양품</th>
+                <th style="text-align: center;">최종수율</th>
+
+            </tr>
+           
+          
+        </thead>
+        <tbody id="Datatbody">
+
+        </tbody>
+
+    </table>
+
+    <script>
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        $(document).ready(function () {
+
+            showLoading()
+            load()
+            $('#Datatbody').on('dblclick', 'tr', function () {
+                openEditModal(this); // Pass the clicked row to the function
+            });
+
+        });
+
+        // Function to close edit modal and overlay
+        function closeModal() {
+            $('#overlay').fadeOut();
+            $('#editModal').fadeOut();
+        }
+
+        function showLoading() {
+            var loadingOverlay = document.getElementById("loadingOverlay");
+            loadingOverlay.style.display = "flex";
+            setTimeout(function () {
+                loadingOverlay.style.display = "none";
+            }, 1000);
+        }
+
+
+
+        function Datasave() {
+            if (confirm("샘플 발주 정보를 등록 하시겠습니까??") == true) {
+
+                var insertdate = new Date().toISOString().slice(0, 10);
+
+                var toolcode = $('#toolcode').val();
+                var madedate = $('#datepicker1').val();
+                var bomno = $('#bomno').val();
+                var customer = $('#customer').val();
+                var modelname = $('#modelname').val();
+                var itemname = $('#itemname').val();
+                var char = $('#char').val();
+                var part = $('#part').val();
+                var inputprice = $('#inputprice').val();
+                var outputprice = $('#outputprice').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertpinacle',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        "insertdate": insertdate,
+                        "toolcode": toolcode,
+                        "madedate": madedate,
+                        "bomno": bomno,
+                        "customer": customer,
+                        "modelname": modelname,
+                        "itemname": itemname,
+                        "char": char,
+                        "part": part,
+                        "inputprice": inputprice,
+                        "outputprice": outputprice
+
+
+
+
+                    }),
+                    success: function (result) {
+
+
+                    }
+                })
+
+                $('#popupOverlay').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+        }
+
+        function Dataedit() {
+            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/accountupdatedata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+
+                        id: $('#id-edit').val(),
+                        accountcode: $('#accountcode-edit').val(),
+                        accountname: $('#accountname-edit').val(),
+                        representativename: $('#representativename-edit').val(),
+                        phone: $('#phone-edit').val(),
+                        adress: $('#adress-edit').val(),
+                        number: $('#number-edit').val(),
+                        mobile: $('#mobile-edit').val(),
+                        fax: $('#fax-edit').val(),
+                        email: $('#email-edit').val(),
+                        etc: $('#etc-edit').val()
+
+
+
+
+                    }),
+                    success: function (result) {
+                        console.log(result)
+                    }
+                })
+
+                $('#popupOverlay1').fadeOut();
+                setTimeout(function () {
+                    load()
+                }, 50); // 3초 후에 알림을 사라지게 설정
+                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
+                $('body').append(notification);
+                setTimeout(function () {
+                    notification.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }, 3000);
+            } else {
+                return false;
+            }
+        }
+
+        function load() {
+            $('#Datatbody').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/su3',
+                dataType: 'json',
+                success: function (data) {
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
+                        var sequenceNumber = 1;
+                        for (var i = 0; i < data.length; i++) {
+                            $('#Datatbody').append(
+                                '<tr>' +
+                                '<td>' + (data[i].a || '') + '</td>' +
+                                '<td>' + (data[i].b || '') + '</td>' +
+                                '<td>' + (data[i].c || '') + '</td>' +
+                                '<td>' + (data[i].d || '') + '</td>' +
+                                '<td>' + (data[i].e || '') + '</td>' +
+                                '<td>' + (data[i].f || '') + '</td>' +
+                                '<td>' + (data[i].g || '') + '</td>' +
+                        
+                            
+                          
+                           
+                               
+
+                                '</tr>'
+                            )
+                            $("td#data-id").hide();
+                        }
+
+
+                    }
+                }
+            });
+        }
+
+
+
+
+    </script>
+
+
+</body>
+
+</html>
