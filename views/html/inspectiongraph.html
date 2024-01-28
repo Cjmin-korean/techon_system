@@ -17,7 +17,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 
 </head>
 
@@ -100,25 +102,19 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">일일 최종검사 현황</a>
+        <a style="margin-left: 20px;">불량 유형별 불량조회</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
 
-    <fieldset>
-        <legend>검색조건</legend>
-        <div class="action-buttons">
-            <div>
-                <b>작업지시서 QR CODE:</b>
-                <input type="text" style="width:800px; margin-left: 20px;" id="qr-input" pattern="[A-Za-z]*"
-                    autocomplete="off" placeholder="작업지시서 QR 스캔하세요">
-            </div>
 
-        </div>
-    </fieldset>
     <div id="overlay"></div>
+    <div style="width:500px; height: 500px; padding-left: 800px;">
+        <canvas id="pieChart" width="300" height="300"></canvas>
+
+    </div>
     <table class="styled-table" id="datatable" style="width: 140%;">
         <thead id="tableHead">
             <tr>
@@ -368,17 +364,53 @@
                                 '<td style="color:red;">' + (data[i].ng15 || '') + '</td>' +
                                 '<td style="color:red;">' + (data[i].ng16 || '') + '</td>' +
                                 '<td style="color:red;">' + (data[i].ng17 || '') + '</td>' +
-                    
-                          
-                           
-                               
+
+
+
+
 
                                 '</tr>'
                             )
                             $("td#data-id").hide();
+
+
                         }
 
+                        createPieChart(data);
+                    }
+                }
+            });
+        }
+        function createPieChart(data) {
+            // Extract ng values from each data entry
+            var ngValues = data.map(function (entry) {
+                return entry.ngcount;
+            });
 
+            // Korean names for ng values
+            var ngLabels = [
+                '이물', 'Burr', '미스크랩', '구김', '찐', '기포', '누락',
+                '펜싱', '홀찍힘', '이음매', '잘림', '컬', '홀막힘', '스크래치', '원단', '수량부족', '기타'
+            ];
+
+            // Set up the Chart.js configuration
+            var ctx = document.getElementById('pieChart').getContext('2d');
+            var pieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ngLabels,
+                    datasets: [{
+                        data: ngValues,
+                        backgroundColor: [
+                            'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet',
+                            'brown', 'grey', 'pink', 'cyan', 'magenta', 'purple', 'teal', 'lime', 'amber', 'deep-orange'
+                        ]
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'NG Distribution'
                     }
                 }
             });

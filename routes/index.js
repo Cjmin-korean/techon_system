@@ -3683,6 +3683,31 @@ module.exports = function (app) {
 
     });
     // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/finalfinal', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " select * from alltest"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/updateproduction', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
