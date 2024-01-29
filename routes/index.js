@@ -3685,6 +3685,81 @@ module.exports = function (app) {
     // **** start  생산설비창 띄우기  
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/pur8', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " select * from pur8"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/mr5', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " select * from mr5 where stay='left'"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/mr51', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " select * from mr5 where stay='right'"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/su4', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
