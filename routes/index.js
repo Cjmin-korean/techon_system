@@ -1789,6 +1789,45 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/mr1equipment', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            console.log("req", req)
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "    e.codenumber, " +
+                    "    e.equipmentname, " +
+                    "    e.eqname,  " +
+                    "    e.num, " +
+                    "    e.customer, " +
+                    "    e.serialno, " +
+                    "    e.manudate, " +
+                    "    e.position, " +
+                    "    COALESCE(COUNT(mr1.codenumber), 0) AS mr1count " +
+                    "FROM " +
+                    "    equipment e " +
+                    "LEFT JOIN " +
+                    "    mr1 ON e.codenumber = mr1.codenumber " +
+                    "GROUP BY " +
+                    "    e.codenumber, e.equipmentname, e.eqname, e.num, e.customer, e.serialno, e.manudate, e.position;                ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
@@ -3790,7 +3829,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
 
                 .query(
                     " select id,a,b,c,d from mr1 where codenumber=@codenumber "
@@ -3816,7 +3855,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('id', sql.NVarChar, req.body.id)
+                .input('id', sql.NVarChar, req.body.id)
 
                 .query(
                     "delete from mr1 where id=@id "
@@ -4089,7 +4128,7 @@ module.exports = function (app) {
                 .input('b', sql.NVarChar, req.body.b)
                 .input('c', sql.NVarChar, req.body.c)
                 .input('d', sql.NVarChar, req.body.d)
-           
+
 
 
                 .query(
