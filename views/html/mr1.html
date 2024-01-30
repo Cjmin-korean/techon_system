@@ -87,29 +87,26 @@
                     </tr>
                     <tr>
                         <th style="text-align: center;">설비번호</th>
-                        <td style="text-align: center;">TECH-ON-010</td>
-                        <td rowspan="6" colspan="3" style="text-align: center;"> <img src="/marchineimage/TECH-ON-008.PNG"
-                                alt="로딩 이미지" class="loadingImage" style="width:80%; height: 80%;"></td>
+                        <td style="text-align: center;" id="codenumber"></td>
+                        <td rowspan="5" colspan="3" style="text-align: center;"> <img  class="loadingImage"
+                                style="width:80%; height: 80%;" id="img"></td>
                     </tr>
                     <tr>
                         <th style="text-align: center;">설비명</th>
-                        <td style="text-align: center;">4단 합지기</td>
+                        <td style="text-align: center;" id="eqname"></td>
                     </tr>
-                    <tr>
-                        <th style="text-align: center;">규격</th>
-                        <td style="text-align: center;">2.4X0.92X1.76</td>
-                    </tr>
+
                     <tr>
                         <th style="text-align: center;">제작일</th>
-                        <td style="text-align: center;">2018.04.25</td>
+                        <td style="text-align: center;" id="manudate"></td>
                     </tr>
                     <tr>
                         <th style="text-align: center;">제작회사</th>
-                        <td style="text-align: center;">태경하이테크</td>
+                        <td style="text-align: center;" id="customer"></td>
                     </tr>
                     <tr>
                         <th style="text-align: center;">S/N</th>
-                        <td style="text-align: center;">1804-682801</td>
+                        <td style="text-align: center;" id="serialno"></td>
                     </tr>
                     <tr>
                         <th style="text-align:center;">고장내용</th>
@@ -144,17 +141,10 @@
 
             showLoading()
             load()
-            $('#Datatbody').on('dblclick', 'tr', function () {
-                openEditModal(this); // Pass the clicked row to the function
-            });
+
 
         });
 
-        // Function to close edit modal and overlay
-        function closeModal() {
-            $('#overlay').fadeOut();
-            $('#editModal').fadeOut();
-        }
 
         function showLoading() {
             var loadingOverlay = document.getElementById("loadingOverlay");
@@ -166,149 +156,56 @@
 
 
 
-        function Datasave() {
-            if (confirm("샘플 발주 정보를 등록 하시겠습니까??") == true) {
-
-                var insertdate = new Date().toISOString().slice(0, 10);
-
-                var toolcode = $('#toolcode').val();
-                var madedate = $('#datepicker1').val();
-                var bomno = $('#bomno').val();
-                var customer = $('#customer').val();
-                var modelname = $('#modelname').val();
-                var itemname = $('#itemname').val();
-                var char = $('#char').val();
-                var part = $('#part').val();
-                var inputprice = $('#inputprice').val();
-                var outputprice = $('#outputprice').val();
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertpinacle',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        "insertdate": insertdate,
-                        "toolcode": toolcode,
-                        "madedate": madedate,
-                        "bomno": bomno,
-                        "customer": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "char": char,
-                        "part": part,
-                        "inputprice": inputprice,
-                        "outputprice": outputprice
 
 
 
-
-                    }),
-                    success: function (result) {
-
-
-                    }
-                })
-
-                $('#popupOverlay').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
-
-        function Dataedit() {
-            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/accountupdatedata',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        id: $('#id-edit').val(),
-                        accountcode: $('#accountcode-edit').val(),
-                        accountname: $('#accountname-edit').val(),
-                        representativename: $('#representativename-edit').val(),
-                        phone: $('#phone-edit').val(),
-                        adress: $('#adress-edit').val(),
-                        number: $('#number-edit').val(),
-                        mobile: $('#mobile-edit').val(),
-                        fax: $('#fax-edit').val(),
-                        email: $('#email-edit').val(),
-                        etc: $('#etc-edit').val()
-
-
-
-
-                    }),
-                    success: function (result) {
-                        console.log(result)
-                    }
-                })
-
-                $('#popupOverlay1').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
 
         function load() {
-            $('#Datatbody').empty()
+            $('#Datatbody').empty();
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/equipment',
                 dataType: 'json',
                 success: function (data) {
                     if (data.length === 0) {
-
+                        // Handle empty data case if needed
                     } else {
                         for (var i = 0; i < data.length; i++) {
+                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
 
-                            $('#Datatbody').append(
-                                '<tr>' +
-                                '<td>' + (data[i].codenumber || '') + '</td>' +
-                                '<td>' + (data[i].equipmentname || '') + '</td>' +
-                                '<td>' + (data[i].eqname || '') + '</td>' +
-                                '<td>' + (data[i].part || '') + '</td>' +
-                                '<td>' + (data[i].size || '') + '</td>' +
-                                '<td>' + (data[i].num || '') + '</td>' +
-                                '<td>' + (data[i].customer || '') + '</td>' +
-                                '<td>' + (data[i].serialno || '') + '</td>' +
-                                '<td>' + (data[i].manudate || '') + '</td>' +
+                            // Append data to the row
+                            row.append('<td>' + (data[i].codenumber || '') + '</td>');
+                            row.append('<td>' + (data[i].equipmentname || '') + '</td>');
+                            row.append('<td>' + (data[i].eqname || '') + '</td>');
+                            row.append('<td>' + (data[i].part || '') + '</td>');
+                            row.append('<td>' + (data[i].size || '') + '</td>');
+                            row.append('<td>' + (data[i].num || '') + '</td>');
+                            row.append('<td>' + (data[i].customer || '') + '</td>');
+                            row.append('<td>' + (data[i].serialno || '') + '</td>');
+                            row.append('<td>' + (data[i].manudate || '') + '</td>');
 
-                                '</tr>'
-
-                            )
-                            $("td#data-id").hide();
-
+                            // Append the row to the table body
+                            $('#Datatbody').append(row);
                         }
+
+                        // Add click event to the rows
+                        $('#Datatbody tr').dblclick(function () {
+                            var rowIndex = $(this).data('row-index');
+                            var rowData = data[rowIndex];
+                            $('#codenumber').text(rowData.codenumber);
+                            $('#eqname').text(rowData.eqname);
+                            $('#manudate').text(rowData.manudate);
+                            $('#customer').text(rowData.customer);
+                            $('#serialno').text(rowData.serialno);
+                            $('#serialno').text(rowData.serialno);
+                            $('#img').attr('src', '/marchineimage/' + rowData.codenumber + '.PNG');
+                        });
                     }
                 }
-
-            })
+            });
         }
+
 
 
 
