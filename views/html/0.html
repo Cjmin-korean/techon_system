@@ -1,70 +1,269 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        table.styled-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        table.styled-table th, table.styled-table td {
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-
-        table.styled-table th {
-            background-color: #f2f2f2;
-            height: 40px; /* Adjust the height of the th elements */
-        }
-
-        table.styled-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        th, td {
-            white-space: nowrap;
-        }
-
-        th:last-child, td:last-child {
-            width: 100px;
-        }
-
-        th, tr {
-            height: 10px; /* Adjust the height of the td elements */
-        }
-    </style>
+    <title>jspBoard</title>
+    <meta charset="utf-8">
+    \
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/sorttable.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .ftco-section {
+        padding: 5%;
+    }
+
+    .heading-section h2 {
+        color: #007bff;
+    }
+
+    .table-wrap {
+        overflow: hidden;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        background: #fff;
+    }
+
+    .table-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+        text-align: center;
+    }
+
+    .table-wrap th {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    .pagination {
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination li {
+        margin: 0 5px;
+        list-style: none;
+        display: inline-block;
+    }
+
+    .pagination a {
+        text-decoration: none;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: #fff;
+        border-radius: 3px;
+    }
+
+    .pagination a:hover {
+        background-color: #0056b3;
+    }
+
+    .pagination .active a {
+        background-color: #0056b3;
+    }
+
+    #page_info {
+        margin-bottom: 10px;
+    }
+</style>
+
 <body>
-    <table class="styled-table">
-        <thead id="tableHead1">
-            <tr>
-                <th>고장내용</th>
-                <th>조치내용</th>
-                <th>발생일</th>
-                <th>조치일</th>
-                <th>삭제</th>
-            </tr>
-        </thead>
-        <tbody id="Datatbody2">
-            <!-- Your table body content goes here -->
-        </tbody>
-    </table>
+    <section class="ftco-section" style="height: 1000px;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 text-center mb-5">
+                    <h2 class="heading-section">table</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- page count -->
+                    <div id="page_info"></div>
+
+                    <!-- board -->
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>NO</th>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="html_list">
+                            </tbody>
+                        </table>
+                        <!-- pagination -->
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination justify-content-center" id="paging">
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </body>
+<script>
+    var server = '';
+
+    if (window.location.hostname == 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+    const log = console.log;
+
+    let video_list = [];
+
+    // 서버에서 데이터 받아오기
+    $.ajax({
+        type: 'POST',
+        url: server + '/api/selectmaterialinformation',
+        dataType: 'json',
+        success: function (data) {
+            // 받아온 데이터를 video_list에 할당
+            video_list = data.reverse();
+
+            // 나머지 코드 실행
+            setPageHtml();
+            setList();
+        }
+    });
+
+    const totalCount = video_list.length;
+    //총 페이지
+    const totalPage = Math.ceil(totalCount / 10.0);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 페이지네이션 세팅
+        setPageHtml();
+        // 데이터 세팅
+        setList();
+    })
+
+    function showList(startPage, endPage) {
+        let html = "";
+
+        for (let i = (startPage - 1); i < endPage; i++) {
+            let title = video_list[i].codenumber;
+            console.log(title);
+
+            html += `<tr class="alert" role="alert">
+            <th scope="row">${totalCount - i}</th>
+            <td>${title}</td>
+          </tr>`;
+        }
+        document.getElementById("html_list").innerHTML = html;
+    }
+
+
+    function setPageHtml() {
+
+        let pageHtml =
+            `<li class="page-item">
+            <a href="#;" class="page-link" onClick="changePage('first');return false;">First</a>
+        </li>
+        <li class="page-item">
+            <a href="#" class="page-link" onClick="changePage('prev');return false;">Prev</a>
+        </li>
+        <li class="page-item active">
+            <a href="#;" class="page-link" onClick="changePage(1);return false;">1</a>
+        </li>`;
+
+        for (let i = 2; i <= totalPage; i++) {
+            pageHtml +=
+                `<li class="page-item">
+               <a href="#;" class="page-link" onClick="changePage(${i});return false;">${i}</a>
+             </li>`;
+        }
+
+        pageHtml +=
+            `<li class="page-item">
+            <a href="#;" class="page-link" onClick="changePage('next');return false;">Next</a>
+        </li>
+        <li class="page-item">
+            <a href="#;" class="page-link" onClick="changePage('last');return false;">Last</a>
+        </li>`;
+
+        document.getElementById("paging").innerHTML = pageHtml;
+
+    }
+
+    function setList(page) {
+
+        // 페이지 당 표시 될 튜플 수
+        let pageCount = 10;
+        page = page == null ? 1 : page;
+
+        // 표시될 첫 게시글
+        let startPage = (page - 1) * pageCount + 1;
+        // 표시될 마지막 게시글
+        let endPage = startPage + pageCount - 1;
+        // if(마지막 게시글 > 총 게시글) 총 게시글을 마지막 게시글로
+        endPage = endPage > totalCount ? totalCount : endPage;
+
+        showList(startPage, endPage);
+
+        let html = `${page}/${totalPage} 쪽 [총 <strong>${totalCount}</strong>건]`;
+        document.getElementById("page_info").innerHTML = html;
+
+        // 변경된 페이지 표시
+        document.querySelectorAll("#paging li").forEach((item) => {
+            let str = item.querySelector("#paging li a").innerText;
+            if (str.includes(page)) {
+                item.classList.add("active");
+            } else {
+                item.classList.remove("active");
+            }
+        });
+
+    }
+
+    /**
+     * 페이지 클릭 이벤트
+     * @param page
+     * @returns
+     */
+    function changePage(page) {
+        log("page ==> " + page);
+
+        // 현재 페이지
+        let nowPage = parseInt(document.querySelector("#paging .active a").innerText);
+        log("nowPage --> " + nowPage);
+
+        if (page === "first") {
+            page = "1";
+        } else if (page === "prev") {
+            page = (nowPage - 1) < 1 ? nowPage : (nowPage - 1);
+        } else if (page === "next") {
+            page = (nowPage + 1) > totalPage ? totalPage : (nowPage + 1);
+        } else if (page === "last") {
+            page = totalPage;
+        }
+
+        if (nowPage != page)
+            setList(page);
+    }
+</script>
+
 </html>
