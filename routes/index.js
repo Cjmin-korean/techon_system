@@ -3793,7 +3793,33 @@ module.exports = function (app) {
             .input('codenumber', sql.NVarChar, req.body.codenumber)
 
                 .query(
-                    " select a,b,c,d from mr1 where codenumber=@codenumber "
+                    " select id,a,b,c,d from mr1 where codenumber=@codenumber "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/deletemr1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('id', sql.NVarChar, req.body.id)
+
+                .query(
+                    "delete from mr1 where id=@id "
 
                 )
 

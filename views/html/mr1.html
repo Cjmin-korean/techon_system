@@ -113,7 +113,7 @@
             <table class="styled-table">
                 <thead id="tableHead">
                     <tr>
-                        <th style="text-align:center;" colspan="3">설비 이력 대장</th>
+                        <th style="text-align:center;" colspan="4">설비 이력 대장</th>
                         <td> <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
                                 <i class="fas fa-plus-circle"></i> 이력등록
                             </button></td>
@@ -146,6 +146,7 @@
                         <th style="text-align:center;">조치내용</th>
                         <th style="text-align:center;">발생일</th>
                         <th style="text-align:center;">조치일</th>
+                        <th style="text-align:center;">삭제</th>
                     </tr>
 
                 </thead>
@@ -266,6 +267,7 @@
             }
         }
         function save() {
+
             var codenumberText = $('#codenumber').text().trim();
             $('#codenumberid').val(codenumberText)
             // Check if the codenumberText is not empty
@@ -304,7 +306,7 @@
                     Swal.fire({
                         icon: 'success',
                         title: '저장완료',
-                        text: '피나클 정보가 등록되었습니다.',
+                        text: '설비 이력 정보가 등록되었습니다.',
                     }).then((result) => {
                         if (result.isConfirmed) {
                             load1()
@@ -315,7 +317,55 @@
             });
         }
 
+        function datadelete(row) {
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+            console.log(rowData[0])
+            var codenumberText = $('#codenumber').text().trim();
+            $('#codenumberid').val(codenumberText)
+            // Check if the codenumberText is not empty
+            Swal.fire({
+                icon: 'warning',
+                title: '삭제',
+                text: '설비 이력 정보를 삭제하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/deletemr1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": rowData[0]
 
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+
+                    $('#editModal').fadeOut();
+                    $('#overlay').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '설비 이력 정보가 삭제 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            load1()
+                            load()
+                        }
+                    });
+                }
+            });
+        }
         function load() {
             $('#Datatbody').empty();
 
@@ -375,13 +425,16 @@
                                             var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
 
                                             // Append data to the row
+                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
                                             row.append('<td>' + (data[i].a || '') + '</td>');
                                             row.append('<td>' + (data[i].b || '') + '</td>');
                                             row.append('<td>' + (data[i].c || '') + '</td>');
                                             row.append('<td>' + (data[i].d || '') + '</td>');
+                                            row.append('<td><button style="background-color:red;" onclick="datadelete(this)">삭제</button></td>');
 
                                             // Append the row to the table body
                                             $('#Datatbody1').append(row);
+                                            $('td#data-id').hide();
                                         }
 
 
@@ -413,14 +466,17 @@
                         for (var i = 0; i < data.length; i++) {
                             var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
 
-                            // Append data to the row
+                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
                             row.append('<td>' + (data[i].a || '') + '</td>');
                             row.append('<td>' + (data[i].b || '') + '</td>');
                             row.append('<td>' + (data[i].c || '') + '</td>');
                             row.append('<td>' + (data[i].d || '') + '</td>');
+                            row.append('<td><button style="background-color:red;" onclick="datadelete(this)">삭제</button></td>');
 
                             // Append the row to the table body
                             $('#Datatbody1').append(row);
+                            $('td#data-id').hide();
+
                         }
 
 
