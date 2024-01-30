@@ -3785,6 +3785,32 @@ module.exports = function (app) {
     // **** start  생산설비창 띄우기  
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/mr1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('codenumber', sql.NVarChar, req.body.codenumber)
+
+                .query(
+                    " select a,b,c,d from mr1 where codenumber=@codenumber "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/su4', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -4015,6 +4041,34 @@ module.exports = function (app) {
                 .query(
                     'insert into materialinput(date,input,materialname,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,contents,house,classification,codenumber,customer,part)' +
                     ' values(@date,@input,@materialname,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@contents,@house,@classification,@codenumber,@customer,@part)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품목등록    
+    sql.connect(config).then(pool => {
+        app.post('/api/insertmr1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('a', sql.NVarChar, req.body.a)
+                .input('b', sql.NVarChar, req.body.b)
+                .input('c', sql.NVarChar, req.body.c)
+                .input('d', sql.NVarChar, req.body.d)
+           
+
+
+                .query(
+                    'insert into mr1(codenumber,a,b,c,d)' +
+                    ' values(@codenumber,@a,@b,@c,@d)'
                 )
                 .then(result => {
 

@@ -9,11 +9,15 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
+    <link rel="stylesheet" href="../css/mesaccountinput.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 
 </head>
@@ -43,6 +47,18 @@
 
     #datatable-right th {
         text-align: center;
+    }
+
+    input {
+
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        /* margin-bottom: 16px; */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
     }
 </style>
 
@@ -83,12 +99,15 @@
             <table class="styled-table">
                 <thead id="tableHead">
                     <tr>
-                        <th style="text-align:center;" colspan="4">설비 이력 대장</th>
+                        <th style="text-align:center;" colspan="3">설비 이력 대장</th>
+                        <td> <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
+                                <i class="fas fa-plus-circle"></i> 이력등록
+                            </button></td>
                     </tr>
                     <tr>
                         <th style="text-align: center;">설비번호</th>
                         <td style="text-align: center;" id="codenumber"></td>
-                        <td rowspan="5" colspan="3" style="text-align: center;"> <img alt=""  class="loadingImage"
+                        <td rowspan="5" colspan="3" style="text-align: center;"> <img alt="" class="loadingImage"
                                 style="width:80%; height: 80%;" id="img"></td>
                     </tr>
                     <tr>
@@ -116,19 +135,50 @@
                     </tr>
 
                 </thead>
-                <tbody id="Datatbody">
-                    <tr>
-                        <td>피딩롤러 끝 센서 누락</td>
-                        <td>근접 센서 설치 (25만원)</td>
-                        <td>200818 </td>
-                        <td>200819</td>
-                    </tr>
+                <tbody id="Datatbody1">
+
                 </tbody>
             </table>
         </div>
 
     </div>
+    <div id="editModal" style="height: 300px;  overflow-y: auto; width: 40%;">
+        <div class="mainheader">
+            <h1>설비 이력 추가</h1>
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div id="editForm">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th style="width:130px; background-color:white;"><button onclick="save()">저장</button>
+                        </th>
+                        <th style="background-color:white;"><input type="text" id="codenumberid"
+                                style="visibility: hidden;"></th>
+                    </tr>
+                    <tr>
+                        <th style="text-align:center; width:400px;">고장내용</th>
+                        <th style="text-align:center; width:400px;">조치내용</th>
+                        <th style="text-align:center; width:100px;">발생일자</th>
+                        <th style="text-align:center; width:100px;">조치일자</th>
 
+                    </tr>
+
+                </thead>
+                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
+                    <tr>
+                        <td><input type="text" id="a"></td>
+                        <td><input type="text" id="b"></td>
+                        <td><input type="date" id="date1"></td>
+                        <td><input type="date" id="date2"></td>
+
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
     <script>
         var server = '';
 
@@ -138,14 +188,38 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
-
+            settingDate()
             showLoading()
             load()
+            load1()
 
 
         });
+        function settingDate() {
+            const date = new Date();
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
 
 
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+            }
+
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+
+
+            $('#date1').val(currentDate);
+            $('#date2').val(currentDate);
+
+        }
         function showLoading() {
             var loadingOverlay = document.getElementById("loadingOverlay");
             loadingOverlay.style.display = "flex";
@@ -154,10 +228,78 @@
             }, 1000);
         }
 
+        function closeModal() {
+            $('#overlay').fadeOut();
+            $('#editModal').fadeOut();
+        }
 
 
 
+        function newadd() {
+            var codenumberText = $('#codenumber').text().trim();
+            $('#codenumberid').val(codenumberText)
+            // Check if the codenumberText is not empty
+            if (codenumberText !== '') {
+                document.getElementById('overlay').style.display = 'block';
+                document.getElementById('editModal').style.display = 'block';
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '누락',
+                    text: '선택된 항목이 없습니다.',
+                });
+                return;
+            }
+        }
+        function save() {
+            var codenumberText = $('#codenumber').text().trim();
+            $('#codenumberid').val(codenumberText)
+            // Check if the codenumberText is not empty
+            Swal.fire({
+                icon: 'success',
+                title: '저장',
+                text: '설비 이력 정보를 등록하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/insertmr1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "codenumber": codenumberText,
+                            "a": $('#a').val(),
+                            "b": $('#b').val(),
+                            "c": $('#date1').val(),
+                            "d": $('#date2').val(),
 
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+
+                    $('#editModal').fadeOut();
+                    $('#overlay').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '저장완료',
+                        text: '피나클 정보가 등록되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            load1()
+                            load()
+                        }
+                    });
+                }
+            });
+        }
 
 
         function load() {
@@ -200,14 +342,78 @@
                             $('#serialno').text(rowData.serialno);
                             $('#serialno').text(rowData.serialno);
                             $('#img').attr('src', '../marchineimage/' + rowData.codenumber + '.png');
+
+                            $('#Datatbody1').empty();
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/mr1',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    codenumber: rowData.codenumber
+
+                                }),
+                                success: function (data) {
+                                    if (data.length === 0) {
+                                        // Handle empty data case if needed
+                                    } else {
+                                        for (var i = 0; i < data.length; i++) {
+                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                                            // Append data to the row
+                                            row.append('<td>' + (data[i].a || '') + '</td>');
+                                            row.append('<td>' + (data[i].b || '') + '</td>');
+                                            row.append('<td>' + (data[i].c || '') + '</td>');
+                                            row.append('<td>' + (data[i].d || '') + '</td>');
+
+                                            // Append the row to the table body
+                                            $('#Datatbody1').append(row);
+                                        }
+
+
+                                    }
+                                }
+                            });
                         });
                     }
                 }
             });
         }
 
+        function load1() {
+            $('#Datatbody1').empty();
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/mr1',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    codenumber: $('#codenumber').text()
+
+                }),
+                success: function (data) {
+                    if (data.length === 0) {
+                        // Handle empty data case if needed
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
+                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                            // Append data to the row
+                            row.append('<td>' + (data[i].a || '') + '</td>');
+                            row.append('<td>' + (data[i].b || '') + '</td>');
+                            row.append('<td>' + (data[i].c || '') + '</td>');
+                            row.append('<td>' + (data[i].d || '') + '</td>');
+
+                            // Append the row to the table body
+                            $('#Datatbody1').append(row);
+                        }
 
 
+                    }
+                }
+            });
+        }
 
 
     </script>
