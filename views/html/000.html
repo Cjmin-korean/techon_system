@@ -1,40 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>텍스트 입력 및 엔터 이벤트 처리</title>
+    <title>자재 기초정보</title>
+    <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
 </head>
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .table-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+        text-align: center;
+        border: 1px solid silver;
+        font-weight: bold;
+
+    }
+
+    .table-wrap th {
+        background-color: #ffffff;
+        color: black;
+    }
+
+    #page_info {
+        margin-bottom: 10px;
+    }
+</style>
 
 <body>
 
-    <!-- 텍스트 박스 -->
-    <input type="text" id="qr-input-1" style="width:500px;" placeholder="작업지시서의 QR을 리딩해주세요" onkeypress="handleKeyPress()">
+    <section class="ftco-section" style="height: 1000px;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 text-center mb-5">
+                    <h2 class="heading-section">자재 기초정보</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="page_info"></div>
 
-    <script>
-        onkeypress="handleKeyPress()"
-        function handleKeyPress() {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                parseAndExtract();
-            }
-        }
-
-        function parseAndExtract() {
-            var inputText = document.getElementById("qr-input-1").value;
-            var parts = inputText.split('/');
-
-            if (parts.length >= 4) {
-                var extractedValue = parts[3];
-                alert("추출된 값: " + extractedValue);
-                // 여기에서 추출된 값을 사용하거나 다른 작업을 수행할 수 있습니다.
-            } else {
-                alert("입력된 값에서 4번째 요소가 없습니다.");
-            }
-        }
-    </script>
-
+                    <div class="table-wrap">
+                        <table class="table" style="width:200%;">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th style="text-align:center;">품목코드</th>
+                                    <th style="text-align:center;">자재명</th>
+                                    <th style="text-align:center;">전폭<br>(mm)</th>
+                                    <th style="text-align:center;">길이<br>(M)</th>
+                                    <th style="text-align:center;">유효폭<br>(mm)</th>
+                                    <th style="text-align:center;">SQM단가<br>(￦)</th>
+                                    <th style="text-align:center;">롤단가<br>(￦)</th>
+                                    <th style="text-align:center;">단위</th>
+                                    <th style="text-align:center;">유수명<br>(일)</th>
+                                    <th style="text-align:center;">순번</th>
+                                    <th style="text-align:center;">제조사</th>
+                                    <th style="text-align:center;">공급사</th>
+                                    <th style="text-align:center;">사용별</th>
+                                    <th style="text-align:center;">유형별</th>
+                                    <th style="text-align:center;">업체별</th>
+                                    <th style="text-align:center;">자재TYPE</th>
+                                    <th style="text-align:center;">색상</th>
+                                    <th style="text-align:center;">두께</th>
+                                    <th style="text-align:center;">점착력</th>
+                                    <th style="text-align:center;">점착제</th>
+                                    <th style="text-align:center;">원단무게<br>(KG)</th>
+                                    <th style="text-align:center;">요청자</th>
+                                    <th style="text-align:center;">최초수정날짜</th>
+                                    <th style="text-align:center;">등록사유</th>
+                                    <th style="text-align:center;">고객사</th>
+                                    <th style="text-align:center;">모델</th>
+                                </tr>
+                            </thead>
+                            <tbody id="html_list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </body>
+<script>
+    var server = '';
+    let video_list = [];
+
+    if (window.location.hostname == 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
+    // 서버에서 데이터 받아오기
+    $.ajax({
+        type: 'POST',
+        url: server + '/api/selectmaterialinformation',
+        dataType: 'json',
+        success: function (data) {
+            // 받아온 데이터를 video_list에 할당
+            video_list = data.reverse();
+
+            // 나머지 코드 실행
+            showList();
+        }
+    });
+
+    function showList() {
+        let html = "";
+
+        for (let i = 0; i < video_list.length; i++) {
+            let codenumber = video_list[i].codenumber;
+            let materialname = video_list[i].materialname;
+            let width = video_list[i].width.toLocaleString();
+            let length = video_list[i].length.toLocaleString();
+            let usewidth = video_list[i].usewidth.toLocaleString();
+            let sqmprice = video_list[i].sqmprice.toLocaleString();
+            let rollprice = video_list[i].rollprice.toLocaleString();
+            let unit = video_list[i].unit;
+            let lifetime = video_list[i].lifetime;
+            let num = video_list[i].num;
+            let manufacterer = video_list[i].manufacterer;
+            let supplier = video_list[i].supplier;
+            let usagecategory = video_list[i].usagecategory;
+            let typecategory = video_list[i].typecategory;
+            let companycategory = video_list[i].companycategory;
+            let materialtype = video_list[i].materialtype;
+            let color = video_list[i].color;
+            let thickness = video_list[i].thickness;
+            let adhesionstrength = video_list[i].adhesionstrength;
+            let adhesive = video_list[i].adhesive;
+            let fabricweight = video_list[i].fabricweight;
+            let requester = video_list[i].requester;
+            let modificationdate = video_list[i].modificationdate;
+            let registrationreason = video_list[i].registrationreason;
+            let customer = video_list[i].customer;
+            let modelname = video_list[i].modelname;
+
+            html += `<tr class="alert" role="alert">
+                        <td>${codenumber}</td>
+                        <td>${materialname}</td>
+                        <td>${width}</td>
+                        <td>${length}</td>
+                        <td>${usewidth}</td>
+                        <td>${sqmprice}</td>
+                        <td>${rollprice}</td>
+                        <td>${unit}</td>
+                        <td>${lifetime}</td>
+                        <td>${num}</td>
+                        <td>${manufacterer}</td>
+                        <td>${supplier}</td>
+                        <td>${usagecategory}</td>
+                        <td>${typecategory}</td>
+                        <td>${companycategory}</td>
+                        <td>${materialtype}</td>
+                        <td>${color}</td>
+                        <td>${thickness}</td>
+                        <td>${adhesionstrength}</td>
+                        <td>${adhesive}</td>
+                        <td>${fabricweight}</td>
+                        <td>${requester}</td>
+                        <td>${modificationdate}</td>
+                        <td>${registrationreason}</td>
+                        <td>${customer}</td>
+                        <td>${modelname}</td>
+                    </tr>`;
+        }
+        document.getElementById("html_list").innerHTML = html;
+    }
+</script>
 
 </html>

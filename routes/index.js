@@ -1916,7 +1916,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT " +
                     "*" +
-                    " FROM materialinfoinformation ")
+                    " FROM materialinfoinformation order by typecategory,materialname asc")
 
                 .then(result => {
 
