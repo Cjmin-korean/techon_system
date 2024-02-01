@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자재 기초정보</title>
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.js"></script>
+    <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
+</head>
+
+<style>
+    .tui-grid-header-area {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 1;
+    }
+
+    .tui-grid-cell .tui-grid-cell-header {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 2;
+    }
+</style>
+
+<body>
+
+    <!-- 그리드를 표시할 컨테이너 -->
+    <div id="grid" style="width:200%;"></div>
+
+    <script>
+        var server = '';
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        $(document).ready(function () {
+            load()
+        })
+
+        // 그리드 설정
+        grid = new tui.Grid({
+            el: document.getElementById('grid'),
+            data: [],
+            autoHeight: true,
+            pageOptions: {
+                useClient: true,
+                perPage: 30
+            },
+            columns: [
+                {
+                    header: '품목코드',
+                    name: 'codenumber',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '자재명',
+                    name: 'materialname',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '전폭(mm)',
+                    name: 'width',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '길이(M)',
+                    name: 'length',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '유효폭(mm)',
+                    name: 'usewidth',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: 'SQM단가',
+                    name: 'sqmprice',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '롤단가',
+                    name: 'rollprice',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '단위',
+                    name: 'unit',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '유수명',
+                    name: 'lifetime',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '순번',
+                    name: 'num',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '제조사',
+                    name: 'manufacterer',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '공급사',
+                    name: 'supplier',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '사용별',
+                    name: 'usagecategory',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '유형별',
+                    name: 'typecategory',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '업체별',
+                    name: 'companycategory',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '자재TYPE',
+                    name: 'materialtype',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '색상',
+                    name: 'color',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '두께',
+                    name: 'thickness',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '점착력',
+                    name: 'adhesionstrength',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '점착제',
+                    name: 'adhesive',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '원단무게(kg)',
+                    name: 'fabricweight',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '요청자',
+                    name: 'requester',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '최초수정날짜',
+                    name: 'modificationdate',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '등록사유',
+                    name: 'registrationreason',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '고객사',
+                    name: 'customer',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+                {
+                    header: '모델',
+                    name: 'modelname',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                },
+            ]
+        });
+
+        grid.on('beforeRequest', function (ev) {
+            const pagination = ev.pagination;
+            load(pagination.page, pagination.perPage);
+        });
+
+        function load(pageNumber, pageSize) {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectmaterialinformation',
+                dataType: 'json',
+                data: {
+                    page: pageNumber,
+                    pageSize: pageSize
+                },
+                success: function (data) {
+                    grid.resetData(data);
+                    $('#spinner').addClass('hidden');
+                    $('#grid').removeClass('hidden');
+                }
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>
