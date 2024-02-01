@@ -1211,6 +1211,52 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  거래처정보 조회 쿼리  
+    sql.connect(config).then(pool => {
+        app.post('/api/insertmaterialbase', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('width', sql.NVarChar, req.body.width)
+                .input('length', sql.NVarChar, req.body.length)
+                .input('usewidth', sql.NVarChar, req.body.usewidth)
+                .input('sqmprice', sql.NVarChar, req.body.sqmprice)
+                .input('rollprice', sql.NVarChar, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('num', sql.NVarChar, req.body.num)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('usagecategory', sql.NVarChar, req.body.usagecategory)
+                .input('typecategory', sql.NVarChar, req.body.typecategory)
+                .input('companycategory', sql.NVarChar, req.body.companycategory)
+                .input('materialtype', sql.NVarChar, req.body.materialtype)
+                .input('color', sql.NVarChar, req.body.color)
+                .input('thickness', sql.NVarChar, req.body.thickness)
+                .input('adhesionstrength', sql.NVarChar, req.body.adhesionstrength)
+                .input('adhesive', sql.NVarChar, req.body.adhesive)
+                .input('fabricweight', sql.NVarChar, req.body.fabricweight)
+                .input('requester', sql.NVarChar, req.body.requester)
+                .input('modificationdate', sql.NVarChar, req.body.modificationdate)
+                .input('registrationreason', sql.NVarChar, req.body.registrationreason)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('inspection', sql.NVarChar, req.body.inspection)
+                .input('lifetime', sql.NVarChar, req.body.lifetime)
+                .query(
+                    " INSERT INTO materialinfoinformation (codenumber, materialname, width, length, usewidth, sqmprice, rollprice, unit, num, manufacterer, supplier, usagecategory, typecategory, companycategory, materialtype, color, thickness, adhesionstrength, adhesive, fabricweight, requester, modificationdate, registrationreason, customer, modelname, inspection, lifetime) " +
+                    " VALUES (@codenumber, @materialname, @width, @length, @usewidth, @sqmprice, @rollprice, @unit, @num, @manufacterer, @supplier, @usagecategory, @typecategory, @companycategory, @materialtype, @color, @thickness, @adhesionstrength, @adhesive, @fabricweight, @requester, @modificationdate, @registrationreason, @customer, @modelname, @inspection, @lifetime)")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  거래처정보 조회 쿼리  
     sql.connect(config).then(pool => {
@@ -1930,7 +1976,7 @@ module.exports = function (app) {
 
     });
 
-  
+
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/selectpurchaseorder', function (req, res) {
