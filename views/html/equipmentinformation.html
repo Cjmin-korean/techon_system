@@ -3,277 +3,120 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="../css/mesmain.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../js/sorttable.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>설비 기초정보</title>
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
+    <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        .tui-grid-header-area {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 1;
+        }
 
-
+        .tui-grid-cell .tui-grid-cell-header {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 2;
+        }
+    </style>
 </head>
 
-<style>
-    input {
-        width: 100%;
-        padding: 10px;
-        box-sizing: border-box;
-        /* margin-bottom: 16px; */
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 15px;
-        font-weight: bold;
-    }
-</style>
-
 <body>
-    <div class="main_header">
-        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">설비 정보 등록 및 조회</a>
-    </div>
-    <div id="loadingOverlay">
-        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
-    </div>
+    <!-- 그리드를 표시할 컨테이너 -->
+    <div id="grid"></div>
 
-    <fieldset style="height: 40px;">
-
-        <input type="text" style="width:400px;" class="form-tag text ess" id="funeralName" name="funeralName"
-            list="funeralList" placeholder="설비명을 입력하세요">
-        <datalist id="funeralList">
-
-        </datalist>
-        <button id="newRegistrationBtn" onclick="" class="btn btn-primary">
-            <i class="fas fa-plus-circle"></i> 신규등록
-        </button>
-        <button id="deleteBtn" onclick="" class="btn btn-danger" style="background-color: red;">
-            <i class="fas fa-trash-alt"></i>선택삭제
-        </button>
-        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
-            style="background-color: green;">
-            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
-        </button>
-
-
-
-    </fieldset>
-    <div id="overlay"></div>
-    <table class="styled-table" id="datatable" style="width:100%;">
-        <thead id="tableHead">
-            <tr>
-                <th style="text-align:center;" onclick="sortTable(0)">설비코드</th>
-                <th style="text-align:center;" onclick="sortTable(1)">호기명</th>
-                <th style="text-align:center;" onclick="sortTable(2)">설비명</th>
-                <th style="text-align:center;" onclick="sortTable(3)">구분</th>
-                <th style="text-align:center;" onclick="sortTable(4)">규격</th>
-                <th style="text-align:center;" onclick="sortTable(5)">차수</th>
-                <th style="text-align:center;" onclick="sortTable(6)">설비제작업체</th>
-                <th style="text-align:center;" onclick="sortTable(7)">SERIAL NO</th>
-                <th style="text-align:center;" onclick="sortTable(8)">제작일</th>
-                <th style="text-align:center;" onclick="sortTable(9)">설비위치</th>
-                <th style="text-align:center;" onclick="sortTable(10)">개발Tool</th>
-            </tr>
-        </thead>
-        <tbody id="Datatbody">
-
-        </tbody>
-
-    </table>
 
     <script>
         var server = '';
-
         if (window.location.hostname == 'localhost') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
         }
-        $(document).ready(function () {
 
-            showLoading()
-            load()
-            $('#Datatbody').on('dblclick', 'tr', function () {
-                openEditModal(this); // Pass the clicked row to the function
-            });
-
+        // 그리드 설정
+        const grid = new tui.Grid({
+            el: document.getElementById('grid'),
+            data: [],
+            autoHeight: true,
+            columns: [
+                {
+                    header: '설비코드',
+                    name: 'codenumber',
+                    filter: 'select'
+                },
+                {
+                    header: '호기명',
+                    name: 'equipmentname',
+                    filter: 'select'
+                },
+                {
+                    header: '설비명',
+                    name: 'eqname',
+                    filter: 'select'
+                },
+                {
+                    header: '구분',
+                    name: 'part',
+                    filter: 'select'
+                },
+                {
+                    header: '규격',
+                    name: 'size',
+                    filter: 'select'
+                },
+                {
+                    header: '차수',
+                    name: 'num',
+                    filter: 'select'
+                },
+                {
+                    header: '설비제작업체',
+                    name: 'customer',
+                    filter: 'select'
+                },
+                {
+                    header: 'SERIAL NO',
+                    name: 'serialno',
+                    filter: 'select'
+                },
+                {
+                    header: '제작일',
+                    name: 'manudate',
+                    filter: 'select'
+                },
+                {
+                    header: '설비위치',
+                    name: 'position',
+                    filter: 'select'
+                },
+            ]
         });
 
-        // Function to close edit modal and overlay
-        function closeModal() {
-            $('#overlay').fadeOut();
-            $('#editModal').fadeOut();
+        function updateDataCount(count) {
+            console.log('Total data count:', count);
         }
-
-        function showLoading() {
-            var loadingOverlay = document.getElementById("loadingOverlay");
-            loadingOverlay.style.display = "flex";
-            setTimeout(function () {
-                loadingOverlay.style.display = "none";
-            }, 1000);
-        }
-
-
-
-        function Datasave() {
-            if (confirm("샘플 발주 정보를 등록 하시겠습니까??") == true) {
-
-                var insertdate = new Date().toISOString().slice(0, 10);
-
-                var toolcode = $('#toolcode').val();
-                var madedate = $('#datepicker1').val();
-                var bomno = $('#bomno').val();
-                var customer = $('#customer').val();
-                var modelname = $('#modelname').val();
-                var itemname = $('#itemname').val();
-                var char = $('#char').val();
-                var part = $('#part').val();
-                var inputprice = $('#inputprice').val();
-                var outputprice = $('#outputprice').val();
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertpinacle',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        "insertdate": insertdate,
-                        "toolcode": toolcode,
-                        "madedate": madedate,
-                        "bomno": bomno,
-                        "customer": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "char": char,
-                        "part": part,
-                        "inputprice": inputprice,
-                        "outputprice": outputprice
-
-
-
-
-                    }),
-                    success: function (result) {
-
-
-                    }
-                })
-
-                $('#popupOverlay').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
-
-        function Dataedit() {
-            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/accountupdatedata',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        id: $('#id-edit').val(),
-                        accountcode: $('#accountcode-edit').val(),
-                        accountname: $('#accountname-edit').val(),
-                        representativename: $('#representativename-edit').val(),
-                        phone: $('#phone-edit').val(),
-                        adress: $('#adress-edit').val(),
-                        number: $('#number-edit').val(),
-                        mobile: $('#mobile-edit').val(),
-                        fax: $('#fax-edit').val(),
-                        email: $('#email-edit').val(),
-                        etc: $('#etc-edit').val()
-
-
-
-
-                    }),
-                    success: function (result) {
-                        console.log(result)
-                    }
-                })
-
-                $('#popupOverlay1').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
-
-
 
         function load() {
-            $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
                 url: server + '/api/equipment',
                 dataType: 'json',
                 success: function (data) {
-                    if (data.length === 0) {
-
-                    } else {
-                        for (var i = 0; i < data.length; i++) {
-
-                            $('#Datatbody').append(
-                                '<tr>' +
-                                '<td>' + (data[i].codenumber || '') + '</td>' +
-                                '<td>' + (data[i].equipmentname || '') + '</td>' +
-                                '<td>' + (data[i].eqname || '') + '</td>' +
-                                '<td>' + (data[i].part || '') + '</td>' +
-                                '<td>' + (data[i].size || '') + '</td>' +
-                                '<td>' + (data[i].num || '') + '</td>' +
-                                '<td>' + (data[i].customer || '') + '</td>' +
-                                '<td>' + (data[i].serialno || '') + '</td>' +
-                                '<td>' + (data[i].manudate || '') + '</td>' +
-                                '<td>' + (data[i].position || '') + '</td>' +
-                                '<td>' + (data[i].develop || '') + '</td>' +
-                                '<td id="data-id">' + data[i].id + '</td>' +
-                                '</tr>'
-
-                            )
-                            $("td#data-id").hide();
-
-                        }
-                    }
+                    updateDataCount(data.length);
+                    grid.resetData(data);
                 }
-
-            })
+            });
         }
 
-
+        load();
 
     </script>
-
 
 </body>
 
