@@ -3,480 +3,143 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="../css/mesmain.css">
-    <link rel="stylesheet" href="../css/mespurchaseorder.css">
-    <!-- <link rel="stylesheet" href="../css/mesopenmodal.css"> -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../js/sorttable.js"></script>
-    <script src="../js/purchaseorder.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <title>설비 기초정보</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
+
+    <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <link rel="stylesheet" href="../css/mescss.css">
+
 
 </head>
-
 <style>
-    #datepicker1,
-    #datepicker2 {
-        width: 10%;
-        padding: 10px;
-        box-sizing: border-box;
-        /* margin-bottom: 16px; */
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 15px;
-        font-weight: bold;
-    }
-
-    #datatable th:hover {
-        background-color: rgb(52, 53, 52);
-        color: white;
-    }
-
-    select,
-    #checkbox {
-
-        width: 100%;
-        padding: 10px;
-        box-sizing: border-box;
-        /* margin-bottom: 16px; */
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 15px;
-        font-weight: bold;
-    }
-
-    input {
-
-        width: 100%;
-        padding: 10px;
-        box-sizing: border-box;
-        /* margin-bottom: 16px; */
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 15px;
-        font-weight: bold;
-    }
+    
 </style>
 
 <body>
-    <div class="main_header">
-        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">환율정보 조회</a>
+    <div class="menu-title">
+        <i class="fas fa-chart-line"></i> 환율 고시 정보
     </div>
-    <div id="loadingOverlay">
-        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
-
-    </div>
-
-    <fieldset>
-        <legend>검색조건</legend>
-        <input type="date" id="datepicker1">
-        <input type="date" id="datepicker2">
-        <button onclick="searchData()">조회</button>
-        <!-- <button onclick="openSaveModal()" style="background-color: navy;">발주등록</button> -->
-    </fieldset>
-    <div id="overlay"></div>
-    <table class="styled-table" id="datatable" style="width: 50%;">
-        <thead id="tableHead">
-            <tr>
-                <th style="text-align:center;" colspan="2">적용날짜</th>
-                <th style="text-align:center;" rowspan="2">통화코드</th>
-                <th style="text-align:center;" rowspan="2">통화명</th>
-                <th style="text-align:center;" rowspan="2">통화가격</th>
-
-            </tr>
-            <tr>
-                <th style="text-align:center;">시작</th>
-                <th style="text-align:center;">종료</th>
-            </tr>
-        </thead>
-        <tbody id="Datatbody">
-
-        </tbody>
-
-    </table>
-
-
-
-    <div id="editModal" style="width: 80%;">
-        <div class="mainheader">
-            <h1>생산확정 구매발주</h1>
-
-            <span class="close" onclick="closeModal()">&times;</span>
+    <div class="search-container">
+        <label for="search" class="search-label"> 검색 :</label>
+        <div class="search-input-wrapper">
+            <input type="text" id="search" placeholder="검색어를 입력하세요...">
+            <i class="fas fa-search search-icon"></i>
         </div>
-        <div id="editForm" style="max-height: 700px; width: 100%; float: left; overflow-y: auto;">
-            <table class="styled-table">
-
-                <thead id="tableHead">
-                    <tr>
-                        <th colspan="10">생산확정</th>
-                        <th><input type="text" id="num" style="visibility: hidden;"></th>
-                        <th><button onclick="insertpurchaseorder()">저장</button></th>
-                    </tr>
-                    <th style="text-align:center;">BOMNO</th>
-                    <th style="text-align:center;">모델명</th>
-                    <th style="text-align:center;">품목명</th>
-                    <th style="text-align:center;">자재명</th>
-                    <th style="text-align:center;">자재폭(mm)</th>
-                    <th style="text-align:center;">필요소요량</th>
-                    <th style="text-align:center;">현재고</th>
-                    <th style="text-align:center;">폭이상재고(M)</th>
-                    <th style="text-align:center; width:70px;">1RL<br>컷수</th>
-                    <th style="text-align:center; width:100px;">재단폭</th>
-                    <th style="text-align:center; width:70px;">필요 발주수량(롤)</th>
-                    <th style="text-align:center; width:120px;">발주수량(롤)</th>
-                </thead>
-                <tbody id="orderlistbombody">
-                    <!-- Add your table data here -->
-                </tbody>
-            </table>
-
-
-
-        </div>
-
     </div>
 
-
-
-
-
+    <div id="grid"></div>
 
 
     <script>
+
         var server = '';
+        var tui;
+        var gridData;
 
         if (window.location.hostname == 'localhost') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
         }
+
+
         $(document).ready(function () {
-            settingDate()
-            showLoading()
-            load()
-            $('#Datatbody').on('dblclick', 'tr', function () {
-                openEditModal(this); // Pass the clicked row to the function
-            });
+            setTimeout(function () {
+                load();
+            }, 500);
 
         });
 
+        function initializeGrid() {
+            grid = new tui.Grid({
+                el: document.getElementById('grid'),
+                data: [],
+                // data: dataSource,
+                scrollX: false,
+                scrollY: false,
+                autoHeight: true,
+                columns: [
+                    {
+                        header: '시작날짜',
+                        name: 'startdate',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true
 
-        function openSaveModal() {
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('editModal').style.display = 'block';
-            load1()
+                    },
+                    {
+                        header: '종료날짜',
+                        name: 'finishdate',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true
+
+                    },
+                    {
+                        header: '통화코드',
+                        name: 'currencycode',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true
+
+                    },
+                    {
+                        header: '통화명',
+                        name: 'currencyname',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true
+                    },
+                    {
+                        header: '통화가격',
+                        name: 'currencyprice',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true
+                    },
+                    
+                  
+                ],
+
+            });
         }
+    </script>
 
-
-        // Function to close edit modal and overlay
-        function closeModal() {
-            $('#overlay').fadeOut();
-            $('#editModal').fadeOut();
-        }
-
-        function showLoading() {
-            var loadingOverlay = document.getElementById("loadingOverlay");
-            loadingOverlay.style.display = "flex";
-            setTimeout(function () {
-                loadingOverlay.style.display = "none";
-            }, 1000);
-        }
-        function settingDate() {
-            const date = new Date();
-
-            var day = date.getDate();
-            var month = date.getMonth() + 1;
-            var year = date.getFullYear();
-
-
-            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
-                month = '0' + month
-            }
-
-            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
-                day = '0' + day
-            }
-
-
-            // This arrangement can be altered based on how we want the date's format to appear.
-            let currentDate = `${year}-${month}-${day}`;
-
-
-            $('#datepicker1').val(currentDate);
-            $('#datepicker2').val(currentDate);
-
-        }
-
-
-
-
-        function Dataedit() {
-            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/accountupdatedata',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        id: $('#id-edit').val(),
-                        accountcode: $('#accountcode-edit').val(),
-                        accountname: $('#accountname-edit').val(),
-                        representativename: $('#representativename-edit').val(),
-                        phone: $('#phone-edit').val(),
-                        adress: $('#adress-edit').val(),
-                        number: $('#number-edit').val(),
-                        mobile: $('#mobile-edit').val(),
-                        fax: $('#fax-edit').val(),
-                        email: $('#email-edit').val(),
-                        etc: $('#etc-edit').val()
-
-
-
-
-                    }),
-                    success: function (result) {
-                        console.log(result)
-                    }
-                })
-
-                $('#popupOverlay1').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
-        function numberWithCommas(x) {
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
+    <script>
         function load() {
-            $('#Datatbody').empty()
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectwon',
                 dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                }),
-
                 success: function (data) {
+                    gridData = data;
+                    grid.resetData(data);
+                },
 
-
-
-                    for (var i = 0; i < data.length; i++) {
-
-                        $('#Datatbody').append(
-                            '<tr>' +
-                            '<td>' + (data[i].startdate || '') + '</td>' +
-                            '<td>' + (data[i].finishdate || '') + '</td>' +
-                            '<td>' + (data[i].currencycode || '') + '</td>' +
-                            '<td>' + (data[i].currencyname || '') + '</td>' +
-                            '<td style="text-align:right;">' + (data[i].currencyprice || '') + '</td>' +
-
-
-
-                            '<td id="data-id">' + (data[i].id || '') + '</td>' +
-                            '</tr>'
-                        )
-                        $("td#data-id").hide();
-                    }
-                   
-
-
-                }
             });
 
-        }
-        function insertpurchaseorder() {
-            let tableBody = document.getElementById('orderlistbombody');
-            let rowCount = tableBody.children.length;
-            if (tableBody) {
 
 
-                function removeCommas(value) {
-                    return value.replace(/,/g, '');
-                }
+            // Add event listener for the search input
+            $('#search').on('input', function () {
+                var keyword = $(this).val().toLowerCase();
 
-                Swal.fire({
-                    icon: 'success',
-                    title: '저장',
-                    text: '구매 발주 정보를 등록하시겠습니까?',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: '확인',
-                    cancelButtonText: '취소',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        for (let i = 0; i < rowCount; i++) {
-
-
-                            var insertdate = new Date().toISOString().slice(0, 10);
-                            var roundedResultValue = $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''); // Remove commas
-                            var rollPriceValue = $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''); // Remove commas
-                            var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').val().replace(/,/g, ''); // Remove commas
-                            var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').val().replace(/,/g, ''); // Remove commas
-
-                            var quantity = roundedResultValue;
-                            var unitprice = rollPriceValue;
-                            var supplyamount = quantity * unitprice;
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/insertpurchaseorder',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "orderdate": insertdate,
-                                    "itemname": $('#orderlistbombody tr:eq(' + i + ') #materialname-input').val(),
-                                    "codenumber": $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val(),
-                                    "width": $('#orderlistbombody tr:eq(' + i + ') #width-input').val(),
-                                    "length": $('#orderlistbombody tr:eq(' + i + ') #length-input').val(),
-                                    "quantity": $('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val(),
-                                    "unitprice": $('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val(),
-                                    "supplyamount": supplyamount,
-                                    "suppliername": $('#orderlistbombody tr:eq(' + i + ') #supplier-input').val(),
-                                    "bomno": $('#orderlistbombody tr:eq(' + i + ') #bomno-input').val(),
-                                    "ordertype": '양산',
-                                    "cutting": $('#orderlistbombody tr:eq(' + i + ') #cutmaterialwidth-input').val(),
-                                    "manufacterer": $('#orderlistbombody tr:eq(' + i + ') #manufacterer-input').val(),
-                                    "confirmed": modelname + "/" + itemname + "/" + "100,000"
-
-                                }),
-                                success: function (result) {
-
-                                },
-
-                            });
-                        }
-
-                        $('#editModal').fadeOut();
-                        $('#overlay').fadeOut();
-                        Swal.fire({
-                            icon: 'success',
-                            title: '저장완료',
-                            text: 'TOOL 발주 정보가 등록되었습니다.',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                load()
-                            }
-                        });
-                    }
+                // Filter the data based on the search keyword
+                var filteredData = gridData.filter(function (item) {
+                    return Object.values(item).some(function (value) {
+                        return typeof value === 'string' && value.toLowerCase().includes(keyword);
+                    });
                 });
 
-
-            }
-        }
-
-
-        function load1() {
-            $('#orderlistbombody').empty();
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectorderlistinformation',
-                dataType: 'json',
-                success: function (data) {
-                    $('#num').val(data.length)
-
-                    var tableFoot = $('#dataCount');
-                    if (data.length === 0) {
-                        tableFoot.text('총 데이터 개수: 0');
-                    } else {
-
-
-                        // Iterate through sorted data
-                        for (var i = 0; i < data.length; i++) {
-                            console.log(data)
-                            $('#orderlistbombody').append(
-                                '<tr>' +
-                                '<td><input type="text" id="bomno-input" value="' + (data[i].bomno || '') + '"></td>' +
-                                '<td><input type="text" id="modelname-input" value="' + (data[i].modelname || '') + '"></td>' +
-                                '<td><input type="text" id="itemname-input" value="' + (data[i].itemname || '') + '"></td>' +
-                                '<td><input type="text" id="materialname-input" value="' + (data[i].materialname || '') + '"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="materialwidth-input" value="' + (data[i].materialwidth || '') + '"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="soyo-input" value="' + (data[i].soyo || '') + '"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="sumquantity-input" value="' + (data[i].sumquantity || '0') + '"></td>' +
-                                '<td><input type="text" id="has-input" value="' + (data[i].has || '') + '"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="cut-input" value="' + (data[i].cut || '') + '"></td>' +
-                                '<td style="text-align:right;"><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="전폭">전폭</option></select></td>' +
-                                '<td><input type="text" id="a-input" value="' + (data[i].a || '') + '"></td>' +
-                                '<td><input type="text" id="roundedResult-input" value="' + (data[i].roundedResult || '0') + '"></td>' +
-                                '<td id="sqmpricetd"><input type="text" id="sqmprice-input" value="' + (data[i].sqmprice || '0') + '"></td>' +
-                                '<td id="rollpricetd"><input type="text" id="rollprice-input" value="' + (data[i].a1 || '0') + '"></td>' +
-                                '<td id="quantitytd"><input type="text" id="quantity-input" value="' + (data[i].quantity || '0') + '"></td>' +
-                                '<td id="codenumbertd"><input type="text" id="codenumber-input" value="' + (data[i].codenumber || '0') + '"></td>' +
-                                '<td id="suppliertd"><input type="text" id="supplier-input" value="' + (data[i].supplier || '0') + '"></td>' +
-                                '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
-                                '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
-                                '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].customer || '0') + '"></td>' +
-                                '</tr>'
-
-                            );
-                            $('td#rollpricetd').hide()
-                            $('td#sqmpricetd').hide()
-                            $('td#olquantitytd').hide()
-                            $('td#codenumbertd').hide()
-                            $('td#supplietd').hide()
-                            $('td#widthtd').hide()
-                            $('td#lengthtd').hide()
-                            $('td#quantitytd').hide()
-                            $('td#suppliertd').hide()
-                            $('td#manufacterertd').hide()
-                        }
-                    }
-                }
+                grid.resetData(filteredData);
             });
-        }
-
-
-        // Function to retrieve data for a specific row
-        function getDataForRow(rowIndex) {
-            var rowData = {};
-
-            // Iterate over each <td> in the row
-            $('#TABLEROW' + rowIndex + ' td').each(function (index) {
-                var columnName = '';
-                switch (index) {
-                    case 0:
-                        columnName = 'bomno';
-                        break;
-                    case 1:
-                        columnName = 'modelname';
-                        break;
-                    case 2:
-                        columnName = 'itemname';
-                        break;
-                    // Add cases for other columns as needed
-                }
-
-                // Store the data in the rowData object
-                rowData[columnName] = $(this).text();
-            });
-
-            return rowData;
+            initializeGrid();
         }
     </script>
-
-
 </body>
 
 </html>
