@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>설비 기초정보</title>
+    <title>단가 변경 이력 조회</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
@@ -12,16 +12,17 @@
     <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <link rel="stylesheet" href="../css/mescss.css">
+    <link rel="stylesheet" href="../css/houseinfor.css">
 
 
 </head>
 <style>
-    
+
 </style>
 
 <body>
     <div class="menu-title">
-        <i class="fas fa-chart-line"></i> 환율 고시 정보
+        <i class="fas fa-history"></i> 단가 변경 이력 조회
     </div>
     <div class="search-container">
         <label for="search" class="search-label"> 검색 :</label>
@@ -29,6 +30,8 @@
             <input type="text" id="search" placeholder="검색어를 입력하세요...">
             <i class="fas fa-search search-icon"></i>
         </div>
+        <button class="new-registration-button" onclick="opennew()">신규등록</button>
+
     </div>
 
     <div id="grid"></div>
@@ -64,45 +67,72 @@
                 autoHeight: true,
                 columns: [
                     {
-                        header: '시작날짜',
-                        name: 'startdate',
+                        header: 'BOMNO',
+                        name: 'bomno',
                         filter: 'select',
                         sortable: true,
                         resizable: true
 
                     },
                     {
-                        header: '종료날짜',
-                        name: 'finishdate',
+                        header: '모델명',
+                        name: 'modelname',
                         filter: 'select',
                         sortable: true,
                         resizable: true
 
                     },
                     {
-                        header: '통화코드',
-                        name: 'currencycode',
+                        header: '제품명',
+                        name: 'itemname',
                         filter: 'select',
                         sortable: true,
                         resizable: true
 
                     },
                     {
-                        header: '통화명',
-                        name: 'currencyname',
+                        header: '고객사',
+                        name: 'customer',
                         filter: 'select',
                         sortable: true,
                         resizable: true
                     },
                     {
-                        header: '통화가격',
-                        name: 'currencyprice',
+                        header: '등록일자',
+                        name: 'savedate',
                         filter: 'select',
                         sortable: true,
                         resizable: true
                     },
-                    
-                  
+                    {
+                        header: '단가(￦)',
+                        name: 'previousprice',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        align: 'right',
+                        width:120
+                    },
+                    {
+                        header: '차이(￦)',
+                        name: 'pricedifference',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        align: 'right',
+                        width:120
+
+                    },
+                    {
+                        header: '변경율(%)',
+                        name: 'pricechangepercentage',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        align: 'right',
+                        width:120
+
+                    }
                 ],
 
             });
@@ -113,7 +143,7 @@
         function load() {
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectwon',
+                url: server + '/api/selectpricechange',
                 dataType: 'json',
                 success: function (data) {
                     gridData = data;

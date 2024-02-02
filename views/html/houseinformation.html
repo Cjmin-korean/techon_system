@@ -12,14 +12,17 @@
     <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <link rel="stylesheet" href="../css/mescss.css">
+    <link rel="stylesheet" href="../css/houseinfor.css">
 
 
 </head>
 <style>
+  
 
 </style>
 
 <body>
+    <div id="overlay"></div>
     <div class="menu-title">
         <i class="fas fa-warehouse"></i> 창고 기초정보
     </div>
@@ -29,117 +32,175 @@
             <input type="text" id="search" placeholder="검색어를 입력하세요...">
             <i class="fas fa-search search-icon"></i>
         </div>
+        <button class="new-registration-button" onclick="opennew()">신규등록</button>
     </div>
 
     <div id="grid" style="width: 50%;;"></div>
 
+    <div id="myModal" class="tui-dialog">
+        <div class="tui-dialog-header">
+            <div class="tui-dialog-title"> <i class="fas fa-warehouse"></i> 창고 기초정보 </div>
+        </div>
+        <div class="tui-dialog-body">
+            <div>
 
-    <script>
+                <label for="warehouseCode" class="inputlabel">창고코드:</label>
+                <input type="text" id="housecode" class="inputtext">
+            </div>
+            <div>
+                <label for="warehouseName" class="inputlabel">창고명:</label>
+                <input type="text" id="housename" class="inputtext">
+            </div>
+            <div>
+                <label for="part" class="inputlabel">파트:</label>
+                <input type="text" id="part" class="inputtext">
+            </div>
+            <div>
+                <label for="partName" class="inputlabel">파트명:</label>
+                <input type="text" id="partname" class="inputtext">
+            </div>
+        </div>
+        <div class="tui-dialog-footer">
+            <button class="tui-dialog-action-btn" onclick="saveData()">저장</button>
+            <button class="tui-dialog-close-btn" style="background-color: red;" onclick="closeModal()">닫기</button>
+        </div>
+    </div>
 
-        var server = '';
-        var tui;
-        var gridData;
+</body>
+<script>
 
-        if (window.location.hostname == 'localhost') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'http://techonmes.co.kr';
-        }
+    var server = '';
+    var tui;
+    var gridData;
+
+    if (window.location.hostname == 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
 
 
-        $(document).ready(function () {
-            setTimeout(function () {
-                load();
-            }, 500);
+    $(document).ready(function () {
+        setTimeout(function () {
+            load();
+        }, 500);
+
+    });
+
+    function initializeGrid() {
+        grid = new tui.Grid({
+            el: document.getElementById('grid'),
+            data: [],
+            scrollX: false,
+            scrollY: false,
+            autoHeight: true,
+            rowHeaders: [ 'rowNum'],
+
+            columns: [
+                {
+                    header: '창고코드',
+                    name: 'housecode',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+
+                },
+                {
+                    header: '창고명',
+                    name: 'housename',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+
+                },
+                {
+                    header: '파트',
+                    name: 'part',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+
+                },
+                {
+                    header: '파트명',
+                    name: 'partname',
+                    filter: 'select',
+                    sortable: true,
+                    resizable: true
+                }
+
+            ],
 
         });
 
-        function initializeGrid() {
-            grid = new tui.Grid({
-                el: document.getElementById('grid'),
-                data: [],
-                scrollX: false,
-                scrollY: false,
-                autoHeight: true,
-                rowHeaders: ['rowNum'],
+        grid.on('dblclick', (ev) => {
+            const clickedRow = ev.rowKey;
+            const clickedRowData = grid.getData(ev.rowKey);
 
-                columns: [
-                    {
-                        header: '창고코드',
-                        name: 'housecode',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
+            // 테이블 z-index를 낮춤
+            $('#grid').css('z-index', '1');
 
-                    },
-                    {
-                        header: '창고명',
-                        name: 'housename',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
+            $('#overlay').fadeIn();
+            $('#myModal').fadeIn().css('z-index', '1002'); // 1002나 그 이상의 값으로 설정
+            $('.tui-dialog-action-btn').text('수정');
 
-                    },
-                    {
-                        header: '파트',
-                        name: 'part',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '파트명',
-                        name: 'partname',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-                    }
-
-                ],
-
-            });
-
-            grid.on('dblclick', (ev) => {
-                const clickedRow = ev.rowKey;
-                const clickedRowData = grid.getData(ev.rowKey);
-                console.log('Double-clicked row data:', clickedRowData[clickedRow]);
-                console.log(clickedRowData[housecode]);
-            });
-        }
-    </script>
-
-    <script>
-        function load() {
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/houseinformation',
-                dataType: 'json',
-                success: function (data) {
-                    gridData = data;
-                    grid.resetData(data);
-                },
-
-            });
+            // 모달 내용 설정
+            $('#housecode').val(clickedRowData[clickedRow]['housecode']);
+            $('#housename').val(clickedRowData[clickedRow]['housename']);
+            $('#part').val(clickedRowData[clickedRow]['part']);
+            $('#partname').val(clickedRowData[clickedRow]['partname']);
+        });
 
 
 
-            // Add event listener for the search input
-            $('#search').on('input', function () {
-                var keyword = $(this).val().toLowerCase();
+    }
+</script>
 
-                // Filter the data based on the search keyword
-                var filteredData = gridData.filter(function (item) {
-                    return Object.values(item).some(function (value) {
-                        return typeof value === 'string' && value.toLowerCase().includes(keyword);
-                    });
+<script>
+    function load() {
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/houseinformation',
+            dataType: 'json',
+            success: function (data) {
+                gridData = data;
+                grid.resetData(data);
+            },
+
+        });
+
+
+
+        // Add event listener for the search input
+        $('#search').on('input', function () {
+            var keyword = $(this).val().toLowerCase();
+
+            // Filter the data based on the search keyword
+            var filteredData = gridData.filter(function (item) {
+                return Object.values(item).some(function (value) {
+                    return typeof value === 'string' && value.toLowerCase().includes(keyword);
                 });
-
-                grid.resetData(filteredData);
             });
-            initializeGrid();
-        }
-    </script>
-</body>
+
+            grid.resetData(filteredData);
+        });
+        initializeGrid();
+    }
+    function closeModal() {
+        document.getElementById('myModal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+    function opennew() {
+        $('#housecode').val('');
+        $('#housename').val('');
+        $('#part').val('');
+        $('#partname').val('');
+        $('.tui-dialog-action-btn').text('저장');
+
+        document.getElementById('myModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+   
+</script>
 
 </html>
