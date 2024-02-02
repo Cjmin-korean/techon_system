@@ -4,110 +4,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CADViewer 예제</title>
 
-    <!-- CADViewer 스타일 시트 및 스크립트 CDN 링크 -->
-    <link rel="stylesheet" href="https://cadviewer.com/cadviewer/cadview.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
 
+    <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <link rel="stylesheet" href="../css/mescss.css">
+    <link rel="stylesheet" href="../css/houseinfor.css">
+    <title>Modal Example</title>
     <style>
-        .table-container {
-            max-height: 900px;
-            display: flex;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .styled-table {
-            /* Add any additional styles for the table here */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 60%;
+            max-width: 800px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
 
-        #datatable-left {
-            flex: 1;
-        }
-
-        #datatable-right {
-            flex: 1;
-        }
-
-        #datatable-right th {
+        .modal-header {
             text-align: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .modal-content {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .modal-column {
+            flex: 0 0 calc(33.33% - 20px);
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-content button {
+            width: 48%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 2%;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .company-info,
+        .section-title {
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        .divider {
+            border-top: 1px solid #ddd;
+            margin-top: 15px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 
 <body>
-    <div class="table-container">
 
-        <table class="styled-table" id="datatable-left">
-            <thead id="tableHead">
+    <!-- Trigger button -->
+    <button onclick="openModal()">Open Modal</button>
 
-                <th style="text-align:center;" onclick="sortTable(0)">설비코드</th>
-                <th style="text-align:center;" onclick="sortTable(1)">호기명</th>
-                <th style="text-align:center;" onclick="sortTable(2)">설비명</th>
-                <th style="text-align:center;" onclick="sortTable(3)">구분</th>
-                <th style="text-align:center;" onclick="sortTable(4)">규격</th>
-                <th style="text-align:center;" onclick="sortTable(5)">차수</th>
-                <th style="text-align:center;" onclick="sortTable(6)">설비제작업체</th>
-                <th style="text-align:center;" onclick="sortTable(7)">SERIAL NO</th>
-                <th style="text-align:center;" onclick="sortTable(8)">제작일</th>
-
-            </thead>
-            <tbody id="Datatbody">
-
-            </tbody>
-        </table>
-
-        <div id="datatable-right">
-            <table class="styled-table">
-                <thead id="tableHead">
-                    <tr>
-                        <th style="text-align:center;" colspan="4">설비 이력 대장</th>
-                    </tr>
-                    <tr>
-                        <th style="text-align: center;">설비번호</th>
-                        <td style="text-align: center;">TECH-ON-010</td>
-                        <td rowspan="6" colspan="3" style="text-align: center;"> <img src="/img/TECH-ON-008.PNG"
-                                alt="로딩 이미지" class="loadingImage"></td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: center;">설비명</th>
-                        <td style="text-align: center;">4단 합지기</td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: center;">규격</th>
-                        <td style="text-align: center;">2.4X0.92X1.76</td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: center;">제작일</th>
-                        <td style="text-align: center;">2018.04.25</td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: center;">제작회사</th>
-                        <td style="text-align: center;">태경하이테크</td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: center;">S/N</th>
-                        <td style="text-align: center;">1804-682801</td>
-                    </tr>
-                    <tr>
-                        <th style="text-align:center;">고장내용</th>
-                        <th style="text-align:center;">조치내용</th>
-                        <th style="text-align:center;">발생일</th>
-                        <th style="text-align:center;">조치일</th>
-                    </tr>
-
-                </thead>
-                <tbody id="Datatbody">
-                    <tr>
-                        <td>피딩롤러 끝 센서 누락</td>
-                        <td>근접 센서 설치 (25만원)</td>
-                        <td>200818 </td>
-                        <td>200819</td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- Modal container -->
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;">거래처정보</span>
         </div>
-
+        <div class="company-info"> <i class="fas fa-building"></i> 회사정보 </div>
+        <div class="modal-content">
+            <div class="modal-column">
+                <label for="customername">거래처명:</label>
+                <input type="text" id="customername" name="customername">
+            </div>
+            <div class="modal-column">
+                <label for="businessregistrationnumber">사업자등록번호:</label>
+                <input type="text" id="businessregistrationnumber" name="businessregistrationnumber">
+            </div>
+            <div class="modal-column">
+                <label for="representativename">대표자명:</label>
+                <input type="text" id="representativename" name="representativename">
+            </div>
+            <div class="modal-column">
+                <label for="customerinitial">회사이니셜:</label>
+                <input type="text" id="customerinitial" name="customerinitial">
+            </div>
+            <div class="modal-column">
+                <label for="businesstype">업태(구분):</label>
+                <input type="text" id="businesstype" name="businesstype">
+            </div>
+            <div class="modal-column">
+                <label for="industrytype">업종(구분):</label>
+                <input type="text" id="industrytype" name="industrytype">
+            </div>
+            <div class="modal-column" style="flex-basis: 100%;">
+                <label for="adress">주소:</label>
+                <input type="text" id="adress" name="adress">
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-title"><i class="fas fa-user"></i> 담당자정보</div>
+        <div class="modal-content">
+            <div class="modal-column">
+                <label for="customerinitial">담당자명:</label>
+                <input type="text" id="customerinitial" name="customerinitial">
+            </div>
+            <div class="modal-column">
+                <label for="businesstype">담당자 전화번호:</label>
+                <input type="text" id="businesstype" name="businesstype">
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-title"><i class="fas fa-info-circle"></i>기타</div>
+        <div class="modal-content">
+            <div class="modal-column">
+                <label for="customerinitial">유형:</label>
+                <input type="text" id="customerinitial" name="customerinitial">
+            </div>
+            <div class="modal-column">
+                <label for="businesstype">매입/매출:</label>
+                <input type="text" id="businesstype" name="businesstype">
+            </div>
+            <div class="modal-column">
+                <label for="businesstype">구분:</label>
+                <input type="text" id="businesstype" name="businesstype">
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-title"><i class="fas fa-credit-card"></i>결재정보</div>
+        <div class="modal-content">
+            <div class="modal-column">
+                <label for="customerinitial">결재방법:</label>
+                <input type="text" id="customerinitial" name="customerinitial">
+            </div>
+            <div class="modal-column">
+                <label for="businesstype">마감일:</label>
+                <input type="text" id="businesstype" name="businesstype">
+            </div>
+            <div class="modal-column">
+                <label for="businesstype">결재기간:</label>
+                <input type="text" id="businesstype" name="businesstype">
+            </div>
+            <div class="modal-column">
+                <label for="customerinitial">은행명:</label>
+                <input type="text" id="customerinitial" name="customerinitial">
+            </div>
+            <div class="modal-column">
+                <label for="businesstype">계좌번호:</label>
+                <input type="text" id="businesstype" name="businesstype">
+            </div>
+            <div class="modal-column">
+                <label for="businesstype">예금주명:</label>
+                <input type="text" id="businesstype" name="businesstype">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="saveForm()">저장</button>
+            <button onclick="closeModal()">취소</button>
+        </div>
     </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function saveForm() {
+            // Add logic to handle form submission here
+            // You can fetch values using document.getElementById('elementId').value
+            // For example: const customerName = document.getElementById('customername').value;
+            // Then, you can send this data to your server or perform other actions.
+            // Remember to close the modal afterward.
+            closeModal();
+        }
+    </script>
+
 </body>
 
 </html>

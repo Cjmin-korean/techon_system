@@ -17,8 +17,11 @@
 
 </head>
 <style>
-  
-
+    input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
 </style>
 
 <body>
@@ -94,7 +97,7 @@
             scrollX: false,
             scrollY: false,
             autoHeight: true,
-            rowHeaders: [ 'rowNum'],
+            rowHeaders: ['checkbox', 'rowNum'],
 
             columns: [
                 {
@@ -134,23 +137,42 @@
         });
 
         grid.on('dblclick', (ev) => {
-            const clickedRow = ev.rowKey;
-            const clickedRowData = grid.getData(ev.rowKey);
 
-            // 테이블 z-index를 낮춤
-            $('#grid').css('z-index', '1');
+            if (ev.targetType === 'cell') {
+                const clickedRow = ev.rowKey;
+                const clickedRowData = grid.getData(ev.rowKey);
 
-            $('#overlay').fadeIn();
-            $('#myModal').fadeIn().css('z-index', '1002'); // 1002나 그 이상의 값으로 설정
-            $('.tui-dialog-action-btn').text('수정');
+                // 테이블 z-index를 낮춤
+                $('#grid').css('z-index', '1');
 
-            // 모달 내용 설정
-            $('#housecode').val(clickedRowData[clickedRow]['housecode']);
-            $('#housename').val(clickedRowData[clickedRow]['housename']);
-            $('#part').val(clickedRowData[clickedRow]['part']);
-            $('#partname').val(clickedRowData[clickedRow]['partname']);
+                $('#overlay').fadeIn();
+                $('#myModal').fadeIn().css('z-index', '1002'); // 1002나 그 이상의 값으로 설정
+                $('.tui-dialog-action-btn').text('수정');
+
+                // 모달 내용 설정
+                $('#housecode').val(clickedRowData[clickedRow]['housecode']);
+                $('#housename').val(clickedRowData[clickedRow]['housename']);
+                $('#part').val(clickedRowData[clickedRow]['part']);
+                $('#partname').val(clickedRowData[clickedRow]['partname']);
+            }
         });
 
+        grid.on('check', (ev) => {
+            console.log(ev)
+            // if (ev.columnName === '_checked') {
+            //     const rowData = {};
+
+            //     // Iterate through each column to get the data
+            //     grid.getColumns().forEach(column => {
+            //         const columnName = column.name;
+            //         const cellValue = grid.getValue(ev.rowKey, columnName);
+            //         rowData[columnName] = cellValue;
+            //     });
+
+            //     console.log('Checked Row Data:', rowData);
+            // }
+        });
+       
 
 
     }
@@ -200,7 +222,7 @@
         document.getElementById('myModal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
     }
-   
+
 </script>
 
 </html>
