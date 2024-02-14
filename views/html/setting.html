@@ -1,155 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>사용자 설정 화면</title>
-    <style>
-        
-        .input-text {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            transition: border-color 0.3s, box-shadow 0.3s;
+    <script>var __basePath = '/';</script>
+    <style media="only screen">
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .input-text:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        html {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 0;
+            overflow: auto;
         }
 
         body {
-            font-family: Arial, sans-serif;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .form-group input[type="color"],
-        .form-group select,
-        .form-group input[type="range"] {
-            display: block;
-            width: 100%;
-            padding: 5px;
-            font-size: 16px;
-        }
-
-        .preview {
-            width: 200px;
-            height: 200px;
-            border: 1px solid #ccc;
-            margin-bottom: 20px;
-        }
-
-        .btn-primary,
-        .btn-secondary {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #fff;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
+            padding: 1rem;
+            overflow: auto;
         }
     </style>
+    <script src="https://unpkg.com/@ag-grid-enterprise/all-modules@23.1.1/dist/ag-grid-enterprise.min.js"></script>
 </head>
 
 <body>
-    <h1>사용자 설정 화면</h1>
-
-    <div class="form-group" style="width:20%;">
-        <label for="bgColor">배경색:</label>
-        <input type="color" id="bgColor">
-    </div>
-
-    <div class="form-group" style="width:20%;">
-        <label for="textColor">글씨색:</label>
-        <input type="color" id="textColor">
-    </div>
-
-    <div class="form-group" style="width:20%;">
-        <label for="fontSize">폰트 크기:</label>
-        <input type="range" id="fontSize" min="12" max="24" step="2" value="16">
-    </div>
-
-    <div class="form-group" style="width:20%;">
-        <label for="language">언어:</label>
-        <select id="language">
-            <option value="ko">한국어</option>
-            <option value="en">English</option>
-            <option value="ja">日本語</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="notification">알림 설정:</label>
-        <label><input type="checkbox" id="emailNotification">이메일 알림</label>
-        <label><input type="checkbox" id="pushNotification">푸시 알림</label>
-    </div>
-
-    <div class="form-group" style="width:20%;">
-        <label for="theme">테마 선택:</label>
-        <select id="theme">
-            <option value="light">라이트 테마</option>
-            <option value="dark">다크 테마</option>
-        </select>
-    </div>
-
-   
-
-    <button class="btn-primary" onclick="applySettings()">적용</button>
-    <button class="btn-secondary" onclick="resetSettings()">초기화</button>
-
-    <div class="preview" id="previewDiv" ></div>
-
-    <script>
-        function applySettings() {
-            var bgColor = document.getElementById('bgColor').value;
-            var textColor = document.getElementById('textColor').value;
-            var fontSize = document.getElementById('fontSize').value;
-            var language = document.getElementById('language').value;
-            var emailNotification = document.getElementById('emailNotification').checked;
-            var pushNotification = document.getElementById('pushNotification').checked;
-            var theme = document.getElementById('theme').value;
-            var userName = document.getElementById('userName').value;
-            var currentPassword = document.getElementById('currentPassword').value;
-            var newPassword = document.getElementById('newPassword').value;
-            var confirmPassword = document.getElementById('confirmPassword').value;
-
-            // 설정을 저장하고 적용하는 로직을 구현
-
-            var previewDiv = document.getElementById('previewDiv');
-            previewDiv.style.backgroundColor = bgColor;
-            previewDiv.style.color = textColor;
-            previewDiv.style.fontSize = fontSize + 'px';
+    <style>
+        .total-col {
+            font-weight: bold;
+            color: burlywood;
         }
+    </style>
 
-        function resetSettings() {
-            var previewDiv = document.getElementById('previewDiv');
-            previewDiv.style.backgroundColor = '';
-            previewDiv.style.color = '';
-            previewDiv.style.fontSize = '';
-        }
-    </script>
+    <div id="myGrid" style="height: 100%;" class="ag-theme-alpine-dark"></div>
+    <script src="CustomPinnedRowRenderer.js"></script>
+    <script src="main.js"></script>
 </body>
+<script>
+    var gridOptions = {
+        columnDefs: [
+            { field: 'a', type: 'valueColumn', headerName: 'A (Total disabled)' },
+            { field: 'b', type: 'valueColumn' },
+            { field: 'c', type: 'valueColumn' },
+            { field: 'd', type: 'valueColumn' },
+            { field: 'e', type: 'valueColumn' },
+            { field: 'f', type: 'valueColumn' },
+            // {
+            //   headerName: 'Total',
+            //   valueGetter: 'data.a + data.b + data.c + data.d + data.e + data.f',
+            //   editable: false,
+            //   aggFunc: 'sum',
+            //   cellClass: 'total-col',
+            // },
+        ],
+        defaultColDef: {
+            flex: 1,
+            sortable: true,
+            pinnedRowCellRenderer: 'customPinnedRowRenderer',
+            pinnedRowCellRendererParams: {
+                style: { color: 'yellow', fontWeight: 'bold' },
+            },
+        },
+        columnTypes: {
+            valueColumn: {
+                editable: true,
+                aggFunc: 'sum',
+                valueParser: 'Number(newValue)',
+                filter: 'agNumberColumnFilter',
+            },
+        },
+        rowData: getRowData(),
+        groupDefaultExpanded: 1,
+        enableCellChangeFlash: true,
+        animateRows: true,
+        pinnedBottomRowData: createFooterData(),
+        components: {
+            customPinnedRowRenderer: CustomPinnedRowRenderer,
+        },
+        onGridReady: onGridReady,
+        onFilterChanged: onGridReady,
+    };
+
+
+    function onGridReady(event) {
+        console.log('The grid is now ready');
+        // gridOptions.pinnedBottomRowData = createFooterData();
+        gridOptions.api.setPinnedBottomRowData(createFooterData(gridOptions.api));
+    }
+
+    function getRowData() {
+        var rowData = [];
+        for (var i = 1; i <= 30; i++) {
+            rowData.push({
+                group: i < 5 ? 'A' : 'B',
+                a: (i * 863) % 100,
+                b: (i * 811) % 100,
+                c: (i * 743) % 100,
+                d: (i * 677) % 100,
+                e: (i * 619) % 100,
+                f: (i * 571) % 100,
+            });
+        }
+        return rowData;
+    }
+
+    function sum(values, col) {
+        var sum = 0;
+        values.forEach(function (value) { sum += value.data[col] });
+        return sum;
+    }
+
+    function createFooterData(gridApi) {
+        var result = [];
+        var model;
+        var visibleRows = [];
+        if (gridApi) {
+            model = gridApi.getModel();
+            visibleRows = model.rowsToDisplay;
+        }
+        console.log('model:', model);
+        console.log('visibleRows:', visibleRows);
+        result.push({
+            a: null,
+            b: sum(visibleRows, 'b'),
+            c: sum(visibleRows, 'c'),
+            d: sum(visibleRows, 'd'),
+            e: sum(visibleRows, 'e'),
+            f: sum(visibleRows, 'f'),
+        });
+        console.log('result:', result);
+        return result;
+    }
+
+    // setup the grid after the page has finished loading
+    document.addEventListener('DOMContentLoaded', function () {
+        var gridDiv = document.querySelector('#myGrid');
+        new agGrid.Grid(gridDiv, gridOptions);
+    });
+    function setStyle(element, propertyObject) {
+        for (var property in propertyObject) {
+            element.style[property] = propertyObject[property];
+        }
+    }
+    function CustomPinnedRowRenderer() { }
+
+    CustomPinnedRowRenderer.prototype.init = function (params) {
+        this.eGui = document.createElement('div');
+        setStyle(this.eGui, params.style);
+        this.eGui.innerHTML = params.value ? params.value : null;
+    };
+
+    CustomPinnedRowRenderer.prototype.getGui = function () {
+        return this.eGui;
+    };
+</script>
 
 </html>

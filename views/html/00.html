@@ -3,77 +3,100 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>창고검색</title>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="../css/mesmain.css">
-    <link rel="stylesheet" href="../css/mesaccountinput.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../js/sorttable.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Dashboard Example</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
-<body>
-    <fieldset style="height: 40px;">
-
-        <input type="text" id="searchInput" placeholder="검색어 입력후 Enter 누르세요..." style="width: 500px; cursor: pointer;"
-            autocomplete="off">
-        <button id="newRegistrationBtn" onclick="" class="btn btn-primary">
-            <i class="fas fa-plus-circle"></i> 신규등록
-        </button>
-        <button id="deleteBtn" onclick="" class="btn btn-danger" style="background-color: red;">
-            <i class="fas fa-trash-alt"></i>선택삭제
-        </button>
-        <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
-            style="background-color: green;">
-            <i class="fas fa-file-excel"></i> 엑셀로 내보내기
-        </button>
-     
-
-
-    </fieldset>
-    <input type="text" class="form-tag text ess" id="funeralName" name="funeralName" list="funeralList"
-        placeholder="창고명을 입력하세요">
-    <datalist id="funeralList">
-
-    </datalist>
-
-</body>
-<script>
-    var server = '';
-
-    if (window.location.hostname == 'localhost') {
-        server = 'http://localhost:8080';
-    } else {
-        server = 'http://techonmes.co.kr';
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
     }
 
-    $.ajax({
-        type: 'POST',
-        url: server + '/api/housegroup',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({}),
-        success: function (result) {
-            var datalist = document.getElementById('funeralList');
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 
-            // Loop through the result and append options to the datalist
-            for (var i = 0; i < result.length; i++) {
-                var option = document.createElement('option');
-                option.value = result[i].housename;
-                option.setAttribute('data-no', result[i].id); // Change 'houseId' to the actual property name
+    .chart-container {
+        margin-bottom: 20px;
+    }
 
-                datalist.appendChild(option);
+    .data-container {
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    h1,
+    h2 {
+        margin-top: 0;
+    }
+
+    canvas {
+        width: 100%;
+        height: auto;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <h1>TECHON TODAY PRODUCTION</h1>
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+        <div class="data-container">
+            <h2>타발 수 요약</h2>
+            <div id="hit-summary"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // 데이터 설정 (예: 1호기부터 12호기까지의 타발 수)
+        var hitData = [5000, 6500, 7000, 8005, 9000, 7005, 8000, 7000, 6000, 5500, 4500, 4000];
+        var machineLabels = Array.from({ length: 12 }, (_, i) => `${i + 1}호기`);
+
+        // 차트 생성
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: machineLabels,
+                datasets: [{
+                    label: "타발 수",
+                    backgroundColor: "rgba(75,192,192,0.2)",
+                    borderColor: "rgba(75,192,192,1)",
+                    borderWidth: 1,
+                    data: hitData,
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
             }
-        }
+        });
+
+        // 타발 수 요약 업데이트
+        var hitSummaryContainer = document.getElementById('hit-summary');
+        var totalHits = hitData.reduce((acc, curr) => acc + curr, 0);
+        hitSummaryContainer.innerHTML = `<p>총 타발 수: ${totalHits}</p>`;
     });
+
 </script>
 
 </html>

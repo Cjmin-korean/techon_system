@@ -3,457 +3,191 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>거래처 기초정보</title>
-    <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
-    <link rel="stylesheet" href="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.js"></script>
-    <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
     <link rel="stylesheet" href="../css/mescss.css">
-    <link rel="stylesheet" href="../css/houseinfor.css">
-    <link rel="stylesheet" href="../css/customerinfomodal.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap">
+    <link rel="stylesheet" href="../css/houseinfor.css">
+    <style>
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            /* Initially hide the spinner */
+        }
+
+        .loading-spinner::before {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 4px solid rgba(0, 0, 0, 0.3);
+            border-top: 4px solid #3498db;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ag-theme-alpine {
+            font-weight: bold;
+
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
-<style>
-    .tui-grid-table {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-</style>
 
 <body>
     <div class="menu-title" style="width:150%;">
-        <i class="fas fa-address-book"></i>거래처 기초정보
+        <i class="fas fa-address-book"></i>거래처 기초정보1
     </div>
     <div class="search-container">
-        <label for="search" class="search-label"> 검색 :</label>
+        <label for="search" class="search-label"> 검색:</label>
         <div class="search-input-wrapper">
             <input type="text" id="search" placeholder="검색어를 입력하세요...">
             <i class="fas fa-search search-icon"></i>
         </div>
         <button class="new-registration-button" onclick="openModal()">신규등록</button>
-
-    </div>
-    <div id="grid" style="width:200%; "></div>
-    <div class="overlay" id="overlay"></div>
-    <div class="modal" id="modal">
-        <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;거래처 정보</span>
-        </div>
-        <div class="company-info"> <i class="fas fa-building"></i> 회사정보 </div>
-        <div class="modal-content">
-            <div class="modal-column">
-                <label for="customername">거래처명:</label>
-                <input type="text" id="customername" name="customername">
-            </div>
-            <div class="modal-column">
-                <label for="businessregistrationnumber">사업자등록번호:</label>
-                <input type="text" id="businessregistrationnumber" name="businessregistrationnumber">
-            </div>
-            <div class="modal-column">
-                <label for="representativename">대표자명:</label>
-                <input type="text" id="representativename" name="representativename">
-            </div>
-            <div class="modal-column">
-                <label for="customerinitial">회사이니셜:</label>
-                <input type="text" id="customerinitial" name="customerinitial">
-            </div>
-            <div class="modal-column">
-                <label for="businesstype">업태(구분):</label>
-                <input type="text" id="businesstype" name="businesstype">
-            </div>
-            <div class="modal-column">
-                <label for="industrytype">업종(구분):</label>
-                <input type="text" id="industrytype" name="industrytype">
-            </div>
-            <div class="modal-column" style="flex-basis: 100%;">
-                <label for="adress">주소:</label>
-                <input type="text" id="adress" name="adress">
-            </div>
-        </div>
-        <div class="divider"></div>
-        <div class="section-title"><i class="fas fa-user"></i> 담당자정보</div>
-        <div class="modal-content">
-            <div class="modal-column">
-                <label for="customerinitial">담당자명:</label>
-                <input type="text" id="customerinitial" name="customerinitial">
-            </div>
-            <div class="modal-column">
-                <label for="businesstype">담당자 전화번호:</label>
-                <input type="text" id="businesstype" name="businesstype">
-            </div>
-        </div>
-        <div class="divider"></div>
-        <div class="section-title"><i class="fas fa-info-circle"></i>기타</div>
-        <div class="modal-content">
-            <div class="modal-column">
-                <label for="customerinitial">유형:</label>
-                <input type="text" id="customerinitial" name="customerinitial">
-            </div>
-            <div class="modal-column">
-                <label for="businesstype">매입/매출:</label>
-                <input type="text" id="businesstype" name="businesstype">
-            </div>
-            <div class="modal-column">
-                <label for="businesstype">구분:</label>
-                <input type="text" id="businesstype" name="businesstype">
-            </div>
-        </div>
-        <div class="divider"></div>
-        <div class="section-title"><i class="fas fa-credit-card"></i>결재정보</div>
-        <div class="modal-content">
-            <div class="modal-column">
-                <label for="customerinitial">결재방법:</label>
-                <input type="text" id="customerinitial" name="customerinitial">
-            </div>
-            <div class="modal-column">
-                <label for="businesstype">마감일:</label>
-                <input type="text" id="businesstype" name="businesstype">
-            </div>
-            <div class="modal-column">
-                <label for="businesstype">결재기간:</label>
-                <input type="text" id="businesstype" name="businesstype">
-            </div>
-            <div class="modal-column">
-                <label for="customerinitial">은행명:</label>
-                <input type="text" id="customerinitial" name="customerinitial">
-            </div>
-            <div class="modal-column">
-                <label for="businesstype">계좌번호:</label>
-                <input type="text" id="businesstype" name="businesstype">
-            </div>
-            <div class="modal-column">
-                <label for="businesstype">예금주명:</label>
-                <input type="text" id="businesstype" name="businesstype">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="tui-dialog-action-btn" onclick="saveForm()">저장</button>
-            <button class="tui-dialog-close-btn" onclick="closeModal()">취소</button>
-        </div>
+     
     </div>
 
+    <div id="loadingSpinner" class="loading-spinner"></div>
+    <div id="myGrid" style="height: 900px; width:200%; " class="ag-theme-alpine"></div>
     <script>
         var server = '';
-        var tui;
-        var gridData;
-        var grid; // Declare grid variable.
+        var gridApi;
 
         if (window.location.hostname == 'localhost') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
         }
-
         $(document).ready(function () {
+            showLoadingSpinner(); // Show loading spinner on page load
             setTimeout(function () {
-                load();
-            }, 500);
-
+                initializeGrid();
+            }, 1500);
         });
+
         function initializeGrid() {
-            grid = new tui.Grid({
-                el: document.getElementById('grid'),
-                data: [],
-                scrollY: true,
-                autoHeight: false, // autoHeight를 비활성화
-                rowHeaders: ['rowNum'],
-                pageOptions: {
-                    useClient: true,
-                    perPage: 30
-                },
-                columns: [
-                    {
-                        header: '거래처명',
-                        name: 'customername',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true,
-                        width: 300
+            if (typeof agGrid !== 'undefined') {
+                const gridOptions = {
+                    columnDefs: [
+                        {
+                            headerCheckboxSelection: true,
+                            checkboxSelection: true,
+                            minWidth: 50,
+                            maxWidth: 50 // Adjust the minWidth as needed
+                        },
+                        { field: "customername", headerName: "거래처명", filter: true },
+                        { field: "businessregistrationnumber", headerName: "사업자등록번호", filter: true },
+                        { field: "representativename", headerName: "대표자명", filter: true },
+                        { field: "customerinitial", headerName: "이니셜", filter: true },
+                        { field: "customernameenglish", headerName: "거래처명(영문)", filter: true },
+                        { field: "date", headerName: "날짜", filter: true },
+                        { field: "customerregistrationtype", headerName: "유형", filter: true },
+                        { field: "outsourcing", headerName: "구분", filter: true },
+                        { field: "purchase", headerName: "매입/매출", filter: true },
+                        { field: "reasonforregistration", headerName: "등록사유", filter: true },
+                        { field: "appliedmodel", headerName: "고객사/적용모델", filter: true },
+                        { field: "materialinformation", headerName: "자재정보", filter: true },
+                        { field: "businesstype", headerName: "업태(구분)", filter: true },
+                        { field: "industrytype", headerName: "업종(구분)", filter: true },
+                        { field: "adress", headerName: "주소", filter: true },
+                        { field: "phonenumber", headerName: "전화번호", filter: true },
+                        { field: "faxnumber", headerName: "팩스번호", filter: true },
+                        { field: "contactperson", headerName: "담당자", filter: true },
+                        { field: "sphonenumber", headerName: "담당자 연락처", filter: true },
+                        { field: "vattype", headerName: "VAT유형", filter: true },
+                        { field: "paymentmethod", headerName: "결재방법", filter: true },
+                        { field: "deadline", headerName: "마감일", filter: true },
+                        { field: "paymentperiod", headerName: "결재기간", filter: true },
+                        { field: "bankname", headerName: "은행명", filter: true },
+                        { field: "accountnumber", headerName: "계좌번호", filter: true },
+                        { field: "accountholdername", headerName: "예금주명", filter: true },
+                        { field: "remarks", headerName: "비고", filter: true },
+                        { field: "requestdepartment", headerName: "요청부서", filter: true },
+
+                    ],
+                    autoSizeStrategy: {
+                        type: 'fitGridWidth',
+                        defaultMinWidth: 150
                     },
-                    {
-                        header: '사업자등록번호',
-                        name: 'businessregistrationnumber',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
+                    rowHeight: 45,
+                    enableFilter: true
+                };
 
-                    },
-                    {
-                        header: '대표자명',
-                        name: 'representativename',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
+                const gridDiv = document.querySelector('#myGrid');
+                gridApi = agGrid.createGrid(gridDiv, gridOptions);
 
-                    },
-                    {
-                        header: '이니셜',
-                        name: 'customerinitial',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '거래처명(영문)',
-                        name: 'customernameenglish',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '날짜',
-                        name: 'date',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-                    },
-                    {
-                        header: '유형',
-                        name: 'customerregistrationtype',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '구분',
-                        name: 'outsourcing',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '매입/매출',
-                        name: 'purchase',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '등록사유',
-                        name: 'reasonforregistration',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '고객사/적용모델',
-                        name: 'appliedmodel',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '자재정보',
-                        name: 'materialinformation',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-
-                    {
-                        header: '업태(구분)',
-                        name: 'businesstype',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '업종(구분)',
-                        name: 'industrytype',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '주소',
-                        name: 'adress',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '전화번호',
-                        name: 'phonenumber',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '팩스번호',
-                        name: 'faxnumber',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '담당자',
-                        name: 'contactperson',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '담당자 연락처',
-                        name: 'sphonenumber',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: 'VAT유형',
-                        name: 'vattype',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '결재방법',
-                        name: 'paymentmethod',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '마감일',
-                        name: 'deadline',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '결재기간',
-                        name: 'paymentperiod',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '은행명',
-                        name: 'bankname',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '계좌번호',
-                        name: 'accountnumber',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '예금주명',
-                        name: 'accountholdername',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '비고',
-                        name: 'remarks',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                    {
-                        header: '요청부서',
-                        name: 'requestdepartment',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true
-
-                    },
-                ]
-
-            });
-
-            grid.on('beforeRequest', function (ev) {
-                const pagination = ev.pagination;
-                load(pagination.page, pagination.perPage);
-            });
+                loadData();
+            } else {
+            }
         }
 
-
-
-
-        function load(pageNumber, pageSize) {
-
-
+        function loadData() {
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectcustomerinformation',
                 dataType: 'json',
-                data: {
-                    page: pageNumber,
-                    pageSize: pageSize
-                },
                 success: function (data) {
-                    gridData = data;
-                    grid.resetData(data);
-
-                }
+                    hideLoadingSpinner();
+                    gridApi.setRowData(data);
+                },
             });
-
-            $('#search').on('input', function () {
-                var keyword = $(this).val().toLowerCase();
-
-                // Filter the data based on the search keyword
-                var filteredData = gridData.filter(function (item) {
-                    return Object.values(item).some(function (value) {
-                        return typeof value === 'string' && value.toLowerCase().includes(keyword);
-                    });
-                });
-
-                grid.resetData(filteredData);
-            });
-            initializeGrid();
         }
         function openModal() {
+            $('#customername').val('');
+            $('#businessregistrationnumber').val('');
+            $('#representativename').val('');
+            $('#customerinitial').val('');
+            $('#businesstype').val('');
+            $('#industrytype').val('');
+            $('#address').val('');
+            $('#contactperson').val('');
+            $('#outsourcing').val('');
+            $('#purchase').val('');
+            $('#sphonenumber').val('');
+            $('#vattype').val('');
+            $('#paymentmethod').val('');
+            $('#deadline').val('');
+            $('#paymentperiod').val('');
+            $('#bankname').val('');
+            $('#accountnumber').val('');
+            $('#accountholdername').val('');
+            $('#savebutton').text('저장')
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
+        function showLoadingSpinner() {
+            $('#loadingSpinner').show();
         }
 
-        function saveForm() {
-            // Add logic to handle form submission here
-            // You can fetch values using document.getElementById('elementId').value
-            // For example: const customerName = document.getElementById('customername').value;
-            // Then, you can send this data to your server or perform other actions.
-            // Remember to close the modal afterward.
-            closeModal();
+        function hideLoadingSpinner() {
+            $('#loadingSpinner').hide();
         }
+
     </script>
-
 </body>
 
 </html>

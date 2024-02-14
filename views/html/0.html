@@ -1,372 +1,308 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 
 <head>
-    <title>jspBoard</title>
     <meta charset="utf-8">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>직원 인적사항</title>
+    <style>
+        #tablebody,
+        .theader {
+            text-align: center;
+        }
 
+        #search {
+            text-align: center;
+            margin: 30px 0px;
+        }
+
+        th {
+            background-color: aliceblue;
+        }
+
+        #Title {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        #positionselect {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 3%;
+
+        }
+
+        .levelselect {
+            margin-right: 10%;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 </head>
-<style>
-    body {
-        background-color: #f8f9fa;
-    }
-
-    .table-wrap table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .table-wrap th,
-    .table-wrap td {
-        padding: 10px;
-        border-bottom: 1px solid #dee2e6;
-        text-align: center;
-        border: 1px solid silver;
-        font-weight: bold;
-
-    }
-
-    .table-wrap th {
-        background-color: #ffffff;
-        color: black;
-    }
-
-    .pagination {
-        justify-content: center;
-        margin-top: 20px;
-    }
-
-    .pagination li {
-        margin: 0 5px;
-        list-style: none;
-        display: inline-block;
-    }
-
-    .pagination a {
-        text-decoration: none;
-        padding: 8px 16px;
-        background-color: #007bff;
-        color: #fff;
-        border-radius: 3px;
-    }
-
-    .pagination a:hover {
-        background-color: #0056b3;
-    }
-
-    .pagination .active a {
-        background-color: #0056b3;
-    }
-
-    #page_info {
-        margin-bottom: 10px;
-    }
-</style>
 
 <body>
-  
-    <section class="ftco-section" style="height: 1000px;">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 text-center mb-5">
-                    <h2 class="heading-section">자재 기초정보</h2>
+    <div class="container">
+        <h1 id="Title">직원 인적사항</h1>
+        <table class="table table-striped table-bordered table-hover" id="peopletable">
+            <tr>
+                <th class="theader" onclick=sortContent(0)>이름</th>
+                <th class="theader" onclick=sortContent(1)>전화번호</th>
+                <th class="theader" onclick=sortContent(2)>직급</th>
+            </tr>
+            <div class="row" id="search">
+                <div class="col-md-3">
+                    <select class="form-control" id="searchSelect">
+                        <option value="name">이름</option>
+                        <option value="phone">전화번호</option>
+                        <option value="position">직급</option>
+                    </select>
+                </div>
+                <div class="col-md-7">
+                    <input class="form-control" id="inputbody" type="text" placeholder="검색어를 입력해주세요">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary" type="button" id="searchBtn">검색</button>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div id="page_info"></div>
 
-                    <div class="table-wrap">
-                        <table class="table" style="width:200%;">
-                            <thead class="thead-dark">
-                                <tr>
-                         
-                                    <th style="text-align:center;">품목코드</th>
-                                    <th style="text-align:center;">자재명</th>
-                                    <th style="text-align:center;">전폭<br>(mm)</th>
-                                    <th style="text-align:center;">길이<br>(M)</th>
-                                    <th style="text-align:center;">유효폭<br>(mm)</th>
-                                    <th style="text-align:center;">SQM단가<br>(￦)</th>
-                                    <th style="text-align:center;">롤단가<br>(￦)</th>
-                                    <th style="text-align:center;">단위</th>
-                                    <th style="text-align:center;">유수명<br>(일)</th>
-                                    <th style="text-align:center;">순번</th>
-                                    <th style="text-align:center;">제조사</th>
-                                    <th style="text-align:center;">공급사</th>
-                                    <th style="text-align:center;">사용별</th>
-                                    <th style="text-align:center;">유형별</th>
-                                    <th style="text-align:center;">업체별</th>
-                                    <th style="text-align:center;">자재TYPE</th>
-                                    <th style="text-align:center;">색상</th>
-                                    <th style="text-align:center;">두께</th>
-                                    <th style="text-align:center;">점착력</th>
-                                    <th style="text-align:center;">점착제</th>
-                                    <th style="text-align:center;">원단무게<br>(KG)</th>
-                                    <th style="text-align:center;">요청자</th>
-                                    <th style="text-align:center;">최초수정날짜</th>
-                                    <th style="text-align:center;">등록사유</th>
-                                    <th style="text-align:center;">고객사</th>
-                                    <th style="text-align:center;">모델</th>
-                                </tr>
-                            </thead>
-                            <tbody id="html_list">
-                            </tbody>
-                        </table>
-                        <!-- pagination -->
-                        <nav aria-label="Page navigation example">
-                            <ul class="pagination justify-content-center" id="paging">
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    </div>
+    <tbody id="tablebody"></tbody>
+    </table>
+    </div>
+    <script src="Doc3.js"></script>
 </body>
 <script>
-    var server = '';
-    var totalPage; // Declare totalPage globally
-    var nowPage = 1; // Declare nowPage globally
+    //테이블 데이터
+    /**@type {object} peopleArr 배열 요소 object */
+    var peopleArr = [
+        { name: "홍길동", phone: "010-2222-2141", position: "이사" },
+        { name: "김남일", phone: "010-3433-7232", position: "차장" },
+        { name: "박지성", phone: "010-6234-4564", position: "사원" },
+        { name: "히딩크", phone: "010-5453-7554", position: "대리" },
+        { name: "박주영", phone: "010-9234-0981", position: "사원" },
+        { name: "손흥민", phone: "010-9165-3074", position: "대리" },
+        { name: "에시앙", phone: "010-4934-7545", position: "사원" },
+   
+    ]
 
-    if (window.location.hostname == 'localhost') {
-        server = 'http://localhost:8080';
-    } else {
-        server = 'http://techonmes.co.kr';
+    //테이블 생성 함수 호출
+    buildTable(peopleArr);
+
+    /**
+     * for문으로 요소를 반복하여 테이블을 생성한다.
+     * @param {object} data peopleArr
+     * @returns string
+     * @example <tr><td>정문면</td><td>010-3002-7063</td><td>사원</td>
+     * @function buildTable 테이블을 생성하는 함수를 호출한다.
+     */
+    function buildTable(data) {
+        /**@type {object} table html 객체 */
+        var table = document.getElementById('tablebody');
+
+        for (var i = 0; i < data.length; i++) {
+            /**@type {string} row 대체변수${변수명}으로 표시 */
+            var row = `<tr>
+                    <td>${data[i].name}</td>
+                    <td>${data[i].phone}</td>
+                    <td>${data[i].position}</td> 
+                   </tr>`;
+            table.innerHTML += row;
+        }
     }
 
-    let video_list = [];
+    // 정렬을 위해 sortType은 처음엔 asc 할당한다.
+    var sortType = 'asc';
 
-    // 서버에서 데이터 받아오기
-    $.ajax({
-        type: 'POST',
-        url: server + '/api/selectmaterialinformation',
-        dataType: 'json',
-        success: function (data) {
-            // 받아온 데이터를 video_list에 할당
-            video_list = data.reverse();
+    /** 
+     * @function sortContent(index) 테이블 헤더를 클릭하여 첫번째클릭은 내림차순 두번째클릭은 오름차순 순으로 정렬을 한다.  
+     * @param {number} index html 파일 클릭이벤트에 인덱스 번호를 주었다.
+     * @returns boolean 또는 정렬을 한다.
+     * @method insertBefore() 참조된 노드 앞에 특정 부모 노드의 자식 노드를 삽입
+     */
 
-            // 나머지 코드 실행
-            totalCount = video_list.length;
-            totalPage = Math.ceil(totalCount / 10.0);
+    function sortContent(index) {
 
-            // 페이지네이션 세팅
-            setPageHtml();
-            // 데이터 세팅
-            setList();
-        }
-    });
+        /**@type {object} table html 객체 */
+        var table = document.getElementsByTagName('table');
 
-    function showList(startPage, endPage) {
-        let html = "";
+        /**@type {boolean} sortType  삼항연산자 true면 'desc' false면 'asc'*/
+        sortType = (sortType == 'asc') ? 'desc' : 'asc';
 
-        for (let i = (startPage - 1); i < endPage; i++) {
-            let codenumber = video_list[i].codenumber;
-            let materialname = video_list[i].materialname;
-            let width = video_list[i].width.toLocaleString();
-            let length = video_list[i].length.toLocaleString();
-            let usewidth = video_list[i].usewidth.toLocaleString();
-            let sqmprice = video_list[i].sqmprice.toLocaleString();
-            let rollprice = video_list[i].rollprice.toLocaleString();
-            let unit = video_list[i].unit;
-            let lifetime = video_list[i].lifetime;
-            let num = video_list[i].num;
-            let manufacterer = video_list[i].manufacterer;
-            let supplier = video_list[i].supplier;
-            let usagecategory = video_list[i].usagecategory;
-            let typecategory = video_list[i].typecategory;
-            let companycategory = video_list[i].companycategory;
-            let materialtype = video_list[i].materialtype;
-            let color = video_list[i].color;
-            let thickness = video_list[i].thickness;
-            let adhesionstrength = video_list[i].adhesionstrength;
-            let adhesive = video_list[i].adhesive;
-            let fabricweight = video_list[i].fabricweight;
-            let requester = video_list[i].requester;
-            let modificationdate = video_list[i].modificationdate;
-            let registrationreason = video_list[i].registrationreason;
-            let customer = video_list[i].customer;
-            let modelname = video_list[i].modelname;
+        /**@type {boolean} checkSort*/
+        var checkSort = true;
 
-            html += `<tr class="alert" role="alert">
-                        <td>${codenumber}</td>
-                        <td>${materialname}</td>
-                        <td>${width}</td>
-                        <td>${length}</td>
-                        <td>${usewidth}</td>
-                        <td>${sqmprice}</td>
-                        <td>${rollprice}</td>
-                        <td>${unit}</td>
-                        <td>${lifetime}</td>
-                        <td>${num}</td>
-                        <td>${manufacterer}</td>
-                        <td>${supplier}</td>
-                        <td>${usagecategory}</td>
-                        <td>${typecategory}</td>
-                        <td>${companycategory}</td>
-                        <td>${materialtype}</td>
-                        <td>${color}</td>
-                        <td>${thickness}</td>
-                        <td>${adhesionstrength}</td>
-                        <td>${adhesive}</td>
-                        <td>${fabricweight}</td>
-                        <td>${requester}</td>
-                        <td>${modificationdate}</td>
-                        <td>${registrationreason}</td>
-                        <td>${customer}</td>
-                        <td>${modelname}</td>
-                 
-                    </tr>`;
-        }
-        document.getElementById("html_list").innerHTML = html;
-    }
+        /**
+         * @example 테이블 1번째 줄의 17개면 17 도출 
+         * @type {object} rows  html 객체
+        */
+        var rows = table[0].rows;
 
-    function setPageHtml() {
-        let pageHtml = '';
+        while (checkSort) {
 
-        const maxVisiblePages = 10; // Set the maximum number of visible pages
+            /**@type {boolean} checkSort에 미리 false 할당 */
+            checkSort = false;
 
-        let startPage = 1;
-        let endPage = totalPage;
+            /** 
+               th태그는 빼고 정렬을 해야되기 때문에 (rows.length - 1);를 먼저 계산한다.
+               1,2번 한세트 2,3번 한세트 이런식으로 쭉 계산을 할 예정이다.
+               비교를 위해 대문자로 변경을 한다.
+            */
+            for (var i = 1; i < (rows.length - 1); i++) {
+                var fCell = rows[i].cells[index].innerHTML.toUpperCase();
+                var sCell = rows[i + 1].cells[index].innerHTML.toUpperCase();
 
-        if (totalPage > maxVisiblePages) {
-            const halfMaxVisiblePages = Math.floor(maxVisiblePages / 2);
+                var row = rows[i];
 
-            if (nowPage > halfMaxVisiblePages) {
-                startPage = nowPage - halfMaxVisiblePages;
-                endPage = nowPage + halfMaxVisiblePages;
+                // 오름차순 OR  내림차순 정렬하는 부분
+                if ((sortType === 'asc' && fCell > sCell) || (sortType === 'desc' && fCell < sCell)) {
 
-                if (endPage > totalPage) {
-                    endPage = totalPage;
-                    startPage = totalPage - maxVisiblePages + 1;
+                    //if문이 성립되면 해당 row을 기존 row 앞쪽으로 삽입한다.
+                    row.parentNode.insertBefore(row.nextSibling, row);
+
+                    //if문 성립이 안되면 true 반환한다.
+                    checkSort = true;
                 }
-            } else {
-                endPage = maxVisiblePages;
             }
         }
-
-        pageHtml += `<li class="page-item">
-                        <a href="#;" class="page-link" onClick="changePage('first');return false;">First</a>
-                    </li>
-                    <li class="page-item">
-                        <a href="#" class="page-link" onClick="changePage('prev');return false;">Prev</a>
-                    </li>`;
-
-        for (let i = startPage; i <= endPage; i++) {
-            pageHtml += `<li class="page-item">
-                            <a href="#;" class="page-link" onClick="changePage(${i});return false;">${i}</a>
-                        </li>`;
-        }
-
-        pageHtml += `<li class="page-item">
-                        <a href="#;" class="page-link" onClick="changePage('next');return false;">Next</a>
-                    </li>
-                    <li class="page-item">
-                        <a href="#;" class="page-link" onClick="changePage('last');return false;">Last</a>
-                    </li>`;
-
-        document.getElementById("paging").innerHTML = pageHtml;
     }
+    /**
+     * 검색하려는 조건, 검색어를 매개변수로 받아서 사원 정보를 객체 배열로 반환 
+     * @param {string} dropdownkey 검색 조건
+     * @param {string} keyword 검색어
+     * @returns Array[]
+     * @example memberSearch('name','길동'); = [ { name:"홍길동", position:"이사", phone:"010-2222-2141"} ]
+     * @method filter(필터객체,조건) 선택한 요소 중에서 전달받은 선택자에 해당하거나, 함수 호출의 결과가 참(true)인 요소를 모두 선택합니다.
+     * @method index(keyword) keyword와 맞는 인덱스를 반환한다. 
+    */
+    const memberSearch = (dropdownkey, keyword) => {
+        // 검색어가 존재하지 않을시에 빈 배열을 돌려준다.
+        if (!keyword) return [];
 
-    function setList(page) {
-        // 페이지 당 표시 될 튜플 수
-        let pageCount = 15;
-        page = page == null ? 1 : page;
+        /**@type {object} member 배열 하나하나의 요소 */
+        return [...peopleArr].filter((member) => {
 
-        // 표시될 첫 게시글
-        let startPage = (page - 1) * pageCount + 1;
-        // 표시될 마지막 게시글
-        let endPage = startPage + pageCount - 1;
-        // if(마지막 게시글 > 총 게시글) 총 게시글을 마지막 게시글로
-        endPage = endPage > video_list.length ? video_list.length : endPage;
+            // 멤버가 가진 정보가 number 타입일 경우 문자열로 변경
+            /**@type {string} memberInfo 속성에 대한 value 값 추출 */
+            let memberInfo = (typeof member[dropdownkey] === 'number') ? member[dropdownkey] + '' : member[dropdownkey];
 
-        showList(startPage, endPage);
-
-        let html = `${page}/${totalPage} 쪽 [총 <strong>${video_list.length.toLocaleString()}</strong>건]`;
-        document.getElementById("page_info").innerHTML = html;
-
-        // 변경된 페이지 표시
-        document.querySelectorAll("#paging li").forEach((item) => {
-            let str = item.querySelector("#paging li a").innerText;
-            if (str.includes(page)) {
-                item.classList.add("active");
-            } else {
-                item.classList.remove("active");
-            }
+            // 소문자로 치환한 뒤 String.prototype.indexOf()로 존재하는지 검사 / 존재한다면 새 배열에 담는다.
+            return memberInfo.indexOf(keyword) > -1;
         });
     }
 
     /**
-     * 페이지 클릭 이벤트
-     * @param page
-     * @returns
+     * 테이블이 로우를 생성해주는 함수
+     * @type {function} updateRow 
+     * @param {Array} members 사원정보 배열
+     * @returns 파라미터가 존재하지 않을 경우 빈 화면을 그려준다. / 반대로 존재할 경우 서치한 배열 정보를 테이블 로우로 생성
+     * @event table body 에 <td> node 생성
+     * @example updateRow(Members);
+     * @method appendChild() 접근한 요소 객체 뒤로 html 요소를 추가
+     * 
      */
-    function changePage(page) {
-        log("page ==> " + page);
+    const updateRow = (members) => {
 
-        // 현재 페이지
-        let nowPage = parseInt(document.querySelector("#paging .active a").innerText);
-        log("nowPage --> " + nowPage);
+        // 파라미터가 존재하지 않을시
+        if (members.length === 0) return document.getElementById('tablebody').innerHTML = '검색 결과가 없습니다.';
 
-        if (page === "first") {
-            page = "1";
-        } else if (page === "prev") {
-            page = (nowPage - 1) < 1 ? nowPage : (nowPage - 1);
-        } else if (page === "next") {
-            page = (nowPage + 1) > totalPage ? totalPage : (nowPage + 1);
-        } else if (page === "last") {
-            page = totalPage;
-        }
+        // 파라미터가 존재 할 시 
 
-        if (nowPage != page)
-            setList(page);
-    }
+        // 테이블 row를 빈화면으로 초기화
+        document.getElementById('tablebody').innerHTML = '';
 
-    let columnFilter = {
-        index: -1,
-        order: 'asc'
-    };
+        //forEach 메소드로 배열을 반복한다.
+        /**@type {object} item 서치한 사원 정보 배열 */
+        members.forEach((item) => {
+            let table = document.getElementById('tablebody');
+            let tr = document.createElement('tr');
+            table.appendChild(tr);
 
-    // Function to handle column header click
-    function handleColumnClick(index) {
-        columnFilter.index = index;
-
-        if (columnFilter.order === 'asc') {
-            columnFilter.order = 'desc';
-        } else {
-            columnFilter.order = 'asc';
-        }
-
-        // Update the sorting icon
-        updateSortingIcons();
-
-        // Apply the filter
-        applyColumnFilter();
-    }
-
-    // Function to update sorting icons in the header
-    function updateSortingIcons() {
-        $('.table th i').removeClass('fa-sort-up fa-sort-down');
-
-        if (columnFilter.order === 'asc') {
-            $('.table th').eq(columnFilter.index).find('i').addClass('fas fa-sort-up');
-        } else {
-            $('.table th').eq(columnFilter.index).find('i').addClass('fas fa-sort-down');
-        }
+            // for ~ in 반복문을 통해 item 안의 property 즉 key를 반복한다.
+            /**@type {string} property item 배열 요소안의 object key값 */
+            for (const property in item) {
+                let td = document.createElement('td');
+                td.innerText = item[property];
+                tr.appendChild(td);
+            }
+        })
     }
 
 
+    /**
+     * 선택한 직급이 담긴 배열을 매개변수로 받아서 배열 아이템에 일치하는 사원만 배열에 담아 반환
+     * @type {function} memberCheck 
+     * @param {Array} positions 직급이 담긴 배열
+     * @returns Array[] 
+     * @example 리턴값예시 [ { name:"지운학", position:"대표", phone:"010-4326-7658"} ]
+     */
+    const memberCheck = (positions) => {
+
+        // Array.prototype.filter() 로 사원 정보를 순회하면서 맞는 직급만 담아서 반환하기
+        return [...peopleArr].filter((member) => {
+
+            /**@type {boolean} result */
+            var result = false;
+
+            // 직급 배열 안에 각 사원에 직급이 존재하는지 검사
+            // 직급배열안에 직급이 존재하면 result=true 반환되어 
+            // 필터메소드에 충족되고 필터된 배열을 반환한다.
+            positions.forEach((position) => {
+                if (member.position === position) result = true;
+            });
+            return result;
+        })
+    }
+
+
+    /* 
+     search eventlistener
+     검색 click을 통해 key, keyword 할당 후 updateRow(memberSearch(key,keyword)) 호출한다.
+    */
+    document.getElementById('searchBtn').addEventListener('click', () => {
+
+        /**@type {string} key 검색조건 */
+        let key = document.getElementById('searchSelect').value; // name, phone, position
+
+        /**@type {string} keyword 검색어 */
+        let keyword = document.getElementById('inputbody').value; // 검색어
+
+        updateRow(memberSearch(key, keyword));
+    })
+
+
+
+
+    /* filter eventlistener 
+    체크박스 click을 통해 이벤트 발생하며, updateRow(memberCheck(array)) 호출한다.*/
+
+    document.querySelectorAll('input[name="checkbox"]').forEach((node) => {
+        node.addEventListener('click', () => {
+
+            /*querySelectorAll('input[name="checkbox"]') 선택기를 인자로 두어 NodeList를 반환한다.*/
+            /**
+             *  @type {object} checkedList nodelist 반환 
+            */
+            let checkdList = document.querySelectorAll('input[name="checkbox"]:checked');
+
+            /** @type {object} array posotion(직급)을 담은 배열객체*/
+            let array = [];
+
+            checkdList.forEach((node) => {
+
+                /* push() node의 value값을 하나씩 추가한다. */
+                array.push(node.value);
+            })
+            // array 길이가 0 이면 기존 테이블 정보가 나온다.
+            if (array.length === 0) updateRow(peopleArr);
+
+            // 길이가 0 이 아니면 체크된 배열 정보가 나온다.
+            else updateRow(memberCheck(array));
+
+        });
+    })
 </script>
-
 
 </html>

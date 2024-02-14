@@ -1,48 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>행 추가 예제</title>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <title>JavaScript example</title>
+    <meta charSet="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <style media="only screen">
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        html {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 0;
+            overflow: auto;
+        }
+
+        body {
+            padding: 16px;
+            overflow: auto;
+            background-color: transparent
+        }
+    </style>
 </head>
+
 <body>
+    <style>
+        button {
+            display: inline-block;
+            font-weight: bold;
+        }
 
-<table id="myTable">
-    <thead>
-        <tr>
-            <!-- 기존 헤더 셀들 -->
-            <th>...</th>
-            <!-- 추가 버튼이 있는 헤더 셀 -->
-            <th><button id="addRowBtn" style="background-color: #4f56b6; color:white; ">+</button></th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- 기존 행들 -->
-        <tr>
-            <!-- 각 행의 내용 -->
-            <td>...</td>
-            <!-- 행 추가 버튼이 있는 셀 -->
-            <td><button class="addRowBtn" style="background-color: #4f56b6; color:white; ">+</button></td>
-        </tr>
-    </tbody>
-</table>
+        #gridContainer {
+            height: 100%;
+            width: 47%;
+            display: block;
+        }
 
+        #csvResult {
+            box-sizing: border-box;
+            height: 100%;
+            width: 47%;
+            margin-left: 5%;
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 1em;
+        }
+    </style>
+    <div style="display: flex; flex-direction: column; height: 100%">
+        <div style="margin: 10px 0">
+            <button onclick="onBtnUpdate()">Show CSV export content text</button>
+            <button onclick="onBtnExport()">Download CSV export file</button>
+        </div>
+        <div style="flex: 1 1 0; position: relative">
+            <div id="gridContainer">
+                <div id="myGrid" style="width: 100%; height: 100%; display: block" class="ag-theme-quartz">
+                </div>
+            </div>
+            <textarea id="csvResult" placeholder="Click the Show CSV export content button to view exported CSV here">
+				</textarea>
+        </div>
+    </div>
+    <script>var __basePath = './';</script>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.3/dist/ag-grid-community.min.js">
+    </script>
+    <script src="main.js">
+    </script>
+</body>
 <script>
-    $(document).ready(function () {
-        // + 버튼이 클릭되었을 때
-        $(document).on('click', '.addRowBtn', function () {
-            var newRow = $('<tr>');
-            // 새로운 행의 셀들 추가 (필요에 따라 자세히 작성)
-            newRow.append('<td>새로운 셀 1</td>');
-            newRow.append('<td>새로운 셀 2</td>');
-            // ... 필요한 만큼 추가
+    let gridApi;
 
-            // 행 추가
-            $('#myTable tbody').append(newRow);
-        });
+    const gridOptions = {
+        defaultColDef: {
+            editable: true,
+            minWidth: 100,
+            flex: 1,
+        },
+
+        suppressExcelExport: true,
+        popupParent: document.body,
+
+        columnDefs: [{ field: 'make' }, { field: 'model' }, { field: 'price' }],
+
+        rowData: [
+            { make: 'Toyota', model: 'Celica', price: 35000 },
+            { make: 'Ford', model: 'Mondeo', price: 32000 },
+            { make: 'Porsche', model: 'Boxster', price: 72000 },
+        ],
+    };
+
+    function onBtnExport() {
+        gridApi.exportDataAsCsv();
+    }
+
+    function onBtnUpdate() {
+        document.querySelector('#csvResult').value = gridApi.getDataAsCsv();
+    }
+
+    // setup the grid after the page has finished loading
+    document.addEventListener('DOMContentLoaded', function () {
+        var gridDiv = document.querySelector('#myGrid');
+        gridApi = agGrid.createGrid(gridDiv, gridOptions);
     });
 </script>
 
-</body>
 </html>

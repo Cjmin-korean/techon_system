@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영업 수주 등록</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
+
+    <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <link rel="stylesheet" href="../css/mescss.css">
+    <link rel="stylesheet" href="../css/houseinfor.css">
+    <!-- <link rel="stylesheet" href="../css/salesinfomodal.css"> -->
+
+
+</head>
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+
+    .modal-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .company-info {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .styled-table th,
+    .styled-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+        background-color: #bcc0c8;
+    }
+
+    .styled-table th {
+        background-color: #f2f2f2;
+        text-align:center
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .tui-dialog-close-btn {
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #d9534f;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+    }
+
+</style>
+
+<body>
+    <div class="menu-title">
+        <i class="fas fa-chart-line "></i>영업 수주 등록
+    </div>
+    <div class="search-container">
+        <label for="search" class="search-label"> 검색 :</label>
+        <div class="search-input-wrapper">
+            <input type="text" id="search" placeholder="검색어를 입력하세요...">
+            <i class="fas fa-search search-icon"></i>
+
+        </div>
+        <button class="new-registration-button" onclick="openModal()">신규등록</button>
+
+    </div>
+
+    <div id="grid" style="height: 900px; width:60%; " class="ag-theme-alpine"></div>
+    <div id="overlay"></div>
+
+    <div class="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;영업 수주 정보</span>
+        </div>
+        <div class="company-info"> <i class="fas fa-file-alt"></i> 제품정보 </div>
+        <div class="modal-content">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+
+                        <th style="width:auto;">BOMNO</th>
+                        <th style="width:auto;">품목코드</th>
+                        <th style="width:auto;">모델명</th>
+                        <th style="width:auto;">품목명</th>
+                        <th style="width:auto;">고객사</th>
+                        <th style="width:auto;">단가(원)</th>
+                        <th style="width:auto;">PO수량(개)</th>
+                        <th style="width:auto;">판매금액(￦)</th>
+                        <th style="width:100px;">영업확정</th>
+                    </tr>
+                </thead>
+                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
+                </tbody>
+
+            </table>
+
+
+            <div class="modal-footer">
+                <!-- <button class="tui-dialog-action-btn" onclick="saveForm()">저장</button> -->
+                <button class="tui-dialog-close-btn" onclick="closeModal()">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        var server = '';
+        var tui;
+        var gridData;
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+
+        $(document).ready(function () {
+            setTimeout(function () {
+                load();
+            }, 500);
+
+        });
+
+        function initializeGrid() {
+            grid = new tui.Grid({
+                el: document.getElementById('grid'),
+                data: [],
+                rowHeaders: ['rowNum'],
+                scrollX: false,
+                scrollY: false,
+                autoHeight: true,
+                columns: [
+                    {
+                        header: 'BOMNO',
+                        name: 'bomno',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        width: 120 
+
+                    },
+                    {
+                        header: '모델명',
+                        name: 'modelname',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        width: 200 
+
+                    },
+                    {
+                        header: '제품명',
+                        name: 'itemname',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        width: 200 
+
+                    },
+                    {
+                        header: '고객사',
+                        name: 'customer',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        width: 200 
+                    },
+                    {
+                        header: '고객사코드',
+                        name: 'itemcode',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        width: 150
+                    },
+                    {
+                        header: '수주수량(EA)',
+                        name: 'quantity',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+                        width: 150,
+                        align: 'right',
+                        formatter: function (value) {
+                            return parseFloat(value.value).toLocaleString();
+                        },
+                    },
+                   
+                ],
+
+                summary: {
+                    height: 40,
+                    position: 'bottom',
+                    columnContent: {
+                        quantity: {
+                            template: function (valueMap) {
+                                return '<div style="text-align: right; font-weight:bold;">합계: ' + parseFloat(valueMap.sum).toLocaleString() + '</div>';
+                            }
+                        }
+                    }
+                },
+
+            });
+        }
+    </script>
+
+    <script>
+        function load() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/POaccountinput',
+                dataType: 'json',
+                success: function (data) {
+                    gridData = data;
+                    grid.resetData(data);
+                },
+
+            });
+
+
+
+            // Add event listener for the search input
+            $('#search').on('input', function () {
+                var keyword = $(this).val().toLowerCase();
+
+                // Filter the data based on the search keyword
+                var filteredData = gridData.filter(function (item) {
+                    return Object.values(item).some(function (value) {
+                        return typeof value === 'string' && value.toLowerCase().includes(keyword);
+                    });
+                });
+
+                grid.resetData(filteredData);
+            });
+            initializeGrid();
+        }
+        function openModal() {
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

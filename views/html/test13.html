@@ -1,39 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>검색 창 스타일링 예제</title>
+    <title>Excel-like Filterable Table</title>
     <style>
-        .search-container {
-            position: relative;
-            width: 300px;
-            margin: 20px;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
-        .search-input {
+        h2 {
+            text-align: center;
+        }
+
+        table {
             width: 100%;
-            padding: 10px;
-            font-size: 16px;
+            border-collapse: collapse;
             border: 1px solid #ddd;
-            border-radius: 5px;
         }
 
-        .search-icon {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            color: #777;
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e6e6e6;
+            text-align: left;
+        }
+        th{
+            background-color: rgb(250, 230, 230);
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        input[type=text] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            /* Adjust modal width */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
 </head>
+
 <body>
 
-<div class="search-container">
-    <input type="text" class="search-input" placeholder="고객사명 검색">
-    <i class="search-icon">&#128269;</i>
-</div>
+    <h2>Excel-like Filterable Table</h2>
+
+    <table id="myTable">
+        <thead>
+            <tr>
+                <th onclick="showColumnModal(0)">Name</th>
+                <th onclick="showColumnModal(1)">Age</th>
+                <th onclick="showColumnModal(2)">Country</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>John</td>
+                <td>30</td>
+                <td>USA</td>
+            </tr>
+            <tr>
+                <td>John</td>
+                <td>30</td>
+                <td>USA</td>
+            </tr>
+            <tr>
+                <td>Mary</td>
+                <td>25</td>
+                <td>Canada</td>
+            </tr>
+            <tr>
+                <td>David</td>
+                <td>35</td>
+                <td>UK</td>
+            </tr>
+            <tr>
+                <td>Sarah</td>
+                <td>28</td>
+                <td>Australia</td>
+            </tr>
+            <tr>
+                <td>Michael</td>
+                <td>40</td>
+                <td>Germany</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div id="columnModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeColumnModal()">&times;</span>
+            <h2 id="columnModalHeader"></h2>
+            <ul id="columnDataList"></ul>
+            <button onclick="filterTable()">Apply</button>
+        </div>
+    </div>
+
+    <script>
+        var selectedColumnIndex;
+        var filterValues = {};
+
+        function showColumnModal(columnIndex) {
+            selectedColumnIndex = columnIndex;
+            var columnName = document.getElementsByTagName("th")[columnIndex].innerText;
+            document.getElementById("columnModalHeader").innerText = columnName + " Data";
+
+            var columnData = [];
+            var table = document.getElementById("myTable");
+            var rows = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < rows.length; i++) {
+                var data = rows[i].getElementsByTagName("td")[columnIndex].innerText;
+                if (data.trim() !== "") { // Check if data exists in the cell
+                    columnData.push(data);
+                }
+            }
+
+            // Remove duplicates
+            var uniqueColumnData = Array.from(new Set(columnData));
+
+            var columnDataList = document.getElementById("columnDataList");
+            columnDataList.innerHTML = ""; // Clear previous data
+
+            for (var j = 0; j < uniqueColumnData.length; j++) {
+                var listItem = document.createElement("li");
+                var checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = uniqueColumnData[j];
+                listItem.appendChild(checkbox);
+                listItem.appendChild(document.createTextNode(uniqueColumnData[j]));
+                columnDataList.appendChild(listItem);
+            }
+
+            // Restore previously selected values if any
+            var modal = document.getElementById("columnModal");
+            modal.style.display = "block";
+        }
+
+        function closeColumnModal() {
+            var modal = document.getElementById("columnModal");
+            modal.style.display = "none";
+        }
+
+        function filterTable() {
+            var table, tr, td, i, j, txtValue;
+            var checkedValues = [];
+            var modal = document.getElementById("columnModal");
+            var checkboxes = modal.querySelectorAll('input[type="checkbox"]:checked');
+
+            for (i = 0; i < checkboxes.length; i++) {
+                checkedValues.push(checkboxes[i].value);
+            }
+
+            // Store selected filter values
+            filterValues[selectedColumnIndex] = checkedValues;
+
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) { // Start from 1 to skip header row
+                var rowValid = true;
+                for (var columnIndex in filterValues) {
+                    var data = tr[i].getElementsByTagName("td")[columnIndex].innerText;
+                    if (filterValues[columnIndex].length > 0 && !filterValues[columnIndex].includes(data)) {
+                        rowValid = false;
+                        break;
+                    }
+                }
+                tr[i].style.display = rowValid ? "" : "none"; // Display or hide the row
+            }
+        }
+    </script>
 
 </body>
+
 </html>

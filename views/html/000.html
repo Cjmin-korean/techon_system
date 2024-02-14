@@ -1,192 +1,329 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>자재 기초정보</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
+    <title>Document</title>
 </head>
 <style>
-    body {
-        background-color: #f8f9fa;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
 
-    .table-wrap table {
+    p {
+        margin-top: 10px;
+    }
+
+    .container {
+        width: 100%;
+        display: flex;
+    }
+
+    .half-width {
+        width: 50%;
+    }
+
+    .modal-btn-box {
+        width: 100%;
+        text-align: center;
+    }
+
+    .modal-btn-box button {
+        display: inline-block;
+        width: 150px;
+        height: 50px;
+        background-color: #ffffff;
+        border: 1px solid #e1e1e1;
+        cursor: pointer;
+        padding-top: 8px;
+    }
+
+    .popup-wrap {
+        background-color: rgba(0, 0, 0, .3);
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: none;
+        padding: 15px;
+    }
+
+    .popup {
+        width: 100%;
+        max-width: 1200px;
+        background-color: #ffffff;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #727272;
+        box-shadow: 5px 10px 10px 1px rgba(0, 0, 0, .3);
+    }
+
+    .popup-head {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        margin-left: 20px;
+        color: white;
+        font-weight: 200;
+    }
+
+    .head-title {
+        font-size: 28px;
+        font-weight: 200;
+        font-family: 'Roboto', sans-serif;
+        text-align: center;
+        color: white;
+    }
+
+    .popup-body {
+        width: 100%;
+        background-color: #ffffff;
+    }
+
+    .body-content {
+        width: 100%;
+        padding: 30px;
+    }
+
+    .body-titlebox {
+        text-align: center;
+        width: 100%;
+        height: 40px;
+        margin-bottom: 10px;
+    }
+
+    .body-contentbox {
+        word-break: break-word;
+        overflow-y: auto;
+        max-height: 90%;
+    }
+
+    .popup-foot {
+        width: 100%;
+        height: 50px;
+    }
+
+    .pop-btn {
+        display: inline-flex;
+        width: 50%;
+        height: 100%;
+        float: left;
+        justify-content: center;
+        align-items: center;
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    .pop-btn.confirm {
+        border-right: 1px solid white;
+    }
+
+    /* Added styles for table */
+    .table-container {
+        margin-top: 20px;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .table-wrap th,
-    .table-wrap td {
+    th,
+    td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .textbox {
+        width: calc(100% - 20px);
+        margin: 10px;
         padding: 10px;
-        border-bottom: 1px solid #dee2e6;
-        text-align: center;
-        border: 1px solid silver;
-        font-weight: bold;
-
-    }
-
-    .table-wrap th {
-        background-color: #ffffff;
-        color: black;
-    }
-
-    #page_info {
-        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
     }
 </style>
 
 <body>
-
-    <section class="ftco-section" style="height: 1000px;">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 text-center mb-5">
-                    <h2 class="heading-section">자재 기초정보</h2>
-                </div>
+    <div class="container">
+        <div class="half-width">
+            <div class="modal-btn-box">
+                <button type="button" id="modal-open-before">슬리팅실 자재 입고</button>
             </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div id="page_info"></div>
 
-                    <div class="table-wrap">
-                        <table class="table" style="width:200%;">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th style="text-align:center;">품목코드</th>
-                                    <th style="text-align:center;">자재명</th>
-                                    <th style="text-align:center;">전폭<br>(mm)</th>
-                                    <th style="text-align:center;">길이<br>(M)</th>
-                                    <th style="text-align:center;">유효폭<br>(mm)</th>
-                                    <th style="text-align:center;">SQM단가<br>(￦)</th>
-                                    <th style="text-align:center;">롤단가<br>(￦)</th>
-                                    <th style="text-align:center;">단위</th>
-                                    <th style="text-align:center;">유수명<br>(일)</th>
-                                    <th style="text-align:center;">순번</th>
-                                    <th style="text-align:center;">제조사</th>
-                                    <th style="text-align:center;">공급사</th>
-                                    <th style="text-align:center;">사용별</th>
-                                    <th style="text-align:center;">유형별</th>
-                                    <th style="text-align:center;">업체별</th>
-                                    <th style="text-align:center;">자재TYPE</th>
-                                    <th style="text-align:center;">색상</th>
-                                    <th style="text-align:center;">두께</th>
-                                    <th style="text-align:center;">점착력</th>
-                                    <th style="text-align:center;">점착제</th>
-                                    <th style="text-align:center;">원단무게<br>(KG)</th>
-                                    <th style="text-align:center;">요청자</th>
-                                    <th style="text-align:center;">최초수정날짜</th>
-                                    <th style="text-align:center;">등록사유</th>
-                                    <th style="text-align:center;">고객사</th>
-                                    <th style="text-align:center;">모델</th>
-                                </tr>
-                            </thead>
-                            <tbody id="html_list">
-                            </tbody>
-                        </table>
+            <div class="popup-wrap" id="popup-before">
+                <div class="popup">
+                    <div class="popup-head">
+                        <b>슬리팅실 작업지시</b>
+                    </div>
+
+                    <div class="popup-body">
+                        <div class="body-content">
+                            <div class="body-titlebox">
+                                <h1>슬리팅 작업지시</h1>
+                            </div>
+                            <input type="text" id="barcodeInput" placeholder="바코드를 입력하세요">
+                            <button onclick="processBarcode()">처리</button>
+                            <div class="body-contentbox">
+                                <div class="table-container">
+                                    <table>
+                                        <tr>
+                                            <th colspan="6" style="text-align: center;">슬리팅 자재</th>
+                                            <th colspan="5" style="text-align: center;">슬리팅 지시</th>
+                                        </tr>
+
+                                        <tr>
+                                            <th style="text-align: center;">자재명</th>
+                                            <th style="text-align: center;">규격폭<br>(mm)</th>
+                                            <th style="text-align: center;">M</th>
+                                            <th style="text-align: center;">LOT</th>
+                                            <th style="text-align: center;">롤 수량</th>
+                                            <th style="text-align: center;">총 입고수량<br>(M)</th>
+                                            <th style="text-align: center;">규격 폭<br>(mm)</th>
+                                            <th style="text-align: center;">M</th>
+                                            <th style="text-align: center;">LOT</th>
+                                            <th style="text-align: center;">롤 수량</th>
+                                            <th style="text-align: center;">총 재단수량<br>(M)</th>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: center;">HGCS-A305RB(G)A</td>
+                                            <td style="text-align: center;">1080</td>
+                                            <td style="text-align: center;">200</td>
+                                            <td style="text-align: center;">20240101</td>
+                                            <td style="text-align: center;">1</td>
+                                            <td style="text-align: center;">200</td>
+                                            <td style="text-align: center;">220</td>
+                                            <td style="text-align: center;">200</td>
+                                            <td style="text-align: center;">20240101</td>
+                                            <td style="text-align: center;">2</td>
+                                            <td style="text-align: center;">400</td>
+
+
+                                        </tr>
+                                        <tr>
+
+                                            <td style="text-align: center; visibility: hidden;">HGCS-A305RB(G)A</td>
+                                            <td style="text-align: center; visibility: hidden;">1080</td>
+                                            <td style="text-align: center; visibility: hidden;">200</td>
+                                            <td style="text-align: center; visibility: hidden;">20240101</td>
+                                            <td style="text-align: center; visibility: hidden;">1</td>
+                                            <td style="text-align: center; visibility: hidden;">200</td>
+                                            <td style="text-align: center;">630</td>
+                                            <td style="text-align: center;">200</td>
+                                            <td style="text-align: center;">20240101</td>
+                                            <td style="text-align: center;">1</td>
+                                            <td style="text-align: center;">200</td>
+
+
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: center;">HGCS-A305RB(G)A</td>
+                                            <td style="text-align: center;">1080</td>
+                                            <td style="text-align: center;">200</td>
+                                            <td style="text-align: center;">20240102</td>
+                                            <td style="text-align: center;">1</td>
+                                            <td style="text-align: center;">200</td>
+                                            <td style="text-align: center;">220</td>
+                                            <td style="text-align: center;">200</td>
+                                            <td style="text-align: center;">20240102</td>
+                                            <td style="text-align: center;">2</td>
+                                            <td style="text-align: center;">400</td>
+
+
+                                        </tr>
+                                        <tr>
+
+                                            <td style="text-align: center; visibility: hidden;">HGCS-A305RB(G)A</td>
+                                            <td style="text-align: center; visibility: hidden;">1080</td>
+                                            <td style="text-align: center; visibility: hidden;">200</td>
+                                            <td style="text-align: center; visibility: hidden;">20240102</td>
+                                            <td style="text-align: center; visibility: hidden;">1</td>
+                                            <td style="text-align: center; visibility: hidden;">200</td>
+                                            <td style="text-align: center;">630</td>
+                                            <td style="text-align: center;">200</td>
+                                            <td style="text-align: center;">20240102</td>
+                                            <td style="text-align: center;">1</td>
+                                            <td style="text-align: center;">200</td>
+
+
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="popup-foot">
+                        <span class="pop-btn confirm" id="confirm-before">저장</span>
+                        <span class="pop-btn close" id="close-before">창 닫기</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+
+    </div>
 </body>
 <script>
-    var server = '';
-    let video_list = [];
+    $(function () {
+        $("#confirm-before").click(function () {
+            modalClose("before");
+            //컨펌 이벤트 처리
+        });
+        $("#modal-open-before").click(function () {
+            $("#popup-before").css('display', 'flex').hide().fadeIn();
+        });
+        $("#close-before").click(function () {
+            modalClose("before");
+        });
 
-    if (window.location.hostname == 'localhost') {
-        server = 'http://localhost:8080';
-    } else {
-        server = 'http://techonmes.co.kr';
-    }
+        $("#confirm-after").click(function () {
+            modalClose("after");
+            //컨펌 이벤트 처리
+        });
+        $("#modal-open-after").click(function () {
+            $("#popup-after").css('display', 'flex').hide().fadeIn();
+        });
+        $("#close-after").click(function () {
+            modalClose("after");
+        });
 
-    // 서버에서 데이터 받아오기
-    $.ajax({
-        type: 'POST',
-        url: server + '/api/selectmaterialinformation',
-        dataType: 'json',
-        success: function (data) {
-            // 받아온 데이터를 video_list에 할당
-            video_list = data.reverse();
-
-            // 나머지 코드 실행
-            showList();
+        function modalClose(type) {
+            $("#popup-" + type).fadeOut();
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("barcodeInput").focus();
+        });
+
+        function processBarcode() {
+            var barcode = document.getElementById('barcodeInput').value;
+            // 여기서 바코드 처리를 수행합니다.
+            alert("바코드를 처리합니다: " + barcode);
+            // 처리 후 필요한 동작을 수행합니다.
+        }
+
+        // Enter 키 입력 감지
+        document.getElementById('barcodeInput').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                processBarcode();
+            }
+        });
     });
-
-    function showList() {
-        let html = "";
-
-        for (let i = 0; i < video_list.length; i++) {
-            let codenumber = video_list[i].codenumber;
-            let materialname = video_list[i].materialname;
-            let width = video_list[i].width.toLocaleString();
-            let length = video_list[i].length.toLocaleString();
-            let usewidth = video_list[i].usewidth.toLocaleString();
-            let sqmprice = video_list[i].sqmprice.toLocaleString();
-            let rollprice = video_list[i].rollprice.toLocaleString();
-            let unit = video_list[i].unit;
-            let lifetime = video_list[i].lifetime;
-            let num = video_list[i].num;
-            let manufacterer = video_list[i].manufacterer;
-            let supplier = video_list[i].supplier;
-            let usagecategory = video_list[i].usagecategory;
-            let typecategory = video_list[i].typecategory;
-            let companycategory = video_list[i].companycategory;
-            let materialtype = video_list[i].materialtype;
-            let color = video_list[i].color;
-            let thickness = video_list[i].thickness;
-            let adhesionstrength = video_list[i].adhesionstrength;
-            let adhesive = video_list[i].adhesive;
-            let fabricweight = video_list[i].fabricweight;
-            let requester = video_list[i].requester;
-            let modificationdate = video_list[i].modificationdate;
-            let registrationreason = video_list[i].registrationreason;
-            let customer = video_list[i].customer;
-            let modelname = video_list[i].modelname;
-
-            html += `<tr class="alert" role="alert">
-                        <td>${codenumber}</td>
-                        <td>${materialname}</td>
-                        <td>${width}</td>
-                        <td>${length}</td>
-                        <td>${usewidth}</td>
-                        <td>${sqmprice}</td>
-                        <td>${rollprice}</td>
-                        <td>${unit}</td>
-                        <td>${lifetime}</td>
-                        <td>${num}</td>
-                        <td>${manufacterer}</td>
-                        <td>${supplier}</td>
-                        <td>${usagecategory}</td>
-                        <td>${typecategory}</td>
-                        <td>${companycategory}</td>
-                        <td>${materialtype}</td>
-                        <td>${color}</td>
-                        <td>${thickness}</td>
-                        <td>${adhesionstrength}</td>
-                        <td>${adhesive}</td>
-                        <td>${fabricweight}</td>
-                        <td>${requester}</td>
-                        <td>${modificationdate}</td>
-                        <td>${registrationreason}</td>
-                        <td>${customer}</td>
-                        <td>${modelname}</td>
-                    </tr>`;
-        }
-        document.getElementById("html_list").innerHTML = html;
-    }
 </script>
 
 </html>

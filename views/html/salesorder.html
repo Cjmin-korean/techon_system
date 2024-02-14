@@ -55,7 +55,7 @@
 <body>
     <div id="overlay"></div>
     <div class="menu-title" style="width:150%;">
-        <i class="fas fa-industry"></i>설비 기초정보
+        <i class="fas fa-dollar-sign"></i>영업 수주 정보
     </div>
     <div class="search-container">
         <label for="search" class="search-label"> 검색 :</label>
@@ -69,7 +69,9 @@
     </div>
 
     <div id="loadingSpinner" class="loading-spinner"></div>
-    <div id="myGrid" style="height: 900px; width:100%; " class="ag-theme-alpine"></div>
+    <div id="myGrid" style="height: 900px; width:100%; " class="ag-theme-alpine">
+
+    </div>
     <div class="modal" id="modal">
         <div class="modal-header">
             <span style="font-weight: bold;">설비정보</span>
@@ -140,6 +142,9 @@
         });
 
         function initializeGrid() {
+
+
+
             if (typeof agGrid !== 'undefined') {
                 const gridOptions = {
                     columnDefs: [
@@ -149,16 +154,45 @@
                             minWidth: 50,
                             maxWidth: 50 // Adjust the minWidth as needed
                         },
-                        { field: "codenumber", headerName: "설비코드", filter: true },
-                        { field: "equipmentname", headerName: "호기명", filter: true },
-                        { field: "eqname", headerName: "설비명", filter: true },
-                        { field: "part", headerName: "구분", filter: true },
-                        { field: "size", headerName: "규격", filter: true },
-                        { field: "num", headerName: "차수", filter: true },
-                        { field: "customer", headerName: "설비제작업체", filter: true },
-                        { field: "serialno", headerName: "SERIALNO", filter: true },
-                        { field: "manudate", headerName: "제작일자", filter: true },
-                        { field: "position", headerName: "설비위치", filter: true },
+                        { field: "deliverydate", headerName: "발주일자", filter: true },
+                        { field: "customer", headerName: "고객사", filter: true },
+                        { field: "itemcode", headerName: "품목코드", filter: true },
+                        { field: "modelname", headerName: "모델명", filter: true },
+                        { field: "bomno", headerName: "BOMNO", filter: true },
+                        {
+                            field: "quantity",
+                            headerName: "수량(EA)",
+                            filter: true,
+                            valueFormatter: function (params) {
+                                // 숫자를 형식화하여 쉼표를 추가
+                                return params.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                            }
+                        },
+                        {
+                            field: "itemprice",
+                            headerName: "단가(￦)",
+                            filter: true,
+                            valueFormatter: function (params) {
+                                // 숫자를 형식화하여 쉼표를 추가
+                                return params.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                            }
+                        },
+                        {
+                            field: "cost",
+                            headerName: "공급가액(￦)",
+                            filter: true,
+                            valueFormatter: function (params) {
+                                // 수량과 단가를 곱한 값을 계산
+                                const quantity = params.data.quantity || 0;
+                                const itemprice = params.data.itemprice || 0;
+                                const cost = quantity * itemprice;
+
+                                // 형식화하여 쉼표를 추가
+                                return cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                            }
+                        },
+
+
 
 
                     ],
@@ -170,20 +204,20 @@
                     enableFilter: true,
                     rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
                     onRowDoubleClicked: function (params) {
-                        $('#codenumber').val(params.data.codenumber);
-                        $('#equipmentname').val(params.data.equipmentname);
-                        $('#eqname').val(params.data.eqname);
-                        $('#part').val(params.data.part);
-                        $('#size').val(params.data.size);
-                        $('#num').val(params.data.num);
+                        $('#deliverydate').val(params.data.deliverydate);
                         $('#customer').val(params.data.customer);
-                        $('#serialno').val(params.data.serialno);
-                        $('#manudate').val(params.data.manudate);
-                        $('#position').val(params.data.position);
+                        $('#itemcode').val(params.data.itemcode);
+                        $('#modelname').val(params.data.modelname);
+                        $('#bomno').val(params.data.bomno);
+                        $('#quantity').val(params.data.quantity);
+                        $('#itemprice').val(params.data.itemprice);
+                        $('#cost').val(params.data.cost);
+
                         $('#savebutton').text('수정')
                         document.getElementById('modal').style.display = 'block';
                         document.getElementById('overlay').style.display = 'block';
-                    }
+                    },
+                    onFirstDataRendered: updateTotals // 첫 데이터 렌더링 후 총계 업데이트
 
                 };
 
@@ -194,6 +228,33 @@
             } else {
             }
         }
+
+        function updateTotals() {
+            let totalQuantity = 0;
+            let totalCost = 0;
+
+            // 수량과 공급가액의 합계 계산
+            gridApi.forEachNode(node => {
+                totalQuantity += parseFloat(node.data.quantity || 0);
+                totalCost += parseFloat(node.data.cost || 0);
+            });
+
+            // 총계 행 생성
+            const totalRow = {
+                deliverydate: '',
+                customer: '',
+                itemcode: '',
+                modelname: '',
+                bomno: '총계:',
+                quantity: totalQuantity,
+                itemprice: '',
+                cost: totalCost
+            };
+
+            // 그리드 데이터에 총계 행 추가
+            gridOptions.api.applyTransaction({ add: [totalRow] });
+        }
+
         function handleKeyPress(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -210,7 +271,7 @@
         function loadData() {
             $.ajax({
                 type: 'POST',
-                url: server + '/api/equipment',
+                url: server + '/api/POaccountinput',
                 dataType: 'json',
                 success: function (data) {
                     hideLoadingSpinner();
@@ -232,7 +293,7 @@
             Swal.fire({
                 icon: 'success',
                 title: 'EXCEL 저장',
-                text: '설비 정보를 엑셀로 저장하시겠습니까?',
+                text: '영업수주 정보를 엑셀로 저장하시겠습니까?',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
@@ -244,7 +305,7 @@
                     Swal.fire({
                         icon: 'success',
                         title: '저장완료',
-                        text: '설비 정보가 엑셀로 저장 되었습니다.',
+                        text: '영업수주 정보가 엑셀로 저장 되었습니다.',
                     }).then((result) => {
                         if (result.isConfirmed) {
                         }
@@ -274,6 +335,11 @@
             document.getElementById('modal').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
         }
+        function updateDataCount() {
+            const rowCount = gridApi.getDisplayedRowCount();
+            document.getElementById('dataCount').innerText = `DATA: ${rowCount}`;
+        }
+
     </script>
 </body>
 

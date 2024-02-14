@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>JavaScript example</title>
+    <meta charSet="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <style media="only screen">
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        html {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 0;
+            overflow: auto;
+        }
+
+        body {
+            padding: 16px;
+            overflow: auto;
+            background-color: transparent
+        }
+
+       
+    </style>
+</head>
+
+<body>
+    <div id="myGrid" style="height: 100%" class="ag-theme-quartz">
+    </div>
+    <script>var __basePath = './';</script>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.3/dist/ag-grid-community.min.js">
+    </script>
+    <script>
+        const columnDefs = [
+            {
+                headerName: '재고 및 생산 현황',
+                children: [
+                    { headerName: 'Athlete', field: 'athlete', width: 180, filter: 'agTextColumnFilter' },
+                    { headerName: 'Age', field: 'age', width: 90, filter: 'agNumberColumnFilter' },
+                    { headerName: 'Country', field: 'country', width: 140 },
+                ],
+                headerClass: 'center-align-header', // 중앙 정렬을 위한 CSS 클래스 지정
+            },
+            {
+                headerName: 'Sports Results',
+
+            },
+        ];
+
+        let gridApi;
+
+        const gridOptions = {
+            defaultColDef: {
+                filter: true,
+            },
+            // debug: true,
+            columnDefs: columnDefs,
+            rowData: null,
+        };
+
+        // setup the grid after the page has finished loading
+        document.addEventListener('DOMContentLoaded', function () {
+            const gridDiv = document.querySelector('#myGrid');
+            gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+            fetch('https://www.ag-grid.com/example-assets/olympic-winners.json')
+                .then((response) => response.json())
+                .then((data) => gridApi.setGridOption('rowData', data));
+        });
+    </script>
+</body>
+
+</html>

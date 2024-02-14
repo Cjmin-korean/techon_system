@@ -6562,6 +6562,24 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/bomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .query(
+                    "SELECT * FROM iteminfo  order by itemcode asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/searchingcustomername', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -9435,8 +9453,8 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-                .input('start', sql.NVarChar, req.body.start)
-                .input('finish', sql.NVarChar, req.body.finish)
+                // .input('start', sql.NVarChar, req.body.start)
+                // .input('finish', sql.NVarChar, req.body.finish)
 
                 .query(
                     " select   " +
@@ -9452,7 +9470,7 @@ module.exports = function (app) {
                     " price,  " +
                     " deliverydate  " +
                     " from  " +
-                    " accountinput where deliverydate between @start and @finish " +
+                    " accountinput " +
                     " order by deliverydate asc"
                 )
                 .then(result => {

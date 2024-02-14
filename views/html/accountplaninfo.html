@@ -7,6 +7,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <style>
         .loading-spinner {
             position: fixed;
@@ -14,7 +15,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             display: none;
-            /* Initially hide the spinner */
         }
 
         .loading-spinner::before {
@@ -43,14 +43,28 @@
 
         .ag-theme-alpine {
             font-weight: bold;
+        }
 
+        .custom-header-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f2f2f2;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .custom-header {
+            background-color: #f2f2f2;
+            text-align: center;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
     <div class="menu-title" style="width:150%;">
-        <i class="fas fa-chart-line"></i>환율정보
+        <i class="fas fa-warehouse"></i>출하계획 등록 및 조회
     </div>
     <div class="search-container">
         <label for="search" class="search-label"> 검색 :</label>
@@ -59,11 +73,11 @@
             <i class="fas fa-search search-icon"></i>
         </div>
         <button class="new-registration-button" onclick="openModal()">신규등록</button>
-
     </div>
 
     <div id="loadingSpinner" class="loading-spinner"></div>
-    <div id="myGrid" style="height: 900px; width:50%; " class="ag-theme-alpine"></div>
+    <div id="myGrid" style="height: 900px; width:100%; " class="ag-theme-alpine"></div>
+
     <script>
         var server = '';
         var gridApi;
@@ -73,56 +87,60 @@
         } else {
             server = 'http://techonmes.co.kr';
         }
+
         $(document).ready(function () {
-            showLoadingSpinner(); // Show loading spinner on page load
+            $('#search').keypress(function (e) {
+                if (e.which === 13) {
+                    applySearchFilter();
+                }
+            });
+            showLoadingSpinner();
             setTimeout(function () {
                 initializeGrid();
-                onBtShowLoading()
             }, 1500);
         });
-        function onBtShowLoading() {
-            gridApi.showLoadingOverlay();
-        }
+
         function initializeGrid() {
             if (typeof agGrid !== 'undefined') {
                 const gridOptions = {
                     columnDefs: [
+                        { field: "bomno", headerName: "BOMNO", filter: true },
+                        { field: "itemcode", headerName: "고객사코드", filter: true },
+                        { field: "modelname", headerName: "모델명", filter: true },
+                        { field: "pcs", headerName: "EA=PCS", filter: true },
+                        { field: "processname", headerName: "공정명", filter: true },
                         {
-                            headerCheckboxSelection: true,
-                            checkboxSelection: true,
-                            minWidth: 50,
-                            maxWidth: 50 // Adjust the minWidth as needed
+                            headerName: "판매/계획/실적",
+                            children: [
+                                { field: "sales", headerName: "판매", filter: true },
+                                { field: "plan", headerName: "계획", filter: true },
+                                { field: "performance", headerName: "실적", filter: true },
+                            ],
+                            headerGroupComponent: 'customHeaderGroupComponent'
                         },
-                        { field: "startdate", headerName: "시작날짜", filter: true },
-                        { field: "finishdate", headerName: "종료날짜", filter: true },
-                        { field: "currencycode", headerName: "통화코드", filter: true },
-                        { field: "currencyname", headerName: "통화명", filter: true },
-                        { field: "currencyprice", headerName: "통화가격", filter: true },
-
-
-
                     ],
                     autoSizeStrategy: {
                         type: 'fitGridWidth',
                         defaultMinWidth: 150
                     },
                     rowHeight: 45,
-                    enableFilter: true
+                    enableFilter: true,
+                    onRowDoubleClicked: function (params) {
+                        console.log('Row Double Clicked:', params.data);
+                    },
                 };
 
                 const gridDiv = document.querySelector('#myGrid');
                 gridApi = agGrid.createGrid(gridDiv, gridOptions);
 
                 loadData();
-            } else {
-                console.error('ag-Grid is not defined. Make sure the ag-Grid script is loaded.');
             }
         }
 
         function loadData() {
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectwon',
+                url: server + '/api/accountshipment',
                 dataType: 'json',
                 success: function (data) {
                     hideLoadingSpinner();
@@ -139,6 +157,27 @@
             $('#loadingSpinner').hide();
         }
 
+        function applySearchFilter() {
+            showLoadingSpinner();
+            loadData();
+        }
+
+        // Custom header group component
+        // function CustomHeaderGroupComponent() { }
+
+        // CustomHeaderGroupComponent.prototype.init = function (params) {
+        //     this.eGui = document.createElement('div');
+        //     this.eGui.className = 'custom-header-group';
+        //     this.eGui.innerHTML = `
+        //         <div class="custom-header">판매1</div>
+        //         <div class="custom-header">계획</div>
+        //         <div class="custom-header">실적</div>
+        //     `;
+        // };
+
+        // CustomHeaderGroupComponent.prototype.getGui = function () {
+        //     return this.eGui;
+        // };
     </script>
 </body>
 
