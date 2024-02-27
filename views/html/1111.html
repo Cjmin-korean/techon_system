@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연도 및 월 선택</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+
+        td {
+            height: 20px;
+        }
+
+        td:hover {
+            background-color: lightgray;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <label for="year">연도:</label>
+    <select id="year"></select>
+
+    <label for="month">월:</label>
+    <select id="month">
+        <option value="1">1월</option>
+        <option value="2">2월</option>
+        <option value="3">3월</option>
+        <option value="4">4월</option>
+        <option value="5">5월</option>
+        <option value="6">6월</option>
+        <option value="7">7월</option>
+        <option value="8">8월</option>
+        <option value="9">9월</option>
+        <option value="10">10월</option>
+        <option value="11">11월</option>
+        <option value="12">12월</option>
+    </select>
+
+    <table id="dateTable" style="width:200%;">
+        <thead id="tableHeader">
+            <!-- 여기에 헤더 내용이 추가될 것입니다 -->
+        </thead>
+        <tbody id="dateTableBody">
+            <!-- 여기에 데이터가 추가될 것입니다 -->
+        </tbody>
+    </table>
+
+    <script>
+        function generateDateRange(year, month) {
+            var startDate = new Date(year, month - 1, 1);
+            var endDate = new Date(year, month, 0);
+            var dateRange = [];
+            for (var date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+                var formattedDate = ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                dateRange.push(formattedDate);
+            }
+            return dateRange;
+        }
+
+        function updateDateTable(year, month) {
+            var dateRange = generateDateRange(year, month);
+            var tableHeader = document.getElementById("tableHeader");
+            var tableBody = document.getElementById("dateTableBody");
+
+            // 기존 데이터 지우기
+            tableHeader.innerHTML = "";
+            tableBody.innerHTML = "";
+
+            // 헤더 열 추가
+            var headerRow = tableHeader.insertRow();
+            var headers = ['BOMNO.', '코드명', '모델명', '제품명', 'EA=PCS', '공정명', '부착업체', '판매계획', 'P/O', '납품수량', 'PO잔량', 'TTL', '구분', '전월P/O잔량'];
+            headers.forEach(function (header) {
+                var th = document.createElement("th");
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+
+            // 날짜 컬럼 생성
+            dateRange.forEach(function (date) {
+                var th = document.createElement("th");
+                th.textContent = date;
+                headerRow.appendChild(th);
+            });
+
+            // 데이터 추가 (공란으로)
+            var ids = ['ex', 'pl', 'sl'];
+            ids.forEach(function (id, index) {
+                var row = tableBody.insertRow();
+                if (index == 0) {
+                    var td = row.insertCell();
+                    td.textContent = '2'; // "BOMNO." 아래에 "2" 추가
+                    td.rowSpan = ids.length;
+                }
+                headers.forEach(function () {
+                    var td = row.insertCell();
+                    td.textContent = '';
+                });
+                dateRange.forEach(function (date) {
+                    var td = row.insertCell();
+                    td.textContent = '';
+                    td.id = id + "-" + date;
+                });
+            });
+        }
+
+        // 연도 선택
+        var yearSelect = document.getElementById("year");
+        var currentYear = new Date().getFullYear();
+        for (var i = currentYear; i >= currentYear - 10; i--) {
+            var option = document.createElement("option");
+            option.text = i;
+            option.value = i;
+            yearSelect.add(option);
+        }
+
+        // 현재 연도를 선택 상태로 설정
+        yearSelect.value = currentYear;
+
+        // 월 선택
+        var monthSelect = document.getElementById("month");
+        var currentMonth = new Date().getMonth() + 1; // JavaScript에서 월은 0부터 시작하므로 1을 더합니다.
+        monthSelect.value = currentMonth;
+
+        // 초기 테이블 업데이트
+        updateDateTable(currentYear, currentMonth);
+
+        // 월 선택 시 테이블 업데이트
+        monthSelect.addEventListener("change", function () {
+            updateDateTable(yearSelect.value, monthSelect.value);
+        });
+
+    </script>
+
+</body>
+
+</html>

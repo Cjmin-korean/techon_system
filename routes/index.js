@@ -1537,6 +1537,76 @@ module.exports = function (app) {
     // **** finish
     // **** start  BOM창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/iteminfobom1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "    SELECT  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "      COALESCE(SUM(ROUND(mi.rollprice/FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2)), 2) as cost,   " +
+                    "     CASE  " +
+                    "         WHEN i.itemprice = 0 THEN 0  " +
+                    "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  " +
+                    "     END AS costPriceRatio,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
+                    "     COUNT(mi.materialname) as materialcount " +
+                    " FROM  " +
+                    "     vntiteminfo i  " +
+                    " LEFT JOIN  " +
+                    "     vntbommanagement bm ON i.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     vetnammaterialinfo mi ON bm.codenumber = mi.codenumber  " +
+                    " WHERE  " +
+                    "    bm.status = 'true'  " +
+                    " GROUP BY  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type," +
+                    "     bm.bomid," +
+                    "     i.workpart;                      ")
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/iteminfobomsample', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -1954,24 +2024,34 @@ module.exports = function (app) {
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/selectmaterialinformation', function (req, res) {
-            res.header("Access-Control-Allow-Origin", "*");
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            const { page, per_page } = req.body;
 
+            // 전체 레코드 수 가져오기
+            pool.request().query(`
+                SELECT COUNT(*) AS totalRows FROM materialinfoinformation
+            `).then(countResult => {
+                const totalRows = countResult.recordset[0].totalRows;
 
-            return pool.request()
-
-                .query(
-                    "SELECT " +
-                    "*" +
-                    " FROM materialinfoinformation order by typecategory,materialname asc")
-
-                .then(result => {
-
-
-                    res.json(result.recordset);
-                    res.end();
-
-
+                // 페이지네이션을 위한 쿼리 실행
+                pool.request().query(`
+                    SELECT * FROM materialinfoinformation 
+                    ORDER BY typecategory, materialname ASC 
+                    OFFSET ${(page - 1) * per_page} ROWS
+                    FETCH NEXT ${per_page} ROWS ONLY
+                `).then(result => {
+                    res.json({
+                        data: result.recordset,
+                        total_pages: Math.ceil(totalRows / per_page)
+                    });
+                }).catch(err => {
+                    console.error(err);
+                    res.status(500).json({ error: 'Internal Server Error' });
                 });
+            }).catch(err => {
+                console.error(err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            });
         });
 
     });
@@ -2691,6 +2771,66 @@ module.exports = function (app) {
                     "    bommanagement bm " +
                     "JOIN " +
                     "    materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "WHERE " +
+                    "    bm.bomno = @bomno and bm.status='true' " +
+                    "ORDER BY bm.num ASC; ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbommasssavebommanagement1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT " +
+                    "    bm.char, " +
+                    "    bm.main, " +
+                    "    bm.materialname, " +
+                    "    mi.typecategory, " +
+                    "    bm.etc, " +
+                    "    bm.materialwidth, " +
+                    "    bm.useable, " +
+                    "    bm.onepid, " +
+                    "    bm.twopid, " +
+                    "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)),4) as soyo, " +
+                    "    bm.ta, " +
+                    "    bm.allta, " +
+                    "    bm.talength, " +
+                    "    bm.loss, " +
+                    "    ROUND(mi.rollprice/FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2) as cost, " +
+                    "    FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, " +
+                    "    FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) as prdouctcount, " +
+                    "    mi.width, " +
+                    "    mi.usewidth, " +
+                    "    mi.length, " +
+                    "    mi.sqmprice, " +
+                    "    mi.rollprice, " +
+                    "    mi.unit, " +
+                    "    mi.manufacterer, " +
+                    "    mi.supplier, " +
+                    "    bm.cavity, " +
+                    "    mi.codenumber, " +
+                    "    bm.num " +
+                    "FROM " +
+                    "    vntbommanagement bm " +
+                    "JOIN " +
+                    "    vetnammaterialinfo mi ON bm.codenumber = mi.codenumber " +
                     "WHERE " +
                     "    bm.bomno = @bomno and bm.status='true' " +
                     "ORDER BY bm.num ASC; ")
@@ -6522,6 +6662,26 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/searchingmaterialname1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+
+                .query(
+                    "SELECT * FROM vetnammaterialinfo WHERE materialname LIKE '%' + @materialname + '%' order by materialname asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/suppliername', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -6806,6 +6966,48 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/bommasssaveiteminfo1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+
+                .input('insertdate', sql.NVarChar, req.body.insertdate)
+                .input('updatedate', sql.NVarChar, req.body.updatedate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('pcs', sql.NVarChar, req.body.pcs)
+                .input('cavity', sql.Float, req.body.cavity)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('working', sql.NVarChar, req.body.working)
+                .input('direction', sql.NVarChar, req.body.direction)
+                .input('cost', sql.Float, req.body.cost)
+                .input('ordercount', sql.Float, req.body.ordercount)
+                .input('workpart', sql.NVarChar, req.body.workpart)
+                .input('additionalnotes', sql.NVarChar, req.body.additionalnotes)
+                .input('itemprice', sql.Float, req.body.itemprice)
+                .input('type', sql.NVarChar, req.body.type)
+
+
+                .query(
+                    'insert into vntiteminfo(itemprice,updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, part, working, direction, cost, ordercount, additionalnotes,workpart,type)' +
+                    ' values(@itemprice,@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @part, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart,@type)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/bommasssavebommanagement', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -6852,6 +7054,65 @@ module.exports = function (app) {
 
                 .query(
                     'insert into bommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/bommasssavebommanagement1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('savedate', sql.NVarChar, req.body.savedate)
+                .input('main', sql.NVarChar, req.body.main)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('model', sql.NVarChar, req.body.model)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('materialwidth', sql.Float, req.body.materialwidth)
+                .input('using', sql.NVarChar, req.body.using)
+                .input('onepid', sql.Float, req.body.onepid)
+                .input('twopid', sql.Float, req.body.twopid)
+                .input('soyo', sql.Float, req.body.soyo)
+                .input('ta', sql.Float, req.body.ta)
+                .input('allta', sql.Float, req.body.allta)
+                .input('talength', sql.Float, req.body.talength)
+                .input('loss', sql.Float, req.body.loss)
+                .input('cost', sql.Float, req.body.cost)
+                .input('rlcut', sql.Float, req.body.rlcut)
+                .input('rlproduct', sql.Float, req.body.rlproduct)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('usewidth', sql.Float, req.body.usewidth)
+                .input('num', sql.Float, req.body.num)
+                .input('materialclassification', sql.NVarChar, req.body.materialclassification)
+                .input('cavity', sql.NVarChar, req.body.cavity)
+                .input('useable', sql.NVarChar, req.body.useable)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+                .input('costloss', sql.Float, req.body.costloss)
+
+
+
+
+                .query(
+                    'insert into vntbommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss)' +
                     ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss)'
                 )
                 .then(result => {
@@ -7692,6 +7953,30 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/updatebomstatus1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+
+
+
+                .query(
+                    'update vntbommanagement set status=@status where bomid=@bomid'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/updatebomstatussample', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
@@ -8335,6 +8620,43 @@ module.exports = function (app) {
                 // 
                 .query(
                     'update iteminfo set modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes,working=@working,type=@type where bomno=@bomno'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateiteminformation1', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('pcs', sql.Float, req.body.pcs)
+                .input('cavity', sql.Int, req.body.cavity)
+                .input('direction', sql.NVarChar, req.body.direction)
+                .input('workpart', sql.NVarChar, req.body.workpart)
+                .input('ordercount', sql.Float, req.body.ordercount)
+                .input('additionalnotes', sql.NVarChar, req.body.additionalnotes)
+                .input('working', sql.NVarChar, req.body.working)
+                .input('type', sql.NVarChar, req.body.type)
+
+                // 
+                .query(
+                    'update vntiteminfo set modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes,working=@working,type=@type where bomno=@bomno'
                 )
                 .then(result => {
 
@@ -9481,6 +9803,51 @@ module.exports = function (app) {
         });
 
     });
+    // **** finish
+    // **** start material combobox group 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/aaaa', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                // .input('start', sql.NVarChar, req.body.start)
+                // .input('finish', sql.NVarChar, req.body.finish)
+
+                .query(
+                    "SELECT * FROM aaaa "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start material combobox group 쿼리      
+    app.post('/api/deletedata', function (req, res) {
+        res.header("Access-Control-Allow-Origin", "*");
+
+        var ids = req.body.ids; // 클라이언트로부터 받은 ID 배열
+
+        // 각 ID에 대해 삭제 쿼리를 실행합니다.
+        Promise.all(ids.map(id => {
+            return pool.request()
+                .input('id', sql.Int, id)
+                .query("DELETE FROM aaaa WHERE id=@id");
+        }))
+            .then(results => {
+                // 모든 삭제 작업이 완료되면 결과를 클라이언트로 응답합니다.
+                res.json(results.map(result => result.recordset));
+            })
+            .catch(err => {
+                // 오류가 발생한 경우 오류 메시지를 클라이언트에게 보냅니다.
+                res.status(500).send(err.message);
+            });
+    });
+
     // **** finish
     // **** start material combobox group 쿼리      
     sql.connect(config).then(pool => {
@@ -10872,6 +11239,103 @@ module.exports = function (app) {
     });
     // **** finish
 
+
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/vntinsertmaterial', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('usewidth', sql.Float, req.body.usewidth)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+
+
+                .query(
+                    " INSERT INTO vetnammaterialinfo (codenumber, materialname, width, length, usewidth, sqmprice, rollprice, unit, manufacterer, supplier) " +
+                    " VALUES (@codenumber,@materialname,@width,@length,@usewidth,@sqmprice,@rollprice,@unit,@manufacterer,@supplier)"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/vntselectmaterial', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .query(
+                    " select " +
+                    " codenumber, " +
+                    " materialname, " +
+                    " width, " +
+                    " length, " +
+                    " usewidth, " +
+                    " sqmprice, " +
+                    " rollprice, " +
+                    " unit, " +
+                    " manufacterer, " +
+                    " supplier " +
+                    " from " +
+                    " vetnammaterialinfo  order by materialname asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/vntupdatematerial', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .query(
+                    " select " +
+                    " codenumber, " +
+                    " materialname, " +
+                    " width, " +
+                    " length, " +
+                    " usewidth, " +
+                    " sqmprice, " +
+                    " rollprice, " +
+                    " unit, " +
+                    " manufacterer, " +
+                    " supplier " +
+                    " from " +
+                    " vetnammaterialinfo  order by materialname asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
     var express = require('express');
 
 
