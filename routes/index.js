@@ -9790,7 +9790,7 @@ module.exports = function (app) {
                     " quantity * itemprice AS totalprice,  " +
                     " itemprice,  " +
                     " price,  " +
-                    " deliverydate  " +
+                    " deliverydate,id  " +
                     " from  " +
                     " accountinput " +
                     " order by deliverydate asc"
@@ -9829,7 +9829,6 @@ module.exports = function (app) {
     // **** start material combobox group 쿼리      
     app.post('/api/deletedata', function (req, res) {
         res.header("Access-Control-Allow-Origin", "*");
-
         var ids = req.body.ids; // 클라이언트로부터 받은 ID 배열
 
         // 각 ID에 대해 삭제 쿼리를 실행합니다.
@@ -9837,6 +9836,29 @@ module.exports = function (app) {
             return pool.request()
                 .input('id', sql.Int, id)
                 .query("DELETE FROM aaaa WHERE id=@id");
+        }))
+            .then(results => {
+                // 모든 삭제 작업이 완료되면 결과를 클라이언트로 응답합니다.
+                res.json(results.map(result => result.recordset));
+            })
+            .catch(err => {
+                 res.status(500).send(err.message);
+            });   // 오류가 발생한 경우 오류 메시지를 클라이언트에게 보냅니다.
+            
+    });
+
+    // **** finish
+    // **** start material combobox group 쿼리      
+    app.post('/api/deleteaccount', function (req, res) {
+        res.header("Access-Control-Allow-Origin", "*");
+
+        var ids = req.body.ids; // 클라이언트로부터 받은 ID 배열
+
+        // 각 ID에 대해 삭제 쿼리를 실행합니다.
+        Promise.all(ids.map(id => {
+            return pool.request()
+                .input('id', sql.Int, id)
+                .query("DELETE FROM accountinput WHERE id=@id");
         }))
             .then(results => {
                 // 모든 삭제 작업이 완료되면 결과를 클라이언트로 응답합니다.

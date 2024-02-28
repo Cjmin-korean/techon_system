@@ -64,22 +64,13 @@
 <body>
     <div class="main_header">
         <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">영업수주 등록1</a>
+        <a style="margin-left: 20px;">영업수주 등록</a>
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
     </div>
-
-    <!-- <fieldset>
-        <legend>검색조건</legend>
-        <input type="date" id="datepicker1">
-        <input type="date" id="datepicker2">
-        <button onclick="load()">조회</button>
-        <button onclick="newadd()">신규추가</button>
-    </fieldset> -->
     <fieldset style="height: 40px;">
-
         <input type="date" id="datepicker1">
         <input type="date" id="datepicker2">
         <button id="newRegistrationBtn" onclick="load()" class="btn btn-primary">
@@ -89,7 +80,7 @@
         <button id="newRegistrationBtn" onclick="newadd()" class="btn btn-primary">
             <i class="fas fa-plus-circle"></i> 신규등록
         </button>
-        <button id="deleteBtn" onclick="" class="btn btn-danger" style="background-color: red;">
+        <button id="deleteBtn" onclick="deletedata()" class="btn btn-danger" style="background-color: red;">
             <i class="fas fa-trash-alt"></i>선택삭제
         </button>
         <button id="exportToExcelBtn" onclick="exportToExcel()" class="btn btn-success"
@@ -104,15 +95,16 @@
     <table class="styled-table" id="datatable">
         <thead id="tableHead">
             <tr>
-                <th style="width: auto; text-align:center;" onclick="sortTable(1)">발주일자</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(2)">고객사</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(3)">품목코드</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(4)">모델명</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(5)">품목명</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(6)">BOM.NO</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(7)">수량(개)</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(8)">단가(원)</th>
-                <th style="width: auto; text-align:center;" onclick="sortTable(9)">공급가액(원)</th>
+                <th style="width: 20px; text-align:center;"></th>
+                <th style="width: auto; text-align:center;">발주일자</th>
+                <th style="width: auto; text-align:center;">고객사</th>
+                <th style="width: auto; text-align:center;">품목코드</th>
+                <th style="width: auto; text-align:center;">모델명</th>
+                <th style="width: auto; text-align:center;">품목명</th>
+                <th style="width: auto; text-align:center;">BOM.NO</th>
+                <th style="width: auto; text-align:center;">수량(개)</th>
+                <th style="width: auto; text-align:center;">단가(원)</th>
+                <th style="width: auto; text-align:center;">공급가액(원)</th>
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -305,6 +297,7 @@
 
                             $('#Datatbody').append(
                                 '<tr>' +
+                                '<td><input type="checkbox" name="chk" style="width:18px; height: 18px;"></td>' +
                                 '<td>' + (result[i].deliverydate || '') + '</td>' +
                                 '<td>' + (result[i].customer || '') + '</td>' +
                                 '<td>' + (result[i].itemcode || '') + '</td>' +
@@ -314,13 +307,15 @@
                                 '<td style="text-align:right;">' + (result[i].quantity.toLocaleString() || '0') + '</td>' +
                                 '<td style="text-align:right;">' + (result[i].itemprice.toLocaleString() || '0') + '</td>' +
                                 '<td style="text-align:right;">' + (result[i].totalprice.toLocaleString() || '0') + '</td>' +
+                                '<td id="data-id">' + (result[i].id || '') + '</td>' +
                                 '</tr>'
                             );
+                            $('td#data-id').hide()
                         }
 
                         $('#Datatbody').append(
                             '<tr style="background-color:whitesmoke;">' +
-                            '<td colspan="5"><b>' + $('#datepicker1').val() + '~' + $('#datepicker2').val() + '</b></td>' +
+                            '<td colspan="6"><b>' + $('#datepicker1').val() + '~' + $('#datepicker2').val() + '</b></td>' +
                             '<td style="text-align:right;"><b>수주 건수:' + result.length.toLocaleString() + '</b></td>' +
                             '<td style="text-align:right;"><b>' + totalQuantity.toLocaleString() + '</b></td>' +
                             '<td></td>' +
@@ -627,6 +622,52 @@
                 }
 
             });
+        }
+
+        function deletedata() {
+            Swal.fire({
+                icon: 'info',
+                title: '삭제',
+                text: '영업정보를 삭제 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var selectedIds = [];
+                    // 선택된 체크박스를 찾아서 ID를 배열에 추가합니다.
+                    $('input[name="chk"]:checked').each(function () {
+                        selectedIds.push($(this).closest('tr').find('td:eq(10)').text());
+                    });
+
+                    // 선택된 ID들을 서버로 한 번에 전송하여 삭제합니다.
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/deleteaccount',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            ids: selectedIds // 선택된 ID 배열을 전송합니다.
+                        }),
+
+                    });
+
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '데이터가 삭제 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            load()
+                        }
+                    });
+                }
+            });
+
+
         }
     </script>
 
