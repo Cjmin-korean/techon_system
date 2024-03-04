@@ -5272,11 +5272,31 @@ module.exports = function (app) {
                     "JOIN   " +
                     "    bommanagement bm ON ol.itemname = bm.itemname   " +
                     "WHERE   " +
-                    "    ol.orderstatus = '생산확정'   " +
+                    "    ol.orderstatus = '생산확정'  and  ol.planstatus is null   " +
                     "GROUP BY   " +
-                    "    ol.itemname,bm.char,ol.quantity ,bm.onepid ,ol.customer,ol.part   " +
+                    "    ol.itemname,bm.char,ol.quantity ,bm.onepid ,ol.customer,ol.part ,ol.lotno  " +
                     "ORDER BY   " +
                     "    MAX(ol.orderstatus) DESC;                ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start       
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateorderstatustrue', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    "update orderlist set planstatus='true' where lotno=@lotno and  ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -5567,8 +5587,8 @@ module.exports = function (app) {
                     "    p.num, " +
                     "    p.capa,   " +
                     "    p.plantime,p.materialstatus,p.productstatus,p.people,  " +
-                    "    480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)) AS ratio,  " +
-                    "    630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0)) AS ratio1, " +
+                    "    CEILING(480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0))) AS ratio,  " +
+                    "    CEILING(630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0))) AS ratio1, " +
                     "    lastcharcte.last_char AS lastchar, " +
                     "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END AS producttype, " +
                     "    p.bompart  " +
@@ -8595,6 +8615,33 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/updateiteminfoitemprice1', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('class', sql.NVarChar, req.body.class)
+                .input('itemprice', sql.Float, req.body.itemprice)
+
+
+                .query(
+                    'update iteminfo set itemprice=@itemprice,class=@class where bomno=@bomno'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/updateiteminformation', function (req, res) {
 
 
@@ -9842,9 +9889,9 @@ module.exports = function (app) {
                 res.json(results.map(result => result.recordset));
             })
             .catch(err => {
-                 res.status(500).send(err.message);
+                res.status(500).send(err.message);
             });   // 오류가 발생한 경우 오류 메시지를 클라이언트에게 보냅니다.
-            
+
     });
 
     // **** finish
@@ -11316,7 +11363,7 @@ module.exports = function (app) {
                     " manufacterer, " +
                     " supplier " +
                     " from " +
-                    " vetnammaterialinfo  order by materialname asc"
+                    " vetnammaterialinfo ORDER BY  CAST(codenumber AS INTEGER) ASC"
                 )
                 .then(result => {
 

@@ -62,10 +62,22 @@
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div id="editForm">
-            <input type="text" style="width:200px;" id="equipmentname">
-            <input type="text" style="width:200px;" id="num">
-            <input type="text" style="width:200px;" id="dataid">
-            <input type="text" style="width:200px;" id="plandatein">
+            <fieldset>
+                <legend>생산설비정보</legend>
+                <div>
+                    <b for="equipmentname">설비명 :</b>
+                    <input type="text" id="equipmentname" style="width:200px; text-align: center;">
+
+                    <b for="dataid">설비코드 :</b>
+                    <input type="text" id="dataid" style="width:200px; text-align: center;">
+
+                    <b for="plandatein">생산계획날짜:</b>
+                    <input type="text" id="plandatein" style="width:200px; text-align: center;">
+
+                    <label for="num" style="visibility: hidden;">Number:</label>
+                    <input type="text" id="num" style="width:200px; visibility: hidden; text-align: center;">
+                </div>
+            </fieldset>
             <table class="styled-table" id="planstauts">
 
                 <thead id="tableHead">
@@ -116,7 +128,7 @@
                             <i class="fas fa-trash"></i> 삭제
                         </button>
                     </td>
-                    <td colspan="1">생산계획 정보
+                    <td colspan="1" style="visibility: hidden;">생산계획 정보
                         <input type="text" id="orderid" style=" width:50px;">
                         <input type="text" id="id-edit" style=" width:50px;">
                         <input type="text" id="num-edit" style=" width:50px;">
@@ -319,7 +331,7 @@
                                 '<td>' + data[i].modelname + '</td>' +
                                 '<td>' + data[i].itemname + '</td>' +
                                 '<td>' + data[i].lotno + '</td>' +
-                                '<td style="text-align:right;">' + data[i].quantity.toLocaleString() + '</td>' +
+                                '<td style="text-align:center;">' + data[i].quantity.toLocaleString() + '</td>' +
                                 '<td><button onclick="logRowData(this)">계획등록</button></td>' +
                                 '<td class="data-id">' + data[i].id + '</td>' +
                                 '<td class="data-capa">' + data[i].capa + '</td>' +
@@ -381,6 +393,18 @@
                     });
 
 
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updateorderstatustrue',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": $('#id-edit').val(),
+                        }),
+                        success: function (result) {
+
+                        },
+                    });
 
                     $('#editModal3').fadeOut();
                     $('#overlay').fadeOut();
@@ -592,7 +616,7 @@
         }
         function plansearching() {
 
-       
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/plansearchAll',
@@ -1018,15 +1042,12 @@
                             "num": parseFloat($('#num-edit').val()) + 1,
                             "pono": parseFloat($('#pono-edit').val().replace(',', '')),
                             "plantime": '0',
+                            "num": '1'
                         }),
                         success: function (result) {
-                            plansearching()
-                            $('#editModal4').fadeOut();
-                            $('#overlay').fadeOut();
+
                         },
                     });
-
-
 
 
                     Swal.fire({
@@ -1035,8 +1056,10 @@
                         text: '생산 정보가 등록 되었습니다.',
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // plansearching()
-
+                            $('#editModal4').fadeOut();
+                            $('#overlay').fadeOut();
+                            plansearching()
+                            load()
                         }
                     });
                 }
