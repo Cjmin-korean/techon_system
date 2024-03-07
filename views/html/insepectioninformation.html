@@ -207,10 +207,11 @@
         <div class="search-input-wrapper">
             <input type="text" id="search" placeholder="검색어를 입력 후 ENTER 누르세요..." onkeypress="handleKeyPress(event)"
                 autocomplete="off">
-            <i class="fas fa-search search-icon" ></i>
+            <i class="fas fa-search search-icon"></i>
         </div>
         <!-- <button class="new-registration-button" onclick="openModal()">신규등록</button> -->
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
+        <b style="float: right; margin-right: 20px; margin-top: 20px;" id="dataCount"></b>
 
     </div>
 
@@ -304,7 +305,10 @@
                 initializeGrid();
             }, 1500);
         });
-
+        function updateDataCount() {
+            const rowCount = gridApi.getDisplayedRowCount();
+            document.getElementById('dataCount').innerText = `DATA: ${rowCount}`;
+        }
         function initializeGrid() {
             if (typeof agGrid !== 'undefined') {
                 const gridOptions = {
@@ -389,6 +393,7 @@
             if (event.key === "Enter") {
                 event.preventDefault();
                 onFilterTextBoxChanged();
+                updateDataCount();
             }
         }
         function click(event) {
@@ -422,6 +427,7 @@
                 success: function (data) {
                     hideLoadingSpinner();
                     gridApi.setRowData(data);
+                    updateDataCount();
                 },
             });
         }
