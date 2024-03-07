@@ -2165,6 +2165,38 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/updatematerialinfo1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+     
+                .input('color', sql.NVarChar, req.body.color)
+                .input('thickness', sql.NVarChar, req.body.thickness)
+                .input('adhesionstrength', sql.NVarChar, req.body.adhesionstrength)
+        
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    "  update  "+
+                    " materialinfoinformation "+
+                    " set "+
+                    " color=@color,thickness=@thickness,adhesionstrength=@adhesionstrength where id=@id")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/insertmaterialinfo', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
