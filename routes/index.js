@@ -2023,6 +2023,206 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinformation1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('customerinitial', sql.NVarChar, req.body.customerinitial)
+
+                .query(
+                    "SELECT " +
+                    "     id,codenumber,materialname, " +
+                    "     width,length,usewidth, " +
+                    "     CASE  " +
+                    "         WHEN unit = '￦' THEN CEILING(rollprice / width / length * 1000)  " +
+                    "         WHEN unit = '$' THEN FORMAT(rollprice / width / length * 1000, 'N4') " +
+                    "         WHEN unit = '￥' THEN CEILING(rollprice / width / length * 1000)  " +
+                    "     END AS sqmprice, " +
+                    "     rollprice, " +
+                    "     unit,num,manufacterer,supplier,usagecategory,typecategory,companycategory,materialtype,color,thickness,adhesionstrength,adhesive,fabricweight,requester,modificationdate,registrationreason,customer,modelname " +
+                    " FROM " +
+                    "     materialinfoinformation")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatematerialinfo', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('usewidth', sql.Float, req.body.usewidth)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('num', sql.Float, req.body.num)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('usagecategory', sql.NVarChar, req.body.usagecategory)
+                .input('typecategory', sql.NVarChar, req.body.typecategory)
+                .input('companycategory', sql.NVarChar, req.body.companycategory)
+                .input('materialtype', sql.NVarChar, req.body.materialtype)
+                .input('color', sql.NVarChar, req.body.color)
+                .input('thickness', sql.NVarChar, req.body.thickness)
+                .input('adhesionstrength', sql.NVarChar, req.body.adhesionstrength)
+                .input('adhesive', sql.NVarChar, req.body.adhesive)
+                .input('fabricweight', sql.NVarChar, req.body.fabricweight)
+                .input('requester', sql.NVarChar, req.body.requester)
+                .input('modificationdate', sql.NVarChar, req.body.modificationdate)
+                .input('registrationreason', sql.NVarChar, req.body.registrationreason)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    " update " +
+                    " materialinfoinformation " +
+                    " set  " +
+                    " materialname=@materialname, " +
+                    " width=@width, " +
+                    " length=@length, " +
+                    " usewidth=@usewidth, " +
+                    " rollprice=@rollprice, " +
+                    " unit=@unit, " +
+                    " num=@num, " +
+                    " manufacterer=@manufacterer, " +
+                    " supplier=@supplier, " +
+                    " usagecategory=@usagecategory, " +
+                    " typecategory=@typecategory, " +
+                    " companycategory=@companycategory, " +
+                    " materialtype=@materialtype, " +
+                    " color=@color, " +
+                    " thickness=@thickness, " +
+                    " adhesionstrength=@adhesionstrength, " +
+                    " adhesive=@adhesive, " +
+                    " fabricweight=@fabricweight, " +
+                    " requester=@requester, " +
+                    " modificationdate=@modificationdate, " +
+                    " registrationreason=@registrationreason, " +
+                    " customer=@customer, " +
+                    " modelname=@modelname where id=@id")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/insertmaterialinfo', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('usewidth', sql.Float, req.body.usewidth)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('num', sql.Float, req.body.num)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('usagecategory', sql.NVarChar, req.body.usagecategory)
+                .input('typecategory', sql.NVarChar, req.body.typecategory)
+                .input('companycategory', sql.NVarChar, req.body.companycategory)
+                .input('materialtype', sql.NVarChar, req.body.materialtype)
+                .input('color', sql.NVarChar, req.body.color)
+                .input('thickness', sql.NVarChar, req.body.thickness)
+                .input('adhesionstrength', sql.NVarChar, req.body.adhesionstrength)
+                .input('adhesive', sql.NVarChar, req.body.adhesive)
+                .input('fabricweight', sql.NVarChar, req.body.fabricweight)
+                .input('requester', sql.NVarChar, req.body.requester)
+                .input('modificationdate', sql.NVarChar, req.body.modificationdate)
+                .input('registrationreason', sql.NVarChar, req.body.registrationreason)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+
+                .query(
+                    " INSERT INTO materialinfoinformation ( " +
+                    "   materialname, " +
+                    "   width, " +
+                    "   length, " +
+                    "   usewidth, " +
+                    "   rollprice, " +
+                    "   unit, " +
+                    "   num, " +
+                    "   manufacterer, " +
+                    "   supplier, " +
+                    "   usagecategory, " +
+                    "   typecategory, " +
+                    "   companycategory, " +
+                    "   materialtype, " +
+                    "   color, " +
+                    "   thickness, " +
+                    "   adhesionstrength, " +
+                    "   adhesive, " +
+                    "   fabricweight, " +
+                    "   requester, " +
+                    "   modificationdate, " +
+                    "   registrationreason, " +
+                    "   customer, " +
+                    "   modelname " +
+                    ") VALUES ( " +
+                    "   @materialname, " +
+                    "   @width, " +
+                    "   @length, " +
+                    "   @usewidth, " +
+                    "   @rollprice, " +
+                    "   @unit, " +
+                    "   @num, " +
+                    "   @manufacterer, " +
+                    "   @supplier, " +
+                    "   @usagecategory, " +
+                    "   @typecategory, " +
+                    "   @companycategory, " +
+                    "   @materialtype, " +
+                    "   @color, " +
+                    "   @thickness," +
+                    "   @adhesionstrength," +
+                    "   @adhesive, " +
+                    "   @fabricweight, " +
+                    "   @requester, " +
+                    "   @modificationdate, " +
+                    "   @registrationreason, " +
+                    "   @customer, " +
+                    "   @modelname) ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectmaterialinformation', function (req, res) {
             res.setHeader('Access-Control-Allow-Origin', '*');
             const { page, per_page } = req.body;
@@ -5294,9 +5494,10 @@ module.exports = function (app) {
             return pool.request()
 
                 .input('id', sql.Int, req.body.id)
+                .input('lotno', sql.NVarChar, req.body.lotno)
 
                 .query(
-                    "update orderlist set planstatus='true' where lotno=@lotno and  ")
+                    "update orderlist set planstatus='true' where lotno=@lotno")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -6706,11 +6907,14 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
-                .input('materialname', sql.NVarChar, req.body.materialname)
-
-
+                .input('materialname', sql.NVarChar, '%' + req.body.materialname + '%')
                 .query(
-                    "SELECT supplier FROM materialinfoinformation group by supplier order by supplier asc")
+                    "SELECT supplier " +
+                    "FROM materialinfoinformation  " +
+                    "WHERE supplier LIKE @materialname  " +
+                    "GROUP BY supplier  " +
+                    "ORDER BY supplier ASC;"
+                )
                 .then(result => {
 
                     res.json(result.recordset);
@@ -8629,7 +8833,7 @@ module.exports = function (app) {
 
 
                 .query(
-                    'update iteminfo set itemprice=@itemprice,class=@class where bomno=@bomno'
+                    'update vntiteminfo set itemprice=@itemprice,class=@class where bomno=@bomno'
                 )
                 .then(result => {
 

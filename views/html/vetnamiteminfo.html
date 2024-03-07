@@ -203,7 +203,7 @@
             <input type="text" id="search" placeholder="검색어를 입력하세요...">
             <i class="fas fa-search search-icon"></i>
         </div>
-        <button class="new-registration-button" onclick="openModal()">신규등록</button>
+        <!-- <button class="new-registration-button" onclick="openModal()">신규등록</button> -->
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
 
     </div>
@@ -337,7 +337,7 @@
                                 // Return the original value if it's not a valid number
                                 return params.value;
                             },
-                           
+
                             width: 100
                         },
 
@@ -346,9 +346,9 @@
                             headerName: "원가(￦)",
                             filter: true,
                             valueFormatter: formatCost,
-                           width: 100 // Align cell content to the right
+                            width: 100 // Align cell content to the right
                         },
-                        { field: "costPriceRatio", headerName: "재료비율(%)", filter: true,  width: 100 },
+                        { field: "costPriceRatio", headerName: "재료비율(%)", filter: true, width: 100 },
 
 
                     ],
@@ -430,6 +430,52 @@
         }
         function onBtnExport() {
             gridApi.exportDataAsCsv();
+        }
+        function saveOrEditForm() {
+            Swal.fire({
+                icon: 'info',
+                title: '수정',
+                text: '단가 정보를 수정 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updateiteminfoitemprice1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "bomno": $('#bomno').val(),
+                            "class": $('#class').val(),
+                            "itemprice": $('#itemprice').val(),
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+
+
+                    $('#myModal').fadeOut();
+                    $('#overlay').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '수정 완료',
+                        text: '단가 정보가 수정 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loadData()
+                        }
+                    });
+                }
+            });
         }
     </script>
 </body>
