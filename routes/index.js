@@ -2058,6 +2058,41 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinformation2', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('customerinitial', sql.NVarChar, req.body.customerinitial)
+
+                .query(
+                    "SELECT " +
+                    "     id,codenumber,materialname, " +
+                    "     width,length,usewidth, " +
+                    "     CASE  " +
+                    "         WHEN unit = '￦' THEN CEILING(rollprice / width / length * 1000)  " +
+                    "         WHEN unit = '$' THEN FORMAT(rollprice / width / length * 1000, 'N4') " +
+                    "         WHEN unit = '￥' THEN CEILING(rollprice / width / length * 1000)  " +
+                    "     END AS sqmprice, " +
+                    "     rollprice, " +
+                    "     unit,num,manufacterer,supplier,usagecategory,typecategory,companycategory,materialtype,color,thickness,adhesionstrength,adhesive,fabricweight,requester,modificationdate,registrationreason,customer,modelname " +
+                    " FROM " +
+                    "     materialinfoinformation where inspection='y'")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/updatematerialinfo', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
