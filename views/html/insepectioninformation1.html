@@ -200,14 +200,14 @@
     <div class="overlay" id="overlay"></div>
 
     <div class="menu-title" style="width:100%;">
-        <i class="fas fa-box"></i>자재 TDS 정보
+        <i class="fas fa-box"></i>수입검사 대기 항목
     </div>
     <div class="search-container">
         <label for="search" class="search-label"> 검색 :</label>
         <div class="search-input-wrapper">
             <input type="text" id="search" placeholder="검색어를 입력 후 ENTER 누르세요..." onkeypress="handleKeyPress(event)"
                 autocomplete="off">
-            <i class="fas fa-search search-icon" ></i>
+            <i class="fas fa-search search-icon"></i>
         </div>
         <!-- <button class="new-registration-button" onclick="openModal()">신규등록</button> -->
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
@@ -310,16 +310,15 @@
                 const gridOptions = {
                     columnDefs: [
 
-                        { field: "codenumber", headerName: "품목코드", filter: true },
+                        { field: "date", headerName: "입고날짜", filter: true },
                         { field: "materialname", headerName: "자재명", filter: true },
-                        { field: "width", headerName: "자재폭(mm)", filter: true, valueFormatter: numberWithCommas },
-                        { field: "length", headerName: "길이(M)", filter: true, valueFormatter: numberWithCommas },
-                        { field: "manufacterer", headerName: "제조사", filter: true },
-                        { field: "supplier", headerName: "공급사", filter: true },
-                        { field: "materialtype", headerName: "유형", filter: true },
-                        { field: "color", headerName: "색상", filter: true },
-                        { field: "thickness", headerName: "두께(㎛)", filter: true },
-                        { field: "adhesionstrength", headerName: "점착력", filter: true },
+                        { field: "lotno", headerName: "자재LOT", filter: true },
+                        { field: "manufacturedate", headerName: "제조일자", filter: true },
+                        { field: "expirationdate", headerName: "만료일자", filter: true },
+                        { field: "materialwidth", headerName: "자재폭", filter: true },
+                        { field: "roll", headerName: "ROLL", filter: true },
+                        { field: "inspection", headerName: "Y/N", filter: true },
+
                     ],
                     autoSizeStrategy: {
                         type: 'fitGridWidth',
@@ -328,35 +327,35 @@
                     rowHeight: 45,
                     enableFilter: true,
                     rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
-                    onRowDoubleClicked: function (params) {
-                        $('#materialname-input').val(params.data.materialname);
-                        $('#width-input').val(params.data.width);
-                        $('#length-input').val(params.data.length);
-                        $('#usewidth-input').val(params.data.usewidth);
-                        $('#rollprice-input').val(params.data.rollprice);
-                        $('#unit-input').val(params.data.unit);
-                        $('#manufacterer-input').val(params.data.manufacterer);
-                        $('#supplier-input').val(params.data.supplier);
-                        $('#materialtype-input').val(params.data.materialtype);
-                        $('#usagecategory-input').val(params.data.usagecategory);
-                        $('#typecategory-input').val(params.data.typecategory);
-                        $('#companycategory-input').val(params.data.companycategory);
-                        $('#color-input').val(params.data.color);
-                        $('#thickness-input').val(params.data.thickness);
-                        $('#adhesionstrength-input').val(params.data.adhesionstrength);
-                        $('#adhesive-input').val(params.data.adhesive);
-                        $('#fabricweight-input').val(params.data.fabricweight);
-                        $('#requester-input').val(params.data.requester);
-                        $('#modificationdate-input').val(params.data.modificationdate);
-                        $('#registrationreason-input').val(params.data.registrationreason);
-                        $('#customer-input').val(params.data.customer);
-                        $('#modelname-input').val(params.data.modelname);
-                        $('#id-input').val(params.data.id);
+                    // onRowDoubleClicked: function (params) {
+                    //     $('#materialname-input').val(params.data.materialname);
+                    //     $('#width-input').val(params.data.width);
+                    //     $('#length-input').val(params.data.length);
+                    //     $('#usewidth-input').val(params.data.usewidth);
+                    //     $('#rollprice-input').val(params.data.rollprice);
+                    //     $('#unit-input').val(params.data.unit);
+                    //     $('#manufacterer-input').val(params.data.manufacterer);
+                    //     $('#supplier-input').val(params.data.supplier);
+                    //     $('#materialtype-input').val(params.data.materialtype);
+                    //     $('#usagecategory-input').val(params.data.usagecategory);
+                    //     $('#typecategory-input').val(params.data.typecategory);
+                    //     $('#companycategory-input').val(params.data.companycategory);
+                    //     $('#color-input').val(params.data.color);
+                    //     $('#thickness-input').val(params.data.thickness);
+                    //     $('#adhesionstrength-input').val(params.data.adhesionstrength);
+                    //     $('#adhesive-input').val(params.data.adhesive);
+                    //     $('#fabricweight-input').val(params.data.fabricweight);
+                    //     $('#requester-input').val(params.data.requester);
+                    //     $('#modificationdate-input').val(params.data.modificationdate);
+                    //     $('#registrationreason-input').val(params.data.registrationreason);
+                    //     $('#customer-input').val(params.data.customer);
+                    //     $('#modelname-input').val(params.data.modelname);
+                    //     $('#id-input').val(params.data.id);
 
-                        $('#savebutton').text('수정')
-                        document.getElementById('modal').style.display = 'block';
-                        document.getElementById('overlay').style.display = 'block';
-                    }
+                    //     $('#savebutton').text('수정')
+                    //     document.getElementById('modal').style.display = 'block';
+                    //     document.getElementById('overlay').style.display = 'block';
+                    // }
                 }; 100
 
                 const gridDiv = document.querySelector('#myGrid');
@@ -417,7 +416,7 @@
         function loadData() {
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectmaterialinformation2',
+                url: server + '/api/selectwaitinspection',
                 dataType: 'json',
                 success: function (data) {
                     hideLoadingSpinner();

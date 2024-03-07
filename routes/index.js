@@ -2197,6 +2197,52 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectwaitinspection', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+     
+             
+
+                .query(
+                    " SELECT "+
+                    "     MI.date, "+
+                    "     MI.materialname, "+
+                    "     MI.lotno, "+
+                    "     MI.manufacturedate, "+
+                    "     MI.expirationdate, "+
+                    "     MI.materialwidth, "+
+                    "     SUM(MI.roll) AS roll, "+
+                    "     MII.inspection "+
+                    
+                    " FROM "+
+                    "     materialinput MI "+
+                    " JOIN "+
+                    "     materialinfoinformation MII ON MI.materialname = MII.materialname "+
+                    " GROUP BY "+
+                    "     MI.materialname, "+
+                    "     MII.inspection, "+
+                    "     MI.lotno, "+
+                    "     MI.manufacturedate, "+
+                    "     MI.expirationdate, "+
+                    "     MI.date, "+
+                    "     MI.materialwidth;")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/insertmaterialinfo', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
