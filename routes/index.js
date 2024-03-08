@@ -2075,7 +2075,7 @@ module.exports = function (app) {
                     "         WHEN unit = '￥' THEN CEILING(rollprice / width / length * 1000)  " +
                     "     END AS sqmprice, " +
                     "     rollprice, " +
-                    "     unit,num,manufacterer,supplier,usagecategory,typecategory,companycategory,materialtype,color,thickness,adhesionstrength,adhesive,fabricweight,requester,modificationdate,registrationreason,customer,modelname,adhesionstrength1 " +
+                    "     unit,num,manufacterer,supplier,usagecategory,typecategory,companycategory,materialtype,color,thickness,adhesionstrength,adhesive,fabricweight,requester,modificationdate,registrationreason,customer,modelname,adhesionstrength1,adhesionstrength2 " +
                     " FROM " +
                     "     materialinfoinformation where inspection='y'")
 
@@ -2170,19 +2170,20 @@ module.exports = function (app) {
 
 
             return pool.request()
-     
+
                 .input('color', sql.NVarChar, req.body.color)
                 .input('thickness', sql.NVarChar, req.body.thickness)
                 .input('adhesionstrength', sql.NVarChar, req.body.adhesionstrength)
                 .input('adhesionstrength1', sql.NVarChar, req.body.adhesionstrength1)
-        
+                .input('adhesionstrength2', sql.NVarChar, req.body.adhesionstrength2)
+
                 .input('id', sql.Int, req.body.id)
 
                 .query(
-                    "  update  "+
-                    " materialinfoinformation "+
-                    " set "+
-                    " color=@color,thickness=@thickness,adhesionstrength=@adhesionstrength,adhesionstrength1=@adhesionstrength1 where id=@id")
+                    "  update  " +
+                    " materialinfoinformation " +
+                    " set " +
+                    " color=@color,thickness=@thickness,adhesionstrength=@adhesionstrength,adhesionstrength1=@adhesionstrength1,adhesionstrength2=@adhesionstrength2 where id=@id")
 
                 .then(result => {
 
@@ -2203,33 +2204,33 @@ module.exports = function (app) {
 
 
             return pool.request()
-     
-             
+
+
 
                 .query(
-                    " SELECT "+
-                    "     MI.date, "+
-                    "     MI.materialname, "+
-                    "     MI.lotno, "+
-                    "     MI.manufacturedate, "+
-                    "     MI.expirationdate, "+
-                    "     MI.materialwidth, "+
-                    "     SUM(MI.roll) AS roll, "+
-                    "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,thickness "+
-                    
-                    " FROM "+
-                    "     materialinput MI "+
-                    " JOIN "+
-                    "     materialinfoinformation MII ON MI.materialname = MII.materialname "+
-                    " GROUP BY "+
-                    "     MI.materialname, "+
-                    "     MII.inspection, "+
-                    "     MI.lotno, "+
-                    "     MI.manufacturedate, "+
-                    "     MI.expirationdate, "+
-                    "     MI.date, "+
-                    "     MI.materialwidth, "+
-                    "     MII.adhesionstrength, "+
+                    " SELECT " +
+                    "     MI.date, " +
+                    "     MI.materialname, " +
+                    "     MI.lotno, " +
+                    "     MI.manufacturedate, " +
+                    "     MI.expirationdate, " +
+                    "     MI.materialwidth, " +
+                    "     SUM(MI.roll) AS roll, " +
+                    "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,thickness " +
+
+                    " FROM " +
+                    "     materialinput MI " +
+                    " JOIN " +
+                    "     materialinfoinformation MII ON MI.materialname = MII.materialname " +
+                    " GROUP BY " +
+                    "     MI.materialname, " +
+                    "     MII.inspection, " +
+                    "     MI.lotno, " +
+                    "     MI.manufacturedate, " +
+                    "     MI.expirationdate, " +
+                    "     MI.date, " +
+                    "     MI.materialwidth, " +
+                    "     MII.adhesionstrength, " +
                     "     MII.adhesionstrength1, thickness")
 
                 .then(result => {
