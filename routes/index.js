@@ -2215,7 +2215,7 @@ module.exports = function (app) {
                     "     MI.expirationdate, "+
                     "     MI.materialwidth, "+
                     "     SUM(MI.roll) AS roll, "+
-                    "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,fabricweight "+
+                    "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,thickness "+
                     
                     " FROM "+
                     "     materialinput MI "+
@@ -2230,7 +2230,7 @@ module.exports = function (app) {
                     "     MI.date, "+
                     "     MI.materialwidth, "+
                     "     MII.adhesionstrength, "+
-                    "     MII.adhesionstrength1, fabricweight")
+                    "     MII.adhesionstrength1, thickness")
 
                 .then(result => {
 

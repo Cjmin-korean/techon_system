@@ -211,7 +211,7 @@
     <div class="overlay" id="overlay"></div>
 
     <div class="menu-title" style="width:100%;">
-        <i class="fas fa-box"></i>수입검사 대기 항목
+        <i class="fas fa-box"></i>자재 입고등록
     </div>
     <div class="search-container">
         <label for="search" class="search-label"> 검색 :</label>
@@ -220,7 +220,7 @@
                 autocomplete="off">
             <i class="fas fa-search search-icon"></i>
         </div>
-        <!-- <button class="new-registration-button" onclick="openModal()">신규등록</button> -->
+        <button class="new-registration-button" onclick="openModal()">신규등록</button>
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
 
     </div>
@@ -232,33 +232,25 @@
     <div id="myGrid" style="height: 80%; width:100%; " class="ag-theme-alpine"></div>
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold;">수입검사</span>
+            <span style="font-weight: bold;"> 원자재 입고</span>
         </div>
 
-        <div class="company-info"> <i class="fas fa-box"></i> 검사준비</div>
-        <div class="modal-content">
-            <b>★ 원단성적서와 같이 자재가 입고되면 , 원단의 최외곽 1바퀴를 제외하고, 30x30cm 이상 크기의 원단을 재단하여 수입검사 시료를 준비한다</b><br>
-
-        </div>
-        <div class="modal-content">
-            <b>★ 수입검사 항목은 하기 기준을 따르며 특수 자재의 경우는 자재업체 성적서 항목 및 기준을 따른다</b><br>
-        </div>
-        <div class="modal-content">
-            <b style="color:red;">★ 수입검사 완료 시료는 수입검사성적서 內 기록 넘버 동일하게 기재하여 3부 보관한다</b>
-        </div>
 
         <div class="divider"></div>
+        <div id="myGrid1" style="height: 40%; width:100%; " class="ag-theme-alpine"></div>
 
         <div class="section-title"><i class="fas fa-box"></i> 자재 품목/TDS 정보</div>
         <div class="modal-content">
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 자재명 :</label>
             <input type="text" id="materialname-input" name="color1"
-                style="margin-left: 10px; display: inline-block; width: 250px; font-weight: bold;" autocomplete="off" readonly>
+                style="margin-left: 10px; display: inline-block; width: 250px; font-weight: bold;" autocomplete="off"
+                readonly>
             <label for="color1" style="margin-left:10px; margin-top: 6px; ">● LOTNO :</label>
             <input type="text" id="lotno-input" name="color1"
-                style="margin-left: 10px; display: inline-block; width: 250px; font-weight: bold;" autocomplete="off" readonly>
+                style="margin-left: 10px; display: inline-block; width: 250px; font-weight: bold;" autocomplete="off"
+                readonly>
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 (㎛):</label>
-            <input type="text" id="thickness-input" name="color1"
+            <input type="text" id="fabricweight-input" name="color1"
                 style="margin-left: 10px; display: inline-block; width: 150px; font-weight: bold; text-align: center;"
                 autocomplete="off" readonly>
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 점착력 내측 (gf/25mm):</label>
@@ -308,27 +300,6 @@
 
             </table>
         </div>
-        <div class="divider"></div>
-        <div class="section-title"><i class="fas fa-info-circle"></i> 두께 DATA ((㎛))</div>
-        <div class="modal-content">
-            <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA1:</label>
-            <input type="text" id="adhesionstrength1-input" name="color1"
-                style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
-            <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA1:</label>
-            <input type="text" id="adhesionstrength2-input" name="color1"
-                style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
-            <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA1:</label>
-            <input type="text" id="adhesionstrength3-input" name="color1"
-                style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
-            <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA4:</label>
-            <input type="text" id="adhesionstrength4-input" name="color1"
-                style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
-            <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA5:</label>
-            <input type="text" id="adhesionstrength5-input" name="color1"
-                style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
-
-        </div>
-
         <div class="divider"></div>
         <div class="section-title"><i class="fas fa-info-circle"></i> 측정 DATA (내측) 정보 (단위 :gf/25mm)</div>
         <div class="modal-content">
@@ -401,6 +372,7 @@
             showLoadingSpinner(); // Show loading spinner on page load
             setTimeout(function () {
                 initializeGrid();
+                initializeGrid1();
             }, 1500);
         });
 
@@ -410,13 +382,15 @@
                     columnDefs: [
 
                         { field: "date", headerName: "입고날짜", filter: true },
-                        { field: "materialname", headerName: "자재명", filter: true },
-                        { field: "lotno", headerName: "자재LOT", filter: true },
-                        { field: "manufacturedate", headerName: "제조일자", filter: true },
-                        { field: "expirationdate", headerName: "만료일자", filter: true },
-                        { field: "materialwidth", headerName: "자재폭", filter: true },
-                        { field: "roll", headerName: "ROLL", filter: true },
-                        { field: "inspection", headerName: "Y/N", filter: true },
+                        { field: "materialname", headerName: "입고날짜", filter: true },
+                        { field: "codenumber", headerName: "입고날짜", filter: true },
+                        { field: "lotno", headerName: "입고날짜", filter: true },
+                        { field: "manufacturedate", headerName: "입고날짜", filter: true },
+                        { field: "expirationdate", headerName: "입고날짜", filter: true },
+                        { field: "materialwidth", headerName: "입고날짜", filter: true },
+                        { field: "quantity", headerName: "입고날짜", filter: true },
+                        { field: "roll", headerName: "입고날짜", filter: true },
+
 
                     ],
                     autoSizeStrategy: {
@@ -431,7 +405,7 @@
                         $('#lotno-input').val(params.data.lotno);
                         $('#adhesionstrength-input').val(params.data.adhesionstrength);
                         $('#adhesionstrength1-input').val(params.data.adhesionstrength1);
-                        $('#thickness-input').val(params.data.thickness);
+                        $('#fabricweight-input').val(params.data.fabricweight);
 
 
                         $('#savebutton').text('검사완료')
@@ -444,6 +418,40 @@
                 gridApi = agGrid.createGrid(gridDiv, gridOptions);
 
                 loadData();
+            } else {
+            }
+        }
+        function initializeGrid1() {
+            if (typeof agGrid !== 'undefined') {
+                const gridOptions = {
+                    columnDefs: [
+
+                        { field: "date", headerName: "입고날짜", filter: true },
+                        { field: "materialname", headerName: "입고날짜", filter: true },
+                        { field: "codenumber", headerName: "입고날짜", filter: true },
+                        { field: "lotno", headerName: "입고날짜", filter: true },
+                        { field: "manufacturedate", headerName: "입고날짜", filter: true },
+                        { field: "expirationdate", headerName: "입고날짜", filter: true },
+                        { field: "materialwidth", headerName: "입고날짜", filter: true },
+                        { field: "quantity", headerName: "입고날짜", filter: true },
+                        { field: "roll", headerName: "입고날짜", filter: true },
+
+
+                    ],
+                    autoSizeStrategy: {
+                        type: 'fitGridWidth',
+                        defaultMinWidth: 150
+                    },
+                    rowHeight: 45,
+                    enableFilter: true,
+                    rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
+
+                }; 100
+
+                const gridDiv = document.querySelector('#myGrid1');
+                gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+                loadData1();
             } else {
             }
         }
@@ -498,7 +506,7 @@
         function loadData() {
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectwaitinspection',
+                url: server + '/api/selectmaterialinputinformation',
                 dataType: 'json',
                 success: function (data) {
                     hideLoadingSpinner();
@@ -506,7 +514,17 @@
                 },
             });
         }
-
+        function loadData1() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectmaterialinputinformation',
+                dataType: 'json',
+                success: function (data1) {
+                    hideLoadingSpinner();
+                    gridApi1.setRowData(data1);
+                },
+            });
+        }
         function showLoadingSpinner() {
             $('#loadingSpinner').show();
         }
