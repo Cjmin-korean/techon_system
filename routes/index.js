@@ -2075,7 +2075,7 @@ module.exports = function (app) {
                     "         WHEN unit = '￥' THEN CEILING(rollprice / width / length * 1000)  " +
                     "     END AS sqmprice, " +
                     "     rollprice, " +
-                    "     unit,num,manufacterer,supplier,usagecategory,typecategory,companycategory,materialtype,color,thickness,adhesionstrength,adhesive,fabricweight,requester,modificationdate,registrationreason,customer,modelname " +
+                    "     unit,num,manufacterer,supplier,usagecategory,typecategory,companycategory,materialtype,color,thickness,adhesionstrength,adhesive,fabricweight,requester,modificationdate,registrationreason,customer,modelname,adhesionstrength1 " +
                     " FROM " +
                     "     materialinfoinformation where inspection='y'")
 
@@ -2174,6 +2174,7 @@ module.exports = function (app) {
                 .input('color', sql.NVarChar, req.body.color)
                 .input('thickness', sql.NVarChar, req.body.thickness)
                 .input('adhesionstrength', sql.NVarChar, req.body.adhesionstrength)
+                .input('adhesionstrength1', sql.NVarChar, req.body.adhesionstrength1)
         
                 .input('id', sql.Int, req.body.id)
 
@@ -2181,7 +2182,7 @@ module.exports = function (app) {
                     "  update  "+
                     " materialinfoinformation "+
                     " set "+
-                    " color=@color,thickness=@thickness,adhesionstrength=@adhesionstrength where id=@id")
+                    " color=@color,thickness=@thickness,adhesionstrength=@adhesionstrength,adhesionstrength1=@adhesionstrength1 where id=@id")
 
                 .then(result => {
 
