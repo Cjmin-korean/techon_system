@@ -292,7 +292,8 @@
                     <td>오염</td>
                     <td>사용상 문제 없을것</td>
                     <td rowspan="4">육안</td>
-                    <td rowspan="4"><input type="checkbox" style="width:20px; height: 20px; cursor: pointer;"> </td>
+                    <td rowspan="4"><input type="checkbox" id="first-input"
+                            style="width:20px; height: 20px; cursor: pointer;"> </td>
 
                 </tr>
                 <tr>
@@ -314,19 +315,19 @@
         <div class="section-title"><i class="fas fa-info-circle"></i> 두께 DATA ((㎛))</div>
         <div class="modal-content">
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA1:</label>
-            <input type="text" id="adhesionstrength1-input" name="color1"
+            <input type="text" id="thickness1" name="color1"
                 style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA2:</label>
-            <input type="text" id="adhesionstrength2-input" name="color1"
+            <input type="text" id="thickness2" name="color1"
                 style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA3:</label>
-            <input type="text" id="adhesionstrength3-input" name="color1"
+            <input type="text" id="thickness3" name="color1"
                 style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA4:</label>
-            <input type="text" id="adhesionstrength4-input" name="color1"
+            <input type="text" id="thickness4" name="color1"
                 style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 두께 DATA5:</label>
-            <input type="text" id="adhesionstrength5-input" name="color1"
+            <input type="text" id="thickness5" name="color1"
                 style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
 
         </div>
@@ -377,8 +378,12 @@
         <div class="modal-content">
             <label for="color1" style="margin-left:10px; margin-top: 6px;">● 결과 판정:</label>
             <input type="text" id="result-input" name="color1"
-                style="margin-left: 10px; display: inline-block; width: 150px;" autocomplete="off">
+                style="margin-left: 10px; display: inline-block; width: 150px; text-align: center;" autocomplete="off">
 
+            <button class="new-registration" onclick="calculateRanges()"
+                style="height: 50px; width:100px; background-color: #3498db; margin-top: -10px;">검사확인</button>
+            <input type="text" id="a-input" style="width:100px; visibility: hidden;">
+            <input type="text" id="b-input" style="width:100px; visibility: hidden;">
         </div>
 
 
@@ -413,6 +418,82 @@
                 initializeGrid();
             }, 1500);
         });
+        function calculateRanges() {
+            var firstInput = document.getElementById('first-input');
+
+            if (!firstInput.checked) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '누락',
+                    text: '외관검사 결과 확인바랍니다',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                });
+                return;
+            }
+
+            var input = document.getElementById('thickness-input').value;
+            var match = input.match(/^(\d+(?:\.\d+)?)±(\d+(?:\.\d+)?)$/);
+
+            if (match) {
+                var A = parseFloat(match[1]); // A 값 추출
+                var B = parseFloat(match[2]); // B 값 추출
+
+                // A-B와 A+B를 계산
+                var A_minus_B = A - B;
+                var A_plus_B = A + B;
+
+                // 결과를 입력 요소에 할당
+                document.getElementById('a-input').value = A_minus_B;
+                document.getElementById('b-input').value = A_plus_B;
+
+                var overallResult = 'OK'; // 전체 결과 초기값 설정
+
+                // 각각의 입력란에 대해 검사 수행
+                for (var i = 1; i <= 3; i++) {
+                    var thicknessInput = document.getElementById('thickness' + i + '');
+                    var resultInput = document.getElementById('result-input');
+
+                    var thicknessValue = parseFloat(thicknessInput.value);
+                    if (!isNaN(thicknessValue) && thicknessValue >= A_minus_B && thicknessValue <= A_plus_B) {
+                        resultInput.value = 'OK';
+                        resultInput.style.backgroundColor = 'blue'; // 배경색을 빨간색으로 변경
+                        resultInput.style.color = 'white'; // 배경색을 빨간색으로 변경
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'OK',
+                            text: '검사 판정결과 합격입니다.'
+                        });
+                    } else {
+                        resultInput.value = 'NG';
+                        resultInput.style.backgroundColor = 'red'; // 배경색을 빨간색으로 변경
+                        resultInput.style.color = 'white'; // 배경색을 빨간색으로 변경
+                        overallResult = 'NG'; // 전체 결과를 NG로 설정
+                    }
+                }
+
+                // 전체 결과를 설정
+                document.getElementById('result-input').value = overallResult;
+
+                if (overallResult === 'NG') {
+                    Swal.fire({
+
+                        icon: 'error',
+                        title: 'NG',
+                        text: '하나 이상의 두께검사 판정결과가 불합격입니다.'
+                    });
+                }
+            } else {
+                // 올바르지 않은 입력 형식에 대한 처리
+                alert('올바른 형식의 입력을 사용하세요. 예: A±B');
+            }
+        }
+
+
+
+
+
 
         function initializeGrid() {
             if (typeof agGrid !== 'undefined') {
