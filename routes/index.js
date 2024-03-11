@@ -2267,30 +2267,65 @@ module.exports = function (app) {
 
 
                 .query(
-                    " 					SELECT  " +
-                    "     MI.date,  " +
-                    "     MI.materialname,  " +
-                    "     MI.lotno,  " +
-                    "     MI.manufacturedate,  " +
-                    "     MI.expirationdate,  " +
-                    "     MI.materialwidth,  " +
-                    "     SUM(MI.roll) AS roll,  " +
-                    "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,MII.thickness  ,MII.supplier,MII.manufacterer , MII.materialtype , MII.color " +
-
-                    " FROM   " +
-                    "     materialinput MI   " +
-                    " JOIN   " +
-                    "     materialinfoinformation MII ON MI.materialname = MII.materialname   " +
-                    " GROUP BY  " +
-                    "     MI.materialname,   " +
-                    "     MII.inspection,  " +
-                    "     MI.lotno,  " +
-                    "     MI.manufacturedate,  " +
-                    "     MI.expirationdate,  " +
-                    "     MI.date,  " +
-                    "     MI.materialwidth,  " +
-                    "     MII.adhesionstrength,  " +
-                    "     MII.adhesionstrength1, MII.thickness ,MII.supplier ,MII.manufacterer , MII.materialtype , MII.color")
+                    "SELECT   "+
+                "     MI.date,   "+
+                "     MI.materialname,   "+
+                "     MI.lotno,   "+
+                "     MI.manufacturedate,   "+
+                "     MI.expirationdate,   "+
+                "     MI.materialwidth,   "+
+                "     SUM(MI.roll) AS roll,   "+
+                "     MII.inspection,"+
+                "     MII.adhesionstrength,"+
+                "     MII.adhesionstrength1,"+
+                "     MII.thickness,"+
+                "     MII.supplier,"+
+                "     MII.manufacterer,"+
+                "     MII.materialtype,"+
+                "     MII.color,"+
+                "     MII.thickness11,"+
+                "     MII.thickness12,"+
+                "     MII.thickness13,"+
+                "     MII.adhesionstrength11,"+
+                "     MII.adhesionstrength12,"+
+                "     MII.adhesionstrength13,"+
+                "     MII.adhesionstrength21,"+
+                "     MII.adhesionstrength22,"+
+                "     MII.adhesionstrength23,"+
+                "     MII.adhesionstrength31,"+
+                "     MII.adhesionstrength32,"+
+                "     MII.adhesionstrength33 "+
+                " FROM    "+ 
+                "     materialinput MI    "+
+                " JOIN    "+
+                "     materialinfoinformation MII ON MI.materialname = MII.materialname    "+
+                " GROUP BY   "+
+                "     MI.materialname,    "+
+                "     MII.inspection,   "+
+                "     MI.lotno,   "+
+                "     MI.manufacturedate,   "+
+                "     MI.expirationdate,   "+
+                "     MI.date,   "+
+                "     MI.materialwidth,   "+
+                "     MII.adhesionstrength,   "+
+                "     MII.adhesionstrength1, "+
+                "     MII.thickness, "+
+                "     MII.supplier, "+
+                "     MII.manufacterer,"+
+                "     MII.materialtype, "+
+                "     MII.color, "+
+                "     MII.thickness11, "+
+                "     MII.thickness12, "+
+                "     MII.thickness13, "+
+                "     MII.adhesionstrength11, "+
+                "     MII.adhesionstrength12, "+
+                "     MII.adhesionstrength13, "+
+                "     MII.adhesionstrength21, "+
+                "     MII.adhesionstrength22, "+
+                "     MII.adhesionstrength23, "+
+                "     MII.adhesionstrength31, "+
+                "     MII.adhesionstrength32, "+
+                "     MII.adhesionstrength33")
 
                 .then(result => {
 
