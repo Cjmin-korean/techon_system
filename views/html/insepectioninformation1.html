@@ -272,7 +272,6 @@
 
 
         </div>
-        <div class="divider"></div>
 
 
         <div class="section-title"><i class="fas fa-box"></i> 검사항목 정보</div>
@@ -336,7 +335,7 @@
             <tr>
                 <td>두께</td>
                 <td>두께 Gauge</td>
-                <td>200±20</td>
+                <td id="thickness-input"></td>
                 <td>㎛</td>
                 <td><input type="text" class="inputtext" id="data11"></td>
                 <td><input type="text" class="inputtext" id="data12"></td>
@@ -352,7 +351,7 @@
             <tr>
                 <td>점착력(내측)</td>
                 <td>인장시험기</td>
-                <td>3000↑</td>
+                <td id="adhesionstrength-input"></td>
                 <td>gf/25mm</td>
                 <td><input type="text" class="inputtext" id="data21"></td>
                 <td><input type="text" class="inputtext" id="data22"></td>
@@ -369,7 +368,7 @@
             <tr>
                 <td>점착력(외측)</td>
                 <td>인장시험기</td>
-                <td>3000↑</td>
+                <td id="adhesionstrength1-input"></td>
                 <td>gf/25mm</td>
 
                 <td><input type="text" class="inputtext" id="data31"></td>
@@ -386,7 +385,7 @@
             <tr>
                 <td>이형력(내측)</td>
                 <td>인장시험기</td>
-                <td></td>
+                <td id="adhesionstrength2-input"></td>
                 <td>gf/25mm</td>
 
                 <td><input type="text" class="inputtext" id="data41"></td>
@@ -544,8 +543,12 @@
                         $('#materialname-input').text(params.data.materialname);
                         $('#lotno-input').text(params.data.lotno);
                         $('#materialtype-input').text(params.data.materialtype);
-                        // $('#color-input').text(params.data.color);
+                        $('#color-input').text(params.data.color);
                         $('#roll-input').text(params.data.roll);
+                        $('#thickness-input').text(params.data.thickness);
+                        $('#adhesionstrength-input').text(params.data.adhesionstrength);
+                        $('#adhesionstrength1-input').text(params.data.adhesionstrength1);
+                        $('#adhesionstrength2-input').text(params.data.adhesionstrength2);
 
 
                         $('#savebutton').text('검사완료')
@@ -643,7 +646,8 @@
             var first3Input = document.getElementById('first3-input');
             var first4Input = document.getElementById('first4-input');
 
-            if (!first1Input.checked || !first2Input.checked || !first3Input.checked || !first4Input.checked) {
+            // thicknessInput이 존재하고 값이 있으면 확인
+            if ((!first1Input.checked || !first2Input.checked || !first3Input.checked || !first4Input.checked)) {
                 Swal.fire({
                     icon: 'error',
                     title: '누락',
@@ -653,25 +657,102 @@
                     confirmButtonText: '확인',
                 });
                 return;
+            }
+
+            var thicknessInput = document.getElementById('thickness-input');
+
+            var thicknessText = thicknessInput.innerText || thicknessInput.textContent;
+            if (thicknessText.trim() !== "") {
+                var data11Input = document.getElementById('data11');
+                var data12Input = document.getElementById('data12');
+                var data13Input = document.getElementById('data13');
+
+                if (!data11Input.value.trim() || !data12Input.value.trim() || !data13Input.value.trim()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '누락',
+                        text: '두께 검사 필수 입력항목 확인바랍니다',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: '확인',
+                    });
+                    return;
+                }
+            } else {
 
             }
 
-            var data11Input = document.getElementById('data11');
-            var data12Input = document.getElementById('data12');
-            var data13Input = document.getElementById('data13');
 
+            var adhesionstrengthInput = document.getElementById('adhesionstrength-input');
 
-            if (!data11Input.value.trim() || !data12Input.value.trim() || !data13Input.value.trim()) {
-                Swal.fire({
-                    icon: 'error',
-                    title: '누락',
-                    text: '두께 검사 필수 입력항목 확인바랍니다',
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: '확인',
-                });
-                return;
+            var adhesionstrengthText = adhesionstrengthInput.innerText || adhesionstrengthInput.textContent;
+            if (adhesionstrengthText.trim() !== "") {
+                var data21Input = document.getElementById('data21');
+                var data22Input = document.getElementById('data22');
+                var data23Input = document.getElementById('data23');
+
+                if (!data21Input.value.trim() || !data22Input.value.trim() || !data23Input.value.trim()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '누락',
+                        text: '점착력(내측) 필수 입력항목 확인바랍니다',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: '확인',
+                    });
+                    return;
+                }
+            } else {
+
             }
+
+            var adhesionstrength1Input = document.getElementById('adhesionstrength1-input');
+
+            var adhesionstrength1Text = adhesionstrength1Input.innerText || adhesionstrength1Input.textContent;
+            if (adhesionstrength1Text.trim() !== "") {
+                var data31Input = document.getElementById('data31');
+                var data32Input = document.getElementById('data32');
+                var data33Input = document.getElementById('data33');
+
+                if (!data31Input.value.trim() || !data32Input.value.trim() || !data33Input.value.trim()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '누락',
+                        text: '점착력(외측) 필수 입력항목 확인바랍니다',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: '확인',
+                    });
+                    return;
+                }
+            } else {
+
+            }
+
+            var adhesionstrength2Input = document.getElementById('adhesionstrength2-input');
+
+            var adhesionstrength2Text = adhesionstrength2Input.innerText || adhesionstrength2Input.textContent;
+            if (adhesionstrength2Text.trim() !== "") {
+                var data41Input = document.getElementById('data41');
+                var data42Input = document.getElementById('data42');
+                var data43Input = document.getElementById('data43');
+
+                if (!data41Input.value.trim() || !data42Input.value.trim() || !data43Input.value.trim()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '누락',
+                        text: '점착력(외측) 필수 입력항목 확인바랍니다',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: '확인',
+                    });
+                    return;
+                }
+            } else {
+
+            }
+
+            
             Swal.fire({
                 icon: 'info',
                 title: '검사완료',
