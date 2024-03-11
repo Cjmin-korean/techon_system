@@ -2066,18 +2066,56 @@ module.exports = function (app) {
                 .input('customerinitial', sql.NVarChar, req.body.customerinitial)
 
                 .query(
-                    "SELECT " +
-                    "     id,codenumber,materialname, " +
-                    "     width,length,usewidth, " +
-                    "     CASE  " +
-                    "         WHEN unit = '￦' THEN CEILING(rollprice / width / length * 1000)  " +
-                    "         WHEN unit = '$' THEN FORMAT(rollprice / width / length * 1000, 'N4') " +
-                    "         WHEN unit = '￥' THEN CEILING(rollprice / width / length * 1000)  " +
-                    "     END AS sqmprice, " +
-                    "     rollprice, " +
-                    "     unit,num,manufacterer,supplier,usagecategory,typecategory,companycategory,materialtype,color,thickness,adhesionstrength,adhesive,fabricweight,requester,modificationdate,registrationreason,customer,modelname,adhesionstrength1,adhesionstrength2 " +
-                    " FROM " +
-                    "     materialinfoinformation where inspection='y'")
+
+                    "SELECT   " +
+                    "     id, " +
+                    "     codenumber,  " +
+                    "     materialname,   "+
+                "     width,  " +
+                    "     length,  " +
+                    "     usewidth,   " +
+                    "     CASE    " +
+                    "         WHEN unit = '￦' THEN CEILING(rollprice / width / length * 1000)    " +
+                    "         WHEN unit = '$' THEN FORMAT(rollprice / width / length * 1000, 'N4')   "+
+                "         WHEN unit = '￥' THEN CEILING(rollprice / width / length * 1000)   " +
+                    "     END AS sqmprice,  " +
+                    "     rollprice,  " +
+                    "     unit, " +
+                    "     num, " +
+                    "     manufacterer, " +
+                    "     supplier, " +
+                    "     usagecategory, " +
+                    "     typecategory, " +
+                    "     companycategory, " +
+                    "     materialtype, " +
+                    "     color, " +
+                    "     thickness, " +
+                    "     adhesionstrength, " +
+                    "     adhesive, " +
+                    "     fabricweight, " +
+                    "     requester, " +
+                    "     modificationdate, " +
+                    "     registrationreason, " +
+                    "     customer, " +
+                    "     modelname, " +
+                    "     adhesionstrength1, " +
+                    "     adhesionstrength2, " +
+                    "     thickness11, " +
+                    "     thickness12, " +
+                    "     thickness13,  " +
+                    "     adhesionstrength11, " +
+                    "     adhesionstrength12, " +
+                    "     adhesionstrength13, " +
+                    "     adhesionstrength21, " +
+                    "     adhesionstrength22, " +
+                    "     adhesionstrength23, " +
+                    "     adhesionstrength31, " +
+                    "     adhesionstrength32, " +
+                    "     adhesionstrength33 " +
+                    " FROM  " +
+                    "     materialinfoinformation " +
+                    " WHERE " +
+                    "     inspection = 'y'                 ")
 
                 .then(result => {
 
@@ -2208,30 +2246,30 @@ module.exports = function (app) {
 
 
                 .query(
-                    " 					SELECT  "+
-                "     MI.date,  "+
-                "     MI.materialname,  "+
-                "     MI.lotno,  "+
-                "     MI.manufacturedate,  "+
-                "     MI.expirationdate,  "+
-                "     MI.materialwidth,  "+
-                "     SUM(MI.roll) AS roll,  "+
-                "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,MII.thickness  ,MII.supplier,MII.manufacterer , MII.materialtype , MII.color "+
+                    " 					SELECT  " +
+                    "     MI.date,  " +
+                    "     MI.materialname,  " +
+                    "     MI.lotno,  " +
+                    "     MI.manufacturedate,  " +
+                    "     MI.expirationdate,  " +
+                    "     MI.materialwidth,  " +
+                    "     SUM(MI.roll) AS roll,  " +
+                    "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,MII.thickness  ,MII.supplier,MII.manufacterer , MII.materialtype , MII.color " +
 
-                " FROM   "+
-                "     materialinput MI   "+
-                " JOIN   "+
-                "     materialinfoinformation MII ON MI.materialname = MII.materialname   "+
-                " GROUP BY  "+ 
-                "     MI.materialname,   "+
-                "     MII.inspection,  "+
-                "     MI.lotno,  "+
-                "     MI.manufacturedate,  "+
-                "     MI.expirationdate,  "+
-                "     MI.date,  "+
-                "     MI.materialwidth,  "+
-                "     MII.adhesionstrength,  "+
-                "     MII.adhesionstrength1, MII.thickness ,MII.supplier ,MII.manufacterer , MII.materialtype , MII.color")
+                    " FROM   " +
+                    "     materialinput MI   " +
+                    " JOIN   " +
+                    "     materialinfoinformation MII ON MI.materialname = MII.materialname   " +
+                    " GROUP BY  " +
+                    "     MI.materialname,   " +
+                    "     MII.inspection,  " +
+                    "     MI.lotno,  " +
+                    "     MI.manufacturedate,  " +
+                    "     MI.expirationdate,  " +
+                    "     MI.date,  " +
+                    "     MI.materialwidth,  " +
+                    "     MII.adhesionstrength,  " +
+                    "     MII.adhesionstrength1, MII.thickness ,MII.supplier ,MII.manufacterer , MII.materialtype , MII.color")
 
                 .then(result => {
 

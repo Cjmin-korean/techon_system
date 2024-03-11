@@ -193,6 +193,32 @@
         #cancel-button:hover {
             background-color: #297fb8;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        td {
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -222,7 +248,7 @@
     <div id="myGrid" style="height: 80%; width:100%; " class="ag-theme-alpine"></div>
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold;">자재 정보</span>
+            <span style="font-weight: bold;">자재 TDS 정보</span>
         </div>
         <div class="company-info"> <i class="fas fa-box"></i> 자재 SPEC <input type="text" id="id-input"
                 style="visibility: hidden;"></div>
@@ -232,12 +258,12 @@
                 <input type="text" id="materialname-input" name="materialname" readonly>
             </div>
             <div class="modal-column">
-                <label for="width">자재폭:</label>
-                <input type="text" id="width-input" name="width" readonly>
+                <label for="width">품목코드:</label>
+                <input type="text" id="codenumber-input" name="width" readonly>
             </div>
             <div class="modal-column">
-                <label for="length">길이:</label>
-                <input type="text" id="length-input" name="length" readonly>
+                <label for="width">색상:</label>
+                <input type="text" id="color-input" name="width">
             </div>
 
 
@@ -261,11 +287,8 @@
         <div class="divider"></div>
         <div class="section-title"><i class="fas fa-info-circle"></i>SPEC 정보</div>
         <div class="modal-content">
-            <div class="modal-column">
-                <label for="color">색상:</label>
-                <input type="text" id="color-input" name="color">
-            </div>
-            <div class="modal-column">
+
+            <!-- <div class="modal-column">
                 <label for="thickness">두께 (㎛):</label>
                 <input type="text" id="thickness-input" name="thickness"> <button style="background-color: black;"
                     onclick="addPlusMinus()">±</button>
@@ -287,7 +310,53 @@
                 <label for="adhesionstrength">이형력(내측)(gf/25mm):</label>
                 <input type="text" id="adhesionstrength2-input" name="adhesionstrength2"> <button
                     onclick="addPlusMinus3()" style="background-color: black;">±</button>
-            </div>
+            </div> -->
+
+            <table>
+                <tr>
+                    <th style="width:100px;">구분</th>
+                    <th>단위</th>
+                    <th>기준값</th>
+                    <th>공차(-)</th>
+                    <th>공차(+)</th>
+                </tr>
+                <tr>
+                    <td>두께</td>
+                    <td>㎛</td>
+                    <td><input type="text" id="thickness11"></td>
+                    <td><input type="text" id="thickness12"></td>
+                    <td><input type="text" id="thickness13"></td>
+
+                </tr>
+                <tr>
+                    <td>점착력<br>(내측)</td>
+                    <td>gf/25mm</td>
+                    <td><input type="text" id="adhesionstrength11"></td>
+                    <td><input type="text" id="adhesionstrength12"></td>
+                    <td><input type="text" id="adhesionstrength13"></td>
+
+                </tr>
+                <tr>
+                    <td>점착력
+                        <br>(외측)
+                    </td>
+                    <td>gf/25mm</td>
+                    <td><input type="text" id="adhesionstrength21"></td>
+                    <td><input type="text" id="adhesionstrength22"></td>
+                    <td><input type="text" id="adhesionstrength23"></td>
+
+                </tr>
+                <tr>
+                    <td>이형력<br>(내측)</td>
+                    <td>gf/25mm</td>
+                    <td><input type="text" id="adhesionstrength31"></td>
+                    <td><input type="text" id="adhesionstrength32"></td>
+                    <td><input type="text" id="adhesionstrength33"></td>
+
+                </tr>
+
+
+            </table>
 
         </div>
 
@@ -329,16 +398,44 @@
 
                         { field: "codenumber", headerName: "품목코드", filter: true },
                         { field: "materialname", headerName: "자재명", filter: true },
-                        { field: "width", headerName: "자재폭(mm)", filter: true, valueFormatter: numberWithCommas },
-                        { field: "length", headerName: "길이(M)", filter: true, valueFormatter: numberWithCommas },
                         { field: "manufacterer", headerName: "제조사", filter: true },
                         { field: "supplier", headerName: "공급사", filter: true },
                         { field: "materialtype", headerName: "유형", filter: true },
                         { field: "color", headerName: "색상", filter: true },
                         { field: "thickness", headerName: "두께(㎛)", filter: true },
-                        { field: "adhesionstrength", headerName: "점착력(내측))(gf/25mm)", filter: true },
-                        { field: "adhesionstrength1", headerName: "점착력(외측))(gf/25mm)", filter: true },
-                        { field: "adhesionstrength2", headerName: "이형력(내측))(gf/25mm)", filter: true },
+                        {
+                            headerName: '두께(㎛)',
+                            children: [
+                                { field: 'thickness11', headerName: "기준값", filter: true },
+                                { field: 'thickness12', headerName: "공차(-)", filter: true },
+                                { field: 'thickness13', headerName: "공차(+)", filter: true },
+                            ]
+                        },
+                        {
+                            headerName: '점착력(내측)(gf/25mm)',
+                            children: [
+                                { field: 'adhesionstrength11', headerName: "기준값", filter: true },
+                                { field: 'adhesionstrength12', headerName: "공차(-)", filter: true },
+                                { field: 'adhesionstrength13', headerName: "공차(+)", filter: true },
+                            ]
+                        },
+                        {
+                            headerName: '점착력(외측)(gf/25mm)',
+                            children: [
+                                { field: "adhesionstrength21", headerName: "기준값", filter: true },
+                                { field: "adhesionstrength22", headerName: "공차(-)", filter: true },
+                                { field: "adhesionstrength23", headerName: "공차(+)", filter: true },
+                            ]
+                        },
+                        {
+                            headerName: '이형력(내측)(gf/25mm)',
+                            children: [
+                                { field: 'adhesionstrength31', headerName: "기준값", filter: true },
+                                { field: 'adhesionstrength32', headerName: "공차(-)", filter: true },
+                                { field: 'adhesionstrength33', headerName: "공차(+)", filter: true },
+                            ]
+                        },
+                       
                     ],
                     autoSizeStrategy: {
                         type: 'fitGridWidth',
@@ -349,7 +446,7 @@
                     rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
                     onRowDoubleClicked: function (params) {
                         $('#materialname-input').val(params.data.materialname);
-                        $('#width-input').val(params.data.width);
+                        $('#codenumber-input').val(params.data.codenumber);
                         $('#length-input').val(params.data.length);
                         $('#usewidth-input').val(params.data.usewidth);
                         $('#rollprice-input').val(params.data.rollprice);
