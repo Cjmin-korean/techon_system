@@ -2208,30 +2208,30 @@ module.exports = function (app) {
 
 
                 .query(
-                    " SELECT " +
-                    "     MI.date, " +
-                    "     MI.materialname, " +
-                    "     MI.lotno, " +
-                    "     MI.manufacturedate, " +
-                    "     MI.expirationdate, " +
-                    "     MI.materialwidth, " +
-                    "     SUM(MI.roll) AS roll, " +
-                    "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,thickness " +
+                    " 					SELECT  "+
+                "     MI.date,  "+
+                "     MI.materialname,  "+
+                "     MI.lotno,  "+
+                "     MI.manufacturedate,  "+
+                "     MI.expirationdate,  "+
+                "     MI.materialwidth,  "+
+                "     SUM(MI.roll) AS roll,  "+
+                "     MII.inspection ,MII.adhesionstrength ,MII.adhesionstrength1,MII.thickness  ,MII.supplier,MII.manufacterer , MII.materialtype "+
 
-                    " FROM " +
-                    "     materialinput MI " +
-                    " JOIN " +
-                    "     materialinfoinformation MII ON MI.materialname = MII.materialname " +
-                    " GROUP BY " +
-                    "     MI.materialname, " +
-                    "     MII.inspection, " +
-                    "     MI.lotno, " +
-                    "     MI.manufacturedate, " +
-                    "     MI.expirationdate, " +
-                    "     MI.date, " +
-                    "     MI.materialwidth, " +
-                    "     MII.adhesionstrength, " +
-                    "     MII.adhesionstrength1, thickness")
+                " FROM   "+
+                "     materialinput MI   "+
+                " JOIN   "+
+                "     materialinfoinformation MII ON MI.materialname = MII.materialname   "+
+                " GROUP BY  "+ 
+                "     MI.materialname,   "+
+                "     MII.inspection,  "+
+                "     MI.lotno,  "+
+                "     MI.manufacturedate,  "+
+                "     MI.expirationdate,  "+
+                "     MI.date,  "+
+                "     MI.materialwidth,  "+
+                "     MII.adhesionstrength,  "+
+                "     MII.adhesionstrength1, MII.thickness ,MII.supplier ,MII.manufacterer , MII.materialtype")
 
                 .then(result => {
 
