@@ -2070,14 +2070,14 @@ module.exports = function (app) {
                     "SELECT   " +
                     "     id, " +
                     "     codenumber,  " +
-                    "     materialname,   "+
-                "     width,  " +
+                    "     materialname,   " +
+                    "     width,  " +
                     "     length,  " +
                     "     usewidth,   " +
                     "     CASE    " +
                     "         WHEN unit = '￦' THEN CEILING(rollprice / width / length * 1000)    " +
-                    "         WHEN unit = '$' THEN FORMAT(rollprice / width / length * 1000, 'N4')   "+
-                "         WHEN unit = '￥' THEN CEILING(rollprice / width / length * 1000)   " +
+                    "         WHEN unit = '$' THEN FORMAT(rollprice / width / length * 1000, 'N4')   " +
+                    "         WHEN unit = '￥' THEN CEILING(rollprice / width / length * 1000)   " +
                     "     END AS sqmprice,  " +
                     "     rollprice,  " +
                     "     unit, " +
@@ -2210,19 +2210,40 @@ module.exports = function (app) {
             return pool.request()
 
                 .input('color', sql.NVarChar, req.body.color)
-                .input('thickness', sql.NVarChar, req.body.thickness)
-                .input('adhesionstrength', sql.NVarChar, req.body.adhesionstrength)
-                .input('adhesionstrength1', sql.NVarChar, req.body.adhesionstrength1)
-                .input('adhesionstrength2', sql.NVarChar, req.body.adhesionstrength2)
+                .input('thickness11', sql.NVarChar, req.body.thickness11)
+                .input('thickness12', sql.NVarChar, req.body.thickness12)
+                .input('thickness13', sql.NVarChar, req.body.thickness13)
+                .input('adhesionstrength11', sql.NVarChar, req.body.adhesionstrength11)
+                .input('adhesionstrength12', sql.NVarChar, req.body.adhesionstrength12)
+                .input('adhesionstrength13', sql.NVarChar, req.body.adhesionstrength13)
+                .input('adhesionstrength21', sql.NVarChar, req.body.adhesionstrength21)
+                .input('adhesionstrength22', sql.NVarChar, req.body.adhesionstrength22)
+                .input('adhesionstrength23', sql.NVarChar, req.body.adhesionstrength23)
+                .input('adhesionstrength31', sql.NVarChar, req.body.adhesionstrength31)
+                .input('adhesionstrength32', sql.NVarChar, req.body.adhesionstrength32)
+                .input('adhesionstrength33', sql.NVarChar, req.body.adhesionstrength33)
+
 
                 .input('id', sql.Int, req.body.id)
 
                 .query(
-                    "  update  " +
-                    " materialinfoinformation " +
-                    " set " +
-                    " color=@color,thickness=@thickness,adhesionstrength=@adhesionstrength,adhesionstrength1=@adhesionstrength1,adhesionstrength2=@adhesionstrength2 where id=@id")
-
+                    " UPDATE materialinfoinformation  " +
+                    " SET  " +
+                    "     color = @color, " +
+                    "     thickness11 = @thickness11, " +
+                    "     thickness12 = @thickness12, " +
+                    "     thickness13 = @thickness13, " +
+                    "     adhesionstrength11 = @adhesionstrength11, " +
+                    "     adhesionstrength12 = @adhesionstrength12, " +
+                    "     adhesionstrength13 = @adhesionstrength13, " +
+                    "     adhesionstrength21 = @adhesionstrength21, " +
+                    "     adhesionstrength22 = @adhesionstrength22, " +
+                    "     adhesionstrength23 = @adhesionstrength23, " +
+                    "     adhesionstrength31 = @adhesionstrength31, " +
+                    "     adhesionstrength32 = @adhesionstrength32, " +
+                    "     adhesionstrength33 = @adhesionstrength33 " +
+                    " WHERE " +
+                    "     id = @id")
                 .then(result => {
 
 
