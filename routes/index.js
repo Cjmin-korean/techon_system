@@ -4591,11 +4591,40 @@ module.exports = function (app) {
 
 
             return pool.request()
-                .input('id', sql.NVarChar, req.body.id)
+                .input('id', sql.Int, req.body.id)
 
                 .query(
                     "delete from mr1 where id=@id "
 
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatemr1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('id', sql.Int, req.body.id)
+                .input('a', sql.NVarChar, req.body.a)
+                .input('b', sql.NVarChar, req.body.b)
+                .input('c', sql.NVarChar, req.body.c)
+                .input('d', sql.NVarChar, req.body.d)
+
+                .query(
+                    "update mr1 set a=@a,b=@b ,c=@c,d=@d where id=@id"
                 )
 
                 .then(result => {
