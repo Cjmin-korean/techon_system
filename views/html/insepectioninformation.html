@@ -15,8 +15,14 @@
     <style>
         .ag-ltr .ag-cell {
             font-family: 'Roboto', sans-serif;
+
         }
 
+        .ag-header-cell-label {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            font-size: 14px;
+        }
 
         .loading-spinner {
             position: fixed;
@@ -227,6 +233,7 @@
 
     <div class="menu-title" style="width:100%;">
         <i class="fas fa-box"></i>자재 TDS 정보
+        <!-- <p>2.1*10<sup>-9</sup></p> -->
     </div>
     <div class="search-container">
         <label for="search" class="search-label"> 검색 :</label>
@@ -235,10 +242,8 @@
                 autocomplete="off">
             <i class="fas fa-search search-icon"></i>
         </div>
-        <!-- <button class="new-registration-button" onclick="openModal()">신규등록</button> -->
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
         <b style="float: right; margin-right: 20px; margin-top: 20px;" id="dataCount"></b>
-
     </div>
 
 
@@ -417,7 +422,38 @@
 
                 </tr>
 
+                <tr>
+                    <td>표면저항
+                        <br>(외측)
+                    </td>
+                    <td> Ω </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Ω</td>
+                    <td><input type="text" id="resistance11"></td>
+                    <td><input type="text" id="resistance12"></td>
+                    <td><input type="text" id="resistance13"></td>
 
+                </tr>
+                <tr>
+                    <td>표면저항
+                        <br>(내측)
+                    </td>
+
+                    <td> Ω </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>Ω</td>
+                    <td><input type="text" id="resistance21"></td>
+                    <td><input type="text" id="resistance22"></td>
+                    <td><input type="text" id="resistance23"></td>
+
+                </tr>
             </table>
 
         </div>
@@ -501,7 +537,22 @@
                                 { field: 'adhesionstrength33', headerName: "공차(+)", filter: true, maxWidth: 100 },
                             ]
                         },
-
+                        {
+                            headerName: '저항(내측)(Ω)',
+                            children: [
+                                { field: 'resistance11', headerName: "기준값", filter: true, maxWidth: 100 },
+                                { field: 'resistance12', headerName: "공차(-)", filter: true, maxWidth: 100 },
+                                { field: 'resistance13', headerName: "공차(+)", filter: true, maxWidth: 100 },
+                            ]
+                        },
+                        {
+                            headerName: '저항(외측)(Ω)',
+                            children: [
+                                { field: 'resistance21', headerName: "기준값", filter: true, maxWidth: 100 },
+                                { field: 'resistance22', headerName: "공차(-)", filter: true, maxWidth: 100 },
+                                { field: 'resistance23', headerName: "공차(+)", filter: true, maxWidth: 100 },
+                            ]
+                        },
                     ],
                     autoSizeStrategy: {
                         type: 'fitGridWidth',
@@ -532,6 +583,9 @@
                         $('#adhesionstrength31').val(params.data.adhesionstrength31);
                         $('#adhesionstrength32').val(params.data.adhesionstrength32);
                         $('#adhesionstrength33').val(params.data.adhesionstrength33);
+                        $('#resistance11').val(params.data.resistance11);
+                        $('#resistance12').val(params.data.resistance12);
+                        $('#resistance13').val(params.data.resistance13);
 
                         $('#tdsthickness11').val('');
                         $('#tdsthickness12').val('');
@@ -664,6 +718,40 @@
                 });
                 return;
             }
+
+            var resistance11Value = document.getElementById("resistance11").value;
+
+            // Check if either thickness12 or thickness13 is empty
+            var resistance12Value = document.getElementById("resistance12").value;
+            var resistance13Value = document.getElementById("resistance13").value;
+            if (resistance11Value !== "" && (resistance12Value === "" || resistance13Value === "")) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '누락',
+                    text: '저항(내측) 공차값 확인 바랍니다',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                });
+                return;
+            }
+            var resistance21Value = document.getElementById("resistance21").value;
+
+            // Check if either thickness12 or thickness13 is empty
+            var resistance22Value = document.getElementById("resistance22").value;
+            var resistance23Value = document.getElementById("resistance23").value;
+            if (resistance21Value !== "" && (resistance22Value === "" || resistance23Value === "")) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '누락',
+                    text: '저항(외측) 공차값 확인 바랍니다',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                });
+                return;
+            }
+
 
             var adhesionstrength11value = document.getElementById("adhesionstrength11").value;
 

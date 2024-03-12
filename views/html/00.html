@@ -1,143 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documen1t</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>원단 수입검사 성적서</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* CSS를 이용하여 표 스타일을 조정합니다. */
+        table {
+            border-collapse: collapse;
+            width: 50%;
         }
 
-        .form-tag {
-            width: 200px;
+        th,
+        td {
+            border: 1px solid black;
             padding: 8px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
+            text-align: center;
         }
 
-        #results {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-top: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-            width: 200px;
-        }
-
-        #results ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #results ul li {
-            padding: 5px;
-            margin: 5px 0;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #results ul li:hover {
-            background-color: #e9e9e9;
-        }
-
-        #results ul li.active {
-            background-color: #d3d3d3;
+        th {
+            background-color: #faf897;
         }
     </style>
 </head>
 
 <body>
-    <input type="text" class="form-tag text ess" id="customer-select" name="funeralName" placeholder="거래처명 검색하세요"
-        autocomplete="off" value="">
-    <div id="results"></div>
+
+    <h2>원단 정보</h2>
+    <table>
+        <tr>
+            <th>입고 일</th>
+            <td>2024-03-06</td>
+            <th>검사 일</th>
+            <td>2024-03-06</td>
+        </tr>
+        <tr>
+            <th>원 단 명</th>
+            <td>TSU0041SI-35DL</td>
+            <th>Lot No</th>
+            <td>240227</td>
+        </tr>
+        <tr>
+            <th>원단 대리점</th>
+            <td>다온첨단소재</td>
+            <th>검사 기준</th>
+            <td>AQL S2-0.4</td>
+        </tr>
+        <tr>
+            <th>원단 제조처</th>
+            <td>다온첨단소재</td>
+            <th>입고 롤 / 검사 수</th>
+            <td>1 / 1</td>
+        </tr>
+    </table>
+
+    <!-- 외관검사 -->
+    <h2>외관검사</h2>
+    <table>
+        <tr>
+            <th>구 분</th>
+            <th>검사항목</th>
+            <th>판정기준</th>
+            <th>판정</th>
+        </tr>
+        <!-- 여러 외관검사 아이템 추가 가능 -->
+        <tr>
+            <td rowspan="6">외관검사</td>
+
+        </tr>
+
+        <tr>
+            <td>오염</td>
+            <td>사용상 문제 없을것</td>
+            <td>OK</td>
+
+
+        </tr>
+        <tr>
+            <td>이물</td>
+            <td>이물 없을것</td>
+            <td>OK</td>
+
+        </tr>
+        <tr>
+            <td>색상</td>
+            <td>색상한도 이상 없을것</td>
+            <td>OK</td>
+
+        </tr>
+        <tr>
+            <td>찍힘</td>
+            <td>사용상 문제 없을것</td>
+            <td>OK</td>
+
+        </tr>
+        <!-- 나머지 외관검사 아이템도 위와 같은 형식으로 추가 가능 -->
+    </table>
+
+    <!-- 치수검사 -->
+    <h2>치수검사 (이형력, 점착력: 5EA 측정)</h2>
+    <table>
+        <tr>
+            <th>항목</th>
+            <th>규격</th>
+            <th>측정치</th>
+            <th>판정</th>
+        </tr>
+        <tr>
+            <td>원단두께 (㎛)</td>
+            <td>125 ± 10</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>점착력 (gf/25mm)</td>
+            <td>125 ± 10</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>표면저항 (Ω)</td>
+            <td>125 ± 10</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="2">특이 사항</td>
+            <td colspan="2">최종 판정</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="height: 300px;"></td>
+            <td colspan="2" style="height: 300px;"></td>
+        </tr>
+    </table>
+
 </body>
-
-<script>
-    $(document).ready(function () {
-        var server = '';
-        if (window.location.hostname == '127.0.0.1') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'http://techonmes.co.kr';
-        }
-        $('#customer-select').on('input', function () {
-            var inputValue = $(this).val();
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/suppliername', // 수정해야 할 부분
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    materialname: inputValue // 검색어를 서버로 전달
-                }),
-                success: function (result) {
-                    showResults(result);
-                },
-            });
-        });
-
-        // 결과 목록에서 키보드로 이동할 수 있도록 설정
-        $('#results').on('keydown', 'li', function (e) {
-            var $listItems = $('#results ul li');
-            var currentIndex = $listItems.index(this);
-            var totalItems = $listItems.length;
-
-            // 위로 이동
-            if (e.which === 38) {
-                if (currentIndex > 0) {
-                    $listItems.removeClass('active');
-                    $($listItems[currentIndex - 1]).addClass('active');
-                }
-            }
-            // 아래로 이동
-            else if (e.which === 40) {
-                if (currentIndex < totalItems - 1) {
-                    $listItems.removeClass('active');
-                    $($listItems[currentIndex + 1]).addClass('active');
-                }
-            }
-            // 엔터키 입력 시 선택
-            else if (e.which === 13) {
-                var selectedItem = $($listItems[currentIndex]).text();
-                $('#customer-select').val(selectedItem);
-                $('#results').empty();
-            }
-        });
-
-        // 클릭으로 항목을 선택할 수 있도록 설정
-        $('#results').on('click', 'li', function () {
-            var selectedItem = $(this).text();
-            $('#customer-select').val(selectedItem);
-            $('#results').empty();
-        });
-    });
-
-    function showResults(results) {
-        var resultsContainer = $('#results');
-        resultsContainer.empty();
-
-        if (results.length === 0) {
-            resultsContainer.hide(); // 결과가 없으면 결과 창 숨기기
-            return;
-        }
-
-        var list = $('<ul></ul>');
-        results.forEach(function (result) {
-            var listItem = $('<li>' + result.supplier + '</li>'); // 수정된 부분
-            list.append(listItem);
-        });
-
-        resultsContainer.show(); // 결과가 있으면 결과 창 보이기
-        resultsContainer.append(list);
-    }
-</script>
 
 </html>
