@@ -2114,10 +2114,8 @@ module.exports = function (app) {
                     "     adhesionstrength33, " +
                     "     resistance11, " +
                     "     resistance12, " +
-                    "     resistance13, " +
                     "     resistance21, " +
-                    "     resistance22, " +
-                    "     resistance23 " +
+                    "     resistance22 " +
                     " FROM  " +
                     "     materialinfoinformation " +
                     " WHERE " +
