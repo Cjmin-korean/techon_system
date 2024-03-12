@@ -2226,7 +2226,8 @@ module.exports = function (app) {
                 .input('adhesionstrength31', sql.NVarChar, req.body.adhesionstrength31)
                 .input('adhesionstrength32', sql.NVarChar, req.body.adhesionstrength32)
                 .input('adhesionstrength33', sql.NVarChar, req.body.adhesionstrength33)
-
+                .input('resistance11', sql.NVarChar, req.body.resistance11)
+                .input('resistance21', sql.NVarChar, req.body.resistance21)
 
                 .input('id', sql.Int, req.body.id)
 
@@ -2245,7 +2246,9 @@ module.exports = function (app) {
                     "     adhesionstrength23 = @adhesionstrength23, " +
                     "     adhesionstrength31 = @adhesionstrength31, " +
                     "     adhesionstrength32 = @adhesionstrength32, " +
-                    "     adhesionstrength33 = @adhesionstrength33 " +
+                    "     adhesionstrength33 = @adhesionstrength33, " +
+                    "     resistance11 = @resistance11, " +
+                    "     resistance21 = @resistance21 " +
                     " WHERE " +
                     "     id = @id")
                 .then(result => {
