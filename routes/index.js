@@ -1924,7 +1924,8 @@ module.exports = function (app) {
                     "    e.serialno, " +
                     "    e.manudate, " +
                     "    e.position, " +
-                    "    COALESCE(COUNT(mr1.codenumber), 0) AS mr1count " +
+                    "    COALESCE(COUNT(mr1.codenumber), 0) AS mr1count, " +
+                    "    DATEDIFF(DAY, e.manudate, GETDATE()) AS days  " +
                     "FROM " +
                     "    equipment e " +
                     "LEFT JOIN " +
