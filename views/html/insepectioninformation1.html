@@ -330,11 +330,9 @@
                 <th rowspan="2" style="width:100px;">기준값(+/-)</th>
                 <th rowspan="2">단위</th>
                 <th colspan="5">DATA</th>
-
                 <th rowspan="2" style="width: 80px;;">FINAL</th>
             </tr>
             <tr>
-
                 <th>★#1</th>
                 <th>★#2</th>
                 <th>★#3</th>
@@ -363,7 +361,7 @@
                 <td><input type="text" class="inputtext" id="data23"></td>
                 <td><input type="text" class="inputtext" id="data24"></td>
                 <td><input type="text" class="inputtext" id="data25"></td>
-                <td><select class="inputselect">
+                <td><select class="inputselect" id="data2result">
                         <option></option>
                         <option value="OK">OK</option>
                         <option value="NG">NG</option>
@@ -381,7 +379,7 @@
                 <td><input type="text" class="inputtext" id="data34"></td>
                 <td><input type="text" class="inputtext" id="data35"></td>
 
-                <td><select class="inputselect">
+                <td><select class="inputselect" id="data3result">
                         <option></option>
                         <option value="OK">OK</option>
                         <option value="NG">NG</option>
@@ -398,7 +396,7 @@
                 <td><input type="text" class="inputtext" id="data43"></td>
                 <td><input type="text" class="inputtext" id="data44"></td>
                 <td><input type="text" class="inputtext" id="data45"></td>
-                <td><select class="inputselect">
+                <td><select class="inputselect" id="data4result">
                         <option></option>
                         <option value="OK">OK</option>
                         <option value="NG">NG</option>
@@ -406,7 +404,8 @@
             </tr>
             <tr>
                 <td>비고</td>
-                <td colspan="14"><input type="text" class="inputtext" style="width:95%; text-align: left;"></td>
+                <td colspan="14"><input type="text" id="etc-input" class="inputtext"
+                        style="width:95%; text-align: left;"></td>
 
 
 
@@ -523,6 +522,8 @@
             var data11 = parseFloat(document.getElementById('data11').value);
             var data12 = parseFloat(document.getElementById('data12').value);
             var data13 = parseFloat(document.getElementById('data13').value);
+            var data14 = parseFloat(document.getElementById('data14').value);
+            var data15 = parseFloat(document.getElementById('data15').value);
             var data1result = document.getElementById('data1result');
 
             var thickness1 = parseFloat(document.getElementById('thickness1').value);
@@ -532,6 +533,31 @@
             var isData11Valid = !isNaN(data11) && (thickness1 - thickness2 <= data11) && (thickness1 + thickness3 >= data11);
             var isData12Valid = !isNaN(data12) && (thickness1 - thickness2 <= data12) && (thickness1 + thickness3 >= data12);
             var isData13Valid = !isNaN(data13) && (thickness1 - thickness2 <= data13) && (thickness1 + thickness3 >= data13);
+            var isData14Valid = !isNaN(data14) && (thickness1 - thickness2 <= data14) && (thickness1 + thickness3 >= data14);
+            var isData15Valid = !isNaN(data15) && (thickness1 - thickness2 <= data15) && (thickness1 + thickness3 >= data15);
+
+
+            // if (!isNaN(data11) && !isNaN(data12) && !isNaN(data13) && !isNaN(data14) && !isNaN(data15)) {
+            //     if (isData11Valid && isData12Valid && isData13Valid && isData14Valid && isData15Valid) {
+            //         data1result.textContent = 'OK';
+            //     } else {
+            //         data1result.textContent = 'NG';
+            //     }
+            // } else {
+
+            //     data1result.textContent = '';
+            // }
+
+            // if (!isNaN(data11) && !isNaN(data12) && !isNaN(data13) && !isNaN(data14)) {
+            //     if (isData11Valid && isData12Valid && isData13Valid && isData14Valid) {
+            //         data1result.textContent = 'OK';
+            //     } else {
+            //         data1result.textContent = 'NG';
+            //     }
+            // } else {
+
+            //     data1result.textContent = '';
+            // }
 
             if (!isNaN(data11) && !isNaN(data12) && !isNaN(data13)) {
                 if (isData11Valid && isData12Valid && isData13Valid) {
@@ -540,6 +566,7 @@
                     data1result.textContent = 'NG';
                 }
             } else {
+
                 data1result.textContent = '';
             }
         }
@@ -841,41 +868,62 @@
                 cancelButtonText: '취소',
             }).then((result) => {
                 if (result.isConfirmed) {
-
-
-                    // $.ajax({
-                    //     type: 'POST',
-                    //     url: server + '/api/updatematerialinfo1',
-                    //     dataType: 'json',
-                    //     contentType: 'application/json',
-                    //     data: JSON.stringify({
-
-                    //         "color": $('#color-input').val(),
-                    //         "thickness": $('#thickness-input').val(),
-                    //         "adhesionstrength": $('#adhesionstrength-input').val(),
-                    //         "id": $('#id-input').val(),
-
-
-                    //     }),
-                    //     success: function (result) {
-
-                    //     },
-
-                    // });
-
-
-                    $('#modal').fadeOut();
-                    $('#overlay').fadeOut();
-                    Swal.fire({
-                        icon: 'success',
-                        title: '수정 완료',
-                        text: '수입검사가 완료 되었습니다.',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            loadData()
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/insertintomaterialinspection',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "inspectiondate": '2024-03-12',
+                            "materialname": $('#materialname-input').val(),
+                            "materilaltype": $('#materilaltype-input').val(),
+                            "lotno": $('#lotno-input').val(),
+                            "color": $('#color-input').val(),
+                            "roll": $('#roll-input').val(),
+                            "exterior1": 'true',
+                            "exterior2": 'true',
+                            "exterior3": 'true',
+                            "exterior4": 'true',
+                            "data11": $('#data11').val(),
+                            "data12": $('#data12').val(),
+                            "data13": $('#data13').val(),
+                            "data14": $('#data14').val(),
+                            "data15": $('#data15').val(),
+                            "data1result": $('#data1result').text(),
+                            "data21": $('#data21').val(),
+                            "data22": $('#data22').val(),
+                            "data23": $('#data23').val(),
+                            "data24": $('#data24').val(),
+                            "data25": $('#data25').val(),
+                            "data2result": $('#data2result').val(),
+                            "data31": $('#data31').val(),
+                            "data32": $('#data32').val(),
+                            "data33": $('#data33').val(),
+                            "data34": $('#data34').val(),
+                            "data35": $('#data35').val(),
+                            "data3result": $('#data3result').val(),
+                            "data41": $('#data41').val(),
+                            "data42": $('#data42').val(),
+                            "data43": $('#data43').val(),
+                            "data44": $('#data44').val(),
+                            "data45": $('#data45').val(),
+                            "data4result": $('#data4result').val(),
+                            "etc": $('#etc-input').val()  // etc 속성 추가 및 값 할당
+                        }),
+                        success: function (result) {
+                            // 성공적으로 데이터가 전송되었을 때 수행할 작업
+                            loadData();  // 데이터 로드 함수 호출
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            Swal.fire({
+                                icon: 'success',
+                                title: '검사 완료',
+                                text: '자재 수입검사가 완료되었습니다.'
+                            });
                         }
                     });
                 }
+
             });
 
 

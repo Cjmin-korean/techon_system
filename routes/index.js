@@ -2265,6 +2265,137 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/insertintomaterialinspection', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('inspectiondate', sql.NVarChar, req.body.inspectiondate)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('materilaltype', sql.NVarChar, req.body.materilaltype)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('color', sql.NVarChar, req.body.color)
+                .input('roll', sql.NVarChar, req.body.roll)
+                .input('exterior1', sql.NVarChar, req.body.exterior1)
+                .input('exterior2', sql.NVarChar, req.body.exterior2)
+                .input('exterior3', sql.NVarChar, req.body.exterior3)
+                .input('exterior4', sql.NVarChar, req.body.exterior4)
+                .input('data11', sql.NVarChar, req.body.data11)
+                .input('data12', sql.NVarChar, req.body.data12)
+                .input('data13', sql.NVarChar, req.body.data13)
+                .input('data14', sql.NVarChar, req.body.data14)
+                .input('data15', sql.NVarChar, req.body.data15)
+                .input('data1result', sql.NVarChar, req.body.data1result)
+                .input('data21', sql.NVarChar, req.body.data21)
+                .input('data22', sql.NVarChar, req.body.data22)
+                .input('data23', sql.NVarChar, req.body.data23)
+                .input('data24', sql.NVarChar, req.body.data24)
+                .input('data25', sql.NVarChar, req.body.data25)
+                .input('data2result', sql.NVarChar, req.body.data2result)
+                .input('data31', sql.NVarChar, req.body.data31)
+                .input('data32', sql.NVarChar, req.body.data32)
+                .input('data33', sql.NVarChar, req.body.data33)
+                .input('data34', sql.NVarChar, req.body.data34)
+                .input('data35', sql.NVarChar, req.body.data35)
+                .input('data3result', sql.NVarChar, req.body.data3result)
+                .input('data41', sql.NVarChar, req.body.data41)
+                .input('data42', sql.NVarChar, req.body.data42)
+                .input('data43', sql.NVarChar, req.body.data43)
+                .input('data44', sql.NVarChar, req.body.data44)
+                .input('data45', sql.NVarChar, req.body.data45)
+                .input('data4result', sql.NVarChar, req.body.data4result)
+                .input('etc', sql.NVarChar, req.body.etc)
+
+
+
+
+                .query(
+                    "INSERT INTO materialinspection ( " +
+
+                    " inspectiondate, " +
+                    " materialname, " +
+                    " materilaltype, " +
+                    " lotno, " +
+                    " color, " +
+                    " roll, " +
+                    " exterior1,  " +
+                    " exterior2, " +
+                    " exterior3, " +
+                    " exterior4, " +
+                    " data11, " +
+                    " data12, " +
+                    " data13, " +
+                    " data14, " +
+                    " data15, " +
+                    " data1result, " +
+                    " data21, " +
+                    " data22, " +
+                    " data23, " +
+                    " data24, " +
+                    " data25, " +
+                    " data2result, " +
+                    " data31, " +
+                    " data32, " +
+                    " data33, " +
+                    " data34, " +
+                    " data35, " +
+                    " data3result, " +
+                    " data41, " +
+                    " data42, " +
+                    " data43, " +
+                    " data44, " +
+                    " data45, " +
+                    " data4result, " +
+                    " etc ) " +
+                    " VALUES ( " +
+                    " @inspectiondate, " +
+                    " @materialname, " +
+                    " @materilaltype, " +
+                    " @lotno, " +
+                    " @color, " +
+                    " @roll, " +
+                    " @exterior1, " +
+                    " @exterior2, " +
+                    " @exterior3, " +
+                    " @exterior4, " +
+                    " @data11, " +
+                    " @data12, " +
+                    " @data13, " +
+                    " @data14, " +
+                    " @data15, " +
+                    " @data1result, " +
+                    " @data21, " +
+                    " @data22, " +
+                    " @data23, " +
+                    " @data24, " +
+                    " @data25, " +
+                    " @data2result, " +
+                    " @data31, " +
+                    " @data32, " +
+                    " @data33, " +
+                    " @data34, " +
+                    " @data35, " +
+                    " @data3result, " +
+                    " @data41, " +
+                    " @data42, " +
+                    " @data43, " +
+                    " @data44, " +
+                    " @data45, " +
+                    " @data4result, " +
+                    " @etc)")
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectwaitinspection', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -2274,65 +2405,65 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT   "+
-                "     MI.date,   "+
-                "     MI.materialname,   "+
-                "     MI.lotno,   "+
-                "     MI.manufacturedate,   "+
-                "     MI.expirationdate,   "+
-                "     MI.materialwidth,   "+
-                "     SUM(MI.roll) AS roll,   "+
-                "     MII.inspection,"+
-                "     MII.adhesionstrength,"+
-                "     MII.adhesionstrength1,"+
-                "     MII.thickness,"+
-                "     MII.supplier,"+
-                "     MII.manufacterer,"+
-                "     MII.materialtype,"+
-                "     MII.color,"+
-                "     MII.thickness11,"+
-                "     MII.thickness12,"+
-                "     MII.thickness13,"+
-                "     MII.adhesionstrength11,"+
-                "     MII.adhesionstrength12,"+
-                "     MII.adhesionstrength13,"+
-                "     MII.adhesionstrength21,"+
-                "     MII.adhesionstrength22,"+
-                "     MII.adhesionstrength23,"+
-                "     MII.adhesionstrength31,"+
-                "     MII.adhesionstrength32,"+
-                "     MII.adhesionstrength33 "+
-                " FROM    "+ 
-                "     materialinput MI    "+
-                " JOIN    "+
-                "     materialinfoinformation MII ON MI.materialname = MII.materialname    "+
-                " GROUP BY   "+
-                "     MI.materialname,    "+
-                "     MII.inspection,   "+
-                "     MI.lotno,   "+
-                "     MI.manufacturedate,   "+
-                "     MI.expirationdate,   "+
-                "     MI.date,   "+
-                "     MI.materialwidth,   "+
-                "     MII.adhesionstrength,   "+
-                "     MII.adhesionstrength1, "+
-                "     MII.thickness, "+
-                "     MII.supplier, "+
-                "     MII.manufacterer,"+
-                "     MII.materialtype, "+
-                "     MII.color, "+
-                "     MII.thickness11, "+
-                "     MII.thickness12, "+
-                "     MII.thickness13, "+
-                "     MII.adhesionstrength11, "+
-                "     MII.adhesionstrength12, "+
-                "     MII.adhesionstrength13, "+
-                "     MII.adhesionstrength21, "+
-                "     MII.adhesionstrength22, "+
-                "     MII.adhesionstrength23, "+
-                "     MII.adhesionstrength31, "+
-                "     MII.adhesionstrength32, "+
-                "     MII.adhesionstrength33")
+                    "SELECT   " +
+                    "     MI.date,   " +
+                    "     MI.materialname,   " +
+                    "     MI.lotno,   " +
+                    "     MI.manufacturedate,   " +
+                    "     MI.expirationdate,   " +
+                    "     MI.materialwidth,   " +
+                    "     SUM(MI.roll) AS roll,   " +
+                    "     MII.inspection," +
+                    "     MII.adhesionstrength," +
+                    "     MII.adhesionstrength1," +
+                    "     MII.thickness," +
+                    "     MII.supplier," +
+                    "     MII.manufacterer," +
+                    "     MII.materialtype," +
+                    "     MII.color," +
+                    "     MII.thickness11," +
+                    "     MII.thickness12," +
+                    "     MII.thickness13," +
+                    "     MII.adhesionstrength11," +
+                    "     MII.adhesionstrength12," +
+                    "     MII.adhesionstrength13," +
+                    "     MII.adhesionstrength21," +
+                    "     MII.adhesionstrength22," +
+                    "     MII.adhesionstrength23," +
+                    "     MII.adhesionstrength31," +
+                    "     MII.adhesionstrength32," +
+                    "     MII.adhesionstrength33 " +
+                    " FROM    " +
+                    "     materialinput MI    " +
+                    " JOIN    " +
+                    "     materialinfoinformation MII ON MI.materialname = MII.materialname    " +
+                    " GROUP BY   " +
+                    "     MI.materialname,    " +
+                    "     MII.inspection,   " +
+                    "     MI.lotno,   " +
+                    "     MI.manufacturedate,   " +
+                    "     MI.expirationdate,   " +
+                    "     MI.date,   " +
+                    "     MI.materialwidth,   " +
+                    "     MII.adhesionstrength,   " +
+                    "     MII.adhesionstrength1, " +
+                    "     MII.thickness, " +
+                    "     MII.supplier, " +
+                    "     MII.manufacterer," +
+                    "     MII.materialtype, " +
+                    "     MII.color, " +
+                    "     MII.thickness11, " +
+                    "     MII.thickness12, " +
+                    "     MII.thickness13, " +
+                    "     MII.adhesionstrength11, " +
+                    "     MII.adhesionstrength12, " +
+                    "     MII.adhesionstrength13, " +
+                    "     MII.adhesionstrength21, " +
+                    "     MII.adhesionstrength22, " +
+                    "     MII.adhesionstrength23, " +
+                    "     MII.adhesionstrength31, " +
+                    "     MII.adhesionstrength32, " +
+                    "     MII.adhesionstrength33")
 
                 .then(result => {
 
