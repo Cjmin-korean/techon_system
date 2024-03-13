@@ -204,6 +204,18 @@
             text-align: center;
             font-weight: bold;
         }
+
+        #datepicker1,
+        #datepicker2 {
+            width: 10%;
+            padding: 10px;
+            box-sizing: border-box;
+            /* margin-bottom: 16px; */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -214,13 +226,13 @@
         <i class="fas fa-box"></i>수입검사 완료 항목
     </div>
     <div class="search-container">
-        <label for="search" class="search-label"> 검색 :</label>
-        <div class="search-input-wrapper">
-            <input type="text" id="search" placeholder="검색어를 입력 후 ENTER 누르세요..." onkeypress="handleKeyPress(event)"
-                autocomplete="off">
-            <i class="fas fa-search search-icon"></i>
-        </div>
-        <!-- <button class="new-registration-button" onclick="openModal()">신규등록</button> -->
+        <label for="search" class="search-label"> 검사날짜 :</label>
+
+        <input type="date" id="datepicker1">
+        <input type="date" id="datepicker2">
+
+
+        <button class="new-registration-button">조회</button>
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
 
     </div>
@@ -509,11 +521,38 @@
                     applySearchFilter();
                 }
             });
+            settingDate()
             showLoadingSpinner(); // Show loading spinner on page load
             setTimeout(function () {
                 initializeGrid();
             }, 1500);
         });
+
+        function settingDate() {
+            const date = new Date();
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+
+
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+            }
+
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+
+
+            $('#datepicker1').val(currentDate);
+            $('#datepicker2').val(currentDate);
+
+        }
         function calculateRanges() {
             var firstInput = document.getElementById('first-input');
 
@@ -596,13 +635,43 @@
                 const gridOptions = {
                     columnDefs: [
 
-                        { field: "date", headerName: "입고날짜", filter: true },
-                        { field: "materialtype", headerName: "자재유형", filter: true },
-                        { field: "manufacterer", headerName: "제조사", filter: true },
-                        { field: "supplier", headerName: "공급사", filter: true },
+                        { field: "inspectiondate", headerName: "검사일자", filter: true },
+                        { field: "employee", headerName: "검사자", filter: true },
                         { field: "materialname", headerName: "자재명", filter: true },
-                        { field: "lotno", headerName: "자재LOT", filter: true },
+                        { field: "lotno", headerName: "LOTNO", filter: true },
+                        { field: "supplier", headerName: "공급사", filter: true },
+                        { field: "manufacterer", headerName: "제조사", filter: true },
+                        { field: "typecategory", headerName: "TYPE", filter: true },
                         { field: "roll", headerName: "ROLL", filter: true },
+                        { field: "inspectionroll", headerName: "검사수량", filter: true },
+                        { field: "exterior1", headerName: "외관검사#1", filter: true },
+                        { field: "exterior2", headerName: "외관검사#2", filter: true },
+                        { field: "exterior3", headerName: "외관검사#3", filter: true },
+                        { field: "exterior4", headerName: "외관검사#4", filter: true },
+                        { field: "data11", headerName: "두께#1", filter: true },
+                        { field: "data12", headerName: "두께#2", filter: true },
+                        { field: "data13", headerName: "두께#3", filter: true },
+                        { field: "data14", headerName: "두께#4", filter: true },
+                        { field: "data15", headerName: "두께#5", filter: true },
+                        { field: "data1result", headerName: "판정", filter: true },
+                        { field: "data21", headerName: "점착력(내측)#1", filter: true },
+                        { field: "data22", headerName: "점착력(내측)#2", filter: true },
+                        { field: "data23", headerName: "점착력(내측)#3", filter: true },
+                        { field: "data24", headerName: "점착력(내측)#4", filter: true },
+                        { field: "data25", headerName: "점착력(내측)#5", filter: true },
+                        { field: "data2result", headerName: "판정", filter: true },
+                        { field: "data31", headerName: "점착력(외측)#1", filter: true },
+                        { field: "data32", headerName: "점착력(외측)#2", filter: true },
+                        { field: "data33", headerName: "점착력(외측)#3", filter: true },
+                        { field: "data34", headerName: "점착력(외측)#4", filter: true },
+                        { field: "data35", headerName: "점착력(외측)#5", filter: true },
+                        { field: "data3result", headerName: "판정", filter: true },
+                        { field: "data41", headerName: "이형력(외측)#1", filter: true },
+                        { field: "data42", headerName: "이형력(외측)#2", filter: true },
+                        { field: "data43", headerName: "이형력(외측)#3", filter: true },
+                        { field: "data44", headerName: "이형력(외측)#4", filter: true },
+                        { field: "data45", headerName: "이형력(외측)#5", filter: true },
+                        { field: "data4result", headerName: "판정", filter: true },
 
                     ],
                     autoSizeStrategy: {
@@ -612,18 +681,18 @@
                     rowHeight: 45,
                     enableFilter: true,
                     rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
-                    onRowDoubleClicked: function (params) {
-                        $('#materialname-input').val(params.data.materialname);
-                        $('#lotno-input').val(params.data.lotno);
-                        $('#adhesionstrength-input').val(params.data.adhesionstrength);
-                        $('#adhesionstrength1-input').val(params.data.adhesionstrength1);
-                        $('#thickness-input').val(params.data.thickness);
+                    // onRowDoubleClicked: function (params) {
+                    //     $('#materialname-input').val(params.data.materialname);
+                    //     $('#lotno-input').val(params.data.lotno);
+                    //     $('#adhesionstrength-input').val(params.data.adhesionstrength);
+                    //     $('#adhesionstrength1-input').val(params.data.adhesionstrength1);
+                    //     $('#thickness-input').val(params.data.thickness);
 
 
-                        $('#savebutton').text('검사완료')
-                        document.getElementById('modal').style.display = 'block';
-                        document.getElementById('overlay').style.display = 'block';
-                    }
+                    //     $('#savebutton').text('검사완료')
+                    //     document.getElementById('modal').style.display = 'block';
+                    //     document.getElementById('overlay').style.display = 'block';
+                    // }
                 }; 100
 
                 const gridDiv = document.querySelector('#myGrid');
@@ -684,7 +753,7 @@
         function loadData() {
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectwaitinspection',
+                url: server + '/api/selectinspection',
                 dataType: 'json',
                 success: function (data) {
                     hideLoadingSpinner();

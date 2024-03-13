@@ -1945,6 +1945,77 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectinspection', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                // .input('start', sql.NVarChar, req.body.start)
+                // .input('finish', sql.NVarChar, req.body.finish)
+                .query(
+                    "SELECT " +
+                    "     MI.id, " +
+                    "     MII.typecategory, " +
+                    "     MI.inspectiondate, " +
+                    "     MI.employee, " +
+                    "     MI.materialname, " +
+                    "     MI.lotno, " +
+                    "     MII.supplier, " +
+                    "     MII.manufacterer, " +
+                    "     MI.roll, " +
+                    "     MI.inspectionroll, " +
+                    "     MI.exterior1,  " +
+                    "     MI.exterior2, " +
+                    "     MI.exterior3, " +
+                    "     MI.exterior4, " +
+                    "     MI.data11, " +
+                    "     MI.data12, " +
+                    "     MI.data13, " +
+                    "     MI.data14, " +
+                    "     MI.data15, " +
+                    "     MI.data1result, " +
+                    "     MI.data21, " +
+                    "     MI.data22, " +
+                    "     MI.data23, " +
+                    "     MI.data24, " +
+                    "     MI.data25, " +
+                    "     MI.data2result, " +
+                    "     MI.data31, " +
+                    "     MI.data32, " +
+                    "     MI.data33, " +
+                    "     MI.data34, " +
+                    "     MI.data35, " +
+                    "     MI.data3result, " +
+                    "     MI.data41, " +
+                    "     MI.data42, " +
+                    "     MI.data43, " +
+                    "     MI.data44, " +
+                    "     MI.data45, " +
+                    "     MI.data4result " +
+                    " FROM " +
+                    "     MATERIALINSPECTION MI " +
+                    " INNER JOIN " +
+                    "     materialinfoinformation MII ON MI.MATERIALNAME = MII.MATERIALNAME " +
+                    // " WHERE  " +
+                    // "     MI.inspectiondate between @start and @finish " +
+                    " ORDER BY  " +
+                    "     MI.inspectiondate ASC;                            ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
