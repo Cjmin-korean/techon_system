@@ -2349,6 +2349,7 @@ module.exports = function (app) {
             return pool.request()
 
                 .input('inspectiondate', sql.NVarChar, req.body.inspectiondate)
+                .input('inputdate', sql.NVarChar, req.body.inputdate)
                 .input('employee', sql.NVarChar, req.body.employee)
                 .input('materialname', sql.NVarChar, req.body.materialname)
                 .input('materilaltype', sql.NVarChar, req.body.materilaltype)
@@ -2428,6 +2429,7 @@ module.exports = function (app) {
                     " data45, " +
                     " data4result, " +
                     " inspectionroll, " +
+                    " inputdate, " +
                     " etc ) " +
                     " VALUES ( " +
                     " @inspectiondate, " +
@@ -2466,6 +2468,7 @@ module.exports = function (app) {
                     " @data45, " +
                     " @data4result, " +
                     " @inspectionroll, " +
+                    " @inputdate, " +
                     " @etc)")
                 .then(result => {
 

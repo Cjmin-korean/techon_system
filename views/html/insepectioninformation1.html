@@ -254,6 +254,7 @@
             <table>
                 <tr>
                     <th style="width:180px;">검사일자</th>
+                    <th style="width:180px;">입고일자</th>
                     <th>자재명</th>
                     <th>LOTNO</th>
                     <th>자재TYPE</th>
@@ -263,6 +264,7 @@
                 </tr>
                 <tr>
                     <td><input type="date" id="datepicker1" style="width:100%;"></td>
+                    <td id="inputdate-input"></td>
                     <td id="materialname-input"></td>
                     <td id="lotno-input"></td>
                     <td id="materialtype-input"></td>
@@ -437,6 +439,7 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
+            let isGridInitialized = false; // 테이블이 초기화되었는지 여부를 추적하는 변수
 
             $('#search').keypress(function (e) {
                 if (e.which === 13) {
@@ -446,10 +449,12 @@
             });
             settingDate();
             showLoadingSpinner(); // Show loading spinner on page load
-            setTimeout(function () {
-                initializeGrid();
-            }, 1500);
+
+            initializeGrid();
+
         });
+
+
         function calculateRanges() {
 
 
@@ -610,6 +615,7 @@
                     rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
                     onRowDoubleClicked: function (params) {
                         $('#materialname-input').text(params.data.materialname);
+                        $('#inputdate-input').text(params.data.date);
                         $('#lotno-input').text(params.data.lotno);
                         $('#materialtype-input').text(params.data.materialtype);
                         $('#color-input').text(params.data.color);
@@ -934,7 +940,8 @@
                             "data45": $('#data45').val(),
                             "data4result": $('#data4result').val(),
                             "etc": $('#etc-input').val(),  // etc 속성 추가 및 값 할당
-                            "inspectionroll": $('#inspectionroll-input').val()  // etc 속성 추가 및 값 할당
+                            "inspectionroll": $('#inspectionroll-input').val(), // etc 속성 추가 및 값 할당
+                            "inputdate": $('#inputdate-input').text()  // etc 속성 추가 및 값 할당
                         }),
                         success: function (result) {
 
