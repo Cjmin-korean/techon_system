@@ -1883,8 +1883,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/equipment', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            console.log("req", req)
-
 
             return pool.request()
 
@@ -1909,7 +1907,6 @@ module.exports = function (app) {
     sql.connect(config).then(pool => {
         app.post('/api/mr1equipment', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            console.log("req", req)
 
 
             return pool.request()
@@ -1953,8 +1950,8 @@ module.exports = function (app) {
 
 
             return pool.request()
-                // .input('start', sql.NVarChar, req.body.start)
-                // .input('finish', sql.NVarChar, req.body.finish)
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
                 .query(
                     "SELECT " +
                     "     MI.id, " +
@@ -2008,6 +2005,7 @@ module.exports = function (app) {
                     "     MATERIALINSPECTION MI " +
                     " INNER JOIN " +
                     "     materialinfoinformation MII ON MI.MATERIALNAME = MII.MATERIALNAME " +
+                    "    where inspectiondate between @start and @finish " +
                     " ORDER BY  " +
                     "     MI.inspectiondate desc;                                         ")
 
@@ -2493,7 +2491,7 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT   " +
+                    "     SELECT   " +
                     "     MI.date,   " +
                     "     MI.materialname,   " +
                     "     MI.lotno,   " +
@@ -8394,7 +8392,6 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/materialstock', function (req, res) {
-            console.log("req", req)
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 .query(
@@ -8591,8 +8588,7 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/accountinfoupdatedata', function (req, res) {
-            console.log("res", res)
-            console.log("req", req)
+
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -8958,8 +8954,7 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/orderlistupdate', function (req, res) {
-            console.log("res", res)
-            console.log("req", req)
+
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -9389,8 +9384,8 @@ module.exports = function (app) {
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/updateing', function (req, res) {
-            console.log("res", res)
-            console.log("req", req)
+
+
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -11087,8 +11082,7 @@ module.exports = function (app) {
         app.post('/api/inputfile', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
-            console.log("req", req)
-            console.log("res", res)
+
             return pool.request()
                 //.input('변수',값 형식, 값)
 
