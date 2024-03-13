@@ -1967,7 +1967,7 @@ module.exports = function (app) {
                     "     MII.manufacterer, " +
                     "     MI.roll, " +
                     "     MI.inspectionroll, " +
-                    "     MI.exterior1,  " +
+                    "     MI.exterior1, " +
                     "     MI.exterior2, " +
                     "     MI.exterior3, " +
                     "     MI.exterior4, " +
@@ -1982,27 +1982,34 @@ module.exports = function (app) {
                     "     MI.data23, " +
                     "     MI.data24, " +
                     "     MI.data25, " +
-                    "     MI.data2result, " +
+                    "     CASE " +
+                    "         WHEN MI.data21 IS NULL OR MI.data21 = '' THEN 'N/A' " +
+                    "         ELSE MI.data2result " +
+                    "     END AS data2result, " +
                     "     MI.data31, " +
                     "     MI.data32, " +
                     "     MI.data33, " +
                     "     MI.data34, " +
                     "     MI.data35, " +
-                    "     MI.data3result, " +
+                    "    CASE " +
+                    "         WHEN MI.data31 IS NULL OR MI.data31 = '' THEN 'N/A' " +
+                    "         ELSE MI.data3result " +
+                    "     END AS data3result, " +
                     "     MI.data41, " +
                     "     MI.data42, " +
                     "     MI.data43, " +
                     "     MI.data44, " +
                     "     MI.data45, " +
-                    "     MI.data4result " +
+                    "     CASE " +
+                    "         WHEN MI.data41 IS NULL OR MI.data41 = '' THEN 'N/A' " +
+                    "         ELSE MI.data4result " +
+                    "     END AS data4result " +
                     " FROM " +
                     "     MATERIALINSPECTION MI " +
                     " INNER JOIN " +
                     "     materialinfoinformation MII ON MI.MATERIALNAME = MII.MATERIALNAME " +
-                    // " WHERE  " +
-                    // "     MI.inspectiondate between @start and @finish " +
                     " ORDER BY  " +
-                    "     MI.inspectiondate ASC;                            ")
+                    "     MI.inspectiondate ASC;                                         ")
 
                 .then(result => {
 
