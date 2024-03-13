@@ -17,7 +17,29 @@
 
 </head>
 <style>
+    #grid {
+        min-height: 300px;
+        /* 높이를 300px로 설정합니다. */
+    }
 
+    .tui-grid-header-area {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: white;
+    }
+
+    /* 열 헤더 내부의 각 열을 고정하는 CSS */
+    .tui-grid-header {
+        overflow: hidden;
+    }
+
+    /* 그리드 스크롤 영역을 조정하기 위한 CSS */
+    .tui-grid-body-area {
+        overflow-y: auto !important;
+        max-height: calc(100vh - 40px);
+        /* 그리드의 최대 높이 지정 (헤더의 높이만큼 빼줍니다) */
+    }
 </style>
 
 <body>
@@ -62,8 +84,8 @@
                 el: document.getElementById('grid'),
                 data: [],
                 rowHeaders: ['rowNum'],
-                scrollX: false,
-                scrollY: false,
+                scrollX: true, // 가로 스크롤 활성화
+                scrollY: 300, // 세로 스크롤 높이 설정 (여기서는 300px)
                 autoHeight: true,
                 columns: [
                     {
@@ -111,7 +133,7 @@
                         sortable: true,
                         resizable: true,
                         align: 'right',
-                        width:120
+                        width: 120
                     },
                     {
                         header: '차이(￦)',
@@ -120,7 +142,7 @@
                         sortable: true,
                         resizable: true,
                         align: 'right',
-                        width:120
+                        width: 120
 
                     },
                     {
@@ -130,13 +152,23 @@
                         sortable: true,
                         resizable: true,
                         align: 'right',
-                        width:120
+                        width: 120
 
                     }
                 ],
 
             });
+
+            grid.on('dblclick', async (ev) => {
+                const rowIndex = ev.rowKey;
+                const rowData = await grid.getRow(rowIndex);
+                console.log('Row Data:', rowData['bomno']);
+            });
+
         }
+
+
+
     </script>
 
     <script>
@@ -155,18 +187,18 @@
 
 
             // Add event listener for the search input
-            $('#search').on('input', function () {
-                var keyword = $(this).val().toLowerCase();
+            // $('#search').on('input', function () {
+            //     var keyword = $(this).val().toLowerCase();
 
-                // Filter the data based on the search keyword
-                var filteredData = gridData.filter(function (item) {
-                    return Object.values(item).some(function (value) {
-                        return typeof value === 'string' && value.toLowerCase().includes(keyword);
-                    });
-                });
+            //     // Filter the data based on the search keyword
+            //     var filteredData = gridData.filter(function (item) {
+            //         return Object.values(item).some(function (value) {
+            //             return typeof value === 'string' && value.toLowerCase().includes(keyword);
+            //         });
+            //     });
 
-                grid.resetData(filteredData);
-            });
+            //     grid.resetData(filteredData);
+            // });
             initializeGrid();
         }
     </script>
