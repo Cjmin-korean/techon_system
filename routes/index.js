@@ -2009,7 +2009,7 @@ module.exports = function (app) {
                     " INNER JOIN " +
                     "     materialinfoinformation MII ON MI.MATERIALNAME = MII.MATERIALNAME " +
                     " ORDER BY  " +
-                    "     MI.inspectiondate ASC;                                         ")
+                    "     MI.inspectiondate desc;                                         ")
 
                 .then(result => {
 
@@ -2349,6 +2349,7 @@ module.exports = function (app) {
             return pool.request()
 
                 .input('inspectiondate', sql.NVarChar, req.body.inspectiondate)
+                .input('employee', sql.NVarChar, req.body.employee)
                 .input('materialname', sql.NVarChar, req.body.materialname)
                 .input('materilaltype', sql.NVarChar, req.body.materilaltype)
                 .input('lotno', sql.NVarChar, req.body.lotno)
@@ -2383,6 +2384,7 @@ module.exports = function (app) {
                 .input('data45', sql.NVarChar, req.body.data45)
                 .input('data4result', sql.NVarChar, req.body.data4result)
                 .input('etc', sql.NVarChar, req.body.etc)
+                .input('inspectionroll', sql.NVarChar, req.body.inspectionroll)
 
 
 
@@ -2391,6 +2393,7 @@ module.exports = function (app) {
                     "INSERT INTO materialinspection ( " +
 
                     " inspectiondate, " +
+                    " employee, " +
                     " materialname, " +
                     " materilaltype, " +
                     " lotno, " +
@@ -2424,9 +2427,11 @@ module.exports = function (app) {
                     " data44, " +
                     " data45, " +
                     " data4result, " +
+                    " inspectionroll, " +
                     " etc ) " +
                     " VALUES ( " +
                     " @inspectiondate, " +
+                    " @employee, " +
                     " @materialname, " +
                     " @materilaltype, " +
                     " @lotno, " +
@@ -2460,6 +2465,7 @@ module.exports = function (app) {
                     " @data44, " +
                     " @data45, " +
                     " @data4result, " +
+                    " @inspectionroll, " +
                     " @etc)")
                 .then(result => {
 

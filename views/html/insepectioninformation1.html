@@ -253,18 +253,22 @@
 
             <table>
                 <tr>
+                    <th style="width:180px;">검사일자</th>
                     <th>자재명</th>
                     <th>LOTNO</th>
                     <th>자재TYPE</th>
                     <th>색상</th>
-                    <th>입고ROLL</th>
+                    <th>입고수량</th>
+                    <th style="width:100px;">검사수량</th>
                 </tr>
                 <tr>
+                    <td><input type="date" id="datepicker1" style="width:100%;"></td>
                     <td id="materialname-input"></td>
                     <td id="lotno-input"></td>
                     <td id="materialtype-input"></td>
                     <td id="color-input"></td>
                     <td id="roll-input"></td>
+                    <td><input type="text" id="inspectionroll-input"></td>
                 </tr>
 
             </table>
@@ -344,11 +348,11 @@
                 <td>두께 Gauge</td>
                 <td id="thickness-input"></td>
                 <td>㎛</td>
-                <td><input type="text" class="inputtext" id="data11" oninput="checkInputs()"></td>
-                <td><input type="text" class="inputtext" id="data12" oninput="checkInputs()"></td>
-                <td><input type="text" class="inputtext" id="data13" oninput="checkInputs()"></td>
-                <td><input type="text" class="inputtext" id="data14" oninput="checkInputs()"></td>
-                <td><input type="text" class="inputtext" id="data15" oninput="checkInputs()"></td>
+                <td><input type="text" class="inputtext" id="data11" autocomplete="off" oninput="checkInputs()"></td>
+                <td><input type="text" class="inputtext" id="data12" autocomplete="off" oninput="checkInputs()"></td>
+                <td><input type="text" class="inputtext" id="data13" autocomplete="off" oninput="checkInputs()"></td>
+                <td><input type="text" class="inputtext" id="data14" autocomplete="off" oninput="checkInputs()"></td>
+                <td><input type="text" class="inputtext" id="data15" autocomplete="off" oninput="checkInputs()"></td>
                 <td id="data1result"></td>
             </tr>
             <tr>
@@ -356,11 +360,11 @@
                 <td>인장시험기</td>
                 <td id="adhesionstrength-input"></td>
                 <td>gf/25mm</td>
-                <td><input type="text" class="inputtext" id="data21"></td>
-                <td><input type="text" class="inputtext" id="data22"></td>
-                <td><input type="text" class="inputtext" id="data23"></td>
-                <td><input type="text" class="inputtext" id="data24"></td>
-                <td><input type="text" class="inputtext" id="data25"></td>
+                <td><input type="text" class="inputtext" id="data21" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data22" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data23" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data24" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data25" autocomplete="off"></td>
                 <td><select class="inputselect" id="data2result">
                         <option></option>
                         <option value="OK">OK</option>
@@ -373,11 +377,11 @@
                 <td id="adhesionstrength1-input"></td>
                 <td>gf/25mm</td>
 
-                <td><input type="text" class="inputtext" id="data31"></td>
-                <td><input type="text" class="inputtext" id="data32"></td>
-                <td><input type="text" class="inputtext" id="data33"></td>
-                <td><input type="text" class="inputtext" id="data34"></td>
-                <td><input type="text" class="inputtext" id="data35"></td>
+                <td><input type="text" class="inputtext" id="data31" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data32" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data33" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data34" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data35" autocomplete="off"></td>
 
                 <td><select class="inputselect" id="data3result">
                         <option></option>
@@ -391,11 +395,11 @@
                 <td id="adhesionstrength2-input"></td>
                 <td>gf/25mm</td>
 
-                <td><input type="text" class="inputtext" id="data41"></td>
-                <td><input type="text" class="inputtext" id="data42"></td>
-                <td><input type="text" class="inputtext" id="data43"></td>
-                <td><input type="text" class="inputtext" id="data44"></td>
-                <td><input type="text" class="inputtext" id="data45"></td>
+                <td><input type="text" class="inputtext" id="data41" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data42" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data43" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data44" autocomplete="off"></td>
+                <td><input type="text" class="inputtext" id="data45" autocomplete="off"></td>
                 <td><select class="inputselect" id="data4result">
                         <option></option>
                         <option value="OK">OK</option>
@@ -440,12 +444,15 @@
                     applySearchFilter();
                 }
             });
+            settingDate();
             showLoadingSpinner(); // Show loading spinner on page load
             setTimeout(function () {
                 initializeGrid();
             }, 1500);
         });
         function calculateRanges() {
+
+
             var firstInput = document.getElementById('first-input');
 
             if (!firstInput.checked) {
@@ -516,7 +523,30 @@
                 alert('올바른 형식의 입력을 사용하세요. 예: A±B');
             }
         }
+        function settingDate() {
+            const date = new Date();
 
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+
+
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+            }
+
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+
+
+            $('#datepicker1').val(currentDate);
+
+        }
 
         function checkInputs() {
             var data11 = parseFloat(document.getElementById('data11').value);
@@ -537,37 +567,22 @@
             var isData15Valid = !isNaN(data15) && (thickness1 - thickness2 <= data15) && (thickness1 + thickness3 >= data15);
 
 
-            // if (!isNaN(data11) && !isNaN(data12) && !isNaN(data13) && !isNaN(data14) && !isNaN(data15)) {
-            //     if (isData11Valid && isData12Valid && isData13Valid && isData14Valid && isData15Valid) {
-            //         data1result.textContent = 'OK';
-            //     } else {
-            //         data1result.textContent = 'NG';
-            //     }
-            // } else {
-
-            //     data1result.textContent = '';
-            // }
-
-            // if (!isNaN(data11) && !isNaN(data12) && !isNaN(data13) && !isNaN(data14)) {
-            //     if (isData11Valid && isData12Valid && isData13Valid && isData14Valid) {
-            //         data1result.textContent = 'OK';
-            //     } else {
-            //         data1result.textContent = 'NG';
-            //     }
-            // } else {
-
-            //     data1result.textContent = '';
-            // }
 
             if (!isNaN(data11) && !isNaN(data12) && !isNaN(data13)) {
                 if (isData11Valid && isData12Valid && isData13Valid) {
                     data1result.textContent = 'OK';
+                    data1result.style.backgroundColor = 'blue'; // 배경색을 파란색으로 설정
+                    data1result.style.color = 'white'; // 글씨색을 흰색으로 설정
                 } else {
                     data1result.textContent = 'NG';
+                    data1result.style.backgroundColor = 'red'; // 배경색을 초기화
+                    data1result.style.color = 'white'; // 글씨색을 초기화
                 }
             } else {
 
                 data1result.textContent = '';
+                data1result.style.backgroundColor = ''; // 배경색을 초기화
+                data1result.style.color = ''; // 글씨색을 초기화
             }
         }
 
@@ -744,7 +759,19 @@
         }
         function saveOrEditForm() {
 
+            var inspectionroll = document.getElementById('inspectionroll-input');
 
+            if (!inspectionroll.value.trim()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '누락',
+                    text: '검사수량을 입력하세요',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                });
+                return;
+            }
             var first1Input = document.getElementById('first1-input');
             var first2Input = document.getElementById('first2-input');
             var first3Input = document.getElementById('first3-input');
@@ -874,16 +901,14 @@
                         dataType: 'json',
                         contentType: 'application/json',
                         data: JSON.stringify({
-                            "inspectiondate": '2024-03-12',
-                            "materialname": $('#materialname-input').val(),
-                            "materilaltype": $('#materilaltype-input').val(),
-                            "lotno": $('#lotno-input').val(),
-                            "color": $('#color-input').val(),
-                            "roll": $('#roll-input').val(),
-                            "exterior1": 'true',
-                            "exterior2": 'true',
-                            "exterior3": 'true',
-                            "exterior4": 'true',
+                            "inspectiondate": $('#datepicker1').val(),
+                            "employee": '최수영',
+                            "materialname": $('#materialname-input').text(),
+                            "materilaltype": $('#materilaltype-input').text(),
+                            "lotno": $('#lotno-input').text(),
+                            "color": $('#color-input').text(),
+                            "roll": $('#roll-input').text(),
+                            "exterior1": 'OK',
                             "data11": $('#data11').val(),
                             "data12": $('#data12').val(),
                             "data13": $('#data13').val(),
@@ -908,18 +933,23 @@
                             "data44": $('#data44').val(),
                             "data45": $('#data45').val(),
                             "data4result": $('#data4result').val(),
-                            "etc": $('#etc-input').val()  // etc 속성 추가 및 값 할당
+                            "etc": $('#etc-input').val(),  // etc 속성 추가 및 값 할당
+                            "inspectionroll": $('#inspectionroll-input').val()  // etc 속성 추가 및 값 할당
                         }),
                         success: function (result) {
-                            // 성공적으로 데이터가 전송되었을 때 수행할 작업
-                            loadData();  // 데이터 로드 함수 호출
-                            $('#modal').fadeOut();
-                            $('#overlay').fadeOut();
-                            Swal.fire({
-                                icon: 'success',
-                                title: '검사 완료',
-                                text: '자재 수입검사가 완료되었습니다.'
-                            });
+
+                        }
+                    });
+
+                    $('#modal').fadeOut();
+                    $('#overlay').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '검사 완료',
+                        text: '수입검사가 완료되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loadData()
                         }
                     });
                 }
