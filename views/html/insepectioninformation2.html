@@ -444,17 +444,16 @@
         }
         $(document).ready(function () {
 
-            $('#search').keypress(function (e) {
-                if (e.which === 13) {
-                    // 13 is the key code for Enter
-                    applySearchFilter();
-                }
-            });
+
             settingDate()
-            // showLoadingSpinner(); // Show loading spinner on page load
             initializeGrid()
         });
-
+        $('#search').keypress(function (e) {
+            if (e.which === 13) {
+                // 13 is the key code for Enter
+                applySearchFilter();
+            }
+        });
         function settingDate() {
             const date = new Date();
 
@@ -558,97 +557,135 @@
 
 
         function initializeGrid() {
-            if (typeof agGrid !== 'undefined') {
-                const gridOptions = {
-                    columnDefs: [
+            setTimeout(function () {
 
-                        { field: "inspectiondate", headerName: "검사일자", filter: true },
-                        { field: "employee", headerName: "검사자", filter: true },
-                        { field: "materialname", headerName: "자재명", filter: true },
-                        { field: "lotno", headerName: "LOTNO", filter: true },
-                        { field: "supplier", headerName: "공급사", filter: true },
-                        { field: "manufacterer", headerName: "제조사", filter: true },
-                        { field: "typecategory", headerName: "TYPE", filter: true },
-                        { field: "roll", headerName: "입고수량", filter: true },
-                        { field: "inspectionroll", headerName: "검사수량", filter: true },
-                        { field: "exterior1", headerName: "외관검사", filter: true },
-                        // { field: "exterior2", headerName: "외관검사#2", filter: true },
-                        // { field: "exterior3", headerName: "외관검사#3", filter: true },
-                        // { field: "exterior4", headerName: "외관검사#4", filter: true },
-                        // { field: "data11", headerName: "두께#1", filter: true },
-                        // { field: "data12", headerName: "두께#2", filter: true },
-                        // { field: "data13", headerName: "두께#3", filter: true },
-                        // { field: "data14", headerName: "두께#4", filter: true },
-                        // { field: "data15", headerName: "두께#5", filter: true },
-                        { field: "data1result", headerName: "두께판정", filter: true },
-                        // { field: "data21", headerName: "점착력(내측)#1", filter: true },
-                        // { field: "data22", headerName: "점착력(내측)#2", filter: true },
-                        // { field: "data23", headerName: "점착력(내측)#3", filter: true },
-                        // { field: "data24", headerName: "점착력(내측)#4", filter: true },
-                        // { field: "data25", headerName: "점착력(내측)#5", filter: true },
-                        { field: "data2result", headerName: "점착력(내측)판정", filter: true },
-                        // { field: "data31", headerName: "점착력(외측)#1", filter: true },
-                        // { field: "data32", headerName: "점착력(외측)#2", filter: true },
-                        // { field: "data33", headerName: "점착력(외측)#3", filter: true },
-                        // { field: "data34", headerName: "점착력(외측)#4", filter: true },
-                        // { field: "data35", headerName: "점착력(외측)#5", filter: true },
-                        { field: "data3result", headerName: "점착력(외측)판정", filter: true },
-                        // { field: "data41", headerName: "이형력(외측)#1", filter: true },
-                        // { field: "data42", headerName: "이형력(외측)#2", filter: true },
-                        // { field: "data43", headerName: "이형력(외측)#3", filter: true },
-                        // { field: "data44", headerName: "이형력(외측)#4", filter: true },
-                        // { field: "data45", headerName: "이형력(외측)#5", filter: true },
-                        { field: "data4result", headerName: "이형력(내측)판정", filter: true },
+                if (typeof agGrid !== 'undefined') {
+                    const gridOptions = {
+                        columnDefs: [
 
-                    ],
-                    getRowStyle: function (params) {
-                        if (params.data.exterior1 === 'NG') { // 비교 연산자를 사용하여 값이 'NG'인지 확인
-                            return { color: 'red' }; // 배경색을 빨간색으로 설정
+                            { field: "inspectiondate", headerName: "검사일자", filter: true },
+                            { field: "employee", headerName: "검사자", filter: true },
+                            { field: "materialname", headerName: "자재명", filter: true },
+                            { field: "lotno", headerName: "LOTNO", filter: true },
+                            { field: "supplier", headerName: "공급사", filter: true },
+                            { field: "manufacterer", headerName: "제조사", filter: true },
+                            { field: "typecategory", headerName: "TYPE", filter: true },
+                            { field: "roll", headerName: "입고수량", filter: true },
+                            { field: "inspectionroll", headerName: "검사수량", filter: true },
+                            { field: "exterior1", headerName: "외관검사", filter: true },
+                            { field: "data1result", headerName: "두께판정", filter: true },
+                            { field: "data2result", headerName: "점착력(내측)판정", filter: true },
+                            { field: "data3result", headerName: "점착력(외측)판정", filter: true },
+                            { field: "data4result", headerName: "이형력(내측)판정", filter: true },
+                            { headerName: "성적서", cellRenderer: renderButton }
+
+                        ],
+                        getRowStyle: function (params) {
+                            if (params.data.exterior1 === 'NG') { // 비교 연산자를 사용하여 값이 'NG'인지 확인
+                                return { color: 'red' }; // 배경색을 빨간색으로 설정
+                            }
+                            if (params.data.data1result === 'NG') { // 비교 연산자를 사용하여 값이 'NG'인지 확인
+                                return { color: 'red' }; // 배경색을 빨간색으로 설정
+                            }
+                            return null; // 기본적으로는 아무 스타일도 적용하지 않음
+                        },
+
+                        autoSizeStrategy: {
+                            type: 'fitGridWidth',
+                            defaultMinWidth: 150
+                        },
+                        rowHeight: 45,
+                        enableFilter: true,
+                        rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
+                        onRowDoubleClicked: function (params) {
+                            // $('#materialname-input').val(params.data.materialname);
+                            // $('#lotno-input').val(params.data.lotno);
+                            // $('#adhesionstrength-input').val(params.data.adhesionstrength);
+                            // $('#adhesionstrength1-input').val(params.data.adhesionstrength1);
+                            // $('#thickness-input').val(params.data.thickness);
+                            // var newWindow = window.open('/html/00.html', '_blank', 'width=1000,height=1000');
+
+                            // newWindow.onload = function () {
+                            //     // 발주서 창이 로딩되면 해당 데이터를 전달
+                            //     newWindow.document.getElementById("inputdate").innerText = params.data.inspectiondate || '';
+                            //     newWindow.document.getElementById("inspectiondate").innerText = params.data.inspectiondate || '';
+                            //     newWindow.document.getElementById("materialname").innerText = params.data.materialname || '';
+                            //     newWindow.document.getElementById("lotno").innerText = params.data.lotno || '';
+                            //     newWindow.document.getElementById("supplier").innerText = params.data.supplier || '';
+                            //     newWindow.document.getElementById("manufacterer").innerText = params.data.manufacterer || '';
+                            //     newWindow.document.getElementById("inspectionroll").innerText = params.data.roll + '/' + params.data.inspectionroll || '';
+
+                            // }
+                            // $('#savebutton').text('검사완료')
+                            // document.getElementById('modal').style.display = 'block';
+                            // document.getElementById('overlay').style.display = 'block';
                         }
-                        if (params.data.data1result === 'NG') { // 비교 연산자를 사용하여 값이 'NG'인지 확인
-                            return { color: 'red' }; // 배경색을 빨간색으로 설정
-                        }
-                        return null; // 기본적으로는 아무 스타일도 적용하지 않음
-                    },
+                    }; 100
 
-                    autoSizeStrategy: {
-                        type: 'fitGridWidth',
-                        defaultMinWidth: 150
-                    },
-                    rowHeight: 45,
-                    enableFilter: true,
-                    rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
-                    onRowDoubleClicked: function (params) {
-                        // $('#materialname-input').val(params.data.materialname);
-                        // $('#lotno-input').val(params.data.lotno);
-                        // $('#adhesionstrength-input').val(params.data.adhesionstrength);
-                        // $('#adhesionstrength1-input').val(params.data.adhesionstrength1);
-                        // $('#thickness-input').val(params.data.thickness);
-                        var newWindow = window.open('/html/00.html', '_blank', 'width=1000,height=800');
+                    const gridDiv = document.querySelector('#myGrid');
+                    gridApi = agGrid.createGrid(gridDiv, gridOptions);
 
-                        newWindow.onload = function () {
-                            // 발주서 창이 로딩되면 해당 데이터를 전달
-                            newWindow.document.getElementById("inputdate").innerText = params.data.inspectiondate || '';
-                            newWindow.document.getElementById("inspectiondate").innerText = params.data.inspectiondate || '';
-                            newWindow.document.getElementById("materialname").innerText = params.data.materialname || '';
-                            newWindow.document.getElementById("lotno").innerText = params.data.lotno || '';
-                            newWindow.document.getElementById("supplier").innerText = params.data.supplier || '';
-                            newWindow.document.getElementById("manufacterer").innerText = params.data.manufacterer || '';
-                            newWindow.document.getElementById("inspectionroll").innerText = params.data.roll +'/'+params.data.inspectionroll || '';
+                    loadData();
+                } else {
+                }
+            }, 100); // 약간의 지연 추가
 
-                        }
-                        // $('#savebutton').text('검사완료')
-                        // document.getElementById('modal').style.display = 'block';
-                        // document.getElementById('overlay').style.display = 'block';
-                    }
-                }; 100
+        }
+        function renderButton(params) {
+            var button = document.createElement('button');
+            button.textContent = '성적서';
+            button.style.backgroundColor = 'yellow';
+            button.style.color = 'black';
+            button.className = 'new-cancel';
+            button.onclick = function () {
+                viewReport(params.data);
+            };
+            return button;
+        }
 
-                const gridDiv = document.querySelector('#myGrid');
-                gridApi = agGrid.createGrid(gridDiv, gridOptions);
+        // viewReport 함수 정의
+        function viewReport(rowData) {
+            var newWindow = window.open('/html/00.html', '_blank', 'width=1000,height=1000');
+            newWindow.onload = function () {
+                newWindow.document.getElementById("inputdate").innerText = rowData.inspectiondate || '';
+                newWindow.document.getElementById("inspectiondate").innerText = rowData.inspectiondate || '';
+                newWindow.document.getElementById("materialname").innerText = rowData.materialname || '';
+                newWindow.document.getElementById("lotno").innerText = rowData.lotno || '';
+                newWindow.document.getElementById("supplier").innerText = rowData.supplier || '';
+                newWindow.document.getElementById("manufacterer").innerText = rowData.manufacterer || '';
+                newWindow.document.getElementById("inspectionroll").innerText = rowData.roll + '/' + rowData.inspectionroll || '';
+                newWindow.document.getElementById("data11").innerText = rowData.data11 || '';
+                newWindow.document.getElementById("data12").innerText = rowData.data12 || '';
+                newWindow.document.getElementById("data13").innerText = rowData.data13 || '';
+                newWindow.document.getElementById("data14").innerText = rowData.data14 || '';
+                newWindow.document.getElementById("data15").innerText = rowData.data15 || '';
+                newWindow.document.getElementById("data1result").innerText = rowData.data1result || '';
+                newWindow.document.getElementById("data21").innerText = rowData.data21 || '';
+                newWindow.document.getElementById("data22").innerText = rowData.data22 || '';
+                newWindow.document.getElementById("data23").innerText = rowData.data23 || '';
+                newWindow.document.getElementById("data24").innerText = rowData.data24 || '';
+                newWindow.document.getElementById("data25").innerText = rowData.data25 || '';
+                newWindow.document.getElementById("data2result").innerText = rowData.data2result || '';
+                newWindow.document.getElementById("data31").innerText = rowData.data31 || '';
+                newWindow.document.getElementById("data32").innerText = rowData.data32 || '';
+                newWindow.document.getElementById("data33").innerText = rowData.data33 || '';
+                newWindow.document.getElementById("data34").innerText = rowData.data34 || '';
+                newWindow.document.getElementById("data35").innerText = rowData.data35 || '';
+                newWindow.document.getElementById("data3result").innerText = rowData.data3result || '';
+                newWindow.document.getElementById("data41").innerText = rowData.data41 || '';
+                newWindow.document.getElementById("data42").innerText = rowData.data42 || '';
+                newWindow.document.getElementById("data43").innerText = rowData.data43 || '';
+                newWindow.document.getElementById("data44").innerText = rowData.data44 || '';
+                newWindow.document.getElementById("data45").innerText = rowData.data45 || '';
+                newWindow.document.getElementById("data4result").innerText = rowData.data4result || '';
+                newWindow.document.getElementById("data51").innerText = rowData.data51 || '';
+                newWindow.document.getElementById("data52").innerText = rowData.data52 || '';
+                newWindow.document.getElementById("data53").innerText = rowData.data53 || '';
+                newWindow.document.getElementById("data54").innerText = rowData.data54 || '';
+                newWindow.document.getElementById("data55").innerText = rowData.data55 || '';
+                newWindow.document.getElementById("data5result").innerText = rowData.data5result || '';
 
-                loadData();
-            } else {
-            }
+            };
         }
         function numberWithCommas(params) {
             if (typeof params.value === 'number') {

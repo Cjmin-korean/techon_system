@@ -6205,6 +6205,23 @@ module.exports = function (app) {
         });
 
     });
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinfo', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+                .query("select length from materialinfoinformation")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
 
     sql.connect(config).then(pool => {
         app.post('/api/plansearchAll', function (req, res) {

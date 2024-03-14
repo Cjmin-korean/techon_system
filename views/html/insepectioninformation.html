@@ -472,146 +472,148 @@
         }
         $(document).ready(function () {
 
-            $('#search').keypress(function (e) {
-                if (e.which === 13) {
-                    // 13 is the key code for Enter
-                    applySearchFilter();
-                }
-            });
-            showLoadingSpinner(); // Show loading spinner on page load
             initializeGrid()
         });
 
 
+        $('#search').keypress(function (e) {
+            if (e.which === 13) {
+                // 13 is the key code for Enter
+                applySearchFilter();
+            }
+        });
         function updateDataCount() {
             const rowCount = gridApi.getDisplayedRowCount();
             document.getElementById('dataCount').innerText = `DATA: ${rowCount}`;
         }
         function initializeGrid() {
-            if (typeof agGrid !== 'undefined') {
-                const gridOptions = {
-                    columnDefs: [
+            setTimeout(function () {
 
-                        { field: "codenumber", headerName: "품목코드", filter: true },
-                        { field: "materialname", headerName: "자재명", filter: true },
-                        { field: "manufacterer", headerName: "제조사", filter: true },
-                        { field: "supplier", headerName: "공급사", filter: true },
-                        { field: "materialtype", headerName: "유형", filter: true },
-                        { field: "color", headerName: "색상", filter: true },
-                        // { field: "thickness", headerName: "두께과거", filter: true },
-                        // { field: "adhesionstrength", headerName: "점착과거", filter: true },
-                        {
-                            headerName: '두께(㎛)',
-                            children: [
-                                { field: 'thickness11', headerName: "기준값", filter: true, maxWidth: 100, valueFormatter: numberWithCommas },
-                                { field: 'thickness12', headerName: "공차(-)", filter: true, maxWidth: 100 },
-                                { field: 'thickness13', headerName: "공차(+)", filter: true, maxWidth: 100 },
-                            ]
+                if (typeof agGrid !== 'undefined') {
+                    const gridOptions = {
+                        columnDefs: [
+
+                            { field: "codenumber", headerName: "품목코드", filter: true },
+                            { field: "materialname", headerName: "자재명", filter: true },
+                            { field: "manufacterer", headerName: "제조사", filter: true },
+                            { field: "supplier", headerName: "공급사", filter: true },
+                            { field: "materialtype", headerName: "유형", filter: true },
+                            { field: "color", headerName: "색상", filter: true },
+                            // { field: "thickness", headerName: "두께과거", filter: true },
+                            // { field: "adhesionstrength", headerName: "점착과거", filter: true },
+                            {
+                                headerName: '두께(㎛)',
+                                children: [
+                                    { field: 'thickness11', headerName: "기준값", filter: true, maxWidth: 100, valueFormatter: numberWithCommas },
+                                    { field: 'thickness12', headerName: "공차(-)", filter: true, maxWidth: 100 },
+                                    { field: 'thickness13', headerName: "공차(+)", filter: true, maxWidth: 100 },
+                                ]
+                            },
+
+                            {
+                                headerName: '점착력(내측)(gf/25mm)',
+                                children: [
+                                    { field: 'adhesionstrength11', headerName: "기준값", filter: true, maxWidth: 100 },
+                                    { field: 'adhesionstrength12', headerName: "공차(-)", filter: true, maxWidth: 100 },
+                                    { field: 'adhesionstrength13', headerName: "공차(+)", filter: true, maxWidth: 100 },
+                                ]
+                            },
+                            {
+                                headerName: '점착력(외측)(gf/25mm)',
+                                children: [
+                                    { field: "adhesionstrength21", headerName: "기준값", filter: true, maxWidth: 100 },
+                                    { field: "adhesionstrength22", headerName: "공차(-)", filter: true, maxWidth: 100 },
+                                    { field: "adhesionstrength23", headerName: "공차(+)", filter: true, maxWidth: 100 },
+                                ]
+                            },
+                            {
+                                headerName: '이형력(내측)(gf/25mm)',
+                                children: [
+                                    { field: 'adhesionstrength31', headerName: "기준값", filter: true, maxWidth: 100 },
+                                    { field: 'adhesionstrength32', headerName: "공차(-)", filter: true, maxWidth: 100 },
+                                    { field: 'adhesionstrength33', headerName: "공차(+)", filter: true, maxWidth: 100 },
+                                ]
+                            },
+                            { field: "resistance11", headerName: "저항(내측)(Ω/㎡)", filter: true, minWidth: 200 },
+                            { field: "resistance21", headerName: "저항(외측)(Ω/㎡)", filter: true, minWidth: 200 },
+
+                        ],
+                        mounted() {
+                            this.rowData.forEach(row => {
+                                if (row.resistance11 === 2) {
+                                    row.resistance11 = Math.pow(10, row.resistance11); // 10의 제곱으로 변경
+                                }
+                            });
                         },
-
-                        {
-                            headerName: '점착력(내측)(gf/25mm)',
-                            children: [
-                                { field: 'adhesionstrength11', headerName: "기준값", filter: true, maxWidth: 100 },
-                                { field: 'adhesionstrength12', headerName: "공차(-)", filter: true, maxWidth: 100 },
-                                { field: 'adhesionstrength13', headerName: "공차(+)", filter: true, maxWidth: 100 },
-                            ]
+                        autoSizeStrategy: {
+                            type: 'fitGridWidth',
+                            defaultMinWidth: 150
                         },
-                        {
-                            headerName: '점착력(외측)(gf/25mm)',
-                            children: [
-                                { field: "adhesionstrength21", headerName: "기준값", filter: true, maxWidth: 100 },
-                                { field: "adhesionstrength22", headerName: "공차(-)", filter: true, maxWidth: 100 },
-                                { field: "adhesionstrength23", headerName: "공차(+)", filter: true, maxWidth: 100 },
-                            ]
-                        },
-                        {
-                            headerName: '이형력(내측)(gf/25mm)',
-                            children: [
-                                { field: 'adhesionstrength31', headerName: "기준값", filter: true, maxWidth: 100 },
-                                { field: 'adhesionstrength32', headerName: "공차(-)", filter: true, maxWidth: 100 },
-                                { field: 'adhesionstrength33', headerName: "공차(+)", filter: true, maxWidth: 100 },
-                            ]
-                        },
-                        { field: "resistance11", headerName: "저항(내측)(Ω/㎡)", filter: true, minWidth: 200 },
-                        { field: "resistance21", headerName: "저항(외측)(Ω/㎡)", filter: true, minWidth: 200 },
-
-                    ],
-                    mounted() {
-                        this.rowData.forEach(row => {
-                            if (row.resistance11 === 2) {
-                                row.resistance11 = Math.pow(10, row.resistance11); // 10의 제곱으로 변경
-                            }
-                        });
-                    },
-                    autoSizeStrategy: {
-                        type: 'fitGridWidth',
-                        defaultMinWidth: 150
-                    },
-                    rowHeight: 45,
-                    enableFilter: true,
-                    rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
-                    onRowDoubleClicked: function (params) {
-                        $('#color-input').val(params.data.color);
-                        $('#manufacterer-input').val(params.data.manufacterer);
-                        $('#supplier-input').val(params.data.supplier);
-                        $('#materialtype-input').val(params.data.materialtype);
-                        $('#materialname-input').val(params.data.materialname);
-                        $('#codenumber-input').val(params.data.codenumber);
+                        rowHeight: 45,
+                        enableFilter: true,
+                        rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
+                        onRowDoubleClicked: function (params) {
+                            $('#color-input').val(params.data.color);
+                            $('#manufacterer-input').val(params.data.manufacterer);
+                            $('#supplier-input').val(params.data.supplier);
+                            $('#materialtype-input').val(params.data.materialtype);
+                            $('#materialname-input').val(params.data.materialname);
+                            $('#codenumber-input').val(params.data.codenumber);
 
 
 
-                        $('#thickness11').val(params.data.thickness11);
-                        $('#thickness12').val(params.data.thickness12);
-                        $('#thickness13').val(params.data.thickness13);
-                        $('#adhesionstrength11').val(params.data.adhesionstrength11);
-                        $('#adhesionstrength12').val(params.data.adhesionstrength12);
-                        $('#adhesionstrength13').val(params.data.adhesionstrength13);
-                        $('#adhesionstrength21').val(params.data.adhesionstrength21);
-                        $('#adhesionstrength22').val(params.data.adhesionstrength22);
-                        $('#adhesionstrength23').val(params.data.adhesionstrength23);
-                        $('#adhesionstrength31').val(params.data.adhesionstrength31);
-                        $('#adhesionstrength32').val(params.data.adhesionstrength32);
-                        $('#adhesionstrength33').val(params.data.adhesionstrength33);
-                        $('#resistance11').val(params.data.resistance11);
-                        $('#resistance21').val(params.data.resistance21);
+                            $('#thickness11').val(params.data.thickness11);
+                            $('#thickness12').val(params.data.thickness12);
+                            $('#thickness13').val(params.data.thickness13);
+                            $('#adhesionstrength11').val(params.data.adhesionstrength11);
+                            $('#adhesionstrength12').val(params.data.adhesionstrength12);
+                            $('#adhesionstrength13').val(params.data.adhesionstrength13);
+                            $('#adhesionstrength21').val(params.data.adhesionstrength21);
+                            $('#adhesionstrength22').val(params.data.adhesionstrength22);
+                            $('#adhesionstrength23').val(params.data.adhesionstrength23);
+                            $('#adhesionstrength31').val(params.data.adhesionstrength31);
+                            $('#adhesionstrength32').val(params.data.adhesionstrength32);
+                            $('#adhesionstrength33').val(params.data.adhesionstrength33);
+                            $('#resistance11').val(params.data.resistance11);
+                            $('#resistance21').val(params.data.resistance21);
 
 
-                        $('#tdsthickness11').val('');
-                        $('#tdsthickness12').val('');
-                        $('#tdsthickness13').val('');
-                        $('#tdsadhesionstrength11').val('');
-                        $('#tdsadhesionstrength12').val('');
-                        $('#tdsadhesionstrength13').val('');
-                        $('#tdsadhesionstrength21').val('');
-                        $('#tdsadhesionstrength22').val('');
-                        $('#tdsadhesionstrength23').val('');
-                        $('#tdsadhesionstrength31').val('');
-                        $('#tdsadhesionstrength32').val('');
-                        $('#tdsadhesionstrength33').val('');
+                            $('#tdsthickness11').val('');
+                            $('#tdsthickness12').val('');
+                            $('#tdsthickness13').val('');
+                            $('#tdsadhesionstrength11').val('');
+                            $('#tdsadhesionstrength12').val('');
+                            $('#tdsadhesionstrength13').val('');
+                            $('#tdsadhesionstrength21').val('');
+                            $('#tdsadhesionstrength22').val('');
+                            $('#tdsadhesionstrength23').val('');
+                            $('#tdsadhesionstrength31').val('');
+                            $('#tdsadhesionstrength32').val('');
+                            $('#tdsadhesionstrength33').val('');
 
-                        $('#unit-select').val('㎛');
-                        $('#unit-select1').val('N/mm');
-                        $('#unit-select2').val('N/mm');
-                        $('#unit-select3').val('N/mm');
+                            $('#unit-select').val('㎛');
+                            $('#unit-select1').val('N/mm');
+                            $('#unit-select2').val('N/mm');
+                            $('#unit-select3').val('N/mm');
 
 
 
 
-                        $('#id-input').val(params.data.id);
+                            $('#id-input').val(params.data.id);
 
-                        $('#savebutton').text('수정')
-                        document.getElementById('modal').style.display = 'block';
-                        document.getElementById('overlay').style.display = 'block';
-                    }
-                }; 100
+                            $('#savebutton').text('수정')
+                            document.getElementById('modal').style.display = 'block';
+                            document.getElementById('overlay').style.display = 'block';
+                        }
+                    }; 100
 
-                const gridDiv = document.querySelector('#myGrid');
-                gridApi = agGrid.createGrid(gridDiv, gridOptions);
+                    const gridDiv = document.querySelector('#myGrid');
+                    gridApi = agGrid.createGrid(gridDiv, gridOptions);
 
-                loadData();
-            } else {
-            }
+                    loadData();
+                } else {
+                }
+            }, 100); // 약간의 지연 추가
         }
         function numberWithCommas(params) {
             if (typeof params.value === 'number') {
