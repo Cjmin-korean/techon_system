@@ -5,24 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR 코드 리더</title>
     <script src="https://rawgit.com/sitepoint-editors/jsqrcode/master/src/qr_packed.js"></script>
+    <style>
+        #qr-video {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+        }
+        #qr-instructions {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
     <h1>QR 코드 리더</h1>
-    <p>아이패드 카메라로 QR 코드를 스캔하세요.</p>
-    <video id="qr-video" width="100%" height="100%" autoplay></video>
+    <p id="qr-instructions">아이패드 카메라로 QR 코드를 스캔하세요.</p>
+    <video id="qr-video" autoplay playsinline></video>
     <canvas id="qr-canvas" style="display: none;"></canvas>
     <script>
         const video = document.getElementById('qr-video');
         const canvasElement = document.getElementById('qr-canvas');
         const canvas = canvasElement.getContext('2d');
 
-        // 비디오 스트림 가져오기
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        // 비디오 및 오디오 트랙 설정
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: true })
             .then(function (stream) {
                 video.srcObject = stream;
-                video.setAttribute('playsinline', true);
                 video.play();
                 requestAnimationFrame(tick);
+            })
+            .catch(function(error) {
+                console.error('미디어 장치를 가져올 수 없습니다.', error);
+                alert('카메라를 사용할 수 없습니다.');
             });
 
         // QR 코드 검출
@@ -38,11 +52,9 @@
                     });
                     if (code) {
                         console.log('QR 코드 스캔 결과:', code.data);
-                        // 여기에 결과를 처리하는 코드를 추가하세요.
                         alert('QR 코드 스캔 결과: ' + code.data);
                     }
                 } catch (err) {
-                    // QR 코드를 찾을 수 없는 경우
                     console.error('QR 코드를 찾을 수 없습니다.', err);
                 }
             }
