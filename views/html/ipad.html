@@ -8,69 +8,98 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        #textInput {
-            padding: 8px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-right: 10px;
-            width: 500px;
-        }
-
-        #addButton {
-            padding: 8px 16px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        #addButton:hover {
-            background-color: #45a049;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            border: 1px solid #dddddd;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        tr:hover {
-            background-color: #ddd;
-        }
-    </style>
 </head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    #textInput {
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-right: 10px;
+        width: 500px;
+    }
+
+    #addButton {
+        padding: 8px 16px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #addButton:hover {
+        background-color: #45a049;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #dddddd;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #ddd;
+    }
+
+    .confirmButton {
+        padding: 8px 16px;
+        font-size: 16px;
+        background-color: #0a0e0a;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+
+    }
+
+    .confirmButton:hover {
+        background-color: #434443;
+    }
+</style>
 
 <body>
 
-    <!-- 입력란과 확인 버튼 -->
+    <!-- <input type="text" id="textInput" autocomplete="off" placeholder="텍스트를 입력하세요..." value=""> -->
     <input type="text" id="textInput" placeholder="텍스트를 입력하세요..."
         value="HGCS -M000-40/2309203Z03-7/2023-09-20/200/2024-03-19">
-    <button onclick="processText()">입력 확인</button>
+    <button class="confirmButton" onclick="processText()">QR 리딩</button>
+    <table id="inputTable">
+        <thead>
+            <tr>
+                <th>품목코드</th>
+                <th>자재명</th>
+                <th>자재폭(mm)</th>
+                <th>수량(M)</th>
+                <th>롤수</th>
+                <th>합계</th>
 
-    <!-- 출력 테이블 -->
+            </tr>
+        </thead>
+        <tbody id="tableBody1">
+        </tbody>
+    </table>
+
     <table id="outputTable">
         <thead>
             <tr>
@@ -82,17 +111,13 @@
                 <th>제조일자</th>
                 <th>만료일자</th>
                 <th>발주번호</th>
-                <th>롤수</th>
-                <th>수량 합계</th> <!-- 추가된 열 -->
             </tr>
         </thead>
         <tbody id="tableBody">
         </tbody>
     </table>
 
-    <!-- JavaScript 코드 -->
     <script>
-        // 서버 주소 설정
         var server = '';
 
         if (window.location.hostname == '127.0.0.1') {
@@ -101,53 +126,28 @@
             server = 'http://techonmes.co.kr';
         }
 
-        // 엔터 키 입력 처리
         $('#textInput').keydown(function (event) {
             if (event.keyCode == 13) { // Enter 키 코드
                 processText();
                 $('#textInput').val(''); // 입력란의 값을 공백으로 설정
             }
         });
-
-        // 텍스트 처리 함수
         function processText() {
             var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
             var contents = text.split('/');
 
-            var materialName = contents[0];
-            var lotNo = contents[1];
+            if (contents.length <= 5) {
 
-            // 검사할 테이블
-            var table = document.getElementById("outputTable");
-
-            // 입력된 자재명과 LOTNO를 가진 행 검색
-            var existingRow = null;
-            for (var i = 0, row; row = table.rows[i]; i++) {
-                if (row.cells[1].innerHTML === materialName && row.cells[2].innerHTML === lotNo) {
-                    existingRow = row;
-                    break;
-                }
-            }
-
-            if (existingRow) {
-                // 동일한 자재명과 LOTNO를 가진 데이터가 이미 존재할 경우, 해당 행의 롤수를 증가시킴
-                var rollCountCell = existingRow.cells[8];
-                var rollCount = parseInt(rollCountCell.innerHTML) + 1;
-                rollCountCell.innerHTML = rollCount;
-
-                // 수량 합계 업데이트
-                var quantityCell = existingRow.cells[4];
-                var quantity = parseInt(quantityCell.innerHTML);
-                var totalCell = existingRow.cells[9];
-                totalCell.innerHTML = rollCount * quantity;
-            } else {
-                // 동일한 데이터가 없을 경우, 새로운 행 추가
+                var materialName = contents[0];
+                var lotNo = contents[1];
                 var manufacturingDate = contents[2];
                 var quantity = contents[3];
                 var expirationDate = contents[4];
                 var newRow = document.createElement("tr");
                 var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
                 var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
+
+                // AJAX 요청 등 추가 처리
                 $.ajax({
                     type: 'POST',
                     url: server + '/api/selectcodenumber',
@@ -167,17 +167,112 @@
                     <td>${manufacturingDate}</td>
                     <td>${expirationDate}</td>
                     <td>${orderno}</td>
-                    <td>1</td> <!-- 롤수 초기값은 1 -->
-                    <td>${quantity}</td> <!-- 수량 합계 초기값은 quantity -->
                 `;
 
                         // 테이블에 행 추가
                         document.getElementById("tableBody").appendChild(newRow);
                     },
                 });
+                groupRolls()
+            } else {
+                var text = document.getElementById("textInput").value
+                var contents = text.split('/');
+                var materialName = contents[0];
+                var lotNo = contents[1];
+                var manufacturingDate = contents[2];
+                var quantity = contents[3];
+                var expirationDate = contents[4];
+                var newRow = document.createElement("tr");
+                var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
+                var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectcodenumber1',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "materialname": contents[0],
+                        "length": contents[3],
+                        "width": contents[5],
+                    }),
+                    success: function (result) {
+                        newRow.innerHTML = `
+                    <td>${result[0].codenumber}</td>
+                    <td>${materialName}</td>
+                    <td>${lotNo}</td>
+                    <td>${materialwidth}</td>
+                    <td>${quantity}</td>
+                    <td>${manufacturingDate}</td>
+                    <td>${expirationDate}</td>
+                    <td>${orderno}</td>
+                `;
+
+                        // 테이블에 행 추가
+                        document.getElementById("tableBody").appendChild(newRow);
+                    },
+                });
+                groupRolls()
+            }
+
+
+        }
+        // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
+        // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
+        function groupRolls() {
+            var groupedData = {}; // 그룹화된 데이터를 저장할 객체
+
+            // 하단 테이블의 각 행을 반복하면서 롤수를 그룹화함
+            $('#tableBody tr').each(function () {
+                var codenumber = $(this).find('td:eq(0)').text(); // 품목코드 가져오기
+                var materialname = $(this).find('td:eq(1)').text(); // 자재명 가져오기
+                var width = $(this).find('td:eq(3)').text(); // 자재폭 가져오기
+                var quantity = parseFloat($(this).find('td:eq(4)').text()); // 수량 가져오기 (문자열을 숫자로 변환)
+
+                // 그룹화된 데이터 객체에 해당 그룹이 있는지 확인하고 없으면 초기화
+                if (!(codenumber in groupedData)) {
+                    groupedData[codenumber] = {};
+                }
+                if (!(materialname in groupedData[codenumber])) {
+                    groupedData[codenumber][materialname] = {};
+                }
+                if (!(width in groupedData[codenumber][materialname])) {
+                    groupedData[codenumber][materialname][width] = { rolls: 0, totalQuantity: 0, quantity: 0 };
+                }
+
+                // 롤수, 총 수량 및 수량 업데이트
+                groupedData[codenumber][materialname][width].rolls++;
+                groupedData[codenumber][materialname][width].totalQuantity += quantity;
+                groupedData[codenumber][materialname][width].quantity = quantity;
+            });
+
+            // 상단 테이블에 그룹화된 데이터 표시
+            $('#tableBody1').empty(); // 기존 테이블 내용 삭제
+            for (var codenumber in groupedData) {
+                for (var materialname in groupedData[codenumber]) {
+                    for (var width in groupedData[codenumber][materialname]) {
+                        var rolls = groupedData[codenumber][materialname][width].rolls;
+                        var totalQuantity = groupedData[codenumber][materialname][width].totalQuantity;
+                        var quantity = groupedData[codenumber][materialname][width].quantity;
+
+                        var newRow = `<tr>
+                    <td>${codenumber}</td>
+                    <td>${materialname}</td>
+                    <td>${width}</td>
+                    <td>${quantity}</td>
+                    <td>${rolls + 1}</td>
+                    <td>${quantity * (rolls + 1)}</td>
+                  </tr>`;
+                        $('#tableBody1').append(newRow); // 상단 테이블에 새로운 행 추가
+                    }
+                }
             }
         }
+
+
+
     </script>
+
+
 
 </body>
 
