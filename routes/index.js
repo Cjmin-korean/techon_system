@@ -2021,6 +2021,68 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcodenumber', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .query(
+                    " select " +
+                    "  * " +
+                    "  from " +
+                    "  materialinfoinformation " +
+                    "  where " +
+                    " materialname=@materialname  and length=@length")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcodenumber1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .query(
+                    " select " +
+                    "  * " +
+                    "  from " +
+                    "  materialinfoinformation " +
+                    "  where " +
+                    " materialname=@materialname  and length=@length and width=@width")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
@@ -4628,7 +4690,34 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " select * from mr2 "
+                    " select * from mr2 order by a desc"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/mr2searching', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+
+                .query(
+                    " select * from mr2 where e between  @start and @finish"
 
                 )
 

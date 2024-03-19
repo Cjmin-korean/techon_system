@@ -4,36 +4,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Material Slitting</title>
+    <title>Excel to Table Example</title>
+    <style>
+        #dataTable {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+
+        #dataTable th,
+        #dataTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #dataTable th {
+            background-color: #f2f2f2;
+        }
+
+        /* #dataTable tbody tr:nth-child(even) {
+            background-color: #201f1f;
+        } */
+
+        #fileInputContainer {
+            position: relative;
+            width: fit-content;
+        }
+
+        #excelFileInput {
+            display: none;
+        }
+
+        #customFileInput {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4a584b;
+            color: white;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #customFileInput:hover {
+            background-color: #848684;
+        }
+    </style>
 </head>
 
 <body>
-    <label for="lengthInput">Enter the length of material (in meters): </label>
-    <input type="number" id="lengthInput" min="1" step="1" value="200">
-    <button onclick="slitMaterial()">Slit Material</button>
+    <div id="fileInputContainer">
+        <button id="customFileInput">Select File</button>
+    </div>
 
-    <div id="result"></div>
+    <table id="dataTable">
+        <div id="fileInputContainer">
+            <label for="excelFileInput" id="customFileInput">파일선택</label>
+            <input type="file" id="excelFileInput">
+        </div>
+        <!-- thead will be populated dynamically -->
+        <thead id="tableHead">
 
-    <script src="script.js"></script>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('excelFileInput').addEventListener('change', handleFile);
+
+        function generateRandomNumber() {
+            return Math.floor(100000000000 + Math.random() * 900000000000);
+        }
+
+        function handleFile(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                const data = event.target.result;
+                const workbook = XLSX.read(data, { type: 'binary' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                // Clear existing table data
+                document.getElementById('tableHead').innerHTML = '';
+                document.getElementById('tableBody').innerHTML = '';
+
+                // Iterate through each row of the parsed data except the last two rows
+                for (let rowIndex = 1; rowIndex < parsedData.length - 3; rowIndex++) {
+                    const row = parsedData[rowIndex];
+                    // Create a new table row
+                    const tr = document.createElement('tr');
+
+                    // Iterate through each column (A, C) of the row
+                    for (let colIndex = 0; colIndex < 17; colIndex++) {
+                        // Skip the second column (B column)
+                        if (colIndex === 1 || colIndex === 2 || colIndex === 3) {
+                            continue;
+                        }
+
+                        // Create a new table cell
+                        const cellType = rowIndex === 1 ? 'th' : 'td';
+                        const cell = document.createElement(cellType);
+
+                        // Check if it's the G column (index 6)
+                        if (colIndex === 6) {
+                            if (row[colIndex] && row[colIndex].includes('*')) {
+                                const [valueA, valueB] = row[colIndex].split('*'); // Split the value into A and B
+                                // Create td for A and B
+                                const cellA = document.createElement('td');
+                                const cellB = document.createElement('td');
+                                cellA.textContent = valueA.trim() || ''; // Handle empty cells
+                                cellB.textContent = valueB.trim() || ''; // Handle empty cells
+                                tr.appendChild(cellA);
+                                tr.appendChild(cellB);
+                            } else {
+                                // If it's not A*B structure, set cell data to "0"
+                                const cellA = document.createElement('td');
+                                const cellB = document.createElement('td');
+                                cellA.textContent = '0'; // Set cell data to "0"
+                                cellB.textContent = '0'; // Set cell data to "0"
+                                tr.appendChild(cellA);
+                                tr.appendChild(cellB);
+                            }
+                        } else {
+                            // For other columns
+                            // Set the cell data (A, C values)
+                            const cellData = row[colIndex];
+                            cell.textContent = cellData === undefined ? '0' : cellData; // Handle empty cells
+                            tr.appendChild(cell);
+                        }
+                    }
+
+                    // Append a new table cell with a random 12-digit number to the row
+                    const randomTd = document.createElement('td');
+                    randomTd.textContent = generateRandomNumber();
+                    tr.appendChild(randomTd);
+
+                    // Append the row to the table body or head
+                    if (rowIndex === 1) {
+                        document.getElementById('tableHead').appendChild(tr);
+                    } else {
+                        document.getElementById('tableBody').appendChild(tr);
+                    }
+                }
+
+            };
+
+            reader.readAsBinaryString(file);
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 </body>
-<script>
-    function slitMaterial() {
-        const length = document.getElementById('lengthInput').value;
-        const width = 1080;
-        const rolls = Math.ceil(length / width);
-        const leftover = length % width;
-
-        const result = document.getElementById('result');
-        result.innerHTML = '';
-
-        for (let i = 1; i <= rolls; i++) {
-            result.innerHTML += `Roll ${i}: ${width} meters<br>`;
-        }
-
-        if (leftover > 0) {
-            result.innerHTML += `Leftover: ${leftover} meters<br>`;
-        }
-    }
-</script>
 
 </html>
