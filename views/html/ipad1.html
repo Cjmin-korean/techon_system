@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 리더</title>
+    <script src="https://rawgit.com/sitepoint-editors/jsqrcode/master/src/qr_packed.js"></script>
+</head>
+<body>
+    <h1>QR 코드 리더</h1>
+    <p>아이패드 카메라로 QR 코드를 스캔하세요.</p>
+    <video id="qr-video" width="100%" height="100%" autoplay></video>
+    <canvas id="qr-canvas" style="display: none;"></canvas>
+    <script>
+        const video = document.getElementById('qr-video');
+        const canvasElement = document.getElementById('qr-canvas');
+        const canvas = canvasElement.getContext('2d');
+
+        // 비디오 스트림 가져오기
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(function (stream) {
+                video.srcObject = stream;
+                video.setAttribute('playsinline', true);
+                video.play();
+                requestAnimationFrame(tick);
+            });
+
+        // QR 코드 검출
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                try {
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    if (code) {
+                        console.log('QR 코드 스캔 결과:', code.data);
+                        // 여기에 결과를 처리하는 코드를 추가하세요.
+                        alert('QR 코드 스캔 결과: ' + code.data);
+                    }
+                } catch (err) {
+                    // QR 코드를 찾을 수 없는 경우
+                    console.error('QR 코드를 찾을 수 없습니다.', err);
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+    </script>
+</body>
+</html>

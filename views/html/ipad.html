@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>텍스트 처리</title>
+    <title>TECHON MES 자재입고</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
 
 </head>
 <style>
@@ -63,7 +64,8 @@
 </style>
 
 <body>
-
+    <div id="scannerContainer"></div>
+    <button id="startScan">QR 코드 스캔 시작</button>
     <!-- <input type="text" id="textInput" autocomplete="off" placeholder="텍스트를 입력하세요..." value=""> -->
     <input type="text" id="textInput" placeholder="텍스트를 입력하세요..."
         value="HGCS -M000-40/2309203Z03-7/2023-09-20/200/2024-03-19">
@@ -93,7 +95,7 @@
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
-        } 
+        }
 
         $('#textInput').keydown(function (event) {
             if (event.keyCode == 13) { // Enter 키 코드
@@ -185,8 +187,38 @@
         }
     </script>
     <script>
+        // Initialize variables
+        let scanner = null;
+        const scannerContainer = document.getElementById('scannerContainer');
+        const startScanButton = document.getElementById('startScan');
 
+        // Function to start scanning
+        function startScan() {
+            scanner = new Instascan.Scanner({ video: scannerContainer });
+            scanner.addListener('scan', function (content) {
+                // Handle the scanned content, for example:
+                document.getElementById('textInput').value = content;
+                processText(); // Process the scanned content
+                scanner.stop(); // Stop scanning
+            });
+            Instascan.Camera.getCameras().then(function (cameras) {
+                if (cameras.length > 0) {
+                    scanner.start(cameras[0]); // Start scanning using the first camera
+                } else {
+                    console.error('No cameras found.');
+                }
+            }).catch(function (e) {
+                console.error(e);
+            });
+        }
+
+        // Event listener for the startScan button
+        startScanButton.addEventListener('click', function () {
+            startScan();
+        });
     </script>
+
+
 </body>
 
 </html>
