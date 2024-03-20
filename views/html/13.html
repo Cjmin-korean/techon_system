@@ -3,6 +3,8 @@
 
 <head>
     <title>:: JavaScript Contenteditable ::</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style type="text/css">
         table {
             border-collapse: collapse;
@@ -92,10 +94,22 @@
             background-color: #fdfde3;
             /* 원하는 배경색으로 변경 가능 */
         }
+
+        #textInput {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+            width: 500px;
+        }
     </style>
 </head>
 
 <body>
+    <input type="text" id="textInput" autocomplete="off" placeholder="QR CODE를 리딩하세요"
+        value="HGCS -A305RB(G)A/2402213A03-2/2024-02-21/200/2024-08-20">
+
     <table id="editableTable">
         <thead>
             <tr class="table-light">
@@ -113,7 +127,7 @@
             </tr>
         </thead>
         <tbody id="info">
-            <tr>
+            <!-- <tr>
                 <td>API-25HM025</td>
                 <td>1,080</td>
                 <td oninput="onchanged(this)">200</td>
@@ -121,58 +135,95 @@
                 <td contenteditable="true" oninput="onchanged(this)">1</td>
                 <td contenteditable="true">200</td>
                 <td>
-                    <button class="add-row-btn" onclick="addRow(this)">슬리팅 추가</button>
+                    <button class="add-row-btn" onclick="addRow(this)">추가</button>
                 </td>
-            </tr>
-            <tr>
-                <td>ST-8372RFL</td>
-                <td>1,080</td>
-                <td oninput="onchanged(this)">200</td>
-                <td contenteditable="true">20240103</td>
-                <td contenteditable="true" oninput="onchanged(this)">1</td>
-                <td contenteditable="true">200</td>
-                <td>
-                    <button class="add-row-btn" onclick="addRow(this)">슬리팅 추가</button>
-                </td>
-            </tr>
-            <tr>
-                <td>PI실리콘 TAPE</td>
-                <td>1,080</td>
-                <td oninput="onchanged(this)">200</td>
-                <td contenteditable="true">20240101</td>
-                <td contenteditable="true" oninput="onchanged(this)">1</td>
-                <td contenteditable="true">200</td>
-                <td>
-                    <button class="add-row-btn" onclick="addRow(this)">슬리팅 추가</button>
-                </td>
-            </tr>
+            </tr> -->
+
         </tbody>
     </table>
 
     <script>
-        var newRow; // newRow 변수를 전역 범위에서 정의합니다.
+        // JavaScript 코드 시작
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        // textInput에 포커스 주기
+        document.getElementById('textInput').focus();
+
+
+        function processText() {
+            var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
+            var contents = text.split('/');
+
+            var materialName = contents[0];
+            var lotNo = contents[1];
+            var manufacturingDate = contents[2];
+            var quantity = contents[3];
+            var expirationDate = contents[4];
+            var newRow1 = document.createElement("tr");
+            var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
+            var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
+
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcodenumber',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "materialname": contents[0],
+                    "length": contents[3]
+                }),
+                success: function (result) {
+                    newRow1.innerHTML = `
+                    <td>${materialName}</td>
+                    <td>${result[0].width}</td>
+                    <td>${quantity}</td>
+                    <td>${lotNo}</td>
+                    <td>1</td>
+                    <td>${quantity}</td>
+                    <td>  <button class="add-row-btn" onclick="addRow(this)">추가</button></td>
+                `;
+
+                    // 테이블에 행 추가
+                    document.getElementById("tableBody").appendChild(newRow1);
+                },
+            });
+
+
+            // 테이블에 행 추가
+            document.getElementById("info").appendChild(newRow1);
+        }
+
+        var newRow;
+        $('#textInput').keypress(function (event) {
+            if (event.which === 13) { // Enter 키 코드인 13인지 확인
+                processText();
+                $('#textInput').val(''); // 입력란의 값을 공백으로 설정
+            }
+        });
 
         function addRow(btn) {
             var tableRow = btn.parentNode.parentNode;
             var rowData = [];
-            // 해당 행의 첫 번째 셀(자재명) 데이터를 가져옴
             rowData.push(tableRow.cells[0].innerText);
 
-            // 나머지 열은 공란으로 추가
             for (var i = 1; i < 3; i++) {
                 rowData.push('');
             }
 
-            // 해당 행의 네 번째 셀(LOTNO) 데이터를 가져옴
             rowData.push(tableRow.cells[3].innerText);
 
-            // 나머지 열은 공란으로 추가
             for (var i = 5; i < 7; i++) {
                 rowData.push('');
             }
 
-            // 가져온 데이터를 새로운 행으로 추가
-            newRow = document.createElement('tr'); // newRow 변수를 설정합니다.
+            newRow = document.createElement('tr');
             for (var i = 0; i < rowData.length; i++) {
                 var newCell = document.createElement('td');
                 newCell.innerText = rowData[i];
@@ -183,16 +234,14 @@
                     newCell.setAttribute('oninput', 'onchanged(this)');
                 }
 
-                // 키다운 이벤트 리스너 추가
                 newCell.addEventListener('keydown', function (event) {
                     if (event.key === 'Enter') {
-                        this.blur(); // 수정 종료
-                        event.preventDefault(); // 기본 동작 방지 (새 줄 생성 방지)
+                        this.blur();
+                        event.preventDefault();
                     }
                 });
             }
 
-            // 삭제 버튼 추가
             var deleteBtnCell = document.createElement('td');
             var deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-row-btn';
@@ -203,7 +252,6 @@
             deleteBtnCell.appendChild(deleteBtn);
             newRow.appendChild(deleteBtnCell);
 
-            // 새로운 행을 마지막에 추가
             tableRow.parentNode.insertBefore(newRow, tableRow.nextSibling);
             newRow.classList.add('highlight');
         }
@@ -214,15 +262,11 @@
         }
 
         function onchanged(cell) {
-            // 두 번째 셀과 네 번째 셀의 값 가져오기
             var cell2Value = parseInt(cell.parentNode.cells[2].innerText);
             var cell4Value = parseInt(cell.parentNode.cells[4].innerText);
 
-            // 값이 유효한지 확인
             if (!isNaN(cell2Value) && !isNaN(cell4Value)) {
-                // 총 입고수량 계산
                 var totalValue = cell2Value * cell4Value;
-                // 결과를 다섯 번째 셀에 표시
                 cell.parentNode.cells[5].innerText = totalValue.toLocaleString();
             }
         }
@@ -230,15 +274,12 @@
         document.querySelectorAll('[contenteditable="true"]').forEach(function (element) {
             element.addEventListener('keydown', function (event) {
                 if (event.key === 'Enter') {
-                    element.blur(); // 수정 종료
-                    event.preventDefault(); // 기본 동작 방지 (새 줄 생성 방지)
+                    element.blur();
+                    event.preventDefault();
                 }
             });
         });
-
-
     </script>
-
 </body>
 
 </html>
