@@ -1,71 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR 코드 스캔</title>
-<style>
-    main {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-    #canvas {
-        border: 2px solid #333;
-    }
-</style>
+    <meta charset="utf-8">
+    <title>:: 모바일 QR 코드 스캔 ::</title>
+    <style type="text/css">
+        main {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        #video-container {
+            margin-top: 20px;
+            position: relative;
+            width: 100%;
+        }
+
+        #video {
+            width: 100%;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
 </head>
+
 <body>
-<main>
-    <video id="video" autoplay muted></video>
-    <canvas id="canvas"></canvas>
-</main>
+    <main>
+        <h1>QR 코드 스캔</h1>
+        <div id="video-container">
+            <video id="video" playsinline autoplay></video>
+            <canvas id="canvas" hidden></canvas>
+        </div>
+    </main>
 
-<script>
-async function getCamera() {
-    if (!navigator.mediaDevices) {
-        throw new Error("mediaDevices API unavailable.");
-    }
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const cameras = devices.filter(d => (d.kind === "videoinput"));
-    return cameras[0];
-}
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                const video = document.getElementById("video");
+                const canvas = document.getElementById("canvas");
+                const context = canvas.getContext('2d');
 
-async function main() {
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const context = canvas.getContext("2d");
+                video.srcObject = stream;
+                video.onloadedmetadata = function (e) {
+                    video.play();
+                };
 
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = stream;
+                const tick = function () {
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    requestAnimationFrame(tick);
+                };
 
-    video.addEventListener("loadedmetadata", () => {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-    });
-
-    video.addEventListener("play", function () {
-        const tick = () => {
-            if (video.paused || video.ended) return false;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // QR 코드 스캔 코드 추가
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
-            if (code) {
-                console.log("QR 코드 스캔 결과:", code.data);
-                // 여기서 QR 코드 처리
+                tick();
+            } catch (error) {
+                console.error("카메라 액세스 거부:", error);
             }
-
-            requestAnimationFrame(tick);
-        };
-        tick();
-    });
-}
-
-// 페이지 로드 시 main 함수 실행
-window.onload = main;
-</script>
+        });
+    </script>
 </body>
+
 </html>
