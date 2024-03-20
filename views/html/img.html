@@ -1,121 +1,151 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMG SAVE</title>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="../css/main.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <style>
-        #preview-container {
-            margin-top: 20px;
+    <meta charset="utf-8">
+    <title>:: jsQR 테스트 ::</title>
+    <script type="text/javascript" src="../js/jsQR.js"></script>
+
+    <style type="text/css">
+        main {
+            width: 100%;
+            height: 100%;
+            text-align: center;
         }
 
-        #preview-image {
-            max-width: 100%;
-            max-height: 200px;
+        main>div {
+            float: left;
+            width: 1%;
+            height: 98%;
+        }
+
+        main>div:first-child {
+            width: 49%;
+        }
+
+        main>div:last-child {
+            background-color: #D3D3D3;
+            width: 49%;
+        }
+
+        div#output {
+            background-color: #BDBEBD;
+            padding: 10px;
+        }
+
+        div#frame {
+            border: 2px solid #005666;
+            background-color: #FFFFFF;
+            margin: 10px;
+            padding: 8px;
+        }
+
+        div#outputLayer {
+            text-align: left;
+        }
+
+        canvas {
+            width: 100%;
         }
     </style>
 </head>
 
 <body>
-    <h1>Image Upload and Preview</h1>
+    <main>
+        <!-- QR 코드 리더 영역 -->
+        <div>
+            <h1>QR 코드 리더</h1>
+            <div id="output">
+                <div id="outputMessage">
+                    QR코드를 카메라에 노출시켜 주세요
+                </div>
+                <div id="outputLayer" hidden>
+                    <span id="outputData"></span>
+                </div>
+            </div>
+        </div>
 
-    <form id="image-form">
-        <label for="image-upload">Choose an image:</label>
-        <input type="file" id="image-upload" accept="image/*" onchange="previewImage()">
-    </form>
+        <!-- QR 코드 스캔 영역 -->
+        <div>
+            <h1>스캔</h1>
+            <div id="frame">
+                <div id="loadingMessage">
+                    🎥 비디오 스트림에 액세스 할 수 없습니다<br />웹캠이 활성화되어 있는지 확인하십시오
+                </div>
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </main>
 
-    <div id="preview-container">
-        <h2>Preview:</h2>
-        <img id="preview-image" src="#" alt="Image Preview">
-        <button onclick="Datasave()">Imgsave</button>
-    </div>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            var video = document.createElement("video");
+            var canvasElement = document.getElementById("canvas");
+            var canvas = canvasElement.getContext("2d");
+            var loadingMessage = document.getElementById("loadingMessage");
+            var outputContainer = document.getElementById("output");
+            var outputMessage = document.getElementById("outputMessage");
+            var outputData = document.getElementById("outputData");
 
-    <script>
-        var server = '';
-
-        if (window.location.hostname == 'localhost') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'http://techonmes.co.kr';
-        }
-        function previewImage() {
-            var preview = document.getElementById('preview-image');
-            var fileInput = document.getElementById('image-upload');
-            var file = fileInput.files[0];
-
-            if (file) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                };
-
-                reader.readAsDataURL(file);
-            } else {
-                preview.src = '#';
+            // QR 코드를 그리는 함수
+            function drawLine(begin, end, color) {
+                canvas.beginPath();
+                canvas.moveTo(begin.x, begin.y);
+                canvas.lineTo(end.x, end.y);
+                canvas.lineWidth = 4;
+                canvas.strokeStyle = color;
+                canvas.stroke();
             }
-        }
 
-        function Datasave() {
-            var preview = document.getElementById('preview-image');
-            var fileInput = document.getElementById('image-upload');
-            var file = fileInput.files[0];
-            console.log(file)
-            // console.log(file[0].name)
+            // 카메라 사용시
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (stream) {
+                video.srcObject = stream;
+                video.setAttribute("playsinline", true); // iOS 사용시 전체 화면을 사용하지 않음을 전달
+                video.play();
+                requestAnimationFrame(tick);
+            });
 
-            if (confirm("이미지를 등록 하시겠습니까??") == true) {
+            // QR 코드 스캔 및 해석 함수
+            function tick() {
+                loadingMessage.innerText = "⌛ 스캔 기능을 활성화 중입니다";
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    loadingMessage.hidden = true;
+                    canvasElement.hidden = false;
+                    outputContainer.hidden = false;
 
+                    // 비디오 화면의 크기 설정
+                    canvasElement.height = video.videoHeight;
+                    canvasElement.width = video.videoWidth;
 
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertimg',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    processData: false,
-                    contentType: false,
-                    data: JSON.stringify({
-                        "img": file
-                    }),
-                    success: function (result) {
-                        // Handle success
-                    },
-                    error: function (xhr, status, error) {
-                        if (xhr.status === 302) {
-                            // Handle redirect, if needed
-                            console.log('Redirected to: ', xhr.getResponseHeader('Location'));
-                        } else {
-                            // Handle other errors
-                            console.error(xhr, status, error);
-                        }
-                    }
-                });
+                    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                    var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
 
-
-                $('#popupOverlay').fadeOut();
-                setTimeout(function () {
-                    // load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="../img/check.png" alt="Notification Icon"><span class="notification-message" style="color:navy;">기초정보등록 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
+                    var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
                     });
-                }, 3000);
-            } else {
-                return false;
+
+                    // QR코드 인식에 성공한 경우
+                    if (code) {
+                        // 인식한 QR코드의 영역을 감싸는 테두리 생성
+                        drawLine(code.location.topLeftCorner, code.location.topRightCorner, "#FF0000");
+                        drawLine(code.location.topRightCorner, code.location.bottomRightCorner, "#FF0000");
+                        drawLine(code.location.bottomRightCorner, code.location.bottomLeftCorner, "#FF0000");
+                        drawLine(code.location.bottomLeftCorner, code.location.topLeftCorner, "#FF0000");
+
+                        outputMessage.hidden = true;
+                        outputData.parentElement.hidden = false;
+
+                        // QR코드 메시지 출력
+                        outputData.innerHTML = code.data;
+                    } else {
+                        // QR코드 인식에 실패한 경우
+                        outputMessage.hidden = false;
+                        outputData.parentElement.hidden = true;
+                    }
+                }
+                requestAnimationFrame(tick);
             }
-        }
-
-
-
+        });
     </script>
 </body>
 
