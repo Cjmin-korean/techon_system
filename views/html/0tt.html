@@ -2,12 +2,14 @@
 <html>
 
 <head>
-    <title>:: JavaScript Contenteditable ::</title>
+    <title>TECHON 자재 연단</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style type="text/css">
         table {
             border-collapse: collapse;
-            width: 80%;
-            margin: auto;
+            width: 100%;
+
         }
 
         th,
@@ -92,14 +94,92 @@
             background-color: #fdfde3;
             /* 원하는 배경색으로 변경 가능 */
         }
+
+        #textInput {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: auto;
+            display: block;
+            width: 500px;
+            position: absolute;
+            margin-top: 10px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        b {
+            font-weight: bold;
+        }
+
+        .qr-code-section {
+            margin-bottom: 20px;
+        }
+
+        .qr-code-section input[type="text"] {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 300px;
+        }
+
+        button {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #confirmBtn {
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
+    <div class="qr-code-section">
+        <b>QR CODE A: </b>
+        <div>
+            <input type="text" id="textInputA" autocomplete="off" placeholder="QR CODE를 리딩하세요" value=""
+                style="width: 500px;">
+            <button onclick="reseta()">RESET</button>
+
+        </div>
+    </div>
+    <div class="qr-code-section">
+        <b>QR CODE B: </b>
+        <br>
+        <div>
+            <input type="text" id="textInputB" autocomplete="off" placeholder="QR CODE를 리딩하세요" value=""
+                style="width: 500px;">
+            <button onclick="resetb()">RESET</button>
+            <button id="confirmBtn" onclick="checkInputs()">Confirm</button>
+            <b style="color: red;">**********자재 연단은 A,B자재명/자재폭이 같아야 가능합니다.</b>
+        </div>
+    </div>
+
     <table id="editableTable">
         <thead>
             <tr class="table-light">
-                <th colspan="7">연단</th>
+                <th colspan="7">자재 연단</th>
 
             </tr>
             <tr class="table-light">
@@ -113,18 +193,7 @@
             </tr>
         </thead>
         <tbody id="info">
-            <tr>
-                <td>API-25HM025</td>
-                <td>1,080</td>
-                <td oninput="onchanged(this)">200</td>
-                <td contenteditable="true">20240101</td>
-                <td contenteditable="true" oninput="onchanged(this)">1</td>
-                <td contenteditable="true">200</td>
-                <td>
-
-                </td>
-            </tr>
-            <tr>
+            <!-- <tr>
                 <td>API-25HM025</td>
                 <td>1,080</td>
                 <td oninput="onchanged(this)">200</td>
@@ -135,22 +204,117 @@
 
                 </td>
             </tr>
-            <tr class="highlight">
-                <td>API-25HM025</td>
+            <tr>
+                <td>ST-8372RFL</td>
                 <td>1,080</td>
                 <td oninput="onchanged(this)">200</td>
-                <td contenteditable="true">20240102</td>
+                <td contenteditable="true">20240103</td>
                 <td contenteditable="true" oninput="onchanged(this)">1</td>
-                <td contenteditable="true">400</td>
+                <td contenteditable="true">200</td>
                 <td>
-
+                    <button class="add-row-btn" onclick="addRow(this)">슬리팅 추가</button>
                 </td>
-            </tr>
+            </tr> -->
 
         </tbody>
     </table>
 
     <script>
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        document.getElementById('textInputA').focus();
+        function reseta() {
+            document.getElementById('textInputA').focus();
+            $('#textInputA').val(''); // 입력란의 값을 공백으로 설정
+
+        }
+        function resetb() {
+            document.getElementById('textInputB').focus();
+            $('#textInputB').val(''); // 입력란의 값을 공백으로 설정
+
+        }
+        $('#textInputA').keypress(function (event) {
+            if (event.which === 13) { // Enter 키 코드인 13인지 확인
+                $('#textInputB').focus(); // 입력란의 값을 공백으로 설정
+            }
+        });
+
+        function checkInputs() {
+            var inputA = document.getElementById("textInputA").value.trim();
+            var inputB = document.getElementById("textInputB").value.trim();
+
+            if (inputA === "") {
+                alert("첫번째 자재 항목이 누락되었습니다");
+                return;
+            }
+            if (inputB === "") {
+                alert("두번째 자재 항목이 누락되었습니다");
+                return;
+            }
+
+            var text = document.getElementById("textInputA").value.replace(/\s/g, ''); // 모든 공백 제거
+            var contents = text.split('/');
+
+            var materialName = contents[0];
+            var lotNo = contents[1];
+            var manufacturingDate = contents[2];
+            var quantity = contents[3];
+            var expirationDate = contents[4];
+            var newRow1 = document.createElement("tr");
+            var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
+            var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
+
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcodenumber',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "materialname": contents[0],
+                    "length": contents[3]
+                }),
+                success: function (result) {
+                    // 첫 번째 행 생성
+                    var newRow1 = document.createElement("tr");
+                    newRow1.innerHTML = `
+            <td>${materialName}</td>
+            <td>${result[0].width}</td>
+            <td>${quantity}</td>
+            <td>${lotNo}</td>
+            <td>1</td>
+            <td>${quantity}</td>
+            <td></td>
+        `;
+
+                    // 두 번째 행 생성
+                    var newRow2 = document.createElement("tr");
+                    newRow2.innerHTML = `
+            <td>${materialName}</td>
+            <td>${result[0].width}</td>
+            <td>${quantity}</td>
+            <td>${lotNo}</td>
+            <td>1</td>
+            <td>${quantity}</td>
+            <td><button class="add-row-btn" onclick="addRow(this)">슬리팅 추가</button></td>
+        `;
+
+                    // 테이블에 행 추가
+                    document.getElementById("info").appendChild(newRow1);
+                    document.getElementById("info").appendChild(newRow2);
+                },
+            });
+
+
+            // 테이블에 행 추가
+            document.getElementById("info").appendChild(newRow1);
+        }
         var newRow; // newRow 변수를 전역 범위에서 정의합니다.
 
         function addRow(btn) {
