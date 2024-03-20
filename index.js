@@ -51,6 +51,9 @@ app.get("/mmp", cors(), (req, res) => {
 app.get("/pdt", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/ipadmain1.html");
 });
+app.get("/test", cors(), (req, res) => {
+    res.sendFile(__dirname + "/views/html/camera.html");
+});
 
 app.get("/house", cors(), (req, res) => {
     res.sendFile(__dirname + "/houseinformation.html");
