@@ -46,7 +46,7 @@ app.get("/accountupdatedata", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/accountinformation.html");
 });
 app.get("/mmp", cors(), (req, res) => {
-    res.sendFile(__dirname + "/views/html/13.html");
+    res.sendFile(__dirname + "/views/html/ipadmain.html");
 });
 
 app.get("/house", cors(), (req, res) => {
