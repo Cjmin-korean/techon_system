@@ -158,7 +158,8 @@
     <div class="qr-code-section">
         <b>QR CODE A: </b>
         <div>
-            <input type="text" id="textInputA" autocomplete="off" placeholder="QR CODE를 리딩하세요" value="">
+            <input type="text" id="textInputA" autocomplete="off" placeholder="QR CODE를 리딩하세요" value=""
+                style="width: 500px;">
             <button onclick="reseta()">RESET</button>
 
         </div>
@@ -167,7 +168,8 @@
         <b>QR CODE B: </b>
         <br>
         <div>
-            <input type="text" id="textInputB" autocomplete="off" placeholder="QR CODE를 리딩하세요" value="">
+            <input type="text" id="textInputB" autocomplete="off" placeholder="QR CODE를 리딩하세요" value=""
+                style="width: 500px;">
             <button onclick="resetb()">RESET</button>
             <button id="confirmBtn" onclick="checkInputs()">Confirm</button>
         </div>
@@ -217,6 +219,14 @@
     </table>
 
     <script>
+        var server = '';
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
         document.getElementById('textInputA').focus();
         function reseta() {
             document.getElementById('textInputA').focus();
@@ -228,14 +238,81 @@
             $('#textInputB').val(''); // 입력란의 값을 공백으로 설정
 
         }
+        $('#textInputA').keypress(function (event) {
+            if (event.which === 13) { // Enter 키 코드인 13인지 확인
+                $('#textInputB').focus(); // 입력란의 값을 공백으로 설정
+            }
+        });
 
         function checkInputs() {
             var inputA = document.getElementById("textInputA").value.trim();
             var inputB = document.getElementById("textInputB").value.trim();
 
-            if (inputA === "" || inputB === "") {
-                alert("자재 항목이 누락되었습니다");
+            if (inputA === "") {
+                alert("첫번째 자재 항목이 누락되었습니다");
+                return;
             }
+            if (inputB === "") {
+                alert("두번째 자재 항목이 누락되었습니다");
+                return;
+            }
+
+            var text = document.getElementById("textInputA").value.replace(/\s/g, ''); // 모든 공백 제거
+            var contents = text.split('/');
+
+            var materialName = contents[0];
+            var lotNo = contents[1];
+            var manufacturingDate = contents[2];
+            var quantity = contents[3];
+            var expirationDate = contents[4];
+            var newRow1 = document.createElement("tr");
+            var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
+            var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
+
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcodenumber',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "materialname": contents[0],
+                    "length": contents[3]
+                }),
+                success: function (result) {
+                    // 첫 번째 행 생성
+                    var newRow1 = document.createElement("tr");
+                    newRow1.innerHTML = `
+            <td>${materialName}</td>
+            <td>${result[0].width}</td>
+            <td>${quantity}</td>
+            <td>${lotNo}</td>
+            <td>1</td>
+            <td>${quantity}</td>
+            <td></td>
+        `;
+
+                    // 두 번째 행 생성
+                    var newRow2 = document.createElement("tr");
+                    newRow2.innerHTML = `
+            <td>${materialName}</td>
+            <td>${result[0].width}</td>
+            <td>${quantity}</td>
+            <td>${lotNo}</td>
+            <td>1</td>
+            <td>${quantity}</td>
+            <td><button class="add-row-btn" onclick="addRow(this)">슬리팅 추가</button></td>
+        `;
+
+                    // 테이블에 행 추가
+                    document.getElementById("info").appendChild(newRow1);
+                    document.getElementById("info").appendChild(newRow2);
+                },
+            });
+
+
+            // 테이블에 행 추가
+            document.getElementById("info").appendChild(newRow1);
         }
         var newRow; // newRow 변수를 전역 범위에서 정의합니다.
 
