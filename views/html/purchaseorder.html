@@ -87,19 +87,23 @@
         <button id="searchBtn" onclick="openSaveModal()" class="btn btn-success" style="background-color: navy;">
             <i class="fas fa-shopping-cart"></i> 발주등록
         </button>
-        <button id="searchBtn" onclick="openSaveModal1()" class="btn btn-success" style="background-color:rgb(4, 4, 24);">
+        <button id="searchBtn" onclick="openSaveModal1()" class="btn btn-success"
+            style="background-color:rgb(4, 4, 24);">
             <i class="fas fa-shopping-cart"></i> 베트남발주
         </button>
-        <button id="searchBtn" onclick="openSaveModal2()" class="btn btn-success" style="background-color:rgb(46, 46, 71);">
+        <button id="searchBtn" onclick="openSaveModal2()" class="btn btn-success"
+            style="background-color:rgb(46, 46, 71);">
             <i class="fas fa-shopping-cart"></i> 외주발주
         </button>
-        <button id="searchBtn" onclick="openSaveModal2()" class="btn btn-success" style="background-color:rgb(46, 46, 71);">
+        <button id="searchBtn" onclick="openSaveModal2()" class="btn btn-success"
+            style="background-color:rgb(46, 46, 71);">
             <i class="fas fa-shopping-cart"></i> 샘플발주
         </button>
-        <button id="searchBtn" onclick="openSaveModal2()" class="btn btn-success" style="background-color:rgb(46, 46, 71);">
+        <button id="searchBtn" onclick="openSaveModal2()" class="btn btn-success"
+            style="background-color:rgb(46, 46, 71);">
             <i class="fas fa-shopping-cart"></i> 일반발주
         </button>
-    
+
 
         <button id="exportToExcelBtn" class="btn btn-success" style="background-color: green;">
             <i class="fas fa-file-excel"></i> 엑셀로 내보내기
@@ -119,21 +123,6 @@
                 <th style="text-align:center; width:40px;">국가</th>
 
 
-                <!-- <th style="text-align:center;" onclick="sortTable(0)">발주일자</th>
-                <th style="text-align:center;" onclick="sortTable(1)">품목코드</th>
-                <th style="text-align:center;" onclick="sortTable(2)">자재명</th>
-                <th style="text-align:center;" onclick="sortTable(3)">전폭(mm)</th>
-                <th style="text-align:center;" onclick="sortTable(4)">M</th>
-                <th style="text-align:center;" onclick="sortTable(5)">수량(롤)</th>
-                <th style="text-align:center;" onclick="sortTable(6)">단가</th>
-                <th style="text-align:center;" onclick="sortTable(7)">공급가액</th>
-                <th style="text-align:center;" onclick="sortTable(8)">거래처</th>
-                <th style="text-align:center;" onclick="sortTable(9)">고객사</th>
-                <th style="text-align:center;" onclick="sortTable(10)">BOMNO</th>
-                <th style="text-align:center;" onclick="sortTable(11)">발주구분</th>
-                <th style="text-align:center;" onclick="sortTable(12)">비고</th>
-                <th style="text-align:center;" onclick="sortTable(13)">재단규격</th>
-                <th style="text-align:center;">자재특이사항</th> -->
 
 
             </tr>
@@ -615,10 +604,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const currentDate = new Date();
-                        const formattedDate = currentDate
-                            .toISOString()
-                            .slice(2, 10)
-                            .replace(/-/g, '/');
+                        const formattedDate = currentDate.toISOString().slice(0, 10).replace(/-/g, '');
 
                         const orderCountMap = {};
 
@@ -640,7 +626,7 @@
                                 }
 
                                 const orderCount = orderCountMap[suppliername];
-                                const orderno = `${formattedDate}-${orderCount}-${suppliername}`;
+                                const orderno = `${formattedDate}${orderCount}${suppliername}`;
 
                                 // Increment orderCount for the suppliername
                                 orderCountMap[suppliername]++;
@@ -664,7 +650,7 @@
                                             contentType: 'application/json',
                                             data: JSON.stringify({
                                                 "orderdate": insertdate,
-                                                "orderno": orderno,
+                                                "orderno": formattedDate + orderCount,
                                                 "itemname": $('#orderlistbombody tr:eq(' + i + ') #materialname-input').text(),
                                                 "codenumber": $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val(),
                                                 "width": $('#orderlistbombody tr:eq(' + i + ') #materialwidth-input').text(),
@@ -680,7 +666,7 @@
                                                 "productid": $('#orderlistbombody tr:eq(' + i + ') #productid-input').val(),
                                                 "confirmed": result[0].modelname + "/" + result[0].itemname + "/" + result[0].sumquantity.toLocaleString(),
                                                 "etc": $('#orderlistbombody tr:eq(' + i + ') #puretc-input').val(),
-                                                
+
                                             }),
                                             success: function (result) {
                                                 // Ajax 성공 시 수행할 코드
@@ -979,7 +965,7 @@
                                     '<td>' + (data[i].ordertype || '') + '</td>' +
                                     '<td style="text-align:right;">' + (data[i].cutting || '') + '</td>' +
                                     '<td>' + (data[i].confirmed || '') + '</td>' +
-                       
+
 
                                     '</tr>');
 

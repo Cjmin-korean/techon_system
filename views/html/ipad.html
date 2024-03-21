@@ -6,12 +6,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TECHON MES 자재입고</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
 
 </head>
 <style>
     body {
         font-family: Arial, sans-serif;
+    }
+
+    .input-container {
+        margin-bottom: 15px;
+    }
+
+    .input-container b {
+        font-weight: bold;
+    }
+
+    .input-container select,
+    .input-container input[type="text"] {
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 300px;
+    }
+
+    .input-container select {
+        width: 315px;
+        /* 너비 조정 */
+    }
+
+    .input-container input[type="text"] {
+        width: 305px;
+        /* 너비 조정 */
+    }
+
+    .input-container input[type="text"]:focus,
+    .input-container select:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .input-container input[type="text"]::placeholder {
+        color: #aaa;
+    }
+
+    .input-container button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .input-container button:hover {
+        background-color: #0056b3;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    select {
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-right: 10px;
+        width: 500px;
     }
 
     #textInput {
@@ -79,9 +142,17 @@
 </style>
 
 <body>
+    <div class="input-container">
+        <b>ORDER NO :</b>
+        <select id="orderno">
+            <option></option>
+        </select>
+    </div>
+    <div class="input-container">
+        <b>QRCODE NO :</b>
+        <input type="text" id="textInput" autocomplete="off" placeholder="QR CODE를 리딩하세요">
+    </div>
 
-    <input type="text" id="textInput" autocomplete="off" placeholder="QR CODE를 리딩하세요" value="">
-    <!-- <input type="text" id="textInput" placeholder="텍스트를 입력하세요..." value=""> -->
     <button class="confirmButton">입고 저장</button>
     <table id="inputTable">
         <thead>
@@ -130,6 +201,28 @@
                 processText();
                 $('#textInput').val(''); // 입력란의 값을 공백으로 설정
             }
+        });
+        $(document).ready(function () {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectorderno',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function (result) {
+                    console.log(result)
+
+                    var ordernoSelect = $('#orderno'); // id가 "orderno"인 select 요소 가져오기
+
+                    // 받아온 결과(result)를 반복하여 select 요소에 옵션 추가
+                    result.forEach(function (result) {
+                        var option = $('<option></option>'); // 새로운 옵션 요소 생성
+                        option.text(result.orderno); // 옵션 텍스트 설정
+                        option.val(result.orderno); // 옵션 값 설정
+                        ordernoSelect.append(option); // select 요소에 옵션 추가
+                    });
+                }
+            });
         });
 
         function processText() {

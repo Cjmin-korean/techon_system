@@ -6023,7 +6023,7 @@ module.exports = function (app) {
                     "FROM   " +
                     "    orderlist ol   " +
                     "JOIN   " +
-                    "    bommanagement bm ON ol.itemname = bm.itemname   " +
+                    "    bommanagement bm ON ol.itemname = bm.itemname and ol.modelname = bm.model    " +
                     "WHERE   " +
                     "    ol.orderstatus = '생산확정'  and  ol.planstatus is null   " +
                     "GROUP BY   " +
@@ -6609,36 +6609,56 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    "WITH OrderedOrders AS ( " +
-                    "    SELECT " +
-                    "        CONVERT(NVARCHAR, orderdate, 23) + '-' + RIGHT('00' + CAST(ROW_NUMBER() OVER (PARTITION BY orderdate ORDER BY suppliername) AS NVARCHAR(2)), 2) AS orderno, " +
-                    "        orderdate, " +
-                    "        suppliername, " +
-                    "        COUNT(*) AS orderCount, " +
-                    "        SUM(supplyamount) AS totalSupplyAmount " +
-                    "    FROM " +
-                    "        purchaseorder " +
-                    "    WHERE " +
-                    "        status IS NULL " +
-                    "        AND orderdate = '2024-01-25'  " +
-                    "    GROUP BY " +
-                    "        orderdate, suppliername " +
-                    ") " +
-                    "SELECT " +
-                    "    orderno, " +
-                    "    orderdate, " +
-                    "    suppliername, " +
-                    "    CAST(orderCount AS NVARCHAR(10)) + '건의 발주건이 있습니다' AS orderSummary, " +
-                    "    totalSupplyAmount " +
-                    "FROM " +
-                    "    OrderedOrders " +
-                    "ORDER BY " +
-                    "    suppliername, orderno;                    ")
-                .then(result => {
+                    "WITH OrderedOrders AS (  " +
+                    "     SELECT  " +
+                    "         REPLACE(CONVERT(NVARCHAR(10), orderdate, 112), '-', '') + RIGHT('00' + CAST(ROW_NUMBER() OVER (PARTITION BY orderdate ORDER BY suppliername) AS NVARCHAR(2)), 2) AS orderno,  " +
+                    "         orderdate,  " +
+                    "         suppliername,  " +
+                    "         COUNT(*) AS orderCount,  " +
+                    "         SUM(supplyamount) AS totalSupplyAmount  " +
+                    "     FROM  " +
+                    "         purchaseorder  " +
+                    "     WHERE  " +
+                    "         status IS NULL  " +
+                    "     GROUP BY  " +
+                    "         orderdate, suppliername  " +
+                    " )  " +
+                    " SELECT  " +
+                    "     orderno,  " +
+                    "     orderdate,  " +
+                    "     suppliername,  " +
+                    "     CAST(orderCount AS NVARCHAR(10)) + '건의 발주건이 있습니다' AS orderSummary,  " +
+                    "     totalSupplyAmount  " +
+                    " FROM  " +
+                    "     OrderedOrders  " +
+                    " ORDER BY  " +
+                    "     suppliername, orderno;   "
+                ).then(result => {
 
                     res.json(result.recordset);
                     res.end();
                 });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectorderno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    "select " +
+                    "orderno " +
+                    "from " +
+                    "purchaseorder " +
+                    "group by " +
+                    "orderno                       ").then(result => {
+
+                        res.json(result.recordset);
+                        res.end();
+                    });
         });
 
     });
