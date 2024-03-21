@@ -153,220 +153,266 @@
         <input type="text" id="textInput" autocomplete="off" placeholder="QR CODE를 리딩하세요">
     </div>
 
-    <button class="confirmButton">입고 저장</button>
-    <table id="inputTable">
-        <thead>
-            <tr>
-                <th>품목코드</th>
-                <th>자재명</th>
-                <th>자재폭(mm)</th>
-                <th>수량(M)</th>
-                <th>롤수</th>
-                <th>합계</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody1">
-        </tbody>
-    </table>
-
-    <table id="outputTable">
-        <thead>
-            <tr>
-                <th>품목코드</th>
-                <th>자재명</th>
-                <th>LOTNO</th>
-                <th>자재폭(mm)</th>
-                <th>수량(M)</th>
-                <th>제조일자</th>
-                <th>만료일자</th>
-                <th>발주번호</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-        </tbody>
-    </table>
-
-    <script>
-        var server = '';
-
-        if (window.location.hostname == '127.0.0.1') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'http://techonmes.co.kr';
-        }
-
-        // Enter 키를 눌렀을 때 processText() 함수 호출
-        $('#textInput').keypress(function (event) {
-            if (event.which === 13) { // Enter 키 코드인 13인지 확인
-                processText();
-                $('#textInput').val(''); // 입력란의 값을 공백으로 설정
-            }
-        });
-        $(document).ready(function () {
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectorderno',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({}),
-                success: function (result) {
-                    console.log(result)
-
-                    var ordernoSelect = $('#orderno'); // id가 "orderno"인 select 요소 가져오기
-
-                    // 받아온 결과(result)를 반복하여 select 요소에 옵션 추가
-                    result.forEach(function (result) {
-                        var option = $('<option></option>'); // 새로운 옵션 요소 생성
-                        option.text(result.orderno); // 옵션 텍스트 설정
-                        option.val(result.orderno); // 옵션 값 설정
-                        ordernoSelect.append(option); // select 요소에 옵션 추가
-                    });
-                }
-            });
-        });
-
-        function processText() {
-            var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
-            var contents = text.split('/');
-
-            if (contents.length <= 5) {
-
-                var materialName = contents[0];
-                var lotNo = contents[1];
-                var manufacturingDate = contents[2];
-                var quantity = contents[3];
-                var expirationDate = contents[4];
-                var newRow = document.createElement("tr");
-                var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
-                var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
-
-                // AJAX 요청 등 추가 처리
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/selectcodenumber',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "materialname": contents[0],
-                        "length": contents[3]
-                    }),
-                    success: function (result) {
-                        newRow.innerHTML = `
-                    <td>${result[0].codenumber}</td>
-                    <td>${materialName}</td>
-                    <td>${lotNo}</td>
-                    <td>${result[0].width}</td>
-                    <td>${quantity}</td>
-                    <td>${manufacturingDate}</td>
-                    <td>${expirationDate}</td>
-                    <td>${orderno}</td>
-                `;
-
-                        // 테이블에 행 추가
-                        document.getElementById("tableBody").appendChild(newRow);
-                    },
-                });
-                groupRolls()
-            } else {
-                var text = document.getElementById("textInput").value
-                var contents = text.split('/');
-                var materialName = contents[0];
-                var lotNo = contents[1];
-                var manufacturingDate = contents[2];
-                var quantity = contents[3];
-                var expirationDate = contents[4];
-                var newRow = document.createElement("tr");
-                var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
-                var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/selectcodenumber1',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "materialname": contents[0],
-                        "length": contents[3],
-                        "width": contents[5],
-                    }),
-                    success: function (result) {
-                        newRow.innerHTML = `
-                    <td>${result[0].codenumber}</td>
-                    <td>${materialName}</td>
-                    <td>${lotNo}</td>
-                    <td>${materialwidth}</td>
-                    <td>${quantity}</td>
-                    <td>${manufacturingDate}</td>
-                    <td>${expirationDate}</td>
-                    <td>${orderno}</td>
-                `;
-
-                        // 테이블에 행 추가
-                        document.getElementById("tableBody").appendChild(newRow);
-                    },
-                });
-                groupRolls()
-            }
+    <button class="confirmButton">입고 저장</button><br>
+    <br>
+    <b>★발주내역</b>
+    <div style="min-height: 300px; border: 1px solid black;">
+        <table id="inputTable">
+            <thead>
+                <tr>
+                    <th>품목코드</th>
+                    <th>자재명</th>
+                    <th>자재폭(mm)</th>
+                    <th>수량(M)</th>
+                    <th>롤수</th>
+                    <th>합계</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody1">
+            </tbody>
+        </table>
+    </div>
 
 
-        }
-        // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
-        // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
-        function groupRolls() {
-            var groupedData = {}; // 그룹화된 데이터를 저장할 객체
+    <br>
+    <b>★입고 상세 내역</b>
+    <div style="min-height: 200px; border: 1px solid black;">
+        <table id="outputTable" border="1">
+            <thead>
+                <tr>
+                    <th>품목코드</th>
+                    <th>자재명</th>
+                    <th>LOTNO</th>
+                    <th>자재폭(mm)</th>
+                    <th>수량(M)</th>
+                    <th>제조일자</th>
+                    <th>만료일자</th>
+                    <th>발주번호</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
 
-            // 하단 테이블의 각 행을 반복하면서 롤수를 그룹화함
-            $('#tableBody tr').each(function () {
-                var codenumber = $(this).find('td:eq(0)').text(); // 품목코드 가져오기
-                var materialname = $(this).find('td:eq(1)').text(); // 자재명 가져오기
-                var width = $(this).find('td:eq(3)').text(); // 자재폭 가져오기
-                var quantity = parseFloat($(this).find('td:eq(4)').text()); // 수량 가져오기 (문자열을 숫자로 변환)
-
-                // 그룹화된 데이터 객체에 해당 그룹이 있는지 확인하고 없으면 초기화
-                if (!(codenumber in groupedData)) {
-                    groupedData[codenumber] = {};
-                }
-                if (!(materialname in groupedData[codenumber])) {
-                    groupedData[codenumber][materialname] = {};
-                }
-                if (!(width in groupedData[codenumber][materialname])) {
-                    groupedData[codenumber][materialname][width] = { rolls: 0, totalQuantity: 0, quantity: 0 };
-                }
-
-                // 롤수, 총 수량 및 수량 업데이트
-                groupedData[codenumber][materialname][width].rolls++;
-                groupedData[codenumber][materialname][width].totalQuantity += quantity;
-                groupedData[codenumber][materialname][width].quantity = quantity;
-            });
-
-            // 상단 테이블에 그룹화된 데이터 표시
-            $('#tableBody1').empty(); // 기존 테이블 내용 삭제
-            for (var codenumber in groupedData) {
-                for (var materialname in groupedData[codenumber]) {
-                    for (var width in groupedData[codenumber][materialname]) {
-                        var rolls = groupedData[codenumber][materialname][width].rolls;
-                        var totalQuantity = groupedData[codenumber][materialname][width].totalQuantity;
-                        var quantity = groupedData[codenumber][materialname][width].quantity;
-
-                        var newRow = `<tr>
-                    <td>${codenumber}</td>
-                    <td>${materialname}</td>
-                    <td>${width}</td>
-                    <td>${quantity}</td>
-                    <td>${rolls + 1}</td>
-                    <td>${quantity * (rolls + 1)}</td>
-                  </tr>`;
-                        $('#tableBody1').append(newRow); // 상단 테이블에 새로운 행 추가
-                    }
-                }
-            }
-        }
+    </div>
 
 
-
-    </script>
 
 
 
 </body>
+<script>
+    var server = '';
+
+    if (window.location.hostname == '127.0.0.1') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
+    // Enter 키를 눌렀을 때 processText() 함수 호출
+    $('#textInput').keypress(function (event) {
+        if (event.which === 13) { // Enter 키 코드인 13인지 확인
+            processText();
+            $('#textInput').val(''); // 입력란의 값을 공백으로 설정
+        }
+    });
+    $(document).ready(function () {
+        $('#orderno').change(function () {
+            var selectedValue = $(this).val(); // 선택한 옵션의 값 가져오기
+            $('#tableBody1').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectordernopurchaseorder',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                    orderno: selectedValue
+
+                }),
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+
+
+                        $('#tableBody1').append(
+                            '<tr onclick="insertmaterialdata(this)">' +
+                            '<td>' + result[i].codenumber + '</td>' +
+                            '<td>' + result[i].itemname + '</td>' +
+                            '<td>' + result[i].width + '</td>' +
+                            '<td>' + result[i].length + '</td>' +
+                            '<td>' + result[i].quantity + '</td>' +
+                            '<td>' + result[i].length * result[i].quantity + '</td>' +
+                            '</tr>'
+                        );
+
+                       
+
+
+                    }
+                }
+            });
+        });
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectorderno',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
+                console.log(result)
+
+                var ordernoSelect = $('#orderno'); // id가 "orderno"인 select 요소 가져오기
+
+                // 받아온 결과(result)를 반복하여 select 요소에 옵션 추가
+                result.forEach(function (result) {
+                    var option = $('<option></option>'); // 새로운 옵션 요소 생성
+                    option.text(result.orderno); // 옵션 텍스트 설정
+                    option.val(result.orderno); // 옵션 값 설정
+                    ordernoSelect.append(option); // select 요소에 옵션 추가
+                });
+            }
+        });
+    });
+
+    function processText() {
+        var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
+        var contents = text.split('/');
+
+        if (contents.length <= 5) {
+
+            var materialName = contents[0];
+            var lotNo = contents[1];
+            var manufacturingDate = contents[2];
+            var quantity = contents[3];
+            var expirationDate = contents[4];
+            var newRow = document.createElement("tr");
+            var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
+            var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
+
+            // AJAX 요청 등 추가 처리
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcodenumber',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "materialname": contents[0],
+                    "length": contents[3]
+                }),
+                success: function (result) {
+                    newRow.innerHTML = `
+                <td>${result[0].codenumber}</td>
+                <td>${materialName}</td>
+                <td>${lotNo}</td>
+                <td>${result[0].width}</td>
+                <td>${quantity}</td>
+                <td>${manufacturingDate}</td>
+                <td>${expirationDate}</td>
+                <td>${orderno}</td>
+            `;
+
+                    // 테이블에 행 추가
+                    document.getElementById("tableBody").appendChild(newRow);
+                },
+            });
+            // groupRolls()
+        } else {
+            var text = document.getElementById("textInput").value
+            var contents = text.split('/');
+            var materialName = contents[0];
+            var lotNo = contents[1];
+            var manufacturingDate = contents[2];
+            var quantity = contents[3];
+            var expirationDate = contents[4];
+            var newRow = document.createElement("tr");
+            var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
+            var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcodenumber1',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "materialname": contents[0],
+                    "length": contents[3],
+                    "width": contents[5],
+                }),
+                success: function (result) {
+                    newRow.innerHTML = `
+                <td>${result[0].codenumber}</td>
+                <td>${materialName}</td>
+                <td>${lotNo}</td>
+                <td>${materialwidth}</td>
+                <td>${quantity}</td>
+                <td>${manufacturingDate}</td>
+                <td>${expirationDate}</td>
+                <td>${orderno}</td>
+            `;
+
+                    // 테이블에 행 추가
+                    document.getElementById("tableBody").appendChild(newRow);
+                },
+            });
+            // groupRolls()
+        }
+
+
+    }
+    // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
+    // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
+    function groupRolls() {
+        var groupedData = {}; // 그룹화된 데이터를 저장할 객체
+
+        // 하단 테이블의 각 행을 반복하면서 롤수를 그룹화함
+        $('#tableBody tr').each(function () {
+            var codenumber = $(this).find('td:eq(0)').text(); // 품목코드 가져오기
+            var materialname = $(this).find('td:eq(1)').text(); // 자재명 가져오기
+            var width = $(this).find('td:eq(3)').text(); // 자재폭 가져오기
+            var quantity = parseFloat($(this).find('td:eq(4)').text()); // 수량 가져오기 (문자열을 숫자로 변환)
+
+            // 그룹화된 데이터 객체에 해당 그룹이 있는지 확인하고 없으면 초기화
+            if (!(codenumber in groupedData)) {
+                groupedData[codenumber] = {};
+            }
+            if (!(materialname in groupedData[codenumber])) {
+                groupedData[codenumber][materialname] = {};
+            }
+            if (!(width in groupedData[codenumber][materialname])) {
+                groupedData[codenumber][materialname][width] = { rolls: 0, totalQuantity: 0, quantity: 0 };
+            }
+
+            // 롤수, 총 수량 및 수량 업데이트
+            groupedData[codenumber][materialname][width].rolls++;
+            groupedData[codenumber][materialname][width].totalQuantity += quantity;
+            groupedData[codenumber][materialname][width].quantity = quantity;
+        });
+
+        // 상단 테이블에 그룹화된 데이터 표시
+        $('#tableBody1').empty(); // 기존 테이블 내용 삭제
+        for (var codenumber in groupedData) {
+            for (var materialname in groupedData[codenumber]) {
+                for (var width in groupedData[codenumber][materialname]) {
+                    var rolls = groupedData[codenumber][materialname][width].rolls;
+                    var totalQuantity = groupedData[codenumber][materialname][width].totalQuantity;
+                    var quantity = groupedData[codenumber][materialname][width].quantity;
+
+                    var newRow = `<tr>
+                <td>${codenumber}</td>
+                <td>${materialname}</td>
+                <td>${width}</td>
+                <td>${quantity}</td>
+                <td>${rolls + 1}</td>
+                <td>${quantity * (rolls + 1)}</td>
+              </tr>`;
+                    $('#tableBody1').append(newRow); // 상단 테이블에 새로운 행 추가
+                }
+            }
+        }
+    }
+
+
+
+</script>
 
 </html>
