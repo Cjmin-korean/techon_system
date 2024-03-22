@@ -2585,7 +2585,7 @@ module.exports = function (app) {
                     "     materialinput MI    " +
                     " JOIN    " +
                     "     materialinfoinformation MII ON MI.materialname = MII.materialname    " +
-                    "     	WHERE INSPECTION='Y'  " +
+                    "     	WHERE INSPECTION='Y' and MI.input ='수입검사대기'  " +
                     " GROUP BY   " +
                     "     MI.materialname,    " +
                     "     MII.inspection,   " +
@@ -2802,6 +2802,39 @@ module.exports = function (app) {
                     "     materialinfoinformation ON purchaseorder.codenumber = materialinfoinformation.codenumber " +
                     " WHERE " +
                     "     purchaseorder.suppliername = @suppliername and purchaseorder.orderdate = @orderdate")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updateinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+
+                .query(
+                    "UPDATE " +
+                    " MATERIALINPUT " +
+                    " SET " +
+                    " INPUT='원자재입고' " +
+                    " WHERE  " +
+                    " materialname=@materialname " +
+                    " AND  " +
+                    " lotno=@lotno "
+                )
 
                 .then(result => {
 
