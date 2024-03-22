@@ -10,7 +10,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/mesmain.css">
     <link rel="stylesheet" href="../css/mespurchaseorder.css">
-    <!-- <link rel="stylesheet" href="../css/mesopenmodal.css"> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/sorttable.js"></script>
     <script src="../js/purchaseorder.js"></script>
@@ -113,18 +112,13 @@
     <table class="styled-table" id="datatable" style="width:60%;">
         <thead id="tableHead">
             <tr>
-
                 <th style="text-align:center;">발주번호</th>
                 <th style="text-align:center;">발주일자</th>
                 <th style="text-align:center;">고객사명</th>
                 <th style="text-align:center;">품목내용</th>
-                <th style="text-align:center;">금액 합계(원)</th>
-                <th style="text-align:center; width:70px;">인쇄</th>
+                <th style="text-align:center;">금액 합계</th>
+                <th style="text-align:center; width:70px;">발주서</th>
                 <th style="text-align:center; width:40px;">국가</th>
-
-
-
-
             </tr>
         </thead>
         <tbody id="Datatbody">
@@ -606,7 +600,7 @@
                         const currentDate = new Date();
                         const formattedDate = currentDate.toISOString().slice(0, 10).replace(/-/g, '');
 
-                        const orderCountMap = {};
+                        const orderNoMap = {}; // Map to track order numbers for each supplier
 
                         for (let i = 0; i < rowCount; i++) {
                             var roundedResult = parseFloat(
@@ -620,16 +614,16 @@
                                 var modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').text();
                                 var itemname = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').text();
 
-                                // Initialize orderCount for the suppliername if not already present
-                                if (!orderCountMap[suppliername]) {
-                                    orderCountMap[suppliername] = 1;
+                                // Generate order number for the current suppliername
+                                if (!orderNoMap[suppliername]) {
+                                    const orderNumber = (suppliername === '성진산업') ? '0001' : '001';
+                                    orderNoMap[suppliername] = formattedDate + suppliername + orderNumber;
                                 }
+                                const orderno = orderNoMap[suppliername];
 
-                                const orderCount = orderCountMap[suppliername];
-                                const orderno = `${formattedDate}${orderCount}${suppliername}`;
-
-                                // Increment orderCount for the suppliername
-                                orderCountMap[suppliername]++;
+                                // Increment order number for the current suppliername
+                                const orderNoSuffix = parseInt(orderNoMap[suppliername].substring(orderNoMap[suppliername].length - 3)) + 1;
+                                orderNoMap[suppliername] = formattedDate + suppliername + ('000' + orderNoSuffix).slice(-3);
 
                                 // Other variable assignments...
 
@@ -650,7 +644,7 @@
                                             contentType: 'application/json',
                                             data: JSON.stringify({
                                                 "orderdate": insertdate,
-                                                "orderno": formattedDate + orderCount,
+                                                "orderno": orderno,
                                                 "itemname": $('#orderlistbombody tr:eq(' + i + ') #materialname-input').text(),
                                                 "codenumber": $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val(),
                                                 "width": $('#orderlistbombody tr:eq(' + i + ') #materialwidth-input').text(),

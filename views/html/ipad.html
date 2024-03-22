@@ -219,6 +219,7 @@
     });
     $(document).ready(function () {
         $('#orderno').change(function () {
+            $('#textInput').focus()
             var selectedValue = $(this).val(); // 선택한 옵션의 값 가져오기
             $('#tableBody1').empty()
             $.ajax({
@@ -246,7 +247,7 @@
                             '</tr>'
                         );
 
-                       
+
 
 
                     }
@@ -276,11 +277,11 @@
     });
 
     function processText() {
-        var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
-        var contents = text.split('/');
+
 
         if (contents.length <= 5) {
-
+            var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
+            var contents = text.split('/');
             var materialName = contents[0];
             var lotNo = contents[1];
             var manufacturingDate = contents[2];
@@ -310,6 +311,8 @@
                 <td>${manufacturingDate}</td>
                 <td>${expirationDate}</td>
                 <td>${orderno}</td>
+                <td>${result[0].inspection}</td>
+
             `;
 
                     // 테이블에 행 추가
@@ -348,70 +351,103 @@
                 <td>${manufacturingDate}</td>
                 <td>${expirationDate}</td>
                 <td>${orderno}</td>
+                <td>${result[0].inspection}</td>
             `;
 
                     // 테이블에 행 추가
                     document.getElementById("tableBody").appendChild(newRow);
                 },
             });
-            // groupRolls()
-        }
 
+        }
+        groupRolls()
 
     }
     // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
     // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
+    // function groupRolls() {
+    //     var groupedData = {}; // 그룹화된 데이터를 저장할 객체
+
+    //     // 하단 테이블의 각 행을 반복하면서 롤수를 그룹화함
+    //     $('#tableBody tr').each(function () {
+    //         var codenumber = $(this).find('td:eq(0)').text(); // 품목코드 가져오기
+    //         var materialname = $(this).find('td:eq(1)').text(); // 자재명 가져오기
+    //         var width = $(this).find('td:eq(3)').text(); // 자재폭 가져오기
+    //         var quantity = parseFloat($(this).find('td:eq(4)').text()); // 수량 가져오기 (문자열을 숫자로 변환)
+
+    //         // 그룹화된 데이터 객체에 해당 그룹이 있는지 확인하고 없으면 초기화
+    //         if (!(codenumber in groupedData)) {
+    //             groupedData[codenumber] = {};
+    //         }
+    //         if (!(materialname in groupedData[codenumber])) {
+    //             groupedData[codenumber][materialname] = {};
+    //         }
+    //         if (!(width in groupedData[codenumber][materialname])) {
+    //             groupedData[codenumber][materialname][width] = { rolls: 0, totalQuantity: 0, quantity: 0 };
+    //         }
+
+    //         // 롤수, 총 수량 및 수량 업데이트
+    //         groupedData[codenumber][materialname][width].rolls++;
+    //         groupedData[codenumber][materialname][width].totalQuantity += quantity;
+    //         groupedData[codenumber][materialname][width].quantity = quantity;
+    //     });
+
+    //     // 상단 테이블에 그룹화된 데이터 표시
+    //     $('#tableBody1').empty(); // 기존 테이블 내용 삭제
+    //     for (var codenumber in groupedData) {
+    //         for (var materialname in groupedData[codenumber]) {
+    //             for (var width in groupedData[codenumber][materialname]) {
+    //                 var rolls = groupedData[codenumber][materialname][width].rolls;
+    //                 var totalQuantity = groupedData[codenumber][materialname][width].totalQuantity;
+    //                 var quantity = groupedData[codenumber][materialname][width].quantity;
+
+    //                 var newRow = `<tr>
+    //             <td>${codenumber}</td>
+    //             <td>${materialname}</td>
+    //             <td>${width}</td>
+    //             <td>${quantity}</td>
+    //             <td>${rolls + 1}</td>
+    //             <td>${quantity * (rolls + 1)}</td>
+    //           </tr>`;
+    //                 $('#tableBody1').append(newRow); // 상단 테이블에 새로운 행 추가
+    //             }
+    //         }
+    //     }
+    // }
+
     function groupRolls() {
         var groupedData = {}; // 그룹화된 데이터를 저장할 객체
 
         // 하단 테이블의 각 행을 반복하면서 롤수를 그룹화함
         $('#tableBody tr').each(function () {
-            var codenumber = $(this).find('td:eq(0)').text(); // 품목코드 가져오기
             var materialname = $(this).find('td:eq(1)').text(); // 자재명 가져오기
-            var width = $(this).find('td:eq(3)').text(); // 자재폭 가져오기
-            var quantity = parseFloat($(this).find('td:eq(4)').text()); // 수량 가져오기 (문자열을 숫자로 변환)
+            var codenumber = $(this).find('td:eq(0)').text(); // 품목코드 가져오기
 
             // 그룹화된 데이터 객체에 해당 그룹이 있는지 확인하고 없으면 초기화
-            if (!(codenumber in groupedData)) {
-                groupedData[codenumber] = {};
-            }
-            if (!(materialname in groupedData[codenumber])) {
-                groupedData[codenumber][materialname] = {};
-            }
-            if (!(width in groupedData[codenumber][materialname])) {
-                groupedData[codenumber][materialname][width] = { rolls: 0, totalQuantity: 0, quantity: 0 };
+            if (!(materialname in groupedData)) {
+                groupedData[materialname] = {};
             }
 
-            // 롤수, 총 수량 및 수량 업데이트
-            groupedData[codenumber][materialname][width].rolls++;
-            groupedData[codenumber][materialname][width].totalQuantity += quantity;
-            groupedData[codenumber][materialname][width].quantity = quantity;
+            // 해당 자재명의 행 수를 카운트하여 롤수를 계산
+            if (!(codenumber in groupedData[materialname])) {
+                groupedData[materialname][codenumber] = 0;
+            }
+            groupedData[materialname][codenumber]++;
         });
 
         // 상단 테이블에 그룹화된 데이터 표시
         $('#tableBody1').empty(); // 기존 테이블 내용 삭제
-        for (var codenumber in groupedData) {
-            for (var materialname in groupedData[codenumber]) {
-                for (var width in groupedData[codenumber][materialname]) {
-                    var rolls = groupedData[codenumber][materialname][width].rolls;
-                    var totalQuantity = groupedData[codenumber][materialname][width].totalQuantity;
-                    var quantity = groupedData[codenumber][materialname][width].quantity;
+        for (var materialname in groupedData) {
+            var rollsCount = Object.values(groupedData[materialname]).reduce((a, b) => a + b, 0); // 해당 자재명의 총 롤수 계산
 
-                    var newRow = `<tr>
-                <td>${codenumber}</td>
-                <td>${materialname}</td>
-                <td>${width}</td>
-                <td>${quantity}</td>
-                <td>${rolls + 1}</td>
-                <td>${quantity * (rolls + 1)}</td>
-              </tr>`;
-                    $('#tableBody1').append(newRow); // 상단 테이블에 새로운 행 추가
-                }
-            }
+            var newRow = `<tr>
+            <td colspan="4"></td>
+            <td>${rollsCount}</td>
+            <td></td>
+        </tr>`;
+            $('#tableBody1').append(newRow); // 상단 테이블에 새로운 행 추가
         }
     }
-
-
 
 </script>
 
