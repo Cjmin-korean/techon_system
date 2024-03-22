@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TECHON MES 자재입고</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 </head>
 <style>
@@ -153,7 +159,7 @@
         <input type="text" id="textInput" autocomplete="off" placeholder="QR CODE를 리딩하세요">
     </div>
 
-    <button class="confirmButton">입고 저장</button><br>
+    <button class="confirmButton" onclick="inputmaterial()">입고 저장</button><br>
     <br>
     <b>★발주내역</b>
     <div style="min-height: 300px; border: 1px solid black;">
@@ -188,6 +194,7 @@
                     <th>제조일자</th>
                     <th>만료일자</th>
                     <th>발주번호</th>
+                    <th>QT</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -277,11 +284,11 @@
     });
 
     function processText() {
-
+        var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
+        var contents = text.split('/');
 
         if (contents.length <= 5) {
-            var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
-            var contents = text.split('/');
+
             var materialName = contents[0];
             var lotNo = contents[1];
             var manufacturingDate = contents[2];
@@ -292,6 +299,8 @@
             var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
 
             // AJAX 요청 등 추가 처리
+
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectcodenumber',
@@ -302,22 +311,24 @@
                     "length": contents[3]
                 }),
                 success: function (result) {
+                    var codenumber = result[0].codenumber;
+                    var inspection = result[0].inspection;
+
                     newRow.innerHTML = `
-                <td>${result[0].codenumber}</td>
-                <td>${materialName}</td>
-                <td>${lotNo}</td>
-                <td>${result[0].width}</td>
-                <td>${quantity}</td>
-                <td>${manufacturingDate}</td>
-                <td>${expirationDate}</td>
-                <td>${orderno}</td>
-                <td>${result[0].inspection}</td>
-
-            `;
-
-                    // 테이블에 행 추가
+            <td>${codenumber}</td>
+            <td>${materialName}</td>
+            <td>${lotNo}</td>
+            <td>${result[0].width}</td>
+            <td>${quantity}</td>
+            <td>${manufacturingDate}</td>
+            <td>${expirationDate}</td>
+            <td>${orderno}</td>
+            <td id="inspection">${inspection}</td>
+        `;
                     document.getElementById("tableBody").appendChild(newRow);
+
                 },
+
             });
             // groupRolls()
         } else {
@@ -351,7 +362,7 @@
                 <td>${manufacturingDate}</td>
                 <td>${expirationDate}</td>
                 <td>${orderno}</td>
-                <td>${result[0].inspection}</td>
+                <td id="inspection">${result[0].inspection}</td>
             `;
 
                     // 테이블에 행 추가
@@ -362,6 +373,62 @@
         }
         groupRolls()
 
+    }
+
+    function inputmaterial() {
+        Swal.fire({
+            icon: 'info',
+            title: '저장',
+            text: '입고정보를 저장 하시겠습니까?',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '확인',
+            cancelButtonText: '취소',
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/updatapinacledata',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "id": $('#edit-id').val(),
+                        "partcustomer": $('#partcustomer-edit').val(),
+                        "customer": $('#customer-edit').val(),
+                        "toolcode": $('#toolcode-edit').val(),
+                        "bomno": $('#bomno-edit').val(),
+                        "modelname": $('#modelname-edit').val(),
+                        "itemname": $('#itemname-edit').val(),
+                        "char": $('#char-edit').val(),
+                        "part": $('#part-edit').val(),
+                        "etc": $('#etc-edit').val(),
+                        "classification": $('#classification-edit').val(),
+                        "inputprice": $('#inputprice-edit').val(),
+                        "outputprice": $('#outputprice-edit').val()
+                    }),
+                    success: function (result) {
+
+                    },
+
+                });
+
+
+                $('#editModal2').fadeOut();
+                $('#overlay').fadeOut();
+                Swal.fire({
+                    icon: 'success',
+                    title: '수정 완료',
+                    text: '피나클 정보가 수정 되었습니다.',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        load()
+                    }
+                });
+            }
+        });
     }
     // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
     // 하단 테이블에서 롤수를 그룹화하고 상단 테이블에 나타내는 함수
