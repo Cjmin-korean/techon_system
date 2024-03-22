@@ -161,7 +161,8 @@
 
     <button class="confirmButton" onclick="inputmaterial()">입고 저장</button><br>
     <br>
-    <b>★발주내역</b>
+    <b>★발주내역 고객사 :</b> <a id="customer"></a>
+
     <div style="min-height: 300px; border: 1px solid black;">
         <table id="inputTable">
             <thead>
@@ -258,6 +259,7 @@
 
 
                     }
+                    $('#customer').text(result[0].suppliername)
                 }
             });
         });
@@ -376,6 +378,11 @@
     }
 
     function inputmaterial() {
+        var currentDate = new Date();
+        var year = currentDate.getFullYear();
+        var month = ('0' + (currentDate.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 1을 더하고 두 자리로 표시합니다.
+        var day = ('0' + currentDate.getDate()).slice(-2); // 일자를 두 자리로 표시합니다.
+        var formattedDate = year + '-' + month + '-' + day;
         Swal.fire({
             icon: 'info',
             title: '저장',
@@ -391,23 +398,13 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/updatapinacledata',
+                    url: server + '/api/materialinputinsertdata',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        "id": $('#edit-id').val(),
-                        "partcustomer": $('#partcustomer-edit').val(),
-                        "customer": $('#customer-edit').val(),
-                        "toolcode": $('#toolcode-edit').val(),
-                        "bomno": $('#bomno-edit').val(),
-                        "modelname": $('#modelname-edit').val(),
-                        "itemname": $('#itemname-edit').val(),
-                        "char": $('#char-edit').val(),
-                        "part": $('#part-edit').val(),
-                        "etc": $('#etc-edit').val(),
-                        "classification": $('#classification-edit').val(),
-                        "inputprice": $('#inputprice-edit').val(),
-                        "outputprice": $('#outputprice-edit').val()
+                        "date": formattedDate,
+                        
+                        "customer": $('#customer').text()
                     }),
                     success: function (result) {
 
