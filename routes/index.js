@@ -2585,6 +2585,7 @@ module.exports = function (app) {
                     "     materialinput MI    " +
                     " JOIN    " +
                     "     materialinfoinformation MII ON MI.materialname = MII.materialname    " +
+                    "     	WHERE INSPECTION='Y'  " +
                     " GROUP BY   " +
                     "     MI.materialname,    " +
                     "     MII.inspection,   " +

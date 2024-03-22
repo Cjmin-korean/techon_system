@@ -156,7 +156,8 @@
     </div>
     <div class="input-container">
         <b>QRCODE NO :</b>
-        <input type="text" id="textInput" autocomplete="off" placeholder="QR CODE를 리딩하세요">
+        <input type="text" id="textInput" autocomplete="off" placeholder="QR CODE를 리딩하세요"
+            value="HGCS-A305RB(G)A/2402213A03-2/2024-02-21/200/2024-08-20">
     </div>
 
     <button class="confirmButton" onclick="inputmaterial()">입고 저장</button><br>
@@ -270,7 +271,6 @@
             contentType: 'application/json',
             data: JSON.stringify({}),
             success: function (result) {
-                console.log(result)
 
                 var ordernoSelect = $('#orderno'); // id가 "orderno"인 select 요소 가져오기
 
@@ -396,32 +396,94 @@
             if (result.isConfirmed) {
 
 
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/materialinputinsertdata',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "date": formattedDate,
-                        
-                        "customer": $('#customer').text()
-                    }),
-                    success: function (result) {
+                var tableBody = document.getElementById('tableBody');
+                var rows = tableBody.getElementsByTagName('tr');
 
-                    },
+                for (var i = 0; i < rows.length; i++) {
+                    var row = rows[i];
+                    var qtCell = row.querySelector('td:nth-child(9)'); // 9번째 열(QT 열)의 셀을 가져옵니다.
+                    var codenumber = row.querySelector('td:nth-child(1)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var materialname = row.querySelector('td:nth-child(2)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var lotno = row.querySelector('td:nth-child(3)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var manufacturedate = row.querySelector('td:nth-child(6)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var expirationdate = row.querySelector('td:nth-child(7)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var materialwidth = row.querySelector('td:nth-child(4)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var quantity = row.querySelector('td:nth-child(5)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
 
-                });
+                    if (qtCell && codenumber) { // QT 셀과 품목코드 셀이 모두 존재하는지 확인합니다.
+                        var qtValue = qtCell.innerText;
+                        var codenumberValue = codenumber.innerText;
+                        var materialnameValue = materialname.innerText;
+                        var lotnoValue = lotno.innerText;
+                        var manufacturedateValue = manufacturedate.innerText;
+                        var expirationdateValue = expirationdate.innerText;
+                        var materialwidthValue = materialwidth.innerText;
+                        var quantityValue = quantity.innerText;
+
+                        // AJAX 호출
+                        if (qtValue === 'Y') {
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/materialinputinsertdata',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "date": formattedDate,
+                                    "input": '수입검사대기',
+                                    "materialname": materialnameValue,
+                                    "codenumber": codenumberValue,
+                                    "lotno": lotnoValue,
+                                    "manufacturedate": manufacturedateValue,
+                                    "expirationdate": expirationdateValue,
+                                    "materialwidth": materialwidthValue,
+                                    "quantity": quantityValue,
+                                    "roll": '1',
+                                    "customer": $('#customer').text()
+                                }),
+                                success: function (result) {
+                                    // 성공 시 처리
+                                },
+                            });
+                        }
+                        if (qtValue === 'N') {
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/materialinputinsertdata',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "date": formattedDate,
+                                    "input": '원자재입고',
+                                    "materialname": materialnameValue,
+                                    "codenumber": codenumberValue,
+                                    "lotno": lotnoValue,
+                                    "manufacturedate": manufacturedateValue,
+                                    "expirationdate": expirationdateValue,
+                                    "materialwidth": materialwidthValue,
+                                    "quantity": quantityValue,
+                                    "roll": '1',
+                                    "customer": $('#customer').text()
+                                }),
+                                success: function (result) {
+                                    // 성공 시 처리
+                                },
+                            });
+                        }
+                    } else {
+                        console.error('QT 셀 또는 품목코드 셀이 없습니다.');
+                    }
+                }
 
 
                 $('#editModal2').fadeOut();
                 $('#overlay').fadeOut();
                 Swal.fire({
                     icon: 'success',
-                    title: '수정 완료',
-                    text: '피나클 정보가 수정 되었습니다.',
+                    title: '원자재입고',
+                    text: '원자재 입고가 완료되었습니다',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        load()
+                        // load()
                     }
                 });
             }
