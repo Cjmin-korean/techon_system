@@ -2793,13 +2793,13 @@ module.exports = function (app) {
                 .input('suppliername', sql.NVarChar, req.body.suppliername)
 
                 .query(
-                    "SELECT "+
-                    " po.*, "+
-                    " po.codenumber, "+
-                    " mi.width as materialwidth "+
-                    " FROM "+
-                    " purchaseorder po "+
-                    " JOIN materialinfoinformation mi  "+
+                    "SELECT " +
+                    " po.*, " +
+                    " po.codenumber, " +
+                    " mi.width as materialwidth " +
+                    " FROM " +
+                    " purchaseorder po " +
+                    " JOIN materialinfoinformation mi  " +
                     " ON po.codenumber = mi.codenumber " +
                     "WHERE " +
                     "    po.orderdate = @orderdate AND po.suppliername =@suppliername;")
@@ -2823,30 +2823,30 @@ module.exports = function (app) {
 
 
             return pool.request()
-                
+
 
                 .query(
-                    "SELECT "+
-                "     po.orderdate, "+
-                "     po.itemname, "+
-                "     po.codenumber, "+
-                "     mi.width, "+
-                "     po.length, "+
-                "     po.quantity, "+
-                "     po.unitprice, "+
-                "     po.supplyamount, "+
-                "     po.suppliername, "+
-                "     po.bomno, "+
-                "     '양산' AS part, "+
-                "     ii.customer, "+
-                "     po.confirmed, "+
-                "     po.cutting  "+
-                " FROM "+
-                "     purchaseorder po "+
-                " JOIN  "+
-                "     materialinfoinformation mi ON po.codenumber = mi.codenumber "+
-                " JOIN "+
-                "     iteminfo ii ON po.bomno = ii.bomno                ")
+                    "SELECT " +
+                    "     po.orderdate, " +
+                    "     po.itemname, " +
+                    "     po.codenumber, " +
+                    "     mi.width, " +
+                    "     po.length, " +
+                    "     po.quantity, " +
+                    "     po.unitprice, " +
+                    "     po.supplyamount, " +
+                    "     po.suppliername, " +
+                    "     po.bomno, " +
+                    "     '양산' AS part, " +
+                    "     ii.customer, " +
+                    "     po.confirmed, " +
+                    "     po.cutting  " +
+                    " FROM " +
+                    "     purchaseorder po " +
+                    " JOIN  " +
+                    "     materialinfoinformation mi ON po.codenumber = mi.codenumber " +
+                    " JOIN " +
+                    "     iteminfo ii ON po.bomno = ii.bomno                ")
 
                 .then(result => {
 
@@ -2936,7 +2936,6 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT " +
-                    "     id, " +
                     "     date, " +
                     "     input, " +
                     "     materialname, " +
@@ -2945,15 +2944,67 @@ module.exports = function (app) {
                     "     manufacturedate, " +
                     "     expirationdate, " +
                     "     materialwidth, " +
-                    "     quantity, " +
-                    "     roll, " +
+                    "     SUM(quantity) AS total_quantity," +
+                    "     SUM(roll) AS total_roll, " +
                     "     sqmprice, " +
-                    "     rollprice, " +
+                    "     SUM(rollprice) AS total_rollprice, " +
                     "     bomno, " +
                     "     customer, " +
-                    "     roll * rollprice AS totalprice " +
+                    "     SUM(roll * rollprice) AS total_price " +
                     " FROM " +
-                    "     materialinput;                 ")
+                    "     materialinput" +
+                    " GROUP BY " +
+                    "     date, " +
+                    "     input, " +
+                    "     materialname, " +
+                    "     codenumber, " +
+                    "     lotno, " +
+                    "     manufacturedate, " +
+                    "     expirationdate, " +
+                    "     materialwidth, " +
+                    "     sqmprice, " +
+                    "     bomno, " +
+                    "     customer;                             ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinputinformation1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT  "+
+                    "     date,  "+
+                    "     input,  "+
+                    "     materialname,  "+
+                    "     codenumber,  "+
+                    "     lotno,  "+
+                    "     manufacturedate,  "+
+                    "     expirationdate,  "+
+                    "     materialwidth,  "+
+                    "     (quantity) AS quantity, "+
+                    "     (roll) AS roll,  "+
+                    "     sqmprice,  "+
+                    "     (rollprice) AS rollprice, "+ 
+                    "     bomno,  "+
+                    "     customer,  "+
+                    "     roll * rollprice AS price  "+
+                    " FROM  "+
+                    "     materialinput                   ")
 
                 .then(result => {
 
@@ -3125,10 +3176,11 @@ module.exports = function (app) {
                 .input('sqmprice', sql.Float, req.body.sqmprice)
                 .input('rollprice', sql.Float, req.body.rollprice)
                 .input('customer', sql.NVarChar, req.body.customer)
+                .input('orderid', sql.NVarChar, req.body.orderid)
 
                 .query(
-                    'insert into materialinput(customer,bomno,rollprice,date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice)' +
-                    ' values(@customer,@bomno,@rollprice,@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice)'
+                    'insert into materialinput(customer,bomno,rollprice,date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice,orderid)' +
+                    ' values(@customer,@bomno,@rollprice,@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice,@orderid)'
                 )
                 .then(result => {
 
@@ -7842,7 +7894,7 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
-        app.post('/api/selectcodenumber', function (req, res) {
+        app.post('/api/selectcodenumber2', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
