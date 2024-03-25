@@ -3460,6 +3460,84 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectbomsoyo1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT "+
+                "     bm.char, "+
+                "     bm.main, "+
+                "     bm.materialname, "+
+                "     mi.typecategory, "+
+                "     bm.etc, "+
+                "     bm.materialwidth, "+
+                "     bm.useable, "+
+                "     bm.onepid, "+
+                "     bm.twopid, "+
+                "     ROUND( "+
+                "         bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), "+
+                "         4 "+
+                "     ) as soyo,  "+
+                "     bm.ta,  "+
+                "     bm.allta,  "+
+                "     bm.talength,  "+
+                "     bm.loss,  "+
+                "     ROUND( "+
+                "         ( "+
+                "             mi.rollprice / ( "+
+                "                 mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) "+
+                "             ) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta) "+
+                "         ),  "+
+                "         2 "+
+                "     ) as cost,  "+
+                "     FLOOR(mi.usewidth / bm.materialwidth) AS rlcut,  "+
+                "     FLOOR( "+
+                "         ( "+
+                "             mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 + (bm.loss / 100)) "+
+                "         ) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta) "+
+                "     ) as productcount,  "+
+                "     mi.width,  "+
+                "     mi.usewidth,  "+
+                "     mi.length,  "+
+                "     mi.sqmprice,  "+
+                "     mi.rollprice,  "+
+                "     mi.unit,  "+
+                "     mi.manufacterer,  "+
+                "     mi.supplier,  "+
+                "     bm.cavity,  "+
+                "     mi.codenumber,  "+
+                "     bm.num , "+
+                "     mi.LENGTH "+
+                " FROM   "+
+                "     bommanagement bm   "+
+                " JOIN   "+
+                "     materialinfoinformation mi ON bm.codenumber = mi.codenumber   "+
+                " WHERE   "+
+                "     bm.bomno = @bomno "+
+                "     AND bm.status = 'true'  "+
+                "     AND bm.main = '메인자재' "+
+                " ORDER BY "+
+                "     bm.num ASC;                ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectbommasssavebommanagement', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -11811,21 +11889,67 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT " +
-                    "     SUM(aea * aprice)/1000000 AS 'a', " +
-                    "     SUM(bea * bprice)/1000000 AS 'b', " +
-                    "     SUM(cea * cprice)/1000000 AS 'c', " +
-                    "     SUM(dea * dprice)/1000000 AS 'd', " +
-                    "     SUM(eea * eprice)/1000000 AS 'e', " +
-                    "     SUM(fea * fprice)/1000000 AS 'f', " +
-                    "     SUM(gea * gprice)/1000000 AS 'g', " +
-                    "     SUM(hea * hprice)/1000000 AS 'h', " +
-                    "     SUM(iea * iprice)/1000000 AS 'i', " +
-                    "     SUM(jea * jprice)/1000000 AS 'j', " +
-                    "     SUM(kea * kprice)/1000000 AS 'k', " +
-                    "     SUM(lea * lprice)/1000000 AS 'l' " +
-                    " FROM " +
-                    "     businessplan;"
+                    "SELECT   "+
+                "   '사업계획_한국' AS 'site', "+
+                "     SUM(aea * aprice)/1000000 AS 'a',  "+
+                "     SUM(bea * bprice)/1000000 AS 'b',  "+
+                "     SUM(cea * cprice)/1000000 AS 'c',  "+
+                "     SUM(dea * dprice)/1000000 AS 'd',  "+
+                "     SUM(eea * eprice)/1000000 AS 'e',  "+
+                "     SUM(fea * fprice)/1000000 AS 'f',  "+
+                "     SUM(gea * gprice)/1000000 AS 'g',  "+
+                "     SUM(hea * hprice)/1000000 AS 'h',  "+
+                "     SUM(iea * iprice)/1000000 AS 'i',  "+
+                "     SUM(jea * jprice)/1000000 AS 'j',  "+
+                "     SUM(kea * kprice)/1000000 AS 'k',  "+
+                "     SUM(lea * lprice)/1000000 AS 'l'   "+
+                " FROM   "+
+                "     businessplan "+
+                "  "+
+                " UNION ALL "+
+                "  "+
+                " SELECT  "+ 
+                "     '판매실적' AS 'site', "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-01-01' AND '2023-01-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'a',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-02-01' AND '2023-02-28' THEN revprice ELSE 0 END), 0)/1000000 AS 'b',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-03-01' AND '2023-03-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'c',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-04-01' AND '2023-04-30' THEN revprice ELSE 0 END), 0)/1000000 AS 'd',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-05-01' AND '2023-05-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'e',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-06-01' AND '2023-06-30' THEN revprice ELSE 0 END), 0)/1000000 AS 'f',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-07-01' AND '2023-07-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'g',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-08-01' AND '2023-08-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'h',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-09-01' AND '2023-09-30' THEN revprice ELSE 0 END), 0)/1000000 AS 'i',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-10-01' AND '2023-10-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'j',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-11-01' AND '2023-11-30' THEN revprice ELSE 0 END), 0)/1000000 AS 'k',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2023-12-01' AND '2023-12-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'l'   "+
+                " FROM   "+
+                "     shipmentinput   "+
+                " WHERE   "+
+                "     revnum = '1'   "+
+                "     AND month BETWEEN '2023-01-01' AND '2023-12-31' "+
+                
+                " UNION ALL "+
+                
+                " SELECT  "+
+                "     '판매실적' AS 'site',"+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-01-01' AND '2022-01-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'a',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-02-01' AND '2022-02-28' THEN revprice ELSE 0 END), 0)/1000000 AS 'b',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-03-01' AND '2022-03-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'c',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-04-01' AND '2022-04-30' THEN revprice ELSE 0 END), 0)/1000000 AS 'd',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-05-01' AND '2022-05-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'e',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-06-01' AND '2022-06-30' THEN revprice ELSE 0 END), 0)/1000000 AS 'f',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-07-01' AND '2022-07-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'g',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-08-01' AND '2022-08-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'h',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-09-01' AND '2022-09-30' THEN revprice ELSE 0 END), 0)/1000000 AS 'i',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-10-01' AND '2022-10-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'j',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-11-01' AND '2022-11-30' THEN revprice ELSE 0 END), 0)/1000000 AS 'k',  "+
+                "     COALESCE(SUM(CASE WHEN month BETWEEN '2022-12-01' AND '2022-12-31' THEN revprice ELSE 0 END), 0)/1000000 AS 'l'   "+
+                " FROM   "+
+                "     shipmentinput   "+
+                " WHERE   "+
+                "     revnum = '1'   "+
+                "     AND month BETWEEN '2022-01-01' AND '2022-12-31'; "
+                
                 )
                 .then(result => {
 

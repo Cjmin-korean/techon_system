@@ -209,8 +209,12 @@
             <table>
                 <tr style="height:50px;">
                     <th>작업지시<br>수량(EA)</th>
-                    <th>1차피딩(mm)</th>
-                    <th>소요량(M)</th>
+                    <th>1차피딩<br>(mm)</th>
+                    <th>소요량<br>(M)</th>
+                    <th>메인자재
+                        <br>1RL(M)
+                    </th>
+                    <th>롤 수<br>(roll)</th>
                     <th>소요합계(M)</th>
                     <th style="width: 100px;"><button id="deleteBtn" onclick="add()" class="btn btn-danger"
                             style="background-color: blue;">
@@ -642,8 +646,23 @@
                 var rowIndex = currentRow.index();
                 const itempriceValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #soyo-input').val().replace(/,/g, '')) || 0;
                 const countValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #count-input').val().replace(/,/g, '')) || 0;
+                const lengthValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #length-input').val().replace(/,/g, '')) || 0;
                 const priceValue = itempriceValue * countValue;
+                const rollValue = priceValue / lengthValue
                 $('#productiondatatbody tr:eq(' + rowIndex + ') #soyosum-input').val(priceValue.toLocaleString());
+                $('#productiondatatbody tr:eq(' + rowIndex + ') #roll-input').val(rollValue.toLocaleString());
+
+            }
+            function rollvaluechanged() {
+                var currentRow = $(event.target).closest('tr');
+                var rowIndex = currentRow.index();
+                const soyoValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #soyo-input').val().replace(/,/g, '')) || 0;
+                const rollValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #roll-input').val().replace(/,/g, '')) || 0;
+                const lengthValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #length-input').val().replace(/,/g, '')) || 0;
+                const priceValue = rollValue * lengthValue;
+                const countValue = Math.ceil(priceValue / soyoValue);
+                $('#productiondatatbody tr:eq(' + rowIndex + ') #soyosum-input').val(priceValue);
+                $('#productiondatatbody tr:eq(' + rowIndex + ') #count-input').val(countValue);
 
             }
 
@@ -755,7 +774,7 @@
                 });
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/selectbomsoyo',
+                    url: server + '/api/selectbomsoyo1',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -771,6 +790,8 @@
                         newRow.append('<td ><input type="text" style="text-align:right;" oninput="valuechanged()" id="count-input"  value="" autocomplete="off"></td>');
                         newRow.append('<td ><input type="text" readonly style="text-align:right;" id="onepidding-input"  value="' + result[0].onepid + '" autocomplete="off"></td>');
                         newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyo-input"  value="' + result[0].soyo + '" autocomplete="off"></td>');
+                        newRow.append('<td ><input type="text" readonly style="text-align:right;" id="length-input"  value="' + result[0].length + '" autocomplete="off"></td>');
+                        newRow.append('<td ><input type="text" style="text-align:right;" oninput="rollvaluechanged()" id="roll-input"  value="0" autocomplete="off"></td>');
                         newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyosum-input"  value="0" autocomplete="off"></td>');
                         newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" class="btn btn-danger" style="background-color: red;"><i class="fas fa-trash-alt"></i>  삭제</button ></td > ');
 
