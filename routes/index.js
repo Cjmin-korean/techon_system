@@ -2784,6 +2784,84 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectpurchaseorder1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderdate', sql.NVarChar, req.body.orderdate)
+                .input('suppliername', sql.NVarChar, req.body.suppliername)
+
+                .query(
+                    "SELECT "+
+                    " po.*, "+
+                    " po.codenumber, "+
+                    " mi.width as materialwidth "+
+                    " FROM "+
+                    " purchaseorder po "+
+                    " JOIN materialinfoinformation mi  "+
+                    " ON po.codenumber = mi.codenumber " +
+                    "WHERE " +
+                    "    po.orderdate = @orderdate AND po.suppliername =@suppliername;")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpurchaseordering', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                
+
+                .query(
+                    "SELECT "+
+                "     po.orderdate, "+
+                "     po.itemname, "+
+                "     po.codenumber, "+
+                "     mi.width, "+
+                "     po.length, "+
+                "     po.quantity, "+
+                "     po.unitprice, "+
+                "     po.supplyamount, "+
+                "     po.suppliername, "+
+                "     po.bomno, "+
+                "     '양산' AS part, "+
+                "     ii.customer, "+
+                "     po.confirmed, "+
+                "     po.cutting  "+
+                " FROM "+
+                "     purchaseorder po "+
+                " JOIN  "+
+                "     materialinfoinformation mi ON po.codenumber = mi.codenumber "+
+                " JOIN "+
+                "     iteminfo ii ON po.bomno = ii.bomno                ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectpurchaseordersupplier', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
