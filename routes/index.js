@@ -2795,7 +2795,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT " +
                     " po.*, " +
-                    
+
                     " mi.width as materialwidth " +
                     " FROM " +
                     " purchaseorder po " +
@@ -2868,32 +2868,29 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('orderno', sql.NVarChar, req.body.orderno)
+                .input('orderno', sql.NVarChar, req.body.orderno)
 
 
                 .query(
                     "SELECT " +
-                    "     po.orderno, " +
+                    "     po.orderno," +
                     "     po.orderdate, " +
                     "     po.itemname, " +
+                    "     po.quantity - ISNULL(SUM(mi.roll), 0) AS remaining, " +
                     "     po.codenumber, " +
-                    "     mi.width, " +
                     "     po.length, " +
                     "     po.quantity, " +
-                    "     po.unitprice, " +
-                    "     po.supplyamount, " +
-                    "     po.suppliername, " +
-                    "     po.bomno, " +
-                    "     '양산' AS part, " +
-                    "     ii.customer, " +
-                    "     po.confirmed, " +
-                    "     po.cutting  " +
-                    " FROM " +
+                    "     mii.width " +
+                    " FROM  " +
                     "     purchaseorder po " +
-                    " JOIN  " +
-                    "     materialinfoinformation mi ON po.codenumber = mi.codenumber " +
+                    " LEFT JOIN  " +
+                    "     materialinput mi ON po.itemname = mi.materialname AND po.orderno = mi.orderid " +
                     " JOIN " +
-                    "     iteminfo ii ON po.bomno = ii.bomno   where orderno=@orderno              ")
+                    "     materialinfoinformation mii ON po.codenumber = mii.codenumber where orderno=@orderno" +
+                    " GROUP BY  " +
+                    "     po.orderno, po.orderdate, po.itemname, po.codenumber, po.length, po.quantity, mii.width " +
+                    " HAVING  " +
+                    "     po.quantity - ISNULL(SUM(mi.roll), 0) > 0;                            ")
 
                 .then(result => {
 
@@ -2914,32 +2911,29 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('suppliername', sql.NVarChar, req.body.suppliername)
+                .input('suppliername', sql.NVarChar, req.body.suppliername)
 
 
                 .query(
                     "SELECT " +
-                    "     po.orderno, " +
+                    "     po.orderno," +
                     "     po.orderdate, " +
                     "     po.itemname, " +
+                    "     po.quantity - ISNULL(SUM(mi.roll), 0) AS remaining, " +
                     "     po.codenumber, " +
-                    "     mi.width, " +
                     "     po.length, " +
                     "     po.quantity, " +
-                    "     po.unitprice, " +
-                    "     po.supplyamount, " +
-                    "     po.suppliername, " +
-                    "     po.bomno, " +
-                    "     '양산' AS part, " +
-                    "     ii.customer, " +
-                    "     po.confirmed, " +
-                    "     po.cutting  " +
-                    " FROM " +
+                    "     mii.width " +
+                    " FROM  " +
                     "     purchaseorder po " +
-                    " JOIN  " +
-                    "     materialinfoinformation mi ON po.codenumber = mi.codenumber " +
+                    " LEFT JOIN  " +
+                    "     materialinput mi ON po.itemname = mi.materialname AND po.orderno = mi.orderid " +
                     " JOIN " +
-                    "     iteminfo ii ON po.bomno = ii.bomno   where suppliername=@suppliername              ")
+                    "     materialinfoinformation mii ON po.codenumber = mii.codenumber where suppliername=@suppliername" +
+                    " GROUP BY  " +
+                    "     po.orderno, po.orderdate, po.itemname, po.codenumber, po.length, po.quantity, mii.width " +
+                    " HAVING  " +
+                    "     po.quantity - ISNULL(SUM(mi.roll), 0) > 0;           ")
 
                 .then(result => {
 
@@ -2960,16 +2954,16 @@ module.exports = function (app) {
 
 
             return pool.request()
-            .input('orderno', sql.NVarChar, req.body.orderno)
+                .input('orderno', sql.NVarChar, req.body.orderno)
 
 
                 .query(
-                    "select "+
-                    " suppliername "+
-                    " from "+
-                    " purchaseorder "+
-                    " where  "+
-                    " status='입고대기' "+
+                    "select " +
+                    " suppliername " +
+                    " from " +
+                    " purchaseorder " +
+                    " where  " +
+                    " status='입고대기' " +
                     " group by suppliername        ")
 
                 .then(result => {
@@ -3111,23 +3105,23 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT  "+
-                    "     date,  "+
-                    "     input,  "+
-                    "     materialname,  "+
-                    "     codenumber,  "+
-                    "     lotno,  "+
-                    "     manufacturedate,  "+
-                    "     expirationdate,  "+
-                    "     materialwidth,  "+
-                    "     (quantity) AS quantity, "+
-                    "     (roll) AS roll,  "+
-                    "     sqmprice,  "+
-                    "     (rollprice) AS rollprice, "+ 
-                    "     bomno,  "+
-                    "     customer,  "+
-                    "     roll * rollprice AS price  "+
-                    " FROM  "+
+                    "SELECT  " +
+                    "     date,  " +
+                    "     input,  " +
+                    "     materialname,  " +
+                    "     codenumber,  " +
+                    "     lotno,  " +
+                    "     manufacturedate,  " +
+                    "     expirationdate,  " +
+                    "     materialwidth,  " +
+                    "     (quantity) AS quantity, " +
+                    "     (roll) AS roll,  " +
+                    "     sqmprice,  " +
+                    "     (rollprice) AS rollprice, " +
+                    "     bomno,  " +
+                    "     customer,  " +
+                    "     roll * rollprice AS price  " +
+                    " FROM  " +
                     "     materialinput                   ")
 
                 .then(result => {
@@ -6454,29 +6448,29 @@ module.exports = function (app) {
                 .input('lotno', sql.NVarChar, req.body.lotno)
 
                 .query(
-                    "select "+
-                    " plandate, "+
-                    " bomno, "+
-                    " customer, "+
-                    " modelname, "+
-                    " itemname, "+
-                    " part, "+
-                    " lotno, "+
-                    " pono, "+
-                    " bompart, "+
-                    " materialstatus "+
-                    " from "+
-                    " produceplan "+
-                    " group by "+
-                    " plandate, "+
-                    " bomno, "+
-                    " customer, "+
-                    " modelname, "+
-                    " itemname, "+
-                    " part, "+
-                    " lotno, "+
-                    " pono, "+
-                    " bompart, "+
+                    "select " +
+                    " plandate, " +
+                    " bomno, " +
+                    " customer, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " part, " +
+                    " lotno, " +
+                    " pono, " +
+                    " bompart, " +
+                    " materialstatus " +
+                    " from " +
+                    " produceplan " +
+                    " group by " +
+                    " plandate, " +
+                    " bomno, " +
+                    " customer, " +
+                    " modelname, " +
+                    " itemname, " +
+                    " part, " +
+                    " lotno, " +
+                    " pono, " +
+                    " bompart, " +
                     " materialstatus")
                 .then(result => {
 
@@ -7045,7 +7039,7 @@ module.exports = function (app) {
                     "         SUM(supplyamount) AS totalSupplyAmount  " +
                     "     FROM  " +
                     "         purchaseorder  " +
-                  
+
                     "     GROUP BY  " +
                     "         orderdate, suppliername  ,orderno " +
                     " )   " +
@@ -7074,7 +7068,7 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('suppliername', sql.NVarChar, req.body.suppliername)
+                .input('suppliername', sql.NVarChar, req.body.suppliername)
 
 
                 .query(
