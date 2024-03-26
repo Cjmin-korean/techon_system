@@ -179,8 +179,10 @@
                     <th>자재명</th>
                     <th>자재폭(mm)</th>
                     <th>수량(M)</th>
-                    <th>롤수</th>
-                    <th>합계</th>
+                    <th>발주ROLL</th>
+                    <th>합계(M)</th>
+                    <th>입고ROLL</th>
+                    <th>입고합계(M)</th>
                 </tr>
             </thead>
             <tbody id="tableBody1">
@@ -258,6 +260,7 @@
 
         var selectedValue1 = $(this).val(); // 선택한 옵션의 값 가져오기
         $('#tableBody1').empty()
+        $('#tableBody').empty()
         $.ajax({
             type: 'POST',
             url: server + '/api/selectpurchaseordering2',
@@ -278,6 +281,8 @@
                         '<td>' + result[i].length + '</td>' +
                         '<td>' + result[i].quantity + '</td>' +
                         '<td>' + result[i].length * result[i].quantity + '</td>' +
+                        '<td>0</td>' +
+                        '<td>0</td>' +
                         '</tr>'
                     );
                 }
@@ -338,6 +343,8 @@
                         '<td>' + result[i].length + '</td>' +
                         '<td>' + result[i].quantity + '</td>' +
                         '<td>' + result[i].length * result[i].quantity + '</td>' +
+                        '<td>0</td>' +
+                        '<td>0</td>' +
                         '</tr>'
                     );
                 }
@@ -345,6 +352,31 @@
             }
         });
     });
+    function updateInputTable(materialName, quantity) {
+        // 테이블의 tbody 엘리먼트 가져오기
+        var tableBody = document.getElementById("tableBody1");
+
+        // 테이블의 모든 행 가져오기
+        var tableRows = tableBody.getElementsByTagName("tr");
+
+        // 자재명에 해당하는 행 찾기
+        for (var i = 0; i < tableRows.length; i++) {
+            var row = tableRows[i];
+            if (row.cells[1].innerText === materialName) {
+                // 해당 행의 '입고ROLL' 열에 수량 추가
+                var rollCell1 = row.cells[6];
+                var rollCell = row.cells[7];
+                var currentRollCount = parseInt(rollCell.textContent) || 0;
+                var currentRollCount1 = parseInt(rollCell1.textContent) || 0;
+                rollCell.textContent = currentRollCount + parseInt(quantity);
+                rollCell1.textContent = currentRollCount1 + parseInt(1);
+                if (parseInt(row.cells[5].textContent) <= parseInt(row.cells[7].textContent)) {
+                    row.style.backgroundColor = "#007bff"; // 변경하고자 하는 배경색으로 수정하세요.
+                }
+                break;
+            }
+        }
+    }
     function processText() {
         var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
         var contents = text.split('/');
@@ -452,6 +484,7 @@
                         });
                     }
                 }
+                updateInputTable(materialName, quantity);
             }
         });
     }

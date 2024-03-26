@@ -2795,7 +2795,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT " +
                     " po.*, " +
-                    " po.codenumber, " +
+                    
                     " mi.width as materialwidth " +
                     " FROM " +
                     " purchaseorder po " +
@@ -6286,11 +6286,12 @@ module.exports = function (app) {
                 .input('etc', sql.NVarChar, req.body.etc)
                 .input('orderno', sql.NVarChar, req.body.orderno)
                 .input('inputcode', sql.NVarChar, req.body.inputcode)
+                .input('status', sql.NVarChar, req.body.status)
 
 
                 .query(
-                    'insert into purchaseorder(orderno,productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc,inputcode)' +
-                    ' values(@orderno,@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc,@inputcode)'
+                    'insert into purchaseorder(orderno,productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc,inputcode,status)' +
+                    ' values(@orderno,@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc,@inputcode,@status)'
                 )
                 .then(result => {
 
@@ -7044,8 +7045,7 @@ module.exports = function (app) {
                     "         SUM(supplyamount) AS totalSupplyAmount  " +
                     "     FROM  " +
                     "         purchaseorder  " +
-                    "     WHERE  " +
-                    "         status IS NULL  " +
+                  
                     "     GROUP BY  " +
                     "         orderdate, suppliername  ,orderno " +
                     " )   " +
