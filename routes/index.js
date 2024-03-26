@@ -3216,7 +3216,59 @@ module.exports = function (app) {
                     "     customer, " +
                     "     SUM(roll * rollprice) AS total_price " +
                     " FROM " +
-                    "     materialinput" +
+                    "     materialinput where input='원자재입고' or input='수입검사대기' " +
+                    " GROUP BY " +
+                    "     date, " +
+                    "     input, " +
+                    "     materialname, " +
+                    "     codenumber, " +
+                    "     lotno, " +
+                    "     manufacturedate, " +
+                    "     expirationdate, " +
+                    "     materialwidth, " +
+                    "     sqmprice, " +
+                    "     bomno, " +
+                    "     customer;                             ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinputinformation11', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    "     date, " +
+                    "     input, " +
+                    "     materialname, " +
+                    "     codenumber, " +
+                    "     lotno, " +
+                    "     manufacturedate, " +
+                    "     expirationdate, " +
+                    "     materialwidth, " +
+                    "     SUM(quantity) AS total_quantity," +
+                    "     SUM(roll) AS total_roll, " +
+                    "     sqmprice, " +
+                    "     SUM(rollprice) AS total_rollprice, " +
+                    "     bomno, " +
+                    "     customer, " +
+                    "     SUM(roll * rollprice) AS total_price " +
+                    " FROM " +
+                    "     materialinput where input='원자재출고' or input='원자재출고대기' " +
                     " GROUP BY " +
                     "     date, " +
                     "     input, " +
@@ -3268,7 +3320,47 @@ module.exports = function (app) {
                     "     customer,  " +
                     "     roll * rollprice AS price  " +
                     " FROM  " +
-                    "     materialinput                   ")
+                    "     materialinput  where input='원자재입고' or input='수입검사대기'                 ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinputinformation12', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT  " +
+                    "     date,  " +
+                    "     input,  " +
+                    "     materialname,  " +
+                    "     codenumber,  " +
+                    "     lotno,  " +
+                    "     manufacturedate,  " +
+                    "     expirationdate,  " +
+                    "     materialwidth,  " +
+                    "     (quantity) AS quantity, " +
+                    "     (roll) AS roll,  " +
+                    "     sqmprice,  " +
+                    "     (rollprice) AS rollprice, " +
+                    "     bomno,  " +
+                    "     customer,  " +
+                    "     roll * rollprice AS price  " +
+                    " FROM  " +
+                    "     materialinput  where input='원자재출고' or input='원자재출고대기'                 ")
 
                 .then(result => {
 
@@ -5355,6 +5447,145 @@ module.exports = function (app) {
 
                 .query(
                     " select * from alltest"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/insertfinalfinal', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bom', sql.NVarChar, req.body.bom)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('productno', sql.NVarChar, req.body.productno)
+                .input('member', sql.NVarChar, req.body.member)
+                .input('count', sql.Float, req.body.count)
+
+                .query(
+                    " INSERT INTO alltest (bom, customer, modelname, itemname, lotno, productno, member, count)" +
+                    " VALUES (@bom, @customer, @modelname, @itemname, @lotno, @productno, @member, @count);                    "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatefinalfinal', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .input('id', sql.Int, req.body.id)
+                .input('testdate', sql.NVarChar, req.body.testdate)
+                .input('testcount', sql.Float, req.body.testcount)
+                .input('okcount', sql.Float, req.body.okcount)
+                .input('ngcount', sql.Float, req.body.ngcount)
+                .input('ng1', sql.Float, req.body.ng1)
+                .input('ng2', sql.Float, req.body.ng2)
+                .input('ng3', sql.Float, req.body.ng3)
+                .input('ng4', sql.Float, req.body.ng4)
+                .input('ng5', sql.Float, req.body.ng5)
+                .input('ng6', sql.Float, req.body.ng6)
+                .input('ng7', sql.Float, req.body.ng7)
+                .input('ng8', sql.Float, req.body.ng8)
+                .input('ng9', sql.Float, req.body.ng9)
+                .input('ng10', sql.Float, req.body.ng10)
+                .input('ng11', sql.Float, req.body.ng11)
+                .input('ng12', sql.Float, req.body.ng12)
+                .input('ng13', sql.Float, req.body.ng13)
+                .input('ng14', sql.Float, req.body.ng14)
+                .input('ng15', sql.Float, req.body.ng15)
+                .input('ng16', sql.Float, req.body.ng16)
+                .input('ng17', sql.Float, req.body.ng17)
+
+                .query(
+                    " UPDATE alltest " +
+                    " SET " +
+                    "     testdate = @testdate, " +
+                    "     testcount = @testcount, " +
+                    "     okcount = @okcount, " +
+                    "     ngcount = @ngcount, " +
+                    "     ngpercent = @ngpercent, " +
+                    "     ng1 = @ng1, " +
+                    "     ng2 = @ng2," +
+                    "     ng3 = @ng3," +
+                    "     ng4 = @ng4," +
+                    "     ng5 = @ng5," +
+                    "     ng6 = @ng6," +
+                    "     ng7 = @ng7," +
+                    "     ng8 = @ng8," +
+                    "     ng9 = @ng9," +
+                    "     ng10 = @ng10," +
+                    "     ng11 = @ng11," +
+                    "     ng12 = @ng12," +
+                    "     ng13 = @ng13," +
+                    "     ng14 = @ng14," +
+                    "     ng15 = @ng15," +
+                    "     ng16 = @ng16," +
+                    "     ng17 = @ng17" +
+                    " where id =@id"
+
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updateproduction1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .input('mstatus', sql.Int, req.body.mstatus)
+
+
+                .query(
+                    " UPDATE orderlist " +
+                    " SET " +
+                    " orderstatus='생산중'   " +
+                    " where mstatus =@mstatus "
+
 
                 )
 

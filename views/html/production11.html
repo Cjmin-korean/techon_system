@@ -143,7 +143,7 @@
     <div class="menu-title" style="width:100%; background-color: rgb(63, 62, 62); color: white;">
         <i class="fas fa-box" style="margin-left: 10px;"></i>생산 작업 대기
     </div>
-    <button style="float: right;">생산시작</button>
+    <button style="float: right;" onclick="startproduction()">생산시작</button>
     <div class=" qr-code-section">
         <b>작업자</b>
         <div>
@@ -235,7 +235,7 @@
             </tr>
             <tr class="table-light">
                 <td id="bomno"></td>
-                <td id="modelnmae"></td>
+                <td id="modelname"></td>
                 <td id="itemname"></td>
                 <td id="customer"></td>
                 <td id="pono"></td>
@@ -455,7 +455,74 @@
                 return;
             }
         });
+        function startproduction() {
+            Swal.fire({
+                icon: 'info',
+                title: '생산시작',
+                text: '생산을 시작 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
 
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updateproduction1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+
+
+                            "mstatus": $('#textInputA').val()
+
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/insertfinalfinal',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+
+
+                            "bom": $('#bomno').text(),
+                            "customer": $('#customer').text(),
+                            "modelname": $('#modelname').text(),
+                            "itemname": $('#itemname').text(),
+                            "lotno": $('#lotno').text(),
+                            "productno": $('#pono').val(),
+                            "member": $('#peopleInput').val(),
+                            "count": '0',
+
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '생산시작',
+                        text: '생산을 시작하십시오',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loadData()
+                        }
+                    });
+                }
+            });
+        }
 
         function checkInputs() {
             var inputA = document.getElementById("textInputA").value.trim();
