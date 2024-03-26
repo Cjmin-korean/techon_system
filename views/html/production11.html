@@ -66,6 +66,14 @@
             font-size: 14px;
         }
 
+        #editableTable input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
         #qrCodeTable button {
             padding: 8px 20px;
             border: none;
@@ -78,6 +86,32 @@
         }
 
         #qrCodeTable button:hover {
+            background-color: #0056b3;
+        }
+
+        #editableTable button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #editableTable button:hover {
             background-color: #0056b3;
         }
 
@@ -109,7 +143,8 @@
     <div class="menu-title" style="width:100%; background-color: rgb(63, 62, 62); color: white;">
         <i class="fas fa-box" style="margin-left: 10px;"></i>생산 작업 대기
     </div>
-    <div class="qr-code-section">
+    <button style="float: right;">생산시작</button>
+    <div class=" qr-code-section">
         <b>작업자</b>
         <div>
             <select id="peopleInput">
@@ -127,8 +162,6 @@
                 <option>홍길동12</option>
                 <option>홍길동13</option>
             </select>
-
-
         </div>
     </div>
     <table id="qrCodeTable">
@@ -225,16 +258,23 @@
                 <td id="lotno"></td>
                 <td id="itemcode"></td>
             </tr>
+            <tr class="table-light">
+                <th>자재QR</th>
+                <td colspan="4"><input type="text" id="textInput1" autocomplete="off" placeholder="자재 QR CODE를 리딩하세요"
+                        value="" style="width: 500px;"></td>
+                <td><button onclick="reset1()">RESET</button></td>
+            </tr>
         </thead>
         <tbody id="info">
 
 
         </tbody>
     </table>
+
     <table id="editableTable">
         <thead>
             <tr class="table-light">
-                <th colspan="7">BOM INFO</th>
+                <th colspan="7">자재 확인</th>
 
             </tr>
             <tr class="table-light">
@@ -247,7 +287,7 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody id="info">
+        <tbody id="materialinfo">
 
 
         </tbody>
@@ -284,6 +324,10 @@
         function resete() {
             document.getElementById('textInputE').focus();
             $('#textInputE').val(''); // 입력란의 값을 공백으로 설정
+        }
+        function reset1() {
+            document.getElementById('textInput1').focus();
+            $('#textInput1').val(''); // 입력란의 값을 공백으로 설정
         }
         $('#textInputA').keypress(function (event) {
             if (event.which === 13) { // Enter 키 코드인 13인지 확인.
@@ -342,6 +386,33 @@
                         $('#m1').text(result[0].toolcode)
                         $('#m2').text(result[1].toolcode)
 
+                    },
+
+                });
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectpaperoutputmaterial',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "productlot": '20240326'
+                    }),
+                    success: function (result) {
+                        $('#materialinfo').empty()
+                        for (var i = 0; i < result.length; i++) {
+                            $('#materialinfo').append(
+                                '<tr>' +
+                                '<td style="border: 1px solid silver; ">' + result[i].materialname + '</td>' + //
+                                '<td style="border: 1px solid silver; ">' + result[i].materialwidth + '</td>' +
+                                '<td style="border: 1px solid silver; ">' + result[i].quantity + '</td>' +
+                                '<td style="border: 1px solid silver; ">' + result[i].lotno + '</td>' + //
+                                '<td style="border: 1px solid silver; ">' + result[i].roll + '</td>' +
+                                '<td style="border: 1px solid silver; ">' + parseFloat(result[i].roll) * parseFloat(result[i].quantity) + '</td>' +
+                                '</tr>'
+                            )
+                            $("td#data-id").hide();
+
+                        }
                     },
 
                 });

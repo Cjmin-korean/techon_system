@@ -3068,6 +3068,33 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectpaperoutputmaterial', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('productlot', sql.NVarChar, req.body.productlot)
+                .query(
+                    "select " +
+                    " materialname,lotno,materialwidth,quantity,sum(roll)'roll' " +
+                    " from  " +
+                    " materialinput " +
+                    " where " +
+                    " productlot=@productlot " +
+                    " and " +
+                    " input='원자재출고대기' " +
+                    " group by materialname,lotno,materialwidth,quantity " +
+                    " order by materialname asc ")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectsuppliername', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
