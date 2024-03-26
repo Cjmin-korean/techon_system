@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../css/mescss.css">
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap">
+    <link rel="stylesheet" href="../css/inspection.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        .ag-ltr .ag-cell {
+            font-family: 'Roboto', sans-serif;
+        }
+
+
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            /* Initially hide the spinner */
+        }
+
+        .loading-spinner::before {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 4px solid rgba(0, 0, 0, 0.3);
+            border-top: 4px solid #3498db;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ag-theme-alpine {
+            font-weight: bold;
+
+        }
+
+
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .modal-header {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .modal-content {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .modal-column {
+            flex: 0 0 calc(33.33% - 20px);
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-content button {
+            width: 48%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 2%;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .company-info,
+        .section-title {
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        .divider {
+            border-top: 1px solid #ddd;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        #new-registration,
+        #cancel-button {
+            background-color: #3498db;
+            color: #ffffff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        #new-registration:hover,
+        #cancel-button:hover {
+            background-color: #297fb8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        td {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .yellow-background {
+            background-color: yellow;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="menu-title" style="width:100%;">
+        <i class="fas fa-box"></i>생산대기 현황(자재Team)
+    </div>
+    <div class="search-container">
+        <label for="search" class="search-label"> 검색 :</label>
+        <div class="search-input-wrapper">
+            <input type="text" id="search" placeholder="검색어를 입력 후 ENTER 누르세요..." onkeypress="handleKeyPress(event)"
+                autocomplete="off">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        <!-- <button class="new-registration-button" onclick="openModal()">신규등록</button> -->
+        <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
+
+    </div>
+
+
+
+    <!-- modal창 -->
+    <div id="loadingSpinner" class="loading-spinner"></div>
+    <div id="myGrid" style="height: 90%; width:100%; " class="ag-theme-alpine"></div>
+    <div class="modal" id="modal" style="height: 90%;">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> 원자재 입고</span>
+            <button class="new-registration-button" style="float: right;" onclick="closeModal()">닫기</button>
+        </div>
+
+        <div class="section-title"><i class="fas fa-box"></i> 자재기초정보</div>
+        <div class="modal-content">
+            <h3>자재검색</h3>
+            <input type="text">
+        </div>
+        <div style="height: 30%; overflow-y: auto;"> <!-- 위쪽 테이블을 위한 div -->
+            <table style="width: 100%;">
+                <tr>
+                    <th>자재명</th>
+                    <th>품목코드</th>
+                    <!-- 나머지 헤더 열 추가 -->
+                </tr>
+                <!-- 테이블 내용 추가 -->
+            </table>
+        </div>
+        <div class="divider"></div>
+        <div class="section-title"><i class="fas fa-box"></i> 자재입고정보</div>
+        <div style="height: 45%; overflow-y: auto;"> <!-- 아래쪽 테이블을 위한 div -->
+            <table style="width: 100%;">
+                <tr>
+                    <th>자재명</th>
+                    <th>품목코드</th>
+                    <!-- 나머지 헤더 열 추가 -->
+                </tr>
+                <!-- 테이블 내용 추가 -->
+            </table>
+        </div>
+    </div>
+
+
+
+
+    </div>
+    <script>
+        var server = '';
+        var gridApi;
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        $(document).ready(function () {
+            initializeGrid();
+        });
+
+        $('#search').keypress(function (e) {
+            if (e.which === 13) {
+                // 13 is the key code for Enter
+                applySearchFilter();
+            }
+        });
+        function initializeGrid() {
+            setTimeout(function () {
+                if (typeof agGrid !== 'undefined') {
+                    const gridOptions = {
+                        columnDefs: [
+                            { field: "plandate", headerName: "생산날짜", filter: true },
+                            { field: "bomno", headerName: "BOMNO", filter: true },
+                            { field: "customer", headerName: "고객사", filter: true },
+                            { field: "modelname", headerName: "모델명", filter: true },
+                            { field: "itemname", headerName: "제품명", filter: true },
+                            { field: "part", headerName: "작업차수", filter: true },
+                            { field: "lotno", headerName: "생산LOT", filter: true },
+                            { field: "pono", headerName: "생산수량", filter: true },
+
+
+                        ],
+                        autoSizeStrategy: {
+                            type: 'fitGridWidth',
+                            defaultMinWidth: 150
+                        },
+                        rowHeight: 45,
+                        enableFilter: true,
+
+                    };
+
+                    const gridDiv = document.querySelector('#myGrid');
+                    gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+                    loadData();
+                } else {
+                }
+            }, 100); // 약간의 지연 추가
+        }
+
+
+
+        // function numberWithCommas(params) {
+        //     if (typeof params.value === 'number') {
+        //         return params.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        //     } else {
+        //         return params.value;
+        //     }
+        // }
+        function openModal() {
+            $('#overlay').fadeIn();
+            $('#modal').fadeIn();
+            $('#savebutton').text('저장')
+
+        }
+
+        function closeModal() {
+            $('#overlay').fadeOut();
+            $('#modal').fadeOut();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                onFilterTextBoxChanged();
+            }
+        }
+
+        function numberWithCommas(params) {
+            if (typeof params.value === 'number') {
+                return params.value.toLocaleString(); // 세 자리마다 쉼표 추가
+            } else {
+                return params.value; // 숫자가 아니면 그냥 반환
+            }
+        }
+        function click(event) {
+            event.preventDefault();
+            onFilterTextBoxChanged();
+        }
+        function onFilterTextBoxChanged() {
+            gridApi.setGridOption(
+                'quickFilterText',
+                document.getElementById('search').value
+            );
+        }
+        function consoledata(rowData) {
+            // Add your logic here using the rowData (data of the clicked row)
+            console.log('Button Clicked for Row:', rowData);
+        }
+        function formatCost(params) {
+            // Check if the value is a valid number
+            if (!isNaN(params.value)) {
+                // Use toFixed(2) to format the number with two decimal places
+                return Number(params.value).toFixed(2);
+            }
+            // Return the original value if it's not a valid number
+            return params.value;
+        }
+        function loadData() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectproduceplan',
+                dataType: 'json',
+                success: function (data) {
+                    gridApi.setRowData(data);
+                },
+            });
+        }
+
+        function showLoadingSpinner() {
+            $('#loadingSpinner').show();
+        }
+
+        function hideLoadingSpinner() {
+            $('#loadingSpinner').hide();
+        }
+        function applySearchFilter() {
+            showLoadingSpinner();
+            loadData();
+        }
+        function onBtnExport() {
+            gridApi.exportDataAsCsv();
+        }
+        function saveOrEditForm() {
+            // Swal.fire({
+            //     icon: 'info',
+            //     title: '수정',
+            //     text: '자재 TDS 정보를 수정 하시겠습니까?',
+            //     showCancelButton: true,
+            //     confirmButtonColor: '#3085d6',
+            //     cancelButtonColor: '#d33',
+            //     confirmButtonText: '확인',
+            //     cancelButtonText: '취소',
+            // }).then((result) => {
+            //     if (result.isConfirmed) {
+
+
+            //         $.ajax({
+            //             type: 'POST',
+            //             url: server + '/api/updatematerialinfo1',
+            //             dataType: 'json',
+            //             contentType: 'application/json',
+            //             data: JSON.stringify({
+
+            //                 "color": $('#color-input').val(),
+            //                 "thickness": $('#thickness-input').val(),
+            //                 "adhesionstrength": $('#adhesionstrength-input').val(),
+            //                 "id": $('#id-input').val(),
+
+
+            //             }),
+            //             success: function (result) {
+
+            //             },
+
+            //         });
+
+
+            //         $('#modal').fadeOut();
+            //         $('#overlay').fadeOut();
+            //         Swal.fire({
+            //             icon: 'success',
+            //             title: '수정 완료',
+            //             text: '자재 TDS 정보가 수정 되었습니다.',
+            //         }).then((result) => {
+            //             if (result.isConfirmed) {
+            //                 loadData()
+            //             }
+            //         });
+            //     }
+            // });
+
+
+
+        }
+
+        function addPlusMinus() {
+            var thicknessInput = document.getElementById('thickness-input');
+            var currentValue = thicknessInput.value;
+            if (currentValue.indexOf('±') === -1) { // ±가 없는 경우에만 추가
+                thicknessInput.value = currentValue + '±';
+            }
+            thicknessInput.focus(); // 수정된 부분
+        }
+        function addPlusMinus1() {
+            var thicknessInput1 = document.getElementById('adhesionstrength-input');
+            var currentValue = thicknessInput1.value;
+            if (currentValue.indexOf('±') === -1) { // ±가 없는 경우에만 추가
+                thicknessInput1.value = currentValue + '±';
+            }
+            thicknessInput1.focus(); // 수정된 부분
+        }
+
+    </script>
+</body>
+
+</html>

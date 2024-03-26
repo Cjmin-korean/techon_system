@@ -6318,6 +6318,50 @@ module.exports = function (app) {
 
     });
     // **** start       
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectproduceplan', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .input('id', sql.Int, req.body.id)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+
+                .query(
+                    "select "+
+                    " plandate, "+
+                    " bomno, "+
+                    " customer, "+
+                    " modelname, "+
+                    " itemname, "+
+                    " part, "+
+                    " lotno, "+
+                    " pono, "+
+                    " bompart, "+
+                    " materialstatus "+
+                    " from "+
+                    " produceplan "+
+                    " group by "+
+                    " plandate, "+
+                    " bomno, "+
+                    " customer, "+
+                    " modelname, "+
+                    " itemname, "+
+                    " part, "+
+                    " lotno, "+
+                    " pono, "+
+                    " bompart, "+
+                    " materialstatus")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/productorderlist3', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
