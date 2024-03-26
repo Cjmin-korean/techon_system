@@ -2827,6 +2827,7 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT " +
+                    "     po.orderno, " +
                     "     po.orderdate, " +
                     "     po.itemname, " +
                     "     po.codenumber, " +
@@ -2847,6 +2848,129 @@ module.exports = function (app) {
                     "     materialinfoinformation mi ON po.codenumber = mi.codenumber " +
                     " JOIN " +
                     "     iteminfo ii ON po.bomno = ii.bomno                ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpurchaseordering1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('orderno', sql.NVarChar, req.body.orderno)
+
+
+                .query(
+                    "SELECT " +
+                    "     po.orderno, " +
+                    "     po.orderdate, " +
+                    "     po.itemname, " +
+                    "     po.codenumber, " +
+                    "     mi.width, " +
+                    "     po.length, " +
+                    "     po.quantity, " +
+                    "     po.unitprice, " +
+                    "     po.supplyamount, " +
+                    "     po.suppliername, " +
+                    "     po.bomno, " +
+                    "     '양산' AS part, " +
+                    "     ii.customer, " +
+                    "     po.confirmed, " +
+                    "     po.cutting  " +
+                    " FROM " +
+                    "     purchaseorder po " +
+                    " JOIN  " +
+                    "     materialinfoinformation mi ON po.codenumber = mi.codenumber " +
+                    " JOIN " +
+                    "     iteminfo ii ON po.bomno = ii.bomno   where orderno=@orderno              ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpurchaseordering2', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('suppliername', sql.NVarChar, req.body.suppliername)
+
+
+                .query(
+                    "SELECT " +
+                    "     po.orderno, " +
+                    "     po.orderdate, " +
+                    "     po.itemname, " +
+                    "     po.codenumber, " +
+                    "     mi.width, " +
+                    "     po.length, " +
+                    "     po.quantity, " +
+                    "     po.unitprice, " +
+                    "     po.supplyamount, " +
+                    "     po.suppliername, " +
+                    "     po.bomno, " +
+                    "     '양산' AS part, " +
+                    "     ii.customer, " +
+                    "     po.confirmed, " +
+                    "     po.cutting  " +
+                    " FROM " +
+                    "     purchaseorder po " +
+                    " JOIN  " +
+                    "     materialinfoinformation mi ON po.codenumber = mi.codenumber " +
+                    " JOIN " +
+                    "     iteminfo ii ON po.bomno = ii.bomno   where suppliername=@suppliername              ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectsuppliername', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+            .input('orderno', sql.NVarChar, req.body.orderno)
+
+
+                .query(
+                    "select "+
+                    " suppliername "+
+                    " from "+
+                    " purchaseorder "+
+                    " where  "+
+                    " status='입고대기' "+
+                    " group by suppliername        ")
 
                 .then(result => {
 
@@ -6950,15 +7074,16 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
+            .input('suppliername', sql.NVarChar, req.body.suppliername)
 
 
                 .query(
                     "select " +
                     "orderno " +
                     "from " +
-                    "purchaseorder " +
+                    "purchaseorder where suppliername=@suppliername     " +
                     "group by " +
-                    "orderno                       ").then(result => {
+                    "orderno                   ").then(result => {
 
                         res.json(result.recordset);
                         res.end();

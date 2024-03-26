@@ -149,6 +149,10 @@
 
 <body>
     <div class="input-container">
+        <b>고객사명 :</b>
+        <select id="selectcustomer">
+            <option></option>
+        </select>
         <b>ORDER NO :</b>
         <select id="orderno">
             <option></option>
@@ -227,43 +231,72 @@
         }
     });
     $(document).ready(function () {
-        $('#orderno').change(function () {
-            $('#textInput').focus()
-            var selectedValue = $(this).val(); // 선택한 옵션의 값 가져오기
-            $('#tableBody1').empty()
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectordernopurchaseorder',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectsuppliername',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
 
-                    orderno: selectedValue
+                var ordernoSelect = $('#selectcustomer'); // id가 "orderno"인 select 요소 가져오기
 
-                }),
-                success: function (result) {
-                    for (var i = 0; i < result.length; i++) {
-                        $('#tableBody1').append(
-                            '<tr onclick="insertmaterialdata(this)">' +
-                            '<td>' + result[i].codenumber + '</td>' +
-                            '<td>' + result[i].itemname + '</td>' +
-                            '<td>' + result[i].width + '</td>' +
-                            '<td>' + result[i].length + '</td>' +
-                            '<td>' + result[i].quantity + '</td>' +
-                            '<td>' + result[i].length * result[i].quantity + '</td>' +
-                            '</tr>'
-                        );
-                    }
-                    $('#customer').text(result[0].suppliername)
-                }
-            });
+                // 받아온 결과(result)를 반복하여 select 요소에 옵션 추가
+                result.forEach(function (result) {
+                    var option = $('<option></option>'); // 새로운 옵션 요소 생성
+                    option.text(result.suppliername); // 옵션 텍스트 설정
+                    option.val(result.suppliername); // 옵션 값 설정
+                    ordernoSelect.append(option); // select 요소에 옵션 추가
+                });
+            }
         });
+    });
+    $('#selectcustomer').change(function () {
+
+        var selectedValue1 = $(this).val(); // 선택한 옵션의 값 가져오기
+        $('#tableBody1').empty()
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectpurchaseordering2',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+
+                suppliername: selectedValue1
+
+            }),
+            success: function (result) {
+                for (var i = 0; i < result.length; i++) {
+                    $('#tableBody1').append(
+                        '<tr onclick="insertmaterialdata(this)">' +
+                        '<td>' + result[i].codenumber + '</td>' +
+                        '<td>' + result[i].itemname + '</td>' +
+                        '<td>' + result[i].width + '</td>' +
+                        '<td>' + result[i].length + '</td>' +
+                        '<td>' + result[i].quantity + '</td>' +
+                        '<td>' + result[i].length * result[i].quantity + '</td>' +
+                        '</tr>'
+                    );
+                }
+                $('#customer').text(result[0].suppliername)
+            }
+        });
+
+        var ordernoSelect = document.getElementById("orderno");
+        ordernoSelect.innerHTML = ""; // 내용 초기화
+
+        // 초기 옵션 추가
+        var defaultOption = document.createElement("option");
+        defaultOption.text = "";
+        ordernoSelect.appendChild(defaultOption);
         $.ajax({
             type: 'POST',
             url: server + '/api/selectorderno',
             dataType: 'json',
             contentType: 'application/json',
-            data: JSON.stringify({}),
+            data: JSON.stringify({
+                "suppliername": $('#selectcustomer').val()
+            }),
             success: function (result) {
 
                 var ordernoSelect = $('#orderno'); // id가 "orderno"인 select 요소 가져오기
@@ -278,7 +311,37 @@
             }
         });
     });
+    $('#orderno').change(function () {
+        $('#textInput').focus()
+        var selectedValue = $(this).val(); // 선택한 옵션의 값 가져오기
+        $('#tableBody1').empty()
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectpurchaseordering1',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
 
+                orderno: selectedValue
+
+            }),
+            success: function (result) {
+                for (var i = 0; i < result.length; i++) {
+                    $('#tableBody1').append(
+                        '<tr onclick="insertmaterialdata(this)">' +
+                        '<td>' + result[i].codenumber + '</td>' +
+                        '<td>' + result[i].itemname + '</td>' +
+                        '<td>' + result[i].width + '</td>' +
+                        '<td>' + result[i].length + '</td>' +
+                        '<td>' + result[i].quantity + '</td>' +
+                        '<td>' + result[i].length * result[i].quantity + '</td>' +
+                        '</tr>'
+                    );
+                }
+                $('#customer').text(result[0].suppliername)
+            }
+        });
+    });
     function processText() {
         var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
         var contents = text.split('/');
