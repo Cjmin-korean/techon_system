@@ -2949,6 +2949,125 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectpaper', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('suppliername', sql.NVarChar, req.body.suppliername)
+
+
+                .query(
+                    "SELECT  " +
+                    "     ii.bomno, " +
+                    "     ii.modelname, " +
+                    "     ii.itemname, " +
+                    "     ii.customer, " +
+                    "     ii.cavity, " +
+                    "     ii.pcs,  " +
+                    "     ii.working, " +
+                    "     ii.direction, " +
+                    "     ii.itemcode, " +
+                    "     pp.lotno, " +
+                    "     pp.part, " +
+                    "     pp.pono " +
+                    "      " +
+                    " FROM iteminfo ii " +
+                    " JOIN  " +
+                    "     produceplan pp ON ii.bomno = pp.bomno " +
+                    "  " +
+                    "     group by " +
+                    "         ii.bomno, " +
+                    "     ii.modelname, " +
+                    "     ii.itemname," +
+                    "     ii.customer," +
+                    "     ii.cavity," +
+                    "     ii.pcs," +
+                    "     ii.working," +
+                    "     ii.direction," +
+                    "     ii.itemcode," +
+                    "     pp.lotno," +
+                    "     pp.part," +
+                    "     pp.pono")
+
+
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectequip', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+
+                .query(
+                    "select * from produceplan where orderno=@orderno")
+
+
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selecttool', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+
+                .query(
+                    "SELECT " +
+                    "   toolcode" +
+                    " FROM " +
+                    " bomtoolcode" +
+                    " where " +
+                    " bomno=@bomno and status='true' and part='금형' ")
+
+
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectsuppliername', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
