@@ -13,6 +13,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <style>
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 400px;
+            ;
+        }
+
+        .section {
+            margin-right: 20px;
+            width: 100%;
+            /* 각 섹션 사이의 간격 조절 */
+        }
+
+        .table-container {
+            width: 100%;
+            /* 각 테이블 컨테이너의 너비 설정 */
+            overflow-y: auto;
+        }
+
         .ag-ltr .ag-cell {
             font-family: 'Roboto', sans-serif;
         }
@@ -240,7 +259,68 @@
             <button class="new-registration-button" style="float: right;" onclick="closeModal()">닫기</button>
         </div>
 
-        <div class="section-title"><i class="fas fa-box"></i> 슬리팅작업지시</div>
+        <div class="container">
+            <div class="section">
+                <div class="section-title"><i class="fas fa-box"></i> 생산 소요필요량</div>
+                <div class="table-container"> <!-- 위쪽 테이블을 위한 div -->
+                    <table>
+                        <tr>
+                            <th colspan="11">슬리팅 생산정보</th>
+                        </tr>
+                        <tr>
+                            <th>자재명</th>
+                            <th>규격폭(mm)</th>
+                            <th>소요량(M)</th>
+                        </tr>
+                        <tbody id="producttbody1">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-box"></i> A 자재 재고</div>
+                <div class="table-container"> <!-- 위쪽 테이블을 위한 div -->
+                    <table>
+                        <tr>
+                            <th colspan="11">A 자재 재고</th>
+                        </tr>
+                        <tr>
+                            <th>자재명</th>
+                            <th>규격폭(mm)</th>
+                            <th>수량(M)</th>
+                            <th>LOTNO</th>
+                            <th></th>
+                        </tr>
+                        <tbody id="producttbody2">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-box"></i> B 자재 재고</div>
+                <div class="table-container"> <!-- 위쪽 테이블을 위한 div -->
+                    <table>
+                        <tr>
+                            <th colspan="11">B 자재 재고</th>
+                        </tr>
+                        <tr>
+                            <th>자재명</th>
+                            <th>규격폭(mm)</th>
+                            <th>수량(M)</th>
+                            <th>LOTNO</th>
+                            <th></th>
+
+                        </tr>
+                        <tbody id="producttbody3">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-box"></i> 슬리팅 자재입고 대기</div>
 
         <div style="height: 30%; overflow-y: auto;"> <!-- 위쪽 테이블을 위한 div -->
             <table style="width: 100%;">
@@ -319,6 +399,7 @@
                             { field: "model", headerName: "모델명", filter: true },
                             { field: "itemname", headerName: "제품명", filter: true },
                             { field: "lotno", headerName: "생산LOT", filter: true },
+                            { field: "hapji", headerName: "합지내용", filter: true },
                             { field: "slitingstatus", headerName: "슬리팅상태", filter: true },
 
                         ],
@@ -335,55 +416,146 @@
                         rowHeight: 45,
                         enableFilter: true,
                         onRowDoubleClicked: function (params) {
+                            $('#producttbody1').empty()
+                            $('#producttbody2').empty()
+                            $('#producttbody3').empty()
+                            $('#outputtbody').empty()
+                            $('#inputtbody').empty()
                             $.ajax({
                                 type: 'POST',
-                                url: server + '/api/slitingstatus',
+                                url: server + '/api/slitingresult',
                                 dataType: 'json',
                                 contentType: 'application/json',
                                 data: JSON.stringify({
-                                    lotno: params.data.lotno
+                                    lotno: params.data.lotno,
+                                    hapji: params.data.hapji
                                 }),
                                 success: function (result) {
-                                    for (var i = 0; i < result.length; i++) {
-                                        $('#inputtbody').append(
-                                            '<tr>' +
-                                            '<td>' + result[i].materialname + '</td>' +
-                                            '<td>' + result[i].usagecategory + '</td>' +
-                                            '<td>' + result[i].width + '</td>' +
-                                            '<td>' + result[i].materiallength + '</td>' +
-                                            '<td>1</td>' +
-                                            '<td>' + result[i].materiallength + '</td>' +
-                                            '<td>' + result[i].rollprice.toLocaleString() + '</td>' +
-                                            '<td>' + result[i].rollprice.toLocaleString() + '</td>' +
-                                            '<td>' + result[i].hapji + '</td>' +
+                                    // 첫 번째 hapji 값 추가
+                                    $('#producttbody1').append(
+                                        '<tr>' +
+                                        '<td colspan="3">' + result[0].hapji + '</td>' +
+                                        '</tr>'
+                                    );
 
-                                            '</tr>'
-                                        );
-                                    }
+                                    // 첫 번째 자재 정보 추가
+                                    $('#producttbody1').append(
+                                        '<tr>' +
+                                        '<td>' + result[0].materialname + '</td>' +
+                                        '<td>' + result[0].materialwidth.toLocaleString() + '</td>' +
+                                        '<td rowspan="2">' + result[0].allsoyo + '</td>' +
+                                        '</tr>'
+                                    );
+
+                                    // 두 번째 자재 정보 추가
+                                    $('#producttbody1').append(
+                                        '<tr>' +
+                                        '<td>' + result[1].materialname + '</td>' +
+                                        '<td>' + result[1].materialwidth.toLocaleString() + '</td>' +
+                                        '</tr>'
+                                    );
+
+                                    // 첫 번째 자재에 대한 A 자재 재고 조회
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: server + '/api/selectamaterialname',
+                                        dataType: 'json',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({
+                                            materialname: result[0].materialname,
+                                        }),
+                                        success: function (result1) {
+                                            for (var i = 0; i < result1.length; i++) {
+                                                $('#producttbody2').append(
+                                                    '<tr>' +
+                                                    '<td>' + result1[i].materialname + '</td>' +
+                                                    '<td>' + result1[i].materialwidth + '</td>' +
+                                                    '<td>' + result1[i].quantity + '</td>' +
+                                                    '<td>' + result1[i].lotno + '</td>' +
+                                                    '<td><button>추가</button></td>' +
+                                                    '</tr>'
+                                                );
+                                            }
+                                        }
+                                    });
+
+                                    // 두 번째 자재에 대한 B 자재 재고 조회
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: server + '/api/selectbmaterialname',
+                                        dataType: 'json',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({
+                                            materialname: result[1].materialname,
+                                        }),
+                                        success: function (result2) {
+                                            for (var i = 0; i < result2.length; i++) {
+                                                $('#producttbody3').append(
+                                                    '<tr>' +
+                                                    '<td>' + result2[i].materialname + '</td>' +
+                                                    '<td>' + result2[i].materialwidth + '</td>' +
+                                                    '<td>' + result2[i].quantity + '</td>' +
+                                                    '<td>' + result2[i].lotno + '</td>' +
+                                                    '<td><button>추가</button></td>' +
+
+                                                    '</tr>'
+                                                );
+                                            }
+                                        }
+                                    });
                                 }
                             });
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/slitingstatus1',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    lotno: params.data.lotno
-                                }),
-                                success: function (result) {
-                                    for (var i = 0; i < result.length; i++) {
-                                        $('#outputtbody').append(
-                                            '<tr>' +
-                                            '<td>' + result[i].hapji + '</td>' +
-                                            '<td>' + result[i].materialwidth + '</td>' +
-                                            '<td>1</td>' +
-                                            '<td>200</td>' +
 
-                                            '</tr>'
-                                        );
-                                    }
-                                }
-                            });
+
+                            // $.ajax({
+                            //     type: 'POST',
+                            //     url: server + '/api/slitingstatus',
+                            //     dataType: 'json',
+                            //     contentType: 'application/json',
+                            //     data: JSON.stringify({
+                            //         lotno: params.data.lotno
+                            //     }),
+                            //     success: function (result) {
+                            //         for (var i = 0; i < result.length; i++) {
+                            //             $('#inputtbody').append(
+                            //                 '<tr>' +
+                            //                 '<td>' + result[i].materialname + '</td>' +
+                            //                 '<td>' + result[i].usagecategory + '</td>' +
+                            //                 '<td><input type="text" class="width-input" value="' + result[i].width + '"></td>' + // 너비 수정을 위한 입력란
+                            //                 '<td>' + result[i].materiallength + '</td>' +
+                            //                 '<td>1</td>' +
+                            //                 '<td>' + result[i].materiallength + '</td>' +
+                            //                 '<td>' + result[i].rollprice.toLocaleString() + '</td>' +
+                            //                 '<td>' + result[i].rollprice.toLocaleString() + '</td>' +
+                            //                 '<td>' + result[i].hapji + '</td>' +
+
+                            //                 '</tr>'
+                            //             );
+                            //         }
+                            //     }
+                            // });
+                            // $.ajax({
+                            //     type: 'POST',
+                            //     url: server + '/api/slitingstatus1',
+                            //     dataType: 'json',
+                            //     contentType: 'application/json',
+                            //     data: JSON.stringify({
+                            //         lotno: params.data.lotno
+                            //     }),
+                            //     success: function (result) {
+                            //         for (var i = 0; i < result.length; i++) {
+                            //             $('#outputtbody').append(
+                            //                 '<tr>' +
+                            //                 '<td>' + result[i].hapji + '</td>' +
+                            //                 '<td>' + result[i].materialwidth + '</td>' +
+                            //                 '<td>1</td>' +
+                            //                 '<td>200</td>' +
+
+                            //                 '</tr>'
+                            //             );
+                            //         }
+                            //     }
+                            // });
 
 
 

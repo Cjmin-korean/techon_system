@@ -4146,6 +4146,61 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/slitingresult', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('hapji', sql.NVarChar, req.body.hapji)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "					SELECT " +
+                    "     bm.hapji," +
+                    "     bm.materialname," +
+                    "     bm.codenumber," +
+                    "     bm.materialwidth," +
+                    "     CEILING(SUM(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100))) * pp.pono / 10) * 10 as allsoyo" +
+                    " FROM " +
+                    "     bommanagement AS bm" +
+                    " INNER JOIN " +
+                    "     produceplan AS pp ON bm.bomno = pp.bomno" +
+                    " LEFT JOIN" +
+                    "     materialinfoinformation AS mi ON bm.materialname = mi.materialname" +
+                    " WHERE " +
+                    "     (bm.hapji IS NOT NULL OR bm.hapji <> '') AND pp.slitingstatus ='슬리팅대기' and pp.lotno=@lotno  and hapji=@hapji" +
+                    " GROUP BY" +
+                    "     bm.bomno," +
+                    "     bm.model," +
+                    "     bm.itemname," +
+                    "     bm.materialname," +
+                    "     bm.codenumber," +
+                    "     bm.materialwidth," +
+                    "     bm.etc," +
+                    "     pp.pono," +
+                    "     bm.hapji," +
+                    "     mi.width," +
+                    "     mi.length," +
+                    "     pp.lotno,mi.usagecategory,mi.rollprice" +
+                    " ORDER BY" +
+                    "     bm.hapji ASC;      ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/slitingstatus1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -4170,7 +4225,7 @@ module.exports = function (app) {
                     "   " +
                     "      bm.hapji, " +
                     "      bm.materialwidth, " +
-           
+
                     "      pp.lotno " +
                     "   " +
                     "  ORDER BY " +
@@ -4206,7 +4261,7 @@ module.exports = function (app) {
                     "     bm.model," +
                     "     pp.lotno," +
                     "     bm.itemname," +
-                    "     pp.slitingstatus" +
+                    "     pp.slitingstatus,bm.hapji" +
                     "   " +
                     " FROM " +
                     "     bommanagement AS bm" +
@@ -4218,7 +4273,7 @@ module.exports = function (app) {
                     "     bm.bomno," +
                     "     bm.model," +
                     "     bm.itemname," +
-                    "       pp.lotno,pp.plandate,pp.part,pp.slitingstatus                         ")
+                    "       pp.lotno,pp.plandate,pp.part,pp.slitingstatus ,bm.hapji                        ")
 
                 .then(result => {
 
@@ -4410,6 +4465,54 @@ module.exports = function (app) {
 
                 .query(
                     "select * from bomtoolcode where bomid=@bomid and status='true'")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectamaterialname', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+                .query(
+                    "select * from materialinput where materialname=@materialname  ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbmaterialname', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+                .query(
+                    "select * from materialinput where materialname=@materialname  ")
 
                 .then(result => {
 
