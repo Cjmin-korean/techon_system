@@ -314,6 +314,7 @@
                         },
                         rowHeight: 45,
                         enableFilter: true,
+                        onRowDoubleClicked: openInvoice  // 더블 클릭 이벤트 핸들러 등록
 
                     };
 
@@ -325,7 +326,27 @@
                 }
             }, 100); // 약간의 지연 추가
         }
+        function openInvoice(params) {
+            var rowData = params.data;
+            console.log(rowData);
+            var newWindow = window.open('/html/producepaper.html', '_blank', 'width=1000,height=800');
+            newWindow.onload = function () {
+                // 발주서 창이 로딩되면 해당 데이터를 전달
+                newWindow.document.getElementById("suppliername").innerText = rowData.customer || ''; // 고객사를 suppliername에 표시
 
+                // 예시로 테이블에 데이터 추가 (이 부분은 실제 데이터에 맞게 수정)
+                var table = newWindow.document.getElementById("invoice-items");
+                for (var key in rowData) {
+                    if (rowData.hasOwnProperty(key)) {
+                        var row = table.insertRow(-1);
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        cell1.innerHTML = key;
+                        cell2.innerHTML = rowData[key];
+                    }
+                }
+            };
+        }
 
 
         // function numberWithCommas(params) {
