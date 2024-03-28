@@ -7001,42 +7001,59 @@ module.exports = function (app) {
     // **** finish
 
 
-    // **** start       
+    // **** start다시손 봐야할것   
+    // sql.connect(config).then(pool => {
+    //     app.post('/api/productorderlist', function (req, res) {
+    //         res.header("Access-Control-Allow-Origin", "*");
+
+    //         return pool.request()
+    //             .query(
+    //                 "SELECT   " +
+    //                 "ol.itemname,  " +
+    //                 "ol.customer,  " +
+    //                 "ol.part,  " +
+    //                 "bm.char,  " +
+    //                 "MAX(ol.id) AS id,  " +
+    //                 "MAX(ol.bomno) AS bomno,  " +
+    //                 "MAX(ol.productdate) AS productdate,  " +
+    //                 "MAX(ol.modelname) AS modelname,  " +
+    //                 "MAX(ol.lotno) AS lotno,  " +
+    //                 "ol.quantity,  " +
+    //                 "MAX(ol.qrno) AS qrno,  " +
+    //                 "MAX(ol.orderstatus) AS orderstatus  , " +
+    //                 " CASE " +
+    //                 "WHEN bm.onepid < 90 THEN 100 " +
+    //                 "WHEN bm.onepid < 150 THEN 83 " +
+    //                 "WHEN bm.onepid < 190 THEN 50 " +
+    //                 "ELSE 33 " +
+    //                 "END AS capa " +
+    //                 "FROM   " +
+    //                 "    orderlist ol   " +
+    //                 "JOIN   " +
+    //                 "    bommanagement bm ON ol.itemname = bm.itemname and ol.modelname = bm.model    " +
+    //                 "WHERE   " +
+    //                 "    ol.orderstatus = '생산확정'  and  ol.planstatus is null   " +
+    //                 "GROUP BY   " +
+    //                 "    ol.itemname,bm.char,ol.quantity ,bm.onepid ,ol.customer,ol.part ,ol.lotno  " +
+    //                 "ORDER BY   " +
+    //                 "   ol.lotno asc;               ")
+    //             .then(result => {
+
+    //                 res.json(result.recordset);
+    //                 res.end();
+    //             });
+    //     });
+
+    // });
+    // **** start  
+
     sql.connect(config).then(pool => {
         app.post('/api/productorderlist', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
                 .query(
-                    "SELECT   " +
-                    "ol.itemname,  " +
-                    "ol.customer,  " +
-                    "ol.part,  " +
-                    "bm.char,  " +
-                    "MAX(ol.id) AS id,  " +
-                    "MAX(ol.bomno) AS bomno,  " +
-                    "MAX(ol.productdate) AS productdate,  " +
-                    "MAX(ol.modelname) AS modelname,  " +
-                    "MAX(ol.lotno) AS lotno,  " +
-                    "ol.quantity,  " +
-                    "MAX(ol.qrno) AS qrno,  " +
-                    "MAX(ol.orderstatus) AS orderstatus  , " +
-                    " CASE " +
-                    "WHEN bm.onepid < 90 THEN 100 " +
-                    "WHEN bm.onepid < 150 THEN 83 " +
-                    "WHEN bm.onepid < 190 THEN 50 " +
-                    "ELSE 33 " +
-                    "END AS capa " +
-                    "FROM   " +
-                    "    orderlist ol   " +
-                    "JOIN   " +
-                    "    bommanagement bm ON ol.itemname = bm.itemname and ol.modelname = bm.model    " +
-                    "WHERE   " +
-                    "    ol.orderstatus = '생산확정'  and  ol.planstatus is null   " +
-                    "GROUP BY   " +
-                    "    ol.itemname,bm.char,ol.quantity ,bm.onepid ,ol.customer,ol.part ,ol.lotno  " +
-                    "ORDER BY   " +
-                    "   ol.lotno asc;               ")
+                    "    select * from planproduct        ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -7045,7 +7062,6 @@ module.exports = function (app) {
         });
 
     });
-    // **** start       
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/updateorderstatustrue', function (req, res) {
