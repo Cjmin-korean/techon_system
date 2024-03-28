@@ -225,6 +225,17 @@
             text-align: center;
             font-weight: bold;
         }
+
+        select {
+            /* 스타일링을 위한 일반적인 설정 */
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 200px;
+            /* 목록의 너비를 조정할 수 있습니다 */
+        }
     </style>
 </head>
 
@@ -233,16 +244,15 @@
 
     <div class="menu-title" style="width:100%;">
         <i class="fas fa-box"></i>사업계획정보
-        <!-- <p>2.1*10<sup>-9</sup></p> -->
     </div>
     <div class="search-container">
-        <label for="search" class="search-label"> 검색 :</label>
-        <div class="search-input-wrapper">
-            <input type="text" id="search" placeholder="검색어를 입력 후 ENTER 누르세요..." onkeypress="handleKeyPress(event)"
-                autocomplete="off">
-            <i class="fas fa-search search-icon"></i>
-        </div>
-        <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
+        <label for="search" class="search-label"> REV :</label>
+        <select id="rev">
+            <option value="1.0">REV1.0</option>
+            <option value="2.0">REV2.0</option>
+            <option value="3.0">REV3.0</option>
+        </select>
+        <button class="new-registration-button" style="background-color: #6e60a0;" onclick="searching()">조회</button>
         <b style="float: right; margin-right: 20px; margin-top: 20px;" id="dataCount"></b>
     </div>
 
@@ -475,7 +485,9 @@
             initializeGrid()
         });
 
-
+        function searching() {
+            loadData();
+        }
         $('#search').keypress(function (e) {
             if (e.which === 13) {
                 // 13 is the key code for Enter
@@ -681,23 +693,20 @@
                 type: 'POST',
                 url: server + '/api/businessplan',
                 dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "rev": $('#rev').val()
+
+                }),
                 success: function (data) {
-                    hideLoadingSpinner();
                     gridApi.setRowData(data);
                     updateDataCount();
                 },
             });
         }
 
-        function showLoadingSpinner() {
-            $('#loadingSpinner').show();
-        }
 
-        function hideLoadingSpinner() {
-            $('#loadingSpinner').hide();
-        }
         function applySearchFilter() {
-            showLoadingSpinner();
             loadData();
         }
         function onBtnExport() {

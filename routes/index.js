@@ -4084,6 +4084,156 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/slitingstatus', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT " +
+                    "     bm.bomno, " +
+                    "     bm.model," +
+                    "     pp.lotno," +
+                    "     bm.itemname," +
+                    "     bm.materialname," +
+                    "     bm.codenumber," +
+                    "     bm.materialwidth," +
+                    "     bm.etc," +
+                    "     ROUND(SUM(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100))), 4) as soyo," +
+                    "     pp.pono," +
+                    "     CEILING(SUM(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100))) * pp.pono / 10) * 10 as allsoyo," +
+                    "     bm.hapji," +
+                    "     mi.width as width," +
+                    "     mi.length as materiallength,mi.usagecategory,mi.rollprice" +
+                    " FROM " +
+                    "     bommanagement AS bm" +
+                    " INNER JOIN " +
+                    "     produceplan AS pp ON bm.bomno = pp.bomno" +
+                    " LEFT JOIN" +
+                    "     materialinfoinformation AS mi ON bm.materialname = mi.materialname" +
+                    " WHERE " +
+                    "     (bm.hapji IS NOT NULL OR bm.hapji <> '') AND pp.slitingstatus ='슬리팅대기' and pp.lotno=@lotno " +
+                    " GROUP BY" +
+                    "     bm.bomno," +
+                    "     bm.model," +
+                    "     bm.itemname," +
+                    "     bm.materialname," +
+                    "     bm.codenumber," +
+                    "     bm.materialwidth," +
+                    "     bm.etc," +
+                    "     pp.pono," +
+                    "     bm.hapji," +
+                    "     mi.width," +
+                    "     mi.length," +
+                    "     pp.lotno,mi.usagecategory,mi.rollprice" +
+                    " ORDER BY" +
+                    "     bm.hapji ASC;                ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/slitingstatus1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT " +
+                    "     bm.hapji, " +
+                    "      bm.materialwidth " +
+                    "  FROM  " +
+                    "      bommanagement AS bm " +
+                    "  INNER JOIN  " +
+                    "      produceplan AS pp ON bm.bomno = pp.bomno " +
+                    "  LEFT JOIN " +
+                    "      materialinfoinformation AS mi ON bm.materialname = mi.materialname " +
+                    "  WHERE  " +
+                    "      (bm.hapji IS NOT NULL OR bm.hapji <> '') AND pp.slitingstatus ='슬리팅대기' and pp.lotno=@lotno " +
+                    "  GROUP BY " +
+                    "   " +
+                    "      bm.hapji, " +
+                    "      bm.materialwidth, " +
+           
+                    "      pp.lotno " +
+                    "   " +
+                    "  ORDER BY " +
+                    "      bm.hapji ASC;                     ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/slitinghabjilist', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('lotno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT  " +
+                    "     pp.plandate, " +
+                    "     pp.part," +
+                    "     bm.bomno," +
+                    "     bm.model," +
+                    "     pp.lotno," +
+                    "     bm.itemname," +
+                    "     pp.slitingstatus" +
+                    "   " +
+                    " FROM " +
+                    "     bommanagement AS bm" +
+                    " INNER JOIN " +
+                    "     produceplan AS pp ON bm.bomno = pp.bomno" +
+                    " WHERE " +
+                    "     (bm.hapji IS NOT NULL OR bm.hapji <> '') AND (pp.slitingstatus ='슬리팅대기' or pp.slitingstatus='슬리팅작업지시완료') " +
+                    " GROUP BY" +
+                    "     bm.bomno," +
+                    "     bm.model," +
+                    "     bm.itemname," +
+                    "       pp.lotno,pp.plandate,pp.part,pp.slitingstatus                         ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectbommasssavebommanagement1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -11282,6 +11432,46 @@ module.exports = function (app) {
     });
     // **** finish
 
+    // **** start  사원정보등록쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpricechange1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+                .query(
+                    "WITH PriceChangeCount AS ( " +
+                    "     SELECT " +
+                    "         bomno, " +
+                    "         COUNT(*) AS change_count" +
+                    "     FROM " +
+                    "         pricechange " +
+                    "     GROUP BY " +
+                    "         bomno " +
+                    " ) " +
+                    " SELECT " +
+                    "     ii.bomno," +
+                    "     ii.modelname," +
+                    "     ii.itemname," +
+                    "     ii.customer," +
+                    "     ii.updatedate," +
+                    "     COALESCE(pcc.change_count, 0) AS pricechange" +
+                    " FROM" +
+                    "     iteminfo ii" +
+                    " LEFT JOIN" +
+                    "     PriceChangeCount pcc ON ii.bomno = pcc.bomno; "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     // **** start  사원정보수정쿼리
     sql.connect(config).then(pool => {
@@ -12439,6 +12629,7 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
+                .input('rev', sql.NVarChar, req.body.rev)
 
 
                 .query(
@@ -12487,7 +12678,7 @@ module.exports = function (app) {
                     " lprice, " +
                     " lea*lprice/1000000'lcost'" +
                     " from " +
-                    " businessplan"
+                    " businessplan WHERE rev=@rev"
                 )
                 .then(result => {
 

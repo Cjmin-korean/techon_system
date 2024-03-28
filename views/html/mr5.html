@@ -3,36 +3,68 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="../css/mesmain.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../js/sorttable.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
+    <link rel="stylesheet" href="../css/mescss.css">
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap">
+    <link rel="stylesheet" href="../css/houseinfor.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 </head>
-<style>
-    #Datatbody td {
-        height: 30px;
 
+<style>
+    #datatable {
+        overflow-x: auto;
+        white-space: nowrap;
+        /* 텍스트가 줄 바꿈되지 않도록 설정합니다. */
+        width: 100%;
+        /* 테이블의 전체 너비를 확보합니다. */
+        display: block;
+        /* 블록 수준 요소로 표시합니다. */
+    }
+
+    /* 스크롤이 있는 테이블의 헤더 셀에 스타일을 적용합니다. */
+    #datatable thead th {
+        position: sticky;
+        top: 0;
+        background-color: #d2e3f5;
+        /* 헤더 배경색 지정 */
+        z-index: 1;
+    }
+
+    /* 스크롤이 있는 테이블의 셀의 내용을 가운데 정렬합니다. */
+    #datatable td {
+        text-align: center;
+    }
+
+    /* 스크롤이 있는 테이블의 테두리 스타일을 지정합니다. */
+    #datatable th,
+    #datatable td {
+        border: 1px solid #dee2e6;
+        /* 테두리 스타일 지정 */
+        padding: 8px;
+        /* 셀 내부 여백 지정 */
+    }
+
+    /* 스크롤이 있는 테이블의 헤더 셀의 높이를 지정합니다. */
+    #datatable th {
+        height: 50px;
+        /* 헤더 셀 높이 지정 */
+    }
+
+    td:hover {
+        background-color: rgb(182, 181, 181);
+        cursor: pointer;
     }
 </style>
 
 
 <body>
-    <div class="main_header">
-        <img src="/img/테크온로고.PNG" style="width: 100px;" class="loadingImage">
-        <a style="margin-left: 20px;">설비관리대장</a>
-    </div>
-    <div id="loadingOverlay">
-        <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
 
+    <div class="menu-title" style="width:100%;">
+        <i class="fas fa-warehouse"></i>금형 위치 등록 및 조회
     </div>
 
     <div id="overlay"></div>
@@ -103,139 +135,15 @@
         }
         $(document).ready(function () {
 
-            showLoading()
+
             load()
             load1()
-            $('#Datatbody').on('dblclick', 'tr', function () {
-                openEditModal(this); // Pass the clicked row to the function
-            });
+
 
         });
-
-        // Function to close edit modal and overlay
-        function closeModal() {
-            $('#overlay').fadeOut();
-            $('#editModal').fadeOut();
-        }
-
-        function showLoading() {
-            var loadingOverlay = document.getElementById("loadingOverlay");
-            loadingOverlay.style.display = "flex";
-            setTimeout(function () {
-                loadingOverlay.style.display = "none";
-            }, 1000);
-        }
-
-
-
-        function Datasave() {
-            if (confirm("샘플 발주 정보를 등록 하시겠습니까??") == true) {
-
-                var insertdate = new Date().toISOString().slice(0, 10);
-
-                var toolcode = $('#toolcode').val();
-                var madedate = $('#datepicker1').val();
-                var bomno = $('#bomno').val();
-                var customer = $('#customer').val();
-                var modelname = $('#modelname').val();
-                var itemname = $('#itemname').val();
-                var char = $('#char').val();
-                var part = $('#part').val();
-                var inputprice = $('#inputprice').val();
-                var outputprice = $('#outputprice').val();
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertpinacle',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        "insertdate": insertdate,
-                        "toolcode": toolcode,
-                        "madedate": madedate,
-                        "bomno": bomno,
-                        "customer": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "char": char,
-                        "part": part,
-                        "inputprice": inputprice,
-                        "outputprice": outputprice
-
-
-
-
-                    }),
-                    success: function (result) {
-
-
-                    }
-                })
-
-                $('#popupOverlay').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">피나클 정보 등록 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
-
-        function Dataedit() {
-            if (confirm("고객사 정보를 수정 하시겠습니까??") == true) {
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/accountupdatedata',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-
-                        id: $('#id-edit').val(),
-                        accountcode: $('#accountcode-edit').val(),
-                        accountname: $('#accountname-edit').val(),
-                        representativename: $('#representativename-edit').val(),
-                        phone: $('#phone-edit').val(),
-                        adress: $('#adress-edit').val(),
-                        number: $('#number-edit').val(),
-                        mobile: $('#mobile-edit').val(),
-                        fax: $('#fax-edit').val(),
-                        email: $('#email-edit').val(),
-                        etc: $('#etc-edit').val()
-
-
-
-
-                    }),
-                    success: function (result) {
-                        console.log(result)
-                    }
-                })
-
-                $('#popupOverlay1').fadeOut();
-                setTimeout(function () {
-                    load()
-                }, 50); // 3초 후에 알림을 사라지게 설정
-                var notification = $('<div class="notification"><img src="/img/테크온로고.PNG" alt="Notification Icon"><span class="notification-message" style="color:navy;">거래처 수정 완료</span></div>');
-                $('body').append(notification);
-                setTimeout(function () {
-                    notification.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }, 3000);
-            } else {
-                return false;
-            }
-        }
-
+        $('#Datatbody').on('dblclick', 'tr', function () {
+            openEditModal(this); // Pass the clicked row to the function
+        });
         function load() {
             $('#Datatbody').empty()
             $.ajax({
@@ -251,56 +159,56 @@
                         for (var i = 0; i < data.length; i++) {
                             $('#Datatbody').append(
                                 '<tr>' +
-                                    '<td style="text-align:center;">' + (data[i].no || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].a || '') + '</td>' +
+                                '<td style="text-align:center;">' + (data[i].no || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].a || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].b || '') + '</td>' +
-                                '<td style="background-color:orange;  text-align:left;">' + (data[i].c || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5;  text-align:left;">' + (data[i].c || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].d || '') + '</td>' +
-                                '<td style="background-color:orange;  text-align:left;">' + (data[i].e || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5;  text-align:left;">' + (data[i].e || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].f || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].g || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].g || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].h || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].i || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].i || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].j || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].k || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].k || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].l || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].m || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].m || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].n || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].o || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].o || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].p || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].q || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].q || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].r || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].s || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].s || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].t || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].u || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].u || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].v || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].w || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].w || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].x || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].y || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].y || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].z || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].aa || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].aa || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ab || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ac || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ac || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ad || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ae || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ae || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].af || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ag || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ag || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ah || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ai || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ai || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].aj || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ak || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ak || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].al || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].am || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].am || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].an || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ao || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ao || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ap || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].aq || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].aq || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ar || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].as1 || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].as1 || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].at || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].au || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].au || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].av || '') + '</td>' +
-                      
+
                                 '</tr>'
                             )
                             $("td#data-id").hide();
@@ -327,65 +235,65 @@
                             $('#Datatbody1').append(
                                 '<tr>' +
                                 '<td style="text-align:center;">' + (data[i].no || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].a || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].a || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].b || '') + '</td>' +
-                                '<td style="background-color:orange;  text-align:left;">' + (data[i].c || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5;  text-align:left;">' + (data[i].c || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].d || '') + '</td>' +
-                                '<td style="background-color:orange;  text-align:left;">' + (data[i].e || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5;  text-align:left;">' + (data[i].e || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].f || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].g || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].g || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].h || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].i || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].i || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].j || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].k || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].k || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].l || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].m || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].m || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].n || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].o || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].o || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].p || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].q || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].q || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].r || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].s || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].s || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].t || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].u || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].u || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].v || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].w || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].w || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].x || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].y || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].y || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].z || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].aa || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].aa || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ab || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ac || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ac || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ad || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ae || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ae || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].af || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ag || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ag || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ah || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ai || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ai || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].aj || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ak || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ak || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].al || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].am || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].am || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].an || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ao || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ao || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ap || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].aq || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].aq || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ar || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].as1 || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].as1 || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].at || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].au || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].au || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].av || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].aw || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].aw || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].ax || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ay || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ay || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].az || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].ba || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].ba || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].bb || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].bc || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].bc || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].bd || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].be || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].be || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].bf || '') + '</td>' +
-                                '<td style="background-color:orange; text-align:left;">' + (data[i].bg || '') + '</td>' +
+                                '<td style="background-color:#d2e3f5; text-align:left;">' + (data[i].bg || '') + '</td>' +
                                 '<td style="text-align:left;">' + (data[i].bh || '') + '</td>' +
 
 

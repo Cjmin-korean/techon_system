@@ -211,7 +211,8 @@
         <div class="modal-header">
             <span style="font-weight: bold;">제품정보</span>
         </div>
-        <div class="company-info"> <i class="fas fa-box"></i> 제품정보 </div>
+        <div class="company-info"> <i class="fas fa-box"></i> 제품정보
+        </div>
         <div class="modal-content">
             <div class="modal-column" style="flex-basis: 100%;">
                 <label for="bomno">BOMNO:</label>
@@ -357,6 +358,7 @@
                     enableFilter: true,
                     rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
                     onRowDoubleClicked: function (params) {
+                        console.log(params.data)
                         $('#bomno').val(params.data.bomno);
                         $('#part').val(params.data.part);
                         $('#modelname').val(params.data.modelname);
@@ -401,6 +403,47 @@
             }
             // Return the original value if it's not a valid number
             return params.value;
+        }
+        function saveOrEditForm() {
+            Swal.fire({
+                icon: 'info',
+                title: '수정',
+                text: '제품정보를 수정 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updateiteminfoitemprice',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "itemprice": $('#itemprice').val(),
+                            "class": $('#class').val(),
+                            "bomno": $('#bomno').val(),
+                        }),
+                        success: function (result) {
+
+                        },
+                    });
+                    $('#myModal').fadeOut();
+                    $('#overlay').fadeOut();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '수정 완료',
+                        text: '제품 정보가 수정 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loadData()
+                        }
+                    });
+                }
+            });
+
         }
         function loadData() {
             $.ajax({
