@@ -1790,6 +1790,107 @@ module.exports = function (app) {
     // **** finish
     // **** start  BOM창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/iteminfobomselect', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('savedate', sql.NVarChar, req.body.savedate)
+                .query(
+                    "SELECT TOP (1000) [id] " +
+                    "      ,[savedate]" +
+                    "      ,[bomno]" +
+                    "      ,[model]" +
+                    "      ,[itemname]" +
+                    "      ,[status]" +
+                    "      ,[num]" +
+                    "      ,[char]" +
+                    "      ,[main]" +
+                    "      ,[materialname]" +
+                    "      ,[codenumber]" +
+                    "      ,[materialwidth]" +
+                    "      ,[cavity]" +
+                    "      ,[etc]" +
+                    "      ,[using]" +
+                    "      ,[onepid]" +
+                    "      ,[twopid]" +
+                    "      ,[ta]" +
+                    "      ,[allta]" +
+                    "      ,[talength]" +
+                    "      ,[loss]" +
+                    "      ,[useable]" +
+                    "      ,[dpid]" +
+                    "      ,[productcode]" +
+                    "      ,[swidth]" +
+                    "      ,[mwidth]" +
+                    "      ,[classification]" +
+                    "      ,[customernumber]" +
+                    "      ,[cost]" +
+                    "      ,[rlcut]" +
+                    "      ,[rlproduct]" +
+                    "      ,[width]" +
+                    "      ,[usewidth]" +
+                    "      ,[length]" +
+                    "      ,[sqmprice]" +
+                    "      ,[rollprice]" +
+                    "      ,[unit]" +
+                    "      ,[manufacterer]" +
+                    "      ,[supplier]" +
+                    "      ,[additionalnotes]" +
+                    "      ,[materialclassification]" +
+                    "      ,[soyo]" +
+                    "      ,[bomid]" +
+                    "      ,[costloss]" +
+                    "      ,[hapji]" +
+                    "  FROM [Techon].[dbo].[bommanagement]" +
+                    "  where bomno='HHE-3-002' and savedate=@savedate")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/revisonselect', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .query(
+                    "select " +
+                    " savedate " +
+                    " from " +
+                    " bommanagement " +
+                    " where  " +
+                    " bomno='HHE-3-002' " +
+                    " GROUP BY SAVEDATE order by savedate desc")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/bomsheet2', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -3171,7 +3272,7 @@ module.exports = function (app) {
                     "UPDATE " +
                     " MATERIALINPUT " +
                     " SET " +
-                    " INPUT='원자재입고' " +
+                    " INPUT='원자재입고' , house='원자재창고' " +
                     " WHERE  " +
                     " materialname=@materialname " +
                     " AND  " +
@@ -3533,10 +3634,11 @@ module.exports = function (app) {
                 .input('rollprice', sql.Float, req.body.rollprice)
                 .input('customer', sql.NVarChar, req.body.customer)
                 .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('house', sql.NVarChar, req.body.house)
 
                 .query(
-                    'insert into materialinput(customer,bomno,rollprice,date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice,orderid)' +
-                    ' values(@customer,@bomno,@rollprice,@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice,@orderid)'
+                    'insert into materialinput(customer,bomno,rollprice,date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice,orderid,house)' +
+                    ' values(@customer,@bomno,@rollprice,@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice,@orderid,@house)'
                 )
                 .then(result => {
 
@@ -4169,7 +4271,7 @@ module.exports = function (app) {
                     " LEFT JOIN" +
                     "     materialinfoinformation AS mi ON bm.materialname = mi.materialname" +
                     " WHERE " +
-                    "     (bm.hapji IS NOT NULL OR bm.hapji <> '') AND pp.slitingstatus ='슬리팅대기' and pp.lotno=@lotno  and hapji=@hapji" +
+                    "     (bm.hapji IS NOT NULL OR bm.hapji <> '') AND pp.slitingstatus ='슬리팅대기'  and hapji=@hapji" +
                     " GROUP BY" +
                     "     bm.bomno," +
                     "     bm.model," +
@@ -6774,6 +6876,8 @@ module.exports = function (app) {
                     "     RankedSuppliers rs ON mi.supplier = rs.supplier" +
                     " WHERE   " +
                     "     ol.orderstatus = '생산확정'   " +
+                    "    AND bm.codenumber IS NOT NULL  " +
+                    "    AND bm.codenumber <> ''  " +
                     " GROUP BY   " +
                     "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname ,bm.bomno ,ol.qrno,bm.etc ,bm.cavity, SupplierRank " +
                     " ORDER BY   " +
@@ -7563,6 +7667,63 @@ module.exports = function (app) {
 
                 .query(
                     "select * from produceplan where plandate=@plandate")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcategory', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+                .query(
+                    "SELECT " +
+                    " C.CONTENTS" +
+                    " FROM " +
+                    " MATERIALINFOINFORMATION M" +
+                    " JOIN categorycode C ON M.USAGECATEGORY = C.CATEGORYCODE" +
+                    " WHERE " +
+                    " M.MATERIALNAME = @materialname;")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/selectproductplan', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+                .query(
+                    "select" +
+                    "  plandate," +
+                    "  equipmentname," +
+                    "  bomno," +
+                    "  customer," +
+                    "  modelname," +
+                    "  itemname," +
+                    "  part," +
+                    "  lotno," +
+                    "  materialstatus," +
+                    "  productstatus," +
+                    "  slitingstatus,orderno" +
+                    "  from" +
+                    "  produceplan")
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
@@ -11503,6 +11664,7 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
 
 
                 .query(
@@ -11538,6 +11700,7 @@ module.exports = function (app) {
                     "        [price], " +
                     "        ROW_NUMBER() OVER (ORDER BY [savedate]) AS row_num " +
                     "    FROM [Techon].[dbo].[pricechange] " +
+                    "    WHERE [bomno] = @bomno " +
                     "    ) AS subquery " +
                     "ORDER BY [savedate] "
                 )

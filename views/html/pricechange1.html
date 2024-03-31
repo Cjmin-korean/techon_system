@@ -208,6 +208,11 @@
         .yellow-background {
             background-color: yellow;
         }
+
+        .red-cell {
+            color: red !important;
+            background-color: rgb(197, 197, 197);
+        }
     </style>
 </head>
 
@@ -228,7 +233,58 @@
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
 
     </div>
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;">단가 변경 이력조회</span>
+            <button style="float: right; background-color: red;" class="new-cancel" onclick="closeModal()">닫기</button>
 
+        </div>
+        <div class="company-info"> <i class="fas fa-box"></i> 제품 정보 <input type="text" id="id-input"
+                style="visibility: hidden;"></div>
+        <div class="modal-content">
+            <table>
+                <tr>
+                    <th>BOMNO</th>
+                    <th>모델명</th>
+                    <th>제품명</th>
+                    <th>고객사명</th>
+                    <th>수정날짜</th>
+                </tr>
+                <tr>
+                    <td id="bomno-input"></td>
+                    <td id="modelname-input"></td>
+                    <td id="itemname-input"></td>
+                    <td id="customer-input"></td>
+                    <td id="updatedate-input"></td>
+
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="section-title"><i class="fas fa-info-circle"></i>단가 변경 이력내역</div>
+        <table>
+            <tr>
+                <th>BOMNO</th>
+                <th>모델명</th>
+                <th>제품명</th>
+                <th>고객사</th>
+                <th>수정날짜</th>
+                <th>현재단가(￦)</th>
+                <th>이전단가(￦)</th>
+                <th>단가차이(￦)</th>
+                <th>변경율(%)</th>
+            </tr>
+            <tbody id="equipmenthistorytbody">
+
+            </tbody>
+        </table>
+
+        <div class="modal-footer">
+            <!-- <button id="savebutton" class="new-registration" onclick="saveOrEditForm()">저장</button> -->
+            <!-- <button class="new-cancel" onclick="closeModal()">닫기</button> -->
+        </div>
+    </div>
 
 
     <!-- modal창 -->
@@ -302,16 +358,68 @@
                             { field: "itemname", headerName: "제품명", filter: true },
                             { field: "customer", headerName: "고객사명", filter: true },
                             { field: "updatedate", headerName: "수정날짜", filter: true },
-                            { field: "pricechange", headerName: "변경횟수", filter: true },
-
+                            {
+                                field: "pricechange", headerName: "변경횟수", filter: true,
+                                cellClassRules: {
+                                    "red-cell": function (params) {
+                                        return params.value !== 0;
+                                    }
+                                }
+                            }
                         ],
+
                         autoSizeStrategy: {
                             type: 'fitGridWidth',
                             defaultMinWidth: 150
                         },
                         rowHeight: 45,
                         enableFilter: true,
+                        onRowDoubleClicked: function (params) {
+                            $('#bomno-input').text(params.data.bomno);
+                            $('#modelname-input').text(params.data.modelname);
+                            $('#itemname-input').text(params.data.itemname);
+                            $('#customer-input').text(params.data.customer);
+                            $('#updatedate-input').text(params.data.updatedate);
 
+
+                            $('#equipmenthistorytbody').empty()
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/selectpricechange',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    bomno: params.data.bomno
+                                }),
+                                success: function (data) {
+                                    if (data.length === 0) {
+                                        // Handle empty data case if needed
+                                    } else {
+                                        for (var i = 0; i < data.length; i++) {
+                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                                            // Append data to the row
+                                            row.append('<td>' + (data[i].bomno || '') + '</td>');
+                                            row.append('<td>' + (data[i].modelname || '') + '</td>');
+                                            row.append('<td>' + (data[i].itemname || '') + '</td>');
+                                            row.append('<td>' + (data[i].customer || '') + '</td>');
+                                            row.append('<td>' + (data[i].savedate || '') + '</td>');
+                                            row.append('<td>' + (data[i].price || '') + '</td>');
+                                            row.append('<td>' + (data[i].previousprice || '') + '</td>');
+                                            row.append('<td>' + (data[i].pricedifference || '') + '</td>');
+                                            row.append('<td>' + (data[i].pricechangepercentage || '') + '</td>');
+
+
+                                            // Append the row to the table body
+                                            $('#equipmenthistorytbody').append(row);
+                                            $('td#data-id').hide();
+                                        }
+                                    }
+                                }
+                            });
+                            document.getElementById('modal').style.display = 'block';
+                            document.getElementById('overlay').style.display = 'block';
+                        }
                     };
 
                     const gridDiv = document.querySelector('#myGrid');
