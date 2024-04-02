@@ -1,329 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <title>Document</title>
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빨간점 두개 꾸미기</title>
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    p {
-        margin-top: 10px;
-    }
-
     .container {
-        width: 100%;
-        display: flex;
+        position: relative;
+        width: 200px;
+        height: 200px;
     }
-
-    .half-width {
-        width: 50%;
-    }
-
-    .modal-btn-box {
-        width: 100%;
-        text-align: center;
-    }
-
-    .modal-btn-box button {
-        display: inline-block;
-        width: 150px;
+    .circle {
+        width: 50px;
         height: 50px;
-        background-color: #ffffff;
-        border: 1px solid #e1e1e1;
-        cursor: pointer;
-        padding-top: 8px;
+        background-color: red;
+        border-radius: 50%;
+        position: absolute;
     }
-
-    .popup-wrap {
-        background-color: rgba(0, 0, 0, .3);
-        justify-content: center;
-        align-items: center;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: none;
-        padding: 15px;
+    .circle1 {
+        top: 50px;
+        left: 50px;
     }
-
-    .popup {
-        width: 100%;
-        max-width: 1200px;
-        background-color: #ffffff;
-        border-radius: 5px;
-        overflow: hidden;
-        background-color: #727272;
-        box-shadow: 5px 10px 10px 1px rgba(0, 0, 0, .3);
+    .circle2 {
+        top: 100px;
+        left: 100px;
     }
-
-    .popup-head {
-        width: 100%;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: left;
-        margin-left: 20px;
-        color: white;
-        font-weight: 200;
-    }
-
-    .head-title {
-        font-size: 28px;
-        font-weight: 200;
-        font-family: 'Roboto', sans-serif;
-        text-align: center;
-        color: white;
-    }
-
-    .popup-body {
-        width: 100%;
-        background-color: #ffffff;
-    }
-
-    .body-content {
-        width: 100%;
-        padding: 30px;
-    }
-
-    .body-titlebox {
-        text-align: center;
-        width: 100%;
-        height: 40px;
-        margin-bottom: 10px;
-    }
-
-    .body-contentbox {
-        word-break: break-word;
-        overflow-y: auto;
-        max-height: 90%;
-    }
-
-    .popup-foot {
-        width: 100%;
-        height: 50px;
-    }
-
-    .pop-btn {
-        display: inline-flex;
-        width: 50%;
-        height: 100%;
-        float: left;
-        justify-content: center;
-        align-items: center;
-        color: #ffffff;
-        cursor: pointer;
-    }
-
-    .pop-btn.confirm {
-        border-right: 1px solid white;
-    }
-
-    /* Added styles for table */
-    .table-container {
-        margin-top: 20px;
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th,
-    td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    .textbox {
-        width: calc(100% - 20px);
-        margin: 10px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
+    .line {
+        position: absolute;
+        border: 2px solid red;
+        width: 100px;
+        z-index: -1;
     }
 </style>
-
+</head>
 <body>
-    <div class="container">
-        <div class="half-width">
-            <div class="modal-btn-box">
-                <button type="button" id="modal-open-before">슬리팅실 자재 입고</button>
-            </div>
 
-            <div class="popup-wrap" id="popup-before">
-                <div class="popup">
-                    <div class="popup-head">
-                        <b>슬리팅실 작업지시</b>
-                    </div>
+<div class="container">
+    <div class="circle circle1"></div>
+    <div class="circle circle2"></div>
+    <div class="line"></div>
+</div>
 
-                    <div class="popup-body">
-                        <div class="body-content">
-                            <div class="body-titlebox">
-                                <h1>슬리팅 작업지시</h1>
-                            </div>
-                            <input type="text" id="barcodeInput" placeholder="바코드를 입력하세요">
-                            <button onclick="processBarcode()">처리</button>
-                            <div class="body-contentbox">
-                                <div class="table-container">
-                                    <table>
-                                        <tr>
-                                            <th colspan="6" style="text-align: center;">슬리팅 자재</th>
-                                            <th colspan="5" style="text-align: center;">슬리팅 지시</th>
-                                        </tr>
-
-                                        <tr>
-                                            <th style="text-align: center;">자재명</th>
-                                            <th style="text-align: center;">규격폭<br>(mm)</th>
-                                            <th style="text-align: center;">M</th>
-                                            <th style="text-align: center;">LOT</th>
-                                            <th style="text-align: center;">롤 수량</th>
-                                            <th style="text-align: center;">총 입고수량<br>(M)</th>
-                                            <th style="text-align: center;">규격 폭<br>(mm)</th>
-                                            <th style="text-align: center;">M</th>
-                                            <th style="text-align: center;">LOT</th>
-                                            <th style="text-align: center;">롤 수량</th>
-                                            <th style="text-align: center;">총 재단수량<br>(M)</th>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">HGCS-A305RB(G)A</td>
-                                            <td style="text-align: center;">1080</td>
-                                            <td style="text-align: center;">200</td>
-                                            <td style="text-align: center;">20240101</td>
-                                            <td style="text-align: center;">1</td>
-                                            <td style="text-align: center;">200</td>
-                                            <td style="text-align: center;">220</td>
-                                            <td style="text-align: center;">200</td>
-                                            <td style="text-align: center;">20240101</td>
-                                            <td style="text-align: center;">2</td>
-                                            <td style="text-align: center;">400</td>
-
-
-                                        </tr>
-                                        <tr>
-
-                                            <td style="text-align: center; visibility: hidden;">HGCS-A305RB(G)A</td>
-                                            <td style="text-align: center; visibility: hidden;">1080</td>
-                                            <td style="text-align: center; visibility: hidden;">200</td>
-                                            <td style="text-align: center; visibility: hidden;">20240101</td>
-                                            <td style="text-align: center; visibility: hidden;">1</td>
-                                            <td style="text-align: center; visibility: hidden;">200</td>
-                                            <td style="text-align: center;">630</td>
-                                            <td style="text-align: center;">200</td>
-                                            <td style="text-align: center;">20240101</td>
-                                            <td style="text-align: center;">1</td>
-                                            <td style="text-align: center;">200</td>
-
-
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">HGCS-A305RB(G)A</td>
-                                            <td style="text-align: center;">1080</td>
-                                            <td style="text-align: center;">200</td>
-                                            <td style="text-align: center;">20240102</td>
-                                            <td style="text-align: center;">1</td>
-                                            <td style="text-align: center;">200</td>
-                                            <td style="text-align: center;">220</td>
-                                            <td style="text-align: center;">200</td>
-                                            <td style="text-align: center;">20240102</td>
-                                            <td style="text-align: center;">2</td>
-                                            <td style="text-align: center;">400</td>
-
-
-                                        </tr>
-                                        <tr>
-
-                                            <td style="text-align: center; visibility: hidden;">HGCS-A305RB(G)A</td>
-                                            <td style="text-align: center; visibility: hidden;">1080</td>
-                                            <td style="text-align: center; visibility: hidden;">200</td>
-                                            <td style="text-align: center; visibility: hidden;">20240102</td>
-                                            <td style="text-align: center; visibility: hidden;">1</td>
-                                            <td style="text-align: center; visibility: hidden;">200</td>
-                                            <td style="text-align: center;">630</td>
-                                            <td style="text-align: center;">200</td>
-                                            <td style="text-align: center;">20240102</td>
-                                            <td style="text-align: center;">1</td>
-                                            <td style="text-align: center;">200</td>
-
-
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="popup-foot">
-                        <span class="pop-btn confirm" id="confirm-before">저장</span>
-                        <span class="pop-btn close" id="close-before">창 닫기</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</body>
 <script>
-    $(function () {
-        $("#confirm-before").click(function () {
-            modalClose("before");
-            //컨펌 이벤트 처리
-        });
-        $("#modal-open-before").click(function () {
-            $("#popup-before").css('display', 'flex').hide().fadeIn();
-        });
-        $("#close-before").click(function () {
-            modalClose("before");
-        });
+    // Calculate center points of the circles
+    var circle1 = document.querySelector('.circle1');
+    var circle2 = document.querySelector('.circle2');
+    var line = document.querySelector('.line');
 
-        $("#confirm-after").click(function () {
-            modalClose("after");
-            //컨펌 이벤트 처리
-        });
-        $("#modal-open-after").click(function () {
-            $("#popup-after").css('display', 'flex').hide().fadeIn();
-        });
-        $("#close-after").click(function () {
-            modalClose("after");
-        });
+    var circle1CenterX = circle1.offsetLeft + circle1.offsetWidth / 2;
+    var circle1CenterY = circle1.offsetTop + circle1.offsetHeight / 2;
 
-        function modalClose(type) {
-            $("#popup-" + type).fadeOut();
-        }
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("barcodeInput").focus();
-        });
+    var circle2CenterX = circle2.offsetLeft + circle2.offsetWidth / 2;
+    var circle2CenterY = circle2.offsetTop + circle2.offsetHeight / 2;
 
-        function processBarcode() {
-            var barcode = document.getElementById('barcodeInput').value;
-            // 여기서 바코드 처리를 수행합니다.
-            alert("바코드를 처리합니다: " + barcode);
-            // 처리 후 필요한 동작을 수행합니다.
-        }
+    // Calculate length and rotation angle of the line
+    var deltaX = circle2CenterX - circle1CenterX;
+    var deltaY = circle2CenterY - circle1CenterY;
+    var distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
 
-        // Enter 키 입력 감지
-        document.getElementById('barcodeInput').addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                processBarcode();
-            }
-        });
-    });
+    // Set line length and rotation
+    line.style.width = distance + 'px';
+    line.style.transform = 'rotate(' + angle + 'deg)';
+    line.style.top = circle1CenterY + 'px';
+    line.style.left = circle1CenterX + 'px';
 </script>
 
+</body>
 </html>

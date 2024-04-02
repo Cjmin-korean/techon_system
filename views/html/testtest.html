@@ -16,6 +16,27 @@
 </head>
 
 <style>
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    html,
+    body {
+        width: 210mm;
+        /* A4 width */
+        height: 297mm;
+        /* A4 height */
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #fff;
+        padding: 20px;
+    }
+
     .mainheader {
         display: flex;
         justify-content: space-between;
@@ -55,7 +76,7 @@
     }
 
     button {
-        background-color: #4CAF50;
+        background-color: #663e79;
         color: white;
         padding: 10px;
         border: none;
@@ -64,13 +85,13 @@
     }
 
     button:hover {
-        background-color: #45a049;
+        background-color: #5764a0;
     }
 
     td {
         font-weight: bold;
         border: 3px solid black;
-        font-size: 18px;
+        font-size: 16px;
     }
 
     #printPreview {
@@ -86,91 +107,67 @@
     }
 
     @media print {
+
         #printPreviewButton,
         #printPreview {
             display: none;
         }
 
-        @page {
-            size: 6cm 4cm;
-            margin: 0;
-        }
-
-        body * {
-            visibility: hidden;
-        }
-
-        #datatable,
-        #datatable * {
-            visibility: visible;
+        #editModal {
+            width: 10%;
+            /* Set width to 1/3 of the page width */
         }
 
         #datatable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 0;
-            margin-right: 0;
-        }
-
-        #datatable td,
-        #datatable th {
-            border: 1px solid black;
-            padding: 3px;
-            text-align: center;
-        }
-
-        .mainheader {
-            display: none;
-        }
-
-        body::after {
-            content: none !important;
-        }
-
-        html,
-        body {
-            width: 6cm;
-            height: 2cm;
-            margin: 0;
-            background: blue;
+            width: 50%;
+            /* Set the width of the table to 90% of its container */
+            margin: auto;
+            /* Center the table horizontally */
         }
     }
 </style>
 
 <body>
-    <button id="printPreviewButton">Print Preview</button>
+    <button id="printPreviewButton">인쇄</button>
 
-    <div id="editModal">
+    <div id="editModal" style="width: 50%;">
         <table class="styled-table" id="datatable" style="border:3px solid black;">
+
+
             <tr>
                 <td style="width:30%">자재명</td>
-                <td colspan="3">ESL-025(ZC)</td>
+                <td colspan="3" id="materialname"></td>
             </tr>
             <tr>
                 <td>폭(mm)</td>
-                <td>1,080</td>
-                <td rowspan="5" style="width: 70px; height: 70px;">
-                    <div id="qrcode"></div>
+                <td id="materialwidth"></td>
+                <td rowspan="4" style="text-align: center; vertical-align: middle;">
+                    <div id="qrcode" style="display: inline-block;"> <img
+                            src="https://api.qrserver.com/v1/create-qr-code/?data=" id="qrCode" alt="QR Code" width="70"
+                            height="70"></div>
                 </td>
             </tr>
             <tr>
                 <td>수량(M)</td>
-                <td>100</td>
+                <td id="quantity"></td>
             </tr>
             <tr>
-                <td>LOT NO.</td>
-                <td>20231201</td>
+                <td>LOT NO</td>
+                <td id="lotno"></td>
             </tr>
             <tr>
                 <td>제조일자</td>
-                <td>2023-12-01</td>
+                <td id="manufacturedate"></td>
             </tr>
             <tr>
                 <td>만료일자</td>
-                <td>2023-12-01</td>
+                <td id="expirationdate"></td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <img src="../img/테크온로고.PNG" style="width: 100px; height: 40px; display: inline-block;">
+                </td>
             </tr>
+
         </table>
-        <button onclick="printQRCode()">Print QR Code</button>
     </div>
 
     <div id="printPreview">
@@ -178,7 +175,7 @@
     </div>
 
     <script>
-        document.getElementById('printPreviewButton').addEventListener('click', function() {
+        document.getElementById('printPreviewButton').addEventListener('click', function () {
             var printPreview = document.getElementById('printPreview');
             printPreview.style.display = 'block';
 
@@ -192,14 +189,7 @@
             printPreview.style.display = 'none';
         });
 
-        function printQRCode() {
-            var materialName = document.querySelector('td[colspan="3"]').textContent;
-            var qrcode = new QRCode(document.getElementById("qrcode"), {
-                text: materialName,
-                width: 70,
-                height: 70
-            });
-        }
+
     </script>
 
 </body>

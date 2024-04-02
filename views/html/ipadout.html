@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TECHON MES 자재입고</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
@@ -169,8 +169,13 @@
     </div>
 
     <div class="input-container" style="margin-top: 20px;;">
-        <b>QRCODE NO :</b>
-        <input type="text" id="textInput" autocomplete="off" placeholder="QR CODE를 리딩하세요" value="">
+        <b>작업지시서 QRCODE NO :</b>
+        <input type="text" id="textInput" autocomplete="off" placeholder="작업지시서 QR CODE를 리딩하세요" value="">
+    </div>
+    <div class="input-container" style="margin-top: 20px;;">
+        <b>BOM자재 QRCODE NO :</b>
+        <input type="text" id="materialinput" style="width:600px;" autocomplete="off" placeholder="자재 QR CODE를 리딩하세요"
+            value="">
     </div>
 
     <button class="confirmButton" onclick="inputmaterial()">출고 저장</button><br>
@@ -181,13 +186,11 @@
         <table id="inputTable">
             <thead>
                 <tr>
-                    <th>품목코드</th>
                     <th>자재명</th>
                     <th>자재폭(mm)</th>
-                    <th>수량(M)</th>
-                    <th>발주ROLL</th>
-                    <th>합계(M)</th>
-                    <th>입고합계(M)</th>
+                    <th>소요량합계(M)</th>
+                    <th>출고ROLL</th>
+                    <th>출고합계(M)</th>
                 </tr>
             </thead>
             <tbody id="tableBody1">
@@ -201,15 +204,12 @@
         <table id="outputTable" border="1">
             <thead>
                 <tr>
-                    <th>품목코드</th>
                     <th>자재명</th>
                     <th>LOTNO</th>
                     <th>자재폭(mm)</th>
                     <th>수량(M)</th>
                     <th>제조일자</th>
                     <th>만료일자</th>
-                    <th>발주번호</th>
-                    <th>QT</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -225,8 +225,7 @@
 </body>
 <script>
     var server = '';
-
-    if (window.location.hostname == '127.0.0.1') {
+    if (window.location.hostname == 'localhost') {
         server = 'http://localhost:8080';
     } else {
         server = 'http://techonmes.co.kr';
@@ -235,47 +234,40 @@
     // Enter 키를 눌렀을 때 processText() 함수 호출
     $('#textInput').keypress(function (event) {
         if (event.which === 13) { // Enter 키 코드인 13인지 확인
-            processText();
             $('#textInput').val(''); // 입력란의 값을 공백으로 설정
+            $('#materialinput').focus(); // 입력란의 값을 공백으로 설정
+
+            var rowsData = [
+                { name: 'SJ-7504S BL', width: '100', amount: '6200', roll: '0', sumquantity: '0' },
+                { name: 'HGCS-A305YA+SJ-2502LS-W(D)', width: '7', amount: '12400', roll: '0', sumquantity: '0' },
+                { name: 'HGCS-A305RB(G)A+SJ-2502LS-W(D)', width: '45', amount: '2374', roll: '0', sumquantity: '0' },
+                { name: 'OPP_VINA($단가)', width: '70', amount: '6200', roll: '0', sumquantity: '0' },
+                { name: 'SM-7510LS', width: '70', amount: '6200', roll: '0', sumquantity: '0' }
+            ];
+
+            // tbody에 새로운 <tr> 요소를 추가함
+            rowsData.forEach(function (rowData) {
+                var newRow = $('<tr>').append(
+                    $('<td>').text(rowData.name),
+                    $('<td>').text(rowData.width),
+                    $('<td>').text(rowData.amount),
+                    $('<td>').text(rowData.roll),
+                    $('<td>').text(rowData.sumquantity)
+                );
+                $('#tableBody1').append(newRow);
+            });
         }
     });
+    $('#materialinput').keypress(function (event) {
+        processText()
+        $('#materialinput').val('')
+    })
+
     $(document).ready(function () {
         $('#textInput').focus()
     });
 
-    $('#orderno').change(function () {
-        $('#textInput').focus()
-        var selectedValue = $(this).val(); // 선택한 옵션의 값 가져오기
-        $('#tableBody1').empty()
-        $.ajax({
-            type: 'POST',
-            url: server + '/api/selectpurchaseordering1',
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify({
 
-                orderno: selectedValue
-
-            }),
-            success: function (result) {
-                for (var i = 0; i < result.length; i++) {
-                    $('#tableBody1').append(
-                        '<tr onclick="insertmaterialdata(this)">' +
-                        '<td>' + result[i].codenumber + '</td>' +
-                        '<td>' + result[i].itemname + '</td>' +
-                        '<td>' + result[i].width + '</td>' +
-                        '<td>' + result[i].length + '</td>' +
-                        '<td>' + result[i].quantity + '</td>' +
-                        '<td>' + result[i].length * result[i].quantity + '</td>' +
-                        '<td>0</td>' +
-                        '<td>0</td>' +
-                        '</tr>'
-                    );
-                }
-                $('#customer').text(result[0].suppliername)
-            }
-        });
-    });
     function updateInputTable(materialName, quantity) {
         // 테이블의 tbody 엘리먼트 가져오기
         var tableBody = document.getElementById("tableBody1");
@@ -286,131 +278,66 @@
         // 자재명에 해당하는 행 찾기
         for (var i = 0; i < tableRows.length; i++) {
             var row = tableRows[i];
-            if (row.cells[1].innerText === materialName) {
-                // 해당 행의 '입고ROLL' 열에 수량 추가
-                var rollCell1 = row.cells[6];
-                var rollCell = row.cells[7];
-                var currentRollCount = parseInt(rollCell.textContent) || 0;
-                var currentRollCount1 = parseInt(rollCell1.textContent) || 0;
-                rollCell.textContent = currentRollCount + parseInt(quantity);
-                rollCell1.textContent = currentRollCount1 + parseInt(1);
-                if (parseInt(row.cells[5].textContent) <= parseInt(row.cells[7].textContent)) {
-                    row.style.backgroundColor = "#007bff"; // 변경하고자 하는 배경색으로 수정하세요.
-                }
-                break;
+            if (row.cells[0].innerText === materialName) { // 자재명이 첫 번째 열에 있을 경우
+                // 해당 행의 '소요량합계' 열에 수량 추가
+                var totalQuantityCell = row.cells[4];
+                var currentQuantity = parseFloat(totalQuantityCell.textContent) || 0;
+                totalQuantityCell.textContent = currentQuantity + parseFloat(quantity);
+
+                // 해당 행의 '출고ROLL' 열에 1씩 더하기
+                var totalQuantityCell1 = row.cells[3];
+                var currentQuantity1 = parseFloat(totalQuantityCell1.textContent) || 0;
+                totalQuantityCell1.textContent = currentQuantity1 + 1; // 1씩 올림
+
+                break; // 반복문 종료
             }
         }
     }
+
+
+
     function processText() {
-        var text = document.getElementById("textInput").value.replace(/\s/g, ''); // 모든 공백 제거
+        var text = document.getElementById("materialinput").value.replace(/\s/g, ''); // 모든 공백 제거
         var contents = text.split('/');
         var materialName = contents[0];
-
+        var lotNo = contents[1];
+        var manufacturingDate = contents[2];
+        var quantity = contents[3];
+        var expirationDate = contents[4];
+        var newRow = document.createElement("tr");
+        var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
+        var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
         $.ajax({
             type: 'POST',
-            url: server + '/api/selectordernopurchaseorder',
+            url: server + '/api/selectmting',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify({
-                orderno: $('#orderno').val()
+                materialname: materialName,
+                lotno: lotNo,
+
             }),
             success: function (result) {
-                var found = false;
-                for (var i = 0; i < result.length; i++) {
-                    if (result[i].itemname.includes(materialName)) {
-                        found = true;
-                        break; // 일치하는 자재명이 발견되면 반복문 종료
-                    }
-                }
-                if (!found) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: '자재명 불일치',
-                        text: '발주내역에서 누락되었습니다'
-                    });
-                } else {
-                    // 자재명 일치할 때만 행 추가 코드 실행
-                    if (contents.length <= 5) {
-                        var lotNo = contents[1];
-                        var manufacturingDate = contents[2];
-                        var quantity = contents[3];
-                        var expirationDate = contents[4];
-                        var newRow = document.createElement("tr");
-                        var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
-                        var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
-
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/selectcodenumber',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "materialname": contents[0],
-                                "length": contents[3]
-                            }),
-                            success: function (result) {
-                                var codenumber = result[0].codenumber;
-                                var inspection = result[0].inspection;
-                                var rollprice = result[0].rollprice;
-
-                                newRow.innerHTML = `
-                                <td>${codenumber}</td>
-                                <td>${materialName}</td>
-                                <td>${lotNo}</td>
-                                <td>${result[0].width}</td>
-                                <td>${quantity}</td>
-                                <td>${manufacturingDate}</td>
-                                <td>${expirationDate}</td>
-                                <td>${orderno}</td>
-                                <td id="inspection">${inspection}</td>
-                                <td id="rollprice" style="display:none;">${result[0].rollprice}</td>
-                            `;
-                                document.getElementById("tableBody").appendChild(newRow);
-                            },
-
-                        });
-                    } else {
-                        var lotNo = contents[1];
-                        var manufacturingDate = contents[2];
-                        var quantity = contents[3];
-                        var expirationDate = contents[4];
-                        var newRow = document.createElement("tr");
-                        var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
-                        var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/selectcodenumber1',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "materialname": contents[0],
-                                "length": contents[3],
-                                "width": contents[5],
-                            }),
-                            success: function (result) {
-                                newRow.innerHTML = `
-                                <td>${result[0].codenumber}</td>
+                newRow.innerHTML = `
                                 <td>${materialName}</td>
                                 <td>${lotNo}</td>
                                 <td>${materialwidth}</td>
                                 <td>${quantity}</td>
                                 <td>${manufacturingDate}</td>
                                 <td>${expirationDate}</td>
-                                <td>${orderno}</td>
-                                <td id="inspection">${result[0].inspection}</td>
-                                <td id="rollprice" style="display:none;">${result[0].rollprice}</td>
+
 
                             `;
 
-                                // 테이블에 행 추가
-                                document.getElementById("tableBody").appendChild(newRow);
-                            },
-                        });
-                    }
-                }
+                // 테이블에 행 추가
+                document.getElementById("tableBody").appendChild(newRow);
                 updateInputTable(materialName, quantity);
-            }
+
+            },
+
         });
+
+
     }
 
 
@@ -436,7 +363,7 @@
         Swal.fire({
             icon: 'info',
             title: '저장',
-            text: '입고정보를 저장 하시겠습니까?',
+            text: '출고 정보를 저장 하시겠습니까?',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
@@ -461,73 +388,43 @@
                     var quantity = row.querySelector('td:nth-child(5)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
                     var rollprice = row.querySelector('td:nth-child(10)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
 
-                    if (qtCell && codenumber) { // QT 셀과 품목코드 셀이 모두 존재하는지 확인합니다.
-                        var qtValue = qtCell.innerText;
-                        var codenumberValue = codenumber.innerText;
-                        var materialnameValue = materialname.innerText;
-                        var lotnoValue = lotno.innerText;
-                        var manufacturedateValue = manufacturedate.innerText;
-                        var expirationdateValue = expirationdate.innerText;
-                        var materialwidthValue = materialwidth.innerText;
-                        var quantityValue = quantity.innerText;
-                        var rollpriceValue = rollprice.innerText;
+                    var qtValue = qtCell.innerText;
+                    var codenumberValue = codenumber.innerText;
+                    var materialnameValue = materialname.innerText;
+                    var lotnoValue = lotno.innerText;
+                    var manufacturedateValue = manufacturedate.innerText;
+                    var expirationdateValue = expirationdate.innerText;
+                    var materialwidthValue = materialwidth.innerText;
+                    var quantityValue = quantity.innerText;
+                    var rollpriceValue = rollprice.innerText;
 
-                        // AJAX 호출
-                        if (qtValue === 'Y') {
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/materialinputinsertdata',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "date": formattedDate,
-                                    "input": '수입검사대기',
-                                    "materialname": materialnameValue,
-                                    "codenumber": codenumberValue,
-                                    "lotno": lotnoValue,
-                                    "manufacturedate": manufacturedateValue,
-                                    "expirationdate": expirationdateValue,
-                                    "materialwidth": materialwidthValue,
-                                    "quantity": quantityValue,
-                                    "rollprice": rollpriceValue,
-                                    "roll": '1',
-                                    "orderid": $('#orderno').val(),
+                    // AJAX 호출
 
-                                    "customer": $('#customer').text()
-                                }),
-                                success: function (result) {
-                                    // 성공 시 처리
-                                },
-                            });
-                        }
-                        if (qtValue === 'N') {
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/materialinputinsertdata',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "date": formattedDate,
-                                    "input": '원자재입고',
-                                    "materialname": materialnameValue,
-                                    "codenumber": codenumberValue,
-                                    "lotno": lotnoValue,
-                                    "manufacturedate": manufacturedateValue,
-                                    "expirationdate": expirationdateValue,
-                                    "materialwidth": materialwidthValue,
-                                    "quantity": quantityValue,
-                                    "roll": '1',
-                                    "rollprice": rollpriceValue,
-                                    "orderid": $('#orderno').val(),
-                                    "customer": $('#customer').text()
-                                }),
-                                success: function (result) {
-                                    // 성공 시 처리
-                                },
-                            });
-                        }
-                    } else {
-                        console.error('QT 셀 또는 품목코드 셀이 없습니다.');
+                    if (qtValue === 'N') {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/materialinputinsertdata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "date": formattedDate,
+                                "input": '원자재출고',
+                                "materialname": materialnameValue,
+                                "codenumber": codenumberValue,
+                                "lotno": lotnoValue,
+                                "manufacturedate": manufacturedateValue,
+                                "expirationdate": expirationdateValue,
+                                "materialwidth": materialwidthValue,
+                                "quantity": quantityValue,
+                                "roll": '1',
+                                "rollprice": rollpriceValue,
+                                "orderid": $('#orderno').val(),
+                                "customer": $('#customer').text()
+                            }),
+                            success: function (result) {
+                                // 성공 시 처리
+                            },
+                        });
                     }
                 }
 

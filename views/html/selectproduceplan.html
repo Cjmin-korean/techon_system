@@ -328,23 +328,65 @@
         }
         function openInvoice(params) {
             var rowData = params.data;
-            console.log(rowData);
             var newWindow = window.open('/html/producepaper.html', '_blank', 'width=1000,height=800');
             newWindow.onload = function () {
-                // 발주서 창이 로딩되면 해당 데이터를 전달
-                newWindow.document.getElementById("suppliername").innerText = rowData.customer || ''; // 고객사를 suppliername에 표시
-
                 // 예시로 테이블에 데이터 추가 (이 부분은 실제 데이터에 맞게 수정)
                 var table = newWindow.document.getElementById("invoice-items");
-                for (var key in rowData) {
-                    if (rowData.hasOwnProperty(key)) {
-                        var row = table.insertRow(-1);
-                        var cell1 = row.insertCell(0);
-                        var cell2 = row.insertCell(1);
-                        cell1.innerHTML = key;
-                        cell2.innerHTML = rowData[key];
-                    }
-                }
+                var lotnoValue = rowData.orderno;
+                // QR 코드 이미지의 src에 데이터 추가
+                newWindow.document.getElementById('qrCode').src = "https://api.qrserver.com/v1/create-qr-code/?data=" + lotnoValue;
+                newWindow.document.getElementById('modelname').innerText = rowData.modelname;
+                newWindow.document.getElementById('customer').innerText = rowData.customer;
+                newWindow.document.getElementById('productdate').innerText = rowData.plandate;
+                newWindow.document.getElementById('itemname').innerText = rowData.itemname;
+                newWindow.document.getElementById('productcount').innerText = rowData.pono;
+                newWindow.document.getElementById('lotno').innerText = rowData.lotno;
+                newWindow.document.getElementById('part').innerText = rowData.part;
+                newWindow.document.getElementById('charlot').innerText = lotnoValue;
+                newWindow.document.getElementById('bomno').innerText = rowData.bomno;
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectiteminfo',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "bomno": rowData.bomno
+
+                    }),
+                    success: function (result) {
+                        newWindow.document.getElementById('itemcode').innerText = result[0].itemcode;
+                        newWindow.document.getElementById('pcs').innerText = result[0].pcs;
+                        newWindow.document.getElementById('direction').innerText = result[0].direction;
+                        newWindow.document.getElementById('workpart').innerText = result[0].workpart;
+                        newWindow.document.getElementById('cavity').innerText = result[0].cavity;
+
+
+                    },
+                });
+                // $.ajax({
+                //     type: 'POST',
+                //     url: server + '/api/selectiteminfo',
+                //     dataType: 'json',
+                //     contentType: 'application/json',
+                //     data: JSON.stringify({
+                //         "bomno": rowData.bomno
+
+                //     }),
+                //     success: function (result) {
+                //         newWindow.document.getElementById('data1').innerText = result[0].cavity;
+                //         newWindow.document.getElementById('data2').innerText = result[0].cavity;
+                //         newWindow.document.getElementById('data3').innerText = result[0].cavity;
+                //         newWindow.document.getElementById('data4').innerText = result[0].cavity;
+                //         newWindow.document.getElementById('data5').innerText = result[0].cavity;
+                //         newWindow.document.getElementById('data6').innerText = result[0].cavity;
+                //         newWindow.document.getElementById('data7').innerText = result[0].cavity;
+
+
+                //     },
+                // });
+
+
             };
         }
 

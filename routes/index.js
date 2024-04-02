@@ -1891,6 +1891,117 @@ module.exports = function (app) {
     // **** finish
     // **** start  BOM창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectpinacle', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .query(
+                    "SELECT " +
+                    "     id," +
+                    "     partcustomer," +
+                    "     toolcode," +
+                    "     bomno," +
+                    "     customer," +
+                    "     modelname," +
+                    "     itemname," +
+                    "     char," +
+                    "     part," +
+                    "         ABS(CHECKSUM(NEWID())) % (129000 - 50000 + 1) + 50000 AS ta                    " +
+                    " FROM " +
+                    "     sampleorder" +
+                    " where part ='피나클'")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmold', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .query(
+                    "SELECT " +
+                    "     id," +
+                    "     partcustomer," +
+                    "     toolcode," +
+                    "     bomno," +
+                    "     customer," +
+                    "     modelname," +
+                    "     itemname," +
+                    "     char," +
+                    "     part," +
+                    "         ABS(CHECKSUM(NEWID())) % (129000 - 50000 + 1) + 50000 AS ta                    " +
+                    " FROM " +
+                    "     sampleorder" +
+                    " where part ='금형'")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selecttree', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .query(
+                    "SELECT " +
+                    "     id," +
+                    "     partcustomer," +
+                    "     toolcode," +
+                    "     bomno," +
+                    "     customer," +
+                    "     modelname," +
+                    "     itemname," +
+                    "     char," +
+                    "     part," +
+                    "         ABS(CHECKSUM(NEWID())) % (129000 - 50000 + 1) + 50000 AS ta                    " +
+                    " FROM " +
+                    "     sampleorder" +
+                    " where part ='목형'")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/bomsheet2', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -3649,6 +3760,76 @@ module.exports = function (app) {
 
     });
     // **** finish
+
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/materialoutputinsertdata', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('date', sql.NVarChar, req.body.date)
+                .input('input', sql.NVarChar, req.body.input)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('manufacturedate', sql.NVarChar, req.body.manufacturedate)
+                .input('expirationdate', sql.NVarChar, req.body.expirationdate)
+                .input('materialwidth', sql.Int, req.body.materialwidth)
+                .input('quantity', sql.Int, req.body.quantity)
+                .input('roll', sql.Int, req.body.roll)
+                .input('sum', sql.Int, req.body.sum)
+                .input('price', sql.Int, req.body.price)
+                .input('accountnumber', sql.NVarChar, req.body.accountnumber)
+                .input('contents', sql.NVarChar, req.body.contents)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('orderid', sql.NVarChar, req.body.orderid)
+                .input('house', sql.NVarChar, req.body.house)
+
+                .query(
+                    'insert into materialinput(customer,bomno,rollprice,date,input,materialname,codenumber,lotno,manufacturedate,expirationdate,materialwidth,quantity,roll,sum,price,accountnumber,contents,part,sqmprice,orderid,house)' +
+                    ' values(@customer,@bomno,@rollprice,@date,@input,@materialname,@codenumber,@lotno,@manufacturedate,@expirationdate,@materialwidth,@quantity,@roll,@sum,@price,@accountnumber,@contents,@part,@sqmprice,@orderid,@house)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/mimi', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                // .input('date', sql.NVarChar, req.body.date)
+
+
+                .query(
+                    "select " +
+                    " * " +
+                    " from " +
+                    " materialinput " +
+                    " where " +
+                    " input ='잔단폐기'"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/inserttoolbom', function (req, res) {
@@ -4171,6 +4352,31 @@ module.exports = function (app) {
                     "WHERE " +
                     "    bm.bomno = @bomno and bm.status='true' " +
                     "ORDER BY bm.num ASC; ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmting', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+                .query(
+                    "select * from materialinput where lotno=@lotno and materialname=@materialname")
 
                 .then(result => {
 
@@ -7208,7 +7414,7 @@ module.exports = function (app) {
                     " lotno, " +
                     " pono, " +
                     " bompart, " +
-                    " materialstatus " +
+                    " materialstatus,orderno " +
                     " from " +
                     " produceplan " +
                     " group by " +
@@ -7221,7 +7427,27 @@ module.exports = function (app) {
                     " lotno, " +
                     " pono, " +
                     " bompart, " +
-                    " materialstatus")
+                    " materialstatus,orderno")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start       
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectiteminfo', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "select * from iteminfo where bomno=@bomno")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -8129,9 +8355,11 @@ module.exports = function (app) {
                 .input('pono', sql.Float, req.body.pono)
                 .input('plantime', sql.Float, req.body.plantime)
                 .input('bompart', sql.NVarChar, req.body.bompart)
+                .input('slitingstatus', sql.NVarChar, req.body.slitingstatus)
+                .input('orderno', sql.NVarChar, req.body.orderno)
                 .query(
-                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa,part,plantime,bompart)' +
-                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa,@part,@plantime,@bompart)'
+                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa,part,plantime,bompart,slitingstatus,orderno)' +
+                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa,@part,@plantime,@bompart,@slitingstatus,@orderno)'
                 )
                 .then(result => {
 
@@ -9563,25 +9791,25 @@ module.exports = function (app) {
     });
     // **** finish
 
-    // **** start      재고 조회 쿼리 
-    sql.connect(config).then(pool => {
-        app.post('/api/materialstock', function (req, res) {
-            res.header("Access-Control-Allow-Origin", "*");
-            console.log("11", req)
-            return pool.request()
-                .query(
-                    "select codenumber,materialname,width" +
-                    ",  format(convert(int,Isnull(SUM(count),0)),'##,##0')'stock' " +
+    // // **** start      재고 조회 쿼리 
+    // sql.connect(config).then(pool => {
+    //     app.post('/api/materialstock', function (req, res) {
+    //         res.header("Access-Control-Allow-Origin", "*");
+    //         console.log("11", req)
+    //         return pool.request()
+    //             .query(
+    //                 "select codenumber,materialname,width" +
+    //                 ",  format(convert(int,Isnull(SUM(count),0)),'##,##0')'stock' " +
 
-                    " From warehouse  GROUP BY  codenumber, materialname, width ")
-                .then(result => {
+    //                 " From warehouse  GROUP BY  codenumber, materialname, width ")
+    //             .then(result => {
 
-                    res.json(result.recordset);
-                    res.end();
-                });
-        });
+    //                 res.json(result.recordset);
+    //                 res.end();
+    //             });
+    //     });
 
-    });
+    // });
     // **** finish
 
     // **** start 영업진행 조회 쿼리 

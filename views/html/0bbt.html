@@ -75,8 +75,8 @@
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
             z-index: 1000;
-            width: 100%;
-            max-width: 95%;
+            width: 60%;
+            max-width: 60%;
             height: 70%;
         }
 
@@ -150,7 +150,7 @@
             padding: 10px;
             margin-bottom: 10px;
             font-size: 14px;
-            border: 1px solid #ddd;
+            border: 1px solid #9e2b2b;
             border-radius: 4px;
             box-sizing: border-box;
         }
@@ -255,24 +255,16 @@
             font-weight: bold;
         }
 
-        select {
-            padding: 5px;
-            font-size: 16px;
+        #datepicker1,
+        #datepicker2 {
+            width: 10%;
+            padding: 10px;
+            box-sizing: border-box;
+            /* margin-bottom: 16px; */
             border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #fff;
-            color: #333;
-        }
-
-        /* 선택된 옵션 스타일링 */
-        select option:checked {
-            background-color: #f0f0f0;
-        }
-
-        /* 마우스 오버 시 스타일링 */
-        select option:hover {
-            background-color: #e0e0e0;
-            cursor: pointer;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -282,15 +274,17 @@
     <div class="overlay3" id="overlay3"></div>
 
     <div class="menu-title" style="width:100%;">
-        <i class="fas fa-box"></i>생산 대기 현황
+        <i class="fas fa-box"></i>피나클 누적타수/연마
     </div>
     <div class="search-container">
-        <label for="search" class="search-label"> 검색 :</label>
+        <label for="search" class="search-label" style="margin-left: 20px;"> 검색 :</label>
         <div class="search-input-wrapper">
             <input type="text" id="search" placeholder="검색어를 입력 후 ENTER 누르세요..." onkeypress="handleKeyPress(event)"
                 autocomplete="off">
             <i class="fas fa-search search-icon"></i>
         </div>
+
+        <button class="new-cancel" onclick="openModal()">추가</button>
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
         <b style="float: right; margin-right: 20px; margin-top: 20px;" id="dataCount"></b>
     </div>
@@ -302,50 +296,63 @@
     <div id="myGrid" style="height: 80%; width:100%; " class="ag-theme-alpine"></div>
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold;">생산시작</span>
+            <span style="font-weight: bold;">설비 이력관리 정보</span>
             <button style="float: right; background-color: red;" class="new-cancel" onclick="closeModal()">닫기</button>
 
         </div>
-        <div class="company-info"> <i class="fas fa-box"></i> 생산 정보<input type="text" id="id-input"
+        <div class="company-info"> <i class="fas fa-box"></i> 설비 SPEC <input type="text" id="id-input"
                 style="visibility: hidden;"></div>
         <div class="modal-content">
             <table>
                 <tr>
-                    <th>생산날짜</th>
-                    <th>호기명</th>
+                    <th>제작업체</th>
+                    <th>TOOL CODE</th>
                     <th>BOMNO</th>
-                    <th>고객사명</th>
+                    <th>고객사</th>
                     <th>모델명</th>
                     <th>제품명</th>
-                    <th>작업차수</th>
-                    <th>LOTNO</th>
-
+                    <th>차수</th>
+                    <th>타점수</th>
                 </tr>
                 <tr>
-                    <td id="plandate-input"></td>
+                    <td id="codenumber-input"></td>
                     <td id="equipmentname-input"></td>
-                    <td id="bomno-input"></td>
+                    <td id="eqname-input"></td>
+                    <td id="num-input"></td>
                     <td id="customer-input"></td>
-                    <td id="modelname-input"></td>
-                    <td id="itemname-input"></td>
-                    <td id="part-input"></td>
-                    <td id="lotno-input"></td>
-                    <td id="orderno-input"></td>
+                    <td id="serialno-input"></td>
+                    <td id="manudate-input"></td>
+                    <td id="position-input"></td>
                 </tr>
 
             </table>
-
         </div>
-
-        <div class="section-title">
-            <i class="fas fa-box"></i> 설비 이력 추가
-            <button class="new-cancel" onclick="save1()">설비정지</button>
-        </div>
+        <div class="section-title"><i class="fas fa-box"></i> 설비 이력 추가</div>
         <table>
             <tr>
-                <th>정지시간</th>
-                <th>정지해제시간</th>
-                <th>비가동 사유</th>
+                <th>고장내용</th>
+                <th>조치내용</th>
+                <th>발생일</th>
+                <th>조치일</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td><input type="text" class="inputtext" id="a"></td>
+                <td><input type="text" class="inputtext" id="b"></td>
+                <td><input type="date" class="inputtext" id="date1"></td>
+                <td><input type="date" class="inputtext" id="date2"></td>
+                <td><button class="new-cancel" onclick="save()">추가</button></td>
+            </tr>
+
+        </table>
+        <div class="section-title"><i class="fas fa-info-circle"></i>설비 이력 내역</div>
+        <table>
+            <tr>
+                <th>고장내용</th>
+                <th>조치내용</th>
+                <th>발생일</th>
+                <th>조치일</th>
+                <th style="width:100px;"></th>
                 <th style="width:100px;"></th>
             </tr>
             <tbody id="equipmenthistorytbody">
@@ -359,7 +366,39 @@
         </div>
     </div>
 
+    <div class="modal3" id="modal3">
+        <div class="modal-header">
+            <span style="font-weight: bold;">설비 이력관리 수정</span>
+            <input type="text" class="inputtext" id="id-edit" autocomplete="off" style="width:30px;">
+            <button style="float: right; background-color: blue;" class="new-cancel" onclick="editdata()">수정</button>
+            <button style="float: right; background-color: red;" class="new-cancel" onclick="closeModal1()">닫기</button>
 
+        </div>
+        <div class="company-info"> <i class="fas fa-box"></i> 설비 SPEC <input type="text" id="id-input"
+                style="visibility: hidden;"></div>
+        <div class="modal-content">
+            <table>
+                <tr>
+                    <th>고장내용</th>
+                    <th>조치내용</th>
+                    <th>발생일</th>
+                    <th>조치일</th>
+                </tr>
+                <tr>
+                    <td><input type="text" class="inputtext" id="a-edit"></td>
+                    <td><input type="text" class="inputtext" id="b-edit"></td>
+                    <td><input type="date" class="inputtext" id="date3"></td>
+                    <td><input type="date" class="inputtext" id="date4"></td>
+                </tr>
+            </table>
+        </div>
+
+
+        <div class="modal-footer">
+            <!-- <button id="savebutton" class="new-registration" onclick="saveOrEditForm()">저장</button> -->
+            <!-- <button class="new-cancel" onclick="closeModal()">닫기</button> -->
+        </div>
+    </div>
     <script>
         var server = '';
         var gridApi;
@@ -371,8 +410,8 @@
         }
         $(document).ready(function () {
 
-            // showLoadingSpinner(); // Show loading spinner on page load
-            // settingDate()
+
+            settingDate()
             initializeGrid();
         });
 
@@ -382,7 +421,6 @@
                 applySearchFilter();
             }
         });
-
         function updateDataCount() {
             const rowCount = gridApi.getDisplayedRowCount();
             document.getElementById('dataCount').innerText = `DATA: ${rowCount}`;
@@ -408,8 +446,8 @@
             let currentDate = `${year}-${month}-${day}`;
 
 
-            $('#date1').val(currentDate);
-            $('#date2').val(currentDate);
+            $('#datepicker1').val(currentDate);
+            $('#datepicker2').val(currentDate);
 
         }
         function datadelete(row) {
@@ -490,40 +528,6 @@
                 }
             });
         }
-        function save1() {
-            // 현재 시간을 얻기 위한 Date 객체 생성
-            var currentTime = new Date();
-
-            // 현재 시간을 "HH:MM:SS" 형식으로 포맷팅
-            var formattedTime = currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds();
-
-            // 새로운 <tr> 엘리먼트 생성
-            var newRow = document.createElement("tr");
-
-            // 새로운 <tr> 엘리먼트 안에 들어갈 내용을 지정합니다.
-            newRow.innerHTML = "<td>" + formattedTime + "</td><td></td><td><select><option></option><option>설비문제</option></select></td><td><button onclick='releaseStop(this)'>정지해제</button></td>";
-
-            // tbody에 새로운 <tr> 엘리먼트 추가
-            var tbody = document.getElementById("equipmenthistorytbody");
-            tbody.appendChild(newRow);
-        }
-
-        // 정지해제 버튼 클릭 시 동작할 함수
-        function releaseStop(button) {
-            // 현재 시간을 얻기 위한 Date 객체 생성
-            var stopTime = new Date();
-
-            // 정지시간을 "HH:MM:SS" 형식으로 포맷팅
-            var formattedStopTime = stopTime.getHours() + ":" + stopTime.getMinutes() + ":" + stopTime.getSeconds();
-
-            // 해당 버튼의 부모 노드의 이전 형제 노드인 두 번째 <td>에 정지시간을 삽입
-            var td = button.parentNode.previousElementSibling.previousElementSibling;
-            td.innerText = formattedStopTime;
-        }
-
-
-
-
         function update(row) {
             var rowData = $(row).closest('tr').find('td').map(function () {
                 return $(this).text();
@@ -539,50 +543,75 @@
         }
 
         function initializeGrid() {
-            if (typeof agGrid !== 'undefined') {
-                const gridOptions = {
-                    columnDefs: [
-                        { field: "plandate", headerName: "생산날짜", filter: true },
-                        { field: "equipmentname", headerName: "호기명", filter: true },
-                        { field: "bomno", headerName: "BOMNO", filter: true },
-                        { field: "customer", headerName: "고객사명", filter: true },
-                        { field: "modelname", headerName: "모델명", filter: true },
-                        { field: "itemname", headerName: "제품명", filter: true },
-                        { field: "part", headerName: "작업차수", filter: true },
-                        { field: "lotno", headerName: "LOTNO", filter: true },
-                        { field: "orderno", headerName: "QRNO", filter: true },
-                        { field: "materialstatus", headerName: "자재상태", filter: true },
+            setTimeout(function () {
 
-                    ],
-                    getRowStyle: function (params) {
-                        if (params.data.materialstatus == '자재준비중') {
-                            return { backgroundColor: 'yellow', color: 'black' }; // 배경색을 노란색으로, 글자색은 검정색으로 설정
+                if (typeof agGrid !== 'undefined') {
+                    const gridOptions = {
+                        columnDefs: [
+
+
+                            { field: "partcustomer", headerName: "제작업체", filter: true },
+                            { field: "toolcode", headerName: "TOOL CODE", filter: true },
+                            { field: "bomno", headerName: "BOMNO", filter: true },
+                            { field: "customer", headerName: "고객사", filter: true },
+                            { field: "modelname", headerName: "모델명", filter: true },
+                            { field: "itemname", headerName: "제품명", filter: true },
+                            { field: "char", headerName: "차수", filter: true },
+                            { field: "part", headerName: "구분", filter: true },
+                            { field: "ta", headerName: "타점수", filter: true },
+
+
+
+                        ],
+                        getRowStyle: function (params) {
+                            if (params.data.ta > 100000) {
+                                return { background: '#f57b7b' }; // ta 값이 100000 초과인 경우 빨간색 배경으로 설정
+                            }
+                            return null;
+                        },
+                        mounted() {
+                            this.rowData.forEach(row => {
+                                if (row.resistance11 === 2) {
+                                    row.resistance11 = Math.pow(10, row.resistance11); // 10의 제곱으로 변경
+                                }
+                            });
+                        },
+                        autoSizeStrategy: {
+                            type: 'fitGridWidth',
+                            defaultMinWidth: 150
+                        },
+                        rowHeight: 45,
+                        enableFilter: true,
+                        rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
+                        onRowDoubleClicked: function (params) {
+
+
+
+                            $('#codenumber-input').text(params.data.codenumber);
+                            $('#equipmentname-input').text(params.data.equipmentname);
+                            $('#eqname-input').text(params.data.eqname);
+                            $('#num-input').text(params.data.num);
+                            $('#customer-input').text(params.data.customer);
+                            $('#serialno-input').text(params.data.serialno);
+                            $('#manudate-input').text(params.data.manudate);
+                            $('#position-input').text(params.data.position);
+
+
+
+                            $('#savebutton').text('수정')
+                            document.getElementById('modal').style.display = 'block';
+                            document.getElementById('overlay').style.display = 'block';
                         }
-                        return null;
-                    },
+                    }; 100
 
-                    autoSizeStrategy: {
-                        type: 'fitGridWidth',
-                        defaultMinWidth: 150
-                    },
-                    rowHeight: 45,
-                    enableFilter: true,
-                    rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
-                    onRowDoubleClicked: function (params) {
-                        if (params.data.materialstatus === '자재준비중') {
-                            alert('자재 준비중입니다.');
-                        }
-                        document.getElementById('modal').style.display = 'block';
-                        document.getElementById('overlay').style.display = 'block';
-                    }
-                }; 100
+                    const gridDiv = document.querySelector('#myGrid');
+                    gridApi = agGrid.createGrid(gridDiv, gridOptions);
 
-                const gridDiv = document.querySelector('#myGrid');
-                gridApi = agGrid.createGrid(gridDiv, gridOptions);
+                    loadData();
+                } else {
+                }
+            }, 100); // 약간의 지연 추가
 
-                loadData();
-            } else {
-            }
         }
         function loaddata1() {
             $('#equipmenthistorytbody').empty()
@@ -676,11 +705,28 @@
         function loadData() {
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectproductplan',
+                url: server + '/api/selectpinacle',
                 dataType: 'json',
                 success: function (data) {
                     hideLoadingSpinner();
                     gridApi.setRowData(data);
+                    updateDataCount();
+                },
+            });
+        }
+        function loadData1() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/mr2searching',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "start": $('#datepicker1').val(),
+                    "finish": $('#datepicker2').val(),
+                }),
+                success: function (data1) {
+                    hideLoadingSpinner();
+                    gridApi.setRowData(data1);
                     updateDataCount();
                 },
             });
