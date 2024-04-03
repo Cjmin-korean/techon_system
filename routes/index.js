@@ -8049,7 +8049,26 @@ module.exports = function (app) {
                 .input('orderno', sql.NVarChar, req.body.orderno)
 
                 .query(
-                    "select * from productionpeople order by people asc")
+                    "select * from productionpeople where team='생산' order by people asc")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/selectproductionpeople1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+                .query(
+                    "select * from productionpeople where team='검사' order by people asc")
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
@@ -8086,10 +8105,11 @@ module.exports = function (app) {
             return pool.request()
                 .input('people', sql.NVarChar, req.body.people)
                 .input('position', sql.NVarChar, req.body.position)
+                .input('team', sql.NVarChar, req.body.team)
 
                 .query(
-                    "insert into productionpeople (people,position)" +
-                    " values(@people,@position)")
+                    "insert into productionpeople (people,position,team)" +
+                    " values(@people,@position,@team)")
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
