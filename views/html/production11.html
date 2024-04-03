@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="../css/mescss.css">
 
     <style>
         /* 공통 스타일 */
@@ -135,34 +136,62 @@
         #editableTable .table-light {
             background-color: #f8f9fa;
         }
+
+        /* CSS 예시 */
+        .qr-code-section {
+            width: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+
+        .qr-code-section b {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .qr-code-section select {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .qr-code-section button {
+            background-color: #2e332e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .qr-code-section button:hover {
+            background-color: #7c7e7c;
+        }
     </style>
 
 </head>
 
 <body>
-    <div class="menu-title" style="width:100%; background-color: rgb(63, 62, 62); color: white;">
-        <i class="fas fa-box" style="margin-left: 10px;"></i>생산 작업 대기
+
+    <div class="menu-title" style="width:100%;">
+        <i class="fas fa-box"></i>생산 작업 대기
     </div>
-    <button style="float: right;" onclick="startproduction()">생산시작</button>
-    <div class=" qr-code-section">
+    <div class=" qr-code-section" style="width: 300px;">
         <b>작업자</b>
         <div>
             <select id="peopleInput">
-                <option>홍길동1</option>
-                <option>홍길동2</option>
-                <option>홍길동3</option>
-                <option>홍길동4</option>
-                <option>홍길동5</option>
-                <option>홍길동6</option>
-                <option>홍길동7</option>
-                <option>홍길동8</option>
-                <option>홍길동9</option>
-                <option>홍길동10</option>
-                <option>홍길동11</option>
-                <option>홍길동12</option>
-                <option>홍길동13</option>
+                <option></option>
+
             </select>
+            <button onclick="startproduction()">생산시작</button>
+
         </div>
+
     </div>
     <table id="qrCodeTable">
         <tr>
@@ -297,12 +326,43 @@
 
     <script>
         var server = '';
-
-        if (window.location.hostname == '127.0.0.1') {
+        if (window.location.hostname == 'localhost') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
         }
+
+
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectproductionpeople',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
+
+                var selectElement = document.getElementById('peopleInput');
+
+                selectElement.innerHTML = '';
+
+                var blankOption = document.createElement('option');
+                blankOption.text = ''; // 공란 텍스트
+                blankOption.value = ''; // 공란 값
+                selectElement.appendChild(blankOption);
+                result.forEach(function (person) {
+                    var option = document.createElement('option');
+                    option.text = person.people; // 예시 데이터에 따라 적절한 속성으로 변경
+                    option.value = person.people; // 예시 데이터에 따라 적절한 속성으로 변경
+                    selectElement.appendChild(option);
+                });
+            }
+        });
+
+        document.getElementById('peopleInput').addEventListener('change', function () {
+            var selectedPerson = this.value; // 선택된 옵션의 값
+            document.getElementById('textInputA').focus();
+
+        });
 
         document.getElementById('textInputA').focus();
         function reseta() {

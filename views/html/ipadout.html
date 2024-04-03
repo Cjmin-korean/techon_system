@@ -225,6 +225,7 @@
 </body>
 <script>
     var server = '';
+    console.log(window.location.hostname)
     if (window.location.hostname == 'localhost') {
         server = 'http://localhost:8080';
     } else {
@@ -234,15 +235,14 @@
     // Enter 키를 눌렀을 때 processText() 함수 호출
     $('#textInput').keypress(function (event) {
         if (event.which === 13) { // Enter 키 코드인 13인지 확인
-            $('#textInput').val(''); // 입력란의 값을 공백으로 설정
             $('#materialinput').focus(); // 입력란의 값을 공백으로 설정
-
+            $('#tableBody1').empty()
             var rowsData = [
-                { name: 'SJ-7504S BL', width: '100', amount: '6200', roll: '0', sumquantity: '0' },
-                { name: 'HGCS-A305YA+SJ-2502LS-W(D)', width: '7', amount: '12400', roll: '0', sumquantity: '0' },
-                { name: 'HGCS-A305RB(G)A+SJ-2502LS-W(D)', width: '45', amount: '2374', roll: '0', sumquantity: '0' },
-                { name: 'OPP_VINA($단가)', width: '70', amount: '6200', roll: '0', sumquantity: '0' },
-                { name: 'SM-7510LS', width: '70', amount: '6200', roll: '0', sumquantity: '0' }
+                { name: 'SJ-7504S BL', width: '100', amount: '6000', roll: '0', sumquantity: '0' },
+                { name: 'HGCS-A305YA+SJ-2502LS-W(D)', width: '7', amount: '12000', roll: '0', sumquantity: '0' },
+                { name: 'HGCS-A305RB(G)A+SJ-2502LS-W(D)', width: '45', amount: '2296', roll: '0', sumquantity: '0' },
+                { name: 'OPP_VINA($단가)', width: '70', amount: '6000', roll: '0', sumquantity: '0' },
+                { name: 'SM-7510LS', width: '70', amount: '6000', roll: '0', sumquantity: '0' }
             ];
 
             // tbody에 새로운 <tr> 요소를 추가함
@@ -349,8 +349,8 @@
             Swal.fire({
 
                 icon: 'error',
-                title: '입고내역 누락',
-                text: '입고내역이 누락 되었습니다'
+                title: '출고내역 누락',
+                text: '출고내역이 누락 되었습니다'
             });
             return;
         }
@@ -378,54 +378,56 @@
 
                 for (var i = 0; i < rows.length; i++) {
                     var row = rows[i];
-                    var qtCell = row.querySelector('td:nth-child(9)'); // 9번째 열(QT 열)의 셀을 가져옵니다.
-                    var codenumber = row.querySelector('td:nth-child(1)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
-                    var materialname = row.querySelector('td:nth-child(2)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
-                    var lotno = row.querySelector('td:nth-child(3)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
-                    var manufacturedate = row.querySelector('td:nth-child(6)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
-                    var expirationdate = row.querySelector('td:nth-child(7)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
-                    var materialwidth = row.querySelector('td:nth-child(4)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
-                    var quantity = row.querySelector('td:nth-child(5)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
-                    var rollprice = row.querySelector('td:nth-child(10)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var materialname = row.querySelector('td:nth-child(1)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var lotno = row.querySelector('td:nth-child(2)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var manufacturedate = row.querySelector('td:nth-child(5)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var expirationdate = row.querySelector('td:nth-child(6)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var materialwidth = row.querySelector('td:nth-child(3)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
+                    var quantity = row.querySelector('td:nth-child(4)'); // 첫 번째 열(품목코드 열)의 셀을 가져옵니다.
 
-                    var qtValue = qtCell.innerText;
-                    var codenumberValue = codenumber.innerText;
                     var materialnameValue = materialname.innerText;
                     var lotnoValue = lotno.innerText;
                     var manufacturedateValue = manufacturedate.innerText;
                     var expirationdateValue = expirationdate.innerText;
                     var materialwidthValue = materialwidth.innerText;
                     var quantityValue = quantity.innerText;
-                    var rollpriceValue = rollprice.innerText;
 
                     // AJAX 호출
 
-                    if (qtValue === 'N') {
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/materialinputinsertdata',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "date": formattedDate,
-                                "input": '원자재출고',
-                                "materialname": materialnameValue,
-                                "codenumber": codenumberValue,
-                                "lotno": lotnoValue,
-                                "manufacturedate": manufacturedateValue,
-                                "expirationdate": expirationdateValue,
-                                "materialwidth": materialwidthValue,
-                                "quantity": quantityValue,
-                                "roll": '1',
-                                "rollprice": rollpriceValue,
-                                "orderid": $('#orderno').val(),
-                                "customer": $('#customer').text()
-                            }),
-                            success: function (result) {
-                                // 성공 시 처리
-                            },
-                        });
-                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/materialinputinsertdata',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "date": formattedDate,
+                            "input": '원자재출고',
+                            "materialname": materialnameValue,
+                            "lotno": lotnoValue,
+                            "manufacturedate": manufacturedateValue,
+                            "expirationdate": expirationdateValue,
+                            "materialwidth": materialwidthValue,
+                            "quantity": quantityValue,
+                            "roll": '1',
+                            "orderid": $('#textInput').val(),
+                        }),
+                        success: function (result) {
+                            // 성공 시 처리
+                        },
+                    });
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updateproduceplanwherematerialstatus',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "orderno": $('#textInput').val(),
+
+                        }),
+                        success: function (result) {
+                            // 성공 시 처리
+                        },
+                    });
                 }
 
 
@@ -433,8 +435,8 @@
                 $('#overlay').fadeOut();
                 Swal.fire({
                     icon: 'success',
-                    title: '원자재입고',
-                    text: '원자재 입고가 완료되었습니다',
+                    title: '원자재출고',
+                    text: '원자재 출고가 완료되었습니다',
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $('#orderno').val('')

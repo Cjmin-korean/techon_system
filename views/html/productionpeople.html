@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../css/mescss.css">
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap">
+    <link rel="stylesheet" href="../css/houseinfor.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        .ag-ltr .ag-cell {
+            font-family: 'Roboto', sans-serif;
+
+        }
+
+        .ag-header-cell-label {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            /* Initially hide the spinner */
+        }
+
+        .loading-spinner::before {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 4px solid rgba(0, 0, 0, 0.3);
+            border-top: 4px solid #3498db;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ag-theme-alpine {
+            font-weight: bold;
+
+        }
+
+        .modal,
+        .myModal1 {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 60%;
+            max-width: 60%;
+            height: 70%;
+        }
+
+        .modal3 {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            width: 60%;
+            max-width: 60%;
+            height: 30%;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay3 {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+
+        .modal-header {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .modal-content {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .modal-column {
+            flex: 0 0 calc(33.33% - 20px);
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-content button {
+            width: 48%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 2%;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .company-info,
+        .section-title {
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        .divider {
+            border-top: 1px solid #ddd;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        #new-registration,
+        #cancel-button {
+            background-color: #3498db;
+            color: #ffffff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        #new-registration:hover,
+        #cancel-button:hover {
+            background-color: #297fb8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        td {
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="menu-title" style="width:100%;">
+        <i class="fas fa-box"></i>생산기사 정보
+    </div>
+    <div class="search-container">
+        <label for="search" class="search-label"> 검색 :</label>
+        <div class="search-input-wrapper">
+            <input type="text" id="search" placeholder="검색어를 입력 후 ENTER 누르세요..." onkeypress="handleKeyPress(event)"
+                autocomplete="off">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        <button class="new-registration-button" style="background-color: #0b0e0b;" onclick="openModal()">신규등록</button>
+        <b style="float: right; margin-right: 20px; margin-top: 20px;" id="dataCount"></b>
+    </div>
+
+
+
+    <!-- modal창 -->
+    <div id="loadingSpinner" class="loading-spinner"></div>
+    <div id="myGrid" style="height: 80%; width:30%; " class="ag-theme-alpine"></div>
+    <div class="modal" id="modal" style="width: 40%;">
+        <div class="modal-header">
+            <span style="font-weight: bold;">생산기사 정보</span>
+            <button style="float: right; background-color: red;" class="new-cancel" onclick="closeModal()">닫기</button>
+
+        </div>
+
+
+        <div class="section-title"><i class="fas fa-box"></i>생산기사 정보 추가</div>
+        <table>
+            <tr>
+                <th>생산기사명</th>
+                <th>직책</th>
+
+                <th></th>
+            </tr>
+            <tr>
+                <td><input type="text" class="inputtext" id="a"></td>
+                <td>
+                    <select class="inputtext" id="b">
+                        <option value=""></option>
+                        <option value="공장장">공장장</option>
+                        <option value="부장">부장</option>
+                        <option value="차장">차장</option>
+                        <option value="과장">과장</option>
+                        <option value="대리">대리</option>
+                        <option value="주임">주임</option>
+                        <option value="사원">사원</option>
+                    </select>
+                </td>
+                <td><button class="new-cancel" onclick="save()">추가</button></td>
+            </tr>
+
+        </table>
+        <div class="section-title"><i class="fas fa-info-circle"></i>생산기사 정보</div>
+        <table>
+            <tr>
+                <th>생산기사명</th>
+                <th>직책</th>
+                <th style="width:100px;"></th>
+            </tr>
+            <tbody id="equipmenthistorytbody">
+
+            </tbody>
+        </table>
+
+        <div class="modal-footer">
+            <!-- <button id="savebutton" class="new-registration" onclick="saveOrEditForm()">저장</button> -->
+            <!-- <button class="new-cancel" onclick="closeModal()">닫기</button> -->
+        </div>
+    </div>
+
+
+    <script>
+        var server = '';
+        var gridApi;
+
+        if (window.location.hostname == 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+        $(document).ready(function () {
+
+
+            initializeGrid();
+        });
+
+        $('#search').keypress(function (e) {
+            if (e.which === 13) {
+                // 13 is the key code for Enter
+                applySearchFilter();
+            }
+        });
+        function updateDataCount() {
+            const rowCount = gridApi.getDisplayedRowCount();
+            document.getElementById('dataCount').innerText = `DATA: ${rowCount}`;
+        }
+        function settingDate() {
+            const date = new Date();
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+
+
+            if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
+                month = '0' + month
+            }
+
+            if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
+                day = '0' + day
+            }
+
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+
+
+            $('#date1').val(currentDate);
+            $('#date2').val(currentDate);
+
+        }
+        function datadelete(row) {
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            var codenumberText = $('#codenumber').text().trim();
+            $('#codenumberid').val(codenumberText)
+            // Check if the codenumberText is not empty
+            Swal.fire({
+                icon: 'warning',
+                title: '삭제',
+                text: '생산기사 정보를 삭제하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/deleteproductionpeople',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": rowData[0]
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '설비 이력 정보가 삭제 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#equipmenthistorytbody').empty()
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/mr1',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    codenumber: $('#codenumber-input').text()
+                                }),
+                                success: function (data) {
+                                    if (data.length === 0) {
+                                        // Handle empty data case if needed
+                                    } else {
+                                        for (var i = 0; i < data.length; i++) {
+                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                                            // Append data to the row
+                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
+                                            row.append('<td>' + (data[i].a || '') + '</td>');
+                                            row.append('<td>' + (data[i].b || '') + '</td>');
+                                            row.append('<td>' + (data[i].c || '') + '</td>');
+                                            row.append('<td>' + (data[i].d || '') + '</td>');
+                                            row.append('<td><button style="background-color:green;" class="new-cancel" onclick="update(this)">수정</button></td>');
+                                            row.append('<td><button style="background-color:red;" class="new-cancel" onclick="datadelete(this)">삭제</button></td>');
+
+                                            // Append the row to the table body
+                                            $('#equipmenthistorytbody').append(row);
+                                            $('td#data-id').hide();
+                                        }
+                                    }
+                                }
+                            });
+                            loaddata1()
+
+                        }
+                    });
+                }
+            });
+        }
+        function update(row) {
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+            console.log(rowData)
+            $('#id-edit').val(rowData[0])
+            $('#a-edit').val(rowData[1])
+            $('#b-edit').val(rowData[2])
+            $('#date3').val(rowData[3])
+            $('#date4').val(rowData[4])
+            $('#overlay3').fadeIn();
+            $('#modal3').fadeIn();
+        }
+
+        function initializeGrid() {
+            if (typeof agGrid !== 'undefined') {
+                const gridOptions = {
+                    columnDefs: [
+                        //                 
+                        { field: "people", headerName: "생산기사명", filter: true },
+                        { field: "position", headerName: "직책", filter: true },
+
+
+                    ],
+                    getRowStyle: function (params) {
+                        if (params.data.days > 3650) { // days가 2920보다 큰 경우
+                            return { color: 'red' }; // 배경색을 빨간색으로 설정
+                        }
+                        return null; // 기본적으로는 아무 스타일도 적용하지 않음
+                    },
+                    mounted() {
+                        this.rowData.forEach(row => {
+                            if (row.resistance11 === 2) {
+                                row.resistance11 = Math.pow(10, row.resistance11); // 10의 제곱으로 변경
+                            }
+                        });
+                    },
+                    autoSizeStrategy: {
+                        type: 'fitGridWidth',
+                        defaultMinWidth: 150
+                    },
+                    rowHeight: 45,
+                    enableFilter: true,
+                    rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
+                    onRowDoubleClicked: function (params) {
+
+
+
+                        $('#codenumber-input').text(params.data.codenumber);
+                        $('#equipmentname-input').text(params.data.equipmentname);
+                        $('#eqname-input').text(params.data.eqname);
+                        $('#num-input').text(params.data.num);
+                        $('#customer-input').text(params.data.customer);
+                        $('#serialno-input').text(params.data.serialno);
+                        $('#manudate-input').text(params.data.manudate);
+                        $('#position-input').text(params.data.position);
+
+                        $('#id-input').val(params.data.id);
+
+                        $('#savebutton').text('수정')
+                        document.getElementById('modal').style.display = 'block';
+                        document.getElementById('overlay').style.display = 'block';
+                    }
+                }; 100
+
+                const gridDiv = document.querySelector('#myGrid');
+                gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+                loadData();
+            } else {
+            }
+        }
+        function loaddata1() {
+            $('#equipmenthistorytbody').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectproductionpeople',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                }),
+                success: function (result) {
+                    if (result.length === 0) {
+                        // Handle empty data case if needed
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                            // Append data to the row
+                            row.append('<td id="data-id">' + (result[i].id || '') + '</td>');
+                            row.append('<td>' + (result[i].people || '') + '</td>');
+                            row.append('<td>' + (result[i].position || '') + '</td>');
+
+                            row.append('<td><button style="background-color:red;" class="new-cancel" onclick="datadelete(this)">삭제</button></td>');
+
+                            // Append the row to the table body
+                            $('#equipmenthistorytbody').append(row);
+                            $('td#data-id').hide();
+                        }
+                    }
+                }
+            });
+        }
+        function numberWithCommas(params) {
+            if (typeof params.value === 'number') {
+                return params.value.toLocaleString(); // 세 자리마다 쉼표 추가
+            } else {
+                return params.value; // 숫자가 아니면 그냥 반환
+            }
+        }
+        function openModal() {
+            loaddata1()
+            $('#a').val('')
+            $('#b').val('')
+            $('#overlay').fadeIn();
+            $('#modal').fadeIn();
+            $('#savebutton').text('저장')
+
+        }
+
+        function closeModal() {
+            $('#overlay').fadeOut();
+            $('#modal').fadeOut();
+        }
+        function closeModal1() {
+            $('#overlay3').fadeOut();
+            $('#modal3').fadeOut();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                onFilterTextBoxChanged();
+                updateDataCount();
+            }
+        }
+        function click(event) {
+            event.preventDefault();
+            onFilterTextBoxChanged();
+        }
+        function onFilterTextBoxChanged() {
+            gridApi.setGridOption(
+                'quickFilterText',
+                document.getElementById('search').value
+            );
+        }
+        function consoledata(rowData) {
+            // Add your logic here using the rowData (data of the clicked row)
+            console.log('Button Clicked for Row:', rowData);
+        }
+        function formatCost(params) {
+            // Check if the value is a valid number
+            if (!isNaN(params.value)) {
+                // Use toFixed(2) to format the number with two decimal places
+                return Number(params.value).toFixed(2);
+            }
+            // Return the original value if it's not a valid number
+            return params.value;
+        }
+        function loadData() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectproductionpeople',
+                dataType: 'json',
+                success: function (data) {
+                    hideLoadingSpinner();
+                    gridApi.setRowData(data);
+                    updateDataCount();
+                },
+            });
+        }
+
+        function showLoadingSpinner() {
+            $('#loadingSpinner').show();
+        }
+
+        function hideLoadingSpinner() {
+            $('#loadingSpinner').hide();
+        }
+        function applySearchFilter() {
+            showLoadingSpinner();
+            loadData();
+        }
+        function onBtnExport() {
+            gridApi.exportDataAsCsv();
+        }
+
+        function save() {
+
+
+            Swal.fire({
+                icon: 'success',
+                title: '저장',
+                text: '생산기사 정보를 등록하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/insertproductionpeople',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "people": $('#a').val(),
+                            "positon": $('#b').val(),
+
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '저장완료',
+                        text: '생산기사 정보가 등록되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#a').val('')
+                            $('#b').val('')
+                            $('#equipmenthistorytbody').empty()
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/mr1',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    codenumber: $('#codenumber-input').text()
+                                }),
+                                success: function (data) {
+                                    if (data.length === 0) {
+                                        // Handle empty data case if needed
+                                    } else {
+                                        for (var i = 0; i < data.length; i++) {
+                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                                            // Append data to the row
+                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
+                                            row.append('<td>' + (data[i].a || '') + '</td>');
+                                            row.append('<td>' + (data[i].b || '') + '</td>');
+                                            row.append('<td>' + (data[i].c || '') + '</td>');
+                                            row.append('<td>' + (data[i].d || '') + '</td>');
+                                            row.append('<td><button style="background-color:green;" class="new-cancel" onclick="update(this)">수정</button></td>');
+                                            row.append('<td><button style="background-color:red;" class="new-cancel" onclick="datadelete(this)">삭제</button></td>');
+
+                                            // Append the row to the table body
+                                            $('#equipmenthistorytbody').append(row);
+                                            $('td#data-id').hide();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        loaddata1()
+                    });
+                }
+            });
+        }
+
+        function editdata() {
+            Swal.fire({
+                icon: 'success',
+                title: '수정',
+                text: '설비 이력 정보를 수정하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updatemr1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": $('#id-edit').val(),
+                            "a": $('#a-edit').val(),
+                            "b": $('#b-edit').val(),
+                            "c": $('#date3').val(),
+                            "d": $('#date4').val(),
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '수정완료',
+                        text: '설비 이력 정보가 수정되었습니다.',
+                    }).then((result) => {
+                        $('#overlay3').fadeOut();
+                        $('#modal3').fadeOut();
+                        if (result.isConfirmed) {
+
+
+                            $('#equipmenthistorytbody').empty()
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/mr1',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    codenumber: $('#codenumber-input').text()
+                                }),
+                                success: function (data) {
+                                    if (data.length === 0) {
+                                        // Handle empty data case if needed
+                                    } else {
+                                        for (var i = 0; i < data.length; i++) {
+                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                                            // Append data to the row
+                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
+                                            row.append('<td>' + (data[i].a || '') + '</td>');
+                                            row.append('<td>' + (data[i].b || '') + '</td>');
+                                            row.append('<td>' + (data[i].c || '') + '</td>');
+                                            row.append('<td>' + (data[i].d || '') + '</td>');
+                                            row.append('<td><button style="background-color:green;" class="new-cancel" onclick="update(this)">수정</button></td>');
+                                            row.append('<td><button style="background-color:red;" class="new-cancel" onclick="datadelete(this)">삭제</button></td>');
+
+                                            // Append the row to the table body
+                                            $('#equipmenthistorytbody').append(row);
+                                            $('td#data-id').hide();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+
+
+
+    </script>
+</body>
+
+</html>

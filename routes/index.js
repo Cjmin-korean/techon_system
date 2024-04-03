@@ -4576,7 +4576,7 @@ module.exports = function (app) {
                     " INNER JOIN " +
                     "     produceplan AS pp ON bm.bomno = pp.bomno" +
                     " WHERE " +
-                    "     (bm.hapji IS NOT NULL OR bm.hapji <> '') AND (pp.slitingstatus ='슬리팅대기' or pp.slitingstatus='슬리팅작업지시완료') " +
+                    "     COALESCE(bm.hapji, '') <> ''  AND (pp.slitingstatus ='슬리팅대기' or pp.slitingstatus='슬리팅작업지시완료') " +
                     " GROUP BY" +
                     "     bm.bomno," +
                     "     bm.model," +
@@ -7363,7 +7363,31 @@ module.exports = function (app) {
 
             return pool.request()
                 .query(
-                    "    select * from planproduct        ")
+                    "    select * from planproduct where orderstatus='생산확정'        ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start       
+    // **** start  
+
+    sql.connect(config).then(pool => {
+        app.post('/api/updateorderstatus1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    "      update  " +
+                    " planproduct " +
+                    " set  " +
+                    " orderstatus='생산계획확정' " +
+                    " where id=@id  ")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -7947,9 +7971,125 @@ module.exports = function (app) {
                     "  lotno," +
                     "  materialstatus," +
                     "  productstatus," +
-                    "  slitingstatus,orderno" +
+                    "  slitingstatus,orderno,pono,moldstatus" +
                     "  from" +
-                    "  produceplan")
+                    "  produceplan where materialstatus='자재출고대기' or materialstatus='자재출고완료' ")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/updateproduceplanwherematerialstatus', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+                .query(
+                    "update produceplan set materialstatus='자재출고완료' where orderno=@orderno and capa is not null")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/produceplanselectmaterialoutput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderid', sql.NVarChar, req.body.orderid)
+
+                .query(
+                    "select * from materialinput where input='원자재출고' and orderid=@orderid")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/updatematerialstatus', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+                .query(
+                    "update produceplan set moldstatus='금형리딩대기' where  orderno=@orderno")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/selectproductionpeople', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+                .query(
+                    "select * from productionpeople order by people asc")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/deleteproductionpeople', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('id', sql.NVarChar, req.body.id)
+
+                .query(
+                    "delete from productionpeople where id=@id")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
+        app.post('/api/insertproductionpeople', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('people', sql.NVarChar, req.body.people)
+                .input('position', sql.NVarChar, req.body.position)
+
+                .query(
+                    "insert into productionpeople (people,position)" +
+                    " values(@people,@position)")
                 .then(result => {
                     res.json(result.recordset);
                     res.end();
@@ -8357,9 +8497,10 @@ module.exports = function (app) {
                 .input('bompart', sql.NVarChar, req.body.bompart)
                 .input('slitingstatus', sql.NVarChar, req.body.slitingstatus)
                 .input('orderno', sql.NVarChar, req.body.orderno)
+                .input('materialstatus', sql.NVarChar, req.body.materialstatus)
                 .query(
-                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa,part,plantime,bompart,slitingstatus,orderno)' +
-                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa,@part,@plantime,@bompart,@slitingstatus,@orderno)'
+                    'insert into produceplan(plandate,bomno,modelname,itemname,lotno,pono,equipmentname,num,customer,capa,part,plantime,bompart,slitingstatus,orderno,materialstatus)' +
+                    ' values(@plandate,@bomno,@modelname,@itemname,@lotno,@pono,@equipmentname,@num,@customer,@capa,@part,@plantime,@bompart,@slitingstatus,@orderno,@materialstatus)'
                 )
                 .then(result => {
 
