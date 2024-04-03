@@ -8079,6 +8079,27 @@ module.exports = function (app) {
     // **** finish
     // **** finish
     sql.connect(config).then(pool => {
+        app.post('/api/updateproductionpeople', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('people', sql.NVarChar, req.body.people)
+                .input('position', sql.NVarChar, req.body.position)
+                .input('id', sql.NVarChar, req.body.id)
+
+                .query(
+                    "update productionpeople set people=@people,position=@position where id=@id")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
         app.post('/api/deleteproductionpeople', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 

@@ -74,7 +74,7 @@
             border: 1px solid #ccc;
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
+            z-index: 999;
             width: 60%;
             max-width: 60%;
             height: 70%;
@@ -259,6 +259,7 @@
 
 <body>
     <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay3"></div>
 
     <div class="menu-title" style="width:100%;">
         <i class="fas fa-box"></i>검사작업자 정보
@@ -282,7 +283,8 @@
     <div class="modal" id="modal" style="width: 40%;">
         <div class="modal-header">
             <span style="font-weight: bold;">검사 작업자 정보</span>
-            <button style="float: right; background-color: red;" class="new-cancel" onclick="closeModal()">닫기</button>
+            <button style="float: right; background-color: red;" class="new-cancel"
+                onclick="closeModal(); loadData();">닫기</button>
 
         </div>
 
@@ -292,7 +294,6 @@
             <tr>
                 <th>검사자명</th>
                 <th>직책</th>
-
                 <th></th>
             </tr>
             <tr>
@@ -300,6 +301,7 @@
                 <td>
                     <select class="inputtext" id="b">
                         <option value=""></option>
+                        <option value="반장">반장</option>
                         <option value="부장">부장</option>
                         <option value="차장">차장</option>
                         <option value="과장">과장</option>
@@ -318,6 +320,7 @@
                 <th>검사자명</th>
                 <th>직책</th>
                 <th style="width:100px;"></th>
+                <th style="width:100px;"></th>
             </tr>
             <tbody id="equipmenthistorytbody">
 
@@ -329,7 +332,45 @@
             <!-- <button class="new-cancel" onclick="closeModal()">닫기</button> -->
         </div>
     </div>
+    <div class="modal3" id="modal3">
+        <div class="modal-header">
+            <span style="font-weight: bold;"></span>
+            <input type="text" class="inputtext" id="id-edit" autocomplete="off"
+                style="visibility: hidden; width:30px;">
+            <button style="float: right; background-color: blue;" class="new-cancel" onclick="editdata()">수정</button>
+            <button style="float: right; background-color: red;" class="new-cancel" onclick="closeModal1()">닫기</button>
 
+        </div>
+        <div class="company-info"> <i class="fas fa-box"></i> 검사작업자 수정 </div>
+        <div class="modal-content">
+            <table>
+                <tr>
+                    <th>검사자명</th>
+                    <th>직책</th>
+                </tr>
+                <tr>
+                    <td><input type="text" class="inputtext" id="a-edit"></td>
+                    <td> <select class="inputtext" id="b-edit">
+                            <option value=""></option>
+                            <option value="반장">반장</option>
+                            <option value="부장">부장</option>
+                            <option value="차장">차장</option>
+                            <option value="과장">과장</option>
+                            <option value="대리">대리</option>
+                            <option value="주임">주임</option>
+                            <option value="사원">사원</option>
+                        </select></td>
+
+                </tr>
+            </table>
+        </div>
+
+
+        <div class="modal-footer">
+            <!-- <button id="savebutton" class="new-registration" onclick="saveOrEditForm()">저장</button> -->
+            <!-- <button class="new-cancel" onclick="closeModal()">닫기</button> -->
+        </div>
+    </div>
 
     <script>
         var server = '';
@@ -424,6 +465,7 @@
                         if (result.isConfirmed) {
                             $('#equipmenthistorytbody').empty()
 
+                            loaddata()
                             loaddata1()
 
                         }
@@ -439,8 +481,6 @@
             $('#id-edit').val(rowData[0])
             $('#a-edit').val(rowData[1])
             $('#b-edit').val(rowData[2])
-            $('#date3').val(rowData[3])
-            $('#date4').val(rowData[4])
             $('#overlay3').fadeIn();
             $('#modal3').fadeIn();
         }
@@ -506,6 +546,7 @@
                             row.append('<td>' + (result[i].people || '') + '</td>');
                             row.append('<td>' + (result[i].position || '') + '</td>');
 
+                            row.append('<td><button style="background-color:navy;" class="new-cancel" onclick="update(this)">수정</button></td>');
                             row.append('<td><button style="background-color:red;" class="new-cancel" onclick="datadelete(this)">삭제</button></td>');
 
                             // Append the row to the table body
@@ -634,45 +675,12 @@
                     Swal.fire({
                         icon: 'success',
                         title: '저장완료',
-                        text: '생산기사 정보가 등록되었습니다.',
+                        text: '검사자 정보가 등록되었습니다.',
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            $('#a').val('')
-                            $('#b').val('')
-                            $('#equipmenthistorytbody').empty()
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/mr1',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    codenumber: $('#codenumber-input').text()
-                                }),
-                                success: function (data) {
-                                    if (data.length === 0) {
-                                        // Handle empty data case if needed
-                                    } else {
-                                        for (var i = 0; i < data.length; i++) {
-                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
-
-                                            // Append data to the row
-                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
-                                            row.append('<td>' + (data[i].a || '') + '</td>');
-                                            row.append('<td>' + (data[i].b || '') + '</td>');
-                                            row.append('<td>' + (data[i].c || '') + '</td>');
-                                            row.append('<td>' + (data[i].d || '') + '</td>');
-                                            row.append('<td><button style="background-color:green;" class="new-cancel" onclick="update(this)">수정</button></td>');
-                                            row.append('<td><button style="background-color:red;" class="new-cancel" onclick="datadelete(this)">삭제</button></td>');
-
-                                            // Append the row to the table body
-                                            $('#equipmenthistorytbody').append(row);
-                                            $('td#data-id').hide();
-                                        }
-                                    }
-                                }
-                            });
+                            loaddata1()
                         }
-                        loaddata1()
+
                     });
                 }
             });
@@ -682,7 +690,7 @@
             Swal.fire({
                 icon: 'success',
                 title: '수정',
-                text: '설비 이력 정보를 수정하시겠습니까?',
+                text: '검사자 정보를 수정하시겠습니까?',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
@@ -692,15 +700,14 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: 'POST',
-                        url: server + '/api/updatemr1',
+                        url: server + '/api/updateproductionpeople',
                         dataType: 'json',
                         contentType: 'application/json',
                         data: JSON.stringify({
                             "id": $('#id-edit').val(),
-                            "a": $('#a-edit').val(),
-                            "b": $('#b-edit').val(),
-                            "c": $('#date3').val(),
-                            "d": $('#date4').val(),
+                            "people": $('#a-edit').val(),
+                            "position": $('#b-edit').val(),
+
 
                         }),
                         success: function (result) {
@@ -711,7 +718,7 @@
                     Swal.fire({
                         icon: 'success',
                         title: '수정완료',
-                        text: '설비 이력 정보가 수정되었습니다.',
+                        text: '검사자 정보가 수정되었습니다.',
                     }).then((result) => {
                         $('#overlay3').fadeOut();
                         $('#modal3').fadeOut();
@@ -719,37 +726,8 @@
 
 
                             $('#equipmenthistorytbody').empty()
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/mr1',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    codenumber: $('#codenumber-input').text()
-                                }),
-                                success: function (data) {
-                                    if (data.length === 0) {
-                                        // Handle empty data case if needed
-                                    } else {
-                                        for (var i = 0; i < data.length; i++) {
-                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+                            loaddata1()
 
-                                            // Append data to the row
-                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
-                                            row.append('<td>' + (data[i].a || '') + '</td>');
-                                            row.append('<td>' + (data[i].b || '') + '</td>');
-                                            row.append('<td>' + (data[i].c || '') + '</td>');
-                                            row.append('<td>' + (data[i].d || '') + '</td>');
-                                            row.append('<td><button style="background-color:green;" class="new-cancel" onclick="update(this)">수정</button></td>');
-                                            row.append('<td><button style="background-color:red;" class="new-cancel" onclick="datadelete(this)">삭제</button></td>');
-
-                                            // Append the row to the table body
-                                            $('#equipmenthistorytbody').append(row);
-                                            $('td#data-id').hide();
-                                        }
-                                    }
-                                }
-                            });
                         }
                     });
                 }
