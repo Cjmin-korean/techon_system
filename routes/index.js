@@ -5894,6 +5894,32 @@ module.exports = function (app) {
     // **** start  생산설비창 띄우기  
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/orderidmaterialinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderid', sql.NVarChar, req.body.orderid)
+
+                .query(
+                    " select * from materialinput  where orderid=@orderid and input='원자재출고'"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/mr1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 

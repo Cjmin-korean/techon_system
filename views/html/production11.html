@@ -33,12 +33,11 @@
         }
 
         #peopleInput {
-            width: 100%;
+            width: 20%;
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 14px;
-            margin-bottom: 20px;
         }
 
         /* QR 코드 테이블 스타일 */
@@ -70,6 +69,16 @@
         #editableTable input[type="text"] {
             width: 100%;
             padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+
+
+        #peopleInput {
+            width: 80%;
+            padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 14px;
@@ -181,146 +190,193 @@
     <div class="menu-title" style="width:100%;">
         <i class="fas fa-box"></i>생산 작업 대기
     </div>
-    <div class=" qr-code-section" style="width: 300px;">
-        <b>작업자</b>
-        <div>
-            <select id="peopleInput">
-                <option></option>
+    <div style="display: flex;">
+        <div style="width: 50%;">
+            <table id="qrCodeTable" style="width: 100%;">
+                <tr>
+                    <th colspan="5">생산준비</th>
+                </tr>
+                <tr>
+                    <th>구분</th>
+                    <th>QR CODE</th>
+                    <th>DATA</th>
+                    <th>확인</th>
+                    <th>RESET</th>
+                </tr>
+                <tr>
+                    <td><b>작업자</b></td>
+                    <td> <select id="peopleInput">
+                            <option></option>
 
-            </select>
-            <button onclick="startproduction()">생산시작</button>
+                        </select></td>
+                    <td></td>
+                    <td></td>
+                    <td><button style="background-color: navy; font-weight: bold;" onclick="startproduction()"
+                            id="startbtn">생산시작</button>
+                    </td>
 
+                </tr>
+                <tr>
+                    <td><b>작업지시서</b></td>
+                    <td><input type="text" id="textInputA" autocomplete="off" placeholder="작업지시서 QR CODE를 리딩하세요"
+                            value="" style="width: 500px;"></td>
+                    <td></td>
+                    <td></td>
+                    <td><button onclick="reseta()">RESET</button></td>
+
+                </tr>
+                <tr>
+                    <td><b>작업 설비1</b></td>
+                    <td><input type="text" id="textInputB" autocomplete="off" placeholder="설비 QR CODE를 리딩하세요" value=""
+                            style="width: 500px;"></td>
+                    <td id="e1"></td>
+                    <td id="r1"></td>
+                    <td><button onclick="resetb()">RESET</button></td>
+                </tr>
+                <tr>
+                    <td><b>작업 설비2</b></td>
+                    <td><input type="text" id="textInputC" autocomplete="off" placeholder="설비 QR CODE를 리딩하세요" value=""
+                            style="width: 500px;"></td>
+                    <td id="e2"></td>
+                    <td id="r2"></td>
+
+
+                    <td><button onclick="resetc()">RESET</button></td>
+                </tr>
+                <tr>
+                    <td><b>금형 코드1</b></td>
+                    <td><input type="text" id="textInputD" autocomplete="off" placeholder="금형 QR CODE를 리딩하세요" value=""
+                            style="width: 500px;"></td>
+                    <td id="m1"></td>
+                    <td id="r3"></td>
+                    <td><button onclick="resetd()">RESET</button></td>
+                </tr>
+                <tr>
+                    <td><b>금형 코드2</b></td>
+                    <td><input type="text" id="textInputE" autocomplete="off" placeholder="금형 QR CODE를 리딩하세요" value=""
+                            style="width: 500px;"></td>
+                    <td id="m2"></td>
+                    <td id="r4"></td>
+
+                    <td><button onclick="resete()">RESET</button></td>
+                </tr>
+
+            </table>
         </div>
 
+        <div style="width: 50%;">
+            <table id="editableTable">
+                <thead>
+                    <tr class="table-light">
+                        <th colspan="7">생산 정보</th>
+
+                    </tr>
+                    <tr class="table-light">
+                        <th>BOMNO</th>
+                        <th>모델명</th>
+                        <th>제품명</th>
+                        <th>고객사명</th>
+                        <th>생산수량</th>
+                        <th>작업차수</th>
+
+                    </tr>
+                    <tr class="table-light">
+                        <td id="bomno"></td>
+                        <td id="modelname"></td>
+                        <td id="itemname"></td>
+                        <td id="customer"></td>
+                        <td id="pono"></td>
+                        <td id="part"></td>
+                    </tr>
+                    <tr class="table-light">
+                        <th>Cavity</th>
+                        <th>PCS수량</th>
+                        <th>공정구분</th>
+                        <th>타발방향</th>
+                        <th>생산LOT</th>
+                        <th>고객사코드</th>
+
+                    </tr>
+                    <tr class="table-light">
+                        <td id="cavity"></td>
+                        <td id="pcs"></td>
+                        <td id="working"></td>
+                        <td id="direction"></td>
+                        <td id="lotno"></td>
+                        <td id="itemcode"></td>
+                    </tr>
+                </thead>
+                <tbody id="info">
+
+
+                </tbody>
+            </table>
+        </div>
     </div>
-    <table id="qrCodeTable">
-        <tr>
-            <th>구분</th>
-            <th>QR CODE</th>
-            <th>DATA</th>
-            <th>확인</th>
-            <th>RESET</th>
-        </tr>
-        <tr>
-            <td><b>작업지시서</b></td>
-            <td><input type="text" id="textInputA" autocomplete="off" placeholder="작업지시서 QR CODE를 리딩하세요" value=""
-                    style="width: 500px;"></td>
-            <td></td>
-            <td></td>
-            <td><button onclick="reseta()">RESET</button></td>
-
-        </tr>
-        <tr>
-            <td><b>작업 설비1</b></td>
-            <td><input type="text" id="textInputB" autocomplete="off" placeholder="설비 QR CODE를 리딩하세요" value=""
-                    style="width: 500px;"></td>
-            <td id="e1"></td>
-            <td id="r1"></td>
-            <td><button onclick="resetb()">RESET</button></td>
-        </tr>
-        <tr>
-            <td><b>작업 설비2</b></td>
-            <td><input type="text" id="textInputC" autocomplete="off" placeholder="설비 QR CODE를 리딩하세요" value=""
-                    style="width: 500px;"></td>
-            <td id="e2"></td>
-            <td id="r2"></td>
 
 
-            <td><button onclick="resetc()">RESET</button></td>
-        </tr>
-        <tr>
-            <td><b>금형 코드1</b></td>
-            <td><input type="text" id="textInputD" autocomplete="off" placeholder="금형 QR CODE를 리딩하세요" value=""
-                    style="width: 500px;"></td>
-            <td id="m1"></td>
-            <td id="r3"></td>
-            <td><button onclick="resetd()">RESET</button></td>
-        </tr>
-        <tr>
-            <td><b>금형 코드2</b></td>
-            <td><input type="text" id="textInputE" autocomplete="off" placeholder="금형 QR CODE를 리딩하세요" value=""
-                    style="width: 500px;"></td>
-            <td id="m2"></td>
-            <td id="r4"></td>
 
-            <td><button onclick="resete()">RESET</button></td>
-        </tr>
+    <div style="display: flex;">
+        <div style="width: 50%;">
+            <table id="editableTable">
+                <thead>
+                    <tr class="table-light">
+                        <th colspan="8">생산 BOM 자재</th>
+                    </tr>
+                    <tr>
+                        <th>QR CODE</th>
+                        <td colspan="6"><input type="text" id="materialreading" placeholder="자재 QR을 리딩하세요"
+                                style="width: 90%;"></td>
+                    </tr>
+                    <tr class="table-light">
+                        <th>자재명</th>
+                        <th>규격폭<br>(mm)</th>
+                        <th>수량<br>(M)</th>
+                        <th>LOTNO</th>
+                        <th>롤 수량</th>
+                        <th>총 입고수량<br>(M)</th>
+                        <th>결과</th>
+                        <th>반납자재<br>(M)</th>
 
-    </table>
-    <table id="editableTable">
-        <thead>
-            <tr class="table-light">
-                <th colspan="7">생산 정보</th>
+                    </tr>
+                </thead>
+                <tbody id="materialinfo1">
+                </tbody>
+            </table>
+        </div>
+        <div style="width: 50%;">
+            <table id="editableTable">
+                <thead>
+                    <tr>
+                        <th colspan="7">생산결과</th>
+                    </tr>
+                    <tr>
+                        <th>생산시작</th>
+                        <td colspan="3" id="starttime"></td>
+                        <th>타발수</th>
+                        <td colspan="3"><input type="text"></td>
+                    </tr>
+                    <tr class="table-light">
+                        <th colspan="7">비가동 내역</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">정지시간</th>
+                        <th colspan="2">정지해제시간</th>
+                        <th colspan="2">비가동 사유</th>
+                        <th style="width:100px;"><input type="button" onclick="save1()" value="설비정지"></th>
+                    </tr>
+                <tbody id="equipmenthistorytbody">
 
-            </tr>
-            <tr class="table-light">
-                <th>BOMNO</th>
-                <th>모델명</th>
-                <th>제품명</th>
-                <th>고객사명</th>
-                <th>생산수량</th>
-                <th>작업차수</th>
-
-            </tr>
-            <tr class="table-light">
-                <td id="bomno"></td>
-                <td id="modelname"></td>
-                <td id="itemname"></td>
-                <td id="customer"></td>
-                <td id="pono"></td>
-                <td id="part"></td>
-            </tr>
-            <tr class="table-light">
-                <th>Cavity</th>
-                <th>PCS수량</th>
-                <th>공정구분</th>
-                <th>타발방향</th>
-                <th>생산LOT</th>
-                <th>고객사코드</th>
-
-            </tr>
-            <tr class="table-light">
-                <td id="cavity"></td>
-                <td id="pcs"></td>
-                <td id="working"></td>
-                <td id="direction"></td>
-                <td id="lotno"></td>
-                <td id="itemcode"></td>
-            </tr>
-            <tr class="table-light">
-                <th>자재QR</th>
-                <td colspan="4"><input type="text" id="textInput1" autocomplete="off" placeholder="자재 QR CODE를 리딩하세요"
-                        value="" style="width: 500px;"></td>
-                <td><button onclick="reset1()">RESET</button></td>
-            </tr>
-        </thead>
-        <tbody id="info">
+                </tbody>
+                </thead>
+                <tbody id="materialinfo">
 
 
-        </tbody>
-    </table>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <table id="editableTable">
-        <thead>
-            <tr class="table-light">
-                <th colspan="7">자재 확인</th>
-
-            </tr>
-            <tr class="table-light">
-                <th>자재명</th>
-                <th>규격폭(mm)</th>
-                <th>수량(M)</th>
-                <th>LOTNO</th>
-                <th>롤 수량</th>
-                <th>총 입고수량(M)</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody id="materialinfo">
-
-
-        </tbody>
-    </table>
 
 
 
@@ -331,7 +387,17 @@
         } else {
             server = 'http://techonmes.co.kr';
         }
-
+        $(document).ready(function () {
+            $('#startbtn').click(function () {
+                if ($(this).text() === '생산시작') {
+                    $(this).text('생산종료');
+                    startProduction();
+                } else {
+                    $(this).text('생산시작');
+                    endProduction();
+                }
+            });
+        });
 
         $.ajax({
             type: 'POST',
@@ -476,6 +542,36 @@
                     },
 
                 });
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/orderidmaterialinput',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderid": $('#textInputA').val()
+                    }),
+                    success: function (result) {
+                        $('#materialinfo1').empty()
+                        for (var i = 0; i < result.length; i++) {
+                            $('#materialinfo1').append(
+                                '<tr>' +
+                                '<td style="border: 1px solid silver; ">' + result[i].materialname + '</td>' + //
+                                '<td style="border: 1px solid silver; ">' + result[i].materialwidth + '</td>' +
+                                '<td style="border: 1px solid silver; ">' + result[i].quantity + '</td>' +
+                                '<td style="border: 1px solid silver; ">' + result[i].lotno + '</td>' + //
+                                '<td style="border: 1px solid silver; ">' + result[i].roll + '</td>' +
+                                '<td style="border: 1px solid silver; ">' + parseFloat(result[i].roll) * parseFloat(result[i].quantity) + '</td>' +
+                                '<td style="border: 1px solid silver; " id="result"></td>' +
+                                '<td style="border: 1px solid silver; "><input type="text" style="width:50%;"></td>' +
+
+                                '</tr>'
+                            )
+                            $("td#data-id").hide();
+
+                        }
+                    },
+
+                });
                 $('#textInputB').focus(); // 입력란의 값을 공백으로 설정
             }
         });
@@ -515,7 +611,39 @@
                 return;
             }
         });
+        function save1() {
+            // 현재 시간을 얻기 위한 Date 객체 생성
+            var currentTime = new Date();
+
+            // 현재 시간을 "HH:MM:SS" 형식으로 포맷팅
+            var formattedTime = currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds();
+
+            // 새로운 <tr> 엘리먼트 생성
+            var newRow = document.createElement("tr");
+
+            // 새로운 <tr> 엘리먼트 안에 들어갈 내용을 지정합니다.
+            newRow.innerHTML = "<td colspan='2'>" + formattedTime + "</td><td colspan='2'></td><td colspan='2'><select style='padding:10px; font-size:17px;'><option></option><option>자재대기</option><option>자재 품질 문제</option><option>품질문제 승인대기</option><option>금형 (Burr)연마대기</option><option>금형(파손)수리대기</option><option>피나클/목형(파손 교체)</option><option>개발 문제 대기</option><option>기타</option></select></td><td><button onclick='releaseStop(this)'>정지해제</button></td>";
+
+            // tbody에 새로운 <tr> 엘리먼트 추가
+            var tbody = document.getElementById("equipmenthistorytbody");
+            tbody.appendChild(newRow);
+        }
+        function releaseStop(button) {
+            // 현재 시간을 얻기 위한 Date 객체 생성
+            var stopTime = new Date();
+
+            // 정지시간을 "HH:MM:SS" 형식으로 포맷팅
+            var formattedStopTime = stopTime.getHours() + ":" + stopTime.getMinutes() + ":" + stopTime.getSeconds();
+
+            // 해당 버튼의 부모 노드의 이전 형제 노드인 두 번째 <td>에 정지시간을 삽입
+            var td = button.parentNode.previousElementSibling.previousElementSibling;
+            td.innerText = formattedStopTime;
+        }
         function startproduction() {
+            var currentTime = new Date();
+            var formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false });
+
+            $('#starttime').text(formattedTime)
             Swal.fire({
                 icon: 'info',
                 title: '생산시작',
@@ -527,33 +655,12 @@
                 cancelButtonText: '취소',
             }).then((result) => {
                 if (result.isConfirmed) {
-
-
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/updateproduction1',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-
-
-                            "mstatus": $('#textInputA').val()
-
-
-                        }),
-                        success: function (result) {
-
-                        },
-
-                    });
                     $.ajax({
                         type: 'POST',
                         url: server + '/api/insertfinalfinal',
                         dataType: 'json',
                         contentType: 'application/json',
                         data: JSON.stringify({
-
-
                             "bom": $('#bomno').text(),
                             "customer": $('#customer').text(),
                             "modelname": $('#modelname').text(),
@@ -562,8 +669,6 @@
                             "productno": $('#pono').val(),
                             "member": $('#peopleInput').val(),
                             "count": '0',
-
-
                         }),
                         success: function (result) {
 
