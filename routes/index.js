@@ -6134,6 +6134,88 @@ module.exports = function (app) {
     // **** start  생산설비창 띄우기  
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/deleteshipmentinspection', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    "delete from shipmentinspection where id=@id "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectshipmentinspectionwherebomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "select * from shipmentinspection where bomno=@bomno order by part asc "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updateshipmentinspection', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('part', sql.NVarChar, req.body.bomno)
+                .input('spec', sql.Float, req.body.bomno)
+                .input('plus', sql.Float, req.body.bomno)
+                .input('minus', sql.Float, req.body.bomno)
+                .input('id', sql.Int, req.body.bomno)
+
+                .query(
+                    "update shipmentinspection set part=@part,spec=@spec,plus=@plus,minus=@minus where id=@id "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/updatemr1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -6560,6 +6642,38 @@ module.exports = function (app) {
                 .query(
                     'insert into mr1(codenumber,a,b,c,d)' +
                     ' values(@codenumber,@a,@b,@c,@d)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품목등록    
+    sql.connect(config).then(pool => {
+        app.post('/api/insertshipmentinspection', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('spec', sql.Float, req.body.spec)
+                .input('plus', sql.Float, req.body.plus)
+                .input('minus', sql.Float, req.body.minus)
+
+
+
+
+                .query(
+                    'insert into shipmentinspection(bomno,modelname,itemname,customer,part,spec,plus,minus)' +
+                    ' values(@bomno,@modelname,@itemname,@customer,@part,@spec,@plus,@minus)'
                 )
                 .then(result => {
 
