@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TECHON 생산준비</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- <link rel="stylesheet" href="../css/mescss.css"> -->
+
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .menu-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .menu-title i {
+            margin-right: 10px;
+        }
+
+        /* Table Styles */
+        #editableTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #editableTable th,
+        #editableTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #editableTable th {
+            background-color: #f2f2f2;
+        }
+
+        #editableTable .table-light {
+            background-color: #f8f9fa;
+        }
+
+        #editableTable input[type="text"] {
+            width: calc(100% - 16px);
+            /* Adjust for padding */
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #editableTable button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #editableTable button:hover {
+            background-color: #0056b3;
+        }
+
+        /* QR Code Section */
+        .qr-code-section {
+            width: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+
+        .qr-code-section b {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .qr-code-section select {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .qr-code-section button {
+            background-color: #2e332e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .qr-code-section button:hover {
+            background-color: #7c7e7c;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="menu-title" style="width:100%;">
+        <i class="fas fa-box"></i>최종검사 등록
+    </div>
+    <div style="display: flex;">
+
+
+        <div style="width: 50%;">
+            <table id="editableTable">
+                <thead>
+                    <tr class="table-light">
+                        <th colspan="8">검사 작업지시서</th>
+                    </tr>
+                    <tr>
+                        <th>QR CODE</th>
+                        <td colspan="6"><input type="text" id="materialreading" placeholder="검사 작업지시서 QR을 리딩하세요"
+                                style="width: 90%;"></td>
+                    </tr>
+                    <tr class="table-light">
+                        <th colspan="7">생산 정보</th>
+
+                    </tr>
+                    <tr class="table-light">
+                        <th>BOMNO</th>
+                        <th>모델명</th>
+                        <th>제품명</th>
+                        <th>고객사명</th>
+                        <th>생산수량</th>
+                        <th>작업차수</th>
+
+                    </tr>
+                    <tr class="table-light">
+                        <td id="bomno"></td>
+                        <td id="modelname"></td>
+                        <td id="itemname"></td>
+                        <td id="customer"></td>
+                        <td id="pono"></td>
+                        <td id="part"></td>
+                    </tr>
+                    <tr class="table-light">
+                        <th>Cavity</th>
+                        <th>PCS수량</th>
+                        <th>공정구분</th>
+                        <th>타발방향</th>
+                        <th>생산LOT</th>
+                        <th>고객사코드</th>
+
+                    </tr>
+                    <tr class="table-light">
+                        <td id="cavity"></td>
+                        <td id="pcs"></td>
+                        <td id="working"></td>
+                        <td id="direction"></td>
+                        <td id="lotno"></td>
+                        <td id="itemcode"></td>
+                    </tr>
+
+                </thead>
+                <tbody id="info">
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="display: flex;">
+
+
+        <div style="width: 50%;">
+            <table id="editableTable">
+                <thead>
+
+                    <tr class="table-light">
+                        <th colspan="9">검사 정보</th>
+
+                    </tr>
+                    <tr class="table-light">
+                        <th>생산수량</th>
+                        <th>검사수량</th>
+                        <th>양품수량</th>
+                        <th>불량수량</th>
+                        <th>검사율(%)</th>
+                        <th>양품율(%)</th>
+                        <th>불량율(%)</th>
+                        <th></th>
+                        <th></th>
+
+                    </tr>
+
+                    <tr class="table-light">
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="productcount">
+                        </td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()"
+                                id="inspectioncount"></td>
+                        <td><input autocomplete="off" type="text" readonly
+                                style="background-color: whitesmoke; color: blue;" id="okcount"></td>
+                        <td><input autocomplete="off" type="text" readonly
+                                style="background-color: whitesmoke; color:red;" id="ngcount"></td>
+                        <td><input autocomplete="off" type="text" readonly
+                                style="background-color: whitesmoke; color:green;" id="inspectionpercent"></td>
+                        <td><input autocomplete="off" type="text" readonly
+                                style="background-color: whitesmoke; color:blue;" id="okpercent"></td>
+                        <td><input autocomplete="off" type="text" readonly
+                                style="background-color: whitesmoke; color:red;" id="ngpercent"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr class="table-light">
+                        <th colspan="9">검사 데이터</th>
+                    </tr>
+                    <tr class="table-light">
+                        <th>이물</th>
+                        <th>Burr</th>
+                        <th>미스크랩</th>
+                        <th>구김</th>
+                        <th>찐</th>
+                        <th>기포</th>
+                        <th>누락</th>
+                        <th>펜싱</th>
+                        <th></th>
+                    </tr>
+                    <tr class="table-light">
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng1"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng2"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng3"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng4"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng5"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng6"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng7"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng8"></td>
+                        <td></td>
+                    </tr>
+                    <tr class="table-light">
+                        <th>홀찍힘</th>
+                        <th>이음매</th>
+                        <th>잘림</th>
+                        <th>컬</th>
+                        <th>홀막힘</th>
+                        <th>스크래치</th>
+                        <th>원단</th>
+                        <th>수량부족</th>
+                        <th>기타</th>
+                    </tr>
+                    <tr class="table-light">
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng9"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng10"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng11"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng12"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng13"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng14"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng15"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng16"></td>
+                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="ng17"></td>
+                    </tr>
+
+                </thead>
+                <tbody id="info">
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+<script>
+    function updateInspectionPercent() {
+        // Get the values from input fields
+        const productCount = parseFloat(document.getElementById("productcount").value);
+        const inspectionCount = parseFloat(document.getElementById("inspectioncount").value);
+        const ngSum = calculateNGSum(); // Calculate the sum of ng1 to ng17
+
+        // Calculate the inspection percent 
+        const inspectionPercent = (inspectionCount / productCount) * 100;
+        const okCount = inspectionCount - ngSum;
+        const okpercent = (okCount / inspectionCount) * 100;
+        const ngpercent = (ngSum / inspectionCount) * 100;
+        // Check if the calculated value is NaN or Infinity
+        if (!isNaN(inspectionPercent) && isFinite(inspectionPercent)) {
+            // Update the inspection percent input field
+            document.getElementById("inspectionpercent").value = inspectionPercent.toFixed(2); // Rounds to 2 decimal places
+            document.getElementById("okcount").value = okCount; // Rounds to 2 decimal places
+            document.getElementById("okpercent").value = okpercent.toFixed(2); // Rounds to 2 decimal places
+            document.getElementById("ngpercent").value = ngpercent.toFixed(2); // Rounds to 2 decimal places
+
+        } else {
+            // If the calculation is not valid, display an error or handle it as needed
+            document.getElementById("inspectionpercent").value = "0";
+        }
+
+        // Assign the ngSum to ngcount input field
+        document.getElementById("ngcount").value = ngSum;
+    }
+
+    function calculateNGSum() {
+        let sum = 0;
+        for (let i = 1; i <= 17; i++) {
+            const ngInput = document.getElementById("ng" + i);
+            if (ngInput) {
+                const ngValue = parseFloat(ngInput.value);
+                if (!isNaN(ngValue)) {
+                    sum += ngValue;
+                }
+            }
+        }
+        return sum;
+    }
+
+</script>
+
+</html>

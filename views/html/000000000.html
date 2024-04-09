@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../css/mescss.css">
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap">
+    <link rel="stylesheet" href="../css/houseinfor.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        /* 스타일은 생략 */
+    </style>
+</head>
+
+<body>
+    <div style="width: 500px;" id="img"></div>
+</body>
+
+<script>
+    var server = '';
+    var gridApi;
+    if (window.location.hostname == '127.0.0.1') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+    $(document).ready(function () {
+        loaddata1();
+    });
+
+    function loaddata1() {
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectimg',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (data) {
+
+                var imgData;
+                if (typeof data[0].img === 'string') {
+                    // 이미 문자열인 경우 그대로 사용
+                    imgData = data[0].img;
+                } else if (typeof data[0].img === 'object' && data[0].img !== null) {
+                    // 객체인 경우 Base64로 인코딩된 데이터가 들어있는지 확인
+                    if (data[0].img.hasOwnProperty('data') && data[0].img.data) {
+                        // Base64로 인코딩된 데이터가 있는 경우
+                        imgData = 'data:image/png;base64,' + data[0].img.data;
+                    } else {
+                        console.error('Image data is not in expected format');
+                    }
+                } else {
+                    console.error('Image data is not in expected format');
+                }
+
+                // 이미지를 표시할 <img> 태그 생성
+                var imgElement = $('<img>').attr('src', imgData).attr('width', '500px');
+                // <div id="img">에 이미지 추가
+                $('#img').append(imgElement);
+
+            }
+        });
+    }
+</script>
+
+</html>

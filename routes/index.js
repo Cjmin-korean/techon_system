@@ -1213,6 +1213,28 @@ module.exports = function (app) {
     // **** finish
     // **** start  거래처정보 조회 쿼리  
     sql.connect(config).then(pool => {
+        app.post('/api/selectbomnowhereorderno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+                .query(
+                    " select " +
+                    " * " +
+                    " from " +
+                    " produceplan " +
+                    " where " +
+                    " orderno=@orderno ")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  거래처정보 조회 쿼리  
+    sql.connect(config).then(pool => {
         app.post('/api/insertmaterialbase', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -3166,7 +3188,7 @@ module.exports = function (app) {
 
 
             return pool.request()
-                .input('suppliername', sql.NVarChar, req.body.suppliername)
+                .input('orderno', sql.NVarChar, req.body.orderno)
 
 
                 .query(
@@ -3187,6 +3209,8 @@ module.exports = function (app) {
                     " FROM iteminfo ii " +
                     " JOIN  " +
                     "     produceplan pp ON ii.bomno = pp.bomno " +
+                    " where orderno=@orderno " +
+
                     "  " +
                     "     group by " +
                     "         ii.bomno, " +
@@ -3229,6 +3253,34 @@ module.exports = function (app) {
 
                 .query(
                     "select * from produceplan where orderno=@orderno")
+
+
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectimg', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+
+                .query(
+                    "select * from img where id='2'")
 
 
 
@@ -4352,6 +4404,116 @@ module.exports = function (app) {
                     "WHERE " +
                     "    bm.bomno = @bomno and bm.status='true' " +
                     "ORDER BY bm.num ASC; ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectpaperbomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    " SELECT " +
+                    "     hapji, " +
+                    "     etc, " +
+                    "     materialwidth, " +
+                    "     onepid, " +
+                    "     twopid, " +
+                    "     ROUND(ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), 4) , 0) AS soyo " +
+                    " FROM " +
+                    "     bommanagement bm " +
+                    " WHERE  " +
+                    "     bomno = @bomno AND hapji IS NOT NULL " +
+                    " GROUP BY " +
+                    "     materialwidth, etc, hapji, hapjinum, onepid, twopid, allta, talength, loss, ta " +
+                    " ORDER BY " +
+                    "     hapjinum ASC" +
+
+                    "ORDER BY bm.num ASC; ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaxwidthmaterial', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('materialwidth', sql.NVarChar, req.body.materialwidth)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "select" +
+                    " * " +
+                    " from" +
+                    " materialinput" +
+                    " where " +
+                    " input='원자재입고' and codenumber=@codenumber and materialwidth > @materialwidth +20              ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectshipmentinspection', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .query(
+                    "SELECT " +
+                    "     iteminfo.bomno," +
+                    "     iteminfo.modelname," +
+                    "     iteminfo.itemname," +
+                    "     iteminfo.customer," +
+                    "     iteminfo.itemcode," +
+                    "     COUNT(shipmentinspection.bomno) AS shipmentinspection" +
+                    " FROM " +
+                    "     iteminfo" +
+                    " LEFT JOIN " +
+                    "     shipmentinspection ON iteminfo.bomno = shipmentinspection.bomno" +
+                    " GROUP BY " +
+                    "     iteminfo.bomno, " +
+                    "     iteminfo.modelname," +
+                    "     iteminfo.itemname," +
+                    "     iteminfo.customer," +
+                    "     iteminfo.itemcode;        ")
 
                 .then(result => {
 
@@ -7876,6 +8038,158 @@ module.exports = function (app) {
                     "LEFT JOIN LastCharCTE lastcharcte ON p.bomno = lastcharcte.bomno -- 마지막 char 값을 가져오기 " +
                     "WHERE  " +
                     "    plandate=@plandate " +
+                    "GROUP BY  " +
+                    "    p.id,  " +
+                    "    p.plandate,  " +
+                    "    p.equipmentname,  " +
+                    "    p.bomno,  " +
+                    "    p.customer, " +
+                    "    p.modelname, " +
+                    "    p.itemname, " +
+                    "    p.part, " +
+                    "    p.linepart, " +
+                    "    p.lotno, " +
+                    "    p.pono, " +
+                    "    p.accumulate, " +
+                    "    p.remaining, " +
+                    "    p.planone, " +
+                    "    p.siljokone, " +
+                    "    p.plantwo, " +
+                    "    p.siljoktwo, " +
+                    "    p.num, " +
+                    "    p.capa, " +
+                    "    p.plantime,p.materialstatus,p.productstatus,p.people, " +
+                    "    480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0)),  " +
+                    "    630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0)), " +
+                    "    lastcharcte.last_char,p.bompart,  " +
+                    "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END; ")
+
+
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/plansearchAll1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+                .query(
+                    " WITH LastCharCTE AS ( " +
+                    "    SELECT " +
+                    "        p.bomno, " +
+                    "        ( " +
+                    "            SELECT TOP(1) " +
+                    "                char " +
+                    "            FROM " +
+                    "                bommanagement " +
+                    "            WHERE " +
+                    "                bomno = p.bomno " +
+                    "            ORDER BY " +
+                    "                num DESC " +
+                    "        ) AS last_char " +
+                    "    FROM " +
+                    "        [Techon].[dbo].[produceplan] p " +
+                    " where orderno=@orderno " +
+                    ") " +
+                    "SELECT   " +
+                    "    p.id,   " +
+                    "    p.plandate,   " +
+                    "    p.equipmentname,   " +
+                    "    p.bomno,   " +
+                    "    p.customer,   " +
+                    "    p.modelname,   " +
+                    "    p.itemname,   " +
+                    "    p.part,  " +
+                    "    p.linepart,  " +
+                    "    p.lotno,  " +
+                    "    p.pono,  " +
+                    "    p.accumulate,  " +
+                    "    p.remaining,  " +
+                    "    p.planone,  " +
+                    "    p.siljokone,   " +
+                    "    p.plantwo,  " +
+                    "    p.siljoktwo,  " +
+                    "    p.num, " +
+                    "    p.capa,   " +
+                    "    p.plantime,p.materialstatus,p.productstatus,p.people,  " +
+                    "    CEILING(480 / (subquery.cv2 / NULLIF(mainquery.totalPono, 0))) AS ratio,  " +
+                    "    CEILING(630 / (subquery.cv3 / NULLIF(mainquery.totalPono, 0))) AS ratio1, " +
+                    "    lastcharcte.last_char AS lastchar, " +
+                    "        CASE WHEN lastcharcte.last_char = p.part THEN '완제품' ELSE '반제품' END AS producttype, " +
+                    "    p.bompart  " +
+                    "FROM   " +
+                    "    [Techon].[dbo].[produceplan] p  " +
+                    "JOIN (   " +
+                    "    SELECT   " +
+                    "        pono   " +
+                    "        AS totalPono   " +
+                    "    FROM   " +
+                    "        [Techon].[dbo].[produceplan] " +
+                    "    GROUP BY  " +
+                    "        pono  " +
+                    ") mainquery ON p.pono = mainquery.totalPono   " +
+                    "JOIN (   " +
+                    "                         SELECT   " +
+                    "                             bomno,  " +
+                    "                             customer,  " +
+                    "                             modelname,  " +
+                    "                             itemname,  " +
+                    "                             workpart,  " +
+                    "                             working,  " +
+                    "                             onepidding,  " +
+                    "                             cavity,  " +
+                    "                             '고속' AS additional_column,  " +
+                    "                             cavity * 0.5 AS calculated_column, " +
+                    "                             CASE  " +
+                    "                                 WHEN onepidding < 90 THEN 100  " +
+                    "                                 WHEN onepidding < 150 THEN 83  " +
+                    "                                 WHEN onepidding < 190 THEN 50  " +
+                    "                                 ELSE 33  " +
+                    "                             END AS custom_condition_column,   " +
+                    "                             custom_condition_column * 60 * 8 * cavity AS cv2,  " +
+                    "                             custom_condition_column * 60 * 8 * cavity AS cv3  " +
+                    "                         FROM  " +
+                    "                             (  " +
+                    "                                 SELECT  " +
+                    "                                     iteminfo.bomno,  " +
+                    "                                     iteminfo.customer,  " +
+                    "                                     iteminfo.modelname,  " +
+                    "                                     iteminfo.itemname,  " +
+                    "                                     iteminfo.workpart,  " +
+                    "                                     iteminfo.working,  " +
+                    "                                     bommanagement.onepid AS onepidding,  " +
+                    "                                     iteminfo.cavity,  " +
+                    "                                     CASE  " +
+                    "                                         WHEN bommanagement.onepid < 90 THEN 100  " +
+                    "                                         WHEN bommanagement.onepid < 150 THEN 83  " +
+                    "                                         WHEN bommanagement.onepid < 190 THEN 50  " +
+                    "                                         ELSE 33  " +
+                    "                                     END AS custom_condition_column  " +
+                    "                                 FROM   " +
+                    "                                     iteminfo  " +
+                    "                                 JOIN bommanagement ON iteminfo.bomno = bommanagement.bomno  " +
+                    "                                 GROUP BY  " +
+                    "                                     iteminfo.bomno,  " +
+                    "                                     iteminfo.customer,  " +
+                    "                                     iteminfo.modelname,  " +
+                    "                                     iteminfo.itemname,  " +
+                    "                                     iteminfo.workpart,  " +
+                    "                                     iteminfo.working,  " +
+                    "                                     iteminfo.cavity,  " +
+                    "                                     bommanagement.onepid  " +
+                    "                             ) AS subquery_alias  " +
+                    "                    " +
+                    ") subquery ON p.bomno = subquery.bomno   " +
+                    "LEFT JOIN LastCharCTE lastcharcte ON p.bomno = lastcharcte.bomno -- 마지막 char 값을 가져오기 " +
+                    "WHERE  " +
+                    "   orderno=@orderno  " +
                     "GROUP BY  " +
                     "    p.id,  " +
                     "    p.plandate,  " +

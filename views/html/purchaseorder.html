@@ -23,6 +23,38 @@
 </head>
 
 <style>
+    .flex-container {
+        display: flex;
+        /* flexbox 사용 */
+        justify-content: space-between;
+        /* 좌우로 균등하게 간격 배치 */
+        width: 100%;
+        /* 부모 요소의 전체 너비를 차지 */
+    }
+
+    /* 자식 요소인 div에 대한 스타일 */
+    .flex-item {
+        width: 48%;
+        /* 자식 요소의 너비를 부모의 절반으로 설정 */
+    }
+
+    /* 첫 번째 테이블에 대한 스타일 */
+    .table1 {
+        background-color: #F0F8FF;
+        /* 첫 번째 테이블의 배경색 */
+    }
+
+    /* 두 번째 테이블에 대한 스타일 */
+    .table2 {
+        background-color: #FFE4E1;
+        /* 두 번째 테이블의 배경색 */
+    }
+
+    /* 테이블 요소에 대한 공통 스타일 */
+    .styled-table {
+        width: 100%;
+    }
+
     .swal2-popup {
         height: auto;
         /* Adjust the height as needed */
@@ -63,6 +95,11 @@
         border-radius: 4px;
         font-size: 15px;
         font-weight: bold;
+    }
+
+    .styled-table th:hover {
+        background-color: rgb(41, 40, 40);
+        color: white;
     }
 </style>
 
@@ -170,23 +207,52 @@
 
 
         </div>
-        <div style="width: 100%;">
-            <table class="styled-table" style="width: 100%;">
-                <thead id="tableHead">
-                    <tr>
-                        <th colspan="7">자재재고</th>
-
-                    </tr>
-                    <th style="text-align:center;">자재명</th>
-                    <th style="text-align:center;">자재코드</th>
-                    <th style="text-align:center;">자재폭<br>(mm)</th>
-                    <th style="text-align:center;">수량<br>(M)</th>
-                </thead>
-                <tbody id="orderlistbombody1">
-                    <!-- Add your table data here -->
-                </tbody>
-            </table>
+        <div class="flex-container">
+            <div class="flex-item">
+                <table class="styled-table table1">
+                    <thead id="tableHead">
+                        <tr>
+                            <th colspan="6">자재창고상세</th>
+                            <th><button onclick="moveSelectedRows()">적용</button></th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th style="text-align:center;">자재명</th>
+                            <th style="text-align:center;">자재폭<br>(mm)</th>
+                            <th style="text-align:center;">수량<br>(M)</th>
+                            <th style="text-align:center;">LOTNO</th>
+                            <th style="text-align:center;">제조일자<br>(M)</th>
+                            <th style="text-align:center;">만료일자<br>(M)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="selectmaterialbody">
+                        <!-- Add your table data here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex-item">
+                <table class="styled-table table2">
+                    <thead id="tableHead">
+                        <tr>
+                            <th colspan="7">선택 자재</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th style="text-align:center;">자재명</th>
+                            <th style="text-align:center;">자재폭<br>(mm)</th>
+                            <th style="text-align:center;">수량<br>(M)</th>
+                            <th style="text-align:center;">LOTNO</th>
+                            <th style="text-align:center;">제조일자<br>(M)</th>
+                            <th style="text-align:center;">만료일자<br>(M)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="selectmaterialbody1">
+                        <!-- Add your table data here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
+
     </div>
     <div id="editModal2">
         <div class="mainheader">
@@ -311,7 +377,25 @@
             });
 
         });
+        function toggleRow(checkbox) {
+            // 체크박스의 부모 행 찾기
+            var row = checkbox.parentNode.parentNode;
+            // 체크박스의 체크 여부에 따라 행 이동
+            if (checkbox.checked) {
+                document.getElementById("selectmaterialbody1").appendChild(row);
+            } else {
+                document.getElementById("selectmaterialbody").appendChild(row);
+            }
+        }
 
+        function moveSelectedRows() {
+            var checkboxes = document.querySelectorAll("#selectmaterialbody input[type='checkbox']");
+            checkboxes.forEach(function (checkbox) {
+                if (checkbox.checked) {
+                    toggleRow(checkbox);
+                }
+            });
+        }
 
         function openSaveModal() {
 
@@ -790,36 +874,43 @@
 
 
                         $('.detail-btn').click(function () {
-                            $('#editModal3').fadeIn();
-                            $('#overlay3').fadeIn();
                             var rowIndex = $(this).data('row-index');
                             var rowData = data[rowIndex];
                             var codenumber = rowData.codenumber || '';
-                            console.log(codenumber)
-                            $('#databodymaterial').empty();
+                            var materialwidth = rowData.materialwidth || '';
+                            $('#selectmaterialbody').empty();
                             $.ajax({
                                 type: 'POST',
-                                url: server + '/api/selectcodenumber',
+                                url: server + '/api/selectmaxwidthmaterial',
                                 dataType: 'json',
                                 contentType: 'application/json',
                                 data: JSON.stringify({
                                     "codenumber": codenumber,
+                                    "materialwidth": materialwidth,
                                 }),
 
+                                //         <th style="text-align:center;">자재명</th>
+                                // <th style="text-align:center;">자재폭<br>(mm)</th>
+                                // <th style="text-align:center;">수량<br>(M)</th>
+                                // <th style="text-align:center;">LOTNO</th>
+                                // <th style="text-align:center;">제조일자<br>(M)</th>
+                                // <th style="text-align:center;">만료일자<br>(M)</th>
                                 success: function (result) {
-                                    console.log(result)
                                     var tableFoot = $('#dataCount');
                                     if (result.length === 0) {
                                     } else {
                                         // Iterate through sorted data
                                         for (var i = 0; i < result.length; i++) {
-                                            $('#databodymaterial').append(
+                                            $('#selectmaterialbody').append(
                                                 '<tr class="order-list-row">' +
-                                                '<td><input type="checkbox" style="width:20px; height:20px;"></td>' +
+                                                '<td><input type="checkbox" style="width:20px; height:20px;  onclick="toggleRow(this)""></td>' +
                                                 '<td id="materialname-input">' + (result[i].materialname || '') + '</td>' +
-                                                '<td id="codenumber-input">' + (result[i].codenumber || '') + '</td>' +
                                                 '<td style="text-align:right;" id="materialwidth-input">' + (result[i].materialwidth || '').toLocaleString() + '</td>' +
                                                 '<td style="text-align:right;" id="quantity-input">' + (result[i].quantity || '').toLocaleString() + '</td>' +
+                                                '<td id="materialname-input">' + (result[i].lotno || '') + '</td>' +
+                                                '<td id="materialname-input">' + (result[i].manufacturedate || '') + '</td>' +
+                                                '<td id="materialname-input">' + (result[i].expirationdate || '') + '</td>' +
+
 
 
                                                 '<td id="id-input">' + result[i].id + '</td>' +

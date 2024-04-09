@@ -77,7 +77,7 @@
             z-index: 1000;
             width: 60%;
             max-width: 60%;
-            height: auto;
+            height: 70%;
         }
 
         .modal3 {
@@ -254,18 +254,6 @@
             text-align: center;
             font-weight: bold;
         }
-
-        #datepicker1,
-        #datepicker2 {
-            width: 10%;
-            padding: 10px;
-            box-sizing: border-box;
-            /* margin-bottom: 16px; */
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 15px;
-            font-weight: bold;
-        }
     </style>
 </head>
 
@@ -274,23 +262,15 @@
     <div class="overlay3" id="overlay3"></div>
 
     <div class="menu-title" style="width:100%;">
-        <i class="fas fa-box"></i>금형 연마 이력관리
+        <i class="fas fa-box"></i>출하검사 SPEC 데이터
     </div>
     <div class="search-container">
-        <label for="search" class="search-label" style="margin-left: 20px;"> 연마일 :</label>
-
-        <input type="date" id="datepicker1">
-        <a>~</a>
-        <input type="date" id="datepicker2">
-        <button class="new-registration-button" style="background-color: #4a41cf;" onclick="loadData1()">조회</button>
-        <label for="search" class="search-label" style="margin-left: 20px;"> 검색 :</label>
+        <label for="search" class="search-label"> 검색 :</label>
         <div class="search-input-wrapper">
             <input type="text" id="search" placeholder="검색어를 입력 후 ENTER 누르세요..." onkeypress="handleKeyPress(event)"
                 autocomplete="off">
             <i class="fas fa-search search-icon"></i>
         </div>
-
-        <button class="new-cancel" onclick="openModal()">추가</button>
         <button class="new-registration-button" style="background-color: #4CAF50;" onclick="onBtnExport()">엑셀저장</button>
         <b style="float: right; margin-right: 20px; margin-top: 20px;" id="dataCount"></b>
     </div>
@@ -302,47 +282,89 @@
     <div id="myGrid" style="height: 80%; width:100%; " class="ag-theme-alpine"></div>
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold;">설비 이력관리 정보</span>
+            <span style="font-weight: bold;">제품 출하검사 SPEC 정보</span>
             <button style="float: right; background-color: red;" class="new-cancel" onclick="closeModal()">닫기</button>
 
         </div>
-        <div class="company-info"> <i class="fas fa-box"></i> 금형 연마정보 <input type="text" id="id-input"
+        <div class="company-info"> <i class="fas fa-box"></i> 제품 정보 <input type="text" id="id-input"
                 style="visibility: hidden;"></div>
         <div class="modal-content">
             <table>
                 <tr>
-                    <th>연마 접수날짜</th>
-                    <th>금형제작일</th>
-                    <th>고객도면NO</th>
+                    <th>BOMNO</th>
                     <th>모델명</th>
-
+                    <th>제품명</th>
+                    <th>고객사</th>
+                    <th>제품코드</th>
                 </tr>
                 <tr>
-                    <td><input type="text" class="inputtext" id="a"></td>
-                    <td><input type="text" class="inputtext" id="a"></td>
-                    <td><input type="text" class="inputtext" id="a"></td>
-                    <td><input type="text" class="inputtext" id="a"></td>
-
-                </tr>
-                <tr>
-                    <th>연마일</th>
-                    <th>확인</th>
-                    <th>연마량</th>
-                    <th>비고</th>
-
-                </tr>
-
-                <tr>
-                    <td><input type="text" class="inputtext" id="a"></td>
-                    <td><input type="text" class="inputtext" id="a"></td>
-                    <td><input type="text" class="inputtext" id="a"></td>
-                    <td><input type="text" class="inputtext" id="a"></td>
+                    <td id="bomno-input"></td>
+                    <td id="modelname-input"></td>
+                    <td id="itemname-input"></td>
+                    <td id="customer-input"></td>
+                    <td id="itemcode-input"></td>
 
                 </tr>
 
             </table>
         </div>
+        <div class="section-title"><i class="fas fa-box"></i> 제품 SPEC추가</div>
+        <table>
+            <tr>
+                <th>구분</th>
+                <th>기준 SPEC</th>
+                <th>공차(+) SPEC</th>
+                <th>공차(-) SPEC</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td><select class="inputtext">
+                        <option value=""></option>
+                        <option value="전장">전장</option>
+                        <option value="전폭">전폭</option>
+                        <option value="두께">두께</option>
+                    </select></td>
+                <td><input type="text" class="inputtext" id="b"></td>
+                <td><input type="text" class="inputtext" id="date1"></td>
+                <td><input type="text" class="inputtext" id="date2"></td>
+                <td><button class="new-cancel" onclick="save()">추가</button></td>
+            </tr>
 
+        </table>
+        <div class="section-title"><i class="fas fa-info-circle"></i>SPEC 저장 내역</div>
+        <table>
+            <tr>
+                <th>구분</th>
+                <th>기준SPEC</th>
+                <th>공차(+) SPEC</th>
+                <th>공차(-) SPEC</th>
+            </tr>
+            <tbody id="equipmenthistorytbody">
+                <tr>
+                    <td>전장</td>
+                    <td>155</td>
+                    <td>0.1</td>
+                    <td>0.1</td>
+                </tr>
+                <tr>
+                    <td>전폭</td>
+                    <td>58.94</td>
+                    <td>0.1</td>
+                    <td>0.1</td>
+                </tr>
+                <tr>
+                    <td>두께</td>
+                    <td>0.028</td>
+                    <td>0.003</td>
+                    <td>0.003</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="modal-footer">
+            <!-- <button id="savebutton" class="new-registration" onclick="saveOrEditForm()">저장</button> -->
+            <!-- <button class="new-cancel" onclick="closeModal()">닫기</button> -->
+        </div>
     </div>
 
     <div class="modal3" id="modal3">
@@ -389,17 +411,18 @@
         }
         $(document).ready(function () {
 
-
+            $('#search').keypress(function (e) {
+                if (e.which === 13) {
+                    // 13 is the key code for Enter
+                    applySearchFilter();
+                }
+            });
+            showLoadingSpinner(); // Show loading spinner on page load
             settingDate()
             initializeGrid();
         });
 
-        $('#search').keypress(function (e) {
-            if (e.which === 13) {
-                // 13 is the key code for Enter
-                applySearchFilter();
-            }
-        });
+
         function updateDataCount() {
             const rowCount = gridApi.getDisplayedRowCount();
             document.getElementById('dataCount').innerText = `DATA: ${rowCount}`;
@@ -425,8 +448,8 @@
             let currentDate = `${year}-${month}-${day}`;
 
 
-            $('#datepicker1').val(currentDate);
-            $('#datepicker2').val(currentDate);
+            // $('#date1').val(currentDate);
+            // $('#date2').val(currentDate);
 
         }
         function datadelete(row) {
@@ -522,73 +545,102 @@
         }
 
         function initializeGrid() {
-            setTimeout(function () {
-
-                if (typeof agGrid !== 'undefined') {
-                    const gridOptions = {
-                        columnDefs: [
-                            //                 
-                            { field: "a", headerName: "연마 접수날짜", filter: true },
-                            { field: "b", headerName: "금형제작일", filter: true },
-                            { field: "c", headerName: "고객도면 NO", filter: true },
-                            { field: "d", headerName: "모델명", filter: true },
-                            { field: "e", headerName: "연마일", filter: true },
-                            { field: "f", headerName: "확인", filter: true },
-                            { field: "g", headerName: "연마량", filter: true },
-                            { field: "h", headerName: "비고", filter: true },
+            if (typeof agGrid !== 'undefined') {
+                const gridOptions = {
+                    columnDefs: [
+                        //                 
+                        { field: "bomno", headerName: "BOMNO", filter: true },
+                        { field: "modelname", headerName: "모델명", filter: true },
+                        { field: "itemname", headerName: "제품명", filter: true },
+                        { field: "customer", headerName: "고객사", filter: true },
+                        { field: "itemcode", headerName: "제품코드", filter: true },
+                        { field: "shipmentinspection", headerName: "검사개수", filter: true },
 
 
-
-                        ],
-                        getRowStyle: function (params) {
-                            if (params.data.days > 3650) { // days가 2920보다 큰 경우
-                                return { color: 'red' }; // 배경색을 빨간색으로 설정
-                            }
-                            return null; // 기본적으로는 아무 스타일도 적용하지 않음
-                        },
-                        mounted() {
-                            this.rowData.forEach(row => {
-                                if (row.resistance11 === 2) {
-                                    row.resistance11 = Math.pow(10, row.resistance11); // 10의 제곱으로 변경
-                                }
-                            });
-                        },
-                        autoSizeStrategy: {
-                            type: 'fitGridWidth',
-                            defaultMinWidth: 150
-                        },
-                        rowHeight: 45,
-                        enableFilter: true,
-                        rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
-                        onRowDoubleClicked: function (params) {
-
-
-
-                            $('#codenumber-input').text(params.data.codenumber);
-                            $('#equipmentname-input').text(params.data.equipmentname);
-                            $('#eqname-input').text(params.data.eqname);
-                            $('#num-input').text(params.data.num);
-                            $('#customer-input').text(params.data.customer);
-                            $('#serialno-input').text(params.data.serialno);
-                            $('#manudate-input').text(params.data.manudate);
-                            $('#position-input').text(params.data.position);
-
-
-
-                            $('#savebutton').text('수정')
-                            document.getElementById('modal').style.display = 'block';
-                            document.getElementById('overlay').style.display = 'block';
+                    ],
+                    getRowStyle: function (params) {
+                        if (params.data.days > 3650) { // days가 2920보다 큰 경우
+                            return { color: 'red' }; // 배경색을 빨간색으로 설정
                         }
-                    }; 100
+                        return null; // 기본적으로는 아무 스타일도 적용하지 않음
+                    },
+                    mounted() {
+                        this.rowData.forEach(row => {
+                            if (row.resistance11 === 2) {
+                                row.resistance11 = Math.pow(10, row.resistance11); // 10의 제곱으로 변경
+                            }
+                        });
+                    },
+                    autoSizeStrategy: {
+                        type: 'fitGridWidth',
+                        defaultMinWidth: 150
+                    },
+                    rowHeight: 45,
+                    enableFilter: true,
+                    rowSelection: 'multiple', // 여러 행 선택 가능하도록 설정
+                    onRowDoubleClicked: function (params) {
 
-                    const gridDiv = document.querySelector('#myGrid');
-                    gridApi = agGrid.createGrid(gridDiv, gridOptions);
 
-                    loadData();
-                } else {
-                }
-            }, 100); // 약간의 지연 추가
 
+                        $('#bomno-input').text(params.data.bomno);
+                        $('#modelname-input').text(params.data.modelname);
+                        $('#itemname-input').text(params.data.itemname);
+                        $('#num-input').text(params.data.num);
+                        $('#customer-input').text(params.data.customer);
+                        $('#itemcode-input').text(params.data.itemcode);
+           
+                        // $('#equipmenthistorytbody').empty()
+                        // $.ajax({
+                        //     type: 'POST',
+                        //     url: server + '/api/mr1',
+                        //     dataType: 'json',
+                        //     contentType: 'application/json',
+                        //     data: JSON.stringify({
+                        //         codenumber: params.data.codenumber
+                        //     }),
+                        //     success: function (data) {
+                        //         if (data.length === 0) {
+                        //             // Handle empty data case if needed
+                        //         } else {
+                        //             for (var i = 0; i < data.length; i++) {
+                        //                 var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                        //                 // Append data to the row
+                        //                 row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
+                        //                 row.append('<td>' + (data[i].a || '') + '</td>');
+                        //                 row.append('<td>' + (data[i].b || '') + '</td>');
+                        //                 row.append('<td>' + (data[i].c || '') + '</td>');
+                        //                 row.append('<td>' + (data[i].d || '') + '</td>');
+                        //                 row.append('<td><button style="background-color:green;" class="new-cancel" onclick="update(this)">수정</button></td>');
+                        //                 row.append('<td><button style="background-color:red;" class="new-cancel" onclick="datadelete(this)">삭제</button></td>');
+
+                        //                 // Append the row to the table body
+                        //                 $('#equipmenthistorytbody').append(row);
+                        //                 $('td#data-id').hide();
+                        //             }
+                        //         }
+                        //     }
+                        // });
+
+
+
+
+
+
+                        $('#id-input').val(params.data.id);
+
+                        $('#savebutton').text('수정')
+                        document.getElementById('modal').style.display = 'block';
+                        document.getElementById('overlay').style.display = 'block';
+                    }
+                }; 100
+
+                const gridDiv = document.querySelector('#myGrid');
+                gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+                loadData();
+            } else {
+            }
         }
         function loaddata1() {
             $('#equipmenthistorytbody').empty()
@@ -682,28 +734,11 @@
         function loadData() {
             $.ajax({
                 type: 'POST',
-                url: server + '/api/mr2',
+                url: server + '/api/selectshipmentinspection',
                 dataType: 'json',
                 success: function (data) {
                     hideLoadingSpinner();
                     gridApi.setRowData(data);
-                    updateDataCount();
-                },
-            });
-        }
-        function loadData1() {
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/mr2searching',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "start": $('#datepicker1').val(),
-                    "finish": $('#datepicker2').val(),
-                }),
-                success: function (data1) {
-                    hideLoadingSpinner();
-                    gridApi.setRowData(data1);
                     updateDataCount();
                 },
             });
