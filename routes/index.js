@@ -6186,6 +6186,81 @@ module.exports = function (app) {
     // **** start  생산설비창 띄우기  
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectshipmentwait', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "select * from shipmentwait where status='출하검사대기' "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectshipmentwait', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "select * from customerinspection where status='출하검사대기' "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcustomerinspection', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "select * from customerinspection  "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/updateshipmentinspection', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -6277,7 +6352,63 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " select * from alltest"
+                    " select * from alltest where status='최종검사대기'"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/saleinfo', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "SELECT "+
+                "     id,"+
+                "     saledate,"+
+                "     customer,"+
+                "     itemcode,"+
+                "     modelname,"+
+                "     itemname,"+
+                "     salecount,"+
+                "     itemprice,"+
+                "     salecount * itemprice as totalprice,"+
+                "     etc,"+
+                "     salestatus"+
+                " FROM "+
+                "     saleinfo"+
+                " "+
+                " UNION ALL"+
+                " "+
+                " SELECT "+
+                "     '' AS id,"+
+                "     '합계' AS saledate,"+
+                "     '' AS customer,"+
+                "     '' AS itemcode,"+
+                "     '' AS modelname,"+
+                "     '' AS itemname,"+
+                "     sum(salecount) AS salecount,"+
+                "     count(itemprice) AS itemprice,"+
+                "     SUM(salecount * itemprice) as totalprice,"+
+                "     '' AS etc,"+
+                "     '' AS salestatus"+
+                " FROM "+
+                "     saleinfo;                         "
+
 
                 )
 

@@ -214,10 +214,10 @@
                     <tr class="table-light">
                         <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()" id="productcount">
                         </td>
-                        <td><input autocomplete="off" type="text" oninput="updateInspectionPercent()"
-                                id="inspectioncount"></td>
-                        <td><input autocomplete="off" type="text" readonly
-                                style="background-color: whitesmoke; color: blue;" id="okcount"></td>
+                        <td><input autocomplete="off" type="text" id="inspectioncount"
+                                style="background-color: whitesmoke; color: rgb(14, 112, 63);" readonly></td>
+                        <td><input autocomplete="off" type="text" style="color: blue;" id="okcount"
+                                oninput="updateInspectionPercent()"></td>
                         <td><input autocomplete="off" type="text" readonly
                                 style="background-color: whitesmoke; color:red;" id="ngcount"></td>
                         <td><input autocomplete="off" type="text" readonly
@@ -290,31 +290,39 @@
 <script>
     function updateInspectionPercent() {
         // Get the values from input fields
-        const productCount = parseFloat(document.getElementById("productcount").value);
-        const inspectionCount = parseFloat(document.getElementById("inspectioncount").value);
-        const ngSum = calculateNGSum(); // Calculate the sum of ng1 to ng17
+        const productCount = parseFloat(document.getElementById("productcount").value) || 0; // 기본값 0 설정
+        const okCount = parseFloat(document.getElementById("okcount").value) || 0; // 기본값 0 설정
+
+        // Calculate the sum of ng1 to ng17
+        const ngSum = calculateNGSum();
+
+        // Calculate the inspection count
+        const inspectionCount = okCount + ngSum;
 
         // Calculate the inspection percent 
         const inspectionPercent = (inspectionCount / productCount) * 100;
-        const okCount = inspectionCount - ngSum;
         const okpercent = (okCount / inspectionCount) * 100;
         const ngpercent = (ngSum / inspectionCount) * 100;
+
         // Check if the calculated value is NaN or Infinity
         if (!isNaN(inspectionPercent) && isFinite(inspectionPercent)) {
-            // Update the inspection percent input field
-            document.getElementById("inspectionpercent").value = inspectionPercent.toFixed(2); // Rounds to 2 decimal places
-            document.getElementById("okcount").value = okCount; // Rounds to 2 decimal places
-            document.getElementById("okpercent").value = okpercent.toFixed(2); // Rounds to 2 decimal places
-            document.getElementById("ngpercent").value = ngpercent.toFixed(2); // Rounds to 2 decimal places
-
+            // Update the input fields
+            document.getElementById("inspectioncount").value = inspectionCount;
+            document.getElementById("inspectionpercent").value = inspectionPercent.toFixed(2);
+            document.getElementById("okpercent").value = okpercent.toFixed(2);
+            document.getElementById("ngpercent").value = ngpercent.toFixed(2);
         } else {
             // If the calculation is not valid, display an error or handle it as needed
+            document.getElementById("inspectioncount").value = "0";
             document.getElementById("inspectionpercent").value = "0";
+            document.getElementById("okpercent").value = "0";
+            document.getElementById("ngpercent").value = "0";
         }
 
-        // Assign the ngSum to ngcount input field
+        // Update the ngcount input field
         document.getElementById("ngcount").value = ngSum;
     }
+
 
     function calculateNGSum() {
         let sum = 0;

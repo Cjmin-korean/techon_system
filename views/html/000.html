@@ -1,70 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빨간점 두개 꾸미기</title>
-<style>
-    .container {
-        position: relative;
-        width: 200px;
-        height: 200px;
-    }
-    .circle {
-        width: 50px;
-        height: 50px;
-        background-color: red;
-        border-radius: 50%;
-        position: absolute;
-    }
-    .circle1 {
-        top: 50px;
-        left: 50px;
-    }
-    .circle2 {
-        top: 100px;
-        left: 100px;
-    }
-    .line {
-        position: absolute;
-        border: 2px solid red;
-        width: 100px;
-        z-index: -1;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Vue 및 Ag-Grid CDN 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@latest"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-vue@latest"></script>
 </head>
 <body>
-
-<div class="container">
-    <div class="circle circle1"></div>
-    <div class="circle circle2"></div>
-    <div class="line"></div>
-</div>
-
-<script>
-    // Calculate center points of the circles
-    var circle1 = document.querySelector('.circle1');
-    var circle2 = document.querySelector('.circle2');
-    var line = document.querySelector('.line');
-
-    var circle1CenterX = circle1.offsetLeft + circle1.offsetWidth / 2;
-    var circle1CenterY = circle1.offsetTop + circle1.offsetHeight / 2;
-
-    var circle2CenterX = circle2.offsetLeft + circle2.offsetWidth / 2;
-    var circle2CenterY = circle2.offsetTop + circle2.offsetHeight / 2;
-
-    // Calculate length and rotation angle of the line
-    var deltaX = circle2CenterX - circle1CenterX;
-    var deltaY = circle2CenterY - circle1CenterY;
-    var distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
-
-    // Set line length and rotation
-    line.style.width = distance + 'px';
-    line.style.transform = 'rotate(' + angle + 'deg)';
-    line.style.top = circle1CenterY + 'px';
-    line.style.left = circle1CenterX + 'px';
-</script>
-
+    <template>
+        <input type="text" @keyup="onQuickFilterChanged" />
+        <ag-grid-vue style="width: 100%; height: 70vh; min-height: 300px" class="ag-theme-balham"
+            :gridOptions="gridOptions" :columnDefs="columnDefs" :rowData="rowData" @gridReady="gridSizeFit"
+            @gridSizeChanged="gridSizeFit" />
+    </template>
 </body>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                gridOptions: {
+                    enableColResize: true,
+                    enableSorting: true,
+                    enableFilter: true,
+                    animateRows: false
+                },
+                rowData: []
+            }
+        },
+        computed: {
+            columnDefs() {
+                return [
+                    { headerName: 'Make', field: 'make' },
+                    { headerName: 'Model', field: 'model' },
+                    { headerName: 'Grade', field: 'grade' },
+                    { headerName: 'Price', field: 'price' },
+                    { headerName: 'Stock', field: 'qty' }
+                ]
+            }
+        },
+        methods: {
+            makeData() {
+                this.rowData = [
+                    { make: '현대', model: '아반떼', grade: '준중형', price: 2000, qty: 1 },
+                    { make: '현대', model: '산타페', grade: '중형', price: 3500, qty: 1 },
+                    { make: '현대', model: '소나타', grade: '중형', price: 3000, qty: 2 },
+                    { make: '현대', model: '그랜저', grade: '준대형', price: 4000, qty: 3 },
+                    { make: '기아', model: 'K3', grade: '준중형', price: 2000, qty: 2 },
+                    { make: '기아', model: 'K5', grade: '중형', price: 3000, qty: 3 },
+                    { make: '기아', model: 'K7', grade: '준대형', price: 4000, qty: 2 }
+                ]
+            },
+            gridSizeFit(params) {
+                if (window.innerWidth > 800) {
+                    params.api.sizeColumnsToFit()
+                } else {
+                    let allColumnIds = []
+                    this.gridOptions.columnApi.getAllColumns().forEach(function (column) {
+                        allColumnIds.push(column.colId)
+                    })
+                    this.gridOptions.columnApi.autoSizeColumns(allColumnIds)
+                }
+            },
+            onQuickFilterChanged(event) {
+                this.gridOptions.api.setQuickFilter(event.target.value)
+            }
+        },
+        beforeMount() {
+            this.makeData()
+        }
+    })
+</script>
 </html>
