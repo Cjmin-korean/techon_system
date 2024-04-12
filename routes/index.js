@@ -12900,8 +12900,8 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-                // .input('start', sql.NVarChar, req.body.start)
-                // .input('finish', sql.NVarChar, req.body.finish)
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
 
                 .query(
                     " select   " +
@@ -12915,10 +12915,50 @@ module.exports = function (app) {
                     " quantity * itemprice AS totalprice,  " +
                     " itemprice,  " +
                     " price,  " +
-                    " deliverydate,id  " +
+                    " deliverydate,id,etc  " +
                     " from  " +
-                    " accountinput " +
-                    " order by deliverydate asc"
+                    " accountinput " 
+                    // " where " +
+                    // " deliverydate between @start and @finish " +
+                    // " order by deliverydate asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start material combobox group 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/selectaccountinput', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+
+                .query(
+                    " select   "+
+                  "   bomno,  "+
+                  "   modelname,  "+
+                  "   itemname,  "+
+                  "   customer,  "+
+                  "   quantity,  "+
+                  "   itemcode,  "+
+                  "   quantity * itemprice AS totalprice,  "+
+                  "   itemprice,  "+
+                  "   price,  "+
+                  "   deliverydate,id,etc  "+
+                  "   from  "+
+                  "   accountinput "+
+                 
+                 
+                  "   order by deliverydate asc  " 
+                   
                 )
                 .then(result => {
 

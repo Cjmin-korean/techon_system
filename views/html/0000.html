@@ -4,161 +4,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel to Table Example</title>
-    <style>
-        #dataTable {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #ddd;
-            margin-top: 20px;
-        }
-
-        #dataTable th,
-        #dataTable td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-
-        #dataTable th {
-            background-color: #f2f2f2;
-        }
-
-        /* #dataTable tbody tr:nth-child(even) {
-            background-color: #201f1f;
-        } */
-
-        #fileInputContainer {
-            position: relative;
-            width: fit-content;
-        }
-
-        #excelFileInput {
-            display: none;
-        }
-
-        #customFileInput {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4a584b;
-            color: white;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-        }
-
-        #customFileInput:hover {
-            background-color: #848684;
-        }
-    </style>
+    <title>TUI Grid 예제</title>
+    <!-- TUI Grid 라이브러리 추가 -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
+    <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
+    <!-- TUI Filter 추가 -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.filter/latest/tui-filter.css">
+    <script src="https://uicdn.toast.com/tui.filter/latest/tui-filter.js"></script>
+    <!-- jQuery 추가 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
-    <div id="fileInputContainer">
-        <button id="customFileInput">Select File</button>
-    </div>
 
-    <table id="dataTable">
-        <div id="fileInputContainer">
-            <label for="excelFileInput" id="customFileInput">파일선택</label>
-            <input type="file" id="excelFileInput">
-        </div>
-        <!-- thead will be populated dynamically -->
-        <thead id="tableHead">
-
-        </thead>
-        <tbody id="tableBody">
-        </tbody>
-    </table>
+    <!-- 그리드를 표시할 컨테이너 -->
+    <div id="grid"></div>
 
     <script>
-        document.getElementById('excelFileInput').addEventListener('change', handleFile);
+        var server = '';
+        var gridApi;
 
-        function generateRandomNumber() {
-            return Math.floor(100000000000 + Math.random() * 900000000000);
+
+        // 서버 주소 설정
+        if (window.location.hostname == '127.0.0.1') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
         }
 
-        function handleFile(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
+        // AJAX를 이용하여 데이터 가져오기
+        function fetchData() {
+            $.ajax({
+                url: server + '/api/selectaccountinput', // 서버에서 데이터를 가져오는 URL 설정
+                method: 'POST', // GET 또는 POST 설정
 
-            reader.onload = function (event) {
-                const data = event.target.result;
-                const workbook = XLSX.read(data, { type: 'binary' });
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-                // Clear existing table data
-                document.getElementById('tableHead').innerHTML = '';
-                document.getElementById('tableBody').innerHTML = '';
-
-                // Iterate through each row of the parsed data except the last two rows
-                for (let rowIndex = 1; rowIndex < parsedData.length - 3; rowIndex++) {
-                    const row = parsedData[rowIndex];
-                    // Create a new table row
-                    const tr = document.createElement('tr');
-
-                    // Iterate through each column (A, C) of the row
-                    for (let colIndex = 0; colIndex < 17; colIndex++) {
-                        // Skip the second column (B column)
-                        if (colIndex === 1 || colIndex === 2 || colIndex === 3) {
-                            continue;
-                        }
-
-                        // Create a new table cell
-                        const cellType = rowIndex === 1 ? 'th' : 'td';
-                        const cell = document.createElement(cellType);
-
-                        // Check if it's the G column (index 6)
-                        if (colIndex === 6) {
-                            if (row[colIndex] && row[colIndex].includes('*')) {
-                                const [valueA, valueB] = row[colIndex].split('*'); // Split the value into A and B
-                                // Create td for A and B
-                                const cellA = document.createElement('td');
-                                const cellB = document.createElement('td');
-                                cellA.textContent = valueA.trim() || ''; // Handle empty cells
-                                cellB.textContent = valueB.trim() || ''; // Handle empty cells
-                                tr.appendChild(cellA);
-                                tr.appendChild(cellB);
-                            } else {
-                                // If it's not A*B structure, set cell data to "0"
-                                const cellA = document.createElement('td');
-                                const cellB = document.createElement('td');
-                                cellA.textContent = '0'; // Set cell data to "0"
-                                cellB.textContent = '0'; // Set cell data to "0"
-                                tr.appendChild(cellA);
-                                tr.appendChild(cellB);
-                            }
-                        } else {
-                            // For other columns
-                            // Set the cell data (A, C values)
-                            const cellData = row[colIndex];
-                            cell.textContent = cellData === undefined ? '0' : cellData; // Handle empty cells
-                            tr.appendChild(cell);
-                        }
-                    }
-
-                    // Append a new table cell with a random 12-digit number to the row
-                    const randomTd = document.createElement('td');
-                    randomTd.textContent = generateRandomNumber();
-                    tr.appendChild(randomTd);
-
-                    // Append the row to the table body or head
-                    if (rowIndex === 1) {
-                        document.getElementById('tableHead').appendChild(tr);
-                    } else {
-                        document.getElementById('tableBody').appendChild(tr);
-                    }
+                success: function (data) {
+                    // 가져온 데이터를 그리드에 설정
+                    grid.resetData(data);
+                },
+                error: function (xhr, status, error) {
+                    // 오류 처리
+                    console.error('Error:', error);
                 }
-
-            };
-
-            reader.readAsBinaryString(file);
+            });
         }
+
+        // 그리드 설정
+        var tui;
+        const gridData = []; // 빈 배열로 초기화
+
+        const grid = new tui.Grid({
+            el: document.getElementById('grid'),
+            data: gridData,
+            bodyHeight: 500,
+            columns: [
+                {
+                    header: '주문일자',
+                    name: 'deliverydate',
+                    filter: 'select'
+                },
+                {
+                    header: '고객사코드',
+                    name: 'itemcode',
+                    filter: 'select'
+                },
+                {
+                    header: '고객사',
+                    name: 'customer',
+                    filter: 'select'
+                },
+                {
+                    header: 'BOMNO',
+                    name: 'bomno',
+                    filter: 'select'
+                },
+                {
+                    header: '모델명',
+                    name: 'modelname',
+                    filter: 'select'
+                },
+                {
+                    header: '제품명',
+                    name: 'itemname',
+                    filter: 'select'
+                },
+                {
+                    header: '제품수량',
+                    name: 'quantity',
+                    filter: 'select'
+                },
+                {
+                    header: '제품단가',
+                    name: 'itemprice',
+                    filter: 'select'
+                },
+                {
+                    header: '합계금액',
+                    name: 'totalprice',
+                    filter: 'select'
+                },
+                {
+                    header: '적요',
+                    name: 'etc',
+                    filter: 'select'
+                }
+                // 그 외 필요한 컬럼들을 여기에 추가
+            ]
+        });
+
+        // 페이지 로드 후 데이터 가져오기
+        $(document).ready(function () {
+            fetchData();
+        });
     </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 </body>
 
 </html>

@@ -57,7 +57,7 @@
 
     .styled-table th {
         background-color: #f2f2f2;
-        text-align:center
+        text-align: center
     }
 
     .modal-footer {
@@ -74,7 +74,6 @@
         border: none;
         border-radius: 4px;
     }
-
 </style>
 
 <body>
@@ -84,7 +83,7 @@
     <div class="search-container">
         <label for="search" class="search-label"> 검색 :</label>
         <div class="search-input-wrapper">
-            <input type="text" id="search" placeholder="검색어를 입력하세요...">
+            <input type="text" id="search" placeholder="검색어를 입력하세요..." autocomplete="off">
             <i class="fas fa-search search-icon"></i>
 
         </div>
@@ -131,58 +130,39 @@
 
     <script>
 
-        var server = '';
-        var tui;
-        var gridData;
 
-        if (window.location.hostname == 'localhost') {
+        // console.log(window.location.hostname)
+        if (window.location.hostname == '127.0.0.1') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
         }
 
-
         $(document).ready(function () {
-            setTimeout(function () {
-                load();
-            }, 500);
-
+            load()
         });
 
+        var server = '';
+        var gridData;
+        var tui;
+        var grid;
+
         function initializeGrid() {
+            const gridData = []; // 빈 배열로 초기화
+
             grid = new tui.Grid({
                 el: document.getElementById('grid'),
                 data: [],
-                rowHeaders: ['rowNum'],
                 scrollX: false,
                 scrollY: false,
                 autoHeight: true,
                 columns: [
                     {
-                        header: 'BOMNO',
-                        name: 'bomno',
+                        header: '주문일자',
+                        name: 'deliverydate',
                         filter: 'select',
                         sortable: true,
                         resizable: true,
-                        width: 120 
-
-                    },
-                    {
-                        header: '모델명',
-                        name: 'modelname',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true,
-                        width: 200 
-
-                    },
-                    {
-                        header: '제품명',
-                        name: 'itemname',
-                        filter: 'select',
-                        sortable: true,
-                        resizable: true,
-                        width: 200 
 
                     },
                     {
@@ -191,29 +171,73 @@
                         filter: 'select',
                         sortable: true,
                         resizable: true,
-                        width: 200 
+
                     },
                     {
-                        header: '고객사코드',
+                        header: '품목코드',
                         name: 'itemcode',
                         filter: 'select',
                         sortable: true,
                         resizable: true,
-                        width: 150
+
                     },
                     {
-                        header: '수주수량(EA)',
+                        header: 'BOMNO',
+                        name: 'bomno',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+
+                    },
+                    {
+                        header: '모델명',
+                        name: 'modelname',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+
+                    },
+                    {
+                        header: '제품명',
+                        name: 'itemname',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+
+                    },
+                    {
+                        header: '수량',
                         name: 'quantity',
                         filter: 'select',
                         sortable: true,
                         resizable: true,
-                        width: 150,
-                        align: 'right',
-                        formatter: function (value) {
-                            return parseFloat(value.value).toLocaleString();
-                        },
+
                     },
-                   
+                    {
+                        header: '제품단가(￦)',
+                        name: 'itemprice',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+
+                    },
+                    {
+                        header: '공급가액(￦)',
+                        name: 'totalprice',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+
+                    },
+                    {
+                        header: '적요',
+                        name: 'etc',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+
+                    },
+
                 ],
 
                 summary: {
@@ -222,7 +246,12 @@
                     columnContent: {
                         quantity: {
                             template: function (valueMap) {
-                                return '<div style="text-align: right; font-weight:bold;">합계: ' + parseFloat(valueMap.sum).toLocaleString() + '</div>';
+                                return '<div style="text-align: right; font-weight:bold;">수량합계: ' + parseFloat(valueMap.sum).toLocaleString() + '</div>';
+                            }
+                        },
+                        totalprice: {
+                            template: function (valueMap) {
+                                return '<div style="text-align: right; font-weight:bold;">금액합계: ' + parseFloat(valueMap.sum).toLocaleString() + '</div>';
                             }
                         }
                     }
@@ -248,18 +277,18 @@
 
 
             // Add event listener for the search input
-            $('#search').on('input', function () {
-                var keyword = $(this).val().toLowerCase();
+            // $('#search').on('input', function () {
+            //     var keyword = $(this).val().toLowerCase();
 
-                // Filter the data based on the search keyword
-                var filteredData = gridData.filter(function (item) {
-                    return Object.values(item).some(function (value) {
-                        return typeof value === 'string' && value.toLowerCase().includes(keyword);
-                    });
-                });
+            //     // Filter the data based on the search keyword
+            //     var filteredData = gridData.filter(function (item) {
+            //         return Object.values(item).some(function (value) {
+            //             return typeof value === 'string' && value.toLowerCase().includes(keyword);
+            //         });
+            //     });
 
-                grid.resetData(filteredData);
-            });
+            //     grid.resetData(filteredData);
+            // });
             initializeGrid();
         }
         function openModal() {
