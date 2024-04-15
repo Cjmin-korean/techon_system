@@ -18,6 +18,7 @@
 
 </head>
 <style>
+    /* Modal */
     .modal {
         display: none;
         position: fixed;
@@ -28,19 +29,31 @@
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        z-index: 1;
+        z-index: 1000;
+        width: 80%;
     }
 
-    .modal-header {
-        text-align: center;
-        margin-bottom: 20px;
+    .modal1 {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 1002;
+        width: 80%;
     }
 
-    .company-info {
-        text-align: center;
-        margin-bottom: 15px;
+    /* Modal Content */
+    .modal-content {
+        max-height: 80vh;
+        overflow-y: auto;
     }
 
+    /* Table */
     .styled-table {
         width: 100%;
         border-collapse: collapse;
@@ -52,26 +65,107 @@
         border: 1px solid #ddd;
         padding: 10px;
         text-align: center;
-        background-color: #bcc0c8;
     }
 
     .styled-table th {
         background-color: #f2f2f2;
-        text-align: center
     }
 
+    /* Modal Footer */
     .modal-footer {
         display: flex;
         justify-content: flex-end;
         margin-top: 20px;
     }
 
-    .tui-dialog-close-btn {
+    /* Buttons */
+    .tui-dialog-close-btn,
+    .tui-dialog-action-btn,
+    .open-modal-btn {
         padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+    }
+
+    .tui-dialog-close-btn {
+        background-color: #d9534f;
+    }
+
+    .tui-dialog-action-btn {
+        background-color: #22154e;
+    }
+
+    .open-modal-btn {
+        background-color: #4caf50;
+    }
+
+    /* Overlay */
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+
+    #overlay1 {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+    }
+
+    /* Search Input */
+    .styled-search {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    #tableHead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        /* 다른 요소 위에 표시되도록 z-index 설정 */
+        background-color: #f7f6f6;
+        /* 테이블 배경과 겹치는 것을 방지하기 위해 필요한 배경색 설정 */
+    }
+
+    /* Add any additional styling as needed */
+    .styled-checkbox {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .styled-input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .styled-delete-btn {
+        padding: 8px 16px;
         cursor: pointer;
         background-color: #d9534f;
         color: #fff;
-        border: none;
         border-radius: 4px;
     }
 </style>
@@ -93,41 +187,111 @@
 
     <div id="grid" style="height: 900px; width:100%; " class="ag-theme-alpine"></div>
     <div id="overlay"></div>
+    <div id="overlay1"></div>
 
-    <div class="modal">
+    <div class="modal" id="modal">
         <div class="modal-header">
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;영업 수주 정보</span>
         </div>
-        <div class="company-info"> <i class="fas fa-file-alt"></i> 제품정보 </div>
         <div class="modal-content">
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
                     <tr>
-
-                        <th style="width:auto;">BOMNO</th>
-                        <th style="width:auto;">품목코드</th>
-                        <th style="width:auto;">모델명</th>
-                        <th style="width:auto;">품목명</th>
-                        <th style="width:auto;">고객사</th>
-                        <th style="width:auto;">단가(원)</th>
-                        <th style="width:auto;">PO수량(개)</th>
-                        <th style="width:auto;">판매금액(￦)</th>
+                        <th colspan="11">영업수주정보</th>
+                    </tr>
+                    <tr>
+                        <th>품목코드</th>
+                        <th>BOMNO</th>
+                        <th>모델명</th>
+                        <th>품목명</th>
+                        <th>고객사</th>
+                        <th>단가(￦)</th>
+                        <th>PO수량(개)</th>
+                        <th>판매금액(￦)</th>
                         <th style="width:100px;">영업확정</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
+                    <tr>
+                        <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="bomno-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="modelname-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="itemname-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="customer-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="itemprice-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="pocount-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="price-input" type="text" autocomplete="off"></td>
+                        <td><input type="checkbox" class="styled-checkbox"></td>
+                        <td><input id="deleteRowBtn" type="button" onclick="deleteRow(this)" value="삭제"
+                                class="styled-delete-btn"></td>
+                    </tr>
+                    <tr>
+                        <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="bomno-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="modelname-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="itemname-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="customer-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="itemprice-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="pocount-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="price-input" type="text" autocomplete="off"></td>
+                        <td><input type="checkbox" class="styled-checkbox"></td>
+                        <td><input id="deleteRowBtn" type="button" onclick="deleteRow(this)" value="삭제"
+                                class="styled-delete-btn"></td>
+                    </tr>
+                    <tr>
+                        <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="bomno-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="modelname-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="itemname-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="customer-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="itemprice-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="pocount-input" type="text" autocomplete="off"></td>
+                        <td><input class="styled-input" id="price-input" type="text" autocomplete="off"></td>
+                        <td><input type="checkbox" class="styled-checkbox"></td>
+                        <td><input id="deleteRowBtn" type="button" onclick="deleteRow(this)" value="삭제"
+                                class="styled-delete-btn"></td>
+                    </tr>
                 </tbody>
+
 
             </table>
 
 
             <div class="modal-footer">
-                <!-- <button class="tui-dialog-action-btn" onclick="saveForm()">저장</button> -->
+                <button class="tui-dialog-action-btn" onclick="saveForm()">저장</button>
                 <button class="tui-dialog-close-btn" onclick="closeModal()">취소</button>
             </div>
         </div>
     </div>
+    <div class="modal1" id="modal1">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;제품검색</span>
+        </div>
+        <div class="modal-content">
+            <input type="text" class="styled-search" placeholder="검색어를 입력하세요">
 
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th></th>
+                        <th>제품코드</th>
+                        <th>BOMNO</th>
+                        <th>모델명</th>
+                        <th>제품명</th>
+                        <th>고객사</th>
+                    </tr>
+                </thead>
+                <tbody id="itemtbody">
+                </tbody>
+            </table>
+
+        </div>
+        <div class="modal-footer">
+            <button class="tui-dialog-action-btn" onclick="saveForm1()">저장</button>
+            <button class="tui-dialog-close-btn" onclick="closeModal1()">취소</button>
+        </div>
+    </div>
     <script>
 
 
@@ -279,7 +443,6 @@
                 },
 
             });
-            grid.applyTheme('striped');
 
         }
 
@@ -318,6 +481,7 @@
             initializeGrid();
         }
         function openModal() {
+
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
@@ -325,6 +489,51 @@
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
+        }
+        function closeModal1() {
+            document.getElementById('modal1').style.display = 'none';
+            document.getElementById('overlay1').style.display = 'none';
+        }
+
+        document.getElementById("itemcode-input").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                openProductModal(event.target.value);
+            }
+        });
+
+
+        function openProductModal(input) {
+            document.getElementById('modal1').style.display = 'block';
+            document.getElementById('overlay1').style.display = 'block';
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomnoaccountinput',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    itemcode: input
+                }),
+                success: function (result) {
+                    console.log(result)
+                    for (var i = 0; i < result.length; i++) {
+                        $('#itemtbody').append(
+                            '<tr>' +
+                            '<td><input type="checkbox" onclick="insertmaterialdata(this)"  style="cursor:pointer; width: 20px; height: 20px;"></td>' +
+                            '<td>' + result[i].itemcode + '</td>' +
+                            '<td>' + result[i].bomno + '</td>' +
+                            '<td>' + result[i].modelname + '</td>' +
+                            '<td>' + result[i].itemname + '</td>' +
+                            '<td>' + result[i].customer + '</td>' +
+                            '<td id="data-itemprice">' + result[i].itemprice + '</td>' +
+                            '</tr>'
+                        );
+                        $("td#data-itemprice").hide();
+
+
+                    }
+                }
+            });
         }
     </script>
 </body>

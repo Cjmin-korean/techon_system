@@ -1,246 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>:: JavaScript Contenteditable ::</title>
-    <style type="text/css">
-        table {
-            border-collapse: collapse;
-            width: 80%;
-            margin: auto;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-            height: 20px;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            color: #333;
-            font-weight: bold;
-
-        }
-
-        .add-row-btn {
-            background-color: #4CAF50;
-            /* Green */
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .delete-row-btn {
-            background-color: #f44336;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .highlight {
-            background-color: #fdfde3;
-            /* 원하는 배경색으로 변경 가능 */
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
+<style>
+    button {
+        background-color: white;
+        padding: 10px;
+        font-weight: bold;
+        border: 1px solid black;
+        border-radius: 4px;
+        color: green;
+        font-size: 16px;
+    }
 
-
+    button:hover {
+        border: 3px solid green;
+        cursor: pointer;
+    }
+</style>
 
 <body>
-    <table id="editableTable">
-        <thead>
-            <tr class="table-light">
-                <th colspan="8">자재 기초정보</th>
-
-            </tr>
-            <tr class="table-light">
-                <th>품목코드</th>
-                <th>품목코드서식</th>
-                <th>자재명</th>
-                <th>폭 (mm)</th>
-                <th>길이 (m)</th>
-                <th>유효폭 (mm)</th>
-                <th>SQM단가</th>
-                <th>롤단가</th>
-            </tr>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"> </td>
-            <tr class="table-light">
-                <th>단위</th>
-                <th>적용 순번</th>
-                <th>제조사</th>
-                <th>공급처</th>
-                <th>사용별</th>
-                <th>유형별</th>
-                <th>업체별</th>
-            </tr>
-            </tr>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <td contenteditable="true"></td>
-            <tr class="table-light">
-                <th>자재TYPE</th>
-                <th>색상</th>
-                <th>두께</th>
-                <th>점착력</th>
-                <th>점착제</th>
-                <th>원단무게 (KG)</th>
-                <th>요청자</th>
-            </tr>
-            </tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <tr class="table-light">
-                <th>기입날짜</th>
-                <th>등록사유</th>
-                <th>고객사</th>
-                <th>모델</th>
-                <th>수입검사</th>
-                <th>연단</th>
-            </tr>
-            </tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-
-        </thead>
-
-    </table>
-
-    <script>
-        var newRow; // newRow 변수를 전역 범위에서 정의합니다.
-
-        function addRow(btn) {
-            var tableRow = btn.parentNode.parentNode;
-            var rowData = [];
-            // 해당 행의 첫 번째 셀(자재명) 데이터를 가져옴
-
-
-            var firstMaterialName = tableRow.previousElementSibling.cells[0].innerText;
-
-            // 두 번째 행의 첫 번째 셀(자재명) 데이터를 가져옴
-            var secondMaterialName = tableRow.cells[0].innerText;
-
-            // 두 행의 자재명을 결합하여 출력
-            console.log("첫번째 행 자재명:", firstMaterialName);
-            console.log("두번째 행 자재명:", secondMaterialName);
-            rowData.push(firstMaterialName + ' + ' + secondMaterialName);
-            // 나머지 열은 공란으로 추가
-            for (var i = 1; i < 3; i++) {
-                rowData.push('');
-            }
-
-            // 해당 행의 네 번째 셀(LOTNO) 데이터를 가져옴
-            rowData.push(tableRow.cells[3].innerText);
-
-            // 나머지 열은 공란으로 추가
-            for (var i = 5; i < 7; i++) {
-                rowData.push('');
-            }
-
-            // 가져온 데이터를 새로운 행으로 추가
-            newRow = document.createElement('tr'); // newRow 변수를 설정합니다.
-            for (var i = 0; i < rowData.length; i++) {
-                var newCell = document.createElement('td');
-                newCell.innerText = rowData[i];
-                newRow.appendChild(newCell);
-                newCell.setAttribute('contenteditable', 'true');
-
-                if (i === 2 || i === 4) {
-                    newCell.setAttribute('oninput', 'onchanged(this)');
-                }
-
-                // 키다운 이벤트 리스너 추가
-                newCell.addEventListener('keydown', function (event) {
-                    if (event.key === 'Enter') {
-                        this.blur(); // 수정 종료
-                        event.preventDefault(); // 기본 동작 방지 (새 줄 생성 방지)
-                    }
-                });
-            }
-
-            // 삭제 버튼 추가
-            var deleteBtnCell = document.createElement('td');
-            var deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-row-btn';
-            deleteBtn.textContent = '삭제';
-            deleteBtn.onclick = function () {
-                deleteRow(this);
-            };
-            deleteBtnCell.appendChild(deleteBtn);
-            newRow.appendChild(deleteBtnCell);
-
-            // 새로운 행을 마지막에 추가
-            tableRow.parentNode.insertBefore(newRow, tableRow.nextSibling);
-            newRow.classList.add('highlight');
-        }
-
-        function deleteRow(btn) {
-            var tableRow = btn.parentNode.parentNode;
-            tableRow.parentNode.removeChild(tableRow);
-        }
-
-        function onchanged(cell) {
-            // 두 번째 셀과 네 번째 셀의 값 가져오기
-            var cell2Value = parseInt(cell.parentNode.cells[2].innerText);
-            var cell4Value = parseInt(cell.parentNode.cells[4].innerText);
-
-            // 값이 유효한지 확인
-            if (!isNaN(cell2Value) && !isNaN(cell4Value)) {
-                // 총 입고수량 계산
-                var totalValue = cell2Value * cell4Value;
-                // 결과를 다섯 번째 셀에 표시
-                cell.parentNode.cells[5].innerText = totalValue.toLocaleString();
-            }
-        }
-
-        document.querySelectorAll('[contenteditable="true"]').forEach(function (element) {
-            element.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
-                    element.blur(); // 수정 종료
-                    event.preventDefault(); // 기본 동작 방지 (새 줄 생성 방지)
-                }
-            });
-        });
-
-
-    </script>
-
+    <button>엑셀 다운로드</button>
 </body>
 
 </html>

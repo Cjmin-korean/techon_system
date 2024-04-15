@@ -9799,6 +9799,27 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/selectbomnoaccountinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .query(
+                    "SELECT * FROM iteminfo WHERE itemcode LIKE '%' + @itemcode + '%' ORDER BY itemcode ASC"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
+    });
+    
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/searchingcustomername', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
