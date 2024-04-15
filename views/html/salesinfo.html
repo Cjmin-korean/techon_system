@@ -44,7 +44,7 @@
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         z-index: 1002;
-        width: 80%;
+        width: 50%;
     }
 
     /* Modal Content */
@@ -168,6 +168,12 @@
         color: #fff;
         border-radius: 4px;
     }
+
+    .styled-delete-btn:hover {
+
+        background-color: red;
+
+    }
 </style>
 
 <body>
@@ -199,6 +205,9 @@
                     <tr>
                         <th colspan="11">영업수주정보</th>
                     </tr>
+                    <td>품목코드 조회</td>
+                    <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
+
                     <tr>
                         <th>품목코드</th>
                         <th>BOMNO</th>
@@ -209,49 +218,14 @@
                         <th>PO수량(개)</th>
                         <th>판매금액(￦)</th>
                         <th style="width:100px;">영업확정</th>
+                        <th>적요</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
-                    <tr>
-                        <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="bomno-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="modelname-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="itemname-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="customer-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="itemprice-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="pocount-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="price-input" type="text" autocomplete="off"></td>
-                        <td><input type="checkbox" class="styled-checkbox"></td>
-                        <td><input id="deleteRowBtn" type="button" onclick="deleteRow(this)" value="삭제"
-                                class="styled-delete-btn"></td>
-                    </tr>
-                    <tr>
-                        <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="bomno-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="modelname-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="itemname-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="customer-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="itemprice-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="pocount-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="price-input" type="text" autocomplete="off"></td>
-                        <td><input type="checkbox" class="styled-checkbox"></td>
-                        <td><input id="deleteRowBtn" type="button" onclick="deleteRow(this)" value="삭제"
-                                class="styled-delete-btn"></td>
-                    </tr>
-                    <tr>
-                        <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="bomno-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="modelname-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="itemname-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="customer-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="itemprice-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="pocount-input" type="text" autocomplete="off"></td>
-                        <td><input class="styled-input" id="price-input" type="text" autocomplete="off"></td>
-                        <td><input type="checkbox" class="styled-checkbox"></td>
-                        <td><input id="deleteRowBtn" type="button" onclick="deleteRow(this)" value="삭제"
-                                class="styled-delete-btn"></td>
-                    </tr>
+                    <!-- <tr>
+                        <td colspan="10">데이터가 없습니다.</td>
+                    </tr> -->
                 </tbody>
 
 
@@ -260,7 +234,7 @@
 
             <div class="modal-footer">
                 <button class="tui-dialog-action-btn" onclick="saveForm()">저장</button>
-                <button class="tui-dialog-close-btn" onclick="closeModal()">취소</button>
+                <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal()">취소</button>
             </div>
         </div>
     </div>
@@ -274,12 +248,13 @@
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
                     <tr>
-                        <th></th>
                         <th>제품코드</th>
                         <th>BOMNO</th>
                         <th>모델명</th>
                         <th>제품명</th>
                         <th>고객사</th>
+                        <th>단가</th>
+                        <th style="width:100px;"></th>
                     </tr>
                 </thead>
                 <tbody id="itemtbody">
@@ -288,8 +263,7 @@
 
         </div>
         <div class="modal-footer">
-            <button class="tui-dialog-action-btn" onclick="saveForm1()">저장</button>
-            <button class="tui-dialog-close-btn" onclick="closeModal1()">취소</button>
+            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal1()">취소</button>
         </div>
     </div>
     <script>
@@ -304,7 +278,7 @@
 
         $(document).ready(function () {
             load()
-
+            checkData()
         });
 
         var server = '';
@@ -464,26 +438,15 @@
             });
 
 
-
-            // Add event listener for the search input
-            // $('#search').on('input', function () {
-            //     var keyword = $(this).val().toLowerCase();
-
-            //     // Filter the data based on the search keyword
-            //     var filteredData = gridData.filter(function (item) {
-            //         return Object.values(item).some(function (value) {
-            //             return typeof value === 'string' && value.toLowerCase().includes(keyword);
-            //         });
-            //     });
-
-            //     grid.resetData(filteredData);
-            // });
             initializeGrid();
         }
         function openModal() {
-
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
+            $('#itemcode-input').focus()
+            $('#itemcode-input').val('')
+            $('#itemtbody').empty()
+
         }
 
         function closeModal() {
@@ -494,7 +457,11 @@
             document.getElementById('modal1').style.display = 'none';
             document.getElementById('overlay1').style.display = 'none';
         }
-
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeModal1();
+            }
+        });
         document.getElementById("itemcode-input").addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 openProductModal(event.target.value);
@@ -505,7 +472,7 @@
         function openProductModal(input) {
             document.getElementById('modal1').style.display = 'block';
             document.getElementById('overlay1').style.display = 'block';
-
+            $('#itemtbody').empty()
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectbomnoaccountinput',
@@ -515,17 +482,17 @@
                     itemcode: input
                 }),
                 success: function (result) {
-                    console.log(result)
                     for (var i = 0; i < result.length; i++) {
                         $('#itemtbody').append(
                             '<tr>' +
-                            '<td><input type="checkbox" onclick="insertmaterialdata(this)"  style="cursor:pointer; width: 20px; height: 20px;"></td>' +
                             '<td>' + result[i].itemcode + '</td>' +
                             '<td>' + result[i].bomno + '</td>' +
                             '<td>' + result[i].modelname + '</td>' +
                             '<td>' + result[i].itemname + '</td>' +
                             '<td>' + result[i].customer + '</td>' +
-                            '<td id="data-itemprice">' + result[i].itemprice + '</td>' +
+                            '<td>' + result[i].itemprice + '</td>' +
+                            '<td><button class="styled-delete-btn" style="background-color:navy;" onclick="add(this)">추가</button></td>' +
+
                             '</tr>'
                         );
                         $("td#data-itemprice").hide();
@@ -534,6 +501,64 @@
                     }
                 }
             });
+        }
+        function checkData() {
+            var rowCount = $('#accountdatatbody tr').length; // 테이블의 행 수 확인
+            if (rowCount == 0) { // 행 수가 0인 경우
+                $('#accountdatatbody').append('<tr><td colspan="10">데이터가 없습니다.</td></tr>'); // 메시지 추가
+            }
+        }
+        function add(row) {
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            // 행의 정보를 콘솔에 출력합니다.
+            if ($('#accountdatatbody tr:first-child').find('td').attr('colspan') == 10) {
+                $('#accountdatatbody tr:first-child').remove();
+            }
+            var newRow = '<tr>' +
+                '<td>' + rowData[0] + '</td>' +
+                '<td>' + rowData[1] + '</td>' +
+                '<td>' + rowData[2] + '</td>' +
+                '<td>' + rowData[3] + '</td>' +
+                '<td>' + rowData[4] + '</td>' +
+                '<td id="itemprice-input">' + rowData[5] + '</td>' +
+                '<td style="width:100px;"><input type="text"  autocomplete="off" id="pocount-input" oninput="valuechanged()" class="styled-input"></td>' +
+                '<td id="price-input"></td>' +
+                '<td><input type="checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
+                '<td><input type="text" id="etc-input" class="styled-input"></td>' +
+                '<td><input type="button" onclick="deleteRow(this)" value="삭제" class="styled-delete-btn deleteRowBtn"></td>' +
+                '</tr>';
+
+            // 새로운 행을 테이블에 추가합니다.
+            $('#accountdatatbody').append(newRow);
+
+            // 데이터가 없는지 확인합니다.
+            checkData();
+
+            // 값을 변경할 때마다 가격을 계산하는 함수 호출
+            valuechanged();
+        }
+
+
+        function deleteRow(button) {
+            var row = button.closest('tr');
+            var rowCount = document.getElementById('Podatatable').getElementsByTagName('tbody')[0].getElementsByTagName('tr').length;
+            row.remove();
+            var rowCount = $('#accountdatatbody tr').length; // 테이블의 행 수 확인
+            if (rowCount == 0) { // 행 수가 0인 경우
+                $('#accountdatatbody').append('<tr><td colspan="10">데이터가 없습니다.</td></tr>'); // 메시지 추가
+            }
+        }
+        function valuechanged() {
+            var currentRow = $(event.target).closest('tr');
+            var rowIndex = currentRow.index();
+            const itempriceValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').text().replace(/,/g, '')) || 0;
+            const countValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').val().replace(/,/g, '')) || 0;
+            const priceValue = itempriceValue * countValue;
+            $('#accountdatatbody tr:eq(' + rowIndex + ') #price-input').text(priceValue.toLocaleString());
+
         }
     </script>
 </body>
