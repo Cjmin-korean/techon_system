@@ -205,7 +205,7 @@
                     <tr>
                         <th colspan="11">영업수주정보</th>
                     </tr>
-                    <td>품목코드 조회</td>
+                    <td>품목코드</td>
                     <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
 
                     <tr>
@@ -233,7 +233,7 @@
 
 
             <div class="modal-footer">
-                <button class="tui-dialog-action-btn" onclick="saveForm()">저장</button>
+                <button class="tui-dialog-action-btn" onclick="accountsave()">저장</button>
                 <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal()">취소</button>
             </div>
         </div>
@@ -243,7 +243,7 @@
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;제품검색</span>
         </div>
         <div class="modal-content">
-            <input type="text" class="styled-search" placeholder="검색어를 입력하세요">
+            <input type="text" class="styled-search" id="itemcode1-input" placeholder="제품코드를 입력하세요">
 
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
@@ -263,7 +263,7 @@
 
         </div>
         <div class="modal-footer">
-            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal1()">취소</button>
+            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
         </div>
     </div>
     <script>
@@ -277,7 +277,7 @@
         }
 
         $(document).ready(function () {
-            load()
+            initializeGrid()
             checkData()
         });
 
@@ -417,7 +417,7 @@
                 },
 
             });
-
+            load()
         }
 
 
@@ -438,15 +438,14 @@
             });
 
 
-            initializeGrid();
         }
         function openModal() {
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
             $('#itemcode-input').focus()
             $('#itemcode-input').val('')
-            $('#itemtbody').empty()
-
+            $('#accountdatatbody').empty()
+            checkData()
         }
 
         function closeModal() {
@@ -463,6 +462,11 @@
             }
         });
         document.getElementById("itemcode-input").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                openProductModal(event.target.value);
+            }
+        });
+        document.getElementById("itemcode1-input").addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 openProductModal(event.target.value);
             }
@@ -505,7 +509,7 @@
         function checkData() {
             var rowCount = $('#accountdatatbody tr').length; // 테이블의 행 수 확인
             if (rowCount == 0) { // 행 수가 0인 경우
-                $('#accountdatatbody').append('<tr><td colspan="10">데이터가 없습니다.</td></tr>'); // 메시지 추가
+                $('#accountdatatbody').append('<tr><td colspan="11">데이터가 없습니다.</td></tr>'); // 메시지 추가
             }
         }
         function add(row) {
@@ -514,20 +518,20 @@
             }).get();
 
             // 행의 정보를 콘솔에 출력합니다.
-            if ($('#accountdatatbody tr:first-child').find('td').attr('colspan') == 10) {
+            if ($('#accountdatatbody tr:first-child').find('td').attr('colspan') == 11) {
                 $('#accountdatatbody tr:first-child').remove();
             }
             var newRow = '<tr>' +
-                '<td>' + rowData[0] + '</td>' +
-                '<td>' + rowData[1] + '</td>' +
-                '<td>' + rowData[2] + '</td>' +
-                '<td>' + rowData[3] + '</td>' +
-                '<td>' + rowData[4] + '</td>' +
+                '<td id="itemcode-input">' + rowData[0] + '</td>' +
+                '<td id="bomno-input">' + rowData[1] + '</td>' +
+                '<td id="modelname-input">' + rowData[2] + '</td>' +
+                '<td id="itemname-input">' + rowData[3] + '</td>' +
+                '<td id="customer-input">' + rowData[4] + '</td>' +
                 '<td id="itemprice-input">' + rowData[5] + '</td>' +
-                '<td style="width:100px;"><input type="text"  autocomplete="off" id="pocount-input" oninput="valuechanged()" class="styled-input"></td>' +
+                '<td style="width:100px;"><input type="text"  autocomplete="off" id="pocount-input" oninput="valuechanged()" style="text-align:right;" class="styled-input"></td>' +
                 '<td id="price-input"></td>' +
-                '<td><input type="checkbox" style="width:20px; height:20px; cursor:pointer;"></td>' +
-                '<td><input type="text" id="etc-input" class="styled-input"></td>' +
+                '<td><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;"></td>' +
+                '<td><input type="text" id="etc-input" autocomplete="off" class="styled-input"></td>' +
                 '<td><input type="button" onclick="deleteRow(this)" value="삭제" class="styled-delete-btn deleteRowBtn"></td>' +
                 '</tr>';
 
@@ -548,7 +552,7 @@
             row.remove();
             var rowCount = $('#accountdatatbody tr').length; // 테이블의 행 수 확인
             if (rowCount == 0) { // 행 수가 0인 경우
-                $('#accountdatatbody').append('<tr><td colspan="10">데이터가 없습니다.</td></tr>'); // 메시지 추가
+                $('#accountdatatbody').append('<tr><td colspan="11">데이터가 없습니다.</td></tr>'); // 메시지 추가
             }
         }
         function valuechanged() {
@@ -557,9 +561,90 @@
             const itempriceValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').text().replace(/,/g, '')) || 0;
             const countValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').val().replace(/,/g, '')) || 0;
             const priceValue = itempriceValue * countValue;
+            // 쉼표가 추가된 값을 입력 필드에 설정합니다.
             $('#accountdatatbody tr:eq(' + rowIndex + ') #price-input').text(priceValue.toLocaleString());
+            const input = document.querySelector('#pocount-input');
+            input.addEventListener('keyup', function (e) {
+                let value = e.target.value;
+                value = Number(value.replaceAll(',', ''));
+                if (isNaN(value)) {
+                    input.value = 0;
+                } else {
+                    const formatValue = value.toLocaleString('ko-KR');
+                    input.value = formatValue;
+                }
+            })
+        }
+        function accountsave(row) {
+
+
+            Swal.fire({
+                icon: 'info',
+                title: '저장',
+                text: '영업수주 정보를 등록 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    var rowCount = $('#accountdatatbody tr').length;
+                    var insertdate = new Date().toISOString().slice(0, 10);
+
+                    for (var i = 0; i < rowCount; i++) {
+
+                        // Get the value of the checkbox with id=checkbox-input
+                        var checkboxChecked = $('#accountdatatbody tr:eq(' + i + ') #checkbox-input').prop('checked');
+
+                        // Set the value of ad based on the checkbox status
+                        var adValue = checkboxChecked ? 'A' : 'D';
+
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/openinsertdata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "bomno": $('#accountdatatbody tr:eq(' + i + ') #bomno-input').text(),
+                                "modelname": $('#accountdatatbody tr:eq(' + i + ') #modelname-input').text(),
+                                "itemname": $('#accountdatatbody tr:eq(' + i + ') #itemname-input').text(),
+                                "customer": $('#accountdatatbody tr:eq(' + i + ') #customer-input').text(),
+                                "quantity": $('#accountdatatbody tr:eq(' + i + ') #pocount-input').val().replaceAll(',', ''),
+                                "itemcode": $('#accountdatatbody tr:eq(' + i + ') #itemcode-input').text(),
+                                "itemprice": $('#accountdatatbody tr:eq(' + i + ') #itemprice-input').text(),
+                                "num": '1',
+                                "status": '생산발주대기',
+                                "ad": adValue, // Use the adValue variable here
+                                "deliverydate": insertdate,
+                                "part": '양산',
+                                "etc": $('#accountdatatbody tr:eq(' + i + ') #etc-input').val(),
+                            }),
+                            success: function (result) {
+                                // 성공했을 때의 처리
+                            }
+                        });
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: '저장 완료',
+                        text: '영업수주 정보가 저장 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        }
+                    });
+
+                }
+            });
+
 
         }
+
+
     </script>
 </body>
 

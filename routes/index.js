@@ -7369,10 +7369,11 @@ module.exports = function (app) {
                 .input('processname', sql.NVarChar, req.body.processname)
                 .input('num', sql.Float, req.body.num)
                 .input('part', sql.NVarChar, req.body.part)
+                .input('etc', sql.NVarChar, req.body.etc)
 
                 .query(
-                    'insert into accountinput(num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part)' +
-                    ' values(@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part)'
+                    'insert into accountinput(num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part,etc)' +
+                    ' values(@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part,@etc)'
                 )
                 .then(result => {
 
