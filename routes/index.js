@@ -13843,6 +13843,41 @@ module.exports = function (app) {
     // **** finish
     // **** start itemname,materialwidth변수로  chk확인 쿼리      
     sql.connect(config).then(pool => {
+        app.post('/api/selectaccountiteminfo', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    "SELECT "+
+                "     id, "+
+                "     customer,"+
+                "     modelname,"+
+                "     itemname,"+
+                "     itemcode,"+
+                "     pcs,"+
+                "     cavity,"+
+                "     direction,"+
+                "     workpart,"+
+                "     type,"+
+                "     processname,"+
+                "     bucakcustomer"+
+                " FROM"+
+                "     iteminfo order by customer asc;                             "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
         app.post('/api/shipmentorderplan', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");

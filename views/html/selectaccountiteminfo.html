@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <title>제품정보</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px auto;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        tr:hover {
+            background-color: rgb(217, 244, 253);
+            cursor: pointer;
+        }
+
+        th {
+            background-color: #f8f7f7;
+            width: 60px;
+            font-size: 11px;
+
+            /* 각 날짜의 너비 조정 */
+        }
+
+        input {
+            width: 30%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>제품 정보</h2>
+
+    <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다.">
+
+
+    <table id="businessPlan">
+        <thead>
+            <th>고객사</th>
+            <th>모델명</th>
+            <th>제품명</th>
+            <th>제품코드</th>
+            <th>PCS</th>
+            <th>C/V</th>
+            <th>타발방향</th>
+            <th>작업방식</th>
+            <th>유형</th>
+            <th>공정명</th>
+            <th>부착업체</th>
+            <th></th>
+        </thead>
+
+        <tbody id="iteminfobody">
+        </tbody>
+    </table>
+
+    <script>
+        var server = '';
+        var gridApi;
+        if (window.location.hostname == '127.0.0.1') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        $(document).ready(function () {
+            load()
+        });
+
+        function load() {
+            $.ajax({
+                url: server + '/api/selectaccountiteminfo',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    // contents: contents
+                }),
+                success: function (data) {
+                    $('#iteminfobody').empty()
+                    for (var i = 0; i < data.length; i++) {
+
+                        $('#iteminfobody').append(
+                            '<tr>' +
+                            '<td>' + (data[i].customer || '') + '</td>' +
+                            '<td>' + (data[i].modelname || '') + '</td>' +
+                            '<td>' + (data[i].itemname || '') + '</td>' +
+                            '<td>' + (data[i].itemcode || '') + '</td>' +
+                            '<td>' + (data[i].pcs || '') + '</td>' +
+                            '<td>' + (data[i].cavity || '') + '</td>' +
+                            '<td>' + (data[i].direction || '') + '</td>' +
+                            '<td>' + (data[i].workpart || '') + '</td>' +
+                            '<td>' + (data[i].type || '') + '</td>' +
+                            '<td>' + (data[i].processname || '') + '</td>' +
+                            '<td>' + (data[i].bucakcustomer || '') + '</td>' +
+                            '</tr>'
+                        )
+                    }
+                }
+            });
+            $('#searchInput').on('keyup', function (event) {
+                if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                    searchTable();
+                }
+            });
+        }
+
+        function searchTable() {
+            var searchText = $('#searchInput').val().toLowerCase();
+            $('#iteminfobody tr').filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+            });
+        }
+
+
+
+
+    </script>
+
+</body>
+
+</html>
