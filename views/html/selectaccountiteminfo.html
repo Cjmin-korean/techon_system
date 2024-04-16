@@ -14,6 +14,19 @@
             margin: 10px auto;
         }
 
+        .btninfo:hover {
+            cursor: pointer;
+        }
+
+        #businessPlan thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            /* 다른 요소 위에 표시되도록 z-index 설정 */
+            background-color: #f7f6f6;
+            /* 테이블 배경과 겹치는 것을 방지하기 위해 필요한 배경색 설정 */
+        }
+
         th,
         td {
             border: 1px solid #ddd;
@@ -23,7 +36,6 @@
 
         tr:hover {
             background-color: rgb(217, 244, 253);
-            cursor: pointer;
         }
 
         th {
@@ -43,6 +55,31 @@
             font-size: 15px;
             font-weight: bold;
         }
+
+        .modal1 {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            width: 50%;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
     </style>
 </head>
 
@@ -51,7 +88,7 @@
     <h2>제품 정보</h2>
 
     <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다.">
-
+    <div id="overlay" class="overlay"></div>
 
     <table id="businessPlan">
         <thead>
@@ -72,7 +109,59 @@
         <tbody id="iteminfobody">
         </tbody>
     </table>
+    <div class="modal1" id="modal1">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;제품 상세정보</span>
+        </div>
+        <div class="modal-content">
 
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th>고객사</th>
+                        <td id="customer"></td>
+
+                    </tr>
+                    <tr>
+                        <th>모델명</th>
+                        <td id="modelname"></td>
+
+                    </tr>
+                    <tr>
+                        <th>제품명</th>
+                        <td id="itemname"></td>
+
+                    </tr>
+                    <tr>
+                        <th>제품코드</th>
+                        <td id="itemcode"></td>
+
+                    </tr>
+                    <tr>
+                        <th>공정명</th>
+                        <td id="processname"></td>
+
+                    </tr>
+                    <tr>
+                        <th>부착업체</th>
+                        <td id="bucakcustomer"></td>
+
+                    </tr>
+                </thead>
+                <tr>
+
+
+
+                </tr>
+                <tbody id="itemtbody">
+                </tbody>
+            </table>
+
+        </div>
+        <div class="modal-footer">
+            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
+        </div>
+    </div>
     <script>
         var server = '';
         var gridApi;
@@ -112,9 +201,14 @@
                             '<td>' + (data[i].type || '') + '</td>' +
                             '<td>' + (data[i].processname || '') + '</td>' +
                             '<td>' + (data[i].bucakcustomer || '') + '</td>' +
+
+                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
+                            '<td id="data-id">' + (data[i].id || '') + '</td>' +
+
                             '</tr>'
                         )
                     }
+                    $('td#data-id').hide()
                 }
             });
             $('#searchInput').on('keyup', function (event) {
@@ -123,14 +217,47 @@
                 }
             });
         }
-
+        // updateaccountiteminfo
         function searchTable() {
             var searchText = $('#searchInput').val().toLowerCase();
             $('#iteminfobody tr').filter(function () {
                 $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
             });
         }
+        function showinfo() {
+            document.getElementById('modal1').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
 
+
+        }
+
+        function closeModal1() {
+            document.getElementById('modal1').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+        // 상세 정보 버튼에 대한 클릭 이벤트 처리
+        $(document).on('click', '.btninfo', function () {
+            // 클릭된 버튼이 속한 행(row)을 선택합니다.
+            var rowData = $(this).closest('tr');
+
+            // 행에 포함된 데이터 셀들을 선택하여 데이터를 가져옵니다.
+            var customer = rowData.find('td:eq(0)').text();
+            var modelname = rowData.find('td:eq(1)').text();
+            var itemname = rowData.find('td:eq(2)').text();
+            var itemcode = rowData.find('td:eq(3)').text();
+            var processname = rowData.find('td:eq(9)').text();
+            var bucakcustomer = rowData.find('td:eq(10)').text();
+            var id = rowData.find('td:eq(11)').text();
+
+            $('#customer').text(customer)
+            $('#modelname').text(modelname)
+            $('#itemname').text(itemname)
+            $('#itemcode').text(itemcode)
+            $('#processname').text(processname)
+            $('#bucakcustomer').text(bucakcustomer)
+            // $('#cutomer').text(customer)
+            // $('#customer').text(customer)s
+        });
 
 
 

@@ -13851,22 +13851,44 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT "+
-                "     id, "+
-                "     customer,"+
-                "     modelname,"+
-                "     itemname,"+
-                "     itemcode,"+
-                "     pcs,"+
-                "     cavity,"+
-                "     direction,"+
-                "     workpart,"+
-                "     type,"+
-                "     processname,"+
-                "     bucakcustomer"+
-                " FROM"+
-                "     iteminfo order by customer asc;                             "
+                    "SELECT " +
+                    "     id, " +
+                    "     customer," +
+                    "     modelname," +
+                    "     itemname," +
+                    "     itemcode," +
+                    "     pcs," +
+                    "     cavity," +
+                    "     direction," +
+                    "     workpart," +
+                    "     type," +
+                    "     processname," +
+                    "     bucakcustomer" +
+                    " FROM" +
+                    "     iteminfo order by customer asc;                             "
                 )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/updateaccountiteminfo', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('id', sql.NVarChar, req.body.id)
+                .input('processname', sql.NVarChar, req.body.processname)
+                .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
+
+                .query(
+                    "update iteminfo set processname=@processname,bucakcustomer=@bucakcustomer where id=@id")
                 .then(result => {
 
                     res.json(result.recordset);
@@ -13883,22 +13905,22 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('start', sql.NVarChar, req.body.start)
-            .input('finish', sql.NVarChar, req.body.finish)
-            .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+                .input('bomno', sql.NVarChar, req.body.bomno)
 
 
                 .query(
-                    "                    select"+
-                    " deliverydate,"+
-                    " bomno,"+
-                    " sum(quantity) as quantity"+
-                    " from"+
-                    " accountinput"+
-                    " where(deliverydate between @start and @finish) and bomno = @bomno"+
-                    " group by"+
-                    " deliverydate,"+
-                    " bomno "+
+                    "                    select" +
+                    " deliverydate," +
+                    " bomno," +
+                    " sum(quantity) as quantity" +
+                    " from" +
+                    " accountinput" +
+                    " where(deliverydate between @start and @finish) and bomno = @bomno" +
+                    " group by" +
+                    " deliverydate," +
+                    " bomno " +
                     " order by deliverydate asc               "
                 )
                 .then(result => {
@@ -13917,22 +13939,22 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-            .input('start', sql.NVarChar, req.body.start)
-            .input('finish', sql.NVarChar, req.body.finish)
-            .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+                .input('bomno', sql.NVarChar, req.body.bomno)
 
 
                 .query(
-                    "                    select"+
-                    " shipmentdate,"+
-                    " bomno,"+
-                    " sum(quantity) as quantity"+
-                    " from"+
-                    " accountinput"+
-                    " where(shipmentdate between @start and @finish) and bomno = @bomno"+
-                    " group by"+
-                    " shipmentdate,"+
-                    " bomno "+
+                    "                    select" +
+                    " shipmentdate," +
+                    " bomno," +
+                    " sum(quantity) as quantity" +
+                    " from" +
+                    " accountinput" +
+                    " where(shipmentdate between @start and @finish) and bomno = @bomno" +
+                    " group by" +
+                    " shipmentdate," +
+                    " bomno " +
                     " order by shipmentdate asc               "
                 )
                 .then(result => {
