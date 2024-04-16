@@ -66,7 +66,16 @@
     }
 
     #datatable {
-        margin-top: 30px;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .styled-table td:hover {
+        background-color: #f2f2f2;
+    }
+
+    .styled-table:hover {
+        background-color: white;
     }
 </style>
 
@@ -76,9 +85,6 @@
         <i class="fas fa-chart-line "></i>영업 출하계획 등록 및 조회
     </div>
     <div class="search-container">
-
-        <!-- <button class="new-registration-button" onclick="openModal()">신규등록</button> -->
-
     </div>
     <div id="loadingOverlay">
         <img src="/img/테크온로고.PNG" alt="로딩 이미지" class="loadingImage">
@@ -108,37 +114,6 @@
 
         </table>
     </div>
-
-
-    <!-- <div id="editModal" style="max-height: 600px; overflow-y: auto;">
-        <div class="mainheader">
-            <h1>생산지시등록</h1>
-            <span class="close" onclick="closeModal()">&times;</span>
-        </div>
-        <div id="editForm">
-            <table class="styled-table" id="Podatatable">
-                <thead id="tableHead">
-                    <tr>
-                        <th style="width:130px; background-color:white;"><button onclick="addnew()">추가</button>
-                        </th>
-                        <th style="width:auto;">BOMNO</th>
-                        <th style="width:auto;">품목코드</th>
-                        <th style="width:auto;">모델명</th>
-                        <th style="width:auto;">품목명</th>
-                        <th style="width:auto;">고객사</th>
-                        <th style="width:auto;">단가(원)</th>
-                        <th style="width:auto;">PO수량(개)</th>
-                        <th style="width:auto;">판매금액(￦)</th>
-                        <th style="width:100px;">영업확정</th>
-                    </tr>
-                </thead>
-                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
-                </tbody>
-
-            </table>
-
-        </div>
-    </div> -->
     <div id="editModal4" style="width: 800px; height: auto;">
         <div class="mainheader">
             <h1>출하계획등록</h1>
@@ -230,8 +205,8 @@
         $('#selectYear').val(currentYear);
         $('#selectMonth').val(currentMonth < 10 ? '0' + currentMonth : currentMonth.toString());
         var server = '';
-
-        if (window.location.hostname == 'localhost') {
+        console.log(window.location.hostname)
+        if (window.location.hostname == '127.0.0.1') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
@@ -286,7 +261,6 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
-
                         "insertdate": insertdate,
                         "toolcode": toolcode,
                         "madedate": madedate,
@@ -298,10 +272,6 @@
                         "part": part,
                         "inputprice": inputprice,
                         "outputprice": outputprice
-
-
-
-
                     }),
                     success: function (result) {
 
@@ -403,7 +373,7 @@
                 success: function (data) {
                     $.ajax({
                         type: 'POST',
-                        url: server + '/api/accountshipment',
+                        url: server + '/api/accountshipment1',
                         dataType: 'json',
                         success: function (data1) {
                             for (var i = 0; i < data1.length; i++) { // Use data1.length here
@@ -424,22 +394,20 @@
                                     '<td id="' + selectedYear + '-' + selectedMonth + '-order-TTL"></td>' +
                                     '<td>발주</td>' +
                                     '<td></td>' +
-                                    addDateColumns(data1[i].deliverydate, data1[i].quantity.toLocaleString()) +
                                     '</tr>' +
 
                                     '<tr>' +
                                     '<td id="' + selectedYear + '-' + selectedMonth + '-plan-TTL"></td>' +
                                     '<td style="color:blue;">계획</td>' +
                                     '<td></td>' +
-                                    addDateColumns1(data1[i].deliverydate, data1[i].quantity) +
+                                    // addDateColumns1(data1[i].deliverydate, data1[i].quantity) +
                                     '</tr>' +
 
                                     '<tr>' +
                                     '<td id="' + selectedYear + '-' + selectedMonth + '-performance-TTL"></td>' +
                                     '<td style="color:red;">실적</td>' +
                                     '<td></td>' +
-                                    addDateColumns2(data1[i].deliverydate, data1[i].quantity) +
-                                    '<td>' + data1[i].itemname + '</td>' +
+                                    // addDateColumns2(data1[i].deliverydate, data1[i].quantity) +
 
                                     '</tr>'
                                 );
@@ -516,8 +484,6 @@
             var day = date.getDate();
             var month = date.getMonth() + 1;
             var year = date.getFullYear();
-
-
             if (month === 1 || month === 2 || month === 3 || month === 4 || month === 5 || month === 6 || month === 7 || month === 8 || month === 9) {
                 month = '0' + month
             }
@@ -525,12 +491,8 @@
             if (day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6 || day === 7 || day === 8 || day === 9) {
                 day = '0' + day
             }
-
-
             // This arrangement can be altered based on how we want the date's format to appear.
             let currentDate = `${year}-${month}-${day}`;
-
-
             $('#datepicker1').val(currentDate);
             $('#datepicker2').val(currentDate);
 

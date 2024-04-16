@@ -6377,37 +6377,37 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT "+
-                "     id,"+
-                "     saledate,"+
-                "     customer,"+
-                "     itemcode,"+
-                "     modelname,"+
-                "     itemname,"+
-                "     salecount,"+
-                "     itemprice,"+
-                "     salecount * itemprice as totalprice,"+
-                "     etc,"+
-                "     salestatus"+
-                " FROM "+
-                "     saleinfo"+
-                " "+
-                " UNION ALL"+
-                " "+
-                " SELECT "+
-                "     '' AS id,"+
-                "     '합계' AS saledate,"+
-                "     '' AS customer,"+
-                "     '' AS itemcode,"+
-                "     '' AS modelname,"+
-                "     '' AS itemname,"+
-                "     sum(salecount) AS salecount,"+
-                "     count(itemprice) AS itemprice,"+
-                "     SUM(salecount * itemprice) as totalprice,"+
-                "     '' AS etc,"+
-                "     '' AS salestatus"+
-                " FROM "+
-                "     saleinfo;                         "
+                    "SELECT " +
+                    "     id," +
+                    "     saledate," +
+                    "     customer," +
+                    "     itemcode," +
+                    "     modelname," +
+                    "     itemname," +
+                    "     salecount," +
+                    "     itemprice," +
+                    "     salecount * itemprice as totalprice," +
+                    "     etc," +
+                    "     salestatus" +
+                    " FROM " +
+                    "     saleinfo" +
+                    " " +
+                    " UNION ALL" +
+                    " " +
+                    " SELECT " +
+                    "     '' AS id," +
+                    "     '합계' AS saledate," +
+                    "     '' AS customer," +
+                    "     '' AS itemcode," +
+                    "     '' AS modelname," +
+                    "     '' AS itemname," +
+                    "     sum(salecount) AS salecount," +
+                    "     count(itemprice) AS itemprice," +
+                    "     SUM(salecount * itemprice) as totalprice," +
+                    "     '' AS etc," +
+                    "     '' AS salestatus" +
+                    " FROM " +
+                    "     saleinfo;                         "
 
 
                 )
@@ -7370,10 +7370,11 @@ module.exports = function (app) {
                 .input('num', sql.Float, req.body.num)
                 .input('part', sql.NVarChar, req.body.part)
                 .input('etc', sql.NVarChar, req.body.etc)
+                .input('shipmentdate', sql.NVarChar, req.body.shipmentdate)
 
                 .query(
-                    'insert into accountinput(num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part,etc)' +
-                    ' values(@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part,@etc)'
+                    'insert into accountinput(num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part,etc,shipmentdate)' +
+                    ' values(@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part,@etc,@shipmentdate)'
                 )
                 .then(result => {
 
@@ -9817,7 +9818,7 @@ module.exports = function (app) {
                 });
         });
     });
-    
+
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
@@ -12937,9 +12938,9 @@ module.exports = function (app) {
                     " quantity * itemprice AS totalprice,  " +
                     " itemprice,  " +
                     " price,  " +
-                    " deliverydate,id,etc  " +
+                    " deliverydate,id,etc,shipmentdate  " +
                     " from  " +
-                    " accountinput " 
+                    " accountinput "
                     // " where " +
                     // " deliverydate between @start and @finish " +
                     // " order by deliverydate asc"
@@ -12964,23 +12965,23 @@ module.exports = function (app) {
                 .input('finish', sql.NVarChar, req.body.finish)
 
                 .query(
-                    " select   "+
-                  "   bomno,  "+
-                  "   modelname,  "+
-                  "   itemname,  "+
-                  "   customer,  "+
-                  "   quantity,  "+
-                  "   itemcode,  "+
-                  "   quantity * itemprice AS totalprice,  "+
-                  "   itemprice,  "+
-                  "   price,  "+
-                  "   deliverydate,id,etc  "+
-                  "   from  "+
-                  "   accountinput "+
-                 
-                 
-                  "   order by deliverydate asc  " 
-                   
+                    " select   " +
+                    "   bomno,  " +
+                    "   modelname,  " +
+                    "   itemname,  " +
+                    "   customer,  " +
+                    "   quantity,  " +
+                    "   itemcode,  " +
+                    "   quantity * itemprice AS totalprice,  " +
+                    "   itemprice,  " +
+                    "   price,  " +
+                    "   deliverydate,id,etc  " +
+                    "   from  " +
+                    "   accountinput " +
+
+
+                    "   order by deliverydate asc  "
+
                 )
                 .then(result => {
 
@@ -13795,6 +13796,109 @@ module.exports = function (app) {
                     " select * from " +
 
                     " accountinput"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/accountshipment1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    " SELECT " +
+                    "     customer," +
+                    "     itemcode," +
+                    "     bomno," +
+                    "     modelname," +
+                    "     itemname" +
+                    "   " +
+                    " FROM" +
+                    "     accountinput" +
+                    " group by" +
+                    " customer," +
+                    "     itemcode," +
+                    "     bomno," +
+                    "     modelname," +
+                    "     itemname                "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/shipmentorderplan', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('start', sql.NVarChar, req.body.start)
+            .input('finish', sql.NVarChar, req.body.finish)
+            .input('bomno', sql.NVarChar, req.body.bomno)
+
+
+                .query(
+                    "                    select"+
+                    " deliverydate,"+
+                    " bomno,"+
+                    " sum(quantity) as quantity"+
+                    " from"+
+                    " accountinput"+
+                    " where(deliverydate between @start and @finish) and bomno = @bomno"+
+                    " group by"+
+                    " deliverydate,"+
+                    " bomno "+
+                    " order by deliverydate asc               "
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/shipmentorderplan1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+            .input('start', sql.NVarChar, req.body.start)
+            .input('finish', sql.NVarChar, req.body.finish)
+            .input('bomno', sql.NVarChar, req.body.bomno)
+
+
+                .query(
+                    "                    select"+
+                    " shipmentdate,"+
+                    " bomno,"+
+                    " sum(quantity) as quantity"+
+                    " from"+
+                    " accountinput"+
+                    " where(shipmentdate between @start and @finish) and bomno = @bomno"+
+                    " group by"+
+                    " shipmentdate,"+
+                    " bomno "+
+                    " order by shipmentdate asc               "
                 )
                 .then(result => {
 

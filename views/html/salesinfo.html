@@ -164,7 +164,7 @@
     .styled-delete-btn {
         padding: 8px 16px;
         cursor: pointer;
-        background-color: #d9534f;
+        background-color: #db3832;
         color: #fff;
         border-radius: 4px;
     }
@@ -203,7 +203,7 @@
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
                     <tr>
-                        <th colspan="11">영업수주정보</th>
+                        <th colspan="12">영업수주정보</th>
                     </tr>
                     <td>품목코드</td>
                     <td><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
@@ -219,6 +219,7 @@
                         <th>판매금액(￦)</th>
                         <th style="width:100px;">영업확정</th>
                         <th>적요</th>
+                        <th>출하계획날짜</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -277,8 +278,9 @@
         }
 
         $(document).ready(function () {
-            initializeGrid()
             checkData()
+            initializeGrid()
+
         });
 
         var server = '';
@@ -298,11 +300,13 @@
                 rowHeaders: [
                     {
                         type: 'checkbox',
-                        header: '<label class="check__label"><input type="checkbox" class="check__input" name="_checked" /><span class="check__style"></span></label>',
+                        header: '<label class="check__label"><input type="checkbox" class="check__input" name="_checked"><span class="check__style" ></span></label>',
                         width: 44,
 
                     },
+
                 ],
+
                 columns: [
 
                     {
@@ -395,36 +399,56 @@
                         resizable: true,
 
                     },
+                    {
+                        header: '출하계획날짜',
+                        name: 'shipmentdate',
+                        filter: 'select',
+                        sortable: true,
+                        resizable: true,
+
+                    },
 
                 ],
-
+                // draggable: true,
                 summary: {
                     height: 40,
-                    position: 'bottom',
+                    position: 'bottom', // or 'top'
                     columnContent: {
                         quantity: {
-                            template: function (valueMap) {
-                                return '<div style="text-align: right; font-weight:bold;">수량합계: ' + parseFloat(valueMap.sum).toLocaleString() + '</div>';
-                            }
-                        },
-
-                        totalprice: {
-                            template: function (valueMap) {
-                                return '<div style="text-align: right; font-weight:bold;">금액합계: ' + parseFloat(valueMap.sum).toLocaleString() + '</div>';
+                            template: (valueMap) => {
+                                return `합계 : ${parseFloat(valueMap.sum).toLocaleString()}`
                             }
                         }
                     }
                 },
 
+
+
             });
             load()
+
         }
+
+
+
+
 
 
 
     </script>
 
     <script>
+        // 체크박스 클릭 이벤트를 감지하여 선택된 행의 데이터를 가져옴
+        document.addEventListener('change', function (event) {
+            const target = event.target;
+            // 체크박스인지 확인
+            if (target.matches('.check__input')) {
+                const row = target.closest('tr'); // 체크박스가 속한 행을 찾음
+                const rowData = grid.getRowData(row); // 그리드에서 행의 데이터를 가져옴 (grid.getRowData는 가상의 함수라 가정)
+                console.log('선택된 행의 데이터:', rowData);
+            }
+        });
+
         function load() {
             $.ajax({
                 type: 'POST',
@@ -433,6 +457,9 @@
                 success: function (data) {
                     gridData = data;
                     grid.resetData(data);
+                    console.log(data)
+                    // console.log("그리드의 행 수:", grid.getData().length);
+
                 },
 
             });
@@ -509,16 +536,17 @@
         function checkData() {
             var rowCount = $('#accountdatatbody tr').length; // 테이블의 행 수 확인
             if (rowCount == 0) { // 행 수가 0인 경우
-                $('#accountdatatbody').append('<tr><td colspan="11">데이터가 없습니다.</td></tr>'); // 메시지 추가
+                $('#accountdatatbody').append('<tr><td colspan="12">데이터가 없습니다.</td></tr>'); // 메시지 추가
             }
         }
         function add(row) {
             var rowData = $(row).closest('tr').find('td').map(function () {
                 return $(this).text();
             }).get();
+            var today = new Date().toISOString().slice(0, 10);
 
             // 행의 정보를 콘솔에 출력합니다.
-            if ($('#accountdatatbody tr:first-child').find('td').attr('colspan') == 11) {
+            if ($('#accountdatatbody tr:first-child').find('td').attr('colspan') == 12) {
                 $('#accountdatatbody tr:first-child').remove();
             }
             var newRow = '<tr>' +
@@ -532,6 +560,7 @@
                 '<td id="price-input"></td>' +
                 '<td><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;"></td>' +
                 '<td><input type="text" id="etc-input" autocomplete="off" class="styled-input"></td>' +
+                '<td><input type="date" id="shipmentdate-input" class="styled-input" value="' + today + '"></td>' +
                 '<td><input type="button" onclick="deleteRow(this)" value="삭제" class="styled-delete-btn deleteRowBtn"></td>' +
                 '</tr>';
 
@@ -552,7 +581,7 @@
             row.remove();
             var rowCount = $('#accountdatatbody tr').length; // 테이블의 행 수 확인
             if (rowCount == 0) { // 행 수가 0인 경우
-                $('#accountdatatbody').append('<tr><td colspan="11">데이터가 없습니다.</td></tr>'); // 메시지 추가
+                $('#accountdatatbody').append('<tr><td colspan="12">데이터가 없습니다.</td></tr>'); // 메시지 추가
             }
         }
         function valuechanged() {
@@ -620,6 +649,7 @@
                                 "deliverydate": insertdate,
                                 "part": '양산',
                                 "etc": $('#accountdatatbody tr:eq(' + i + ') #etc-input').val(),
+                                "shipmentdate": $('#accountdatatbody tr:eq(' + i + ') #shipmentdate-input').val(),
                             }),
                             success: function (result) {
                                 // 성공했을 때의 처리

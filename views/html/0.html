@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <title>일별 영업 계획</title>
     <style>
         table {
             border-collapse: collapse;
-            width: 90%;
-            margin: 20px auto;
+            width: 100%;
+            margin: 10px auto;
         }
 
         th,
@@ -19,15 +21,28 @@
             text-align: center;
         }
 
+        td:hover {
+            background-color: rgb(217, 244, 253);
+            cursor: pointer;
+        }
+
         th {
-            background-color: #f2f2f2;
+            background-color: #f8f7f7;
             width: 60px;
-            font-size: 14px;
+            font-size: 11px;
             ;
             /* 각 날짜의 너비 조정 */
         }
-        
-       
+
+        select {
+            width: 10%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -51,14 +66,12 @@
         <option value="10">10월</option>
         <option value="11">11월</option>
         <option value="12">12월</option>
+
     </select>
 
     <table id="businessPlan">
         <thead>
-            <tr>
-                <th colspan="32">제품</th>
-                <!-- 여기에 선택된 연도와 월에 따라 자바스크립트로 추가될 예정입니다. -->
-            </tr>
+
         </thead>
         <tbody>
             <!-- 여기에 선택된 연도와 월에 따라 자바스크립트로 추가될 예정입니다. -->
@@ -66,55 +79,177 @@
     </table>
 
     <script>
+        var server = '';
+        var gridApi;
+        if (window.location.hostname == '127.0.0.1') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        $(document).ready(function () {
+            var monthSelect = document.getElementById('monthSelect');
+            var yearSelect = document.getElementById('yearSelect');
+            var currentMonth = new Date().getMonth() + 1; // 현재 월 가져오기 (0부터 시작하므로 +1)
+            var currentYear = new Date().getFullYear(); // 현재 연도 가져오기
+            monthSelect.value = currentMonth; // 현재 월에 해당하는 option 선택
+            yearSelect.value = currentYear; // 현재 연도에 해당하는 option 선택
+            updateBusinessPlan();
+        });
+
+
+
         var yearSelect = document.getElementById('yearSelect');
         var monthSelect = document.getElementById('monthSelect');
         var businessPlanTable = document.getElementById('businessPlan').getElementsByTagName('tbody')[0];
 
         // 년도 옵션 생성
         var currentYear = new Date().getFullYear();
-        for (var i = currentYear; i >= currentYear - 10; i--) {
+        for (var i = currentYear; i >= currentYear - 2; i--) {
             var option = document.createElement('option');
             option.value = i;
             option.textContent = i + '년';
             yearSelect.appendChild(option);
         }
 
-        // 월 선택 이벤트 리스너 추가
         yearSelect.addEventListener('change', updateBusinessPlan);
         monthSelect.addEventListener('change', updateBusinessPlan);
 
-        // 영업 계획 테이블 업데이트 함수
         function updateBusinessPlan() {
+            var monthSelect = document.getElementById('monthSelect');
+
             var year = parseInt(yearSelect.value);
             var month = parseInt(monthSelect.value);
             var daysInMonth = new Date(year, month, 0).getDate();
+            var currentMonth = new Date().getMonth() + 1; // 현재 월 가져오기 (0부터 시작하므로 +1)
+
 
             // 테이블 헤더 업데이트
-            var tableHeader = '<tr><th style="width:100px;">제품</th>';
+            var tableHeader = '<tr><th style="width:100px;">BOMNO</th><th style="width:100px;">구분</th>';
             for (var i = 1; i <= daysInMonth; i++) {
-                var date = (month < 10 ? '0' + month : month) + '-' + (i < 10 ? '0' + i : i);
+                var date = (month < 10 ? '0' + monthSelect.value : month) + '/' + (i < 10 ? '0' + i : i);
                 tableHeader += '<th class="date">' + date + '</th>';
             }
             tableHeader += '</tr>';
             businessPlanTable.innerHTML = tableHeader;
 
-            // 테이블 바디 업데이트
-            var tableBody = '';
-            // 여기에서는 예시로 세 가지 제품을 사용하겠습니다.
-            var products = ['제품 A', '제품 B', '제품 C'];
-            for (var j = 0; j < products.length; j++) {
-                tableBody += '<tr><td>' + products[j] + '</td>';
-                // 각 일자별로 편집 가능한 셀 추가
-                for (var k = 1; k <= daysInMonth; k++) {
-                    tableBody += '<td contenteditable="true"></td>';
-                }
-                tableBody += '</tr>';
-            }
-            businessPlanTable.innerHTML += tableBody;
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/accountshipment1',
+                dataType: 'json',
+                success: function (data) {
+                    var tableBody = '';
+                    data.forEach(function (item) {
+                        // 세 개의 값을 발주/계획/실적으로 나누어 저장
+                        var order = item.order_quantity || 0; // 발주량
+                        var plan = item.plan_quantity || 0;   // 계획량
+                        var actual = item.actual_quantity || 0; // 실적량
+
+                        // itemname이 rowspan3이 되도록 추가
+                        tableBody += '<tr>';
+                        tableBody += '<td rowspan="3">' + item.bomno + '</td>';
+                        tableBody += '<td>발주</td>';
+                        // 각 일자별로 편집 가능한 셀 추가
+                        for (var k = 1; k <= daysInMonth; k++) {
+                            var date = (month < 10 ? '0' + month : month) + '-' + (k < 10 ? '0' + k : k);
+                            tableBody += '<td id="order-' + item.bomno + '-' + year + '-' + date + '"></td>';
+                        }
+                        tableBody += '</tr>';
+
+                        tableBody += '<tr>';
+                        tableBody += '<td>계획</td>';
+                        // 각 일자별로 편집 가능한 셀 추가
+                        for (var k = 1; k <= daysInMonth; k++) {
+                            var date = (month < 10 ? '0' + month : month) + '-' + (k < 10 ? '0' + k : k);
+                            tableBody += '<td id="plan-' + item.bomno + '-' + year + '-' + date + '"></td>';
+                        }
+                        tableBody += '</tr>';
+
+                        tableBody += '<tr>';
+                        tableBody += '<td>실적</td>';
+                        // 각 일자별로 편집 가능한 셀 추가
+                        for (var k = 1; k <= daysInMonth; k++) {
+                            var date = (month < 10 ? '0' + month : month) + '-' + (k < 10 ? '0' + k : k);
+                            tableBody += '<td id="siljok-' + item.bomno + '-' + year + '-' + date + '"></td>';
+                        }
+                        tableBody += '</tr>';
+                        var monthSelect1 = document.getElementById('monthSelect');
+                        var yearSelect1 = document.getElementById('yearSelect');
+                        // 선택된 월과 연도를 가져옵니다.
+                        var month1 = monthSelect1.value;
+                        var year1 = yearSelect1.value;
+                        // 월을 두 자리로 변환합니다.
+                        if (month1 < 10) {
+                            month1 = '0' + month;
+                        }
+                        // AJAX 요청 보내기
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/shipmentorderplan',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                bomno: item.bomno,
+                                start: year1 + '-' + month1 + '-01', // 시작일
+                                finish: year1 + '-' + month1 + '-31', // 종료일
+                            }),
+                            success: function (result) {
+                                console.log(result)
+
+                                for (var i = 0; i < result.length; i++) {
+                                    $('#order-' + item.bomno + '-' + result[i].deliverydate).text(result[i].quantity.toLocaleString());
+                                }
+                            },
+
+                        });
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/shipmentorderplan1',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                bomno: item.bomno,
+                                start: year1 + '-' + month1 + '-01', // 시작일
+                                finish: year1 + '-' + month1 + '-31', // 종료일
+                            }),
+                            success: function (result) {
+                                console.log(result)
+
+                                for (var i = 0; i < result.length; i++) {
+                                    $('#plan-' + item.bomno + '-' + result[i].shipmentdate).text(result[i].quantity.toLocaleString());
+                                }
+                            },
+
+                        });
+
+                    });
+                    businessPlanTable.innerHTML += tableBody;
+
+                    var tdElement = document.getElementById('order-' + year + '-' + date);
+
+                    // TD 요소가 존재하는지 확인합니다.
+                    if (tdElement) {
+                        // 클릭 이벤트 리스너를 추가합니다.
+                        tdElement.addEventListener('click', function () {
+                            // 클릭한 TD 요소의 ID에서 itemname을 추출합니다.
+                            var itemId = this.id.split('-')[1];
+                            // 추출한 itemname을 콘솔에 출력합니다.
+                            console.log('11');
+                        });
+                    }
+                },
+
+            });
+            // 클릭 이벤트를 추가할 TD 요소를 찾습니다.
+
+
+
         }
 
-        // 페이지 로드 시 초기 테이블 업데이트
-        updateBusinessPlan();
+
+
+
+
     </script>
 
 </body>

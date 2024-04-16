@@ -89,36 +89,78 @@
         }
 
         $(document).ready(function () {
-            $('#search').keypress(function (e) {
-                if (e.which === 13) {
-                    applySearchFilter();
-                }
-            });
-            showLoadingSpinner();
-            setTimeout(function () {
-                initializeGrid();
-            }, 1500);
-        });
 
+            initializeGrid();
+
+        });
+        $('#search').keypress(function (e) {
+            if (e.which === 13) {
+                applySearchFilter();
+            }
+        });
         function initializeGrid() {
             if (typeof agGrid !== 'undefined') {
-                const gridOptions = {
-                    columnDefs: [
-                        { field: "bomno", headerName: "BOMNO", filter: true },
-                        { field: "itemcode", headerName: "고객사코드", filter: true },
-                        { field: "modelname", headerName: "모델명", filter: true },
-                        { field: "pcs", headerName: "EA=PCS", filter: true },
-                        { field: "processname", headerName: "공정명", filter: true },
-                        {
-                            headerName: "판매/계획/실적",
-                            children: [
-                                { field: "sales", headerName: "판매", filter: true },
-                                { field: "plan", headerName: "계획", filter: true },
-                                { field: "performance", headerName: "실적", filter: true },
-                            ],
-                            headerGroupComponent: 'customHeaderGroupComponent'
-                        },
+                // 현재 날짜를 가져옵니다.
+                const currentDate = new Date();
+                // 해당 월의 첫째 날을 설정합니다.
+                const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                // 해당 월의 마지막 날을 설정합니다.
+                const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                // 해당 월의 일자 수를 계산합니다.
+                const numberOfDays = lastDayOfMonth.getDate();
+
+                // 컬럼 정의를 준비합니다.
+                const columnDefs = [
+                    {
+                        field: "bomno", headerName: "BOMNO", filter: true, rowSpan: function (params) {
+                            // 현재 행의 BOMNO 값
+                            const currentBOMNO = params.data.bomno;
+                            // 현재 행의 인덱스
+                            const rowIndex = params.rowIndex;
+                            // 이전 행의 BOMNO 값
+                            const previousBOMNO = rowIndex > 0 ? params.api.getDisplayedRowAtIndex(rowIndex - 1).data.bomno : null;
+                            // 이전 행의 rowspan 값
+                            const previousRowSpan = rowIndex > 0 ? params.api.getDisplayedRowAtIndex(rowIndex - 1).data.rowSpan : null;
+
+                            if (currentBOMNO === previousBOMNO) {
+                                // 이전 행과 BOMNO가 같으면 rowspan 값을 증가시킵니다.
+                                return previousRowSpan + 1;
+                            } else {
+                                // 다른 경우에는 rowspan 값을 1로 초기화합니다.
+                                return 1;
+                            }
+                        }
+                    },
+                    { field: "itemcode", headerName: "고객사코드", filter: true },
+                    { field: "modelname", headerName: "모델명", filter: true },
+                    { field: "pcs", headerName: "EA=PCS", filter: true },
+                    { field: "processname", headerName: "공정명", filter: true },
+                ];
+
+                // 해당 월의 일자에 대한 컬럼을 동적으로 생성합니다.
+                for (let i = 1; i <= numberOfDays; i++) {
+                    const column = {
+                        field: "day" + i,
+                        headerName: i.toString(),
+                        filter: true
+                    };
+                    columnDefs.push(column);
+                }
+
+                // '판매/계획/실적' 그룹 컬럼을 추가합니다.
+                columnDefs.push({
+                    headerName: "판매/계획/실적",
+                    children: [
+                        { field: "sales", headerName: "판매", filter: true },
+                        { field: "plan", headerName: "계획", filter: true },
+                        { field: "performance", headerName: "실적", filter: true },
                     ],
+                    headerGroupComponent: 'customHeaderGroupComponent'
+                });
+
+                // 그리드 옵션 설정
+                const gridOptions = {
+                    columnDefs: columnDefs,
                     autoSizeStrategy: {
                         type: 'fitGridWidth',
                         defaultMinWidth: 150
@@ -130,12 +172,14 @@
                     },
                 };
 
+                // 그리드 생성 및 데이터 로드
                 const gridDiv = document.querySelector('#myGrid');
                 gridApi = agGrid.createGrid(gridDiv, gridOptions);
-
                 loadData();
             }
         }
+
+
 
         function loadData() {
             $.ajax({
