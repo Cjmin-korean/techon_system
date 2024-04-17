@@ -8,6 +8,12 @@
 
     <title>제품정보</title>
     <style>
+        #maintable tbody {
+            max-height: 90%;
+            overflow-y: auto;
+            /* 테이블의 tbody에만 스크롤 허용 */
+        }
+
         table {
             border-collapse: collapse;
             width: 100%;
@@ -18,13 +24,11 @@
             cursor: pointer;
         }
 
-        #businessPlan thead {
+        #maintable thead {
             position: sticky;
             top: 0;
             z-index: 1;
-            /* 다른 요소 위에 표시되도록 z-index 설정 */
             background-color: #f7f6f6;
-            /* 테이블 배경과 겹치는 것을 방지하기 위해 필요한 배경색 설정 */
         }
 
         th,
@@ -32,6 +36,12 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
+            font-size: 14px;
+
+        }
+
+        td {
+            font-size: 14px;
         }
 
         tr:hover {
@@ -106,40 +116,101 @@
             display: none;
         }
 
-        #processnametbody {
-            max-height: 200px;
+        #processnamediv {
+            max-height: 300px;
             overflow-y: auto;
         }
+
+        #bucakcustomerdiv {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            text-align: right;
+        }
+
+        .close-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+
+        }
+
+        .close-button:hover {
+            background-color: #0056b3;
+        }
+
+        .btninfo {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        .btninfo:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-button {
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        .delete-button:hover {
+            background-color: #ff5858;
+        }
     </style>
+
 </head>
 
 <body>
+    <div>
+        <h2 style="margin-left: 20px;">* 제품 정보</h2>
 
-    <h2>제품 정보</h2>
+    </div>
 
     <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다.">
     <div id="overlay" class="overlay"></div>
-    <button onclick="processnameinfo()">공정명</button>
-    <button onclick="bucakcustomerinfo()">부착업체</button>
-    <table id="businessPlan">
-        <thead>
-            <th>고객사</th>
-            <th>모델명</th>
-            <th>제품명</th>
-            <th>제품코드</th>
-            <th>PCS</th>
-            <th>C/V</th>
-            <th>타발방향</th>
-            <th>작업방식</th>
-            <th>유형</th>
-            <th>공정명</th>
-            <th>부착업체</th>
-            <th></th>
-        </thead>
+    <button class="close-button" onclick="processnameinfo()">공정명</button>
+    <button class="close-button" onclick="bucakcustomerinfo()">부착업체</button>
+    <div id="maintable">
+        <table>
+            <thead>
+                <th>고객사</th>
+                <th>모델명</th>
+                <th>제품명</th>
+                <th>제품코드</th>
+                <th>PCS</th>
+                <th>C/V</th>
+                <th>타발방향</th>
+                <th>작업방식</th>
+                <th>유형</th>
+                <th>공정명</th>
+                <th>부착업체</th>
+                <th style="width: 90px;"></th>
+            </thead>
 
-        <tbody id="iteminfobody">
-        </tbody>
-    </table>
+            <tbody id="iteminfobody">
+            </tbody>
+        </table>
+    </div>
+
 
     <div class="modal" id="modal">
         <div class="modal-header">
@@ -179,11 +250,11 @@
 
         </div>
         <div class="modal-footer">
-            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal()">닫기</button>
+            <button class="close-button" style="margin-left: 10px;" onclick="closeModal()">닫기</button>
         </div>
     </div>
 
-    <div class="modal1" id="modal1">
+    <div class="modal1" id="modal1" style="height: 500px;">
         <div class="modal-header">
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;공정 기초정보</span>
         </div>
@@ -195,27 +266,29 @@
                         <th style="width: 10px;"></th>
                     </tr>
                     <tr>
-                        <td><input type="text" style="width:100%;" id="processname-input"></td>
-                        <td><button onclick="saveprocessname()">추가</button></td>
+                        <td><input type="text" style="width:100%;" id="processname-input" autocomplete="off"></td>
+                        <td><button class="close-button" onclick="saveprocessname()">추가</button></td>
                     </tr>
                 </thead>
 
             </table>
-            <table class="styled-table" id="processnametable">
-                <thead id="tableHead">
-                    <tr>
-                        <th>공정명</th>
-                        <th style="width: 10px;"></th>
-                    </tr>
+            <div id="processnamediv">
+                <table class="styled-table" id="processnametable">
+                    <thead id="tableHead">
+                        <tr>
+                            <th>공정명</th>
+                            <th style="width: 10px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="processnametbody">
+                    </tbody>
+                </table>
+            </div>
 
-                </thead>
-                <tbody id="processnametbody">
-                </tbody>
-            </table>
 
         </div>
         <div class="modal-footer">
-            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
+            <button class="close-button" style="margin-top: 20px;" onclick="closeModal1()">닫기</button>
         </div>
     </div>
     <div class="modal2" id="modal2">
@@ -230,27 +303,30 @@
                         <th style="width: 10px;"></th>
                     </tr>
                     <tr>
-                        <td><input type="text" style="width:100%;" id="bucakcustomer-input"></td>
-                        <td><button onclick="savebucakcustomer()">추가</button></td>
+                        <td><input type="text" style="width:100%;" id="bucakcustomer-input" autocomplete="off"></td>
+                        <td><button class="close-button" onclick="savebucakcustomer()">추가</button></td>
                     </tr>
                 </thead>
 
             </table>
-            <table class="styled-table" id="bucakcustomertable">
-                <thead id="tableHead">
-                    <tr>
-                        <th>부착업체</th>
-                        <th style="width: 10px;"></th>
-                    </tr>
+            <div id="bucakcustomerdiv">
+                <table class="styled-table" id="bucakcustomertable">
+                    <thead id="tableHead">
+                        <tr>
+                            <th>부착업체</th>
+                            <th style="width: 10px;"></th>
+                        </tr>
 
-                </thead>
-                <tbody id="bucakcustomertbody">
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="bucakcustomertbody">
+                    </tbody>
+                </table>
+            </div>
+
 
         </div>
         <div class="modal-footer">
-            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal2()">닫기</button>
+            <button class="close-button" style="margin-left: 10px;" onclick="closeModal2()">닫기</button>
         </div>
     </div>
     <script>
@@ -293,7 +369,7 @@
                             '<td>' + (data[i].processname || '') + '</td>' +
                             '<td>' + (data[i].bucakcustomer || '') + '</td>' +
 
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
+                            '<td><button class="btninfo"  onclick="showinfo()">상세정보</button></td>' +
                             '<td id="data-id">' + (data[i].id || '') + '</td>' +
 
                             '</tr>'
@@ -324,7 +400,7 @@
                         $('#processnametbody').append(
                             '<tr>' +
                             '<td>' + (data[i].processname || '') + '</td>' +
-                            '<td><button>삭제</button></td>' +
+                            '<td><button class="delete-button">삭제</button></td>' +
                             '<td id="data-id">' + (data[i].id || '') + '</td>' +
                             '</tr>'
                         )
@@ -354,7 +430,7 @@
                         $('#bucakcustomertbody').append(
                             '<tr>' +
                             '<td>' + (data[i].bucakcustomer || '') + '</td>' +
-                            '<td><button>삭제</button></td>' +
+                            '<td><button class="delete-button">삭제</button></td>' +
                             '<td id="data-id">' + (data[i].id || '') + '</td>' +
                             '</tr>'
                         )
