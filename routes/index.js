@@ -13900,6 +13900,49 @@ module.exports = function (app) {
     // **** finish
     // **** start itemname,materialwidth변수로  chk확인 쿼리      
     sql.connect(config).then(pool => {
+        app.post('/api/selectprocessname', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                // .input('id', sql.NVarChar, req.body.id)
+                // .input('processname', sql.NVarChar, req.body.processname)
+                // .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
+
+                .query(
+                    "select * from processname")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbucakcustomer', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                // .input('id', sql.NVarChar, req.body.id)
+                // .input('processname', sql.NVarChar, req.body.processname)
+                // .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
+
+                .query(
+                    "select * from bucakcustomer")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
         app.post('/api/shipmentorderplan', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
@@ -14542,6 +14585,54 @@ module.exports = function (app) {
                 .query(
                     'insert into quality(date,materialname,status)' +
                     ' values(@date,@materialname,@status)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/insertprocessname', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('processname', sql.NVarChar, req.body.processname)
+         
+                .query(
+                    'insert into processname(processname)' +
+                    ' values(@processname)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/insertbucakcustomer', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
+         
+                .query(
+                    'insert into bucakcustomer(bucakcustomer)' +
+                    ' values(@bucakcustomer)'
                 )
                 .then(result => {
 

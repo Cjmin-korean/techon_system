@@ -56,7 +56,17 @@
             font-weight: bold;
         }
 
-        .modal1 {
+        select {
+            width: 60%;
+            padding: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .modal {
             display: none;
             position: fixed;
             top: 50%;
@@ -67,7 +77,22 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             z-index: 1002;
-            width: 50%;
+            width: 40%;
+        }
+
+        .modal1,
+        .modal2 {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            width: 20%;
         }
 
         .overlay {
@@ -80,6 +105,11 @@
             z-index: 999;
             display: none;
         }
+
+        #processnametbody {
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -89,7 +119,8 @@
 
     <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다.">
     <div id="overlay" class="overlay"></div>
-
+    <button onclick="processnameinfo()">공정명</button>
+    <button onclick="bucakcustomerinfo()">부착업체</button>
     <table id="businessPlan">
         <thead>
             <th>고객사</th>
@@ -109,57 +140,117 @@
         <tbody id="iteminfobody">
         </tbody>
     </table>
-    <div class="modal1" id="modal1">
+
+    <div class="modal" id="modal">
         <div class="modal-header">
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;제품 상세정보</span>
         </div>
         <div class="modal-content">
-
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
                     <tr>
                         <th>고객사</th>
                         <td id="customer"></td>
-
                     </tr>
                     <tr>
                         <th>모델명</th>
                         <td id="modelname"></td>
-
                     </tr>
                     <tr>
                         <th>제품명</th>
                         <td id="itemname"></td>
-
                     </tr>
                     <tr>
                         <th>제품코드</th>
                         <td id="itemcode"></td>
-
                     </tr>
                     <tr>
                         <th>공정명</th>
-                        <td id="processname"></td>
-
+                        <td><select id="processname"></select></td>
                     </tr>
                     <tr>
                         <th>부착업체</th>
-                        <td id="bucakcustomer"></td>
-
+                        <td><select id="bucakcustomer"></select></td>
                     </tr>
                 </thead>
-                <tr>
-
-
-
-                </tr>
                 <tbody id="itemtbody">
                 </tbody>
             </table>
 
         </div>
         <div class="modal-footer">
+            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal()">닫기</button>
+        </div>
+    </div>
+
+    <div class="modal1" id="modal1">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;공정 기초정보</span>
+        </div>
+        <div class="modal-content">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th>공정명추가</th>
+                        <th style="width: 10px;"></th>
+                    </tr>
+                    <tr>
+                        <td><input type="text" style="width:100%;" id="processname-input"></td>
+                        <td><button onclick="saveprocessname()">추가</button></td>
+                    </tr>
+                </thead>
+
+            </table>
+            <table class="styled-table" id="processnametable">
+                <thead id="tableHead">
+                    <tr>
+                        <th>공정명</th>
+                        <th style="width: 10px;"></th>
+                    </tr>
+
+                </thead>
+                <tbody id="processnametbody">
+                </tbody>
+            </table>
+
+        </div>
+        <div class="modal-footer">
             <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
+        </div>
+    </div>
+    <div class="modal2" id="modal2">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;부착업체 기초정보</span>
+        </div>
+        <div class="modal-content">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th>부착업체 추가</th>
+                        <th style="width: 10px;"></th>
+                    </tr>
+                    <tr>
+                        <td><input type="text" style="width:100%;" id="bucakcustomer-input"></td>
+                        <td><button onclick="savebucakcustomer()">추가</button></td>
+                    </tr>
+                </thead>
+
+            </table>
+            <table class="styled-table" id="bucakcustomertable">
+                <thead id="tableHead">
+                    <tr>
+                        <th>부착업체</th>
+                        <th style="width: 10px;"></th>
+                    </tr>
+
+                </thead>
+                <tbody id="bucakcustomertbody">
+                </tbody>
+            </table>
+
+        </div>
+        <div class="modal-footer">
+            <button class="tui-dialog-close-btn" style="margin-left: 10px;" onclick="closeModal2()">닫기</button>
         </div>
     </div>
     <script>
@@ -217,6 +308,66 @@
                 }
             });
         }
+        function selectprocessname() {
+            $.ajax({
+                url: server + '/api/selectprocessname',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    // contents: contents
+                }),
+                success: function (data) {
+                    $('#processnametbody').empty()
+                    for (var i = 0; i < data.length; i++) {
+
+                        $('#processnametbody').append(
+                            '<tr>' +
+                            '<td>' + (data[i].processname || '') + '</td>' +
+                            '<td><button>삭제</button></td>' +
+                            '<td id="data-id">' + (data[i].id || '') + '</td>' +
+                            '</tr>'
+                        )
+                    }
+                    $('td#data-id').hide()
+                }
+            });
+            $('#searchInput').on('keyup', function (event) {
+                if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                    searchTable();
+                }
+            });
+        }
+        function selectbucakcustomer() {
+            $.ajax({
+                url: server + '/api/selectbucakcustomer',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    // contents: contents
+                }),
+                success: function (data) {
+                    $('#bucakcustomertbody').empty()
+                    for (var i = 0; i < data.length; i++) {
+
+                        $('#bucakcustomertbody').append(
+                            '<tr>' +
+                            '<td>' + (data[i].bucakcustomer || '') + '</td>' +
+                            '<td><button>삭제</button></td>' +
+                            '<td id="data-id">' + (data[i].id || '') + '</td>' +
+                            '</tr>'
+                        )
+                    }
+                    $('td#data-id').hide()
+                }
+            });
+            $('#searchInput').on('keyup', function (event) {
+                if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                    searchTable();
+                }
+            });
+        }
         // updateaccountiteminfo
         function searchTable() {
             var searchText = $('#searchInput').val().toLowerCase();
@@ -225,15 +376,49 @@
             });
         }
         function showinfo() {
-            document.getElementById('modal1').style.display = 'block';
+            document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
 
 
         }
+        function processnameinfo() {
+            document.getElementById('modal1').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+            selectprocessname()
+        }
+        function bucakcustomerinfo() {
+            document.getElementById('modal2').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+            selectbucakcustomer()
+        }
 
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
         function closeModal1() {
             document.getElementById('modal1').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
+        }
+        function closeModal2() {
+            document.getElementById('modal2').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+        function saveprocessname() {
+            $.ajax({
+                url: server + '/api/insertprocessname',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    processname: $('#processname-input').val()
+                }),
+                success: function (data) {
+
+                }
+            });
+            $('#processnametbody').empty()
+            selectprocessname()
         }
         // 상세 정보 버튼에 대한 클릭 이벤트 처리
         $(document).on('click', '.btninfo', function () {
