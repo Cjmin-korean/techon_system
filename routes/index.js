@@ -9804,9 +9804,21 @@ module.exports = function (app) {
         app.post('/api/selectbomnoaccountinput', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('itemcode', sql.NVarChar, '%' + req.body.itemcode + '%')
+                .input('bomno', sql.NVarChar, '%' + req.body.itemcode + '%')
+                .input('modelname', sql.NVarChar, '%' + req.body.itemcode + '%')
+                .input('itemname', sql.NVarChar, '%' + req.body.itemcode + '%')
+                .input('customer', sql.NVarChar, '%' + req.body.itemcode + '%')
                 .query(
-                    "SELECT * FROM iteminfo WHERE itemcode LIKE '%' + @itemcode + '%' ORDER BY itemcode ASC"
+                    "SELECT * " +
+                    "FROM iteminfo " +
+                    "WHERE " +
+                    "itemcode LIKE @itemcode OR " +
+                    "bomno LIKE @bomno OR " +
+                    "modelname LIKE @modelname OR " +
+                    "itemname LIKE @itemname OR " +
+                    "customer LIKE @customer " +
+                    "ORDER BY itemcode ASC"
                 )
                 .then(result => {
                     res.json(result.recordset);
@@ -9818,6 +9830,7 @@ module.exports = function (app) {
                 });
         });
     });
+    
 
     // **** finish
     // **** start       
@@ -14605,7 +14618,7 @@ module.exports = function (app) {
 
 
                 .input('processname', sql.NVarChar, req.body.processname)
-         
+
                 .query(
                     'insert into processname(processname)' +
                     ' values(@processname)'
@@ -14629,7 +14642,7 @@ module.exports = function (app) {
 
 
                 .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
-         
+
                 .query(
                     'insert into bucakcustomer(bucakcustomer)' +
                     ' values(@bucakcustomer)'
