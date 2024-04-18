@@ -5,190 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
+    <link rel="stylesheet" href="../css/selectaccountiteminfo.css">
+    <link rel="stylesheet" href="../css/spiner.css">
     <title>제품정보</title>
-    <style>
-        #maintable tbody {
-            max-height: 90%;
-            overflow-y: auto;
-            /* 테이블의 tbody에만 스크롤 허용 */
-        }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 10px auto;
-        }
-
-        .btninfo:hover {
-            cursor: pointer;
-        }
-
-        #maintable thead {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            background-color: #f7f6f6;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-            font-size: 14px;
-
-        }
-
-        td {
-            font-size: 14px;
-        }
-
-        tr:hover {
-            background-color: rgb(217, 244, 253);
-        }
-
-        th {
-            background-color: #f8f7f7;
-            width: 60px;
-            font-size: 11px;
-
-            /* 각 날짜의 너비 조정 */
-        }
-
-        input {
-            width: 30%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 15px;
-            font-weight: bold;
-        }
-
-        select {
-            width: 60%;
-            padding: 5px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 15px;
-            font-weight: bold;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            z-index: 1002;
-            width: 40%;
-        }
-
-        .modal1,
-        .modal2 {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            z-index: 1002;
-            width: 20%;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-        }
-
-        #processnamediv {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        #bucakcustomerdiv {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .modal-footer {
-            text-align: right;
-        }
-
-        .close-button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-weight: bold;
-
-        }
-
-        .close-button:hover {
-            background-color: #0056b3;
-        }
-
-        .btninfo {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-weight: bold;
-        }
-
-        .btninfo:hover {
-            background-color: #0056b3;
-        }
-
-        .delete-button {
-            padding: 10px 20px;
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-weight: bold;
-        }
-
-        .delete-button:hover {
-            background-color: #ff5858;
-        }
-    </style>
 
 </head>
 
 <body>
     <div>
         <h2 style="margin-left: 20px;">* 제품 정보</h2>
-
     </div>
 
-    <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다.">
+    <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." autocomplete="off">
     <div id="overlay" class="overlay"></div>
     <button class="close-button" onclick="processnameinfo()">공정명</button>
     <button class="close-button" onclick="bucakcustomerinfo()">부착업체</button>
+    <div class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
     <div id="maintable">
         <table>
             <thead>
@@ -343,6 +178,9 @@
         });
 
         function load() {
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spiner 표시
+
             $.ajax({
                 url: server + '/api/selectaccountiteminfo',
                 method: 'post',
@@ -376,6 +214,9 @@
                         )
                     }
                     $('td#data-id').hide()
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                    }, 1100);
                 }
             });
             $('#searchInput').on('keyup', function (event) {

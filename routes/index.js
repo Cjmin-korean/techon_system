@@ -1629,6 +1629,88 @@ module.exports = function (app) {
     // **** finish
     // **** start  BOM창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/iteminfobom11', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, '%' + req.body.input + '%')
+                .input('part', sql.NVarChar, '%' + req.body.input + '%')
+                .input('modelname', sql.NVarChar, '%' + req.body.input + '%')
+                .input('itemname', sql.NVarChar, '%' + req.body.input + '%')
+                .input('customer', sql.NVarChar, '%' + req.body.input + '%')
+                .input('class', sql.NVarChar, '%' + req.body.input + '%')
+
+                .query(
+                    "SELECT  " +
+                    "    i.bomno,  " +
+                    "    i.part,  " +
+                    "    i.modelname,  " +
+                    "    i.itemname,  " +
+                    "    i.itemprice,  " +
+                    "    COALESCE(SUM(ROUND(mi.rollprice/FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2)), 2) as cost,   " +
+                    "    CASE  " +
+                    "        WHEN i.itemprice = 0 THEN 0  " +
+                    "        ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  " +
+                    "    END AS costPriceRatio,  " +
+                    "    i.customer,  " +
+                    "    i.itemcode,  " +
+                    "    i.working,  " +
+                    "    i.pcs,  " +
+                    "    i.cavity,  " +
+                    "    i.direction,  " +
+                    "    i.workpart,  " +
+                    "    i.additionalnotes,  " +
+                    "    i.class,  " +
+                    "    i.type, " +
+                    "    bm.bomid, " +
+                    "    COUNT(mi.materialname) as materialcount " +
+                    "FROM  " +
+                    "    iteminfo i  " +
+                    "LEFT JOIN  " +
+                    "    bommanagement bm ON i.bomno = bm.bomno " +
+                    "LEFT JOIN  " +
+                    "    materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "WHERE " +
+                    " bm.status = 'true' and" +
+                    "    (i.bomno like @bomno " +
+                    "    or i.part like @part " +
+                    "    or i.modelname like @modelname " +
+                    "    or bm.itemname like @itemname " +
+                    "    or i.customer like @customer " +
+                    "    or i.class like @class) " +
+                    "GROUP BY  " +
+                    "    i.bomno,  " +
+                    "    i.part,  " +
+                    "    i.modelname,  " +
+                    "    i.itemname,  " +
+                    "    i.itemprice,  " +
+                    "    i.customer,  " +
+                    "    i.itemcode,  " +
+                    "    i.working,  " +
+                    "    i.pcs,  " +
+                    "    i.cavity,  " +
+                    "    i.direction,  " +
+                    "    i.workpart,  " +
+                    "    i.additionalnotes,  " +
+                    "    i.class,  " +
+                    "    i.type, " +
+                    "    bm.bomid, " +
+                    "    i.workpart;"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
+    });
+
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/iteminfobomsample', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -1897,6 +1979,64 @@ module.exports = function (app) {
                     " where  " +
                     " bomno='HHE-3-002' " +
                     " GROUP BY SAVEDATE order by savedate desc")
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/deficiency', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .query(
+                    "SELECT " +
+                    " modelname," +
+                    " itemname," +
+                    " sum(quantity) as sumquantity" +
+                    " FROM" +
+                    " SHIPMENTPLAN" +
+                    " group by" +
+                    " modelname," +
+                    " itemname "
+                )
+
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/deficiencyshipmentplan', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .query(
+                    "select * from shipmentplan "
+                )
 
 
                 .then(result => {
@@ -9830,7 +9970,7 @@ module.exports = function (app) {
                 });
         });
     });
-    
+
 
     // **** finish
     // **** start       
@@ -12953,10 +13093,46 @@ module.exports = function (app) {
                     " price,  " +
                     " deliverydate,id,etc,shipmentdate  " +
                     " from  " +
-                    " accountinput "
-                    // " where " +
-                    // " deliverydate between @start and @finish " +
-                    // " order by deliverydate asc"
+                    " accountinput  " +
+                    " where " +
+                    " deliverydate between @start and @finish " +
+                    " order by deliverydate asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectaccountinput1', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+
+                .query(
+                    " select   " +
+                    " contentname,  " +
+                    " bomno,  " +
+                    " modelname,  " +
+                    " itemname,  " +
+                    " customer,  " +
+                    " quantity,  " +
+                    " itemcode,  " +
+                    " quantity * itemprice AS totalprice,  " +
+                    " itemprice,  " +
+                    " price,  " +
+                    " deliverydate,id,etc,shipmentdate  " +
+                    " from  " +
+                    " accountinput  " +
+                    " where " +
+                    " deliverydate between @start and @finish " +
+                    " order by deliverydate asc"
                 )
                 .then(result => {
 
