@@ -2058,9 +2058,9 @@ module.exports = function (app) {
 
 
             return pool.request()
-                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('part', sql.NVarChar, req.body.part)
                 .query(
-                    "select * from iteminput "
+                    "select * from iteminput where part=@part "
                 )
 
 

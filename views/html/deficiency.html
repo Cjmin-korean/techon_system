@@ -109,7 +109,7 @@
                         tableBody += '<td rowspan="7">' + item.modelname + '</td>';
                         tableBody += '<td rowspan="7">' + item.itemname + '</td>';
                         tableBody += '<td>납품계획</td>';
-                        tableBody += '<td colspan="2" style="background-color:lightblue;">' + item.sumquantity.toLocaleString() + '</td>';
+                        tableBody += '<td colspan="2" style="background-color:lime;">' + item.sumquantity.toLocaleString() + '</td>';
 
                         // 각 일자별로 편집 가능한 셀 추가
                         for (var currentDate = new Date(today); currentDate <= futureDate; currentDate.setDate(currentDate.getDate() + 1)) {
@@ -138,9 +138,9 @@
                         });
 
                         tableBody += '<tr>';
-                        tableBody += '<td>생산</td>';
+                        tableBody += '<td>생산과부족</td>';
                         tableBody += '<td id="productquantity"></td>';
-                        tableBody += '<td>60,000</td>';
+                        tableBody += '<td id="firstproductquantity"></td>';
 
                         // 각 일자별로 편집 가능한 셀 추가
                         for (var currentDate = new Date(today); currentDate <= futureDate; currentDate.setDate(currentDate.getDate() + 1)) {
@@ -157,7 +157,7 @@
                             dataType: 'json',
                             contentType: 'application/json',
                             data: JSON.stringify({
-
+                                part: '생산'
                             }),
                             success: function (result) {
 
@@ -170,50 +170,14 @@
 
                         tableBody += '</tr>';
 
-                        var minusProductValue = (parseFloat(30000) - parseFloat(item.sumquantity)).toLocaleString();
-                        var minusProductStyle = '';
-                        // if (minusProductValue < 0) {
-                        //     // 값이 음수인 경우 빨간색으로 표시
-                        //     minusProductStyle = 'color: red;';
-                        // }
+
+
 
                         tableBody += '<tr>';
-                        tableBody += '<td style="color:red;">과부족(생산)</td>';
+                        tableBody += '<td>검사 과부족</td>';
 
-                        tableBody += '<td style="color:red" id="minusproduct">' + minusProductValue + '</td>';
-                        tableBody += '<td style="color:red;">-40,000</td>';
-                        tableBody += '<td></td>';
-
-                        // 각 일자별로 편집 가능한 셀 추가
-                        for (var currentDate = new Date(today); currentDate <= futureDate; currentDate.setDate(currentDate.getDate() + 1)) {
-                            var currentYear = currentDate.getFullYear();
-                            var currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
-                            var currentDay = String(currentDate.getDate()).padStart(2, '0');
-                            var date = currentMonth + '-' + currentDay;
-                            tableBody += '<td id="minusproduct-' + item.bomno + '-' + currentYear + '-' + date + '"></td>';
-                        }
-                        tableBody += '</tr>';
-
-                        tableBody += '<tr>';
-                        tableBody += '<td>검사</td>';
-                        tableBody += '<td>20,000</td>';
-                        tableBody += '<td>40,000</td>';
-
-                        // 각 일자별로 편집 가능한 셀 추가
-                        for (var currentDate = new Date(today); currentDate <= futureDate; currentDate.setDate(currentDate.getDate() + 1)) {
-                            var currentYear = currentDate.getFullYear();
-                            var currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
-                            var currentDay = String(currentDate.getDate()).padStart(2, '0');
-                            var date = currentMonth + '-' + currentDay;
-                            tableBody += '<td id="inspection-' + item.bomno + '-' + currentYear + '-' + date + '"></td>';
-                        }
-                        tableBody += '</tr>';
-
-                        tableBody += '<tr>';
-                        tableBody += '<td style="color:red;">과부족(검사)</td>';
-
-                        tableBody += '<td style="color:red;">-80,000</td>';
-                        tableBody += '<td style="color:red;">-60,000</td>';
+                        tableBody += '<td id="inspectionquantity"></td>';
+                        tableBody += '<td id="fistinspectionquantity">-60,000</td>';
                         tableBody += '<td></td>';
 
                         // 각 일자별로 편집 가능한 셀 추가
@@ -227,28 +191,27 @@
 
                         tableBody += '</tr>';
 
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/deficiencyproduct',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                part: '검사'
+                            }),
+                            success: function (result) {
+                                $('#inspectionquantity').text(result[0].quantity.toLocaleString());
+                                $('#firstproductquantity').text(parseFloat(result[0].quantity + parseFloat(100000)).toLocaleString());
+
+                            },
+
+                        });
+
                         tableBody += '<tr>';
                         tableBody += '<td>완제품</td>';
 
-                        tableBody += '<td>40,000</td>';
-                        tableBody += '<td>-</td>';
-
-                        // 각 일자별로 편집 가능한 셀 추가
-                        for (var currentDate = new Date(today); currentDate <= futureDate; currentDate.setDate(currentDate.getDate() + 1)) {
-                            var currentYear = currentDate.getFullYear();
-                            var currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
-                            var currentDay = String(currentDate.getDate()).padStart(2, '0');
-                            var date = currentMonth + '-' + currentDay;
-                            tableBody += '<td id="item-' + item.bomno + '-' + currentYear + '-' + date + '"></td>';
-                        }
-                        tableBody += '</tr>';
-
-                        tableBody += '<tr>';
-                        tableBody += '<td style="color:red;">과부족(완제품)</td>';
-
-                        tableBody += '<td style="color:red;">-60,000</td>';
-                        tableBody += '<td></td>';
-                        tableBody += '<td></td>';
+                        tableBody += '<td id="itemquantity"></td>';
+                        tableBody += '<td >-</td>';
 
                         // 각 일자별로 편집 가능한 셀 추가
                         for (var currentDate = new Date(today); currentDate <= futureDate; currentDate.setDate(currentDate.getDate() + 1)) {
@@ -258,6 +221,26 @@
                             var date = currentMonth + '-' + currentDay;
                             tableBody += '<td id="minusitem-' + item.bomno + '-' + currentYear + '-' + date + '"></td>';
                         }
+
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/deficiencyproduct',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                part: '완제품'
+                            }),
+                            success: function (result) {
+
+                                // for (var i = 0; i < result.length; i++) {
+
+                                // }
+                                $('#itemquantity').text(result[0].quantity.toLocaleString());
+                                $('#fistinspectionquantity').text(result[0].quantity.toLocaleString());
+
+                            },
+
+                        });
                     });
 
 
