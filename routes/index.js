@@ -14816,6 +14816,33 @@ module.exports = function (app) {
     // **** finish
     // **** start  품질검사 등록 쿼리    
     sql.connect(config).then(pool => {
+        app.post('/api/insertaccountplan', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('plandate', sql.NVarChar, req.body.plandate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('quantity', sql.NVarChar, req.body.quantity)
+
+
+                .query(
+                    'insert into accountplan(plandate,bomno,quantity)' +
+                    ' values(@plandate,@bomno,@quantity)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
         app.post('/api/insertprocessname', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");

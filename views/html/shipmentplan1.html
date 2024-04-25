@@ -51,7 +51,7 @@
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;출하계획정보</span>
         </div>
         <div class="modal-content">
-            <table class="styled-table" id="Podatatable">
+            <table class="styled-table" id="plantable">
                 <thead id="tableHead">
                     <tr>
                         <th>BOMNO</td>
@@ -68,21 +68,22 @@
                     <tr>
                         <th>출하계획날짜</th>
                         <th>출하수량</th>
-                        <th></th>
                     </tr>
                 </thead>
-                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
-                    <!-- <tr>
-                        <td colspan="10">데이터가 없습니다.</td>
-                    </tr> -->
-                </tbody>
+
 
 
             </table>
+            <div id="processnamediv">
+                <table class="styled-table" id="processnametable">
 
+                    <tbody id="accountdatatbody">
+                    </tbody>
+                </table>
+            </div>
 
             <div class="modal-footer">
-                <button class="close-button" onclick="accountsave()">저장</button>
+                <button class="close-button" onclick="saveModal()">저장</button>
                 <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
             </div>
         </div>
@@ -189,7 +190,7 @@
                         for (var k = 1; k <= daysInMonth; k++) {
                             var date = (month < 10 ? '0' + month : month) + '-' + (k < 10 ? '0' + k : k);
                             var cellId = 'plan-' + item.bomno + '-' + year + '-' + date;
-                            tableBody += '<td id="' + cellId + '" class="plan-cell" style="color:red;" contenteditable="true"></td>';
+                            tableBody += '<td id="' + cellId + '" class="plan-cell" style="color:red;"></td>';
                         }
 
                         tableBody += '</tr>';
@@ -258,9 +259,9 @@
                         var modelname = row.find('td[id^="modelname-"]').text();
                         var itemname = row.find('td[id^="itemname-"]').text();
 
-                        $('#bomno-input').text(bomno)
-                        $('#modelname-input').text(modelname)
-                        $('#itemname-input').text(itemname)
+                        $('#bomno-input').text(bomno);
+                        $('#modelname-input').text(modelname);
+                        $('#itemname-input').text(itemname);
 
                         $.ajax({
                             url: server + '/api/selectaccountplan',
@@ -273,40 +274,125 @@
                                 month: $('#monthSelect').val(), // 종료일
                             }),
                             success: function (data) {
-                                $('#accountdatatbody').empty()
-                                for (var i = 0; i < data.length; i++) {
+                                $('#accountdatatbody').empty();
 
-                                    $('#accountdatatbody').append(
-                                        '<tr>' +
-                                        '<td>' + (data[i].plandate || '') + '</td>' +
-                                        '<td>' + (data[i].quantity || '') + '</td>' +
-                                        '<td><button class="btninfo"  onclick="showinfo()">상세정보</button></td>' +
+                                var daysInMonth = new Date($('#yearSelect').val(), $('#monthSelect').val(), 0).getDate();
 
-                                        '</tr>'
-                                    )
+                                for (var i = 1; i <= daysInMonth; i++) {
+                                    var date = $('#yearSelect').val() + '-' + ('0' + $('#monthSelect').val()).slice(-2) + '-' + (i < 10 ? '0' + i : i);
+                                    var found = false;
+                                    if (!found) {
+                                        $('#accountdatatbody').append(
+                                            '<tr>' +
+                                            '<td style="width:51%;" >' + date + '</td>' +
+                                            '<td contenteditable="true" id="' + date + '"></td>' +
+                                            '</tr>'
+                                        );
+
+                                        for (var s = 0; s < data.length; s++) {
+                                            if (data[s].plandate === date) {
+                                                $('#' + date).text(data[s].quantity.toLocaleString());
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
-                                setTimeout(function () {
-                                    spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-                                }, 1100);
+
+                                $('td[contenteditable="true"]').on('keydown', function (event) {
+                                    if (event.keyCode === 13) { // 엔터 키의 keyCode는 13입니다.
+                                        event.preventDefault(); // 기본 동작 방지
+                                    }
+                                });
+                                // 숫자에 천 단위마다 콤마를 추가하는 함수
+                                // 숫자에 천 단위마다 콤마를 추가하는 함수
+                                function numberWithCommas(x) {
+                                    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                }
+
+                                // 입력한 숫자에 콤마를 추가하는 이벤트 핸들러
+                                $('td[contenteditable="true"]').on('input', function (event) {
+                                    var $this = $(this);
+                                    var editedData = $this.text().replace(/,/g, ''); // 콤마 제거
+                                    var formattedData = numberWithCommas(editedData);
+                                    $this.text(formattedData);
+
+                                    // 커서를 마지막 위치에 유지
+                                    var range = document.createRange();
+                                    var sel = window.getSelection();
+                                    range.setStart($this[0].childNodes[0], $this.text().length);
+                                    range.collapse(true);
+                                    sel.removeAllRanges();
+                                    sel.addRange(range);
+                                });
+
+
+
+
                             }
                         });
-                        $('#overlay').fadeIn()
-                        $('#modal').fadeIn()
 
+
+                        $('#overlay').fadeIn();
+                        $('#modal').fadeIn();
                     });
+
                     $('td[contenteditable="true"]').on('keydown', function (event) {
                         if (event.keyCode === 13) { // 엔터 키의 keyCode는 13입니다.
                             event.preventDefault(); // 기본 동작 방지
                             var year = $(this).attr('id').split('-')[4]; // 셀 ID에서 날짜 추출
                             var month = $(this).attr('id').split('-')[5]; // 셀 ID에서 연도 추출
                             var date = $(this).attr('id').split('-')[6]; // 셀 ID에서 연도 추출
-                            // console.log(year + '-' + month + '-' + date);
+                            console.log(year + '-' + month + '-' + date);
                         }
                     });
 
 
                 },
 
+            });
+        }
+        function saveModal() {
+            Swal.fire({
+                icon: 'info',
+                title: '계획저장',
+                text: '판매계획을 등록 하시겠습니까?',
+                showCancelButton: true,
+                confirmButton: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var requests = []; // 저장 요청을 담을 배열 생성
+
+                    // 각각의 편집 가능한 td에 대해 저장 요청 생성
+                    $('td[contenteditable="true"]').each(function () {
+                        var editedData = $(this).text().replace(/,/g, '').trim(); // 쉼표 제거 후 공백 제거
+                        if (editedData !== '') {
+                            var request = $.ajax({
+                                type: 'POST',
+                                url: server + '/api/insertaccountplan',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    bomno: $('#bomno-input').text(),
+                                    quantity: editedData, // 시작일
+                                    plandate: $(this).attr('id')
+                                })
+                            });
+                            Swal.fire({
+                                icon: 'info',
+                                title: '저장완료',
+                                text: '판매계획이 등록 되었습니다.',
+                                showCancelButton: true,
+                                confirmButton: false,
+                            });
+                            updateBusinessPlan()
+                            $('#overlay').fadeOut();
+                            $('#modal').fadeOut();
+                        }
+                    });
+
+
+                }
             });
         }
 
