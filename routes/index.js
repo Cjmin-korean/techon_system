@@ -14162,19 +14162,19 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-                .input('start', sql.NVarChar, req.body.start)
-                .input('finish', sql.NVarChar, req.body.finish)
+                .input('year', sql.NVarChar, req.body.year)
+                .input('month', sql.NVarChar, req.body.month)
                 .input('bomno', sql.NVarChar, req.body.bomno)
 
 
                 .query(
-                    "                    select" +
+                    " select" +
                     " deliverydate," +
                     " bomno," +
                     " sum(quantity) as quantity" +
                     " from" +
                     " accountinput" +
-                    " where(deliverydate between @start and @finish) and bomno = @bomno" +
+                    " WHERE YEAR(deliverydate) = @year AND MONTH(deliverydate) = @month AND bomno = @bomno"+
                     " group by" +
                     " deliverydate," +
                     " bomno " +
@@ -14191,29 +14191,34 @@ module.exports = function (app) {
     // **** finish
     // **** start itemname,materialwidth변수로  chk확인 쿼리      
     sql.connect(config).then(pool => {
-        app.post('/api/shipmentorderplan1', function (req, res) {
+        app.post('/api/selectaccountplan', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-                .input('start', sql.NVarChar, req.body.start)
-                .input('finish', sql.NVarChar, req.body.finish)
                 .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('year', sql.NVarChar, req.body.year)
+                .input('month', sql.NVarChar, req.body.month)
 
 
                 .query(
-                    "                    select" +
-                    " shipmentdate," +
-                    " bomno," +
-                    " sum(quantity) as quantity" +
-                    " from" +
-                    " accountinput" +
-                    " where(shipmentdate between @start and @finish) and bomno = @bomno" +
-                    " group by" +
-                    " shipmentdate," +
-                    " bomno " +
-                    " order by shipmentdate asc               "
+                    " SELECT "+
+                    " plandate,"+
+                    " bomno,"+
+                    " modelname,"+
+                    " itemname,"+
+                    " SUM(quantity) AS quantity"+
+                    " FROM"+
+                    " accountplan "+
+                    " WHERE YEAR(plandate) = @year AND MONTH(plandate) = @month AND bomno = @bomno"+
+                    " GROUP BY "+
+                    " plandate, "+
+                    " bomno, "+
+                    " modelname, "+
+                    " itemname"
                 )
+               
+
                 .then(result => {
 
                     res.json(result.recordset);

@@ -13,9 +13,10 @@
 </head>
 
 <body>
-
-    <h2 style="margin-left: 20px;">* 일별 영업 계획</h2>
-    <!-- <input type="date"> -->
+    <div id="overlay" class="overlay"></div>
+    <h2 style="margin-left: 20px;"><i class="far fa-calendar-alt"></i> 일별 영업 계획</h2>
+    <i class="fas fa-search"></i>
+    <b>조회검색</b>
     <select id="yearSelect">
         <!-- 여기에 옵션을 자바스크립트로 추가할 예정입니다. -->
     </select>
@@ -45,11 +46,52 @@
             <!-- 여기에 선택된 연도와 월에 따라 자바스크립트로 추가될 예정입니다. -->
         </tbody>
     </table>
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;출하계획정보</span>
+        </div>
+        <div class="modal-content">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th>BOMNO</td>
+                        <td colspan="5" id="bomno-input"></td>
+                    </tr>
+                    <tr>
+                        <th>모델명</td>
+                        <td colspan="5" id="modelname-input"></td>
+                    </tr>
+                    <tr>
+                        <th>제품명</td>
+                        <td colspan="5" id="itemname-input"></td>
+                    </tr>
+                    <tr>
+                        <th>출하계획날짜</th>
+                        <th>출하수량</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
+                    <!-- <tr>
+                        <td colspan="10">데이터가 없습니다.</td>
+                    </tr> -->
+                </tbody>
 
+
+            </table>
+
+
+            <div class="modal-footer">
+                <button class="close-button" onclick="accountsave()">저장</button>
+                <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
+            </div>
+        </div>
+    </div>
     <script>
         var server = '';
         var gridApi;
-        if (window.location.hostname == '127.0.0.1') {
+        console.log(window.location.hostname)
+        if (window.location.hostname == 'localhost') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
@@ -61,10 +103,10 @@
 
             var monthSelect = document.getElementById('monthSelect');
             var yearSelect = document.getElementById('yearSelect');
-            var currentMonth = new Date().getMonth() + 1; // 현재 월 가져오기 (0부터 시작하므로 +1)
-            var currentYear = new Date().getFullYear(); // 현재 연도 가져오기
-            monthSelect.value = currentMonth; // 현재 월에 해당하는 option 선택
-            yearSelect.value = currentYear; // 현재 연도에 해당하는 option 선택
+            var currentMonth = new Date().getMonth() + 1;
+            var currentYear = new Date().getFullYear();
+            monthSelect.value = currentMonth;
+            yearSelect.value = currentYear;
             updateBusinessPlan();
             setTimeout(function () {
                 spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
@@ -79,7 +121,7 @@
 
         // 년도 옵션 생성
         var currentYear = new Date().getFullYear();
-        for (var i = currentYear; i >= currentYear - 2; i--) {
+        for (var i = currentYear; i >= currentYear - 1; i--) {
             var option = document.createElement('option');
             option.value = i;
             option.textContent = i + '년';
@@ -99,11 +141,20 @@
 
 
             // 테이블 헤더 업데이트
-            var tableHeader = '<tr><th style="width:100px;">BOMNO</th><th style="width:100px;">구분</th>';
+            var tableHeader = '<tr><th style="width:100px;">BOMNO</th><th style="width:100px;">모델명</th><th style="width:100px;">제품명</th><th style="width:100px;">구분</th>';
             for (var i = 1; i <= daysInMonth; i++) {
                 var date = (month < 10 ? '0' + monthSelect.value : month) + '/' + (i < 10 ? '0' + i : i);
-                tableHeader += '<th class="date">' + date + '</th>';
+                var dayOfWeek = new Date(year, month - 1, i).getDay(); // 요일 가져오기 (0: 일요일, 1: 월요일, ..., 6: 토요일)
+                var dayClassName = '';
+
+                // 토요일과 일요일인 경우 클래스에 'weekend' 추가
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    dayClassName = 'weekend';
+                }
+
+                tableHeader += '<th class="date ' + dayClassName + '">' + date + '</th>';
             }
+
             tableHeader += '</tr>';
             businessPlanTable.innerHTML = tableHeader;
 
@@ -121,7 +172,9 @@
 
                         // itemname이 rowspan3이 되도록 추가
                         tableBody += '<tr>';
-                        tableBody += '<td rowspan="3">' + item.bomno + '</td>';
+                        tableBody += '<td rowspan="3" id="bomno-' + item.bomno + '" data-model="' + item.modelname + '" data-item="' + item.itemname + '">' + item.bomno + '</td>';
+                        tableBody += '<td rowspan="3" id="modelname-' + item.modelname + '">' + item.modelname + '</td>';
+                        tableBody += '<td rowspan="3" id="itemname-' + item.itemname + '">' + item.itemname + '</td>';
                         tableBody += '<td>발주</td>';
                         // 각 일자별로 편집 가능한 셀 추가
                         for (var k = 1; k <= daysInMonth; k++) {
@@ -135,8 +188,10 @@
                         // 각 일자별로 편집 가능한 셀 추가
                         for (var k = 1; k <= daysInMonth; k++) {
                             var date = (month < 10 ? '0' + month : month) + '-' + (k < 10 ? '0' + k : k);
-                            tableBody += '<td id="plan-' + item.bomno + '-' + year + '-' + date + '" style="color:red;"></td>';
+                            var cellId = 'plan-' + item.bomno + '-' + year + '-' + date;
+                            tableBody += '<td id="' + cellId + '" class="plan-cell" style="color:red;" contenteditable="true"></td>';
                         }
+
                         tableBody += '</tr>';
 
                         tableBody += '<tr>';
@@ -156,7 +211,8 @@
                         if (month1 < 10) {
                             month1 = '0' + month;
                         }
-                        // AJAX 요청 보내기
+
+
                         $.ajax({
                             type: 'POST',
                             url: server + '/api/shipmentorderplan',
@@ -164,12 +220,10 @@
                             contentType: 'application/json',
                             data: JSON.stringify({
                                 bomno: item.bomno,
-                                start: year1 + '-' + month1 + '-01', // 시작일
-                                finish: year1 + '-' + month1 + '-31', // 종료일
+                                year: year1, // 시작일
+                                month: month1, // 종료일
                             }),
                             success: function (result) {
-                                console.log(result)
-
                                 for (var i = 0; i < result.length; i++) {
                                     $('#order-' + item.bomno + '-' + result[i].deliverydate).text(result[i].quantity.toLocaleString());
                                 }
@@ -177,50 +231,89 @@
 
                         });
                         $.ajax({
-                            type: 'POST',
-                            url: server + '/api/shipmentorderplan1',
+                            url: server + '/api/selectaccountplan',
+                            method: 'post',
                             dataType: 'json',
                             contentType: 'application/json',
                             data: JSON.stringify({
                                 bomno: item.bomno,
-                                start: year1 + '-' + month1 + '-01', // 시작일
-                                finish: year1 + '-' + month1 + '-31', // 종료일
+                                year: year1, // 시작일
+                                month: month1, // 종료일
                             }),
                             success: function (result) {
-                                console.log(result)
-
                                 for (var i = 0; i < result.length; i++) {
-                                    $('#plan-' + item.bomno + '-' + result[i].shipmentdate).text(result[i].quantity.toLocaleString());
+                                    $('#plan-' + item.bomno + '-' + result[i].plandate).text(result[i].quantity.toLocaleString());
                                 }
-                            },
-
+                            }
                         });
+
+
 
                     });
                     businessPlanTable.innerHTML += tableBody;
 
-                    var tdElement = document.getElementById('order-' + year + '-' + date);
+                    $('td[id^="bomno-"]').click(function () {
+                        var row = $(this).closest('tr');
+                        var bomno = $(this).text();
+                        var modelname = row.find('td[id^="modelname-"]').text();
+                        var itemname = row.find('td[id^="itemname-"]').text();
 
-                    // TD 요소가 존재하는지 확인합니다.
-                    if (tdElement) {
-                        // 클릭 이벤트 리스너를 추가합니다.
-                        tdElement.addEventListener('click', function () {
-                            // 클릭한 TD 요소의 ID에서 itemname을 추출합니다.
-                            var itemId = this.id.split('-')[1];
-                            // 추출한 itemname을 콘솔에 출력합니다.
-                            console.log('11');
+                        $('#bomno-input').text(bomno)
+                        $('#modelname-input').text(modelname)
+                        $('#itemname-input').text(itemname)
+
+                        $.ajax({
+                            url: server + '/api/selectaccountplan',
+                            method: 'post',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                bomno: bomno,
+                                year: $('#yearSelect').val(), // 시작일
+                                month: $('#monthSelect').val(), // 종료일
+                            }),
+                            success: function (data) {
+                                $('#accountdatatbody').empty()
+                                for (var i = 0; i < data.length; i++) {
+
+                                    $('#accountdatatbody').append(
+                                        '<tr>' +
+                                        '<td>' + (data[i].plandate || '') + '</td>' +
+                                        '<td>' + (data[i].quantity || '') + '</td>' +
+                                        '<td><button class="btninfo"  onclick="showinfo()">상세정보</button></td>' +
+
+                                        '</tr>'
+                                    )
+                                }
+                                setTimeout(function () {
+                                    spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                                }, 1100);
+                            }
                         });
-                    }
+                        $('#overlay').fadeIn()
+                        $('#modal').fadeIn()
+
+                    });
+                    $('td[contenteditable="true"]').on('keydown', function (event) {
+                        if (event.keyCode === 13) { // 엔터 키의 keyCode는 13입니다.
+                            event.preventDefault(); // 기본 동작 방지
+                            var year = $(this).attr('id').split('-')[4]; // 셀 ID에서 날짜 추출
+                            var month = $(this).attr('id').split('-')[5]; // 셀 ID에서 연도 추출
+                            var date = $(this).attr('id').split('-')[6]; // 셀 ID에서 연도 추출
+                            // console.log(year + '-' + month + '-' + date);
+                        }
+                    });
+
+
                 },
 
             });
-            // 클릭 이벤트를 추가할 TD 요소를 찾습니다.
-
-
-
         }
 
-
+        function closeModal() {
+            $('#overlay').fadeOut()
+            $('#modal').fadeOut()
+        }
 
 
 
