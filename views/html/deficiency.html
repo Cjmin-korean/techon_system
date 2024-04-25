@@ -56,16 +56,8 @@
         var businessPlanTable = document.getElementById('businessPlan').getElementsByTagName('tbody')[0];
 
         // 년도 옵션 생성
-        var currentYear = new Date().getFullYear();
-        for (var i = currentYear; i >= currentYear - 2; i--) {
-            var option = document.createElement('option');
-            option.value = i;
-            option.textContent = i + '년';
-            yearSelect.appendChild(option);
-        }
 
-        yearSelect.addEventListener('change', updateBusinessPlan);
-        monthSelect.addEventListener('change', updateBusinessPlan);
+
 
         function updateBusinessPlan() {
             var today = new Date();
@@ -129,13 +121,13 @@
 
                             }),
                             success: function (result) {
-
                                 for (var i = 0; i < result.length; i++) {
-                                    $('#shipment-' + item.bomno + '-' + result[i].shipmentdate).text(result[i].quantity.toLocaleString());
+                                    var quantity = result[i].quantity ? result[i].quantity.toLocaleString() : 0;
+                                    $('#shipment-' + item.bomno + '-' + result[i].shipmentdate).text(quantity);
                                 }
                             },
-
                         });
+
 
                         tableBody += '<tr>';
                         tableBody += '<td>생산과부족</td>';
@@ -144,6 +136,8 @@
 
                         // 각 일자별로 편집 가능한 셀 추가
                         for (var currentDate = new Date(today); currentDate <= futureDate; currentDate.setDate(currentDate.getDate() + 1)) {
+
+
                             var currentYear = currentDate.getFullYear();
                             var currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
                             var currentDay = String(currentDate.getDate()).padStart(2, '0');
@@ -160,13 +154,46 @@
                                 part: '생산'
                             }),
                             success: function (result) {
-
                                 for (var i = 0; i < result.length; i++) {
                                     $('#productquantity').text(result[0].quantity.toLocaleString());
                                 }
-                            },
 
+                                var today = new Date();
+
+                                for (var i = 0; i < 21; i++) {
+                                    var targetDate = new Date(today);
+                                    targetDate.setDate(today.getDate() + i);
+
+                                    var year = targetDate.getFullYear();
+                                    var month = String(targetDate.getMonth() + 1).padStart(2, '0');
+                                    var day = String(targetDate.getDate()).padStart(2, '0');
+                                    var formattedDate = month + '-' + day;
+
+                                    var productQuantityText = $('#productquantity').text().replace(/,/g, ''); // 쉼표 제거
+                                    var firstProductQuantityText = $('#firstproductquantity').text().replace(/,/g, ''); // 쉼표 제거
+
+                                    var productQuantity = parseFloat(productQuantityText);
+                                    var firstProductQuantity = parseFloat(firstProductQuantityText);
+
+                                    // NaN이면 0으로 설정
+                                    if (isNaN(productQuantity)) {
+                                        productQuantity = 0;
+                                    }
+                                    if (isNaN(firstProductQuantity)) {
+                                        firstProductQuantity = 0;
+                                    }
+
+                                    var totalQuantity = (productQuantity + firstProductQuantity).toLocaleString(); // 적절한 형식으로 변환
+                                    console.log(productQuantity)
+                                    console.log(firstProductQuantity)
+                                    if (i === 0) {
+                                        $('#product-' + item.bomno + '-' + year + '-' + formattedDate).text(totalQuantity);
+                                    }
+                                }
+
+                            },
                         });
+
 
                         tableBody += '</tr>';
 
@@ -175,10 +202,8 @@
 
                         tableBody += '<tr>';
                         tableBody += '<td>검사 과부족</td>';
-
                         tableBody += '<td id="inspectionquantity"></td>';
-                        tableBody += '<td id="fistinspectionquantity">-60,000</td>';
-                        tableBody += '<td></td>';
+                        tableBody += '<td id="fistinspectionquantity"></td>';
 
                         // 각 일자별로 편집 가능한 셀 추가
                         for (var currentDate = new Date(today); currentDate <= futureDate; currentDate.setDate(currentDate.getDate() + 1)) {
@@ -258,7 +283,10 @@
 
 
 
-
+        function parseFloatStrict(value) {
+            var parsedValue = parseFloat(value);
+            return !isNaN(parsedValue) ? parsedValue : 0;
+        }
 
     </script>
 

@@ -5,18 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/salesinfo1.css">
+    <link rel="stylesheet" href="../css/equipmentinfo.css">
     <link rel="stylesheet" href="../css/spiner.css">
-    <title>단가 등록 및 조회</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <title>설비정보</title>
 </head>
 
 <body>
-    <div class="spinner-overlay">
-        <div class="spinner"></div>
-    </div>
     <div>
-        <h2 style="margin-left: 20px;"><i class="fas fa-money-check"></i> 단가 등록 및 조회</h2>
-
+        <h2 style="margin-left: 20px;"> <i class="fas fa-cogs"></i>설비정보</h2>
     </div>
 
     <div id="overlay" class="overlay"></div>
@@ -24,24 +23,28 @@
     <div>
         <i class="fas fa-search"></i>
         <b>조회검색</b>
-        <input type="text" style="width:20%;" placeholder="검색어를 입력하세요.." id="inputdata" autocomplete="off"
-            onkeypress="handleKeyPress(event)">
-        <button class="close-button" onclick="load1()">조회</button>
+        <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
+            autocomplete="off">
+        <button class="close-button" onclick="load()">조회</button>
+        <button class="save-button" onclick="openModal()">신규등록</button>
     </div>
-
+    <div class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
     <div id="maintable">
         <table>
             <thead>
-                <th>BOMNO</th>
-                <th>구분</th>
-                <th>모델명</th>
-                <th>제품명</th>
-                <th>고객사</th>
-                <th>제품군</th>
-                <th>판매단가(￦)</th>
-                <th>원가(￦)</th>
-                <th>재료비율(%)</th>
-                <th style="width: 90px;"></th>
+                <th style="width:100px">설비코드</th>
+                <th style="width:100px">호기명</th>
+                <th style="width:100px">설비명</th>
+                <th style="width:100px">구분</th>
+                <th style="width:100px">규격</th>
+                <th style="width:100px">차수</th>
+                <th style="width:100px">설비제작업체</th>
+                <th style="width:100px">SerialNO.</th>
+                <th style="width:100px">제작일자</th>
+                <th style="width:100px">설비위치</th>
+                <th style="width:100px"></th>
             </thead>
 
             <tbody id="iteminfobody">
@@ -50,6 +53,7 @@
             </tfoot>
         </table>
     </div>
+
 
 
     <div class="modal" id="modal">
@@ -66,17 +70,8 @@
                     <td colspan="5"><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
 
                     <tr>
-                        <th>품목코드</th>
-                        <th>BOMNO</th>
-                        <th>모델명</th>
-                        <th>품목명</th>
-                        <th>고객사</th>
-                        <th>단가(￦)</th>
-                        <th>PO수량(개)</th>
-                        <th>판매금액(￦)</th>
-                        <th style="width:50px;">영업확정</th>
-                        <th style="width:250px;">적요</th>
-                        <th style="width:100px;">출하계획날짜</th>
+
+
                         <th></th>
                     </tr>
                 </thead>
@@ -101,8 +96,9 @@
         <div class="modal-header">
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;제품검색</span>
         </div>
+        <input type="text" class="styled-search" id="itemcode1-input" placeholder="검색내용을 입력하세요" autocomplete="off">
         <div class="modal-content">
-            <input type="text" class="styled-search" id="itemcode1-input" placeholder="검색내용을 입력하세요" autocomplete="off">
+
 
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
@@ -130,30 +126,25 @@
     <script>
         var server = '';
         var gridApi;
-        console.log(window.location.hostname)
-        if (window.location.hostname == 'localhost') {
+        if (window.location.hostname == '127.0.0.1') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
         }
 
-
-        function handleKeyPress(event) {
-            if (event.keyCode === 13) { // 엔터 키의 keyCode는 13입니다.
-                load1(); // 엔터 키가 눌렸을 때 실행할 함수 호출
-            }
-        }
-
         $(document).ready(function () {
 
-            var today = new Date();
+            // var today = new Date();
 
-            var year = today.getFullYear();
-            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
-            var day = String(today.getDate()).padStart(2, '0'); // 일
-            var formattedDate = year + '-' + month + '-' + day;
+            // var year = today.getFullYear();
+            // var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            // var day = String(today.getDate()).padStart(2, '0'); // 일
+            // var formattedDate = year + '-' + month + '-' + day;
 
+            // document.getElementById('datetimepicker1').value = formattedDate;
+            // document.getElementById('datetimepicker2').value = formattedDate;
             load()
+            checkData()
 
         });
 
@@ -161,8 +152,9 @@
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
 
+
             $.ajax({
-                url: server + '/api/iteminfobom',
+                url: server + '/api/equipment',
                 method: 'post',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -176,78 +168,24 @@
                     for (var i = 0; i < result.length; i++) {
                         $('#iteminfobody').append(
                             '<tr>' +
-                            '<td>' + (result[i].bomno || '') + '</td>' +
+                            '<td>' + (result[i].codenumber || '') + '</td>' +
+                            '<td>' + (result[i].equipmentname || '') + '</td>' +
+                            '<td>' + (result[i].eqname || '') + '</td>' +
                             '<td>' + (result[i].part || '') + '</td>' +
-                            '<td>' + (result[i].modelname || '') + '</td>' +
-                            '<td>' + (result[i].itemname || '') + '</td>' +
+                            '<td>' + (result[i].size || '') + '</td>' +
+                            '<td>' + (result[i].num || '') + '</td>' +
                             '<td>' + (result[i].customer || '') + '</td>' +
-                            '<td>' + (result[i].class || '') + '</td>' +
-                            '<td>' + (result[i].itemprice.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].cost.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].costPriceRatio.toLocaleString() || '') + '</td>' +
+                            '<td>' + (result[i].serialno || '') + '</td>' +
+                            '<td>' + (result[i].manudate || '') + '</td>' +
+                            '<td>' + (result[i].position || '') + '</td>' +
+
+
+
                             '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
+                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
                             '</tr>'
                         );
-
-                        // 합계 계산
-
                     }
-
-                    // tfoot에 합계 추가
-
-
-                    $('td#data-id').hide();
-                    setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-                    }, 1100);
-
-                }
-            });
-
-            // $('#searchInput').on('keyup', function (event) {
-            //     if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
-            //         searchTable();
-            //     }
-            // });
-        }
-        function load1() {
-            var spinnerOverlay = document.querySelector('.spinner-overlay');
-            spinnerOverlay.style.display = 'flex'; // Spiner 표시
-
-            $.ajax({
-                url: server + '/api/iteminfobom11',
-                method: 'post',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    input: $('#inputdata').val()
-                }),
-
-                success: function (result) {
-                    $('#iteminfobody').empty();
-
-                    for (var i = 0; i < result.length; i++) {
-                        $('#iteminfobody').append(
-                            '<tr>' +
-                            '<td>' + (result[i].bomno || '') + '</td>' +
-                            '<td>' + (result[i].part || '') + '</td>' +
-                            '<td>' + (result[i].modelname || '') + '</td>' +
-                            '<td>' + (result[i].itemname || '') + '</td>' +
-                            '<td>' + (result[i].customer || '') + '</td>' +
-                            '<td>' + (result[i].class || '') + '</td>' +
-                            '<td>' + (result[i].itemprice.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].cost.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].costPriceRatio.toLocaleString() || '') + '</td>' +
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
-                            '</tr>'
-                        );
-
-                        // 합계 계산
-
-                    }
-
-                    // tfoot에 합계 추가
-
 
                     $('td#data-id').hide();
                     setTimeout(function () {
