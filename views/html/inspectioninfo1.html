@@ -5,36 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/houseinfo.css">
+    <link rel="stylesheet" href="../css/inspectioninfo.css">
     <link rel="stylesheet" href="../css/spiner.css">
     <link rel="stylesheet" href="../css/header.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>환율정보</title>
+    <title>수입검사 대기현황</title>
 </head>
 
 <body>
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-chart-line"></i> &nbsp;환율정보</h2>
+            <h2><i class="fas fa-file-import"></i> &nbsp;수입검사 대기현황</h2>
         </div>
         <div class="header-subtitle">
-            <h4>기초정보 > 환율정보</h4>
+            <h4>수입검사 > 수입검사 대기현황</h4>
         </div>
     </div>
+
+
     <div id="overlay" class="overlay"></div>
     <div id="overlay1" class="overlay"></div>
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
+            autocomplete="off">
+        <button class="close-button" onclick="load()">조회</button>
+        <button class="save-button" onclick="openModal()">신규등록</button>
 
-        <b style="margin-left: 10px;;">시작날짜</b>
-        <input type="date" style="width:10%; margin-left: 10px;" id="datetimepicker1">
 
-        <button class="close-button" style="margin-left: 10px; " onclick="openModal()">조회</button>
-        <button class="save-button" style="margin-left: 10px;" onclick="openModal()">신규등록</button>
     </fieldset>
+
 
     <div class="spinner-overlay">
         <div class="spinner"></div>
@@ -42,12 +44,20 @@
     <div id="maintable" class="table-wrapper">
         <table>
             <thead>
-                <th style="width:100px">시작날짜</th>
-                <th style="width:100px">창고명</th>
-                <th style="width:100px">통화코드</th>
-                <th style="width:100px">통화명</th>
-                <th style="width:100px">통화가격</th>
-                <th style="width:100px"></th>
+
+                <tr>
+                    <th>입고날짜</th>
+                    <th>자재유형</th>
+                    <th>제조사</th>
+                    <th>공급사</th>
+                    <th>자재명</th>
+                    <th>자재LOT</th>
+                    <th>ROLL</th>
+                    <th></th>
+                </tr>
+
+
+
             </thead>
 
             <tbody id="iteminfobody">
@@ -137,13 +147,15 @@
 
         $(document).ready(function () {
 
-            var today = new Date();
+            // var today = new Date();
 
-            var year = today.getFullYear();
-            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
-            var day = String(today.getDate()).padStart(2, '0'); // 일
-            var formattedDate = year + '-' + month + '-' + day;
-            document.getElementById('datetimepicker1').value = formattedDate;
+            // var year = today.getFullYear();
+            // var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            // var day = String(today.getDate()).padStart(2, '0'); // 일
+            // var formattedDate = year + '-' + month + '-' + day;
+
+            // document.getElementById('datetimepicker1').value = formattedDate;
+            // document.getElementById('datetimepicker2').value = formattedDate;
             load()
             checkData()
 
@@ -152,52 +164,48 @@
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
+            var fetchInterval; // 변수를 선언하여 fetch 인터벌을 저장합니다.
 
+            function fetchData() {
+                $.ajax({
+                    url: server + '/api/selectwaitinspection',
+                    method: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({}),
+                    success: function (result) {
+                        $('#iteminfobody').empty();
 
-            $.ajax({
-                url: server + '/api/selectwon',
-                method: 'post',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
+                        result.forEach(function (item) {
+                            var row = $('<tr>');
+                            row.append('<td>' + (item.date || '') + '</td>');
+                            row.append('<td>' + (item.materialtype || '') + '</td>');
+                            row.append('<td>' + (item.manufacterer || '') + '</td>');
+                            row.append('<td>' + (item.supplier || '') + '</td>');
+                            row.append('<td>' + (item.materialname || '') + '</td>');
+                            row.append('<td>' + (item.lotno || '') + '</td>');
+                            row.append('<td>' + (item.roll || '') + '</td>');
+                            row.append('<td><button class="btninfo" onclick="showinfo()">수입검사</button></td>');
+                            row.data('id', item.id); // Store ID as data attribute
 
-                }),
+                            $('#iteminfobody').append(row);
+                        });
 
-                success: function (result) {
-                    $('#iteminfobody').empty();
-
-                    for (var i = 0; i < result.length; i++) {
-                        $('#iteminfobody').append(
-                            '<tr>' +
-
-                            '<td>' + (result[i].startdate || '') + '</td>' +
-                            '<td>' + (result[i].finishdate || '') + '</td>' +
-                            '<td>' + (result[i].currencycode || '') + '</td>' +
-                            '<td>' + (result[i].currencyname || '') + '</td>' +
-                            '<td>' + (result[i].currencyprice.toLocaleString() || '') + '</td>' +
-
-
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
-                            '</tr>'
-                        );
+                        setTimeout(function () {
+                            spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                        }, 1100);
                     }
+                });
+            }
 
-                    $('td#data-id').hide();
-                    setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-                    }, 1100);
+            var fetchInterval = setInterval(fetchData, 1000);
 
-                }
-            });
-
-            // $('#searchInput').on('keyup', function (event) {
-            //     if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
-            //         searchTable();
-            //     }
-            // });
         }
 
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
 
         // updateaccountiteminfo
@@ -291,24 +299,24 @@
         }
         // 상세 정보 버튼에 대한 클릭 이벤트 처리
         $(document).on('click', '.btninfo', function () {
-            // 클릭된 버튼이 속한 행(row)을 선택합니다.
-            var rowData = $(this).closest('tr');
-
+            var rowData = $(this).closest('tr').data('id')
+            // var rowData = $(this).closest('tr');
+            console.log(rowData)
             // 행에 포함된 데이터 셀들을 선택하여 데이터를 가져옵니다.
-            var customer = rowData.find('td:eq(0)').text();
-            var modelname = rowData.find('td:eq(1)').text();
-            var itemname = rowData.find('td:eq(2)').text();
-            var itemcode = rowData.find('td:eq(3)').text();
-            var processname = rowData.find('td:eq(9)').text();
-            var bucakcustomer = rowData.find('td:eq(10)').text();
-            var id = rowData.find('td:eq(11)').text();
+            // var customer = rowData.find('td:eq(0)').text();
+            // var modelname = rowData.find('td:eq(1)').text();
+            // var itemname = rowData.find('td:eq(2)').text();
+            // var itemcode = rowData.find('td:eq(3)').text();
+            // var processname = rowData.find('td:eq(9)').text();
+            // var bucakcustomer = rowData.find('td:eq(10)').text();
+            // var id = rowData.find('td:eq(11)').text();
 
-            $('#customer').text(customer)
-            $('#modelname').text(modelname)
-            $('#itemname').text(itemname)
-            $('#itemcode').text(itemcode)
-            $('#processname').text(processname)
-            $('#bucakcustomer').text(bucakcustomer)
+            // $('#customer').text(customer)
+            // $('#modelname').text(modelname)
+            // $('#itemname').text(itemname)
+            // $('#itemcode').text(itemcode)
+            // $('#processname').text(processname)
+            // $('#bucakcustomer').text(bucakcustomer)
             // $('#cutomer').text(customer)
             // $('#customer').text(customer)s
         });

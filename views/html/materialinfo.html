@@ -5,36 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/houseinfo.css">
+    <link rel="stylesheet" href="../css/customerinformation.css">
+    <link rel="stylesheet" href="../css/materialinfo.css">
     <link rel="stylesheet" href="../css/spiner.css">
     <link rel="stylesheet" href="../css/header.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>환율정보</title>
+    <title>ㅈ</title>
 </head>
 
 <body>
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-chart-line"></i> &nbsp;환율정보</h2>
+            <h2><i class="fas fa-cube"></i> &nbsp;자재 기초 정보</h2>
         </div>
         <div class="header-subtitle">
-            <h4>기초정보 > 환율정보</h4>
+            <h4>자재등록 > 자재 기초 정보</h4>
         </div>
     </div>
+
+
     <div id="overlay" class="overlay"></div>
     <div id="overlay1" class="overlay"></div>
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
+            autocomplete="off">
+        <button class="close-button" onclick="load()">조회</button>
+        <button class="save-button" onclick="openModal()">신규등록</button>
 
-        <b style="margin-left: 10px;;">시작날짜</b>
-        <input type="date" style="width:10%; margin-left: 10px;" id="datetimepicker1">
 
-        <button class="close-button" style="margin-left: 10px; " onclick="openModal()">조회</button>
-        <button class="save-button" style="margin-left: 10px;" onclick="openModal()">신규등록</button>
     </fieldset>
+
 
     <div class="spinner-overlay">
         <div class="spinner"></div>
@@ -42,12 +45,32 @@
     <div id="maintable" class="table-wrapper">
         <table>
             <thead>
-                <th style="width:100px">시작날짜</th>
-                <th style="width:100px">창고명</th>
-                <th style="width:100px">통화코드</th>
-                <th style="width:100px">통화명</th>
-                <th style="width:100px">통화가격</th>
-                <th style="width:100px"></th>
+                <th>품목코드</th>
+                <th>자재명</th>
+                <th>자재폭(mm)</th>
+                <th>길이(M)</th>
+                <th>유효폭(mm)</th>
+                <th>SQM단가</th>
+                <th>롤단가</th>
+                <th>단위</th>
+                <th>순번</th>
+                <th>제조사</th>
+                <th>공급사</th>
+                <th>사용별</th>
+                <th>유형별</th>
+                <th>업체별</th>
+                <th>유형</th>
+                <th>색상</th>
+                <th>두께</th>
+                <th>점착력</th>
+                <th>점착제</th>
+                <th>무게</th>
+                <th>요청자</th>
+                <th>기입날짜</th>
+                <th>등록사유</th>
+                <th>고객사</th>
+                <th>모델</th>
+                <th></th>
             </thead>
 
             <tbody id="iteminfobody">
@@ -137,13 +160,15 @@
 
         $(document).ready(function () {
 
-            var today = new Date();
+            // var today = new Date();
 
-            var year = today.getFullYear();
-            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
-            var day = String(today.getDate()).padStart(2, '0'); // 일
-            var formattedDate = year + '-' + month + '-' + day;
-            document.getElementById('datetimepicker1').value = formattedDate;
+            // var year = today.getFullYear();
+            // var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            // var day = String(today.getDate()).padStart(2, '0'); // 일
+            // var formattedDate = year + '-' + month + '-' + day;
+
+            // document.getElementById('datetimepicker1').value = formattedDate;
+            // document.getElementById('datetimepicker2').value = formattedDate;
             load()
             checkData()
 
@@ -155,7 +180,7 @@
 
 
             $.ajax({
-                url: server + '/api/selectwon',
+                url: server + '/api/selectmaterialinformation1',
                 method: 'post',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -169,15 +194,33 @@
                     for (var i = 0; i < result.length; i++) {
                         $('#iteminfobody').append(
                             '<tr>' +
+                            '<td>' + (result[i].codenumber || '') + '</td>' +
+                            '<td>' + (result[i].materialname || '') + '</td>' +
+                            '<td>' + (typeof result[i].width === 'number' ? result[i].width.toLocaleString() : '') + '</td>' +
+                            '<td>' + (typeof result[i].length === 'number' ? result[i].length.toLocaleString() : '') + '</td>' +
+                            '<td>' + (typeof result[i].usewidth === 'number' ? result[i].usewidth.toLocaleString() : '') + '</td>' +
+                            '<td>' + (typeof result[i].sqmprice === 'number' ? result[i].sqmprice.toLocaleString() : '') + '</td>' +
+                            '<td>' + (typeof result[i].rollprice === 'number' ? result[i].rollprice.toLocaleString() : '') + '</td>' +
 
-                            '<td>' + (result[i].startdate || '') + '</td>' +
-                            '<td>' + (result[i].finishdate || '') + '</td>' +
-                            '<td>' + (result[i].currencycode || '') + '</td>' +
-                            '<td>' + (result[i].currencyname || '') + '</td>' +
-                            '<td>' + (result[i].currencyprice.toLocaleString() || '') + '</td>' +
-
-
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
+                            '<td>' + (result[i].unit || '') + '</td>' +
+                            '<td>' + (result[i].num || '') + '</td>' +
+                            '<td>' + (result[i].manufacterer || '') + '</td>' +
+                            '<td>' + (result[i].supplier || '') + '</td>' +
+                            '<td>' + (result[i].usagecategory || '') + '</td>' +
+                            '<td>' + (result[i].typecategory || '') + '</td>' +
+                            '<td>' + (result[i].companycategory || '') + '</td>' +
+                            '<td>' + (result[i].materialtype || '') + '</td>' +
+                            '<td>' + (result[i].color || '') + '</td>' +
+                            '<td>' + (result[i].thickness || '') + '</td>' +
+                            '<td>' + (result[i].adhesionstrength || '') + '</td>' +
+                            '<td>' + (result[i].adhesive || '') + '</td>' +
+                            '<td>' + (result[i].fabricweight || '') + '</td>' +
+                            '<td>' + (result[i].requester || '') + '</td>' +
+                            '<td>' + (result[i].modificationdate || '') + '</td>' +
+                            '<td>' + (result[i].registrationreason || '') + '</td>' +
+                            '<td>' + (result[i].customer || '') + '</td>' +
+                            '<td>' + (result[i].modelname || '') + '</td>' +
+                            // '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
                             '<td id="data-id">' + (result[i].id || '') + '</td>' +
                             '</tr>'
                         );
@@ -245,7 +288,7 @@
             $('#itemtbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectbomnoaccountinput',
+                url: server + '/api/selectmaterialinformation1',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({

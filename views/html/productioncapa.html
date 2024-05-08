@@ -5,36 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/houseinfo.css">
+    <link rel="stylesheet" href="../css/productioncapa.css">
     <link rel="stylesheet" href="../css/spiner.css">
     <link rel="stylesheet" href="../css/header.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>환율정보</title>
+    <title>생산 CAPA 분석 </title>
 </head>
 
 <body>
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-chart-line"></i> &nbsp;환율정보</h2>
+            <h2><i class="fas fa-chart-bar"></i> &nbsp;생산 CAPA 분석</h2>
         </div>
         <div class="header-subtitle">
-            <h4>기초정보 > 환율정보</h4>
+            <h4>생산CAPA > 생산 CAPA 분석</h4>
         </div>
     </div>
+
+
     <div id="overlay" class="overlay"></div>
     <div id="overlay1" class="overlay"></div>
-    <fieldset>
-        <legend>검색조건</legend>
-        <i class="fas fa-search"></i>
-
-        <b style="margin-left: 10px;;">시작날짜</b>
-        <input type="date" style="width:10%; margin-left: 10px;" id="datetimepicker1">
-
-        <button class="close-button" style="margin-left: 10px; " onclick="openModal()">조회</button>
-        <button class="save-button" style="margin-left: 10px;" onclick="openModal()">신규등록</button>
-    </fieldset>
 
     <div class="spinner-overlay">
         <div class="spinner"></div>
@@ -42,12 +33,45 @@
     <div id="maintable" class="table-wrapper">
         <table>
             <thead>
-                <th style="width:100px">시작날짜</th>
-                <th style="width:100px">창고명</th>
-                <th style="width:100px">통화코드</th>
-                <th style="width:100px">통화명</th>
-                <th style="width:100px">통화가격</th>
-                <th style="width:100px"></th>
+                <tr>
+                    <!-- <th style="text-align:center;" onclick="sortTable(0)">작성자</th> -->
+                    <th rowspan="3">BOM NO</th>
+                    <th rowspan="3">고객사</th>
+                    <th rowspan="3">모델명</th>
+                    <th rowspan="3">품목명</th>
+                    <th rowspan="3">작업구분</th>
+                    <th rowspan="3">차수</th>
+                    <th rowspan="3">1차피딩</th>
+                    <th rowspan="3">2차피딩</th>
+                    <th rowspan="3">Cavity</th>
+                    <th rowspan="3">설비</th>
+                    <th colspan="2">작업표준시간</th>
+                    <th colspan="7">생산 CAPA</th>
+                    <th colspan="3">검사 CAPA</th>
+                    <th rowspan="3">타발ST</th>
+                    <th rowspan="3">검사ST</th>
+
+                </tr>
+                <tr>
+                    <th rowspan="2">셋팅시간</th>
+                    <th rowspan="2">표준분당타수</th>
+                    <th colspan="3">타발기준</th>
+                    <th colspan="3">수량기준</th>
+                    <th rowspan="3">필요설비대수</th>
+                    <th colspan="3">검사기준</th>
+                </tr>
+                <tr>
+
+                    <th>시간당 타발</th>
+                    <th>주간 타발<br>(8시간)</th>
+                    <th>잔업기준 타발<br>(10.5시간)</th>
+                    <th>시간당 타발</th>
+                    <th>주간 타발<br>(8시간)</th>
+                    <th>잔업기준 타발<br>(10.5시간)</th>
+                    <th>시간당<br>검사수량</th>
+                    <th>주간검사수량<br>(8시간)</th>
+                    <th>잔업검사수량<br>(10.5시간)</th>
+                </tr>
             </thead>
 
             <tbody id="iteminfobody">
@@ -137,65 +161,79 @@
 
         $(document).ready(function () {
 
-            var today = new Date();
+            // var today = new Date();
 
-            var year = today.getFullYear();
-            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
-            var day = String(today.getDate()).padStart(2, '0'); // 일
-            var formattedDate = year + '-' + month + '-' + day;
-            document.getElementById('datetimepicker1').value = formattedDate;
+            // var year = today.getFullYear();
+            // var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            // var day = String(today.getDate()).padStart(2, '0'); // 일
+            // var formattedDate = year + '-' + month + '-' + day;
+
+            // document.getElementById('datetimepicker1').value = formattedDate;
+            // document.getElementById('datetimepicker2').value = formattedDate;
             load()
             checkData()
 
         });
 
+
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
-
-
             $.ajax({
-                url: server + '/api/selectwon',
-                method: 'post',
+                type: 'POST',
+                url: server + '/api/capasearching',
                 dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
+                success: function (data) {
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
+                        var sequenceNumber = 1;
+                        for (var i = 0; i < data.length; i++) {
+                            $('#iteminfobody').append(
+                                '<tr>' +
+                                '<td>' + (data[i].bomno || '') + '</td>' +
+                                '<td>' + (data[i].customer || '') + '</td>' +
+                                '<td>' + (data[i].modelname || '') + '</td>' +
+                                '<td>' + (data[i].itemname || '') + '</td>' +
+                                '<td>' + (data[i].workpart || '') + '</td>' +
+                                '<td>' + (data[i].working || '') + '</td>' +
+                                '<td>' + (data[i].onepidding || '') + '</td>' +
+                                '<td>0</td>' +
+                                '<td style="text-align:right;">' + (data[i].cavity || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].additional_column || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].calculated_column || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].custom_condition_column || '') + '</td>' +
+                                // '<td style="text-align:right;">' + (data[i].calculated_column || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].additional_calculated_column1.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].additional_calculated_column2.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].additional_calculated_column3.toLocaleString() || '') + '</td>' +
+                                '<td>2</td>' +
 
-                }),
+                                '<td style="text-align:right;">' + (data[i].cv1.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].cv2.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].cv3.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].cv4.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].cv5.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].cv6.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].cv7.toLocaleString() || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].cv8.toLocaleString() || '') + '</td>' +
 
-                success: function (result) {
-                    $('#iteminfobody').empty();
-
-                    for (var i = 0; i < result.length; i++) {
-                        $('#iteminfobody').append(
-                            '<tr>' +
-
-                            '<td>' + (result[i].startdate || '') + '</td>' +
-                            '<td>' + (result[i].finishdate || '') + '</td>' +
-                            '<td>' + (result[i].currencycode || '') + '</td>' +
-                            '<td>' + (result[i].currencyname || '') + '</td>' +
-                            '<td>' + (result[i].currencyprice.toLocaleString() || '') + '</td>' +
+                                '</tr>'
+                            )
+                            $("td#data-id").hide();
+                        }
 
 
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
-                            '</tr>'
-                        );
                     }
-
-                    $('td#data-id').hide();
-                    setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-                    }, 1100);
-
                 }
             });
 
-            // $('#searchInput').on('keyup', function (event) {
-            //     if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
-            //         searchTable();
-            //     }
-            // });
+
+            setTimeout(function () {
+                spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+            }, 1100);
+
         }
 
 

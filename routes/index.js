@@ -2000,14 +2000,18 @@ module.exports = function (app) {
 
 
             return pool.request()
-                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
                 .query(
                     "SELECT " +
                     " modelname," +
                     " itemname," +
                     " sum(quantity) as sumquantity" +
                     " FROM" +
+                
                     " SHIPMENTPLAN" +
+                    " where" +
+                    " shipmentdate between @start and @finish  " +
                     " group by" +
                     " modelname," +
                     " itemname "
@@ -3725,6 +3729,60 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinputinformation123', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+                .query(
+                    "   SELECT " +
+                    "        date, " +
+                    "        input, " +
+                    "        materialname, " +
+                    "        codenumber, " +
+                    "        lotno, " +
+                    "        manufacturedate, " +
+                    "        expirationdate, " +
+                    "        materialwidth, " +
+                    "        SUM(quantity) AS total_quantity," +
+                    "        SUM(roll) AS total_roll, " +
+                    "        sqmprice, " +
+                    "        SUM(rollprice) AS total_rollprice, " +
+                    "        bomno, " +
+                    "        customer, " +
+                    "        SUM(roll * rollprice) AS total_price " +
+                    "    FROM " +
+                    "        materialinput " +
+                    "    WHERE " +
+                    "        (input='원자재입고' OR input='원자재입고대기') AND date BETWEEN @start AND @finish " +
+                    "    GROUP BY " +
+                    "        date, " +
+                    "        input, " +
+                    "        materialname, " +
+                    "        codenumber, " +
+                    "        lotno, " +
+                    "        manufacturedate, " +
+                    "        expirationdate, " +
+                    "        materialwidth, " +
+                    "        sqmprice, " +
+                    "        bomno, " +
+                    "     customer;"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Internal server error');
+                });
+        });
+    });
+
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectmaterialinputinformation1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -3770,6 +3828,7 @@ module.exports = function (app) {
 
 
             return pool.request()
+
 
                 .query(
                     "SELECT  " +
@@ -7415,6 +7474,7 @@ module.exports = function (app) {
     });
     // **** finish
 
+
     // // **** start       
     // sql.connect(config).then(pool => {
     //     app.post('/api/materialoption', function (req, res) {
@@ -7540,6 +7600,36 @@ module.exports = function (app) {
                 .query(
                     'insert into accountinput(num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part,etc,shipmentdate)' +
                     ' values(@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part,@etc,@shipmentdate)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/insertsaleinput', function (req, res) {
+
+            // console.log("11", req)
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+                .input('saledate', sql.NVarChar, req.body.saledate)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('itemprice', sql.Float, req.body.itemprice)
+                .input('quantity', sql.Float, req.body.quantity)
+                .input('etc', sql.NVarChar, req.body.etc)
+
+                .query(
+                    'insert into saleinput(saledate,customer,itemcode,bomno,modelname,itemname,itemprice,quantity,etc)' +
+                    ' values(@saledate,@customer,@itemcode,@bomno,@modelname,@itemname,@itemprice,@quantity,@etc)'
                 )
                 .then(result => {
 
@@ -13167,6 +13257,40 @@ module.exports = function (app) {
         });
 
     });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectsalesinput', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+
+                .query(
+                    " select   " +
+                    " bomno,  " +
+                    " modelname,  " +
+                    " itemname,  " +
+                    " customer,  " +
+                    " quantity,  " +
+                    " itemcode,  " +
+                    " quantity * itemprice AS totalprice,  " +
+                    " itemprice,  " +
+                    " saledate  " +
+                    " from  " +
+                    " saleinput  " +
+                    " where " +
+                    " saledate between @start and @finish " +
+                    " order by saledate asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
     // **** finish
     // **** start material combobox group 쿼리      
     sql.connect(config).then(pool => {
@@ -14174,7 +14298,7 @@ module.exports = function (app) {
                     " sum(quantity) as quantity" +
                     " from" +
                     " accountinput" +
-                    " WHERE YEAR(deliverydate) = @year AND MONTH(deliverydate) = @month AND bomno = @bomno"+
+                    " WHERE YEAR(deliverydate) = @year AND MONTH(deliverydate) = @month AND bomno = @bomno" +
                     " group by" +
                     " deliverydate," +
                     " bomno " +
@@ -14189,6 +14313,7 @@ module.exports = function (app) {
 
     });
     // **** finish
+
     // **** start itemname,materialwidth변수로  chk확인 쿼리      
     sql.connect(config).then(pool => {
         app.post('/api/selectaccountplan', function (req, res) {
@@ -14202,22 +14327,61 @@ module.exports = function (app) {
 
 
                 .query(
-                    " SELECT "+
-                    " plandate,"+
-                    " bomno,"+
-                    " modelname,"+
-                    " itemname,"+
-                    " SUM(quantity) AS quantity"+
-                    " FROM"+
-                    " accountplan "+
-                    " WHERE YEAR(plandate) = @year AND MONTH(plandate) = @month AND bomno = @bomno"+
-                    " GROUP BY "+
-                    " plandate, "+
-                    " bomno, "+
-                    " modelname, "+
+                    " SELECT " +
+                    " plandate," +
+                    " bomno," +
+                    " modelname," +
+                    " itemname," +
+                    " SUM(quantity) AS quantity" +
+                    " FROM" +
+                    " accountplan " +
+                    " WHERE YEAR(plandate) = @year AND MONTH(plandate) = @month AND bomno = @bomno" +
+                    " GROUP BY " +
+                    " plandate, " +
+                    " bomno, " +
+                    " modelname, " +
                     " itemname"
                 )
-               
+
+
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/selectsaleinput', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('year', sql.NVarChar, req.body.year)
+                .input('month', sql.NVarChar, req.body.month)
+
+
+                .query(
+                    " SELECT " +
+                    " saledate," +
+                    " bomno," +
+                    " modelname," +
+                    " itemname," +
+                    " SUM(quantity) AS quantity" +
+                    " FROM" +
+                    " saleinput " +
+                    " WHERE YEAR(saledate) = @year AND MONTH(saledate) = @month AND bomno = @bomno" +
+                    " GROUP BY " +
+                    " saledate, " +
+                    " bomno, " +
+                    " modelname, " +
+                    " itemname"
+                )
+
 
                 .then(result => {
 
@@ -14440,7 +14604,7 @@ module.exports = function (app) {
                     " lprice, " +
                     " lea*lprice/1000000'lcost'" +
                     " from " +
-                    " businessplan WHERE rev=@rev"
+                    " businessplan"
                 )
                 .then(result => {
 
@@ -14840,6 +15004,31 @@ module.exports = function (app) {
         });
 
     });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/deleteaccountplan', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            const { bomno, year, month } = req.body;
+
+            pool.request()
+                .input('bomno', sql.NVarChar, bomno)
+                .input('year', sql.NVarChar, year)
+                .input('month', sql.NVarChar, month)
+                .query(
+                    "DELETE FROM accountplan WHERE YEAR(plandate) = @year AND MONTH(plandate) = @month AND bomno = @bomno"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                })
+                .catch(err => {
+                    console.error("Error executing SQL query:", err);
+                    res.status(500).send("An error occurred while deleting the account plan.");
+                });
+        });
+    });
+
     // **** finish
     // **** start  품질검사 등록 쿼리    
     sql.connect(config).then(pool => {

@@ -5,36 +5,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/houseinfo.css">
+    <link rel="stylesheet" href="../css/purchase.css">
     <link rel="stylesheet" href="../css/spiner.css">
     <link rel="stylesheet" href="../css/header.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>환율정보</title>
+    <title>자재 구매 발주 등록 및 조회</title>
 </head>
 
 <body>
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-chart-line"></i> &nbsp;환율정보</h2>
+            <h2><i class="fas fa-shopping-cart"></i> &nbsp;자재 구매 발주 등록 및 조회</h2>
         </div>
         <div class="header-subtitle">
-            <h4>기초정보 > 환율정보</h4>
+            <h4>구매발주 > 자재 구매 발주 등록 및 조회</h4>
         </div>
     </div>
-    <div id="overlay" class="overlay"></div>
-    <div id="overlay1" class="overlay"></div>
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
+        <input type="date" style="width:10%;" id="datetimepicker1">
+        <input type="date" style="width:10%;" id="datetimepicker2">
+        <button class="close-button" onclick="load()">조회</button>
+        <button class="save-button" onclick="openModal()">신규등록</button>
 
-        <b style="margin-left: 10px;;">시작날짜</b>
-        <input type="date" style="width:10%; margin-left: 10px;" id="datetimepicker1">
 
-        <button class="close-button" style="margin-left: 10px; " onclick="openModal()">조회</button>
-        <button class="save-button" style="margin-left: 10px;" onclick="openModal()">신규등록</button>
     </fieldset>
+
+    <div id="overlay" class="overlay"></div>
+    <div id="overlay1" class="overlay"></div>
 
     <div class="spinner-overlay">
         <div class="spinner"></div>
@@ -42,12 +42,14 @@
     <div id="maintable" class="table-wrapper">
         <table>
             <thead>
-                <th style="width:100px">시작날짜</th>
-                <th style="width:100px">창고명</th>
-                <th style="width:100px">통화코드</th>
-                <th style="width:100px">통화명</th>
-                <th style="width:100px">통화가격</th>
-                <th style="width:100px"></th>
+                <tr>
+                    <th style="text-align:center;">발주번호</th>
+                    <th style="text-align:center;">발주일자</th>
+                    <th style="text-align:center;">거래처명</th>
+                    <th style="text-align:center;">품목내용</th>
+                    <th style="text-align:center;">금액 합계</th>
+                    <th style="text-align:center; width:70px;">발주서</th>
+                </tr>
             </thead>
 
             <tbody id="iteminfobody">
@@ -143,59 +145,61 @@
             var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
             var day = String(today.getDate()).padStart(2, '0'); // 일
             var formattedDate = year + '-' + month + '-' + day;
+
             document.getElementById('datetimepicker1').value = formattedDate;
+            document.getElementById('datetimepicker2').value = formattedDate;
             load()
             checkData()
 
         });
 
+
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
-
-
             $.ajax({
-                url: server + '/api/selectwon',
-                method: 'post',
+                type: 'POST',
+                url: server + '/api/purchaseorderload',
                 dataType: 'json',
                 contentType: 'application/json',
-                data: JSON.stringify({
+                data: JSON.stringify({}),
+                success: function (data) {
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        $('#iteminfobody').append('<tr><td colspan="7" style="text-align: center;">데이터가 없습니다.</td></tr>');
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
+                        var totalQuantity = 0;
+                        var totalSupplyAmount = 0;
 
-                }),
+                        for (var i = 0; i < data.length; i++) {
+                            totalQuantity += parseFloat(data[i].quantity) || 0;
+                            totalSupplyAmount += parseFloat(data[i].supplyamount) || 0;
 
-                success: function (result) {
-                    $('#iteminfobody').empty();
+                            // 추가: 한국 국기 이미지 추가
+                            var koreanFlag = '<img src="../img/한국.png" alt="Korean Flag" style="width: 40px; height: 40px;">';
+                            var korean1Flag = '<img src="../img/베트남.png" alt="Korean Flag" style="width: 40px; height: 40px;">';
 
-                    for (var i = 0; i < result.length; i++) {
-                        $('#iteminfobody').append(
-                            '<tr>' +
-
-                            '<td>' + (result[i].startdate || '') + '</td>' +
-                            '<td>' + (result[i].finishdate || '') + '</td>' +
-                            '<td>' + (result[i].currencycode || '') + '</td>' +
-                            '<td>' + (result[i].currencyname || '') + '</td>' +
-                            '<td>' + (result[i].currencyprice.toLocaleString() || '') + '</td>' +
-
-
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
-                            '</tr>'
-                        );
+                            $('#iteminfobody').append(
+                                '<tr>' +
+                                '<td>' + (data[i].orderno || '') + '</td>' +
+                                '<td>' + (data[i].orderdate || '') + '</td>' +
+                                '<td>' + (data[i].suppliername || '') + '</td>' +
+                                '<td>' + (data[i].orderSummary || '') + '</td>' +
+                                '<td style="text-align:right;">' + (data[i].totalSupplyAmount.toLocaleString() || '') + '</td>' +
+                                '<td><button class="close-button" onclick="openInvoice(this)">발주서</button></td>' +
+                                '</tr>'
+                            )
+                        }
                     }
-
-                    $('td#data-id').hide();
-                    setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-                    }, 1100);
-
                 }
             });
 
-            // $('#searchInput').on('keyup', function (event) {
-            //     if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
-            //         searchTable();
-            //     }
-            // });
+
+            setTimeout(function () {
+                spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+            }, 1100);
+
         }
 
 

@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 var port = process.env.PORT || 8080;
 var router = require('./routes')(app);
-var server = app.listen(port, function () { console.log("Express server has started on port " + port) });
+var server = app.listen(port, function () { console.log(port + "서버에 접속 완료 되었습니다.") });
 
 const PORT = 3001;
 
@@ -350,5 +350,5 @@ app.get("/calendar.js", cors(), (req, res) => {
 
 // 서버 실행
 app.listen(PORT, () => {
-    console.log(`Listen : ${PORT}`);
+    console.log(`접속 PORT : ${PORT}`);
 });

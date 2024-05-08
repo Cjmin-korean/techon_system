@@ -5,53 +5,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/selectaccountiteminfo.css">
+    <link rel="stylesheet" href="../css/shipmentplan.css">
     <link rel="stylesheet" href="../css/spiner.css">
     <link rel="stylesheet" href="../css/tablewrapper.css">
     <link rel="stylesheet" href="../css/header.css">
-    <title>제품정보</title>
+
+    <title>영업 판매 계획</title>
 
 
 </head>
 
 <body>
+
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-cubes"></i> &nbsp;제품 정보</h2>
+            <h2><i class="fas fa-shopping-bag"></i> &nbsp;영업 3개월 판매 계획 등록</h2>
         </div>
         <div class="header-subtitle">
-            <h4>출하계획등록 > 제품 정보</h4>
+            <h4>판매계획 > 영업 3개월 판매 계획 등록</h4>
         </div>
     </div>
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." autocomplete="off">
-        <div id="overlay" class="overlay"></div>
-        <button class="close-button" onclick="processnameinfo()">공정명</button>
-        <button class="close-button" onclick="bucakcustomerinfo()">부착업체</button>
+        <label for="customer" style="margin-left: 20px;">고객사:</label>
+        <select style="margin-left: 15px;">
+            <option value="">전체</option>
+            <!-- <option value="영풍전자">영풍전자</option>
+            <option value="한솔테크닉스">한솔테크닉스</option>
+            <option value="KSS코퍼레이션">KSS코퍼레이션</option>
+            <option value="IMC">IMC</option>
+            <option value="한솔테크닉스">한솔테크닉스</option>
+            <option value="DB Hitek / Steco">DB Hitek / Steco</option> -->
+        </select>
 
+        <label for="year" style="margin-left: 20px;">연:</label>
+        <select id="yearSelect" style="margin-left: 15px;">
+            <!-- 여기에 옵션을 자바스크립트로 추가할 예정입니다. -->
+        </select>
+        <label for="month" style="margin-left: 20px;">월:</label>
 
+        <select id="monthSelect" style="margin-left: 15px;">
+            <option value="1">1월</option>
+            <option value="2">2월</option>
+            <option value="3">3월</option>
+            <option value="4">4월</option>
+            <option value="5">5월</option>
+            <option value="6">6월</option>
+            <option value="7">7월</option>
+            <option value="8">8월</option>
+            <option value="9">9월</option>
+            <option value="10">10월</option>
+            <option value="11">11월</option>
+            <option value="12">12월</option>
+
+        </select>
+
+        <label for="rev" style="margin-left: 20px;">Rev:</label>
+        <input type="text" style="margin-left: 15px;" id="rev-select" placeholder="Rev 입력">
+        <!-- <label for="rev" style="margin-left: 20px;">금액설정:</label>
+        <select id="price-select" style="margin-left: 15px;">
+            <option value="">전체</option>
+            <option value="단가">단가</option>
+            <option value="원가">원가</option>
+            <option value="단가+원가">단가+원가</option>
+
+        </select> -->
+        <button class="close-button" onclick="searchData()">조회</button>
     </fieldset>
+
 
     <div class="spinner-overlay">
         <div class="spinner"></div>
     </div>
-    <div id="maintable" class="table-wrapper">
+    <b style="float: right;">단위:백만원</b>
+
+    <div id="maintable">
         <table>
             <thead>
-                <th>고객사</th>
-                <th>모델명</th>
-                <th>제품명</th>
-                <th>제품코드</th>
-                <th>PCS</th>
-                <th>C/V</th>
-                <th>타발방향</th>
-                <th>작업방식</th>
-                <th>유형</th>
-                <th>공정명</th>
-                <th>부착업체</th>
-                <th style="width: 90px;"></th>
+                <tr>
+                    <th rowspan="3">고객사</th>
+                    <th rowspan="3">BOMNO.</th>
+                    <th rowspan="3">모델명</th>
+                    <th rowspan="3">제품명</th>
+                    <th rowspan="3">단가</th>
+                    <th colspan="4">판매실적</th>
+                    <th colspan="8">판매계획</th>
+
+
+                </tr>
+                <tr>
+                    <th colspan="2">전월</th>
+                    <th colspan="2">금월</th>
+                    <th colspan="2" id="onemonth">4월</th>
+                    <th colspan="2" id="twomonth">5월</th>
+                    <th colspan="2" id="threemonth">6월</th>
+                    <th colspan="2" id="forthmonth">7월</th>
+
+                </tr>
+                <tr>
+                    <th>수량</th>
+                    <th>금액</th>
+                    <th>수량</th>
+                    <th>금액</th>
+                    <th>수량</th>
+                    <th>금액</th>
+                    <th>수량</th>
+                    <th>금액</th>
+                    <th>수량</th>
+                    <th>금액</th>
+                    <th>수량</th>
+                    <th>금액</th>
+                </tr>
+
+
             </thead>
 
             <tbody id="iteminfobody">
@@ -139,44 +206,7 @@
             <button class="close-button" style="margin-top: 20px;" onclick="closeModal1()">닫기</button>
         </div>
     </div>
-    <div class="modal2" id="modal2">
-        <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;부착업체 기초정보</span>
-        </div>
-        <div class="modal-content">
-            <table class="styled-table" id="Podatatable">
-                <thead id="tableHead">
-                    <tr>
-                        <th>부착업체 추가</th>
-                        <th style="width: 10px;"></th>
-                    </tr>
-                    <tr>
-                        <td><input type="text" style="width:100%;" id="bucakcustomer-input" autocomplete="off"></td>
-                        <td><button class="close-button" onclick="savebucakcustomer()">추가</button></td>
-                    </tr>
-                </thead>
 
-            </table>
-            <div id="bucakcustomerdiv">
-                <table class="styled-table" id="bucakcustomertable">
-                    <thead id="tableHead">
-                        <tr>
-                            <th>부착업체</th>
-                            <th style="width: 10px;"></th>
-                        </tr>
-
-                    </thead>
-                    <tbody id="bucakcustomertbody">
-                    </tbody>
-                </table>
-            </div>
-
-
-        </div>
-        <div class="modal-footer">
-            <button class="close-button" style="margin-left: 10px;" onclick="closeModal2()">닫기</button>
-        </div>
-    </div>
     <script>
         var server = '';
         var gridApi;
@@ -186,8 +216,26 @@
             server = 'http://techonmes.co.kr';
         }
         $(document).ready(function () {
-            load()
+            var yearSelect = document.getElementById('yearSelect');
+            var monthSelect = document.getElementById('monthSelect');
+
+            var currentMonth = new Date().getMonth() + 1;
+            var currentYear = new Date().getFullYear();
+
+            monthSelect.value = currentMonth;
+            yearSelect.value = currentYear;
+
+            // 년도 옵션 생성
+            for (var i = currentYear; i >= currentYear - 1; i--) {
+                var option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + '년';
+                yearSelect.appendChild(option);
+            }
+
+            // load()
         });
+
 
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
@@ -380,9 +428,27 @@
             // $('#cutomer').text(customer)
             // $('#customer').text(customer)s
         });
+        monthSelect.addEventListener('change', function () {
+
+        });
 
 
+        function searchData() {
+            var currentMonth = parseInt($('#monthSelect').val()); // 선택된 월
+            var months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
 
+            var th = document.getElementById('onemonth');
+            th.textContent = months[currentMonth - 1];
+
+            th = document.getElementById('twomonth');
+            th.textContent = months[currentMonth % 12];
+
+            th = document.getElementById('threemonth');
+            th.textContent = months[(currentMonth + 1) % 12];
+
+            th = document.getElementById('forthmonth');
+            th.textContent = months[(currentMonth + 2) % 12];
+        }
     </script>
 
 </body>

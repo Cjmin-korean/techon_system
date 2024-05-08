@@ -5,36 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/houseinfo.css">
+    <link rel="stylesheet" href="../css/inspectioninfo.css">
     <link rel="stylesheet" href="../css/spiner.css">
     <link rel="stylesheet" href="../css/header.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>환율정보</title>
+    <title>수입검사 기초 정보</title>
 </head>
 
 <body>
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-chart-line"></i> &nbsp;환율정보</h2>
+            <h2><i class="fas fa-file-import"></i> &nbsp;수입검사 기초 정보</h2>
         </div>
         <div class="header-subtitle">
-            <h4>기초정보 > 환율정보</h4>
+            <h4>수입검사 > 수입검사 기초 정보</h4>
         </div>
     </div>
+
+
     <div id="overlay" class="overlay"></div>
     <div id="overlay1" class="overlay"></div>
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
+            autocomplete="off">
+        <button class="close-button" onclick="load()">조회</button>
+        <button class="save-button" onclick="openModal()">신규등록</button>
 
-        <b style="margin-left: 10px;;">시작날짜</b>
-        <input type="date" style="width:10%; margin-left: 10px;" id="datetimepicker1">
 
-        <button class="close-button" style="margin-left: 10px; " onclick="openModal()">조회</button>
-        <button class="save-button" style="margin-left: 10px;" onclick="openModal()">신규등록</button>
     </fieldset>
+
 
     <div class="spinner-overlay">
         <div class="spinner"></div>
@@ -42,12 +44,41 @@
     <div id="maintable" class="table-wrapper">
         <table>
             <thead>
-                <th style="width:100px">시작날짜</th>
-                <th style="width:100px">창고명</th>
-                <th style="width:100px">통화코드</th>
-                <th style="width:100px">통화명</th>
-                <th style="width:100px">통화가격</th>
-                <th style="width:100px"></th>
+                <tr>
+                    <th colspan="6">자재정보</th>
+                    <th colspan="3">두께(㎛)</th>
+                    <th colspan="3">점착력(내측)(gf/25mm)</th>
+                    <th colspan="3">점착력(외측)(gf/25mm)</th>
+                    <th colspan="3">이형력(내측)(gf/25mm)</th>
+                    <th colspan="2">저항</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th>품목코드</th>
+                    <th>자재명</th>
+                    <th>제조사</th>
+                    <th>공급사</th>
+                    <th>유형</th>
+                    <th>색상</th>
+                    <th>기준값</th>
+                    <th>공차(-)</th>
+                    <th>공차(+)</th>
+                    <th>기준값</th>
+                    <th>공차(-)</th>
+                    <th>공차(+)</th>
+                    <th>기준값</th>
+                    <th>공차(-)</th>
+                    <th>공차(+)</th>
+                    <th>기준값</th>
+                    <th>공차(-)</th>
+                    <th>공차(+)</th>
+                    <th>(내측)(Ω/㎡)</th>
+                    <th>(외측)(Ω/㎡)</th>
+                    <th></th>
+                </tr>
+
+
+
             </thead>
 
             <tbody id="iteminfobody">
@@ -137,67 +168,69 @@
 
         $(document).ready(function () {
 
-            var today = new Date();
-
-            var year = today.getFullYear();
-            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
-            var day = String(today.getDate()).padStart(2, '0'); // 일
-            var formattedDate = year + '-' + month + '-' + day;
-            document.getElementById('datetimepicker1').value = formattedDate;
             load()
             checkData()
 
         });
-
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
 
+            function fetchData() {
+                $.ajax({
+                    url: server + '/api/selectmaterialinformation2',
+                    method: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({}),
+                    success: function (result) {
+                        $('#iteminfobody').empty();
 
-            $.ajax({
-                url: server + '/api/selectwon',
-                method: 'post',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
+                        for (var i = 0; i < result.length; i++) {
+                            $('#iteminfobody').append(
+                                '<tr>' +
+                                '<td>' + (result[i].codenumber || '') + '</td>' +
+                                '<td>' + (result[i].materialname || '') + '</td>' +
+                                '<td>' + (result[i].manufacterer || '') + '</td>' +
+                                '<td>' + (result[i].supplier || '') + '</td>' +
+                                '<td>' + (result[i].materialtype || '') + '</td>' +
+                                '<td>' + (result[i].color || '') + '</td>' +
+                                '<td>' + (result[i].thickness11 ? numberWithCommas(result[i].thickness11) : '') + '</td>' +
+                                '<td>' + (result[i].thickness12 ? numberWithCommas(result[i].thickness12) : '') + '</td>' +
+                                '<td>' + (result[i].thickness13 ? numberWithCommas(result[i].thickness13) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength11 ? numberWithCommas(result[i].adhesionstrength11) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength12 ? numberWithCommas(result[i].adhesionstrength12) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength13 ? numberWithCommas(result[i].adhesionstrength13) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength21 ? numberWithCommas(result[i].adhesionstrength21) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength22 ? numberWithCommas(result[i].adhesionstrength22) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength23 ? numberWithCommas(result[i].adhesionstrength23) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength31 ? numberWithCommas(result[i].adhesionstrength31) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength32 ? numberWithCommas(result[i].adhesionstrength32) : '') + '</td>' +
+                                '<td>' + (result[i].adhesionstrength33 ? numberWithCommas(result[i].adhesionstrength33) : '') + '</td>' +
+                                '<td>' + (result[i].resistance11 ? numberWithCommas(result[i].resistance11) : '') + '</td>' +
+                                '<td>' + (result[i].resistance21 ? numberWithCommas(result[i].resistance21) : '') + '</td>' +
+                                '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
+                                '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                                '</tr>'
+                            );
+                        }
 
-                }),
-
-                success: function (result) {
-                    $('#iteminfobody').empty();
-
-                    for (var i = 0; i < result.length; i++) {
-                        $('#iteminfobody').append(
-                            '<tr>' +
-
-                            '<td>' + (result[i].startdate || '') + '</td>' +
-                            '<td>' + (result[i].finishdate || '') + '</td>' +
-                            '<td>' + (result[i].currencycode || '') + '</td>' +
-                            '<td>' + (result[i].currencyname || '') + '</td>' +
-                            '<td>' + (result[i].currencyprice.toLocaleString() || '') + '</td>' +
-
-
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
-                            '</tr>'
-                        );
+                        $('td#data-id').hide();
+                        setTimeout(function () {
+                            spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                        }, 1100);
                     }
+                });
+            }
 
-                    $('td#data-id').hide();
-                    setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-                    }, 1100);
-
-                }
-            });
-
-            // $('#searchInput').on('keyup', function (event) {
-            //     if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
-            //         searchTable();
-            //     }
-            // });
+            var fetchInterval = setInterval(fetchData, 1000);
         }
 
+
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
 
         // updateaccountiteminfo

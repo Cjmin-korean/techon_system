@@ -4,118 +4,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TUI Grid 예제</title>
-    <!-- TUI Grid 라이브러리 추가 -->
-    <link rel="stylesheet" href="https://uicdn.toast.com/tui.grid/latest/tui-grid.css">
-    <script src="https://uicdn.toast.com/tui.grid/latest/tui-grid.js"></script>
-    <!-- TUI Filter 추가 -->
-    <link rel="stylesheet" href="https://uicdn.toast.com/tui.filter/latest/tui-filter.css">
-    <script src="https://uicdn.toast.com/tui.filter/latest/tui-filter.js"></script>
-    <!-- jQuery 추가 -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <title>Scrollable tbody Example</title>
+
 </head>
+<style>
+    .table-wrapper {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    table {
+        width: 200%;
+        /* 테이블의 너비를 200%로 설정 */
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+</style>
 
 <body>
 
-    <!-- 그리드를 표시할 컨테이너 -->
-    <div id="grid"></div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Country</th>
+                    <!-- 추가된 열 -->
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Country</th>
+                </tr>
+            </thead>
+            <tbody id="data">
+                <!-- 여기에 서버에서 동적으로 데이터를 추가할 것입니다. -->
+            </tbody>
+        </table>
+    </div>
 
     <script>
         var server = '';
         var gridApi;
-
-
-        // 서버 주소 설정
-        if (window.location.hostname == '127.0.0.1') {
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
         }
 
-        // AJAX를 이용하여 데이터 가져오기
-        function fetchData() {
-            $.ajax({
-                url: server + '/api/selectaccountinput', // 서버에서 데이터를 가져오는 URL 설정
-                method: 'POST', // GET 또는 POST 설정
+        $(document).ready(function () {
+            load();
+        });
 
-                success: function (data) {
-                    // 가져온 데이터를 그리드에 설정
-                    grid.resetData(data);
-                },
-                error: function (xhr, status, error) {
-                    // 오류 처리
-                    console.error('Error:', error);
+        function load() {
+        
+
+            $.ajax({
+                url: server + '/api/selectcustomerinformation',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function (result) {
+                    var tbody = document.getElementById("data");
+                    tbody.innerHTML = ""; // 데이터를 초기화합니다.
+
+                    for (var i = 0; i < result.length; i++) {
+                        var row = "<tr>";
+                        row += "<td>" + (result[i].customername || '') + "</td>";
+                        row += "<td>" + (result[i].businessregistrationnumber || '') + "</td>";
+                        row += "<td>" + (result[i].representativename || '') + "</td>";
+                        row += "<td>" + (result[i].customerinitial || '') + "</td>";
+                        row += "<td>" + (result[i].customernameenglish || '') + "</td>";
+                        row += "<td>" + (result[i].date || '') + "</td>";
+                        row += "<td>" + (result[i].customerregistrationtype || '') + "</td>";
+                        row += "<td>" + (result[i].outsourcing || '') + "</td>";
+                        row += "<td>" + (result[i].purchase || '') + "</td>";
+                        row += "<td>" + (result[i].reasonforregistration || '') + "</td>";
+                        row += "<td>" + (result[i].appliedmodel || '') + "</td>";
+                        row += "<td>" + (result[i].materialinformation || '') + "</td>";
+                        row += "<td>" + (result[i].businesstype || '') + "</td>";
+                        row += "<td>" + (result[i].industrytype || '') + "</td>";
+                        row += "<td>" + (result[i].adress || '') + "</td>";
+                        row += "<td>" + (result[i].phonenumber || '') + "</td>";
+                        row += "<td>" + (result[i].faxnumber || '') + "</td>";
+                        row += "<td>" + (result[i].contactperson || '') + "</td>";
+                        row += "<td>" + (result[i].sphonenumber || '') + "</td>";
+                        row += "<td>" + (result[i].vattype || '') + "</td>";
+                        row += "<td>" + (result[i].paymentmethod || '') + "</td>";
+                        row += "<td>" + (result[i].deadline || '') + "</td>";
+                        row += "<td>" + (result[i].paymentperiod || '') + "</td>";
+                        row += "<td>" + (result[i].bankname || '') + "</td>";
+                        row += "<td>" + (result[i].accountnumber || '') + "</td>";
+                        row += "<td>" + (result[i].accountholdername || '') + "</td>";
+                        row += "<td>" + (result[i].remarks || '') + "</td>";
+                        row += "<td>" + (result[i].requestdepartment || '') + "</td>";
+                        row += "<td><button class='btninfo' onclick='showinfo()'>상세정보</button></td>";
+                        row += "<td class='data-id'>" + (result[i].id || '') + "</td>";
+                        row += "</tr>";
+                        tbody.innerHTML += row;
+                    }
+
+                    $('.data-id').hide();
                 }
             });
         }
 
-        // 그리드 설정
-        var tui;
-        const gridData = []; // 빈 배열로 초기화
-
-        const grid = new tui.Grid({
-            el: document.getElementById('grid'),
-            data: gridData,
-            bodyHeight: 500,
-            columns: [
-                {
-                    header: '주문일자',
-                    name: 'deliverydate',
-                    filter: 'select'
-                },
-                {
-                    header: '고객사코드',
-                    name: 'itemcode',
-                    filter: 'select'
-                },
-                {
-                    header: '고객사',
-                    name: 'customer',
-                    filter: 'select'
-                },
-                {
-                    header: 'BOMNO',
-                    name: 'bomno',
-                    filter: 'select'
-                },
-                {
-                    header: '모델명',
-                    name: 'modelname',
-                    filter: 'select'
-                },
-                {
-                    header: '제품명',
-                    name: 'itemname',
-                    filter: 'select'
-                },
-                {
-                    header: '제품수량',
-                    name: 'quantity',
-                    filter: 'select'
-                },
-                {
-                    header: '제품단가',
-                    name: 'itemprice',
-                    filter: 'select'
-                },
-                {
-                    header: '합계금액',
-                    name: 'totalprice',
-                    filter: 'select'
-                },
-                {
-                    header: '적요',
-                    name: 'etc',
-                    filter: 'select'
-                }
-                // 그 외 필요한 컬럼들을 여기에 추가
-            ]
-        });
-
-        // 페이지 로드 후 데이터 가져오기
-        $(document).ready(function () {
-            fetchData();
-        });
     </script>
 
 </body>

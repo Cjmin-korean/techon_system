@@ -7,45 +7,62 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <link rel="stylesheet" href="../css/shipmentplan1.css">
     <link rel="stylesheet" href="../css/spiner.css">
-
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/tablewrapper.css">
     <title>일별 영업 계획</title>
 
 </head>
 
 <body>
     <div id="overlay" class="overlay"></div>
-    <h2 style="margin-left: 20px;"><i class="far fa-calendar-alt"></i> 일별 영업 계획</h2>
-    <i class="fas fa-search"></i>
-    <b>조회검색</b>
-    <select id="yearSelect">
-        <!-- 여기에 옵션을 자바스크립트로 추가할 예정입니다. -->
-    </select>
-    <select id="monthSelect">
-        <option value="1">1월</option>
-        <option value="2">2월</option>
-        <option value="3">3월</option>
-        <option value="4">4월</option>
-        <option value="5">5월</option>
-        <option value="6">6월</option>
-        <option value="7">7월</option>
-        <option value="8">8월</option>
-        <option value="9">9월</option>
-        <option value="10">10월</option>
-        <option value="11">11월</option>
-        <option value="12">12월</option>
+    <div class="header-container">
+        <div class="header-title">
+            <h2><i class="fas fa-calendar-alt"></i> &nbsp;출하 계획 정보</h2>
+        </div>
+        <div class="header-subtitle">
+            <h4>출하계획등록 > 출하계획 등록 및 조회</h4>
+        </div>
+    </div>
+    <fieldset>
+        <legend>검색조건</legend>
+        <i class="fas fa-search"></i>
+        <select id="yearSelect">
+            <!-- 여기에 옵션을 자바스크립트로 추가할 예정입니다. -->
+        </select>
+        <select id="monthSelect">
+            <option value="1">1월</option>
+            <option value="2">2월</option>
+            <option value="3">3월</option>
+            <option value="4">4월</option>
+            <option value="5">5월</option>
+            <option value="6">6월</option>
+            <option value="7">7월</option>
+            <option value="8">8월</option>
+            <option value="9">9월</option>
+            <option value="10">10월</option>
+            <option value="11">11월</option>
+            <option value="12">12월</option>
 
-    </select>
+        </select>
+        <button class="close-button" onclick="updateBusinessPlan()">조회</button>
+
+    </fieldset>
+
+
     <div class="spinner-overlay">
         <div class="spinner"></div>
     </div>
-    <table id="businessPlan">
-        <thead>
+    <div id="maintable" class="table-wrapper">
+        <table id="businessPlan">
+            <thead>
 
-        </thead>
-        <tbody>
-            <!-- 여기에 선택된 연도와 월에 따라 자바스크립트로 추가될 예정입니다. -->
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <!-- 여기에 선택된 연도와 월에 따라 자바스크립트로 추가될 예정입니다. -->
+            </tbody>
+        </table>
+    </div>
+
     <div class="modal" id="modal">
         <div class="modal-header">
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;출하계획정보</span>
@@ -91,8 +108,8 @@
     <script>
         var server = '';
         var gridApi;
-        console.log(window.location.hostname)
-        if (window.location.hostname == 'localhost') {
+        // console.log(window.location.hostname)
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
             server = 'http://localhost:8080';
         } else {
             server = 'http://techonmes.co.kr';
@@ -129,8 +146,8 @@
             yearSelect.appendChild(option);
         }
 
-        yearSelect.addEventListener('change', updateBusinessPlan);
-        monthSelect.addEventListener('change', updateBusinessPlan);
+        // yearSelect.addEventListener('change', updateBusinessPlan);
+        // monthSelect.addEventListener('change', updateBusinessPlan);
 
         function updateBusinessPlan() {
             var monthSelect = document.getElementById('monthSelect');
@@ -247,7 +264,24 @@
                                 }
                             }
                         });
+                        $.ajax({
+                            url: server + '/api/selectsaleinput',
+                            method: 'post',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                bomno: item.bomno,
+                                year: year1,
+                                month: month1,
+                            }),
+                            success: function (result) {
 
+                                for (var i = 0; i < result.length; i++) {
+                                    $('#siljok-' + item.bomno + '-' + result[i].saledate).text(result[i].quantity.toLocaleString());
+
+                                }
+                            }
+                        });
 
 
                     });
@@ -362,12 +396,23 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     var requests = []; // 저장 요청을 담을 배열 생성
-
-                    // 각각의 편집 가능한 td에 대해 저장 요청 생성
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/deleteaccountplan',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            bomno: $('#bomno-input').text(),
+                            year: $('#yearSelect').val(), // 시작일
+                            month: $('#monthSelect').val(), // 종료일
+                        })
+                    });
                     $('td[contenteditable="true"]').each(function () {
                         var editedData = $(this).text().replace(/,/g, '').trim(); // 쉼표 제거 후 공백 제거
+
+
                         if (editedData !== '') {
-                            var request = $.ajax({
+                            $.ajax({
                                 type: 'POST',
                                 url: server + '/api/insertaccountplan',
                                 dataType: 'json',
@@ -378,19 +423,19 @@
                                     plandate: $(this).attr('id')
                                 })
                             });
-                            Swal.fire({
-                                icon: 'info',
-                                title: '저장완료',
-                                text: '판매계획이 등록 되었습니다.',
-                                showCancelButton: true,
-                                confirmButton: false,
-                            });
-                            updateBusinessPlan()
-                            $('#overlay').fadeOut();
-                            $('#modal').fadeOut();
+
                         }
                     });
-
+                    Swal.fire({
+                        icon: 'info',
+                        title: '저장완료',
+                        text: '판매계획이 등록 되었습니다.',
+                        showCancelButton: true,
+                        confirmButton: false,
+                    });
+                    updateBusinessPlan()
+                    $('#overlay').fadeOut();
+                    $('#modal').fadeOut();
 
                 }
             });
