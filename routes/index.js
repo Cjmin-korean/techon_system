@@ -1452,7 +1452,7 @@ module.exports = function (app) {
             return pool.request()
                 .input('start', sql.NVarChar, req.body.orderdate)
                 .input('finish', sql.NVarChar, req.body.deliverydate)
-             
+
                 .query(
                     "SELECT " +
                     "id," +
@@ -1488,25 +1488,65 @@ module.exports = function (app) {
 
 
             return pool.request()
-                .input('start', sql.NVarChar, req.body.orderdate)
-                .input('finish', sql.NVarChar, req.body.deliverydate)
-             
+                // .input('start', sql.NVarChar, req.body.orderdate)
+                // .input('finish', sql.NVarChar, req.body.deliverydate)
+
                 .query(
-                    "select "+
-                    "bomno, "+
-                    "model, "+
-                    "itemname, "+
-                    "main, "+
-                    "codenumber, "+
-                    "materialwidth, "+
-                    "cavity, "+
-                    "onepid, "+
-                    "twopid, "+
-                    "chk1, "+
-                    "chk2, "+
-                    "chk3 "+
-                    "from "+
-                    "bommanagement where status='true'         ")
+                    "select " +
+                    " bomno, " +
+                    " model, " +
+                    " itemname, " +
+                    " main, " +
+                    " materialname, " +
+                    " materialwidth, " +
+                    " onepid, " +
+                    " twopid, " +
+                    " cavity, " +
+                    " chk1, " +
+                    " chk2, " +
+                    " chk3 " +
+                    " from " +
+                    " bommanagement " +
+                    " where status='true'                        ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start 영업수주조회창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbommateriallistwherebomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "select " +
+                    " bomno, " +
+                    " model, " +
+                    " itemname, " +
+                    " main, " +
+                    " materialname, " +
+                    " materialwidth, " +
+                    " onepid, " +
+                    " twopid, " +
+                    " cavity, " +
+                    " chk1, " +
+                    " chk2, " +
+                    " chk3 " +
+                    " from " +
+                    " bommanagement " +
+                    " where status='true'    and bomno=@bomno                    ")
 
                 .then(result => {
 
@@ -10134,6 +10174,35 @@ module.exports = function (app) {
                     "itemname LIKE @itemname OR " +
                     "customer LIKE @customer " +
                     "ORDER BY itemcode ASC"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
+    });
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbommanagementsearch', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('bomno', sql.NVarChar, '%' + req.body.bomno + '%')
+                .input('modelname', sql.NVarChar, '%' + req.body.modelname + '%')
+                .input('itemname', sql.NVarChar, '%' + req.body.itemname + '%')
+                .input('customer', sql.NVarChar, '%' + req.body.customer + '%')
+                .query(
+                    "SELECT * " +
+                    "FROM iteminfo " +
+                    "WHERE " +
+                    "bomno LIKE @bomno OR " +
+                    "modelname LIKE @modelname OR " +
+                    "itemname LIKE @itemname OR " +
+                    "customer LIKE @customer " +
+                    "ORDER BY bomno ASC"
                 )
                 .then(result => {
                     res.json(result.recordset);
