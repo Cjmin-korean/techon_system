@@ -255,7 +255,7 @@
 
         </div>
         <input type="text" class="styled-search" id="itemcode1-input" placeholder="검색내용을 입력후 ENTER 입력하세요"
-            onkeypress="handleKeyPress2(event)" autocomplete="off">
+            style="width: 500px;" onkeypress="handleKeyPress2(event)" autocomplete="off">
         <button class="delete-button" style="margin-left: 30px; margin-top: 20px;" onclick="closeModal1()">닫기</button>
         <div class="modal-content" style="max-height: 70%;">
             <table class="styled-table" id="Podatatable" style="height: 350px; border: 1px solid whitesmoke;">
@@ -352,6 +352,68 @@
             });
         }
 
+        $(document).on('click', '#deleteRowBtn', function () {
+            var currentRow = $(this).closest('tr');
+            var tbodyLength = $('#bomtableBody').find('tr').length;
+            currentRow.remove();
+        });
+
+        function openEditModal() {
+
+            $('#overlay').fadeIn();
+            $('#modal').fadeIn();
+            $('[id$="-save"]').val('');
+            $('#costsum-save').val('0');
+            $('#bomid-save').val(new Date().getTime());
+            $('#bomid-edit').val('');
+            $('#ordercount-save').val('1');
+            $('#additionalNote').val('');
+            $('#bomtableBody').empty();
+            var container = document.getElementById('containers');
+            container.scrollLeft = 0;
+            // Create a new row
+            var newRow = $('<tr></tr>');
+
+            // Append each cell to the new row
+            newRow.append('<td><button id="deleteRowBtn" class="close-button" style="background-color: red; color:white; ">삭제</button></td>');
+            newRow.append('<td><button id="RowBtnadd" class="close-button" style="background-color: #4f56b6; color:white; ">+</button></td>');
+            newRow.append('<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>');
+            newRow.append('<td><input type="checkbox" id="main-edit" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="materialname-input"  onkeypress="handleKeyPress1(event)" style="cursor: pointer;" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="materialclassification-input" style="background-color:whitesmoke; "  value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="etc-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk1-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
+            newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk2-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
+            newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk3-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="materialwidth-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="useable-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="onepidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="twopidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-input" value="0" autocomplete="off" ></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;"  id="ta-input" oninput="updateSoyoValue()" value="1" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); formatDecimalInput(this, 2);" value="1" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="talength-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="loss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="3" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="costloss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="3" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCost();" id="cost-input" readonly value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-input"  autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-input"  value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="sqmprice-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="supplier-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="codenumber-input"  autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input"  autocomplete="off"></td>');
+
+            $('#bomtableBody').append(newRow);
+
+        }
 
         function showinfo(rowData) {
             document.getElementById('modal').style.display = 'block';
@@ -382,6 +444,7 @@
                     "bomno": rowData.bomno
                 }),
                 success: function (result) {
+                    console.log('상세정보')
                     if (result.length === 0) {
 
                     } else {
@@ -399,10 +462,10 @@
                                 '<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk1-input" ' + (result[i].chk1 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                                 '<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk2-input" ' + (result[i].chk2 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                                 '<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk3-input" ' + (result[i].chk3 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="materialwidth-input" oninput="updateSoyoValueedit(); updateRlProduct(); updateRlProductedit(); updateRlcutValueedit();calculateCostedit();" value="' + (result[i].materialwidth || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right;" id="materialwidth-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + (result[i].materialwidth || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" id="useable-input" style="text-align:right;" value="' + (result[i].useable || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="onepidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].onepid || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="twopidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].twopid || '0') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right;" id="onepidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + (result[i].onepid || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right;" id="twopidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + (result[i].twopid || '0') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-input" value="' + (result[i].soyo || '') + '" autocomplete="off" readonly></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="ta-input" oninput="updateSoyoValueedit()" value="' + (result[i].ta || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit();calculateCostedit(); formatDecimalInput(this, 2);" value="' + (result[i].allta || '') + '" autocomplete="off"></td>' +
@@ -417,11 +480,11 @@
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" oninput="updateRlProductedit()" value="' + (result[i].length || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="sqmprice-input" value="' + (result[i].sqmprice || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="' + (result[i].rollprice || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="unit-input" value="' + (result[i].unit || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="manufacterer-input" value="' + (result[i].manufacterer || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="supplier-input" value="' + (result[i].supplier || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="' + (result[i].unit || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="' + (result[i].manufacterer || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="supplier-input" value="' + (result[i].supplier || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="cavity-input" value="' + (result[i].cavity || '') + '" onchange="updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit();calculateCostedit();" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="codenumber-input" value="' + (result[i].codenumber || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:center; background-color: whitesmoke;" id="codenumber-input" value="' + (result[i].codenumber || '') + '"  autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="num-input" value="' + (result[i].num || '') + '"  autocomplete="off"></td>' +
 
                                 '</tr>'
@@ -755,62 +818,7 @@
             checkData()
         }
 
-        function openEditModal() {
 
-            $('#overlay').fadeIn();
-            $('#modal').fadeIn();
-            $('[id$="-save"]').val('');
-            $('#costsum-save').val('0');
-            $('#bomid-save').val(new Date().getTime());
-            $('#bomid-edit').val('');
-            $('#ordercount-save').val('1');
-            $('#additionalNote').val('');
-            $('#bomtableBody').empty();
-            var container = document.getElementById('containers');
-            container.scrollLeft = 0;
-            // Create a new row
-            var newRow = $('<tr></tr>');
-
-            // Append each cell to the new row
-            newRow.append('<td><button id="deleteRowBtn" class="close-button" style="background-color: red; color:white; ">삭제</button></td>');
-            newRow.append('<td><button id="RowBtnadd" class="close-button" style="background-color: #4f56b6; color:white; ">+</button></td>');
-            newRow.append('<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>');
-            newRow.append('<td><input type="checkbox" id="main-edit" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="materialname-input"  onkeypress="handleKeyPress1(event)" style="cursor: pointer;" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="materialclassification-input" style="background-color:whitesmoke; "  value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="etc-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk1-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
-            newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk2-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
-            newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk3-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="materialwidth-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="useable-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="onepidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="twopidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-input" value="0" autocomplete="off" ></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;"  id="ta-input" oninput="updateSoyoValue()" value="1" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); formatDecimalInput(this, 2);" value="1" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="talength-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="loss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="3" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="costloss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="3" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCost();" id="cost-input" readonly value="0" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-input"  autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-input"  value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="sqmprice-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="supplier-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="codenumber-input"  autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input"  autocomplete="off"></td>');
-
-            $('#bomtableBody').append(newRow);
-
-        }
         function addRow() {
 
             // Clone the template row
@@ -949,7 +957,6 @@
                     var onepidding = $('#bomtableBody tr:eq(' + i + ') #onepidding-input').val();
                     var twopidding = $('#bomtableBody tr:eq(' + i + ') #twopidding-input').val();
                     var char = $('#bomtableBody tr:eq(' + i + ') #char-input').val();
-
                     if (materialname === '' || materialwidth === '' || onepidding === '' || twopidding === '' || char === '') {
                         Swal.fire({
                             icon: 'error',
@@ -966,7 +973,6 @@
                             padding: '2rem',
                             width: '500px',
                         }).then((result) => { });
-
                         return;
                     }
                 }
@@ -1030,7 +1036,6 @@
                                 if (result && result.length > 0) {
                                     // alert('BOM NO가 중복되었습니다.');
                                     showMissingFieldAlert('BOMNO중복', 'BOM NO가 중복되었습니다');
-                                    return;
                                     return;
                                 } else {
                                 }
@@ -1197,13 +1202,7 @@
                                     "bomno": $('#bomno-save').val(),
                                 }),
                                 success: function (result) {
-                                    if (result && result.length > 0) {
-                                        // alert('BOM NO가 중복되었습니다.');
-                                        showMissingFieldAlert('BOMNO중복', 'BOM NO가 중복되었습니다');
-                                        return;
-                                        return;
-                                    } else {
-                                    }
+
                                 }
                             });
                             $.ajax({

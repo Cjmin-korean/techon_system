@@ -1524,7 +1524,7 @@ module.exports = function (app) {
                     " LEFT JOIN  " +
                     "     bommanagement bm ON i.bomno = bm.bomno  " +
                     " LEFT JOIN  " +
-                    "     materialinfoinformation mi ON bm.codenumber = mi.codenumber  " +
+                    "     materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  " +
                     " WHERE  " +
                     "    bm.status = 'true'  " +
                     " GROUP BY  " +
@@ -4624,7 +4624,7 @@ module.exports = function (app) {
                     "FROM " +
                     "    bommanagement bm " +
                     "JOIN " +
-                    "    materialinfoinformation mi ON bm.codenumber = mi.codenumber " +
+                    "    materialinfoinformation2 mi ON bm.codenumber = mi.codenumber " +
                     "WHERE " +
                     "    bm.bomno = @bomno and bm.status='true' " +
                     "ORDER BY bm.num ASC; ")
@@ -5783,7 +5783,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT TOP (100) " +
                     "* " +
-                    "  FROM materialinfoinformation order by materialname asc"
+                    "  FROM materialinfoinformation2 order by materialname asc"
                 )
 
                 .then(result => {
@@ -10124,7 +10124,7 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT * " +
-                    "FROM materialinfoinformation " +
+                    "FROM materialinfoinformation2 " +
                     "WHERE " +
                     "materialname LIKE @materialname  " +
 
