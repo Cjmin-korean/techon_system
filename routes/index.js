@@ -2008,7 +2008,7 @@ module.exports = function (app) {
                     " itemname," +
                     " sum(quantity) as sumquantity" +
                     " FROM" +
-                
+
                     " SHIPMENTPLAN" +
                     " where" +
                     " shipmentdate between @start and @finish  " +
@@ -4620,7 +4620,7 @@ module.exports = function (app) {
                     "    mi.supplier, " +
                     "    bm.cavity, " +
                     "    mi.codenumber, " +
-                    "    bm.num " +
+                    "    bm.num,bm.chk1,bm.chk2,bm.chk3 " +
                     "FROM " +
                     "    bommanagement bm " +
                     "JOIN " +
@@ -5757,6 +5757,33 @@ module.exports = function (app) {
                     "     customer, " +
                     "     sqmprice, " +
                     "     house "
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinfoinformation', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                // .input('start', sql.NVarChar, req.body.start)
+                // .input('finish', sql.NVarChar, req.body.finish)
+                .query(
+                    "SELECT TOP (100) " +
+                    "* " +
+                    "  FROM materialinfoinformation order by materialname asc"
                 )
 
                 .then(result => {
@@ -10090,6 +10117,34 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/selectbommaterial', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('materialname', sql.NVarChar, '%' + req.body.materialname + '%')
+
+                .query(
+                    "SELECT * " +
+                    "FROM materialinfoinformation " +
+                    "WHERE " +
+                    "materialname LIKE @materialname  " +
+
+                    "ORDER BY materialname ASC"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
+    });
+
+
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/searchingcustomername', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -10398,13 +10453,16 @@ module.exports = function (app) {
                 .input('useable', sql.NVarChar, req.body.useable)
                 .input('bomid', sql.NVarChar, req.body.bomid)
                 .input('costloss', sql.Float, req.body.costloss)
+                .input('chk1', sql.NVarChar, req.body.chk1)
+                .input('chk2', sql.NVarChar, req.body.chk2)
+                .input('chk3', sql.NVarChar, req.body.chk3)
 
 
 
 
                 .query(
-                    'insert into bommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss)' +
-                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss)'
+                    'insert into bommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss,chk1,chk2,chk3)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss,@chk1,@chk2,@chk3)'
                 )
                 .then(result => {
 
@@ -11585,7 +11643,6 @@ module.exports = function (app) {
                     res.end();
                 });
         });
-
     });
     // **** finish
     // **** start       

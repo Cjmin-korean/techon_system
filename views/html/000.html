@@ -4,70 +4,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel to Table</title>
+    <title>Document</title>
 </head>
-<style>
-    table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    th,
-    td {
-        border: 1px solid #dddddd;
-        text-align: left;
-        padding: 8px;
-    }
-
-    th {
-        background-color: #f2f2f2;
-        color: #333333;
-    }
-</style>
 
 <body>
-    <input type="file" id="excelFileInput"
-        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
-    <div id="tableContainer"></div>
+    <div data-row="1">
+        <input type="checkbox" id="check-input-1">
+        <input type="checkbox" id="main-edit-1">
+        <input type="checkbox" id="chk1-input-1">
+        <input type="checkbox" id="chk2-input-1">
+        <input type="checkbox" id="chk3-input-1">
+    </div>
 
-    <script>
-        document.getElementById('excelFileInput').addEventListener('change', handleFile);
+    <div data-row="2">
+        <input type="checkbox" id="check-input-2">
+        <input type="checkbox" id="main-edit-2">
+        <input type="checkbox" id="chk1-input-2">
+        <input type="checkbox" id="chk2-input-2">
+        <input type="checkbox" id="chk3-input-2">
+    </div>
 
-        function handleFile(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                const tableData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-                const tableContainer = document.getElementById('tableContainer');
-                tableContainer.innerHTML = '';
-
-                const table = document.createElement('table');
-                table.setAttribute('border', '1');
-
-                for (let i = 0; i < tableData.length; i++) {
-                    const row = document.createElement('tr');
-                    for (let j = 0; j < tableData[i].length; j++) {
-                        const cell = document.createElement('td');
-                        cell.textContent = tableData[i][j];
-                        row.appendChild(cell);
-                    }
-                    table.appendChild(row);
-                }
-
-                tableContainer.appendChild(table);
-            };
-
-            reader.readAsArrayBuffer(file);
-        }
-    </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
 </body>
+<script>
+    function handleCheckboxChange(checkbox) {
+        const row = checkbox.closest('[data-row]');
+        const rowId = row.getAttribute('data-row');
+
+        const checkboxes = row.querySelectorAll('input[type="checkbox"]:not(#chk1-input-' + rowId + '):not(#chk2-input-' + rowId + '):not(#chk3-input-' + rowId + ')');
+        const groupCheckboxes = row.querySelectorAll('#chk1-input-' + rowId + ', #chk2-input-' + rowId + ', #chk3-input-' + rowId);
+
+        if (checkbox.id === 'chk1-input-' + rowId || checkbox.id === 'chk2-input-' + rowId || checkbox.id === 'chk3-input-' + rowId) {
+            if (checkbox.checked) {
+                groupCheckboxes.forEach(cb => {
+                    if (cb !== checkbox) {
+                        cb.checked = false;
+                    }
+                });
+            }
+        } else {
+            if (checkbox.checked) {
+                checkboxes.forEach(cb => {
+                    if (cb !== checkbox) {
+                        cb.checked = false;
+                    }
+                });
+            }
+        }
+    }
+
+</script>
 
 </html>

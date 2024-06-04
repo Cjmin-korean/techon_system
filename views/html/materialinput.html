@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="../css/bomsheet.css">
+    <link rel="stylesheet" href="../css/spiner.css">
+    <link rel="stylesheet" href="../css/tablewrapper.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <title>자재 입고 등록</title>
+
+</head>
+
+<body>
+
+    <div class="header-container">
+        <div class="header-title">
+            <h2><i class="fas fa-file-invoice"></i> &nbsp;자재 입고 등록</h2>
+        </div>
+        <div class="header-subtitle">
+            <h4>자재입고 > 자재 입고 등록</h4>
+        </div>
+    </div>
+    <fieldset>
+        <legend>검색조건</legend>
+        <i class="fas fa-search"></i>
+        <select id="selectcustomer">
+
+        </select>
+
+        <button class="close-button" onclick="updateBusinessPlan()">조회</button>
+
+    </fieldset>
+    <div class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
+    <div id="maintable" class="table-wrapper">
+        <table>
+            <thead>
+                <th>품목코드</th>
+                <th>자재명</th>
+                <th>자재폭(mm)</th>
+                <th>수량(M)</th>
+                <th>발주ROLL(￦)</th>
+                <th>합계(M)</th>
+                <th>입고ROLL</th>
+                <th>입고합계(M)</th>
+            </thead>
+
+            <tbody id="iteminfobody">
+            </tbody>
+            <tfoot id="iteminfofoot">
+            </tfoot>
+        </table>
+    </div>
+    <div id="maintable" class="table-wrapper">
+        <table>
+            <thead>
+                <th>품목코드</th>
+                <th>자재명</th>
+                <th>LOTNO</th>
+                <th>자재폭(mm)</th>
+                <th>수량(M)</th>
+                <th>제조일자</th>
+                <th>만료일자</th>
+                <th>발주번호</th>
+                <th>QT</th>
+            </thead>
+
+            <tbody id="iteminfobody">
+            </tbody>
+            <tfoot id="iteminfofoot">
+            </tfoot>
+        </table>
+    </div>
+
+
+
+    <script>
+        var server = '';
+        var gridApi;
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        $(document).ready(function () {
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spiner 표시
+
+            var monthSelect = document.getElementById('monthSelect');
+            var yearSelect = document.getElementById('yearSelect');
+            var currentMonth = new Date().getMonth() + 1;
+            var currentYear = new Date().getFullYear();
+            monthSelect.value = currentMonth;
+            yearSelect.value = currentYear;
+            setTimeout(function () {
+                spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+            }, 1100);
+            load()
+        });
+
+
+
+        var yearSelect = document.getElementById('yearSelect');
+        var monthSelect = document.getElementById('monthSelect');
+        var businessPlanTable = document.getElementById('businessPlan').getElementsByTagName('tbody')[0];
+
+        // 년도 옵션 생성
+        var currentYear = new Date().getFullYear();
+        for (var i = currentYear; i >= currentYear - 1; i--) {
+            var option = document.createElement('option');
+            option.value = i;
+            option.textContent = i + '년';
+            yearSelect.appendChild(option);
+        }
+
+        // 년도 옵션 생성
+
+        function formatDate(date) {
+            var year = date.getFullYear();
+            var month = String(date.getMonth() + 1).padStart(2, '0');
+            var day = String(date.getDate()).padStart(2, '0');
+            return year + '-' + month + '-' + day;
+        }
+
+        function load() {
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spiner 표시
+            $('#iteminfobody').empty();
+            var totalFinal1 = 0;
+            var totalFinal2 = 0;
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/bomfinalsheet',
+                dataType: 'json',
+                success: function (data) {
+                    var tableFoot = $('#dataCount');
+                    if (data.length === 0) {
+                        // 데이터가 없을 때 "데이터가 없습니다" 문구 추가
+                        tableFoot.text('총 데이터 개수: 0');
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
+                            $('#iteminfobody').append(
+                                '<tr>' +
+                                '<td style="text-align:center;">TOOL</td>' +
+                                '<td style="text-align:center;">' + data[i].madecustomer + '</td>' +
+                                '<td style="text-align:right;">' + data[i].final1.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + data[i].final2.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;"></td>' +
+                                '<td style="text-align:right;"></td>' +
+                                '<td style="text-align:right;"></td>' +
+                                '</tr>'
+                            );
+
+                            totalFinal1 += data[i].final1;
+                            totalFinal2 += data[i].final2;
+
+                            $("td#data-id").hide();
+                        }
+
+                        // Append a row to display the sums
+                        $('#iteminfobody').append(
+                            '<tr>' +
+                            '<td colspan="2" style="text-align:center;"><b>Total</b></td>' +
+                            '<td style="text-align:right;"><b>' + totalFinal1.toLocaleString() + '</b></td>' +
+                            '<td style="text-align:right;"><b>' + totalFinal2.toLocaleString() + '</b></td>' +
+                            '<td style="text-align:right;"></td>' +
+                            '<td style="text-align:right;"></td>' +
+                            '<td style="text-align:right;"></td>' +
+
+                            '</tr>'
+                        );
+
+                        tableFoot.text('총 데이터 개수: ' + data.length);
+                        setTimeout(function () {
+                            spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                        }, 1100);
+                    }
+                }
+            });
+        }
+
+        function parseFloatStrict(value) {
+            var parsedValue = parseFloat(value);
+            return !isNaN(parsedValue) ? parsedValue : 0;
+        }
+
+    </script>
+
+</body>
+
+</html>

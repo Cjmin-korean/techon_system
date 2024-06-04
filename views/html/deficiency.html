@@ -23,7 +23,30 @@
             <h4>출하계획등록 > 출하계획 대비 완제품 과부족 현황</h4>
         </div>
     </div>
+    <fieldset>
+        <legend>검색조건</legend>
+        <i class="fas fa-search"></i>
+        <select id="yearSelect">
+            <!-- 여기에 옵션을 자바스크립트로 추가할 예정입니다. -->
+        </select>
+        <select id="monthSelect">
+            <option value="1">1월</option>
+            <option value="2">2월</option>
+            <option value="3">3월</option>
+            <option value="4">4월</option>
+            <option value="5">5월</option>
+            <option value="6">6월</option>
+            <option value="7">7월</option>
+            <option value="8">8월</option>
+            <option value="9">9월</option>
+            <option value="10">10월</option>
+            <option value="11">11월</option>
+            <option value="12">12월</option>
 
+        </select>
+        <button class="close-button" onclick="updateBusinessPlan()">조회</button>
+
+    </fieldset>
     <div class="spinner-overlay">
         <div class="spinner"></div>
     </div>
@@ -48,6 +71,12 @@
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
 
+            var monthSelect = document.getElementById('monthSelect');
+            var yearSelect = document.getElementById('yearSelect');
+            var currentMonth = new Date().getMonth() + 1;
+            var currentYear = new Date().getFullYear();
+            monthSelect.value = currentMonth;
+            yearSelect.value = currentYear;
             updateBusinessPlan();
             setTimeout(function () {
                 spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
@@ -55,10 +84,18 @@
         });
 
 
-
         var yearSelect = document.getElementById('yearSelect');
         var monthSelect = document.getElementById('monthSelect');
         var businessPlanTable = document.getElementById('businessPlan').getElementsByTagName('tbody')[0];
+
+        // 년도 옵션 생성
+        var currentYear = new Date().getFullYear();
+        for (var i = currentYear; i >= currentYear - 1; i--) {
+            var option = document.createElement('option');
+            option.value = i;
+            option.textContent = i + '년';
+            yearSelect.appendChild(option);
+        }
 
         // 년도 옵션 생성
 
@@ -211,13 +248,7 @@
 
                             },
                         });
-
-
                         tableBody += '</tr>';
-
-
-
-
                         tableBody += '<tr>';
                         tableBody += '<td>검사 과부족</td>';
                         tableBody += '<td id="inspectionquantity"></td>';
@@ -290,13 +321,6 @@
                     businessPlanTable.innerHTML += tableBody;
                 },
             });
-
-
-            // deficiencyshipmentplan
-            // 클릭 이벤트를 추가할 TD 요소를 찾습니다.
-
-
-
         }
 
 

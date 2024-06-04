@@ -99,7 +99,7 @@
                 </table>
             </div>
 
-            <div class="modal-footer">
+            <div class="modal-footer" style="margin-top: 10px;">
                 <button class="close-button" onclick="saveModal()">저장</button>
                 <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
             </div>
@@ -392,10 +392,13 @@
                 title: '계획저장',
                 text: '판매계획을 등록 하시겠습니까?',
                 showCancelButton: true,
-                confirmButton: false,
+                confirmButtonText: '등록',
+                cancelButtonText: '취소',
             }).then((result) => {
                 if (result.isConfirmed) {
                     var requests = []; // 저장 요청을 담을 배열 생성
+
+                    // 먼저 삭제 요청 실행
                     $.ajax({
                         type: 'POST',
                         url: server + '/api/deleteaccountplan',
@@ -403,43 +406,58 @@
                         contentType: 'application/json',
                         data: JSON.stringify({
                             bomno: $('#bomno-input').text(),
-                            year: $('#yearSelect').val(), // 시작일
-                            month: $('#monthSelect').val(), // 종료일
+                            year: $('#yearSelect').val(),
+                            month: $('#monthSelect').val(),
                         })
-                    });
-                    $('td[contenteditable="true"]').each(function () {
-                        var editedData = $(this).text().replace(/,/g, '').trim(); // 쉼표 제거 후 공백 제거
-
-
-                        if (editedData !== '') {
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/insertaccountplan',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    bomno: $('#bomno-input').text(),
-                                    quantity: editedData, // 시작일
-                                    plandate: $(this).attr('id')
-                                })
+                    }).done(() => {
+                        // 삭제 요청이 완료된 후 1초 대기
+                        setTimeout(() => {
+                            // 편집된 데이터 저장 요청 추가
+                            $('td[contenteditable="true"]').each(function () {
+                                var editedData = $(this).text().replace(/,/g, '').trim();
+                                if (editedData !== '') {
+                                    requests.push($.ajax({
+                                        type: 'POST',
+                                        url: server + '/api/insertaccountplan',
+                                        dataType: 'json',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({
+                                            bomno: $('#bomno-input').text(),
+                                            quantity: editedData,
+                                            plandate: $(this).attr('id')
+                                        })
+                                    }));
+                                }
                             });
 
-                        }
+                            // 모든 요청이 완료된 후에 다음 작업 수행
+                            $.when.apply($, requests).then(() => {
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: '저장완료',
+                                    text: '판매계획이 등록 되었습니다.',
+                                    showCancelButton: false,
+                                    confirmButtonText: '확인'
+                                }).then(() => {
+                                    updateBusinessPlan();
+                                    $('#overlay').fadeOut();
+                                    $('#modal').fadeOut();
+                                });
+                            });
+                        }, 1000); // 1초 대기
+                    }).fail(() => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '오류',
+                            text: '삭제 작업 중 오류가 발생했습니다.',
+                            confirmButtonText: '확인'
+                        });
                     });
-                    Swal.fire({
-                        icon: 'info',
-                        title: '저장완료',
-                        text: '판매계획이 등록 되었습니다.',
-                        showCancelButton: true,
-                        confirmButton: false,
-                    });
-                    updateBusinessPlan()
-                    $('#overlay').fadeOut();
-                    $('#modal').fadeOut();
-
                 }
             });
         }
+
+
 
         function closeModal() {
             $('#overlay').fadeOut()

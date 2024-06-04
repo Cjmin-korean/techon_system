@@ -5,57 +5,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/businessplaninfosheet1.css">
+    <link rel="stylesheet" href="../css/ordersearching.css">
     <link rel="stylesheet" href="../css/spiner.css">
-    <link rel="stylesheet" href="../css/tablewrapper.css">
     <link rel="stylesheet" href="../css/header.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>주차별 영업 판매 계획</title>
+    <title>자재 발주 현황 조회</title>
 </head>
 
 <body>
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-info"></i> &nbsp;주차별 영업 판매 계획</h2>
+            <h2><i class="fas fa-truck custom-truck-icon"></i> &nbsp;자재 발주 현황 조회</h2>
         </div>
         <div class="header-subtitle">
-            <h4>보고자료 > 주차별 영업 판매 계획</h4>
+            <h4>구매발주 > 자재 발주 현황 조회</h4>
         </div>
     </div>
+
+
     <div id="overlay" class="overlay"></div>
     <div id="overlay1" class="overlay"></div>
-
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
         <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
             autocomplete="off">
         <button class="close-button" onclick="load()">조회</button>
+        <button class="save-button" onclick="openModal()">신규등록</button>
+
+
     </fieldset>
+
+
     <div class="spinner-overlay">
         <div class="spinner"></div>
     </div>
     <div id="maintable" class="table-wrapper">
         <table>
-            <thead id="tableHead">
-                <tr>
-                    <th style="width:150px;" rowspan="2">구분</th>
-                    <th style="width:150px;" rowspan="2">사업계획</th>
-                    <th style="width:150px;" colspan="5">12월매출계획</th>
-                    <th style="width:150px;" rowspan="2">12월판매실적</th>
-                    <th style="width:150px;" colspan="2">증감</th>
-                </tr>
-                <tr>
-                    <th>1주차</th>
-                    <th>2주차</th>
-                    <th>3주차</th>
-                    <th>4주차</th>
-                    <th>5주차</th>
-                    <th>사업계획대비</th>
-                    <th>전주대비</th>
-                </tr>
+            <thead>
+                <th>발주일자</th>
+                <th>품목명</th>
+                <th>품목코드</th>
+                <th>자재폭(mm)</th>
+                <th>길이(M)</th>
+                <th>롤</th>
+                <th>단가(￦)</th>
+                <th>공급가액(￦)</th>
+                <th>거래처명</th>
+                <th>BOMNO</th>
+                <th>구분</th>
+                <th>고객사명</th>
+                <th>적요</th>
+                <th>재단규격</th>
+                <th></th>
             </thead>
 
             <tbody id="iteminfobody">
@@ -145,78 +148,76 @@
 
         $(document).ready(function () {
 
+            // var today = new Date();
 
+            // var year = today.getFullYear();
+            // var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            // var day = String(today.getDate()).padStart(2, '0'); // 일
+            // var formattedDate = year + '-' + month + '-' + day;
+
+            // document.getElementById('datetimepicker1').value = formattedDate;
+            // document.getElementById('datetimepicker2').value = formattedDate;
             load()
             checkData()
 
         });
+
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
-            $('#iteminfobody').empty();
+
+
             $.ajax({
-                type: 'POST',
-                url: server + '/api/businessplanrev',
+                url: server + '/api/selectpurchaseordering',
+                method: 'post',
                 dataType: 'json',
-                success: function (data) {
-                    var tableFoot = $('#dataCount');
-                    if (data.length === 0) {
-                    } else {
-                        var total_lcost = 0;
-                        var total_revprice_231201 = 0;
-                        var total_revprice_231202 = 0;
-                        var total_revprice_231203 = 0;
-                        var total_revprice_231204 = 0;
-                        var total_revprice_231205 = 0;
-                        var total_revprice_for_renum_1 = 0;
+                contentType: 'application/json',
+                data: JSON.stringify({
 
-                        for (var i = 0; i < data.length; i++) {
-                            total_lcost += data[i].total_lcost;
-                            total_revprice_231201 += data[i].total_revprice_231201;
-                            total_revprice_231202 += data[i].total_revprice_231202;
-                            total_revprice_231203 += data[i].total_revprice_231203;
-                            total_revprice_231204 += data[i].total_revprice_231204;
-                            total_revprice_231205 += data[i].total_revprice_231205;
-                            total_revprice_for_renum_1 += data[i].total_revprice_for_renum_1;
+                }),
 
-                            $('#iteminfobody').append(
-                                '<tr>' +
-                                '<td>' + data[i].customer + '</td>' +
-                                '<td>' + (data[i].total_lcost).toLocaleString() + '</td>' +
-                                '<td>' + (data[i].total_revprice_231201).toLocaleString() + '</td>' +
-                                '<td>' + (data[i].total_revprice_231202).toLocaleString() + '</td>' +
-                                '<td>' + (data[i].total_revprice_231203).toLocaleString() + '</td>' +
-                                '<td>' + (data[i].total_revprice_231204).toLocaleString() + '</td>' +
-                                '<td>' + (data[i].total_revprice_231205).toLocaleString() + '</td>' +
-                                '<td>' + (data[i].total_revprice_for_renum_1).toLocaleString() + '</td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '</tr>'
-                            );
-                        }
+                success: function (result) {
+                    $('#iteminfobody').empty();
 
-                        // Append the totals row
+                    for (var i = 0; i < result.length; i++) {
                         $('#iteminfobody').append(
                             '<tr>' +
-                            '<td>합계</td>' +
-                            '<td>' + (total_lcost).toLocaleString() + '</td>' +
-                            '<td>' + (total_revprice_231201).toLocaleString() + '</td>' +
-                            '<td>' + (total_revprice_231202).toLocaleString() + '</td>' +
-                            '<td>' + (total_revprice_231203).toLocaleString() + '</td>' +
-                            '<td>' + (total_revprice_231204).toLocaleString() + '</td>' +
-                            '<td>' + (total_revprice_231205).toLocaleString() + '</td>' +
-                            '<td>' + (total_revprice_for_renum_1).toLocaleString() + '</td>' +
-                            '<td></td>' +
-                            '<td></td>' +
+                            '<td>' + (result[i].orderno || '') + '</td>' +
+                            '<td>' + (result[i].orderdate || '') + '</td>' +
+                            '<td>' + (result[i].itemname || '') + '</td>' +
+                            '<td>' + (result[i].codenumber || '') + '</td>' +
+                            '<td>' + (result[i].width || '') + '</td>' +
+                            '<td>' + (result[i].length || '') + '</td>' +
+                            '<td>' + (result[i].quantity || '') + '</td>' +
+                            '<td>' + (result[i].unitprice || '') + '</td>' +
+                            '<td>' + (result[i].supplyamount || '') + '</td>' +
+                            '<td>' + (result[i].bomno || '') + '</td>' +
+                            '<td>' + (result[i].part || '') + '</td>' +
+                            '<td>' + (result[i].customer || '') + '</td>' +
+                            '<td>' + (result[i].confirmed || '') + '</td>' +
+                            '<td>' + (result[i].cutting || '') + '</td>' +
+                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
+                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
                             '</tr>'
                         );
                     }
+
+                    $('td#data-id').hide();
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                    }, 1100);
+
                 }
             });
-            setTimeout(function () {
-                spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-            }, 1100);
+
+            // $('#searchInput').on('keyup', function (event) {
+            //     if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+            //         searchTable();
+            //     }
+            // });
         }
+
+
 
         // updateaccountiteminfo
         function searchTable() {

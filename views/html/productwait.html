@@ -349,8 +349,8 @@
                             var quantityChangeInfo = '';
 
                             if (data[i].orderstatus === '생산보류') {
-                                orderStatusCell = '<td><a class="orderstatus" onclick="orderstatusmodal(this)" style="font-weight:bold; cursor:pointer; color:green;">생산보류</a></td>';
-                                deleteClass = '<td><a class="datadelete" style="cursor:pointer; color:red; font-weight:bold;" onclick="deleteorderstatus(this)">삭제</a></td>';
+                                orderStatusCell = '<td><button class="close-button" style="cursor:pointer; background-color:green; font-weight:bold;" onclick="orderstatusmodal(this)">생산보류</button></td>';
+                                deleteClass = '<td><button class="close-button" style="cursor:pointer; background-color:red; font-weight:bold;" onclick="deleteorderstatus(this)">삭제</button></td>';
                                 quantityChangeInfo = '<td class="changequantity"  style="color: navy;">수량변경</td>';
                             } else if (data[i].orderstatus === '생산확정') {
                                 orderStatusCell = '<td><a class="orderfinish" style="cursor:pointer; color:red; font-weight:bold;">생산확정</a></td>';
@@ -391,16 +391,49 @@
                 $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
             });
         }
-        // document.getElementById("itemcode-input").addEventListener("keypress", function (event) {
-        //     if (event.key === "Enter") {
-        //         openProductModal(event.target.value);
-        //     }
-        // });
-        // document.getElementById("itemcode1-input").addEventListener("keypress", function (event) {
-        //     if (event.key === "Enter") {
-        //         openProductModal(event.target.value);
-        //     }
-        // });
+        function deleteorderstatus(row) {
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+            Swal.fire({
+                icon: 'info',
+                title: '삭제',
+                text: '생산 지시를 삭제 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/deleteaccountstatus',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": rowData[11]
+                        }),
+                        success: function (result) {
+
+                        }
+                    });
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '생산지시가 삭제 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            load();
+                            load1()
+                        }
+                    });
+                }
+            });
+
+
+        }
         function showinfo() {
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
@@ -715,7 +748,7 @@
                             // 성공했을 때의 처리
                         }
                     });
-                    $('#editModal4').fadeOut();
+                    $('#modal').fadeOut();
                     $('#overlay').fadeOut();
 
                     Swal.fire({
