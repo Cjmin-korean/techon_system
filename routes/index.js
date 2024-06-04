@@ -1452,13 +1452,7 @@ module.exports = function (app) {
             return pool.request()
                 .input('start', sql.NVarChar, req.body.orderdate)
                 .input('finish', sql.NVarChar, req.body.deliverydate)
-                // .query(
-                //     " select" +
-                //     " * " +
-                //     "from purchaseorder " +
-                //     "where deliverydate between @start and @finish " +
-                //     "and status=" +
-                //     "'영업완료'")
+             
                 .query(
                     "SELECT " +
                     "id," +
@@ -1474,6 +1468,45 @@ module.exports = function (app) {
                     "Where deliverydate between @start and @finish " +
                     "and status=" +
                     "'영업등록완료'")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start 영업수주조회창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbommateriallist', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.orderdate)
+                .input('finish', sql.NVarChar, req.body.deliverydate)
+             
+                .query(
+                    "select "+
+                    "bomno, "+
+                    "model, "+
+                    "itemname, "+
+                    "main, "+
+                    "codenumber, "+
+                    "materialwidth, "+
+                    "cavity, "+
+                    "onepid, "+
+                    "twopid, "+
+                    "chk1, "+
+                    "chk2, "+
+                    "chk3 "+
+                    "from "+
+                    "bommanagement where status='true'         ")
 
                 .then(result => {
 

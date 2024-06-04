@@ -32,7 +32,7 @@
         <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
             autocomplete="off">
         <button class="close-button" onclick="load()">조회</button>
-        <button class="save-button" onclick="openModal()">신규등록</button>
+        <!-- <button class="save-button" onclick="openModal()">신규등록</button> -->
 
 
     </fieldset>
@@ -42,11 +42,18 @@
     <div id="maintable" class="table-wrapper">
         <table>
             <thead>
-                <th style="width:100px">창고코드</th>
-                <th style="width:100px">창고명</th>
-                <th style="width:100px">파트</th>
-                <th style="width:100px">파트명</th>
-                <th style="width:100px"></th>
+                <th>BOMNO</th>
+                <th>모델명</th>
+                <th>제품명</th>
+                <th>메인자재</th>
+                <th>품목코드</th>
+                <th>자재폭<br>mm</th>
+                <th>cavity</th>
+                <th>1차피딩<br>mm</th>
+                <th>2차피딩<br>mm</th>
+                <th>고객사지정</th>
+                <th>자체지정</th>
+                <th>미지정</th>
             </thead>
 
             <tbody id="iteminfobody">
@@ -58,71 +65,6 @@
 
 
 
-    <div class="modal" id="modal">
-        <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;영업 수주 정보</span>
-        </div>
-        <div class="modal-content">
-            <table class="styled-table" id="Podatatable">
-                <thead id="tableHead">
-                    <tr>
-                        <th colspan="12">영업수주정보</th>
-                    </tr>
-                    <td>검색내용</td>
-                    <td colspan="5"><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
-
-                    <tr>
-
-
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
-                    <!-- <tr>
-                        <td colspan="10">데이터가 없습니다.</td>
-                    </tr> -->
-                </tbody>
-
-
-            </table>
-
-
-            <div class="modal-footer">
-                <button class="close-button" onclick="accountsave()">저장</button>
-                <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal1" id="modal1">
-        <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;제품검색</span>
-        </div>
-        <input type="text" class="styled-search" id="itemcode1-input" placeholder="검색내용을 입력하세요" autocomplete="off">
-        <div class="modal-content">
-
-
-            <table class="styled-table" id="Podatatable">
-                <thead id="tableHead">
-                    <tr>
-                        <th>제품코드</th>
-                        <th>BOMNO</th>
-                        <th>모델명</th>
-                        <th>제품명</th>
-                        <th>고객사</th>
-                        <th>단가</th>
-                        <th style="width:100px;"></th>
-                    </tr>
-                </thead>
-                <tbody id="itemtbody">
-                </tbody>
-            </table>
-
-        </div>
-        <div class="modal-footer">
-            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
-        </div>
-    </div>
 
 
     <script>
@@ -148,7 +90,7 @@
 
 
             $.ajax({
-                url: server + '/api/houseinformation',
+                url: server + '/api/selectbommateriallist',
                 method: 'post',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -162,14 +104,18 @@
                     for (var i = 0; i < result.length; i++) {
                         $('#iteminfobody').append(
                             '<tr>' +
-                            '<td>' + (result[i].housecode || '') + '</td>' +
-                            '<td>' + (result[i].housename || '') + '</td>' +
-                            '<td>' + (result[i].part || '') + '</td>' +
-                            '<td>' + (result[i].partname || '') + '</td>' +
-
-
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                            '<td>' + (result[i].bomno || '') + '</td>' +
+                            '<td>' + (result[i].model || '') + '</td>' +
+                            '<td>' + (result[i].itemname || '') + '</td>' +
+                            '<td>' + (result[i].main || '') + '</td>' +
+                            '<td>' + (result[i].codenumber || '') + '</td>' +
+                            '<td>' + (result[i].materialwidth || '') + '</td>' +
+                            '<td>' + (result[i].cavity || '') + '</td>' +
+                            '<td>' + (result[i].onepid || '') + '</td>' +
+                            '<td>' + (result[i].twopid || '') + '</td>' +
+                            '<td>' + (result[i].chk1 || '') + '</td>' +
+                            '<td>' + (result[i].chk2 || '') + '</td>' +
+                            '<td>' + (result[i].chk3 || '') + '</td>' +
                             '</tr>'
                         );
                     }
@@ -236,7 +182,7 @@
             $('#itemtbody').empty()
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectbomnoaccountinput',
+                url: server + '/api/selectbommateriallist',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
