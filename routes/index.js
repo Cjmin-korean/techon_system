@@ -1782,6 +1782,8 @@ module.exports = function (app) {
     });
 
     // **** finish
+    
+    // **** finish
     // **** start  BOM창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/iteminfobomsample', function (req, res) {
@@ -10186,6 +10188,38 @@ module.exports = function (app) {
         });
     });
     // **** start       
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbommanagementsearch', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('itemcode', sql.NVarChar, '%' + req.body.input + '%')
+                .input('bomno', sql.NVarChar, '%' + req.body.input + '%')
+                .input('modelname', sql.NVarChar, '%' + req.body.input + '%')
+                .input('itemname', sql.NVarChar, '%' + req.body.input + '%')
+                .input('customer', sql.NVarChar, '%' + req.body.input + '%')
+                .query(
+                    "SELECT * " +
+                    "FROM iteminfo " +
+                    "WHERE " +
+                    "itemcode LIKE @itemcode OR " +
+                    "bomno LIKE @bomno OR " +
+                    "modelname LIKE @modelname OR " +
+                    "itemname LIKE @itemname OR " +
+                    "customer LIKE @customer " +
+                    "ORDER BY itemcode ASC"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
+    });
+    // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/selecttoolcodesearch', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -10195,8 +10229,8 @@ module.exports = function (app) {
                     "SELECT * " +
                     "FROM sampleorder " +
                     "WHERE " +
-                    "toolcode LIKE @toolcode ORDER BY TOOLCODE ASC " 
-                 
+                    "toolcode LIKE @toolcode ORDER BY TOOLCODE ASC "
+
                 )
                 .then(result => {
                     res.json(result.recordset);

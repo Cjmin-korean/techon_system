@@ -114,8 +114,8 @@
                         <th style="width:100px;">합계<br>(￦)</th>
                         <th style="width:80px;">양산<br>샘플</th>
                         <th style="width:100px;">청구<br>미청구</th>
-                        <th style="width:80px;">발주<br>사유</th>
-                        <th style="width:150px;">마감사유</th>
+                        <th style="width:150px;">발주<br>사유</th>
+                        <th style="width:80px;">마감사유</th>
                     </tr>
 
                 </thead>
@@ -163,33 +163,6 @@
 
     </div>
 
-    <!-- 
-    <div class="modal1" id="modal2">
-        <div class="modal-header">
-            <span style="font-weight: bold; font-size: 20px;"> <i class="fas fa-cube"></i>&nbsp;제조사 검색</span>
-            <input type="text" id="numericPart2" style="width: 200px; visibility: hidden;">
-
-            <div class="modal-footer">
-                <button class="delete-button" style="margin-left: 10px;" onclick="closeModal2()">닫기</button>
-            </div>
-        </div>
-
-        <div class="modal-content" style="max-height: 70%;">
-            <table class="styled-table" id="Podatatable" style="height: 350px; border: 1px solid whitesmoke;">
-                <thead id="tableHead">
-                    <tr>
-                        <th style="width: 90%;">고객사</th>
-
-                        <th style="width:50px;"></th>
-                    </tr>
-                </thead>
-                <tbody id="itemtbody2">
-                </tbody>
-            </table>
-
-        </div>
-
-    </div> -->
 
     <script>
         var server = '';
@@ -225,13 +198,13 @@
                 type: 'POST',
                 url: server + '/api/bomtoolorder',
                 dataType: 'json',
+                contentType: 'application/json',
                 data: JSON.stringify({
-                    "start": $('#datepicker1').val(),
-                    "finish": $('#datepicker2').val()
+                    "start": $('#datetimepicker1').val(),
+                    "finish": $('#datetimepicker2').val()
                 }),
                 success: function (data) {
-
-                    var rowData = JSON.stringify(data[i]);
+                    console.log(data);
 
                     if (data.length === 0) {
                         $('#iteminfobody').append(
@@ -241,39 +214,48 @@
                         for (var i = 0; i < data.length; i++) {
                             $('#iteminfobody').append(
                                 '<tr>' +
-                                '<td>' + result[i].orderdate + '</td>' +
-                                '<td>' + result[i].inputdate + '</td>' +
-                                '<td>' + result[i].madecustomer + '</td>' +
-                                '<td>' + result[i].toolcode + '</td>' +
-                                '<td>' + result[i].bomno + '</td>' +
-                                '<td>' + result[i].customer + '</td>' +
-                                '<td>' + result[i].itemname + '</td>' +
-                                '<td>' + result[i].char + '</td>' +
-                                '<td>' + result[i].part + '</td>' +
-                                '<td>' + result[i].ordercount + '</td>' +
-                                '<td style="text-align:right;">' + result[i].orderprice.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].a1.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].a2.toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + result[i].a3.toLocaleString() + '</td>' +
-                                '<td>' + result[i].part2 + '</td>' +
-                                '<td>' + result[i].sheet2 + '</td>' +
-                                '<td>' + result[i].ordercause + '</td>' +
-                                '<td>' + result[i].deadline + '</td>' +
-                                '<td>' + result[i].employee + '</td>' +
-                                '<td id="data-id">' + result[i].id + '</td>' +
+                                '<td>' + data[i].orderdate + '</td>' +
+                                '<td>' + data[i].inputdate + '</td>' +
+                                '<td>' + data[i].madecustomer + '</td>' +
+                                '<td>' + data[i].toolcode + '</td>' +
+                                '<td>' + data[i].bomno + '</td>' +
+                                '<td>' + data[i].customer + '</td>' +
+                                '<td>' + data[i].itemname + '</td>' +
+                                '<td>' + data[i].char + '</td>' +
+                                '<td>' + data[i].part + '</td>' +
+                                '<td>' + data[i].ordercount + '</td>' +
+                                '<td style="text-align:right;">' + data[i].orderprice.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + data[i].a1.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + data[i].a2.toLocaleString() + '</td>' +
+                                '<td style="text-align:right;">' + data[i].a3.toLocaleString() + '</td>' +
+                                '<td>' + data[i].part2 + '</td>' +
+                                '<td>' + data[i].sheet2 + '</td>' +
+                                '<td>' + data[i].ordercause + '</td>' +
+                                '<td>' + data[i].deadline + '</td>' +
+                                '<td>' + data[i].employee + '</td>' +
+                                '<td class="data-id">' + data[i].id + '</td>' +
+                                '<td><button class="btninfo" >상세정보</button></td>' +
+
                                 '</tr>'
                             );
-
-                            $("td#data-id").hide();
-
                         }
+                        $(".data-id").hide(); // 한 번에 숨김
                     }
+
                     setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
+                        spinnerOverlay.style.display = 'none'; // 1.1초 후에 Spinner 숨김
                     }, 1100);
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                    $('#iteminfobody').append(
+                        '<tr><td colspan="20" style="text-align:center;">데이터를 불러오는 중 오류가 발생했습니다</td></tr>'
+                    );
+                    spinnerOverlay.style.display = 'none'; // Spinner 숨김
                 }
             });
         }
+
 
 
         $(document).on('click', '#deleteRowBtn', function () {
@@ -328,13 +310,13 @@
             newRow.append('<td><input type="text" style="background-color:whitesmoke;"  readonly id="part-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right;" id="ordercount-input" onkeypress="return onlyNumberKey(event)" placeholder="숫자" oninput="updateCalculatedValues(); validateNumericInput(this);" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right; background-color:whitesmoke;" id="outprice-input" oninput="validateNumericInput(this);" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" readonly style="text-align:right;" id="a1-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" readonly style="text-align:right;" id="a2-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" readonly style="text-align:right;" id="a3-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" readonly style="text-align:right;  background-color:whitesmoke;" id="a1-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" readonly style="text-align:right;  background-color:whitesmoke;" id="a2-input" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" readonly style="text-align:right;  background-color:whitesmoke;" id="a3-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" readonly style="text-align:right;  background-color:whitesmoke;" id="part2-input" value="" autocomplete="off"></td>');
             newRow.append('<td><select id="sheet2-input"><option></option><option value="청구">청구</option><option value="미청구">미청구</option></select></td>');
-            newRow.append('<td><select id="ordercause-input"><option></option><option value="마감">마감</option><option value="이월">이월</option></select></td>');
             newRow.append('<td><select id="deadline-input"><option value=""></option><option value="양산신규">양산신규</option><option value="양산증작">양산증작</option><option value="양산사양변경">양산사양변경</option><option value="샘플신규">샘플신규</option><option value="샘플증작">샘플증작</option><option value="샘플형상변경">샘플형상변경</option></select></td>');
+            newRow.append('<td><select id="ordercause-input"><option></option><option value="마감">마감</option><option value="이월">이월</option></select></td>');
 
 
 
@@ -349,9 +331,9 @@
             var a2 = a1 * 0.1;
             var a3 = a1 * 1.1;
 
-            document.getElementById('a1-input').value = a1.toFixed(2);
-            document.getElementById('a2-input').value = a2.toFixed(2);
-            document.getElementById('a3-input').value = a3.toFixed(2);
+            document.getElementById('a1-input').value = a1.toFixed(0);
+            document.getElementById('a2-input').value = a2.toFixed(0);
+            document.getElementById('a3-input').value = a3.toFixed(0);
         }
 
         function showinfo(rowData) {
@@ -480,14 +462,7 @@
                             '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
                             '</tr>'
                         );
-
-                        // 합계 계산
-
                     }
-
-                    // tfoot에 합계 추가
-
-
                     $('td#data-id').hide();
                     setTimeout(function () {
                         spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
@@ -619,6 +594,9 @@
                     }
                 }
             });
+
+            var rowIndex = parseInt($("#numericPart").val(), 10);
+            $('#bomtableBody tr:eq(' + rowIndex + ') #ordercount-input').focus();
             document.getElementById('modal1').style.display = 'block';
             document.getElementById('overlay1').style.display = 'block';
         }
@@ -652,73 +630,12 @@
                 }
             });
 
-
             document.getElementById('modal2').style.display = 'block';
             document.getElementById('overlay1').style.display = 'block';
         }
 
 
-        function searchingmaterial1() {
 
-            var cavitySaveValue = $("#cavity-save").val();
-
-            if (cavitySaveValue === '') {
-                // Show alert when cavity-save is empty
-                Swal.fire({
-                    icon: 'error',
-                    title: '누락',
-                    text: `CAVITY가 누락되었습니다.`,
-                    showConfirmButton: true,
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: '확인',
-                    background: '#f4f4f4',
-                    customClass: {
-                        title: 'my-title',
-                        content: 'my-content',
-                    },
-                    padding: '2rem',
-                    width: '500px',
-                }).then((result) => { });
-                return;  // Stop further execution
-            }
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectbommaterial',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    materialname: $('#itemcode1-input').val()
-                }),
-                success: function (result) {
-                    $('#itemtbody1').empty();
-                    for (var i = 0; i < result.length; i++) {
-                        var row = '<tr>' +
-                            '<td>' + result[i].materialname + '</td>' +
-                            '<td>' + result[i].width + '</td>' +
-                            '<td>' + result[i].length + '</td>' +
-                            '<td>' + result[i].supplier + '</td>' +
-                            '<td class="data-width">' + result[i].width + '</td>' +
-                            '<td class="data-usewidth">' + result[i].usewidth + '</td>' +
-                            '<td class="data-length">' + result[i].length + '</td>' +
-                            '<td class="data-sqmprice">' + result[i].sqmprice + '</td>' +
-                            '<td class="data-rollprice">' + result[i].rollprice + '</td>' +
-                            '<td class="data-unit">' + result[i].unit + '</td>' +
-                            '<td class="data-manufacterer">' + result[i].manufacterer + '</td>' +
-                            '<td class="data-supplier">' + result[i].supplier + '</td>' +
-                            '<td class="data-typecategory">' + result[i].typecategory + '</td>' +
-                            '<td class="data-codenumber">' + result[i].codenumber + '</td>' +
-                            '<td>' + result[i].num + '</td>' +
-                            '<td><button class="btninfo" onclick="insertmaterialdata(this)" >추가</button></td>' +
-                            '</tr>';
-
-                        $('#itemtbody1').append(row);
-                    }
-                    // 한 번의 선택으로 모든 숨길 요소를 처리합니다.
-                    $('#itemtbody1').find('.data-width, .data-usewidth, .data-length, .data-sqmprice, .data-rollprice, .data-unit, .data-manufacterer, .data-supplier, .data-codenumber').hide();
-                }
-            });
-
-        }
 
         function saveprocessname() {
             $.ajax({
@@ -782,7 +699,6 @@
                 $(this).attr('id', newId);
             });
 
-            // newRow.find('#char-input').val($('#char-input:last').val());
 
             newRow.find('#classification-input').val('');
             newRow.find('#bomno-input').val('');
@@ -794,8 +710,12 @@
             newRow.find('#char-input').val('');
             newRow.find('#part-input').val('');
             newRow.find('#inputprice-input').val('');
-            newRow.find('#outputprice-input').val('');
-            newRow.find('#etc-input').val('');
+            newRow.find('#outprice-input').val('');
+            newRow.find('#ordercount-input').val('');
+            newRow.find('#a1-input').val('');
+            newRow.find('#a2-input').val('');
+            newRow.find('#a3-input').val('');
+            newRow.find('#part2-input').val('');
 
 
 
@@ -869,7 +789,6 @@
                 let rowCount = tableBody.children.length;
 
                 for (let i = 0; i < rowCount; i++) {
-                    var classification = $('#bomtableBody tr:eq(' + i + ') #classification-input').val();
                     var bomno = $('#bomtableBody tr:eq(' + i + ') #bomno-input').val();
                     var toolcode = $('#bomtableBody tr:eq(' + i + ') #toolcode-input').val();
                     var partcustomer = $('#bomtableBody tr:eq(' + i + ') #partcustomer-input').val();
@@ -878,8 +797,13 @@
                     var itemname = $('#bomtableBody tr:eq(' + i + ') #itemname-input').val();
                     var char = $('#bomtableBody tr:eq(' + i + ') #char-input').val();
                     var part = $('#bomtableBody tr:eq(' + i + ') #part-input').val();
-                    var inputprice = $('#bomtableBody tr:eq(' + i + ') #inputprice-input').val();
-                    if (classification === '' || bomno === '' || toolcode === '' || partcustomer === '' || customer === '' || modelname === '' || itemname === '' || char === '' || part === '' || inputprice === '') {
+                    var outprice = $('#bomtableBody tr:eq(' + i + ') #outprice-input').val();
+                    var ordercount = $('#bomtableBody tr:eq(' + i + ') #ordercount-input').val();
+                    var ordercause = $('#bomtableBody tr:eq(' + i + ') #ordercause-input').val();
+                    var deadline = $('#bomtableBody tr:eq(' + i + ') #deadline-input').val();
+                    var sheet2 = $('#bomtableBody tr:eq(' + i + ') #sheet2-input').val();
+                    var part2 = $('#bomtableBody tr:eq(' + i + ') #part2-input').val();
+                    if (ordercount === '' || ordercause === '' || deadline === '' || sheet2 === '' || part2 === '' || bomno === '' || toolcode === '' || partcustomer === '' || customer === '' || modelname === '' || itemname === '' || char === '' || part === '' || outprice === '') {
                         Swal.fire({
                             icon: 'error',
                             title: '누락',
@@ -1099,8 +1023,8 @@
                 if (bomno !== '') {
                     Swal.fire({
                         icon: 'info',
-                        title: 'TOOL 기초정보',
-                        text: 'TOOL 정보 데이터를 저장하시겠습니까?',
+                        title: 'TOOL 발주정보',
+                        text: 'TOOL 발주정보 데이터를 저장하시겠습니까?',
                         showCancelButton: true, // 취소 버튼 표시
                         confirmButtonColor: '#3085d6',
                         confirmButtonText: '확인',
@@ -1115,38 +1039,47 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
 
-                            $('[id^="bomno-input"]').each(function (index) {
-                                var classification = ($('[id^="classification-input"]').eq(index).val());
-                                var bomno = ($('[id^="bomno-input"]').eq(index).val());
+                            $('[id^="toolcode-input"]').each(function (index) {
+                                var orderdate = ($('[id^="datetimepicker1-input"]').eq(index).val());
+                                var inputdate = ($('[id^="datetimepicker2-input"]').eq(index).val());
+                                var madecustomer = ($('[id^="partcustomer-input"]').eq(index).val());
                                 var toolcode = 'TOOL-' + ($('[id^="toolcode-input"]').eq(index).val());
-                                var partcustomer = ($('[id^="partcustomer-input"]').eq(index).val());
+                                var bomno = ($('[id^="bomno-input"]').eq(index).val());
                                 var customer = ($('[id^="customer-input"]').eq(index).val());
                                 var modelname = ($('[id^="modelname-input"]').eq(index).val());
                                 var itemname = ($('[id^="itemname-input"]').eq(index).val());
                                 var char = ($('[id^="char-input"]').eq(index).val());
                                 var part = ($('[id^="part-input"]').eq(index).val());
-                                var inputprice = ($('[id^="inputprice-input"]').eq(index).val());
-                                var outputprice = ($('[id^="outputprice-input"]').eq(index).val()) || 0; // 공란이면 0으로 설정
-                                var etc = $('[id^="etc-input"]').eq(index).val() || ''; // 공란이면 빈 문자열로 설정
+                                var orderprice = ($('[id^="outprice-input"]').eq(index).val());
+                                var ordercount = ($('[id^="ordercount-input"]').eq(index).val());
+                                var sheet2 = ($('[id^="sheet2-input"]').eq(index).val());
+                                var part2 = ($('[id^="part2-input"]').eq(index).val());
+                                var ordercause = ($('[id^="ordercause-input"]').eq(index).val());
+                                var deadline = ($('[id^="deadline-input"]').eq(index).val());
+
 
                                 $.ajax({
                                     type: 'POST',
-                                    url: server + '/api/insertpinacle',
+                                    url: server + '/api/insertbomtoolorder',
                                     dataType: 'json',
                                     contentType: 'application/json',
                                     data: JSON.stringify({
-                                        "classification": classification,
-                                        "bomno": bomno,
+                                        "orderdate": orderdate,
+                                        "inputdate": inputdate,
+                                        "madecustomer": madecustomer,
                                         "toolcode": toolcode,
-                                        "partcustomer": partcustomer,
+                                        "bomno": bomno,
                                         "customer": customer,
                                         "modelname": modelname,
                                         "itemname": itemname,
                                         "char": char,
                                         "part": part,
-                                        "inputprice": inputprice,
-                                        "outputprice": outputprice,
-                                        "etc": etc,
+                                        "orderprice": orderprice,
+                                        "ordercount": ordercount,
+                                        "sheet2": sheet2,
+                                        "part2": part2,
+                                        "ordercause": ordercause,
+                                        "deadline": deadline
 
                                     }),
                                     success: function (result) {
@@ -1263,57 +1196,6 @@
         }
 
 
-
-        function habji() {
-            var checkedMaterialnames = [];
-            $('input[type="checkbox"]').each(function () {
-                if (this.checked) {
-                    var materialnameValue = $(this).closest('tr').find('#materialname-input').val();
-                    checkedMaterialnames.push(materialnameValue);
-                }
-            });
-
-            // Concatenate the checked materialnames with '+' and add "합지" between the last two
-            var concatenatedValue = checkedMaterialnames.join('+');
-
-            if (checkedMaterialnames.length > 1) {
-                concatenatedValue = checkedMaterialnames.slice(0, -1).join('+') + '+' + checkedMaterialnames.slice(-1) + '(합지)';
-            }
-
-            // Set the concatenated value to the etc-input in the same row
-            $('input[type="checkbox"]').each(function () {
-                if (this.checked) {
-                    $(this).closest('tr').find('#etc-input').val(concatenatedValue);
-                }
-
-            });
-            $('input[type="checkbox"]').prop('checked', false);
-        }
-        function habji1() {
-            var checkedMaterialnames = [];
-            $('input[type="checkbox"]').each(function () {
-                if (this.checked) {
-                    var materialnameValue = $(this).closest('tr').find('#materialname-edit').val();
-                    checkedMaterialnames.push(materialnameValue);
-                }
-            });
-
-            // Concatenate the checked materialnames with '+' and add "합지" between the last two
-            var concatenatedValue = checkedMaterialnames.join('+');
-
-            if (checkedMaterialnames.length > 1) {
-                concatenatedValue = checkedMaterialnames.slice(0, -1).join('+') + '+' + checkedMaterialnames.slice(-1) + '(합지)';
-            }
-
-            // Set the concatenated value to the etc-input in the same row
-            $('input[type="checkbox"]').each(function () {
-                if (this.checked) {
-                    $(this).closest('tr').find('#etc-edit').val(concatenatedValue);
-                }
-
-            });
-            $('input[type="checkbox"]').prop('checked', false);
-        }
         function handleDoubleClick() {
             var parentRow = $(event.target).closest('tr');
             // Extract data from the parent row
@@ -1361,34 +1243,7 @@
 
             $("#numericPart-edit").val(rowIndex);
         }
-        // function insertmaterialdata(button) {
-        //     document.getElementById('modal1').style.display = 'none';
-        //     document.getElementById('overlay1').style.display = 'none';
 
-
-        //     var parentRow = $(button).closest('tr');
-
-        //     var rowData = parentRow.find('td').map(function () {
-        //         return $(this).text();
-        //     }).get();
-
-
-        //     var rowIndex = $('#numericPart').val();
-        //     var targetRow = $('#itembody1 tr:eq(' + rowIndex + ')');
-
-        //     // Ensure the row exists
-        //     if (targetRow.length === 0) {
-        //         console.error('Specified row does not exist');
-        //         return;
-        //     }
-        //     // Update the materialname-input in the specified row
-        //     targetRow.find('#bomno-input').val(rowData[0]);
-        //     targetRow.find('#customer-input').val(rowData[3]);
-        //     targetRow.find('#modelname-input').val(rowData[1]);
-        //     targetRow.find('#itemname-input').val(rowData[2]);
-
-
-        // }
 
         function insertmaterialdata(button) {
             document.getElementById('modal1').style.display = 'none';
