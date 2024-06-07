@@ -10214,6 +10214,30 @@ module.exports = function (app) {
                 });
         });
     });
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcustomername', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('customername', sql.NVarChar, '%' + req.body.customername + '%')
+
+                .query(
+                    "SELECT * " +
+                    "FROM customerinformation " +
+                    "WHERE " +
+                    "customername LIKE @customername order by customername asc "
+
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
+    });
 
 
     // **** finish
