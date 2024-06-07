@@ -10187,22 +10187,16 @@ module.exports = function (app) {
     });
     // **** start       
     sql.connect(config).then(pool => {
-        app.post('/api/selectbommanagementsearch', function (req, res) {
+        app.post('/api/selecttoolcodesearch', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-                .input('bomno', sql.NVarChar, '%' + req.body.bomno + '%')
-                .input('modelname', sql.NVarChar, '%' + req.body.modelname + '%')
-                .input('itemname', sql.NVarChar, '%' + req.body.itemname + '%')
-                .input('customer', sql.NVarChar, '%' + req.body.customer + '%')
+                .input('toolcode', sql.NVarChar, '%' + req.body.toolcode + '%')
                 .query(
                     "SELECT * " +
-                    "FROM iteminfo " +
+                    "FROM sampleorder " +
                     "WHERE " +
-                    "bomno LIKE @bomno OR " +
-                    "modelname LIKE @modelname OR " +
-                    "itemname LIKE @itemname OR " +
-                    "customer LIKE @customer " +
-                    "ORDER BY bomno ASC"
+                    "toolcode LIKE @toolcode ORDER BY TOOLCODE ASC " 
+                 
                 )
                 .then(result => {
                     res.json(result.recordset);
