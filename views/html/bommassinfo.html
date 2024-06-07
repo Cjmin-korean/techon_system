@@ -71,7 +71,7 @@
 
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold; font-size: 20px;"> <i class="fas fa-cube"></i>&nbsp;BOM 정보(양산)</span>
+            <span style="font-weight: bold; font-size: 20px;"> <i class="fas fa-cube"></i>&nbsp;제품 BOM 정보(양산)</span>
             <input type="text" id="bomid-save" style="width: 200px; visibility: hidden;">
             <input type="text" id="bomid-edit" style="width: 200px; visibility: hidden;">
             <div class="modal-footer">
@@ -98,11 +98,14 @@
                         <td><input type="text" id="itemname-save" value="" autocomplete="off"></td>
 
                         <th><label for="editAuthor">PCS수량</label></th>
-                        <td><input type="text" style="text-align: right;" id="pcs-save" value="" autocomplete="off">
+                        <td><input type="text" style="text-align: right;" id="pcs-save" value="" autocomplete="off"
+                                onkeypress="return onlyNumberKey(event)" oninput="validateNumericInput(this)"
+                                placeholder="숫자만 입력 가능합니다">
                         </td>
                         <th><label for="editAuthor">Cavity</label></th>
                         <td><input type="text" style="text-align: right;" id="cavity-save" value="" autocomplete="off"
-                                oninput="updateCavity();">
+                                onkeypress="return onlyNumberKey(event)" placeholder="숫자만 입력 가능합니다"
+                                oninput="updateCavity(); validateNumericInput(this);">
                         </td>
                     </tr>
 
@@ -122,7 +125,8 @@
                             </select></td>
                         <th><label for="editAuthor">작업차수</label></th>
                         <td><input type="text" style="text-align: right;" id="working-save"
-                                oninput="validateNumericInput(this)" value="" autocomplete="off"></td>
+                                oninput="validateNumericInput(this)" value="" autocomplete="off"
+                                onkeypress="return onlyNumberKey(event)" placeholder="숫자만 입력 가능합니다"></td>
                         <th><label for="editDate">타발방향</label></th>
                         <td><select id="direction-save" style="font-weight: bold;">
                                 <option style="font-weight: bold; font-size: 20px;" value="정">정</option>
@@ -131,6 +135,7 @@
                                 <option style="font-weight: bold; font-size: 20px;" value="역-정">역-정</option>
                                 <option style="font-weight: bold; font-size: 20px;" value="정-역">정-역</option>
                                 <option style="font-weight: bold; font-size: 20px;" value="역-역-정">역-역-정</option>
+                                <option style="font-weight: bold; font-size: 20px;" value="역-역-역-역">역-역-역-역</option>
 
                             </select></td>
                         <th><label for="editDate">Type</label></th>
@@ -148,9 +153,8 @@
                     </tr>
                     <tr style="height: 100px;">
                         <td colspan="12" style="height: 100%; padding: 10px;">
-                            <textarea id="additionalNote" rowspan="1"
-                                style="width: 100%; height: 100px; box-sizing: border-box; resize: none;"
-                                autocomplete="off"></textarea>
+                            <textarea id="additionalNote" placeholder="작업특이사항을 입력 바랍니다." autocomplete="off"></textarea>
+
                         </td>
                     </tr>
                 </thead>
@@ -252,7 +256,6 @@
         <div class="modal-header">
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;자재검색</span>
             <input type="text" id="numericPart" style="width: 200px; visibility: hidden;">
-
         </div>
         <input type="text" class="styled-search" id="itemcode1-input" placeholder="검색내용을 입력후 ENTER 입력하세요"
             style="width: 500px;" onkeypress="handleKeyPress2(event)" autocomplete="off">
@@ -352,12 +355,21 @@
             });
         }
 
+
         $(document).on('click', '#deleteRowBtn', function () {
             var currentRow = $(this).closest('tr');
             var tbodyLength = $('#bomtableBody').find('tr').length;
-            currentRow.remove();
+            if (tbodyLength === 1) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '삭제 불가',
+                    text: '첫 행은 삭제할 수 없습니다.',
+                });
+                return;
+            } else {
+                currentRow.remove();
+            }
         });
-
         function openEditModal() {
 
             $('#overlay').fadeIn();
@@ -376,7 +388,7 @@
 
             // Append each cell to the new row
             newRow.append('<td><button id="deleteRowBtn" class="close-button" style="background-color: red; color:white; ">삭제</button></td>');
-            newRow.append('<td><button id="RowBtnadd" class="close-button" style="background-color: #4f56b6; color:white; ">+</button></td>');
+            newRow.append('<td><button id="RowBtnadd" class="rowadd-button" style="background-color: #4f56b6; color:white; ">+</button></td>');
             newRow.append('<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>');
             newRow.append('<td><input type="checkbox" id="main-edit" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
@@ -386,10 +398,10 @@
             newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk1-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
             newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk2-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
             newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk3-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="materialwidth-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="materialwidth-input" onkeypress="return onlyNumberKey(event)" placeholder="숫자입력" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); validateNumericInput(this);" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right;" id="useable-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="onepidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right;" id="twopidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="onepidding-input" placeholder="숫자입력" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();  validateNumericInput(this);" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" style="text-align:right;" id="twopidding-input" placeholder="숫자입력" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); " value="0" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-input" value="0" autocomplete="off" ></td>');
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;"  id="ta-input" oninput="updateSoyoValue()" value="1" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); formatDecimalInput(this, 2);" value="1" autocomplete="off"></td>');
@@ -430,6 +442,7 @@
             $('#workpart-save').val(rowData.workpart)
             $('#working-save').val(rowData.working)
             $('#direction-save').val(rowData.direction)
+            // console.log(rowData.direction)
             $('#type-save').val(rowData.type)
             var counter = 1;
             $('#bomtableBody').empty();
@@ -444,7 +457,6 @@
                     "bomno": rowData.bomno
                 }),
                 success: function (result) {
-                    console.log('상세정보')
                     if (result.length === 0) {
 
                     } else {
@@ -452,7 +464,7 @@
                             $('#bomtableBody').append(
                                 '<tr>' +
                                 '<td><button id="deleteRowBtn" class="close-button" style="background-color: red; color:white; ">삭제</button></td>' +
-                                '<td><button id="RowBtnadd" class="close-button" style="background-color: #4f56b6; color:white; ">+</button></td>' +
+                                '<td><button id="RowBtnadd" class="rowadd-button" style="background-color: #4f56b6; color:white; ">+</button></td>' +
                                 '<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                                 '<td><input type="text" id="char-input" style="text-align:right;" value=' + (result[i].char || '') + ' autocomplete="off"></td>' +
                                 '<td><input type="checkbox" id="main-edit" ' + (result[i].main === '메인자재' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
@@ -486,17 +498,12 @@
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="cavity-input" value="' + (result[i].cavity || '') + '" onchange="updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit();calculateCostedit();" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:center; background-color: whitesmoke;" id="codenumber-input" value="' + (result[i].codenumber || '') + '"  autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="num-input" value="' + (result[i].num || '') + '"  autocomplete="off"></td>' +
-
                                 '</tr>'
                             )
                             counter++;
                         }
-
-
-
                     }
                 }
-
             });
         }
 
@@ -589,6 +596,7 @@
             document.getElementById('modal').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
         }
+
         function closeModal1() {
             document.getElementById('modal1').style.display = 'none';
             document.getElementById('overlay1').style.display = 'none';
@@ -821,24 +829,15 @@
 
         function addRow() {
 
-            // Clone the template row
             var newRow = $('#bomtableBody tr:first').clone();
-
-            // Increment the counter for bomno-input
-
-            // Append the new row to the table body
             $('#bomtableBody').append(newRow);
-            // Get the index of the new row (length gives the number of elements, which is the new row index)
             var rowIndex = $('#bomtableBody tr').length - 1;
 
-            // Update the IDs of the new row inputs
             newRow.find('input').each(function () {
                 var originalId = $(this).attr('id');
                 var newId = originalId.replace(/\d+$/, rowIndex);
                 $(this).attr('id', newId);
-
             });
-
 
             newRow.find('#char-input').val($('#char-input:last').val());
             newRow.find('#onepidding-input').val($('#onepidding-input:first').val());
@@ -866,27 +865,75 @@
             newRow.find('#num-input').val('');
             newRow.find('#chk1-input').prop('checked', false);
             newRow.find('#chk2-input').prop('checked', false);
-            newRow.find('#chk3-input').prop('checked', false);
+            newRow.find('#chk3-input').prop('checked', true);
             newRow.find('#check-input').prop('checked', false);
             newRow.find('#main-edit').prop('checked', false);
             newRow.find('#materialclassification-input').val('');
         }
 
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.getElementById('bomtableBody').addEventListener('click', function (event) {
-                if (event.target && event.target.id === 'deleteRowBtn') {
-                    const row = event.target.closest('tr');
-                    row.parentNode.removeChild(row);
-                    console.log('123123123')
-                }
-            });
-        });
+        // $(document).on('click', '#RowBtnadd', function () {
+        //     var newRow = '<tr><td>New Row</td><td><button id="RowBtnadd" class="rowadd-button">+</button></td></tr>';
+        //     $(this).closest('tr').after(newRow);
+        // });
+
+        // $(document).on('click', '.rowadd-button', function () {
+        //     var newRow =
+        //         '<tr>' +
+        //         '<td><button id="deleteRowBtn" class="close-button" style="background-color: red; color:white; ">삭제</button></td>' +
+        //         '<td><button id="RowBtnadd" class="rowadd-button" style="background-color: #4f56b6; color:white; ">+</button></td>' +
+        //         '<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+        //         '<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>' +
+        //         '<td><input type="checkbox" id="main-edit" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+        //         '<td><input type="text" id="materialname-input"  onkeypress="handleKeyPress1(event)" style="cursor: pointer;" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" id="materialclassification-input" style="background-color:whitesmoke; "  value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" id="etc-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk1-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+        //         '<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk2-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+        //         '<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk3-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right;" id="materialwidth-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right;" id="useable-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right;" id="onepidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right;" id="twopidding-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-input" value="0" autocomplete="off" ></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;"  id="ta-input" oninput="updateSoyoValue()" value="1" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); formatDecimalInput(this, 2);" value="1" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right;" id="talength-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="0" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right;" id="loss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="3" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right;" id="costloss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="3" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCost();" id="cost-input" readonly value="0" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-input"  autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-input"  value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="sqmprice-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="supplier-input" value="" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="codenumber-input"  autocomplete="off"></td>' +
+        //         '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input"  autocomplete="off"></td>' +
+        //         '</tr>';
+
+        //     // Insert new row below the clicked row
+        //     $(this).closest('tr').after(newRow);
+        // });
+        // document.addEventListener('DOMContentLoaded', (event) => {
+        //     document.getElementById('bomtableBody').addEventListener('click', function (event) {
+        //         if (event.target && event.target.id === 'deleteRowBtn') {
+        //             const row = event.target.closest('tr');
+        //             row.parentNode.removeChild(row);
+        //             console.log('123123123')
+        //         }
+        //     });
+        // });
         function Bomsave() {
 
             function showMissingFieldAlert(fieldName, message) {
                 Swal.fire({
                     icon: 'error',
-                    title: '누락',
+                    title: '오류',
                     text: message,
                     showConfirmButton: true,
                     confirmButtonColor: '#3085d6',
@@ -1007,6 +1054,7 @@
                 }
             } else { }
             if ($('#bomid-edit').val()) {
+                var insertdate = new Date().toISOString().slice(0, 10);
                 Swal.fire({
                     icon: 'info',
                     title: 'BOM 정보 수정',
@@ -1024,51 +1072,47 @@
                     width: '500px',
                 }).then((result) => {
                     if (result.isConfirmed) {
+
                         $.ajax({
                             type: 'POST',
-                            url: server + '/api/selectbomno',
+                            url: server + '/api/updateiteminformation',
                             dataType: 'json',
+                            async: false,
                             contentType: 'application/json',
                             data: JSON.stringify({
                                 "bomno": $('#bomno-save').val(),
+                                "modelname": $('#modelname-save').val(),
+                                "itemname": $('#itemname-save').val(),
+                                "customer": $('#customer-save').val(),
+                                "itemcode": $('#itemcode-save').val(),
+                                "pcs": $('#pcs-save').val(),
+                                "cavity": $('#cavity-save').val(),
+                                "direction": $('#direction-save').val(),
+                                "workpart": $('#workpart-save').val(),
+                                "additionalnotes": $('#additionalNote-save').val(),
+                                "working": $('#working-save').val(),
+                                "type": $('#type-save').val(),
                             }),
                             success: function (result) {
-                                if (result && result.length > 0) {
-                                    // alert('BOM NO가 중복되었습니다.');
-                                    showMissingFieldAlert('BOMNO중복', 'BOM NO가 중복되었습니다');
-                                    return;
-                                } else {
-                                }
                             }
                         });
+
                         $.ajax({
                             type: 'POST',
-                            url: server + '/api/bommasssaveiteminfo',
+                            url: server + '/api/updatebomstatus',
                             dataType: 'json',
+                            async: false,
                             contentType: 'application/json',
                             data: JSON.stringify({
-                                "insertdate": insertdate,
-                                "updatedate": insertdate,
-                                "bomno": bomno,
-                                "customer": customer,
-                                "modelname": modelname,
-                                "itemname": itemname,
-                                "pcs": pcs,
-                                "cavity": cavity,
-                                "itemcode": itemcode,
-                                "part": "양산",
-                                "workpart": workpart,
-                                "working": working,
-                                "direction": direction,
-                                "costsum": costsum,
-                                "additionalnotes": additionalnotes,
-                                "type": type,
-                                "itemprice": '0',
+                                "bomid": $('#bomid-edit').val(),
+                                "status": 'false'
                             }),
                             success: function (result) {
-
                             }
                         });
+
+
+
                         $('[id^="num-input"]').each(function (index) {
                             var cavity = $('#cavity-save').val();
                             var bomno = $('#bomno-save').val();
@@ -1154,6 +1198,24 @@
                 });
 
             } else {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectbomno',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "bomno": $('#bomno-save').val(),
+                    }),
+                    success: function (result) {
+                        if (result && result.length > 0) {
+                            // alert('BOM NO가 중복되었습니다.');
+                            showMissingFieldAlert('BOMNO중복', 'BOMNO가 기존에 등록되었습니다');
+                            return;
+                        } else {
+                        }
+                    }
+                });
+
                 var insertdate = new Date().toISOString().slice(0, 10);
                 var rowCount = $('#bomtableBody tr').length;
                 for (var i = 0; i < rowCount; i++) {
@@ -1608,7 +1670,17 @@
             // Update cost-input value
             $('#bomtableBody-edit tr:eq(' + rowIndex + ') #cost-edit').val(costValue.toFixed(2));
         }
+
+        function onlyNumberKey(event) {
+            // Only allows number keys, backspace, delete, left and right arrows
+            const charCode = event.which ? event.which : event.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
     </script>
+
 
 </body>
 

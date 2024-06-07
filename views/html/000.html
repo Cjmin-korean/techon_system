@@ -8,50 +8,99 @@
 </head>
 
 <body>
-    <div data-row="1">
-        <input type="checkbox" id="check-input-1">
-        <input type="checkbox" id="main-edit-1">
-        <input type="checkbox" id="chk1-input-1">
-        <input type="checkbox" id="chk2-input-1">
-        <input type="checkbox" id="chk3-input-1">
-    </div>
-
-    <div data-row="2">
-        <input type="checkbox" id="check-input-2">
-        <input type="checkbox" id="main-edit-2">
-        <input type="checkbox" id="chk1-input-2">
-        <input type="checkbox" id="chk2-input-2">
-        <input type="checkbox" id="chk3-input-2">
-    </div>
-
-</body>
-<script>
-    function handleCheckboxChange(checkbox) {
-        const row = checkbox.closest('[data-row]');
-        const rowId = row.getAttribute('data-row');
-
-        const checkboxes = row.querySelectorAll('input[type="checkbox"]:not(#chk1-input-' + rowId + '):not(#chk2-input-' + rowId + '):not(#chk3-input-' + rowId + ')');
-        const groupCheckboxes = row.querySelectorAll('#chk1-input-' + rowId + ', #chk2-input-' + rowId + ', #chk3-input-' + rowId);
-
-        if (checkbox.id === 'chk1-input-' + rowId || checkbox.id === 'chk2-input-' + rowId || checkbox.id === 'chk3-input-' + rowId) {
-            if (checkbox.checked) {
-                groupCheckboxes.forEach(cb => {
-                    if (cb !== checkbox) {
-                        cb.checked = false;
-                    }
-                });
+    <SCRIPT LANGUAGE="JavaScript">
+        var fNum = 1;
+        //인덱스로 찾지 않아도 되므로 소스가 복잡하지 않음.
+        function getObj() {
+            var obj = event.srcElement
+            while (obj.tagName != 'TD') //TD가 나올때까지의 Object추출
+            {
+                obj = obj.parentElement
             }
-        } else {
-            if (checkbox.checked) {
-                checkboxes.forEach(cb => {
-                    if (cb !== checkbox) {
-                        cb.checked = false;
-                    }
-                });
-            }
+            return obj
         }
-    }
 
-</script>
+        //맨 아래쪽에 테이블 추가하기 ("최초에 추가"글씨를 눌렀을때 맨아래 추가하기 위한 함수)
+        function inRowLast() {
+            if (fNum > 5000) { return false; } //5000개 까지만 추가를 허용하겠다는 설정입니다.
+            else {
+                //웹브라우져에 따른 설정.
+                //익스플로어일때,
+                if (document.getElementById) {
+                    var Tbl = document.getElementById('tb1');
+                }
+                //그외 브라우져일때..
+                else {
+                    var Tbl = document.all['tb1'];
+                }
+
+                var tRow = Tbl.insertRow();  //그냥 맨 아래에 추가하므로, 별다른 변수없습니다.
+                var uploadOBJ = "<table border=1 width=\"700\"><tr><td width=\"3\">";
+                uploadOBJ += fNum;
+                uploadOBJ += "</td><td width=\"100\">들여쓰기</td><td><input type=radio value=0 name='index" + fNum + "'>맨앞";
+                uploadOBJ += "<input name='index" + fNum + "' type=radio value=1>1칸";
+                uploadOBJ += "<input name='index" + fNum + "' type=radio value=1>2칸";
+                uploadOBJ += "<input name='index" + fNum + "' type=radio value=1>3칸";
+                uploadOBJ += "</tr><tr><td></td><td>목차내용</td><td><textarea rows=3 cols=80 name='toc" + fNum + "'></textarea></td>";
+                uploadOBJ += "<tr><td></td><td>페이지</td><td><input type=text name='page" + fNum + "' size=11></td><td>";
+                uploadOBJ += "</td></tr></table>";
+                uploadOBJ += "<center><a href=#; onclick='inRow();'><input type=button value=' + '></a>";
+                uploadOBJ += "<a href=#; onclick='tb1.deleteRow(this.parentNode.parentNode.rowIndex)'><input type=button value=' - '></a>";
+                tRow.insertCell(0).innerHTML = uploadOBJ;
+                fNum++;
+            }
+        }//End of function
+
+
+        //클릭된 셀의 아래쪽에 로우를 추가.
+        function inRow() {
+            if (fNum > 5000) { return false; }
+            else {
+                /*
+                if(document.getElementById){
+                    var Tbl = document.getElementById('tb1');
+                }
+                else
+                {
+                    var Tbl = document.all['tb1'];
+                }
+                */
+                var idx = getObj().parentElement.rowIndex + 1; //위의 getObj()함수에서 object를
+                //가져온후, .rowIndex로 인덱스를
+                //따옵니다. +1하면 클릭한 위치.
+                alert(idx); //클릭한 위치를 창으로 한번 확인해봤습니다.
+                var tRow = tb1.insertRow(idx); //해당 인덱스 위치에 추가합니다.
+                //tb1은 맨아래 html에서 보이듯이 처음 table의 id입니다.
+
+                for (var i = 0; i < tb1.rows(0).cells.length; i++) {
+                    var c = tb1.rows(idx).insertCell(i)
+
+                    if (i == 0) {
+                        var uploadOBJ = "<table border=1 width=\"700\"><tr><td width=\"3\">";
+                        uploadOBJ += fNum;
+                        uploadOBJ += "</td><td width=\"100\">들여쓰기</td><td><input type=radio value=0 name='index" + fNum + "'>맨앞";
+                        uploadOBJ += "<input name='index" + fNum + "' type=radio value=1>1칸";
+                        uploadOBJ += "<input name='index" + fNum + "' type=radio value=1>2칸";
+                        uploadOBJ += "<input name='index" + fNum + "' type=radio value=1>3칸";
+                        uploadOBJ += "</td></tr><tr><td></td><td>목차내용</td><td><textarea rows=3 cols=80 name='toc" + fNum + "'></textarea></td>";
+                        uploadOBJ += "<tr><td></td><td>페이지</td><td><input type=text name='page" + fNum + "' size=11></td><td>";
+                        uploadOBJ += "</td></tr></table>";
+                        uploadOBJ += "<center><a href=#; onclick='inRow();'><input type=button value=' + '></a>";
+                        uploadOBJ += "<a href=#; onclick='tb1.deleteRow(this.parentNode.parentNode.rowIndex)'><input type=button value=' - '></a>";
+                        //tRow.insertCell(0).innerHTML = uploadOBJ;
+                        c.innerHTML = uploadOBJ;
+                        fNum++;
+                    }//End of if
+                }//Enf of for
+            }//End of if(fNum >5000)
+        }//End of function
+
+
+    </script>
+    <a href='#;' onclick='inRowLast();'>추가</A>
+    <table id="tb1">
+    </table>
+    [출처] (자바스크립트)동적 테이블 행추가-지정된 행 삭제 및 바로아래추가하기|작성자 렐라야
+</body>
 
 </html>

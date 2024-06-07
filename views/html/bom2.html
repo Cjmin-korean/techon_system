@@ -31,7 +31,7 @@
         <i class="fas fa-search"></i>
         <input type="text" id="searchInput" onkeypress="handleKeyPress1(event)" placeholder="검색 후 ENTER 입력 바랍니다."
             style="width:400px; margin-left: 10px;" autocomplete="off">
-        <button class="close-button" onclick="load1()">조회</button>
+        <!-- <button class="close-button" onclick="load1()">조회</button> -->
         <!-- <button class="save-button" onclick="openModal()">신규등록</button> -->
 
 
@@ -149,16 +149,27 @@
                 }
             });
         }
-        function load1() {
+        function insertmaterialdata(button) {
+
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spinner 표시
+
+            var parentRow = $(button).closest('tr');
+
+            var rowData = parentRow.find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            // Update the materialname-input in the specified row
+            $('#searchInput').val(rowData[0]);
+
             $.ajax({
                 url: server + '/api/selectbommateriallistwherebomno',
                 method: 'post',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    bomno: $('#searchInput').val()
+                    bomno: rowData[0]
                 }),
                 success: function (result) {
                     $('#iteminfobody').empty();
@@ -187,6 +198,10 @@
                     }, 1100);
                 }
             });
+
+            document.getElementById('modal1').style.display = 'none';
+            document.getElementById('overlay1').style.display = 'none';
+
         }
 
 
@@ -208,7 +223,6 @@
         }
 
         function searchingmaterial() {
-
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectbommanagementsearch',
@@ -222,15 +236,21 @@
                 }),
                 success: function (result) {
                     $('#itemtbody1').empty();
-                    for (var i = 0; i < result.length; i++) {
-                        var row = '<tr>' +
-                            '<td>' + result[i].bomno + '</td>' +
-                            '<td>' + result[i].modelname + '</td>' +
-                            '<td>' + result[i].itemname + '</td>' +
-                            '<td>' + result[i].customer + '</td>' +
-                            '<td><button class="btninfo" onclick="insertmaterialdata(this)" >추가</button></td>' +
-                            '</tr>';
-                        $('#itemtbody1').append(row);
+                    if (result.length === 0) {
+                        // 데이터가 없는 경우 메시지 표시
+                        $('#itemtbody1').append('<tr><td colspan="5">데이터가 없습니다.</td></tr>');
+                    } else {
+                        // 데이터가 있는 경우 테이블에 행 추가
+                        for (var i = 0; i < result.length; i++) {
+                            var row = '<tr>' +
+                                '<td>' + result[i].bomno + '</td>' +
+                                '<td>' + result[i].modelname + '</td>' +
+                                '<td>' + result[i].itemname + '</td>' +
+                                '<td>' + result[i].customer + '</td>' +
+                                '<td><button class="btninfo" onclick="insertmaterialdata(this)" >추가</button></td>' +
+                                '</tr>';
+                            $('#itemtbody1').append(row);
+                        }
                     }
                 }
             });
@@ -238,21 +258,8 @@
             document.getElementById('overlay1').style.display = 'block';
         }
 
-        function insertmaterialdata(button) {
 
 
-            var parentRow = $(button).closest('tr');
-
-            var rowData = parentRow.find('td').map(function () {
-                return $(this).text();
-            }).get();
-
-            // Update the materialname-input in the specified row
-            $('#searchInput').val(rowData[0]);
-            document.getElementById('modal1').style.display = 'none';
-            document.getElementById('overlay1').style.display = 'none';
-
-        }
         // updateaccountiteminfo
         function searchTable() {
             var searchText = $('#searchInput').val().toLowerCase();
