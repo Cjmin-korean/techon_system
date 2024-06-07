@@ -701,7 +701,8 @@ module.exports = function (app) {
 
 
             return pool.request()
-
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
                 .query(
                     "select " +
                     "insertdate, " +
@@ -731,7 +732,7 @@ module.exports = function (app) {
                     "employee, " +
                     "etc " +
                     "from " +
-                    "sampleorderinput")
+                    "sampleorderinput where insertdate between @start and @finish")
 
                 .then(result => {
 
@@ -1279,6 +1280,29 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  거래처정보 조회 쿼리  
+    sql.connect(config).then(pool => {
+        app.post('/api/inserthouse', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+                .input('housecode', sql.NVarChar, req.body.housecode)
+                .input('housename', sql.NVarChar, req.body.housename)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('partname', sql.NVarChar, req.body.partname)
+
+                .query(
+                    " INSERT INTO house (housecode,housename,part,partname)" +
+                    " VALUES (@housecode,@housename,@part,@partname)")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  거래처정보 조회 쿼리  
     sql.connect(config).then(pool => {
@@ -1782,7 +1806,7 @@ module.exports = function (app) {
     });
 
     // **** finish
-    
+
     // **** finish
     // **** start  BOM창 띄우기  
     sql.connect(config).then(pool => {
@@ -4414,6 +4438,37 @@ module.exports = function (app) {
                 .query(
                     'insert into equipment(codenumber,equipmentname,part,size,num,customer,position,etc)' +
                     ' values(@codenumber,@equipmentname,@part,@size,@num,@customer,@position,@etc)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/inserteqdata', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('eqname', sql.NVarChar, req.body.eqname)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('size', sql.NVarChar, req.body.size)
+                .input('num', sql.NVarChar, req.body.num)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('serialno', sql.NVarChar, req.body.serialno)
+                .input('manudate', sql.NVarChar, req.body.manudate)
+                .input('position', sql.NVarChar, req.body.position)
+
+
+                .query(
+                    'insert into equipment(codenumber,equipmentname,eqname,part,size,num,customer,serialno,manudate,position)' +
+                    ' values(@codenumber,@equipmentname,@eqname,@part,@size,@num,@customer,@serialno,@manudate,@position)'
                 )
                 .then(result => {
 
@@ -9085,6 +9140,27 @@ module.exports = function (app) {
     // **** finish
     // **** finish
     sql.connect(config).then(pool => {
+        app.post('/api/insertwon', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('startdate', sql.NVarChar, req.body.startdate)
+                .input('finishdate', sql.NVarChar, req.body.finishdate)
+                .input('currencycode', sql.NVarChar, req.body.currencycode)
+                .input('currencyname', sql.NVarChar, req.body.currencyname)
+                .input('currencyprice', sql.NVarChar, req.body.currencyprice)
+                .query(
+                    "insert into won (startdate,finishdate,currencycode,currencyname,currencyprice)" +
+                    " values(@startdate,@finishdate,@currencycode,@currencyname,@currencyprice)")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** finish
+    sql.connect(config).then(pool => {
         app.post('/api/plansearch3', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -12399,7 +12475,7 @@ module.exports = function (app) {
 
     // **** start       
     sql.connect(config).then(pool => {
-        app.post('/api/equipmentupdatedata', function (req, res) {
+        app.post('/api/updateeqdata', function (req, res) {
 
 
             res.header("Access-Control-Allow-Origin", "*");
@@ -12408,16 +12484,18 @@ module.exports = function (app) {
                 .input('id', sql.Int, req.body.id)
                 .input('codenumber', sql.NVarChar, req.body.codenumber)
                 .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('eqname', sql.NVarChar, req.body.eqname)
                 .input('part', sql.NVarChar, req.body.part)
                 .input('size', sql.NVarChar, req.body.size)
                 .input('num', sql.NVarChar, req.body.num)
                 .input('customer', sql.NVarChar, req.body.customer)
+                .input('serialno', sql.NVarChar, req.body.serialno)
+                .input('manudate', sql.NVarChar, req.body.manudate)
                 .input('position', sql.NVarChar, req.body.position)
-                .input('etc', sql.NVarChar, req.body.etc)
 
 
                 .query(
-                    'update equipment set codenumber=@codenumber,equipmentname=@equipmentname,part=@part,size=@size,num=@num,customer=@customer,position=@position,etc=@etc where id=@id'
+                    'update equipment set codenumber=@codenumber,equipmentname=@equipmentname,eqname=@eqname,part=@part,size=@size,num=@num,serialno=@serialno,customer=@customer,position=@position,manudate=@manudate where id=@id'
                 )
                 .then(result => {
 
@@ -13048,6 +13126,50 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  창고삭제쿼리     
+    sql.connect(config).then(pool => {
+        app.post('/api/wondeletedata', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+
+
+                .query(
+                    'delete from won where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  창고삭제쿼리     
+    sql.connect(config).then(pool => {
+        app.post('/api/deleteeqdata', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+
+
+                .query(
+                    'delete from equipment where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
     // **** start  품목삭제쿼리     
     sql.connect(config).then(pool => {
         app.post('/api/iteminfodeletedata', function (req, res) {
@@ -13251,6 +13373,34 @@ module.exports = function (app) {
     });
     // **** finish
 
+
+    // **** start  사원정보수정쿼리
+    sql.connect(config).then(pool => {
+        app.post('/api/wonupdatedata', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+                .input('startdate', sql.NVarChar, req.body.startdate)
+                .input('finishdate', sql.NVarChar, req.body.finishdate)
+                .input('currencycode', sql.NVarChar, req.body.currencycode)
+                .input('currencyname', sql.NVarChar, req.body.currencyname)
+                .input('currencyprice', sql.NVarChar, req.body.currencyprice)
+
+
+                .query(
+                    'update won set startdate=@startdate,finishdate=@finishdate,currencycode=@currencycode,currencyname=@currencyname,currencyprice=@currencyprice where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  사원정보수정쿼리
     sql.connect(config).then(pool => {
