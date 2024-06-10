@@ -292,7 +292,7 @@
             <input type="text" id="numericPart" style="width: 200px; visibility: hidden;">
         </div>
         <input type="text" class="styled-search" id="itemcode1-input" placeholder="검색내용을 입력후 ENTER 입력하세요"
-            style="width: 500px;" onkeypress="handleKeyPress2(event)" autocomplete="off">
+            style="width: 500px;" onkeypress="handleKeyPress3(event)" autocomplete="off">
         <button class="delete-button" style="margin-left: 30px; margin-top: 20px;" onclick="closeModal1()">닫기</button>
         <div class="modal-content" style="max-height: 70%;">
             <table class="styled-table" id="Podatatable" style="height: 350px; border: 1px solid whitesmoke;">
@@ -427,7 +427,7 @@
             newRow.append('<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>');
             newRow.append('<td><input type="checkbox" id="main-edit" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" id="materialname-input" placeholder="자재명검색"  onkeypress="handleKeyPress1(event)" style="cursor: pointer;" value="" autocomplete="off"></td>');
+            newRow.append('<td><input type="text" id="materialname-input" placeholder="자재명검색" ondblclick="handleKeyPress2(event)" onkeypress="handleKeyPress1(event)" style="cursor: pointer;" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="materialclassification-input" style="background-color:whitesmoke; "  value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" id="etc-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk1-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
@@ -733,44 +733,110 @@
                 }).then((result) => { });
                 return;  // Stop further execution
             }
+            if ($('#bomtableBody tr:eq(' + $("#numericPart").val() + ') #materialname-input').val() === '') {
+                $('#itemtbody1').empty();
+
+                var noDataMessage = '<tr><td colspan="15">데이터가 없습니다</td></tr>';
+                $('#itemtbody1').append(noDataMessage);
+                $('#itemcode1-input').focus();
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/selectbommaterial',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        materialname: $('#bomtableBody tr:eq(' + $("#numericPart").val() + ') #materialname-input').val()
+                    }),
+                    success: function (result) {
+                        $('#itemtbody1').empty();
+                        if (result.length === 0) {
+                            var noDataMessage = '<tr><td colspan="15">데이터가 없습니다</td></tr>';
+                            $('#itemtbody1').append(noDataMessage);
+                        } else {
+                            for (var i = 0; i < result.length; i++) {
+                                var row = '<tr>' +
+                                    '<td>' + result[i].materialname + '</td>' +
+                                    '<td>' + result[i].width + '</td>' +
+                                    '<td>' + result[i].length + '</td>' +
+                                    '<td>' + result[i].supplier + '</td>' +
+                                    '<td class="data-width">' + result[i].width + '</td>' +
+                                    '<td class="data-usewidth">' + result[i].usewidth + '</td>' +
+                                    '<td class="data-length">' + result[i].length + '</td>' +
+                                    '<td class="data-sqmprice">' + result[i].sqmprice + '</td>' +
+                                    '<td class="data-rollprice">' + result[i].rollprice + '</td>' +
+                                    '<td class="data-unit">' + result[i].unit + '</td>' +
+                                    '<td class="data-manufacterer">' + result[i].manufacterer + '</td>' +
+                                    '<td class="data-supplier">' + result[i].supplier + '</td>' +
+                                    '<td class="data-typecategory">' + result[i].typecategory + '</td>' +
+                                    '<td class="data-codenumber">' + result[i].codenumber + '</td>' +
+                                    '<td>' + result[i].num + '</td>' +
+                                    '<td><button class="btninfo" onclick="insertmaterialdata(this)" >추가</button></td>' +
+                                    '</tr>';
+
+                                $('#itemtbody1').append(row);
+                            }
+
+                            // 한 번의 선택으로 모든 숨길 요소를 처리합니다.
+                            $('#itemtbody1').find('.data-width, .data-usewidth, .data-length, .data-sqmprice, .data-rollprice, .data-unit, .data-manufacterer, .data-supplier, .data-codenumber').hide();
+                        }
+                    }
+                });
+            }
+
+
+
+            $("#itemcode1-input").val('');
+
+            document.getElementById('modal1').style.display = 'block';
+            document.getElementById('overlay1').style.display = 'block';
+        }
+        function searchingmaterial1() {
+
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectbommaterial',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    materialname: $('#bomtableBody tr:eq(' + $("#numericPart").val() + ') #materialname-input').val()
+                    materialname: $('#itemcode1-input').val()
                 }),
                 success: function (result) {
                     $('#itemtbody1').empty();
-                    for (var i = 0; i < result.length; i++) {
-                        var row = '<tr>' +
-                            '<td>' + result[i].materialname + '</td>' +
-                            '<td>' + result[i].width + '</td>' +
-                            '<td>' + result[i].length + '</td>' +
-                            '<td>' + result[i].supplier + '</td>' +
-                            '<td class="data-width">' + result[i].width + '</td>' +
-                            '<td class="data-usewidth">' + result[i].usewidth + '</td>' +
-                            '<td class="data-length">' + result[i].length + '</td>' +
-                            '<td class="data-sqmprice">' + result[i].sqmprice + '</td>' +
-                            '<td class="data-rollprice">' + result[i].rollprice + '</td>' +
-                            '<td class="data-unit">' + result[i].unit + '</td>' +
-                            '<td class="data-manufacterer">' + result[i].manufacterer + '</td>' +
-                            '<td class="data-supplier">' + result[i].supplier + '</td>' +
-                            '<td class="data-typecategory">' + result[i].typecategory + '</td>' +
-                            '<td class="data-codenumber">' + result[i].codenumber + '</td>' +
-                            '<td>' + result[i].num + '</td>' +
-                            '<td><button class="btninfo" onclick="insertmaterialdata(this)" >추가</button></td>' +
-                            '</tr>';
+                    if (result.length === 0) {
+                        var noDataMessage = '<tr><td colspan="15">데이터가 없습니다</td></tr>';
+                        $('#itemtbody1').append(noDataMessage);
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            var row = '<tr>' +
+                                '<td>' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].width + '</td>' +
+                                '<td>' + result[i].length + '</td>' +
+                                '<td>' + result[i].supplier + '</td>' +
+                                '<td class="data-width">' + result[i].width + '</td>' +
+                                '<td class="data-usewidth">' + result[i].usewidth + '</td>' +
+                                '<td class="data-length">' + result[i].length + '</td>' +
+                                '<td class="data-sqmprice">' + result[i].sqmprice + '</td>' +
+                                '<td class="data-rollprice">' + result[i].rollprice + '</td>' +
+                                '<td class="data-unit">' + result[i].unit + '</td>' +
+                                '<td class="data-manufacterer">' + result[i].manufacterer + '</td>' +
+                                '<td class="data-supplier">' + result[i].supplier + '</td>' +
+                                '<td class="data-typecategory">' + result[i].typecategory + '</td>' +
+                                '<td class="data-codenumber">' + result[i].codenumber + '</td>' +
+                                '<td>' + result[i].num + '</td>' +
+                                '<td><button class="btninfo" onclick="insertmaterialdata(this)" >추가</button></td>' +
+                                '</tr>';
 
-                        $('#itemtbody1').append(row);
+                            $('#itemtbody1').append(row);
+                        }
+
+                        // 한 번의 선택으로 모든 숨길 요소를 처리합니다.
+                        $('#itemtbody1').find('.data-width, .data-usewidth, .data-length, .data-sqmprice, .data-rollprice, .data-unit, .data-manufacterer, .data-supplier, .data-codenumber').hide();
                     }
-                    // 한 번의 선택으로 모든 숨길 요소를 처리합니다.
-                    $('#itemtbody1').find('.data-width, .data-usewidth, .data-length, .data-sqmprice, .data-rollprice, .data-unit, .data-manufacterer, .data-supplier, .data-codenumber').hide();
                 }
             });
-            document.getElementById('modal1').style.display = 'block';
-            document.getElementById('overlay1').style.display = 'block';
+
         }
         function searchingmaterial1() {
 
@@ -1506,12 +1572,24 @@
                 }).get();
                 var rowIndex = parentRow.index();
                 $("#numericPart").val(rowIndex);
+
                 searchingmaterial();
 
             }
         }
 
         function handleKeyPress2(event) {
+            var parentRow = $(event.target).closest('tr');
+            // Extract data from the parent row
+            var rowData = parentRow.find('td').map(function () {
+                return $(this).text();
+            }).get();
+            var rowIndex = parentRow.index();
+            $("#numericPart").val(rowIndex);
+
+            searchingmaterial();
+        }
+        function handleKeyPress3(event) {
             if (event.key === "Enter") {
 
                 searchingmaterial1();
