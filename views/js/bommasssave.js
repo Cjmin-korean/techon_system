@@ -16,6 +16,12 @@ function updateRlcutValue() {
             parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val())
         )
     );
+    $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlcut-input').val(
+        Math.floor(
+            parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-usewidth-input').val()) /
+            parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val())
+        )
+    );
 }
 
 
@@ -58,9 +64,15 @@ function updateRlProduct() {
         parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #usewidth-input').val()) /
         parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val())
     )
+    let rlcutValueA = Math.floor(
+        parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-usewidth-input').val()) /
+        parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val())
+    )
     let rlproductValue = ((lengthValue * 1000 * rlcutValue1 * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+    let rlproductValueA = ((lengthValue * 1000 * rlcutValueA * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
 
     $('#bomtableBody tr:eq(' + rowIndex + ') #rlproduct-input').val(rlproductValue);
+    $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlproduct-input').val(rlproductValueA);
 }
 
 function calculateCost() {
@@ -68,19 +80,29 @@ function calculateCost() {
     var rowIndex = currentRow.index();
     const rollpriceInput = $('#bomtableBody tr:eq(' + rowIndex + ') #rollprice-input');
     const rollpriceValue = parseFloat(rollpriceInput.val()) || 0;
+    const rollpriceInputA = $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rollprice-input');
+    const rollpriceValueA = parseFloat(rollpriceInputA.val()) || 0;
 
     let lengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #length-input').val()) || 0;
     let rlcutValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #rlcut-input').val()) || 0;
-    let cavitySaveValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #cavity-input').val()) || 0;
+    let lengthValueA = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-length-input').val()) || 0;
+    let rlcutValueA = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlcut-input').val()) || 0;
+
+
     let onepiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #onepidding-input').val()) || 0;
-    let taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
     let twopiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #twopidding-input').val()) || 0;
     let alltaValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #allta-input').val()) || 0;
     let lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #costloss-input').val()) || 0;
+    let taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
+    let cavitySaveValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #cavity-input').val()) || 0;
 
     let rlproductValue = ((lengthValue * 1000 * rlcutValue * cavitySaveValue * (1 - (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
     const costValue = rollpriceValue / rlproductValue;
+    let rlproductValueA = ((rollpriceValueA * 1000 * rlcutValueA * cavitySaveValue * (1 - (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+    const costValueA = rollpriceValue / rlproductValueA;
     $('#bomtableBody tr:eq(' + rowIndex + ') #cost-input').val(costValue.toFixed(2));
+    $('#bomtableBody tr:eq(' + rowIndex + ') #hap-cost-input').val(costValueA.toFixed(2));
+    $('#bomtableBody tr:eq(' + rowIndex + ') #costsum-input').val(parseFloat(costValueA.toFixed(2)) + parseFloat(costValue.toFixed(2)));
 }
 document.getElementById('cavity-save').addEventListener('input', updateCavity);
 
