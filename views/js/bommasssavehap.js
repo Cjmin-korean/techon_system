@@ -1,10 +1,10 @@
-function updateCavity() {
+function hapupdateCavity() {
     const cavitySaveValue = parseFloat($("#cavity-save").val()) || 0;
     const taInputValue = cavitySaveValue !== 0 ? (1 / cavitySaveValue) : 0;
     $("[id='cavity-input']").val(cavitySaveValue);
 }
 
-function updateRlcutValue() {
+function hapupdateRlcutValue() {
     var currentRow = $(event.target).closest('tr');
     var rowIndex = currentRow.index();
     $('#bomtableBody tr:eq(' + rowIndex + ') #rlcut-input').val(
@@ -21,7 +21,7 @@ function updateRlcutValue() {
     );
 }
 
-function updateSoyoValue() {
+function hapupdateSoyoValue() {
     var currentRow = $(event.target).closest('tr');
     var rowIndex = currentRow.index();
     const taValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #ta-input').val()) || 0;
@@ -37,7 +37,7 @@ function updateSoyoValue() {
     $('#bomtableBody tr:eq(' + rowIndex + ') #soyo-input').val(soyoValue);
 }
 
-function updateRlProduct() {
+function hapupdateRlProduct() {
     var currentRow = $(event.target).closest('tr');
     var rowIndex = currentRow.index();
 
@@ -72,7 +72,7 @@ function updateRlProduct() {
     $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlproduct-input').val(rlproductValueA);
 }
 
-function calculateCost() {
+function hapcalculateCost() {
     var currentRow = $(event.target).closest('tr');
     var rowIndex = currentRow.index();
     const rollpriceInput = $('#bomtableBody tr:eq(' + rowIndex + ') #rollprice-input');
@@ -106,16 +106,6 @@ function calculateCost() {
     $('#bomtableBody tr:eq(' + rowIndex + ') #cost-input').val(isFinite(costValue) && !isNaN(costValue) ? costValue.toFixed(2) : 0);
     $('#bomtableBody tr:eq(' + rowIndex + ') #hap-cost-input').val(isFinite(costValueA) && !isNaN(costValueA) ? costValueA.toFixed(2) : 0);
     $('#bomtableBody tr:eq(' + rowIndex + ') #costsum-input').val((costValue + costValueA).toFixed(2));
-
-
-    var totalCostSum = 0;
-    $('#bomtableBody tr').each(function () {
-        var costSumValue = parseFloat($(this).find('#costsum-input').val()) || 0;
-        totalCostSum += costSumValue;
-    });
-    $('#costsum-save').val(totalCostSum.toFixed(2))
-    return totalCostSum;
-
 }
 
 

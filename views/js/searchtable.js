@@ -11,7 +11,7 @@ function searchTable() {
     });
     console.log(visibleRows)
     if (visibleRows === 0) {
-        $('#iteminfobody').append('<tr class="no-data"><td colspan="10" style="text-align:center;">데이터가 없습니다</td></tr>');
+        $('#iteminfobody').append('<tr class="no-data"><td colspan="20" style="text-align:center;">데이터가 없습니다</td></tr>');
     } else {
         $('#iteminfobody').find('.no-data').remove();
     }

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="../css/iteminfo1.css">
+    <link rel="stylesheet" href="../css/spiner.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <script src="../js/searchtable.js"></script>
+    <title>금형 연마 이력관리</title>
+</head>
+
+<body>
+    <div class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="header-container">
+        <div class="header-title">
+            <h2><i class="fas fa-tools"></i> &nbsp;금형 연마 이력관리</h2>
+        </div>
+        <div class="header-subtitle">
+            <h4>TOOL 사용 현황 > 금형 연마 이력관리</h4>
+        </div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <div id="overlay1" class="overlay"></div>
+
+    <fieldset>
+        <legend>검색조건</legend>
+        <i class="fas fa-search"></i>
+        <input type="text" style="width:20%;" placeholder="검색어를 입력후 ENTER를 누르세요.." id="inputdata" autocomplete="off">
+        <button class="close-button" onclick="openModal()">신규등록</button>
+    </fieldset>
+
+    <div id="maintable" class="table-wrapper">
+        <table>
+            <thead>
+                <th>연마접수날짜</th>
+                <th>금형제작일</th>
+                <th>고객도면NO</th>
+                <th>모델명</th>
+                <th>연마일</th>
+                <th>확인</th>
+                <th>연마량</th>
+                <th>비고</th>
+                <th style="width: 10%;"></th>
+                <th style="width: 10%;"></th>
+            </thead>
+
+            <tbody id="iteminfobody">
+            </tbody>
+            <tfoot id="iteminfofoot">
+            </tfoot>
+        </table>
+    </div>
+
+
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;금형 연마정보</span>
+            <input type="text" id="dataid" style="width:60px; visibility: hidden;">
+        </div>
+        <div class="modal-footer">
+            <button class="close-button" onclick="datasave()">저장</button>
+            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
+        </div>
+        <div class="modal-content">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th style="width:150px">연마접수날짜</th>
+                        <td><input type="date" id="a-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">금형제작일</th>
+                        <td><input type="text" id="b-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">고객도면NO</th>
+                        <td><input type="text" id="c-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">모델명</th>
+                        <td><input type="text" id="d-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">연마일</th>
+                        <td><input type="text" id="e-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">확인</th>
+                        <td>
+                            <select style="background-color:whitesmoke;" readonly id="f-input">
+                                <option value=""></option>
+                                <option value="완료">완료</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">연마량</th>
+                        <td><input type="text" id="g-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">비고</th>
+                        <td><input type="text" id="h-input" autocomplete="off"></td>
+                    </tr>
+
+                </thead>
+
+            </table>
+
+
+
+        </div>
+    </div>
+
+
+    <script>
+        var server = '';
+        var gridApi;
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+
+        $(document).ready(function () {
+
+            var today = new Date();
+
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            var day = String(today.getDate()).padStart(2, '0'); // 일
+            var formattedDate = year + '-' + month + '-' + day;
+            $('#a-input').val(formattedDate)
+            load()
+
+        });
+        function validateNumericInput(input) {
+            // 숫자와 소수점만 입력
+            input.value = input.value.replace(/[^0-9.]/g, '');
+            // 소수점이 여러 번 입력되지 않도록 함
+            if ((input.value.match(/\./g) || []).length > 1) {
+                input.value = input.value.replace(/\.+$/, "");
+            }
+        }
+
+        function load() {
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spinner 표시
+
+            $.ajax({
+                url: server + '/api/mr2',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function (result) {
+                    $('#iteminfobody').empty();
+
+                    if (result.length === 0) {
+                        $('#iteminfobody').append(
+                            '<tr><td colspan="10" style="text-align:center;">데이터가 없습니다</td></tr>'
+                        );
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            $('#iteminfobody').append(
+                                '<tr>' +
+                                '<td>' + (result[i].a || '') + '</td>' +
+                                '<td>' + (result[i].b || '') + '</td>' +
+                                '<td>' + (result[i].c || '') + '</td>' +
+                                '<td>' + (result[i].d || '') + '</td>' +
+                                '<td>' + (result[i].e || '') + '</td>' +
+                                '<td>' + (result[i].f || '') + '</td>' +
+                                '<td>' + (result[i].g || '') + '</td>' +
+                                '<td>' + (result[i].h || '') + '</td>' +
+                                '<td id="data-id">' + (result[i].id || '') + '</td>' +
+
+                                '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
+                                '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+
+                                '</tr>'
+                            );
+                            $('td#data-id').hide();
+                        }
+                    }
+
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
+                    }, 1100);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                    $('#iteminfobody').empty();
+                    $('#iteminfobody').append(
+                        '<tr><td colspan="10" style="text-align:center;">데이터를 불러오는 중 오류가 발생했습니다</td></tr>'
+                    );
+                    spinnerOverlay.style.display = 'none';
+                }
+            });
+        }
+
+        $('#inputdata').on('keyup', function (event) {
+            if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                searchTable();
+            }
+        });
+
+
+        function openModal() {
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+
+        function showinfo(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            $('#a-input').val(rowData[0])
+            $('#b-input').val(rowData[1])
+            $('#c-input').val(rowData[2])
+            $('#d-input').val(rowData[3])
+            $('#e-input').val(rowData[4])
+            $('#f-input').val(rowData[5])
+            $('#g-input').val(rowData[6])
+            $('#h-input').val(rowData[7])
+            $('#dataid').val(rowData[8])
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+
+
+        function closeModal() {
+            $('#a-input').val('')
+            $('#b-input').val('')
+            $('#c-input').val('')
+            $('#d-input').val('')
+            $('#e-input').val('')
+            $('#f-input').val('')
+            $('#g-input').val('')
+            $('#h-input').val('')
+            $('#dataid').val('')
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+
+        function datasave() {
+            // 데이터가 있으면
+            if ($('#dataid').val()) {
+                Swal.fire({
+                    icon: 'info',
+                    title: '수정',
+                    text: '연마 정보를 수정 하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/updatemr2',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "a": $('#a-input').val(),
+                                "b": $('#b-input').val(),
+                                "c": $('#c-input').val(),
+                                "d": $('#d-input').val(),
+                                "e": $('#e-input').val(),
+                                "f": $('#f-input').val(),
+                                "g": $('#g-input').val(),
+                                "h": $('#h-input').val(),
+                                "id": $('#dataid').val(),
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '수정 완료',
+                            text: '연마정보가 수정 되었습니다.',
+                        }).then(() => {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        });
+                    }
+                });
+            } else {
+                // 데이터가 없으면(등록)
+                Swal.fire({
+                    icon: 'info',
+                    title: '저장',
+                    text: '금형 연마정보를 등록하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/insertmr2',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "a": $('#a-input').val(),
+                                "b": $('#b-input').val(),
+                                "c": $('#c-input').val(),
+                                "d": $('#d-input').val(),
+                                "e": $('#e-input').val(),
+                                "f": $('#f-input').val(),
+                                "g": $('#g-input').val(),
+                                "h": $('#h-input').val()
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '저장 완료',
+                            text: '금형 연마정보가 등록되었습니다.',
+                        }).then(() => {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        });
+                    }
+                });
+            }
+
+        }
+
+        function deletedata(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            Swal.fire({
+                icon: 'warning',
+                title: '삭제',
+                text: '연마 정보를 삭제하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/deletemr2',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": rowData[8],
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '정보가 삭제 되었습니다.',
+                    }).then(() => {
+                        $('#modal').fadeOut();
+                        $('#overlay').fadeOut();
+                        load();
+                    });
+                }
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

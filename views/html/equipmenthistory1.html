@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="../css/equipmenthistory1.css">
+    <link rel="stylesheet" href="../css/spiner.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <script src="../js/searchtable.js"></script>
+    <title>설비이력관리대장</title>
+</head>
+
+<body>
+    <div class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="header-container">
+        <div class="header-title">
+            <h2><i class="fas fa-money-check"></i> &nbsp;설비 이력 관리대장</h2>
+        </div>
+        <div class="header-subtitle">
+            <h4>설비이력관리 > 설비 이력 관리대장</h4>
+        </div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <div id="overlay1" class="overlay"></div>
+
+    <fieldset>
+        <legend>검색조건</legend>
+        <i class="fas fa-search"></i>
+        <input type="text" style="width:20%;" placeholder="검색어를 입력후 ENTER를 누르세요.." id="inputdata" autocomplete="off">
+    </fieldset>
+
+    <div id="maintable" class="table-wrapper">
+        <table>
+            <thead>
+                <th>설비코드</th>
+                <th>호기명</th>
+                <th>설비명</th>
+                <th>차수</th>
+                <th>설비제작업체</th>
+                <th>SELIAL NO</th>
+                <th>제작일</th>
+                <th>설비위치</th>
+                <th>이력개수</th>
+                <th>수명(일)</th>
+                <th style="width: 10%;"></th>
+            </thead>
+
+            <tbody id="iteminfobody">
+            </tbody>
+            <tfoot id="iteminfofoot">
+            </tfoot>
+        </table>
+    </div>
+
+
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;설비이력관리</span>
+            <input type="text" id="dataid" style="width:60px; visibility: hidden">
+        </div>
+        <div class="modal-footer">
+            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
+        </div>
+        <div class="modal-content">
+            <div class="company-info"> <i class="fas fa-box"></i> 설비 SPEC <input type="text" id="id-input"
+                    style="visibility: hidden;"></div>
+            <div class="modal-content">
+                <table>
+                    <tr>
+                        <th>설비코드</th>
+                        <th>호기명</th>
+                        <th>설비명</th>
+                        <th>차수</th>
+                        <th>설비제작업체</th>
+                        <th>색상</th>
+                        <th>Serial NO</th>
+                        <th>제작일</th>
+                    </tr>
+                    <tr>
+                        <td id="codenumber-input"></td>
+                        <td id="equipmentname-input"></td>
+                        <td id="eqname-input"></td>
+                        <td id="num-input"></td>
+                        <td id="customer-input"></td>
+                        <td id="serialno-input"></td>
+                        <td id="manudate-input"></td>
+                        <td id="position-input"></td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="section-title"><i class="fas fa-box"></i> 설비 이력 추가</div>
+            <table class="styled-table" id="Podatatable">
+                <tr>
+                    <th>고장내용</th>
+                    <th>조치내용</th>
+                    <th>발생일</th>
+                    <th>조치일</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td><input type="text" style="width:300px;" id="a" autocomplete="off"></td>
+                    <td><input type="text" style="width:300px;" id="b" autocomplete="off"></td>
+                    <td><input type="date" id="date1"></td>
+                    <td><input type="date" id="date2"></td>
+                    <td><button class="close-button" style="background-color: green;" onclick="save()">추가</button></td>
+                </tr>
+
+            </table>
+            <div class="section-title"><i class="fas fa-info-circle"></i>설비 이력 내역</div>
+            <div id="maintable" class="table-wrapper" style="max-height: 500px; height: 500px;">
+                <table>
+                    <tr>
+                        <th style="width:30%;">고장내용</th>
+                        <th style="width:30%;">조치내용</th>
+                        <th>발생일</th>
+                        <th>조치일</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tbody id="equipmenthistorytbody">
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="modal3" id="modal3">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;설비이력관리 수정</span> <input
+                type="text" class="inputtext" id="id-edit" autocomplete="off" style="width:30px; visibility: hidden;">
+        </div>
+        <div class="modal-footer">
+            <button style="background-color: blue;" class="close-button" onclick="editdata()">수정</button>
+            <button style="background-color: red;" class="close-button" onclick="closeModal1()">닫기</button>
+        </div>
+        <div class="company-info"> <i class="fas fa-box"></i> 설비 SPEC <input type="text" id="id-input"
+                style="visibility: hidden;"></div>
+        <div class="modal-content">
+            <table>
+                <tr>
+                    <th style="width:40%;">고장내용</th>
+                    <th style="width:40%;">조치내용</th>
+                    <th>발생일</th>
+                    <th>조치일</th>
+                </tr>
+                <tr>
+                    <td><input type="text" class="inputtext" id="a-edit"></td>
+                    <td><input type="text" class="inputtext" id="b-edit"></td>
+                    <td><input type="date" class="inputtext" id="date3"></td>
+                    <td><input type="date" class="inputtext" id="date4"></td>
+                </tr>
+            </table>
+        </div>
+
+
+        <div class="modal-footer">
+            <!-- <button id="savebutton" class="new-registration" onclick="saveOrEditForm()">저장</button> -->
+            <!-- <button class="new-cancel" onclick="closeModal()">닫기</button> -->
+        </div>
+    </div>
+
+    <script>
+        var server = '';
+        var gridApi;
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+
+        $(document).ready(function () {
+
+            var today = new Date();
+
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            var day = String(today.getDate()).padStart(2, '0'); // 일
+            var formattedDate = year + '-' + month + '-' + day;
+            $('#date1').val(formattedDate)
+            $('#date2').val(formattedDate)
+            load()
+
+        });
+        function validateNumericInput(input) {
+            // 숫자와 소수점만 입력
+            input.value = input.value.replace(/[^0-9.]/g, '');
+            // 소수점이 여러 번 입력되지 않도록 함
+            if ((input.value.match(/\./g) || []).length > 1) {
+                input.value = input.value.replace(/\.+$/, "");
+            }
+        }
+
+        function load() {
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spinner 표시
+
+            $.ajax({
+                url: server + '/api/mr1equipment',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function (result) {
+                    $('#iteminfobody').empty();
+
+                    if (result.length === 0) {
+                        $('#iteminfobody').append(
+                            '<tr><td colspan="10" style="text-align:center;">데이터가 없습니다</td></tr>'
+                        );
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            $('#iteminfobody').append(
+                                '<tr>' +
+                                '<td>' + (result[i].codenumber || '') + '</td>' +
+                                '<td>' + (result[i].equipmentname || '') + '</td>' +
+                                '<td>' + (result[i].eqname || '') + '</td>' +
+                                '<td>' + (result[i].num || '') + '</td>' +
+                                '<td>' + (result[i].customer || '') + '</td>' +
+                                '<td>' + (result[i].serialno || '') + '</td>' +
+                                '<td>' + (result[i].manudate || '') + '</td>' +
+                                '<td>' + (result[i].position || '') + '</td>' +
+                                '<td>' + (result[i].mr1count || '') + '</td>' +
+                                '<td>' + (result[i].days.toLocaleString() || '') + '</td>' +
+                                '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
+                                '</tr>'
+                            );
+                        }
+                    }
+
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
+                    }, 1100);
+                },
+
+            });
+        }
+
+        $('#inputdata').on('keyup', function (event) {
+            if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                searchTable();
+            }
+        });
+
+        function update(row) {
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#id-edit').val(rowData[0])
+            $('#a-edit').val(rowData[1])
+            $('#b-edit').val(rowData[2])
+            $('#date3').val(rowData[3])
+            $('#date4').val(rowData[4])
+            $('#overlay1').fadeIn();
+            $('#modal3').fadeIn();
+        }
+
+        function showinfo(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/mr1',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    codenumber: rowData[0]
+                }),
+                success: function (data) {
+                    $('#equipmenthistorytbody').empty()
+
+                    if (data.length === 0) {
+                    } else {
+                        for (var i = 0; i < data.length; i++) {
+                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
+                            row.append('<td>' + (data[i].a || '') + '</td>');
+                            row.append('<td>' + (data[i].b || '') + '</td>');
+                            row.append('<td>' + (data[i].c || '') + '</td>');
+                            row.append('<td>' + (data[i].d || '') + '</td>');
+                            row.append('<td><button style="background-color:green;" class="close-button" onclick="update(this)">수정</button></td>');
+                            row.append('<td><button style="background-color:red;" class="close-button" onclick="datadelete(this)">삭제</button></td>');
+
+                            $('#equipmenthistorytbody').append(row);
+                            $('td#data-id').hide();
+                        }
+                    }
+                }
+            });
+
+            $('#codenumber-input').text(rowData[0])
+            $('#equipmentname-input').text(rowData[1])
+            $('#eqname-input').text(rowData[2])
+            $('#num-input').text(rowData[3])
+            $('#customer-input').text(rowData[4])
+            $('#serialno-input').text(rowData[5])
+            $('#manudate-input').text(rowData[6])
+            $('#position-input').text(rowData[7])
+
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            load()
+        }
+        function closeModal1() {
+            document.getElementById('modal3').style.display = 'none';
+            document.getElementById('overlay1').style.display = 'none';
+        }
+
+        function save() {
+            Swal.fire({
+                icon: 'success',
+                title: '저장',
+                text: '설비 이력 정보를 등록하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/insertmr1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "codenumber": $('#codenumber-input').text(),
+                            "a": $('#a').val(),
+                            "b": $('#b').val(),
+                            "c": $('#date1').val(),
+                            "d": $('#date2').val(),
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '저장완료',
+                        text: '설비 이력 정보가 등록되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#a').val('')
+                            $('#b').val('')
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/mr1',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    codenumber: $('#codenumber-input').text()
+                                }),
+                                success: function (data) {
+                                    $('#equipmenthistorytbody').empty()
+
+                                    if (data.length === 0) {
+                                        // Handle empty data case if needed
+                                    } else {
+                                        for (var i = 0; i < data.length; i++) {
+                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                                            // Append data to the row
+                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
+                                            row.append('<td>' + (data[i].a || '') + '</td>');
+                                            row.append('<td>' + (data[i].b || '') + '</td>');
+                                            row.append('<td>' + (data[i].c || '') + '</td>');
+                                            row.append('<td>' + (data[i].d || '') + '</td>');
+                                            row.append('<td><button style="background-color:green;" class="close-button" onclick="update(this)">수정</button></td>');
+                                            row.append('<td><button style="background-color:red;" class="close-button" onclick="datadelete(this)">삭제</button></td>');
+
+                                            // Append the row to the table body
+                                            $('#equipmenthistorytbody').append(row);
+                                            $('td#data-id').hide();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function datadelete(row) {
+            var rowData = $(row).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            var codenumberText = $('#codenumber').text().trim();
+            $('#codenumberid').val(codenumberText)
+            // Check if the codenumberText is not empty
+            Swal.fire({
+                icon: 'warning',
+                title: '삭제',
+                text: '설비 이력 정보를 삭제하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/deletemr1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": rowData[0]
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '설비 이력 정보가 삭제 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#equipmenthistorytbody').empty()
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/mr1',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    codenumber: $('#codenumber-input').text()
+                                }),
+                                success: function (data) {
+                                    if (data.length === 0) {
+                                        // Handle empty data case if needed
+                                    } else {
+                                        for (var i = 0; i < data.length; i++) {
+                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                                            // Append data to the row
+                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
+                                            row.append('<td>' + (data[i].a || '') + '</td>');
+                                            row.append('<td>' + (data[i].b || '') + '</td>');
+                                            row.append('<td>' + (data[i].c || '') + '</td>');
+                                            row.append('<td>' + (data[i].d || '') + '</td>');
+                                            row.append('<td><button style="background-color:green;" class="close-button" onclick="update(this)">수정</button></td>');
+                                            row.append('<td><button style="background-color:red;" class="close-button" onclick="datadelete(this)">삭제</button></td>');
+
+                                            // Append the row to the table body
+                                            $('#equipmenthistorytbody').append(row);
+                                            $('td#data-id').hide();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        function editdata() {
+            Swal.fire({
+                icon: 'success',
+                title: '수정',
+                text: '설비 이력 정보를 수정하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updatemr1',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": $('#id-edit').val(),
+                            "a": $('#a-edit').val(),
+                            "b": $('#b-edit').val(),
+                            "c": $('#date3').val(),
+                            "d": $('#date4').val(),
+
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '수정완료',
+                        text: '설비 이력 정보가 수정되었습니다.',
+                    }).then((result) => {
+                        $('#overlay1').fadeOut();
+                        $('#modal3').fadeOut();
+                        if (result.isConfirmed) {
+
+
+                            $('#equipmenthistorytbody').empty()
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/mr1',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    codenumber: $('#codenumber-input').text()
+                                }),
+                                success: function (data) {
+                                    if (data.length === 0) {
+                                        // Handle empty data case if needed
+                                    } else {
+                                        for (var i = 0; i < data.length; i++) {
+                                            var row = $('<tr>').attr('data-row-index', i); // Add data-row-index attribute
+
+                                            // Append data to the row
+                                            row.append('<td id="data-id">' + (data[i].id || '') + '</td>');
+                                            row.append('<td>' + (data[i].a || '') + '</td>');
+                                            row.append('<td>' + (data[i].b || '') + '</td>');
+                                            row.append('<td>' + (data[i].c || '') + '</td>');
+                                            row.append('<td>' + (data[i].d || '') + '</td>');
+                                            row.append('<td><button style="background-color:green;" class="close-button" onclick="update(this)">수정</button></td>');
+                                            row.append('<td><button style="background-color:red;" class="close-button" onclick="datadelete(this)">삭제</button></td>');
+
+                                            // Append the row to the table body
+                                            $('#equipmenthistorytbody').append(row);
+                                            $('td#data-id').hide();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

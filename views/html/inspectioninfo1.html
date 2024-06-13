@@ -164,41 +164,35 @@
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
-            var fetchInterval; // 변수를 선언하여 fetch 인터벌을 저장합니다.
+            $.ajax({
+                url: server + '/api/selectwaitinspection',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function (result) {
+                    $('#iteminfobody').empty();
 
-            function fetchData() {
-                $.ajax({
-                    url: server + '/api/selectwaitinspection',
-                    method: 'post',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({}),
-                    success: function (result) {
-                        $('#iteminfobody').empty();
+                    result.forEach(function (item) {
+                        var row = $('<tr>');
+                        row.append('<td>' + (item.date || '') + '</td>');
+                        row.append('<td>' + (item.materialtype || '') + '</td>');
+                        row.append('<td>' + (item.manufacterer || '') + '</td>');
+                        row.append('<td>' + (item.supplier || '') + '</td>');
+                        row.append('<td>' + (item.materialname || '') + '</td>');
+                        row.append('<td>' + (item.lotno || '') + '</td>');
+                        row.append('<td>' + (item.roll || '') + '</td>');
+                        row.append('<td><button class="btninfo" onclick="showinfo()">수입검사</button></td>');
+                        row.data('id', item.id); // Store ID as data attribute
 
-                        result.forEach(function (item) {
-                            var row = $('<tr>');
-                            row.append('<td>' + (item.date || '') + '</td>');
-                            row.append('<td>' + (item.materialtype || '') + '</td>');
-                            row.append('<td>' + (item.manufacterer || '') + '</td>');
-                            row.append('<td>' + (item.supplier || '') + '</td>');
-                            row.append('<td>' + (item.materialname || '') + '</td>');
-                            row.append('<td>' + (item.lotno || '') + '</td>');
-                            row.append('<td>' + (item.roll || '') + '</td>');
-                            row.append('<td><button class="btninfo" onclick="showinfo()">수입검사</button></td>');
-                            row.data('id', item.id); // Store ID as data attribute
+                        $('#iteminfobody').append(row);
+                    });
 
-                            $('#iteminfobody').append(row);
-                        });
-
-                        setTimeout(function () {
-                            spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-                        }, 1100);
-                    }
-                });
-            }
-
-            var fetchInterval = setInterval(fetchData, 1000);
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                    }, 1100);
+                }
+            });
 
         }
 

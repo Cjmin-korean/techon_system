@@ -165,7 +165,7 @@
         </div>
 
         <div style="height: 50%; max-height: 50%; overflow-y: auto; display: block;" id="containers">
-            <table style="width: 250%;">
+            <table style="width: 300%;">
                 <thead id="tableHead">
                     <tr>
                         <th colspan="22" style="background-color: rgb(199, 199, 199); color:black;">BOM정보</th>
@@ -271,16 +271,7 @@
                 <tbody id="bomtableBody">
 
                 </tbody>
-                <!-- <tfoot style="background-color:whitesmoke;">
-                    <tr>
-                        <td></td>
-                        <td><input type="button" id="updownbtn" onClick="rowMoveEvent('up');" value="▲"
-                                style="width:50px;" /></td>
-                        <td><input type="button" id="updownbtn" onClick="rowMoveEvent('down');" value="▼"
-                                style="width:50px;" /></td>
-                        <td colspan="31"></td>
-                    </tr>
-                </tfoot> -->
+
             </table>
         </div>
 
@@ -375,7 +366,7 @@
                                 '<td>' + data[i].workpart + '</td>' +
                                 '<td style="text-align:right;">' + totalcost + '</td>' +
                                 '<td style="text-align:right;">' + itemprice + '</td>' +
-                                '<td style="text-align:right;">' + costPriceRatio + '</td>' +
+                                '<td style="text-align:right;">' + costPriceRatio.toFixed(2) + '</td>' +
                                 '<td style="text-align:right;">' + data[i].materialcount + '</td>' +
                                 '<td><button class="btninfo" onclick=\'showinfo(' + rowData + ')\'>상세정보</button></td>' +
                                 '</tr>'
@@ -394,14 +385,16 @@
             const currentRow = $(this).closest('tr');
             const tbodyLength = $('#bomtableBody').find('tr').length;
 
+
             if (tbodyLength === 1) {
-                Swal.fire({
-                    icon: 'error',
-                    title: '삭제 불가',
-                    text: '첫 행은 삭제할 수 없습니다.',
-                });
+                // Swal.fire({
+                //     icon: 'error',
+                //     title: '삭제 불가',
+                //     text: '첫 행은 삭제할 수 없습니다.',
+                // });
             } else {
                 currentRow.remove();
+
             }
         });
 
@@ -421,7 +414,6 @@
             // Create a new row
             var newRow = $('<tr></tr>');
 
-            // Append each cell to the new row
             newRow.append('<td><button id="deleteRowBtn" class="close-button" style="background-color: red; color:white; ">삭제</button></td>');
             newRow.append('<td><button id="RowBtnadd" class="rowadd-button" style="background-color: #4f56b6; color:white; ">+</button></td>');
             newRow.append('<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
@@ -502,17 +494,22 @@
             container.scrollLeft = 0;
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectbommasssavebommanagement',
+                url: server + '/api/selectwherebomnobommanagement1',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
                     "bomno": rowData.bomno
                 }),
                 success: function (result) {
+                    let totalSum = 0; // Initialize total sum
                     if (result.length === 0) {
 
                     } else {
                         for (var i = 0; i < result.length; i++) {
+                            let cost = parseFloat(result[i].cost);
+                            let hapCost = parseFloat(result[i].hapcost || '0');
+                            let sum = cost + hapCost;
+                            totalSum += sum; // Accumulate total sum
                             $('#bomtableBody').append(
                                 '<tr>' +
                                 '<td><button id="deleteRowBtn" class="close-button" style="background-color: red; color:white; ">삭제</button></td>' +
@@ -520,7 +517,7 @@
                                 '<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                                 '<td><input type="text" id="char-input" style="text-align:right;" value=' + (result[i].char || '') + ' autocomplete="off"></td>' +
                                 '<td><input type="checkbox" id="main-edit" ' + (result[i].main === '메인자재' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
-                                '<td><input type="text" id="materialname-input"  onkeypress="handleKeyPress1(event)" style="cursor: pointer;"  value="' + (result[i].materialname || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" id="materialname-input"  onkeypress="handleKeyPress1(event)" style="cursor: pointer;"  value="' + (result[i].savematerialname || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" id="materialclassification-input" style="background-color: whitesmoke; " readonly value="' + (result[i].typecategory || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" id="etc-input" value="' + (result[i].etc || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk1-input" ' + (result[i].chk1 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
@@ -535,10 +532,9 @@
                                 '<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit();calculateCostedit(); formatDecimalInput(this, 2);" value="' + (result[i].allta || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="talength-input" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].talength || '0') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right;" id="loss-input" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].loss || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right;" id="costloss-input" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].loss || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCostedit();" id="cost-input" value="' + (result[i].cost || '0') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-input" value="' + (result[i].rlcut || '') + '" oninput="updateRlProductedit()" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-input" oninput="updateRlProductedit()" value="' + (result[i].prdouctcount || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right;" id="costloss-input" oninput="formatDecimalInput(this, 2); updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit(); calculateCostedit();" value="' + (result[i].costloss || '') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCost();" id="costsum-input" readonly value="' + (parseFloat(result[i].cost) + parseFloat(result[i].hapcost || '0')).toFixed(2) + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:center; background-color: whitesmoke;" id="materialname-input" readonly  value="' + (result[i].materialname || '0') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="' + (result[i].width || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" oninput="updateRlcutValueedit()" value="' + (result[i].usewidth || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" oninput="updateRlProductedit()" value="' + (result[i].length || '') + '" autocomplete="off"></td>' +
@@ -547,13 +543,33 @@
                                 '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="' + (result[i].unit || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="' + (result[i].manufacterer || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="supplier-input" value="' + (result[i].supplier || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="cavity-input" value="' + (result[i].cavity || '') + '" onchange="updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit();calculateCostedit();" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:center; background-color: whitesmoke;" id="codenumber-input" value="' + (result[i].codenumber || '') + '"  autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="num-input" value="' + (result[i].num || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:center; readonly background-color: whitesmoke;" id="codenumber-input" value="' + (result[i].codenumber || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right; readonly background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCostedit();" id="cost-input" value="' + (result[i].cost || '0') + '" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-input" value="' + (result[i].rlcut || '') + '" oninput="updateRlProductedit()" autocomplete="off"></td>' +
+                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-input" oninput="updateRlProductedit()" value="' + (result[i].prdouctcount || '') + '" autocomplete="off"></td>' +
+
+                                '<td><input type="text" readonly style="text-align:center; background-color: whitesmoke;" id="hapmaterialname-input" value="' + (result[i].hapmaterialname || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="hapwidth-input" value="' + (result[i].hapwidth || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="hapusewidth-input" value="' + (result[i].hapusewidth || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="haplength-input" value="' + (result[i].haplength || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="hapsqmprice-input" value="' + (result[i].hapsqmprice || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="haprollprice-input" value="' + (result[i].haprollprice || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:center; background-color: whitesmoke;" id="hapunit-input" value="' + (result[i].hapunit || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:center; background-color: whitesmoke;" id="hapmanufacterer-input" value="' + (result[i].hapmanufacterer || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:center; background-color: whitesmoke;" id="hapsupplier-input" value="' + (result[i].hapsupplier || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:center; background-color: whitesmoke;" id="hapcodenumber-input" value="' + (result[i].hapcodenumber || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="hapcost-input" value="' + (result[i].hapcost || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="haprlcut-input" value="' + (result[i].haprlcut || '') + '"  autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="happrdouctcount-input" value="' + (result[i].happrdouctcount || '') + '"  autocomplete="off"></td>' +
+
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="cavity-input" value="' + (result[i].cavity || '') + '" onchange="updateSoyoValueedit(); updateRlProductedit(); updateRlcutValueedit();calculateCostedit();" autocomplete="off"></td>' +
+                                '<td><input type="text" readonly style="text-align:right; background-color: whitesmoke;" id="num-input" value="' + (result[i].num || '') + '"  autocomplete="off" ></td>' +
                                 '</tr>'
                             )
+                            $('#costsum-save').val(totalSum.toFixed(2))
                             counter++;
                         }
+
                     }
                 }
             });
@@ -981,6 +997,23 @@
             newRow.find('#unit-input').val('');
             newRow.find('#manufacterer-input').val('');
             newRow.find('#supplier-input').val('');
+
+            newRow.find('#hap-rlcut-input').val('');
+            newRow.find('#hap-rlproduct-input').val('');
+            newRow.find('#hap-materialname-input').val('');
+            newRow.find('#hap-width-input').val('');
+            newRow.find('#hap-usewidth-input').val('');
+            newRow.find('#hap-length-input').val('');
+            newRow.find('#hap-sqmprice-input').val('');
+            newRow.find('#hap-rollprice-input').val('');
+            newRow.find('#hap-unit-input').val('');
+            newRow.find('#hap-manufacterer-input').val('');
+            newRow.find('#hap-supplier-input').val('');
+            newRow.find('#hap-codenumber-input').val('');
+            newRow.find('#hap-cost-input').val('');
+            newRow.find('#hap-rlcut-input').val('');
+            newRow.find('#hap-rlproduct-input').val('');
+
             newRow.find('#materialwidth-input').val('');
             newRow.find('#usable-input').val('');
             newRow.find('#etc-input').val('');
@@ -1622,6 +1655,7 @@
         //     $('input[type="checkbox"]').prop('checked', false);
         // }
         function habji() {
+            // Collect checked rows and their relevant data
             var checkedRows = $('input[id="check-input"]:checked').map(function () {
                 var row = $(this).closest('tr');
                 var materialnameValue = row.find('#materialname-input').val();
@@ -1649,10 +1683,13 @@
                 };
             }).get();
 
-            if (checkedRows.length > 1) {
+            // Check if exactly two rows are selected
+            if (checkedRows.length === 2) {
                 var concatenatedValue = checkedRows[0].materialnameValue + '+' + checkedRows[1].materialnameValue;
 
+                // Update the first row with concatenated value and clear the second row's inputs
                 checkedRows[0].row.find('#materialname-input').val(concatenatedValue);
+                checkedRows[0].row.find('#materialclassification-input').val('HAP');
                 checkedRows[1].row.find('#materialname-input').val('');
                 checkedRows[1].row.find('#materialaname-input').val('');
                 checkedRows[1].row.find('#materialclassification-input').val('');
@@ -1682,8 +1719,15 @@
                 checkedRows[1].row.find('#hap-rlproduct-input').val('');
                 checkedRows[1].row.find('#codenumber-input').val('');
                 checkedRows[1].row.find('#num-input').val('');
+                checkedRows[1].row.find('#materialwidth-input').val('');
+                checkedRows[1].row.find('#onepidding-input').val('');
+                checkedRows[1].row.find('#costsum-input').val('');
 
-                // 첫 번째 체크된 행의 materialname-input, materialwidth-input 값 설정
+                // Additional update and focus on the first row
+                checkedRows[0].row.find('#materialwidth-input').val('');
+                checkedRows[0].row.find('#materialwidth-input').focus();
+
+                // Update the hap fields in the first row
                 checkedRows[0].row.find('#hap-materialname-input').val(checkedRows[1].materialnameValue);
                 checkedRows[0].row.find('#hap-width-input').val(checkedRows[1].materialWidthValue);
                 checkedRows[0].row.find('#hap-usewidth-input').val(checkedRows[1].useWidthValue);
@@ -1695,10 +1739,23 @@
                 checkedRows[0].row.find('#hap-supplier-input').val(checkedRows[1].supplierValue);
                 checkedRows[0].row.find('#hap-codenumber-input').val(checkedRows[1].codenumberValue);
 
-                // 체크 해제
+                // Uncheck all checked checkboxes
                 $('input[id="check-input"]:checked').prop('checked', false);
+            } else {
+                // Show an error message if exactly two rows are not selected
+                Swal.fire({
+                    icon: 'error',
+                    title: '자재 선택 오류',
+                    text: '합지는 2개 선택 시 가능합니다',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Optional: Add any additional actions if needed
+                    }
+                });
             }
         }
+
+
 
 
 

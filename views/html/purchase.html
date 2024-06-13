@@ -77,15 +77,9 @@
 
                 </thead>
                 <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
-                    <!-- <tr>
-                        <td colspan="10">데이터가 없습니다.</td>
-                    </tr> -->
+
                 </tbody>
-
-
             </table>
-
-
             <div class="modal-footer" style="margin-top: 10px;">
                 <button class="close-button" onclick="accountsave()">발주조회</button>
                 <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
@@ -97,16 +91,19 @@
         <div class="modal-header">
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;생산확정 구매 발주</span>
         </div>
-
-        <div id="editForm" style="width: 100%; overflow: hidden;">
+        <div class="modal-footer">
+            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
+        </div>
+        <div id="editForm" style="width: 100%; overflow: hidden; margin-top: 10px;">
             <div style="width: 100%; max-height: 700px; overflow-y: auto;">
                 <table class="styled-table" style="width: 100%;">
                     <thead id="tableHead">
                         <tr>
                             <th colspan="15">생산확정<input type="text" id="num" style="width:20px; visibility: hidden;">
                             </th>
-                            <th><button onclick="insertpurchaseorder()">저장</button><button style="margin-left: 10px;;"
-                                    onclick="habji()">BOM적용</button></th>
+                            <th><button class="close-button" onclick="insertpurchaseorder()">저장</button><button
+                                    class="close-button" style="margin-left: 10px;;" onclick="habji()">BOM적용</button>
+                            </th>
                         </tr>
                         <th style="width:20px;"></th>
                         <th style="text-align:center;">BOMNO</th>
@@ -126,7 +123,6 @@
                         <th style="text-align:center; width:300px;">적용BOM</th>
                     </thead>
                     <tbody id="orderlistbombody">
-                        <!-- Add your table data here -->
                     </tbody>
                 </table>
             </div>
@@ -139,7 +135,7 @@
                     <thead id="tableHead">
                         <tr>
                             <th colspan="6">자재창고상세</th>
-                            <th><button onclick="moveSelectedRows()">적용</button></th>
+                            <th><button class="close-button" onclick="moveSelectedRows()">적용</button></th>
                         </tr>
                         <tr>
                             <th></th>
@@ -178,9 +174,7 @@
                 </table>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
-        </div>
+
     </div>
 
 
@@ -205,7 +199,6 @@
             document.getElementById('datetimepicker1').value = formattedDate;
             document.getElementById('datetimepicker2').value = formattedDate;
             load()
-            checkData()
 
         });
 
@@ -292,12 +285,7 @@
             document.getElementById('overlay').style.display = 'none';
         }
 
-        function checkData() {
-            var rowCount = $('#accountdatatbody tr').length; // 테이블의 행 수 확인
-            if (rowCount == 0) { // 행 수가 0인 경우
-                $('#accountdatatbody').append('<tr><td colspan="12">데이터가 없습니다.</td></tr>'); // 메시지 추가
-            }
-        }
+
 
         function openProductModal(input) {
             document.getElementById('modal1').style.display = 'block';
@@ -340,7 +328,7 @@
                 dataType: 'json',
                 success: function (data) {
                     $('#num').val(data.length);
-
+                    console.log(data)
                     var tableFoot = $('#dataCount');
                     if (data.length === 0) {
                         $('#orderlistbombody').html('<tr><td colspan="23">데이터가 없습니다.</td></tr>');
@@ -621,7 +609,6 @@
             $('#accountdatatbody').append(newRow);
 
             // 데이터가 없는지 확인합니다.
-            checkData();
 
             // 값을 변경할 때마다 가격을 계산하는 함수 호출
             valuechanged();
@@ -666,11 +653,7 @@
                 showCancelButton: false,
                 showConfirmButton: false,
                 timerProgressBar: true,
-                backdrop: `
-      rgba(0,0,123,0.4)
-       left top
-      no-repeat
-    `,
+
                 onBeforeOpen: () => {
                     Swal.showLoading();
                 },

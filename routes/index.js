@@ -1593,16 +1593,17 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "    SELECT  " +
+                    " SELECT  " +
                     "     i.bomno,  " +
                     "     i.part,  " +
                     "     i.modelname,  " +
                     "     i.itemname,  " +
                     "     i.itemprice,  " +
-                    "      COALESCE(SUM(ROUND(mi.rollprice/FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2)), 2) as cost,   " +
+                    "     COALESCE(SUM(ROUND(mi.rollprice/FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2)), 2) + " +
+                    "     COALESCE(SUM(ROUND(mi2.rollprice/FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2)), 2) as cost,   " +
                     "     CASE  " +
                     "         WHEN i.itemprice = 0 THEN 0  " +
-                    "         ELSE ROUND((SUM(ROUND((mi.rollprice / (mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)) / i.itemprice) * 100, 2)  " +
+                    "       ELSE (COALESCE(SUM(ROUND(mi.rollprice/FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2)), 2) + COALESCE(SUM(ROUND(mi2.rollprice/FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))),2)), 2)) / i.itemprice * 100   " +
                     "     END AS costPriceRatio,  " +
                     "     i.customer,  " +
                     "     i.itemcode,  " +
@@ -1622,8 +1623,10 @@ module.exports = function (app) {
                     "     bommanagement bm ON i.bomno = bm.bomno  " +
                     " LEFT JOIN  " +
                     "     materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  " +
+                    " LEFT JOIN  " +
+                    "     materialinfoinformation2 mi2 ON bm.hapcodenumber = mi2.codenumber  " +
                     " WHERE  " +
-                    "    bm.status = 'true'  " +
+                    "     bm.status = 'true'  " +
                     " GROUP BY  " +
                     "     i.bomno,  " +
                     "     i.part,  " +
@@ -1639,9 +1642,9 @@ module.exports = function (app) {
                     "     i.workpart,  " +
                     "     i.additionalnotes,  " +
                     "     i.class,  " +
-                    "     i.type," +
-                    "     bm.bomid," +
-                    "     i.workpart;                      ")
+                    "     i.type, " +
+                    "     bm.bomid, " +
+                    "     i.workpart;                                    ")
                 .then(result => {
 
 
@@ -4773,6 +4776,199 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectwherebomnobommanagement', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT " +
+                    "     bm.char, " +
+                    "     bm.main, " +
+                    "     bm.materialname, " +
+                    "     mi.typecategory, " +
+                    "     bm.etc, " +
+                    "     bm.chk1," +
+                    "     bm.chk2," +
+                    "     bm.chk3," +
+                    "     bm.materialwidth, " +
+                    "     bm.useable, " +
+                    "     bm.onepid, " +
+                    "     bm.twopid, " +
+                    "     ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), 4) as soyo, " +
+                    "     bm.ta, " +
+                    "     bm.allta, " +
+                    "     bm.talength, " +
+                    "     bm.loss, " +
+                    "     bm.costloss," +
+                    "     ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) as cost, " +
+                    "     FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, " +
+                    "     FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) as prdouctcount, " +
+                    "     mi.width, " +
+                    "     mi.usewidth, " +
+                    "     mi.length, " +
+                    "     mi.sqmprice, " +
+                    "     mi.rollprice, " +
+                    "     mi.unit, " +
+                    "     mi.manufacterer, " +
+                    "     mi.supplier, " +
+                    "     bm.cavity, " +
+                    "     mi.codenumber, " +
+                    "     bm.num " +
+                    " FROM " +
+                    "     bommanagement bm " +
+                    " JOIN " +
+                    "     materialinfoinformation2 mi ON bm.codenumber = mi.codenumber " +
+                    " WHERE " +
+                    "     bm.bomno = @bomno " +
+                    "     AND bm.status = 'true' " +
+                    " " +
+                    " UNION" +
+                    "  " +
+                    " SELECT " +
+                    "     bm.char, " +
+                    "     bm.main, " +
+                    "     bm.materialname, " +
+                    "     mi.typecategory, " +
+                    "     bm.etc, " +
+                    "     bm.chk1, " +
+                    "     bm.chk2, " +
+                    "     bm.chk3, " +
+                    "     bm.materialwidth,  " +
+                    "     bm.useable,  " +
+                    "     bm.onepid,  " +
+                    "     bm.twopid,  " +
+                    "     ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), 4) as soyo,  " +
+                    "     bm.ta,  " +
+                    "     bm.allta,  " +
+                    "     bm.talength,  " +
+                    "     bm.loss,  " +
+                    "     bm.costloss, " +
+                    "     ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) as cost, " +
+                    "     FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, " +
+                    "     FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) as prdouctcount, " +
+                    "     mi.width, " +
+                    "     mi.usewidth, " +
+                    "     mi.length, " +
+                    "     mi.sqmprice, " +
+                    "     mi.rollprice, " +
+                    "     mi.unit, " +
+                    "     mi.manufacterer, " +
+                    "     mi.supplier, " +
+                    "     bm.cavity, " +
+                    "     mi.codenumber, " +
+                    "     bm.num " +
+                    " FROM " +
+                    "     bommanagement bm " +
+                    " JOIN " +
+                    "     materialinfoinformation2 mi ON bm.hapcodenumber = mi.codenumber " +
+                    " WHERE " +
+                    "     bm.bomno = @bomno " +
+                    "     AND bm.status = 'true'" +
+                    " ORDER BY " +
+                    "     num ASC;                ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectwherebomnobommanagement1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT " +
+                    "    bm.char, " +
+                    "    bm.main, " +
+                    "    CONCAT( " +
+                    "     bm.materialname, " +
+                    "     CASE WHEN bm.hapmaterialname IS NOT NULL AND bm.hapmaterialname <> '' THEN '+' ELSE '' END, " +
+                    "     bm.hapmaterialname " +
+                    " ) AS savematerialname, " +
+                    "    CASE WHEN bm.hapmaterialname IS NOT NULL AND bm.hapmaterialname <> '' THEN 'HAP' ELSE mi.typecategory END AS typecategory, " +
+                    "    bm.etc, " +
+                    "    bm.chk1," +
+                    "    bm.chk2," +
+                    "    bm.chk3," +
+                    "    bm.materialwidth, " +
+                    "    bm.useable, " +
+                    "    bm.onepid, " +
+                    "    bm.twopid, " +
+                    "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), 4) AS soyo, " +
+                    "    bm.ta, " +
+                    "    bm.allta, " +
+                    "    bm.talength, " +
+                    "    bm.loss, " +
+                    "    bm.costloss," +
+                    "    ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) AS cost, " +
+                    "    FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, " +
+                    "    FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) AS prdouctcount, " +
+                    "    mi.materialname, " +
+                    "    mi.width, " +
+                    "    mi.usewidth, " +
+                    "    mi.length, " +
+                    "    mi.sqmprice, " +
+                    "    mi.rollprice, " +
+                    "    mi.unit, " +
+                    "    mi.manufacterer, " +
+                    "    mi.supplier, " +
+                    "    mi.codenumber, " +
+                    "    bm.hapmaterialname," +
+                    "    mi2.width as hapwidth, " +
+                    "    mi2.usewidth as hapusewidth, " +
+                    "    mi2.length as haplength, " +
+                    "    mi2.sqmprice as hapsqmprice, " +
+                    "    mi2.rollprice as haprollprice, " +
+                    "    mi2.unit as hapunit, " +
+                    "    mi2.manufacterer as hapmanufacterer,  " +
+                    "    mi2.supplier as hapsupplier, " +
+                    "    mi2.codenumber as hapcodenumber," +
+                    "    ROUND(mi2.rollprice / FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) AS hapcost, " +
+                    "    FLOOR(mi2.usewidth / bm.materialwidth) AS haprlcut,  " +
+                    "    FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) AS happrdouctcount, " +
+                    "    bm.cavity , " +
+                    "    bm.num " +
+                    "FROM  " +
+                    "    bommanagement bm  " +
+                    "LEFT JOIN  " +
+                    "    materialinfoinformation2 mi2 ON bm.hapcodenumber = mi2.codenumber  " +
+                    "JOIN  " +
+                    "    materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  " +
+                    "WHERE  " +
+                    "    bm.bomno = @bomno " +
+                    "    AND bm.status = 'true' " +
+                    "ORDER BY " +
+                    "    bm.num ASC;                              ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectpaperbomno', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -6839,6 +7035,100 @@ module.exports = function (app) {
 
     });
     // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/insertmr2', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('a', sql.NVarChar, req.body.a)
+                .input('b', sql.NVarChar, req.body.b)
+                .input('c', sql.NVarChar, req.body.c)
+                .input('d', sql.NVarChar, req.body.d)
+                .input('e', sql.NVarChar, req.body.e)
+                .input('f', sql.NVarChar, req.body.f)
+                .input('g', sql.NVarChar, req.body.g)
+                .input('h', sql.NVarChar, req.body.h)
+
+                .query(
+                    " INSERT INTO mr2 (a,b,c,d,e,f,g,h)" +
+                    " VALUES (@a,@b,@c,@d,@e,@f,@g,@h);                    "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/updatemr2', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('a', sql.NVarChar, req.body.a)
+                .input('b', sql.NVarChar, req.body.b)
+                .input('c', sql.NVarChar, req.body.c)
+                .input('d', sql.NVarChar, req.body.d)
+                .input('e', sql.NVarChar, req.body.e)
+                .input('f', sql.NVarChar, req.body.f)
+                .input('g', sql.NVarChar, req.body.g)
+                .input('h', sql.NVarChar, req.body.h)
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    " update mr2 set a=@a,b=@b,c=@c,d=@d,e=@e,f=@f,g=@g,h=@h where id=@id                    "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/deletemr2', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    " delete from mr2 where id=@id                    "
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/updatefinalfinal', function (req, res) {
@@ -7727,6 +8017,7 @@ module.exports = function (app) {
             return pool.request()
                 //.input('변수',값 형식, 값)
 
+                .input('ordernumber', sql.NVarChar, req.body.ordernumber)
                 .input('accountdate', sql.NVarChar, req.body.accountdate)
                 .input('deliverydate', sql.NVarChar, req.body.deliverydate)
                 .input('customer', sql.NVarChar, req.body.customer)
@@ -7755,8 +8046,8 @@ module.exports = function (app) {
                 .input('shipmentdate', sql.NVarChar, req.body.shipmentdate)
 
                 .query(
-                    'insert into accountinput(num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part,etc,shipmentdate)' +
-                    ' values(@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part,@etc,@shipmentdate)'
+                    'insert into accountinput(ordernumber,num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part,etc,shipmentdate)' +
+                    ' values(@ordernumber,@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part,@etc,@shipmentdate)'
                 )
                 .then(result => {
 
@@ -7766,6 +8057,22 @@ module.exports = function (app) {
         });
 
     });
+
+    // /api/getLastOrderNumber endpoint
+    app.get('/api/getLastOrderNumber', function (req, res) {
+        res.header("Access-Control-Allow-Origin", "*");
+        return pool.request()
+            .query('SELECT TOP 1 orderNumber FROM orders ORDER BY orderNumber DESC')
+            .then(result => {
+                if (result.recordset.length > 0) {
+                    res.json({ lastOrderNumber: result.recordset[0].orderNumber });
+                } else {
+                    res.json({ lastOrderNumber: null });
+                }
+                res.end();
+            });
+    });
+
     sql.connect(config).then(pool => {
         app.post('/api/insertsaleinput', function (req, res) {
 
@@ -7787,6 +8094,29 @@ module.exports = function (app) {
                 .query(
                     'insert into saleinput(saledate,customer,itemcode,bomno,modelname,itemname,itemprice,quantity,etc)' +
                     ' values(@saledate,@customer,@itemcode,@bomno,@modelname,@itemname,@itemprice,@quantity,@etc)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/insertordernumber', function (req, res) {
+
+            // console.log("11", req)
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+                .input('ordernumber', sql.NVarChar, req.body.ordernumber)
+
+
+                .query(
+                    'insert into orders(ordernumber)' +
+                    ' values(@ordernumber)'
                 )
                 .then(result => {
 
@@ -7943,6 +8273,109 @@ module.exports = function (app) {
         });
 
     });
+    // **** finish
+    // **** start   영업수주 네임건 등록
+    // sql.connect(config).then(pool => {
+    //     app.post('/api/selectorderlistinformation1', function (req, res) {
+
+    //         res.header("Access-Control-Allow-Origin", "*");
+    //         return pool.request()
+    //             .input('supplier', sql.NVarChar, req.body.supplier)
+
+
+    //             .query(
+    //                     " WITH CombinedMaterials AS ( "+
+    //                     "     SELECT "+"+
+    //                     "         num, "+
+    //                     "         materialname AS materialname, "+
+    //                     "         codenumber, "+
+    //                     "         materialwidth "+
+    //                     "     FROM "+
+    //                     "         bommanagement "+
+    //                     "     WHERE "+
+    //                     "         bomno = @bomno
+    //                     "         AND materialname IS NOT NULL
+    //                     "         AND materialname <> ''
+    //                     "     UNION ALL
+    //                     "     SELECT
+    //                     "         num,
+    //                     "         hapmaterialname AS materialname,
+    //                     "         hapcodenumber AS codenumber,
+    //                     "         materialwidth
+    //                     "     FROM
+    //                     "         bommanagement
+    //                     "     WHERE
+    //                     "         bomno = 'ype-3-009'
+    //                     "         AND hapmaterialname IS NOT NULL
+    //                     "         AND hapmaterialname <> ''
+    //                     " )
+    //                     " 
+    //                     " SELECT   
+    //                     "     ol.itemname,   
+    //                     "     ol.modelname,   
+    //                     "     cm.materialname,    
+    //                     "     cm.materialwidth,   
+    //                     "     CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)/bm.cavity) AS totalquantity1,   
+    //                     "     CASE   
+    //                     "         WHEN ROW_NUMBER() OVER (PARTITION BY cm.materialname ORDER BY cm.materialname) = 1   
+    //                     "         THEN COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = cm.materialname AND materialwidth = cm.materialwidth), 0)  
+    //                     "         ELSE 0  
+    //                     "     END AS sumquantity,  
+    //                     "     CASE  
+    //                     "         WHEN EXISTS (  
+    //                     "             SELECT 1  
+    //                     "             FROM materialinput  
+    //                     "             WHERE materialname = cm.materialname AND materialwidth > cm.materialwidth  
+    //                     "         ) THEN 'Y'  
+    //                     "         ELSE 'N'  
+    //                     "     END AS has,  
+    //                     "     FLOOR(COALESCE(mi.usewidth, 0) / cm.materialwidth) AS calculatedvalue,  
+    //                     "     (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / cm.materialwidth) * mi.length) AS calculated_column,  
+    //                     "     CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)/bm.cavity) AS soyo,  
+    //                     "     FLOOR((COALESCE(mi.usewidth, 0) / cm.materialwidth)) AS cut,  
+    //                     "     FLOOR((COALESCE(mi.usewidth, 0) / cm.materialwidth)) * mi.length AS test,  
+    //                     "     ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = cm.materialname AND materialwidth = cm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / cm.materialwidth)) * mi.length)/bm.cavity, 2) AS a,  
+    //                     "     CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03)-COALESCE((SELECT SUM(quantity) FROM materialinput WHERE materialname = cm.materialname AND materialwidth = cm.materialwidth), 0)  ) / (FLOOR((COALESCE(mi.usewidth, 0) / cm.materialwidth)) * mi.length)/bm.cavity) AS roundedResult,   
+    //                     "     mi.width,  
+    //                     "     mi.length,  
+    //                     "     mi.sqmprice,  
+    //                     "     SUM(mi.rollprice) AS rollprice,  
+    //                     "     mi.supplier,  
+    //                     "     SUM(ol.quantity) AS quantity_sum,  
+    //                     "     mi.codenumber,
+    //                     "     i.customer,  
+    //                     "     mi.rollprice as a1,  
+    //                     "     bm.bomno,  
+    //                     "     ol.qrno,
+    //                     "     bm.etc,   
+    //                     "     bm.cavity
+    //                     " FROM   
+    //                     "     orderlist ol   
+    //                     " JOIN  
+    //                     "     bommanagement bm ON ol.bomno = bm.bomno  
+    //                     " JOIN
+    //                     "     CombinedMaterials cm ON bm.num = cm.num
+    //                     " LEFT JOIN  
+    //                     "     Materialinfoinformation mi ON cm.codenumber = mi.codenumber  
+    //                     " LEFT JOIN  
+    //                     "     iteminfo i ON i.bomno = bm.bomno  
+    //                     " 
+    //                     " WHERE   
+    //                     "     ol.orderstatus = '생산확정'   
+    //                     "     AND cm.codenumber IS NOT NULL  
+    //                     "     AND cm.codenumber <> ''  
+    //                     " GROUP BY   
+    //                     "     ol.modelname, ol.itemname, cm.materialname, cm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber ,i.customer ,mi.rollprice ,ol.modelname ,bm.bomno ,ol.qrno,bm.etc ,bm.cavity 
+    //                     " ORDER BY   
+    //                     "     cm.materialname ASC;                                            ")
+    //             .then(result => {
+
+    //                 res.json(result.recordset);
+    //                 res.end();
+    //             });
+    //     });
+
+    // });
     // **** finish
     // **** start   영업수주 네임건 등록
     sql.connect(config).then(pool => {
@@ -13609,6 +14042,60 @@ module.exports = function (app) {
                     " where " +
                     " deliverydate between @start and @finish " +
                     " order by deliverydate asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectaccountinputordernumber', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
+
+                .query(
+                    " SELECT " +
+                    "     ordernumber, " +
+                    "     deliverydate, " +
+                    "     max(itemname)+'외 ' + CAST(COUNT(*) - 1 AS NVARCHAR) + '건이 있습니다' AS items, " +
+                    "     SUM(quantity) AS quantity, " +
+                    "     SUM(quantity * itemprice) AS totalprice " +
+                    " FROM  " +
+                    "     accountinput " +
+                    "    where " +
+                    "    deliverydate between @start and @finish " +
+                    " GROUP BY  " +
+                    "     ordernumber,deliverydate " +
+                    " ORDER BY  " +
+                    "     ordernumber ASC; "
+
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectaccountinputwhereordernumber', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('ordernumber', sql.NVarChar, req.body.ordernumber)
+
+                .query(
+                    "select * from accountinput where ordernumber=@ordernumber"
+
                 )
                 .then(result => {
 
