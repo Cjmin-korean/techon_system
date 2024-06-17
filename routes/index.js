@@ -1616,7 +1616,7 @@ module.exports = function (app) {
                     "     i.class,  " +
                     "     i.type, " +
                     "     bm.bomid, " +
-                    "     COUNT(mi.materialname) as materialcount " +
+                    "     COUNT(CASE WHEN bm.hap = 'A' THEN mi.materialname ELSE NULL END) as materialcount" +
                     " FROM  " +
                     "     iteminfo i  " +
                     " LEFT JOIN  " +
@@ -4920,7 +4920,7 @@ module.exports = function (app) {
                     "         WHEN NULLIF((bm.onepid + bm.talength + bm.twopid) / bm.allta, 0) = 0 THEN 0  " +
                     "         ELSE FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / (bm.onepid + bm.talength + bm.twopid) / bm.allta)) " +
                     "     END AS productcount,  " +
-                    "     mi.materialname, " +
+                
                     "     mi.width, " +
                     "     mi.usewidth, " +
                     "     mi.length, " +
@@ -15110,6 +15110,28 @@ module.exports = function (app) {
     // **** start itemname,materialwidth변수로  chk확인 쿼리      
     sql.connect(config).then(pool => {
         app.post('/api/updateaccountiteminfo', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('id', sql.NVarChar, req.body.id)
+                .input('processname', sql.NVarChar, req.body.processname)
+                .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
+
+                .query(
+                    "update iteminfo set processname=@processname,bucakcustomer=@bucakcustomer where id=@id")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/updateaccountiteminfo1', function (req, res) {
 
             res.header("Access-Control-Allow-Origin", "*");
 
