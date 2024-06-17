@@ -3893,7 +3893,7 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT  " +
-                    "     date,  " +
+                    "     id,date,  " +
                     "     input,  " +
                     "     materialname,  " +
                     "     codenumber,  " +
@@ -4892,68 +4892,65 @@ module.exports = function (app) {
                 // .input('status', sql.NVarChar, req.body.status)
 
                 .query(
-                    "SELECT " +
-                    "    bm.char, " +
-                    "    bm.main, " +
-                    "    CONCAT( " +
+                    "SELECT  " +
+                    "     bm.char,  " +
+                    "     bm.main, " +
                     "     bm.materialname, " +
-                    "     CASE WHEN bm.hapmaterialname IS NOT NULL AND bm.hapmaterialname <> '' THEN '+' ELSE '' END, " +
-                    "     bm.hapmaterialname " +
-                    " ) AS savematerialname, " +
-                    "    CASE WHEN bm.hapmaterialname IS NOT NULL AND bm.hapmaterialname <> '' THEN 'HAP' ELSE mi.typecategory END AS typecategory, " +
-                    "    bm.etc, " +
-                    "    bm.chk1," +
-                    "    bm.chk2," +
-                    "    bm.chk3," +
-                    "    bm.materialwidth, " +
-                    "    bm.useable, " +
-                    "    bm.onepid, " +
-                    "    bm.twopid, " +
-                    "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / bm.allta) * 0.001 * (1 + (bm.loss / 100)), 4) AS soyo, " +
-                    "    bm.ta, " +
-                    "    bm.allta, " +
-                    "    bm.talength, " +
-                    "    bm.loss, " +
-                    "    bm.costloss," +
-                    "    ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) AS cost, " +
-                    "    FLOOR(mi.usewidth / bm.materialwidth) AS rlcut, " +
-                    "    FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) AS prdouctcount, " +
-                    "    mi.materialname, " +
-                    "    mi.width, " +
-                    "    mi.usewidth, " +
-                    "    mi.length, " +
-                    "    mi.sqmprice, " +
-                    "    mi.rollprice, " +
-                    "    mi.unit, " +
-                    "    mi.manufacterer, " +
-                    "    mi.supplier, " +
-                    "    mi.codenumber, " +
-                    "    bm.hapmaterialname," +
-                    "    mi2.width as hapwidth, " +
-                    "    mi2.usewidth as hapusewidth, " +
-                    "    mi2.length as haplength, " +
-                    "    mi2.sqmprice as hapsqmprice, " +
-                    "    mi2.rollprice as haprollprice, " +
-                    "    mi2.unit as hapunit, " +
-                    "    mi2.manufacterer as hapmanufacterer,  " +
-                    "    mi2.supplier as hapsupplier, " +
-                    "    mi2.codenumber as hapcodenumber," +
-                    "    ROUND(mi2.rollprice / FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2) AS hapcost, " +
-                    "    FLOOR(mi2.usewidth / bm.materialwidth) AS haprlcut,  " +
-                    "    FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))) AS happrdouctcount, " +
-                    "    bm.cavity , " +
-                    "    bm.num " +
-                    "FROM  " +
-                    "    bommanagement bm  " +
-                    "LEFT JOIN  " +
-                    "    materialinfoinformation2 mi2 ON bm.hapcodenumber = mi2.codenumber  " +
-                    "JOIN  " +
-                    "    materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  " +
-                    "WHERE  " +
-                    "    bm.bomno = @bomno " +
-                    "    AND bm.status = 'true' " +
-                    "ORDER BY " +
-                    "    bm.num ASC;                              ")
+                    "     mi.typecategory, " +
+                    "     bm.etc, " +
+                    "     bm.chk1, " +
+                    "     bm.chk2, " +
+                    "     bm.chk3, " +
+                    "     bm.materialwidth,  " +
+                    "     bm.useable,  " +
+                    "     bm.onepid,  " +
+                    "     bm.twopid,  " +
+                    "     ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0)) * 0.001 * (1 + (bm.loss / 100)), 4) AS soyo,  " +
+                    "     bm.ta,  " +
+                    "     bm.allta,  " +
+                    "     bm.talength,  " +
+                    "     bm.loss,  " +
+                    "     bm.costloss, " +
+                    " 	 CASE  " +
+                    "         WHEN mi.unit = '＄' THEN ROUND(mi.rollprice * w.currencyprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)  " +
+                    "         ELSE ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)  " +
+                    "     END AS cost, " +
+                    " 	FLOOR(NULLIF(mi.usewidth, 0) / bm.materialwidth) AS rlcut, " +
+                    "     CASE " +
+                    "         WHEN NULLIF((bm.onepid + bm.talength + bm.twopid) / bm.allta, 0) = 0 THEN 0  " +
+                    "         ELSE FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / (bm.onepid + bm.talength + bm.twopid) / bm.allta)) " +
+                    "     END AS productcount,  " +
+                    "     mi.materialname, " +
+                    "     mi.width, " +
+                    "     mi.usewidth, " +
+                    "     mi.length, " +
+                    "     CASE " +
+                    "         WHEN mi.unit = '＄' THEN FLOOR(mi.rollprice * w.currencyprice) " +
+                    "         ELSE FLOOR(mi.rollprice) " +
+                    "     END AS rollprice,  " +
+                    "     CASE  " +
+                    "         WHEN mi.unit = '＄' THEN '￦' " +
+                    "         ELSE mi.unit " +
+                    "     END AS unit,  " +
+                    "     mi.manufacterer,  " +
+                    "     mi.supplier,  " +
+                    "     mi.codenumber, " +
+                    "     bm.cavity,  " +
+                    "     bm.num, " +
+                    " 	bm.hap  " +
+                    " FROM   " +
+                    "     bommanagement bm  " +
+                    " LEFT JOIN  " +
+                    "     materialinfoinformation2 mi2 ON bm.hapcodenumber = mi2.codenumber  " +
+                    " JOIN  " +
+                    "     materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  " +
+                    " LEFT JOIN " +
+                    "     won w ON mi.unit = w.currencyname " +
+                    " WHERE   " +
+                    "     bm.bomno = @bomno " +
+                    "     AND bm.status = 'true'  " +
+                    " ORDER BY  " +
+                    "     bm.num, bm.hap ASC; ")
 
                 .then(result => {
 
@@ -10699,6 +10696,32 @@ module.exports = function (app) {
     // **** start       
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialnameinput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('materialname', sql.NVarChar, '%' + req.body.materialname + '%')
+
+                .query(
+                    "SELECT * " +
+                    "FROM materialinfoinformation2 " +
+                    "WHERE " +
+                    "materialname LIKE @materialname " +
+
+                    "ORDER BY materialname ASC"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
+    });
+    // **** start       
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/selectbommanagementsearch', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -12953,6 +12976,28 @@ module.exports = function (app) {
 
                 .query(
                     'delete from  Accountmanagement where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/materialdeletedata', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+
+
+                .query(
+                    'delete from  materialinput where id=@id'
                 )
                 .then(result => {
 

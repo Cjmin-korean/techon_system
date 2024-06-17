@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../css/header.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script src="../js/searchtable.js"></script>
+
     <title>ㅈ</title>
 </head>
 
@@ -30,7 +32,7 @@
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
+        <input type="text" id="inputdata" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
             autocomplete="off">
         <button class="close-button" onclick="load()">조회</button>
         <button class="save-button" onclick="openModal()">신규등록</button>
@@ -75,8 +77,7 @@
 
             <tbody id="iteminfobody">
             </tbody>
-            <tfoot id="iteminfofoot">
-            </tfoot>
+
         </table>
     </div>
 
@@ -174,6 +175,12 @@
 
         });
 
+        $('#inputdata').on('keyup', function (event) {
+            if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                searchTable();
+            }
+        });
+
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spiner 표시
@@ -244,12 +251,7 @@
 
 
         // updateaccountiteminfo
-        function searchTable() {
-            var searchText = $('#searchInput').val().toLowerCase();
-            $('#iteminfobody tr').filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
-            });
-        }
+
         document.getElementById("itemcode-input").addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 openProductModal(event.target.value);

@@ -12,6 +12,9 @@
     <script src="../js/bommass.js"></script>
     <title>BOM(양산) 상세정보</title>
 </head>
+<style>
+
+</style>
 
 <body>
     <div class="spinner-overlay">
@@ -220,7 +223,6 @@
                         <th style="width: 90px;">전폭</th>
                         <th style="width: 90px;">유효폭</th>
                         <th style="width: 90px;">길이</th>
-                        <th style="width: 150px;">SQM<br>단가</th>
                         <th style="width: 150px;">롤단가</th>
                         <th style="width: 70px;" rowspan="2">단위</th>
                         <th style="width: 130px;" rowspan="2">제조사</th>
@@ -252,7 +254,6 @@
                         <th>mm</th>
                         <th>mm</th>
                         <th>M</th>
-                        <th>￦</th>
                         <th>￦</th>
                         <th>￦</th>
                         <th>EA</th>
@@ -441,7 +442,6 @@
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" value="" autocomplete="off"></td>');
-            newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="sqmprice-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="" autocomplete="off"></td>');
             newRow.append('<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="" autocomplete="off"></td>');
@@ -486,12 +486,16 @@
             $('#working-save').val(rowData.working)
             $('#direction-save').val(rowData.direction)
             $('#additionalNote').val(rowData.additionalnotes)
-            // console.log(rowData.direction)
             $('#type-save').val(rowData.type)
+
             var counter = 1;
-            $('#bomtableBody').empty();
+
+
+
             var container = document.getElementById('containers');
             container.scrollLeft = 0;
+
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectwherebomnobommanagement1',
@@ -501,7 +505,7 @@
                     "bomno": rowData.bomno
                 }),
                 success: function (result) {
-                    let totalSum = 0; // Initialize total sum
+                    let totalSum = 0;
                     if (result.length === 0) {
 
                     } else {
@@ -509,7 +513,9 @@
                             let cost = parseFloat(result[i].cost);
                             let hapCost = parseFloat(result[i].hapcost || '0');
                             let sum = cost + hapCost;
-                            totalSum += sum; // Accumulate total sum
+                            totalSum += sum;
+                            $('#bomtableBody').empty();
+
                             $('#bomtableBody').append(
                                 '<tr>' +
                                 '<td><button id="deleteRowBtn" class="close-button" style="background-color: red; color:white; ">삭제</button></td>' +
@@ -538,7 +544,6 @@
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="' + (result[i].width || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" oninput="updateRlcutValueedit()" value="' + (result[i].usewidth || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" oninput="updateRlProductedit()" value="' + (result[i].length || '') + '" autocomplete="off"></td>' +
-                                '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="sqmprice-input" value="' + (result[i].sqmprice || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="' + (result[i].rollprice || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="' + (result[i].unit || '') + '" autocomplete="off"></td>' +
                                 '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="' + (result[i].manufacterer || '') + '" autocomplete="off"></td>' +
