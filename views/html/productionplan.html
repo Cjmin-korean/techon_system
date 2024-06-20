@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <link rel="stylesheet" href="../css/productionplan.css">
+    <link rel="stylesheet" href="../css/spiner.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script src="../js/searchtable.js"></script>
+
+
+
+    <link rel="stylesheet" href="../css/calendar.css">
+    <script src="../js/calendar.js"></script>
+    <script src="../js/drag.js"></script>
+
+
+    <title>생산계획등록</title>
+</head>
+
+<body>
+
+    <div class="header-container">
+        <div class="header-title">
+            <h2><i class="fas fa-cogs"></i> &nbsp;생산계획</h2>
+        </div>
+        <div class="header-subtitle">
+            <h4>생산계획 > 생산계획등록</h4>
+        </div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <div id="overlay1" class="overlay"></div>
+    <div class="calendar">
+        <div class="month">
+            <button class="prev-month">
+                <img style="cursor:pointer;" src="../img/left-arrow.png" />
+            </button>
+            <h1 id="month-year">2023년 9월</h1>
+            <button class="next-month">
+                <img style="cursor:pointer;" src="../img/right-arrow.png" />
+            </button>
+        </div>
+        <div class="dates">
+        </div>
+    </div>
+    <div class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
+    <div id="maintable" class="table-wrapper">
+        <table class="styled-table" id="datatable">
+            <thead id="tableHead">
+                <tr>
+                    <th colspan="21" id="plandate">
+                    </th>
+                </tr>
+                <tr>
+                    <th rowspan="2" style="width: 100px; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
+                        호기<br>(설비명)
+                    </th>
+                    <th rowspan="2" style="width: 100px; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
+                        BOM
+                        NO
+                    </th>
+                    <th rowspan="2" style="width: 100px; font-size: 15px; border: 1px solid rgb(231, 228, 228);  ">
+                        고객사
+                    </th>
+                    <th rowspan="2" style="width: 100px; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        모델명
+                    </th>
+                    <th rowspan="2" style="width: 150px; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        품명
+                    </th>
+                    <th rowspan="2" style="width: 70px;">
+                        총작업<br>차수
+                    </th>
+                    <th rowspan="2" style="width: 70px; font-size: 15px; border: 1px solid rgb(231, 228, 228); ">
+                        라인계획<br>작업차수
+                    </th>
+                    <th rowspan="2" style="width:250px;">
+                        생산LOT
+                    </th>
+                    <th rowspan="2">
+                        지시<br>수량
+                    </th>
+                    <th rowspan="2">
+                        누적 <br>실적
+                    </th>
+                    <th rowspan="2" style="width: 120px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        작업시간
+                    </th>
+                    <th rowspan="2" style="width: 90px; font-size: 15px; border: 1px solid rgb(231, 228, 228);">
+                        셋팅여부
+                    </th>
+                    <th>
+                        셋팅<br>시간
+                    </th>
+                    <th>
+                        예상<br>작업시간
+                    </th>
+                    <th>
+                        작업<br>잔여시간
+                    </th>
+                    <th colspan="2">
+                        반제품 계획실적
+                    </th>
+                    <th colspan="2">
+                        완제품 계획실적
+                    </th>
+                    <th rowspan="2">
+                        작업자
+                    </th>
+                    <th rowspan="2">
+                        비고
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        분
+                    </th>
+                    <th>
+                        분
+                    </th>
+                    <th>
+                        분
+                    </th>
+                    <th>
+                        금일계획
+                    </th>
+                    <th>
+                        금일실적
+                    </th>
+                    <th>
+                        금일계획
+                    </th>
+                    <th>
+                        금일실적
+                    </th>
+
+                </tr>
+
+            </thead>
+            <tbody id="Datatbody">
+            </tbody>
+        </table>
+
+    </div>
+
+
+
+
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;창고정보</span>
+            <input type="text" id="dataid" style="width:60px; visibility: hidden;">
+        </div>
+        <div class="modal-footer">
+            <button class="close-button" onclick="datasave()">저장</button>
+            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
+        </div>
+        <div class="modal-content">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th style="width:100px">창고코드</th>
+                        <td><input type="text" id="housecode-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">창고명</th>
+                        <td><input type="text" id="housename-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">파트</th>
+                        <td><input type="text" id="part-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">파트명</th>
+                        <td><input type="text" id="partname-input" autocomplete="off"></td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var server = '';
+        var gridApi;
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        $(document).ready(function () {
+            planload()
+        });
+
+        function planload() {
+            $('#Datatbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/equipmentname',
+                dataType: 'json',
+                success: function (data) {
+                    var tableBody = $('#Datatbody');
+                    if (data.length === 0) {
+                    } else {
+                        loadTdData = {};
+
+                        for (var i = 0; i < data.length; i++) {
+                            loadTdData[data[i].codenumber] = {};
+                            var numRows = 4;
+                            for (var j = 0; j < numRows; j++) {
+                                loadTdData[data[i].codenumber][j] = {
+                                    num: '',
+                                    bomno: '',
+                                    customer: '',
+                                    modelname: '',
+                                    itemname: '',
+                                    part: '',
+                                    linepart: '',
+                                    lotno: '',
+                                    pono: '',
+                                    accumulate: '',
+                                    remaining: '',
+                                    planone: '',
+                                    siljokone: '',
+                                    plantwo: '',
+                                    siljoktwo: '',
+                                }
+
+
+                                tableBody.append(
+
+                                    '<tr>' +
+                                    (j === 0 ? '<td style="text-align:center; width:auto;  font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" rowspan="4" id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' : '') +
+                                    '<td  ondblclick="openmodal(this)" style="width: 80px; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'bomno' + data[i].codenumber + '"></td>' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'customer' + data[i].codenumber + '"></td>' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'modelname' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'itemname' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:center; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linepart' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:center; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'part' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'lotno' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:center; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'pono' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'accumulate' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)"  font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';">' +
+                                    (j === 0 ?
+                                        '<select id="' + j + 'producttime' + data[i].codenumber + '" onchange="updateSettingTime1(this)"><option value="460">주간8H</option><option value="610">잔업10.5H</option></select>' :
+                                        ''
+                                    ) +
+                                    '</td> ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" ><select onchange="updateSettingTime(this)" id="' + j + 'setting' + data[i].codenumber + '"><option>UNDO</option><option>SET</option></select></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:center; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'settingtime' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:center; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'prevproducttime' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:center; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'subproducttime' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'planone' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljokone' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'plantwo' + data[i].codenumber + '" ></td > ' +
+                                    '<td  ondblclick="openmodal(this)" style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'siljoktwo' + data[i].codenumber + '" ></td > ' +
+                                    '<td ondblclick="openmodal(this)" style="display: none; width: auto; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + '; " id="' + j + '">' + j + '</td>' +
+                                    '<td style="display:none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  id="' + data[i].codenumber + '">' + data[i].equipmentname + '<br>' + data[i].part + '<br>' + data[i].size + '</td>' +
+                                    '<td style="display:none;  text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;"  >' + data[i].codenumber + '</td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'capa' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'ratio' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'ratio1' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'id' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'producttype' + data[i].codenumber + '"></td>' +
+                                    '<td style="display:none; text-align:center; width:8%; font-size: 20px; border: 1px solid rgb(231, 228, 228); background-color:white; font-weight:bold;" id="' + j + 'bompart' + data[i].codenumber + '"></td>' +
+                                    '<td style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'linetest' + data[i].codenumber + '" ></td > ' +
+                                    '<td style="width: auto; text-align:right; font-size: 15px; border: 1px solid rgb(231, 228, 228); border-bottom-color: ' + (j >= 4 ? '#3d3838' : 'rgb(231, 228, 228)') + ';" id="' + j + 'issue' + data[i].codenumber + '" ></td > ' +
+
+                                    '</tr>'
+                                );
+                            }
+
+                        }
+                        plansearching()
+                    }
+                }
+            });
+        }
+
+        function plansearching() {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/plansearchAll1',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "plandate": $('#plandate').text()
+                }),
+                success: function (data) {
+                    planSearchData = data;
+
+                    for (var i = 0; i < data.length; i++) {
+                        if (!loadTdData[data[i].equipmentname]) {
+                            loadTdData[data[i].equipmentname] = [];
+                        }
+                        loadTdData[data[i].equipmentname][data[i].num - 1] = {
+                            bomno: data[i].bomno,
+                            customer: data[i].customer,
+                            modelname: data[i].modelname,
+                            itemname: data[i].itemname,
+                            linepart: data[i].linepart,
+                            part: data[i].part,
+                            lotno: data[i].lotno,
+                            pono: data[i].pono,
+                            accumulate: data[i].accumulate,
+                            producttime: data[i].producttime,
+                            setting: data[i].setting,
+                            settingtime: data[i].settingtime,
+                            id: data[i].id,
+                            capa: data[i].capa,
+                            bompart: data[i].bompart,
+                        };
+                    }
+
+                    var loadTdDataKeys = Object.keys(loadTdData);
+                    var numKeys = loadTdDataKeys.length;
+                    for (var i = 0; i < numKeys; i++) {
+                        for (var j = 0; j < 4; j++) {
+                            var equipmentData = loadTdData[loadTdDataKeys[i]][j];
+                            if (equipmentData) {
+                                var bomnoId = '#' + j + 'bomno' + loadTdDataKeys[i];
+                                var customerId = '#' + j + 'customer' + loadTdDataKeys[i];
+                                var modelnameId = '#' + j + 'modelname' + loadTdDataKeys[i];
+                                var itemnameId = '#' + j + 'itemname' + loadTdDataKeys[i];
+                                var linepartId = '#' + j + 'linepart' + loadTdDataKeys[i];
+                                var partId = '#' + j + 'part' + loadTdDataKeys[i];
+                                var lotnoId = '#' + j + 'lotno' + loadTdDataKeys[i];
+                                var ponoId = '#' + j + 'pono' + loadTdDataKeys[i];
+                                var accumulateId = '#' + j + 'accumulate' + loadTdDataKeys[i];
+                                var producttimeId = '#' + j + 'producttime' + loadTdDataKeys[i];
+                                var settingtimeId = '#' + j + 'setting' + loadTdDataKeys[i];
+                                var settingId = '#' + j + 'settingtime' + loadTdDataKeys[i];
+                                var subproducttimeId = '#' + j + 'subproducttime' + loadTdDataKeys[i];
+                                var prevproducttimeId = '#' + j + 'prevproducttime' + loadTdDataKeys[i];
+                                var idId = '#' + j + 'id' + loadTdDataKeys[i];
+                                var capaId = '#' + j + 'capa' + loadTdDataKeys[i];
+                                var bompartId = '#' + j + 'bompart' + loadTdDataKeys[i];
+
+                                var accumulateText = equipmentData.accumulate ? equipmentData.accumulate.toLocaleString() : '';
+
+                                $(bomnoId).text(equipmentData.bomno);
+                                $(customerId).text(equipmentData.customer);
+                                $(modelnameId).text(equipmentData.modelname);
+                                $(itemnameId).text(equipmentData.itemname);
+                                $(linepartId).text(equipmentData.linepart);
+                                $(partId).text(equipmentData.part);
+                                $(lotnoId).text(equipmentData.lotno);
+                                $(ponoId).text(equipmentData.pono ? equipmentData.pono.toLocaleString() : '');
+                                $(accumulateId).text(accumulateText);
+                                $(settingId).text(equipmentData.settingtime);
+                                $(idId).text(equipmentData.id);
+                                $(bompartId).text(equipmentData.bompart);
+
+                                var producttimeText = parseInt(equipmentData.producttime) === 460 ? '주간8H' : parseInt(equipmentData.producttime) === 610 ? '잔업10.5H' : '';
+                                if (j === 0) {
+                                    $(producttimeId).html('<select onchange="updateSettingTime1(this)"><option value="460" ' + (equipmentData.producttime == 460 ? 'selected' : '') + '>주간 8H</option><option value="610" ' + (equipmentData.producttime == 610 ? 'selected' : '') + '>잔업 10.5H</option></select>');
+                                } else {
+                                    $(producttimeId).text(producttimeText);
+                                }
+
+                                $(settingtimeId).html('<select onchange="updateSettingStatus(this)">' +
+                                    '<option value="false" ' + (equipmentData.setting == 'false' ? 'selected' : '') + '>UNDO</option>' +
+                                    '<option value="true" ' + (equipmentData.setting == 'true' ? 'selected' : '') + '>SET</option>' +
+                                    '</select>');
+
+                                // Check if setting is true and apply background color
+                                if (equipmentData.setting === 'true') {
+                                    $(settingtimeId + ' option[value="true"]').addClass('setting-selected');
+                                } else {
+                                    $(settingtimeId + ' option[value="true"]').removeClass('setting-selected');
+                                }
+
+                                if (j === 0 && equipmentData.bomno) {
+                                    var calculatedValue = parseFloat(equipmentData.producttime) - parseFloat(equipmentData.pono) / parseFloat(equipmentData.capa) - parseFloat(equipmentData.settingtime);
+                                    $(subproducttimeId).text(calculatedValue.toFixed(0));
+                                    $(prevproducttimeId).text((parseFloat(equipmentData.pono) / parseFloat(equipmentData.capa)).toFixed(0));
+
+                                }
+
+                                if (j === 1 && equipmentData.bomno) {
+                                    var calculatedValue = calculatedValue - parseFloat(equipmentData.pono) / parseFloat(equipmentData.capa) - parseFloat(equipmentData.settingtime);
+                                    $(subproducttimeId).text(calculatedValue.toFixed(0));
+                                    $(prevproducttimeId).text((parseFloat(equipmentData.pono) / parseFloat(equipmentData.capa)).toFixed(0));
+
+                                }
+
+                                if ($(bompartId).text() === '양산') {
+                                    $(bompartId).closest('tr').css('background-color', 'skyblue');
+                                    $(bompartId).closest('tr').css('font-weight', 'bold ');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        function openmodal(element) {
+            var rowData = $(element).closest('tr').find('td').map(function () {
+                return $(this).text();
+            }).get();
+            console.log(rowData)
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/equipmentnamesolt',
+                dataType: 'json',
+                contentType: 'application/json',
+                async: false, // 동기 호출로 변경
+                data: JSON.stringify({}),
+                success: function (result) {
+                    for (var s = 0; s < result.length; s++) {
+                        var codenumber = result[s].codenumber;
+                        var equipmentname1 = result[s].equipmentname;
+
+                        // Create an option element and append it to the select element
+                        $('#equipmentname-edit').append($('<option>', {
+                            value: codenumber,
+                            text: equipmentname1
+                        }));
+                    }
+                },
+            });
+            if (rowData[1].length > 0) {
+                $('#overlay').fadeIn();
+                $('#modal').fadeIn();
+                if (rowData.length === 30) {
+                    $('#id-edit').val(rowData[25]);
+                    $('#bomno-edit').val(rowData[1]);
+                    $('#customer-edit').val(rowData[2]);
+                    $('#modelname-edit').val(rowData[3]);
+                    $('#itemname-edit').val(rowData[4]);
+                    $('#part-edit').val(rowData[5]);
+                    $('#linepart-edit').val(rowData[6]);
+                    $('#lotno-edit').val(rowData[7]);
+                    $('#pono-edit').val(rowData[8]);
+                    $('#num-edit').val(rowData[20]);
+                } else {
+                    $('#id-edit').val(rowData[24]);
+                    $('#bomno-edit').val(rowData[0]);
+                    $('#customer-edit').val(rowData[1]);
+                    $('#modelname-edit').val(rowData[2]);
+                    $('#itemname-edit').val(rowData[3]);
+                    $('#part-edit').val(rowData[4]);
+                    $('#linepart-edit').val(rowData[5]);
+                    $('#lotno-edit').val(rowData[6]);
+                    $('#pono-edit').val(rowData[4]);
+                    $('#num-edit').val(rowData[18]);
+                }
+            } else {
+                $('#overlay').fadeIn();
+                $('#editModal3').fadeIn();
+                if (rowData.length === 30) {
+                    $('#equipmentname').val(rowData[20]);
+                    $('#num').val(rowData[19]);
+                    $('#dataid').val(rowData[21]);
+                    $('#plandatein').val($('#plandate').text());
+                } else {
+                    $('#equipmentname').val(rowData[19]);
+                    $('#num').val(rowData[18]);
+                    $('#dataid').val(rowData[20]);
+                    $('#plandatein').val($('#plandate').text());
+                }
+            }
+        }
+
+
+
+        function load() {
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spiner 표시
+
+
+            $.ajax({
+                url: server + '/api/houseinformation',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                }),
+
+                success: function (result) {
+                    $('#iteminfobody').empty();
+
+                    for (var i = 0; i < result.length; i++) {
+                        $('#iteminfobody').append(
+                            '<tr>' +
+                            '<td>' + (result[i].housecode || '') + '</td>' +
+                            '<td>' + (result[i].housename || '') + '</td>' +
+                            '<td>' + (result[i].part || '') + '</td>' +
+                            '<td>' + (result[i].partname || '') + '</td>' +
+                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                            '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
+                            '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+                            '</tr>'
+                        );
+                    }
+
+                    $('td#data-id').hide();
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                    }, 1100);
+
+                }
+            });
+
+        }
+
+        function showinfo(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#housecode-input').val(rowData[0])
+            $('#housename-input').val(rowData[1])
+            $('#part-input').val(rowData[2])
+            $('#partname-input').val(rowData[3])
+            $('#dataid').val(rowData[4])
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+
+        function openModal() {
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+
+            // Clear input values
+            $('#housecode-input').val('');
+            $('#housename-input').val('');
+            $('#part-input').val('');
+            $('#partname-input').val('');
+            $('#dataid').val('');
+
+            setTimeout(function () {
+                $('#housecode-input').focus();
+            }, 100);
+        }
+
+        function datasave() {
+            // 데이터가 있으면
+            if ($('#dataid').val()) {
+                Swal.fire({
+                    icon: 'info',
+                    title: '수정',
+                    text: '창고 정보를 수정 하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/houseupdatedata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "housecode": $('#housecode-input').val(),
+                                "housename": $('#housename-input').val(),
+                                "part": $('#part-input').val(),
+                                "partname": $('#partname-input').val(),
+                                "id": $('#dataid').val(),
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '수정 완료',
+                            text: '창고 정보가 수정 되었습니다.',
+                        }).then(() => {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        });
+                    }
+                });
+            } else {
+                // 데이터가 없으면(등록)
+                Swal.fire({
+                    icon: 'info',
+                    title: '저장',
+                    text: '창고 정보를 등록 하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/inserthouse',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "housecode": $('#housecode-input').val(),
+                                "housename": $('#housename-input').val(),
+                                "part": $('#part-input').val(),
+                                "partname": $('#partname-input').val(),
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '저장 완료',
+                            text: '창고 정보가 저장 되었습니다.',
+                        }).then(() => {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        });
+                    }
+                });
+            }
+
+        }
+        //111
+        function deletedata(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            Swal.fire({
+                icon: 'warning',
+                title: '삭제',
+                text: '창고 정보를 삭제하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/housedeletedata',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": rowData[4],
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '창고 정보가 삭제 되었습니다.',
+                    }).then(() => {
+                        $('#modal').fadeOut();
+                        $('#overlay').fadeOut();
+                        load();
+                    });
+                }
+            });
+        }
+
+
+
+
+    </script>
+
+</body>
+
+</html>

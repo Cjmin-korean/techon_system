@@ -382,29 +382,37 @@
             var bucakcustomer = rowData.find('td:eq(10)').text();
             var id = rowData.find('td:eq(11)').text();
 
-            $('#customer').text(customer)
-            $('#modelname').text(modelname)
-            $('#itemname').text(itemname)
-            $('#itemcode').text(itemcode)
-            $('#processname').text(processname)
-            $('#bucakcustomer').text(bucakcustomer)
-            $('#dataid').val(id)
+            $('#customer').text(customer);
+            $('#modelname').text(modelname);
+            $('#itemname').text(itemname);
+            $('#itemcode').text(itemcode);
+            $('#processname').text(processname);
+            $('#bucakcustomer').text(bucakcustomer);
+            $('#dataid').val(id);
 
-            const selectElement = document.getElementById("processname");
-            const selectElement1 = document.getElementById("bucakcustomer");
+            const processSelectElement = document.getElementById("processname");
+            const bucakCustomerSelectElement = document.getElementById("bucakcustomer");
+
+            // Clear existing options
+            processSelectElement.innerHTML = '';
+            bucakCustomerSelectElement.innerHTML = '';
+
             $.ajax({
                 type: 'POST',
                 url: server + '/api/selectprocessname',
                 dataType: 'json',
                 contentType: 'application/json',
-                success: function (result) {
-                    for (let i = 0; i < result.length; i++) {
+                success: function (processResult) {
+                    processResult.forEach(function (process) {
                         const option = document.createElement("option");
-                        option.text = result[i].processname;
-                        option.value = result[i].processname;
-                        selectElement.add(option);
-                    }
+                        option.text = process.processname;
+                        option.value = process.processname;
+                        processSelectElement.add(option);
+                    });
                 },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching process names:', error);
+                }
             });
 
             $.ajax({
@@ -412,17 +420,20 @@
                 url: server + '/api/selectbucakcustomer',
                 dataType: 'json',
                 contentType: 'application/json',
-                success: function (result) {
-                    console.log(result)
-                    for (let i = 0; i < result.length; i++) {
+                success: function (bucakResult) {
+                    bucakResult.forEach(function (bucak) {
                         const option = document.createElement("option");
-                        option.text = result[i].bucakcustomer;
-                        option.value = result[i].bucakcustomer;
-                        selectElement1.add(option);
-                    }
+                        option.text = bucak.bucakcustomer;
+                        option.value = bucak.bucakcustomer;
+                        bucakCustomerSelectElement.add(option);
+                    });
                 },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching bucak customers:', error);
+                }
             });
         });
+
 
         function datasave() {
             // 데이터가 있으면

@@ -5,102 +5,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/businessplaninfo.css">
+    <link rel="stylesheet" href="../css/inspectioninfo.css">
     <link rel="stylesheet" href="../css/spiner.css">
     <link rel="stylesheet" href="../css/header.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>사업계획정보</title>
+    <title>수입검사 완료현황</title>
 </head>
 
 <body>
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-briefcase"></i> &nbsp;사업 계획 정보</h2>
+            <h2><i class="fas fa-file-import"></i> &nbsp;수입검사 완료현황</h2>
         </div>
         <div class="header-subtitle">
-            <h4>판매계획 > 사업 계획 정보</h4>
+            <h4>수입검사 > 수입검사 완료현황</h4>
         </div>
     </div>
+
+
     <div id="overlay" class="overlay"></div>
     <div id="overlay1" class="overlay"></div>
-
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
-            autocomplete="off">
+        <input type="date" style="width:10%; margin-left:10px;" id="datetimepicker1">
+        <input type="date" style="width:10%; " id="datetimepicker2">
         <button class="close-button" onclick="load()">조회</button>
-
     </fieldset>
+
+
     <div class="spinner-overlay">
         <div class="spinner"></div>
     </div>
     <div id="maintable" class="table-wrapper">
         <table>
             <thead>
+
                 <tr>
-                    <th style="width:150px;" rowspan="3">Site</th>
-                    <th style="width:150px;" rowspan="3">고객사</th>
-                    <th style="width:150px;" rowspan="3">품목코드</th>
-                    <th style="width:150px;" rowspan="3">BOM.NO</th>
-                    <th style="width:150px;" rowspan="3">모델명</th>
-                    <th style="width:150px;" rowspan="3">품목명</th>
-                    <th style="width:150px;" rowspan="3">Team</th>
-                    <th colspan="36">사업계획</th>
+                    <th>검사일자</th>
+                    <th>검사자</th>
+                    <th>자재명</th>
+                    <th>LOTNO</th>
+                    <th>공급사</th>
+                    <th>제조사</th>
+                    <th>TYPE</th>
+                    <th>입고수량</th>
+                    <th>검사수량</th>
+                    <th>외관검사</th>
+                    <th>두께판정</th>
+                    <th>점착력(내측)</th>
+                    <th>점착력(외측)</th>
+                    <th>이형력(외측)</th>
+                    <th>성적서</th>
+                    <th></th>
                 </tr>
-                <tr>
-                    <th colspan="3">1월</th>
-                    <th colspan="3">2월</th>
-                    <th colspan="3">3월</th>
-                    <th colspan="3">4월</th>
-                    <th colspan="3">5월</th>
-                    <th colspan="3">6월</th>
-                    <th colspan="3">7월</th>
-                    <th colspan="3">8월</th>
-                    <th colspan="3">9월</th>
-                    <th colspan="3">10월</th>
-                    <th colspan="3">11월</th>
-                    <th colspan="3">12월</th>
-                </tr>
-                <tr>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                    <th>수량</th>
-                    <th>단가</th>
-                    <th>금액</th>
-                </tr>
+
+
 
             </thead>
 
@@ -191,84 +152,76 @@
 
         $(document).ready(function () {
 
+            var today = new Date();
 
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            var day = String(today.getDate()).padStart(2, '0'); // 일
+            var formattedDate = year + '-' + month + '-' + day;
+
+            document.getElementById('datetimepicker1').value = formattedDate;
+            document.getElementById('datetimepicker2').value = formattedDate;
             load()
             checkData()
 
         });
 
         function load() {
-
             var spinnerOverlay = document.querySelector('.spinner-overlay');
-            spinnerOverlay.style.display = 'flex'; // Spiner 표시
-            $('#iteminfobody').empty();
+            spinnerOverlay.style.display = 'flex'; // Spinner 표시
             $.ajax({
-                type: 'POST',
-                url: server + '/api/businessplan',
+                url: server + '/api/selectinspection',
+                method: 'post',
                 dataType: 'json',
-                success: function (data) {
-                    console.log(data)
-                    var tableFoot = $('#dataCount');
-                    if (data.length === 0) {
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    start: $('#datetimepicker1').val(),
+                    finish: $('#datetimepicker2').val(),
+                }),
+                success: function (result) {
+                    $('#iteminfobody').empty();
+
+                    if (result.length === 0) {
+                        var emptyRow = $('<tr>');
+                        var emptyCell = $('<td colspan="18" style="font-weight:bold;">').text('데이터가 없습니다.');
+                        emptyRow.append(emptyCell);
+                        $('#iteminfobody').append(emptyRow);
                     } else {
-                        for (var i = 0; i < data.length; i++) {
-                            $('#iteminfobody').append(
-                                '<tr>' +
-                                '<td>' + data[i].site + '</td>' +
-                                '<td>' + data[i].customer + '</td>' +
-                                '<td>' + data[i].codenumber + '</td>' +
-                                '<td>' + data[i].bomno + '</td>' +
-                                '<td>' + data[i].modelname + '</td>' +
-                                '<td>' + data[i].itemname + '</td>' +
-                                '<td>' + data[i].team + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].aea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].aprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].acost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].bea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].bprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].bcost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].cprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].ccost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].dea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].dprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].dcost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].eea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].eprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].ecost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].fea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].fprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].fcost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].gea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].gprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].gcost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].hea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].hprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].hcost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].iea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].iprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].icost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].jea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].jprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].jcost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].kea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].kprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].kcost).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].lea).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].lprice).toLocaleString() + '</td>' +
-                                '<td style="text-align:right;">' + (data[i].lcost).toLocaleString() + '</td>' +
-                                '</tr>'
-                            )
-                        }
+                        result.forEach(function (item) {
+                            var row = $('<tr>');
+                            row.append('<td>' + (item.inspectiondate || '') + '</td>');
+                            row.append('<td>' + (item.employee || '') + '</td>');
+                            row.append('<td>' + (item.materialname || '') + '</td>');
+                            row.append('<td>' + (item.lotno || '') + '</td>');
+                            row.append('<td>' + (item.supplier || '') + '</td>');
+                            row.append('<td>' + (item.manufacterer || '') + '</td>');
+                            row.append('<td>' + (item.typecategory || '') + '</td>');
+                            row.append('<td>' + (item.roll || '') + '</td>');
+                            row.append('<td>' + (item.inspectionroll || '') + '</td>');
+                            row.append('<td>' + (item.exterior1 || '') + '</td>');
+                            row.append('<td>' + (item.data1result || '') + '</td>');
+                            row.append('<td>' + (item.data2result || '') + '</td>');
+                            row.append('<td>' + (item.data3result || '') + '</td>');
+                            row.append('<td>' + (item.data4result || '') + '</td>');
+                            row.append('<td><button class="btninfo" style="background-color:green;">성적서</button></td>');
+                            row.append('<td><button class="btninfo" ">상세정보</button></td>');
+                            row.data('id', item.id); // Store ID as data attribute
+
+                            $('#iteminfobody').append(row);
+                        });
                     }
+
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
+                    }, 1100);
                 }
-            })
-            setTimeout(function () {
-                spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-            }, 1100);
+            });
         }
 
 
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
 
         // updateaccountiteminfo
@@ -362,24 +315,24 @@
         }
         // 상세 정보 버튼에 대한 클릭 이벤트 처리
         $(document).on('click', '.btninfo', function () {
-            // 클릭된 버튼이 속한 행(row)을 선택합니다.
-            var rowData = $(this).closest('tr');
-
+            var rowData = $(this).closest('tr').data('id')
+            // var rowData = $(this).closest('tr');
+            console.log(rowData)
             // 행에 포함된 데이터 셀들을 선택하여 데이터를 가져옵니다.
-            var customer = rowData.find('td:eq(0)').text();
-            var modelname = rowData.find('td:eq(1)').text();
-            var itemname = rowData.find('td:eq(2)').text();
-            var itemcode = rowData.find('td:eq(3)').text();
-            var processname = rowData.find('td:eq(9)').text();
-            var bucakcustomer = rowData.find('td:eq(10)').text();
-            var id = rowData.find('td:eq(11)').text();
+            // var customer = rowData.find('td:eq(0)').text();
+            // var modelname = rowData.find('td:eq(1)').text();
+            // var itemname = rowData.find('td:eq(2)').text();
+            // var itemcode = rowData.find('td:eq(3)').text();
+            // var processname = rowData.find('td:eq(9)').text();
+            // var bucakcustomer = rowData.find('td:eq(10)').text();
+            // var id = rowData.find('td:eq(11)').text();
 
-            $('#customer').text(customer)
-            $('#modelname').text(modelname)
-            $('#itemname').text(itemname)
-            $('#itemcode').text(itemcode)
-            $('#processname').text(processname)
-            $('#bucakcustomer').text(bucakcustomer)
+            // $('#customer').text(customer)
+            // $('#modelname').text(modelname)
+            // $('#itemname').text(itemname)
+            // $('#itemcode').text(itemcode)
+            // $('#processname').text(processname)
+            // $('#bucakcustomer').text(bucakcustomer)
             // $('#cutomer').text(customer)
             // $('#customer').text(customer)s
         });

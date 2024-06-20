@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="../css/productpeople.css">
+    <link rel="stylesheet" href="../css/spiner.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script src="../js/searchtable.js"></script>
+    <title>생산 기사 정보</title>
+</head>
+
+<body>
+
+    <div class="header-container">
+        <div class="header-title">
+            <h2><i class="fas fa-user"></i> &nbsp;생산 기사 정보</h2>
+        </div>
+        <div class="header-subtitle">
+            <h4>생산팀 > 생산작업자</h4>
+        </div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <div id="overlay1" class="overlay"></div>
+
+    <fieldset>
+        <legend>검색조건</legend>
+        <i class="fas fa-search"></i>
+        <input type="text" id="inputdata" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
+            autocomplete="off">
+        <button class="save-button" onclick="openModal()">신규등록</button>
+
+
+    </fieldset>
+    <div class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
+    <div id="maintable" class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>생산기사명</th>
+                    <th>직책</th>
+                    <th style="width: 10%;"></th>
+                    <th style="width: 10%;"></th>
+                </tr>
+
+            </thead>
+            <tbody id="iteminfobody">
+            </tbody>
+            <tfoot id="iteminfofoot">
+            </tfoot>
+        </table>
+    </div>
+
+
+
+
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-user"></i>&nbsp;생산 기사정보</span>
+            <input type="text" id="dataid" style="width:60px; visibility: hidden;">
+        </div>
+        <div class="modal-footer">
+            <button class="close-button" onclick="datasave()">저장</button>
+            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
+        </div>
+        <div class="modal-content">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th style="width:100px">생산기사명</th>
+                        <td><input type="text" id="people-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">직책</th>
+                        <td>
+                            <select id="position-input">
+                                <option value=""></option>
+                                <option value="공장장">공장장</option>
+                                <option value="부장">부장</option>
+                                <option value="차장">차장</option>
+                                <option value="과장">과장</option>
+                                <option value="대리">대리</option>
+                                <option value="주임">주임</option>
+                                <option value="사원">사원</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var server = '';
+        var gridApi;
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        $(document).ready(function () {
+            load()
+        });
+
+        $('#inputdata').on('keyup', function (event) {
+            if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                searchTable();
+            }
+        });
+
+        function load() {
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spiner 표시
+
+
+            $.ajax({
+                url: server + '/api/selectproductionpeople',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                }),
+
+                success: function (result) {
+                    $('#iteminfobody').empty();
+
+                    for (var i = 0; i < result.length; i++) {
+                        $('#iteminfobody').append(
+                            '<tr>' +
+                            '<td>' + (result[i].people || '') + '</td>' +
+                            '<td>' + (result[i].position || '') + '</td>' +
+                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                            '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
+                            '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+                            '</tr>'
+                        );
+                    }
+
+                    $('td#data-id').hide();
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                    }, 1100);
+
+                }
+            });
+
+        }
+
+        function showinfo(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#people-input').val(rowData[0])
+            $('#position-input').val(rowData[1])
+            $('#dataid').val(rowData[2])
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+
+        function openModal() {
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+
+            // Clear input values
+            $('#people-input').val('')
+            $('#position-input').val('')
+            $('#dataid').val('');
+
+            setTimeout(function () {
+                $('#people-input').focus();
+            }, 100);
+        }
+
+        function datasave() {
+            // 데이터가 있으면
+            if ($('#dataid').val()) {
+                Swal.fire({
+                    icon: 'info',
+                    title: '수정',
+                    text: '생산기사 정보를 수정 하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/updateproductionpeople',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "people": $('#people-input').val(),
+                                "position": $('#position-input').val(),
+                                "id": $('#dataid').val(),
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '수정 완료',
+                            text: '생산기사 정보가 수정 되었습니다.',
+                        }).then(() => {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        });
+                    }
+                });
+            } else {
+                // 데이터가 없으면(등록)
+                Swal.fire({
+                    icon: 'info',
+                    title: '저장',
+                    text: '생산기사 정보를 등록 하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/insertproductionpeople',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "people": $('#people-input').val(),
+                                "position": $('#position-input').val(),
+                                "team": '생산'
+
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '저장 완료',
+                            text: '생산기사 정보가 저장 되었습니다.',
+                        }).then(() => {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        });
+                    }
+                });
+            }
+
+        }
+        //111
+        function deletedata(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            Swal.fire({
+                icon: 'warning',
+                title: '삭제',
+                text: '생산기사 정보를 삭제하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/deleteproductionpeople',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": rowData[2],
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '생산기사 정보가 삭제 되었습니다.',
+                    }).then(() => {
+                        $('#modal').fadeOut();
+                        $('#overlay').fadeOut();
+                        load();
+                    });
+                }
+            });
+        }
+
+
+
+
+    </script>
+
+</body>
+
+</html>

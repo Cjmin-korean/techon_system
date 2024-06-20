@@ -29,10 +29,9 @@
     <fieldset>
         <legend>검색조건</legend>
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
-            autocomplete="off">
+        <input type="date" style="width:10%; margin-left:10px;" id="datetimepicker1">
+        <input type="date" style="width:10%; " id="datetimepicker2">
         <button class="close-button" onclick="load()">조회</button>
-        <button class="save-button" onclick="openModal()">신규등록</button>
 
 
     </fieldset>
@@ -148,24 +147,22 @@
 
         $(document).ready(function () {
 
-            // var today = new Date();
+            var today = new Date();
 
-            // var year = today.getFullYear();
-            // var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
-            // var day = String(today.getDate()).padStart(2, '0'); // 일
-            // var formattedDate = year + '-' + month + '-' + day;
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            var day = String(today.getDate()).padStart(2, '0'); // 일
+            var formattedDate = year + '-' + month + '-' + day;
 
-            // document.getElementById('datetimepicker1').value = formattedDate;
-            // document.getElementById('datetimepicker2').value = formattedDate;
+            document.getElementById('datetimepicker1').value = formattedDate;
+            document.getElementById('datetimepicker2').value = formattedDate;
             load()
-            checkData()
 
         });
 
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
-            spinnerOverlay.style.display = 'flex'; // Spiner 표시
-
+            spinnerOverlay.style.display = 'flex'; // Spinner 표시
 
             $.ajax({
                 url: server + '/api/selectpurchaseordering',
@@ -173,49 +170,60 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-
+                    start: $('#datetimepicker1').val(),
+                    finish: $('#datetimepicker2').val()
                 }),
-
                 success: function (result) {
                     $('#iteminfobody').empty();
 
+                    var totalRollprice = 0;
+                    var totalSupplyamount = 0;
+
                     for (var i = 0; i < result.length; i++) {
+                        totalRollprice += result[i].quantity || 0;
+                        totalSupplyamount += result[i].supplyamount || 0;
+
                         $('#iteminfobody').append(
                             '<tr>' +
-                            '<td>' + (result[i].orderno || '') + '</td>' +
                             '<td>' + (result[i].orderdate || '') + '</td>' +
                             '<td>' + (result[i].itemname || '') + '</td>' +
                             '<td>' + (result[i].codenumber || '') + '</td>' +
-                            '<td>' + (result[i].width || '') + '</td>' +
-                            '<td>' + (result[i].length || '') + '</td>' +
-                            '<td>' + (result[i].quantity || '') + '</td>' +
-                            '<td>' + (result[i].unitprice || '') + '</td>' +
-                            '<td>' + (result[i].supplyamount || '') + '</td>' +
+                            '<td style="text-align:right;">' + (result[i].width.toLocaleString() || '') + '</td>' +
+                            '<td style="text-align:right;">' + (result[i].length.toLocaleString() || '') + '</td>' +
+                            '<td style="text-align:right;">' + (result[i].quantity.toLocaleString() || '') + '</td>' +
+                            '<td style="text-align:right;">' + (result[i].unitprice.toLocaleString() || '') + '</td>' +
+                            '<td style="text-align:right;">' + (result[i].supplyamount.toLocaleString() || '') + '</td>' +
+                            '<td>' + (result[i].suppliername || '') + '</td>' +
                             '<td>' + (result[i].bomno || '') + '</td>' +
                             '<td>' + (result[i].part || '') + '</td>' +
                             '<td>' + (result[i].customer || '') + '</td>' +
                             '<td>' + (result[i].confirmed || '') + '</td>' +
-                            '<td>' + (result[i].cutting || '') + '</td>' +
+                            '<td style="text-align:right;">' + (result[i].cutting.toLocaleString() || '') + '</td>' +
                             '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
                             '<td id="data-id">' + (result[i].id || '') + '</td>' +
                             '</tr>'
                         );
                     }
 
+                    // Append total row
+                    $('#iteminfobody').append(
+                        '<tr>' +
+                        '<td colspan="5" style="text-align:right; font-weight:bold;">Total:</td>' +
+                        '<td style="text-align:right; font-weight:bold;">' + totalRollprice.toLocaleString() + '</td>' +
+                        '<td></td>' +
+                        '<td style="text-align:right; font-weight:bold;">' + totalSupplyamount.toLocaleString() + '</td>' +
+                        '<td colspan="7"></td>' +
+                        '</tr>'
+                    );
+
                     $('td#data-id').hide();
                     setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
                     }, 1100);
-
                 }
             });
-
-            // $('#searchInput').on('keyup', function (event) {
-            //     if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
-            //         searchTable();
-            //     }
-            // });
         }
+
 
 
 
