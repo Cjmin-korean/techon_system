@@ -159,8 +159,7 @@
 
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
-            spinnerOverlay.style.display = 'flex'; // Spiner 표시
-
+            spinnerOverlay.style.display = 'flex'; // Spinner 표시
 
             $.ajax({
                 url: server + '/api/selectsalesinput',
@@ -176,54 +175,54 @@
                     $('#iteminfobody').empty();
                     var totalQuantity = 0; // quantity 합계를 저장할 변수 초기화
                     var totalTotalPrice = 0; // totalprice 합계를 저장할 변수 초기화
-                    for (var i = 0; i < result.length; i++) {
-                        $('#iteminfobody').append(
+
+                    if (result.length === 0) {
+                        $('#iteminfobody').append('<tr><td colspan="12" style="text-align:center; font-weight:bold;">데이터가 없습니다</td></tr>');
+                        $('#iteminfofoot').hide(); // tfoot 숨기기
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            $('#iteminfobody').append(
+                                '<tr>' +
+                                '<td>' + (result[i].saledate || '') + '</td>' +
+                                '<td>' + (result[i].customer || '') + '</td>' +
+                                '<td>' + (result[i].bomno || '') + '</td>' +
+                                '<td>' + (result[i].itemcode || '') + '</td>' +
+                                '<td>' + (result[i].modelname || '') + '</td>' +
+                                '<td>' + (result[i].itemname || '') + '</td>' +
+                                '<td>' + (result[i].itemprice.toLocaleString() || '') + '</td>' +
+                                '<td>' + (result[i].quantity.toLocaleString() || '') + '</td>' +
+                                '<td>' + (result[i].totalprice.toLocaleString() || '') + '</td>' +
+                                '<td>' + (result[i].etc || '') + '</td>' +
+                                '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
+                                '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                                '</tr>'
+                            );
+
+                            // 합계 계산
+                            totalQuantity += parseFloat(result[i].quantity);
+                            totalTotalPrice += parseFloat(result[i].totalprice);
+                        }
+
+                        // tfoot에 합계 추가
+                        $('#iteminfofoot').html(
                             '<tr>' +
-                            '<td>' + (result[i].saledate || '') + '</td>' +
-                            '<td>' + (result[i].customer || '') + '</td>' +
-                            '<td>' + (result[i].bomno || '') + '</td>' +
-                            '<td>' + (result[i].itemcode || '') + '</td>' +
-                            '<td>' + (result[i].modelname || '') + '</td>' +
-                            '<td>' + (result[i].itemname || '') + '</td>' +
-                            '<td>' + (result[i].itemprice.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].quantity.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].totalprice.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].etc || '') + '</td>' +
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                            '<td style="font-weight:bold;" colspan="6">총합계</td>' +
+                            '<td style="font-weight:bold;">' + result.length.toLocaleString() + '</td>' +
+                            '<td style="font-weight:bold;">' + totalQuantity.toLocaleString() + '</td>' +
+                            '<td style="font-weight:bold;">' + totalTotalPrice.toLocaleString() + '</td>' +
+                            '<td colspan="3"></td>' + // 나머지 열은 빈 열로 채워짐
                             '</tr>'
-                        );
-
-                        // 합계 계산
-                        totalQuantity += parseFloat(result[i].quantity);
-                        totalTotalPrice += parseFloat(result[i].totalprice);
+                        ).show();
                     }
-
-                    // tfoot에 합계 추가
-                    $('#iteminfofoot').html(
-                        '<tr>' +
-                        '<td style="font-weight:bold;" colspan="6">총합계</td>' +
-                        '<td style="font-weight:bold;">' + result.length.toLocaleString() + '</td>' +
-                        '<td style="font-weight:bold;">' + totalQuantity.toLocaleString() + '</td>' +
-                        '<td style="font-weight:bold;">' + totalTotalPrice.toLocaleString() + '</td>' +
-                        '<td colspan="3"></td>' + // 나머지 열은 빈 열로 채워짐
-                        '</tr>'
-                    );
 
                     $('td#data-id').hide();
                     setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
                     }, 1100);
-
                 }
             });
-
-            // $('#searchInput').on('keyup', function (event) {
-            //     if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
-            //         searchTable();
-            //     }
-            // });
         }
+
 
 
 

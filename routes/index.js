@@ -13888,6 +13888,30 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  사원정보등록쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/deletepricechange', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    'delete from pricechange where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     // **** start  사원정보등록쿼리    
     sql.connect(config).then(pool => {
@@ -13896,44 +13920,45 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
                 .input('bomno', sql.NVarChar, req.body.bomno)
-
-
                 .query(
                     "SELECT " +
-                    "    [id], " +
-                    "    [bomno], " +
-                    "    [modelname], " +
-                    "    [itemname], " +
-                    "    [customer], " +
-                    "    [savedate], " +
-                    "        [price], " +
-                    "    CASE " +
-                    "        WHEN ROW_NUMBER() OVER (ORDER BY [savedate]) = 1 THEN NULL " +
-                    "        ELSE LAG([price]) OVER (ORDER BY [savedate]) " +
-                    "    END AS previousprice, " +
-                    "    CASE " +
-                    " WHEN ROW_NUMBER() OVER (ORDER BY [savedate]) = 1 THEN NULL " +
-                    " ELSE [price] - LAG([price]) OVER (ORDER BY [savedate]) " +
-                    " END AS pricedifference," +
-                    "  CASE " +
-                    " WHEN ROW_NUMBER() OVER (ORDER BY [savedate]) = 1 THEN NULL " +
-                    " ELSE ROUND((([price] - LAG([price]) OVER (ORDER BY [savedate])) / LAG([price]) OVER (ORDER BY [savedate])) * 100, 2) " +
-                    "  END AS pricechangepercentage " +
-                    "FROM " +
-                    "    ( " +
-                    "    SELECT " +
-                    "        [id], " +
-                    "        [bomno], " +
-                    "        [modelname], " +
+                    "        [id],  " +
+                    "        [bomno],  " +
+                    "        [modelname],  " +
                     "        [itemname], " +
-                    "        [customer], " +
+                    "        [customer],  " +
                     "        [savedate], " +
                     "        [price], " +
-                    "        ROW_NUMBER() OVER (ORDER BY [savedate]) AS row_num " +
-                    "    FROM [Techon].[dbo].[pricechange] " +
-                    "    WHERE [bomno] = @bomno " +
-                    "    ) AS subquery " +
-                    "ORDER BY [savedate] "
+                    "        ISNULL( " +
+                    "            CASE  " +
+                    "                WHEN ROW_NUMBER() OVER (ORDER BY [savedate]) = 1 THEN NULL  " +
+                    "                ELSE LAG([price]) OVER (ORDER BY [savedate])  " +
+                    "            END, 0) AS previousprice,  " +
+                    "        ISNULL( " +
+                    "            CASE  " +
+                    "                WHEN ROW_NUMBER() OVER (ORDER BY [savedate]) = 1 THEN NULL " +
+                    "                ELSE [price] - LAG([price]) OVER (ORDER BY [savedate]) " +
+                    "            END, 0) AS pricedifference," +
+                    "        ISNULL( " +
+                    "            CASE  " +
+                    "                WHEN ROW_NUMBER() OVER (ORDER BY [savedate]) = 1 THEN NULL  " +
+                    "                ELSE ROUND((([price] - LAG([price]) OVER (ORDER BY [savedate])) / LAG([price]) OVER (ORDER BY [savedate])) * 100, 2)  " +
+                    "            END, 0) AS pricechangepercentage  " +
+                    "    FROM  " +
+                    "        ( " +
+                    "        SELECT " +
+                    "            [id], " +
+                    "            [bomno], " +
+                    "            [modelname], " +
+                    "            [itemname], " +
+                    "            [customer], " +
+                    "            [savedate], " +
+                    "            [price], " +
+                    "            ROW_NUMBER() OVER (ORDER BY [savedate]) AS row_num  " +
+                    "        FROM [Techon].[dbo].[pricechange]  " +
+                    "        WHERE [bomno] =@bomno  " +
+                    "        ) AS subquery  " +
+                    "    ORDER BY [savedate]; "
                 )
                 .then(result => {
 

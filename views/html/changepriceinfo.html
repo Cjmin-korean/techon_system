@@ -12,6 +12,9 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+
+    <script src="../js/searchtable.js"></script>
+
     <title>단가 변경 이력 조회</title>
 </head>
 
@@ -62,69 +65,39 @@
 
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;영업 수주 정보</span>
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;단가변경 이력</span>
         </div>
-        <div class="modal-content">
+        <div class="modal-content" style="margin-top: 10px;">
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
                     <tr>
-                        <th colspan="12">영업수주정보</th>
-                    </tr>
-                    <td>검색내용</td>
-                    <td colspan="5"><input class="styled-input" id="itemcode-input" type="text" autocomplete="off"></td>
-
-                    <tr>
-
-
+                        <th>BOMNO</th>
+                        <th>모델명</th>
+                        <th>제품명</th>
+                        <th>고객사명</th>
+                        <th>수정날짜</th>
+                        <th>단가(￦)</th>
+                        <th>이전단가(￦)</th>
+                        <th>단가차이(￦)</th>
+                        <th>변경율(%)</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
-                    <!-- <tr>
-                        <td colspan="10">데이터가 없습니다.</td>
-                    </tr> -->
+
                 </tbody>
 
 
             </table>
 
 
-            <div class="modal-footer">
-                <button class="close-button" onclick="accountsave()">저장</button>
-                <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
+            <div class="modal-footer" style="margin-top: 10px;">
+                <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">닫기</button>
             </div>
         </div>
     </div>
 
-    <div class="modal1" id="modal1">
-        <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;제품검색</span>
-        </div>
-        <input type="text" class="styled-search" id="itemcode1-input" placeholder="검색내용을 입력하세요" autocomplete="off">
-        <div class="modal-content">
 
-
-            <table class="styled-table" id="Podatatable">
-                <thead id="tableHead">
-                    <tr>
-                        <th>제품코드</th>
-                        <th>BOMNO</th>
-                        <th>모델명</th>
-                        <th>제품명</th>
-                        <th>고객사</th>
-                        <th>단가</th>
-                        <th style="width:100px;"></th>
-                    </tr>
-                </thead>
-                <tbody id="itemtbody">
-                </tbody>
-            </table>
-
-        </div>
-        <div class="modal-footer">
-            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
-        </div>
-    </div>
 
 
     <script>
@@ -137,13 +110,14 @@
         }
 
         $(document).ready(function () {
-
-
             load()
             checkData()
-
         });
-
+        $('#inputdata').on('keyup', function (event) {
+            if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                searchTable();
+            }
+        });
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spinner 표시
@@ -167,19 +141,16 @@
                             '<td>' + (result[i].updatedate || '') + '</td>' +
                             '<td>' + (result[i].pricechange || '0') + '</td>' +
 
-                            '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
+                            '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
                             '</tr>'
                         );
                     }
 
-                    // Spinner 숨김
-                    spinnerOverlay.style.display = 'none';
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                    }, 1100);
                 },
-                error: function (xhr, status, error) {
-                    console.error(xhr.responseText);
-                    // Spinner 숨김
-                    spinnerOverlay.style.display = 'none';
-                }
+
             });
         }
 
@@ -187,13 +158,7 @@
 
 
 
-        // updateaccountiteminfo
-        function searchTable() {
-            var searchText = $('#searchInput').val().toLowerCase();
-            $('#iteminfobody tr').filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
-            });
-        }
+
         document.getElementById("itemcode-input").addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 openProductModal(event.target.value);
@@ -204,7 +169,43 @@
                 openProductModal(event.target.value);
             }
         });
-        function showinfo() {
+        function showinfo(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            $('#accountdatatbody').empty();
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectpricechange',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    bomno: rowData[0]
+                }),
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        var deleteButton = i !== 0 ? '<td><button class="close-button" style="background-color:red;" onclick="add(this)">삭제</button></td>' : '<td></td>';
+                        $('#accountdatatbody').append(
+                            '<tr>' +
+                            '<td>' + result[i].bomno + '</td>' +
+                            '<td>' + result[i].modelname + '</td>' +
+                            '<td>' + result[i].itemname + '</td>' +
+                            '<td>' + result[i].customer + '</td>' +
+                            '<td>' + result[i].savedate + '</td>' +
+                            '<td>' + result[i].price.toLocaleString() + '</td>' +
+                            '<td>' + (result[i].previousprice || 0) + '</td>' +
+                            '<td>' + (result[i].pricedifference || 0) + '</td>' +
+                            '<td>' + (result[i].pricechangepercentage || 0) + '</td>' +
+                            '<td style="display:none;">' + (result[i].id || '') + '</td>' +
+                            deleteButton +
+                            '</tr>'
+                        );
+                    }
+                    $('td#data-id').hide();
+                }
+            });
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
@@ -249,7 +250,6 @@
                             '<td>' + result[i].customer + '</td>' +
                             '<td>' + result[i].itemprice + '</td>' +
                             '<td><button class="add-button" onclick="add(this)">추가</button></td>' +
-
                             '</tr>'
                         );
                         $("td#data-itemprice").hide();
@@ -313,35 +313,48 @@
             var rowData = $(row).closest('tr').find('td').map(function () {
                 return $(this).text();
             }).get();
-            var today = new Date().toISOString().slice(0, 10);
 
-            // 행의 정보를 콘솔에 출력합니다.
-            if ($('#accountdatatbody tr:first-child').find('td').attr('colspan') == 12) {
-                $('#accountdatatbody tr:first-child').remove();
-            }
-            var newRow = '<tr>' +
-                '<td id="itemcode-input">' + rowData[0] + '</td>' +
-                '<td id="bomno-input">' + rowData[1] + '</td>' +
-                '<td id="modelname-input">' + rowData[2] + '</td>' +
-                '<td id="itemname-input">' + rowData[3] + '</td>' +
-                '<td id="customer-input">' + rowData[4] + '</td>' +
-                '<td id="itemprice-input">' + rowData[5] + '</td>' +
-                '<td style="width:100px;"><input type="text"  autocomplete="off" id="pocount-input" oninput="valuechanged()" style="text-align:right;" class="styled-input"></td>' +
-                '<td id="price-input"></td>' +
-                '<td><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;"></td>' +
-                '<td><input type="text" id="etc-input" autocomplete="off" class="styled-input"></td>' +
-                '<td><input type="date" id="shipmentdate-input" class="styled-input" value="' + today + '"></td>' +
-                '<td><input type="button" onclick="deleteRow(this)" value="삭제" class="delete-button"></td>' +
-                '</tr>';
 
-            // 새로운 행을 테이블에 추가합니다.
-            $('#accountdatatbody').append(newRow);
+            Swal.fire({
+                icon: 'warning',
+                title: '삭제',
+                text: '단가 이력정보를 등록 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: server + '/api/deletepricechange',
+                        method: 'post',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            id: rowData[9]
+                        }),
+                        success: function (data) {
 
-            // 데이터가 없는지 확인합니다.
-            checkData();
+                        }
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '이력 정보가 저장 되었습니다.',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $(row).closest('tr').remove();
+                            load();
+                        }
+                    });
 
-            // 값을 변경할 때마다 가격을 계산하는 함수 호출
-            valuechanged();
+                }
+            });
+
+
+
+
         }
 
 
