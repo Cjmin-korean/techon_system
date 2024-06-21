@@ -8773,7 +8773,7 @@ module.exports = function (app) {
                     " lotno, " +
                     " pono, " +
                     " bompart, " +
-                    " materialstatus,orderno " +
+                    " materialstatus,orderno,linepart,ordernumber" +
                     " from " +
                     " produceplan " +
                     " group by " +
@@ -8786,7 +8786,7 @@ module.exports = function (app) {
                     " lotno, " +
                     " pono, " +
                     " bompart, " +
-                    " materialstatus,orderno")
+                    " materialstatus,orderno,linepart,ordernumber")
                 .then(result => {
 
                     res.json(result.recordset);
