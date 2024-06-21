@@ -9277,7 +9277,7 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
 
             return pool.request()
-                .input('plandate', sql.NVarChar, req.body.plandate)
+                // .input('plandate', sql.NVarChar, req.body.plandate)
 
                 .query(
                     "select * from capa")
@@ -9291,7 +9291,25 @@ module.exports = function (app) {
         });
 
     });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectcapawherebomno', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
 
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "select * from capa where bomno=@bomno")
+
+
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
     // sql.connect(config).then(pool => {
     //     app.post('/api/plansearchAll1', function (req, res) {
     //         res.header("Access-Control-Allow-Origin", "*");

@@ -55,29 +55,6 @@
             </tfoot>
         </table>
     </div>
-    <!-- <div id="maintable">
-        <table>
-            <thead>
-                <th>주문일자</th>
-                <th>고객사</th>
-                <th>BOMNO</th>
-                <th>품목코드</th>
-                <th>모델명</th>
-                <th>제품명</th>
-                <th>제품단가(￦)</th>
-                <th>수량</th>
-                <th>공급가액(￦)</th>
-                <th>적요</th>
-                <th style="width: 90px;"></th>
-            </thead>
-
-            <tbody id="iteminfobody">
-            </tbody>
-            <tfoot id="iteminfofoot">
-            </tfoot>
-        </table>
-    </div> -->
-
 
     <div class="modal" id="modal">
         <div class="modal-header">
@@ -193,6 +170,9 @@
                 </table>
             </div>
         </div>
+        <div class="modal-footer">
+            <button class="delete-button" style="margin-top: 20px;">주문서 삭제</button>
+        </div>
     </div>
     <script>
         var server = '';
@@ -215,6 +195,7 @@
             document.getElementById('datetimepicker1').value = formattedDate;
             document.getElementById('datetimepicker2').value = formattedDate;
             load()
+            checkData()
 
         });
 
@@ -278,71 +259,14 @@
                 }
             });
         }
-        // function load() {
-        //     var spinnerOverlay = document.querySelector('.spinner-overlay');
-        //     spinnerOverlay.style.display = 'flex'; // Spinner 표시
 
-        //     $.ajax({
-        //         url: server + '/api/selectaccountinput1',
-        //         method: 'post',
-        //         dataType: 'json',
-        //         contentType: 'application/json',
-        //         data: JSON.stringify({
-        //             start: $('#datetimepicker1').val(),
-        //             finish: $('#datetimepicker2').val(),
-        //         }),
-        //         success: function (result) {
-        //             $('#iteminfobody').empty();
-        //             $('#iteminfofoot').empty(); // tfoot 비우기
-        //             var totalQuantity = 0; // quantity 합계를 저장할 변수 초기화
-        //             var totalTotalPrice = 0; // totalprice 합계를 저장할 변수 초기화
 
-        //             if (result.length === 0) {
-        //                 $('#iteminfobody').append('<tr><td colspan="12" style="text-align:center;">데이터가 없습니다</td></tr>');
-        //                 $('#iteminfofoot').hide(); // tfoot 숨기기
-        //             } else {
-        //                 for (var i = 0; i < result.length; i++) {
-        //                     $('#iteminfobody').append(
-        //                         '<tr>' +
-        //                         '<td>' + (result[i].deliverydate || '') + '</td>' +
-        //                         '<td>' + (result[i].customer || '') + '</td>' +
-        //                         '<td>' + (result[i].bomno || '') + '</td>' +
-        //                         '<td>' + (result[i].itemcode || '') + '</td>' +
-        //                         '<td>' + (result[i].modelname || '') + '</td>' +
-        //                         '<td>' + (result[i].itemname || '') + '</td>' +
-        //                         '<td>' + (result[i].itemprice.toLocaleString() || '') + '</td>' +
-        //                         '<td>' + (result[i].quantity.toLocaleString() || '') + '</td>' +
-        //                         '<td>' + (result[i].totalprice.toLocaleString() || '') + '</td>' +
-        //                         '<td>' + (result[i].etc || '') + '</td>' +
-        //                         '<td><button class="btninfo" onclick="showinfo()">상세정보</button></td>' +
-        //                         '<td id="data-id">' + (result[i].id || '') + '</td>' +
-        //                         '</tr>'
-        //                     );
-
-        //                     // 합계 계산
-        //                     totalQuantity += parseFloat(result[i].quantity);
-        //                     totalTotalPrice += parseFloat(result[i].totalprice);
-        //                 }
-
-        //                 // tfoot에 합계 추가
-        //                 $('#iteminfofoot').html(
-        //                     '<tr>' +
-        //                     '<td style="font-weight:bold;" colspan="6">총합계</td>' +
-        //                     '<td style="font-weight:bold;">' + result.length.toLocaleString() + '</td>' +
-        //                     '<td style="font-weight:bold;">' + totalQuantity.toLocaleString() + '</td>' +
-        //                     '<td style="font-weight:bold;">' + totalTotalPrice.toLocaleString() + '</td>' +
-        //                     '<td colspan="3"></td>' + // 나머지 열은 빈 열로 채워짐
-        //                     '</tr>'
-        //                 ).show(); // tfoot 표시
-        //             }
-
-        //             $('td#data-id').hide();
-        //             setTimeout(function () {
-        //                 spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
-        //             }, 1100);
-        //         }
-        //     });
-        // }
+        function checkData() {
+            var rowCount = $('#accountdatatbody tr').length; // 테이블의 행 수 확인
+            if (rowCount == 0) { // 행 수가 0인 경우
+                $('#accountdatatbody').append('<tr><td colspan="12">데이터가 없습니다.</td></tr>'); // 메시지 추가
+            }
+        }
 
 
 
@@ -380,7 +304,7 @@
             var rowData = row.find('td').map(function () {
                 return $(this).text();
             }).get();
-            console.log(rowData[0])
+            console.log(rowData[0]);
 
             $.ajax({
                 type: 'POST',
@@ -392,7 +316,7 @@
                 }),
 
                 success: function (result) {
-                    $('#iteminfobody2').empty()
+                    $('#iteminfobody2').empty();
                     for (var i = 0; i < result.length; i++) {
                         $('#iteminfobody2').append(
                             '<tr>' +
@@ -403,12 +327,14 @@
                             '<td>' + result[i].customer + '</td>' +
                             '<td>' + result[i].itemprice + '</td>' +
                             '<td>' + result[i].quantity.toLocaleString() + '</td>' +
+                            '<td>' + (parseFloat(result[i].quantity) * parseFloat(result[i].itemprice)).toLocaleString() + '</td>' +
+                            '<td>' + '<input type="checkbox" style="width:20px; height:20px;" class="ad-checkbox" ' + (result[i].ad === 'A' ? 'checked' : '') + '>' + '</td>' +
+                            '<td>' + result[i].etc + '</td>' +
+                            '<td><button class="delete-button">삭제</button></td>' +
 
                             '</tr>'
                         );
                         $("td#data-itemprice").hide();
-
-
                     }
                 }
             });
@@ -416,6 +342,7 @@
             document.getElementById('modal2').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
+
 
 
 
@@ -473,11 +400,13 @@
 
 
         function openModal() {
-            document.getElementById('modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+
             $('#itemcode-input').focus()
             $('#itemcode-input').val('')
             $('#accountdatatbody').empty()
+            checkData()
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
 
         }
 
