@@ -2159,6 +2159,8 @@ module.exports = function (app) {
                 .query(
                     "SELECT " +
                     "     po.*, " +
+                    "     mi2.width as materialwidth, " +
+                    "     mi2.usewidth, " +
                     "     mi2.inspection " +
                     " FROM  " +
                     "     purchaseorder po " +
@@ -6995,6 +6997,63 @@ module.exports = function (app) {
     // **** start  생산설비창 띄우기  
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/finalfinal1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    "select " +
+                    "     testdate," +
+                    "     bom," +
+                    "     customer," +
+                    "     modelname," +
+                    "     itemname," +
+                    "     lotno," +
+                    "     count, " +
+                    "     testcount, " +
+                    "     (testcount-(ng1 + ng2 + ng3 + ng4 + ng5 + ng6 + ng7 + ng8 + ng9 + ng10 + ng11 + ng12 + ng13 + ng14 + ng15 + ng16)) as ok_sum," +
+                    "     (ng1 + ng2 + ng3 + ng4 + ng5 + ng6 + ng7 + ng8 + ng9 + ng10 + ng11 + ng12 + ng13 + ng14 + ng15 + ng16) as ng_sum, " +
+                    "     (testcount-(ng1 + ng2 + ng3 + ng4 + ng5 + ng6 + ng7 + ng8 + ng9 + ng10 + ng11 + ng12 + ng13 + ng14 + ng15 + ng16))/testcount*100 as okcount, " +
+                    "     (ng1 + ng2 + ng3 + ng4 + ng5 + ng6 + ng7 + ng8 + ng9 + ng10 + ng11 + ng12 + ng13 + ng14 + ng15 + ng16)/testcount*100 as ngcount, " +
+                    "     ng1, " +
+                    "     ng2, " +
+                    "     ng3, " +
+                    "     ng4, " +
+                    "     ng5, " +
+                    "     ng6, " +
+                    "     ng7, " +
+                    "     ng8, " +
+                    "     ng9, " +
+                    "     ng10, " +
+                    "     ng11, " +
+                    "     ng12, " +
+                    "     ng13, " +
+                    "     ng14, " +
+                    "     ng15, " +
+                    "     ng16  " +
+                    " from " +
+                    "     alltest " +
+                    " where " +
+                    "     status = '최종검사완료';"
+
+                )
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** start  생산설비창 띄우기  
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/saleinfo', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -8807,6 +8866,45 @@ module.exports = function (app) {
 
                 .query(
                     "select * from iteminfo where bomno=@bomno")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** start       
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbomsoyooutput', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "SELECT " +
+                    "    bm.materialname, " +
+                    "    bm.etc, " +
+                    "    bm.materialwidth, " +
+                    "    bm.useable, " +
+                    "    bm.onepid, " +
+                    "    bm.twopid, " +
+                    "    ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0)) * 0.001 * (1 + (bm.loss / 100)), 4) AS soyo, " +
+                    "    bm.num,bm.hap " +
+                    "FROM   " +
+                    "    bommanagement bm   " +
+
+                    "JOIN  " +
+                    "    materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  " +
+
+                    "WHERE  " +
+                    "    bm.bomno = @bomno " +
+                    "    AND bm.status = 'true' " +
+                    "ORDER BY " +
+                    "    bm.num, bm.hap ASC;")
                 .then(result => {
 
                     res.json(result.recordset);

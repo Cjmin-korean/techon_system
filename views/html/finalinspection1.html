@@ -12,17 +12,17 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <script src="../js/searchtable.js"></script>
 
-    <title>생산확정대기</title>
+    <title>최종검사 대기현황</title>
 </head>
 
 <body>
 
     <div class="header-container">
         <div class="header-title">
-            <h2><i class="fas fa-clipboard-check"></i> &nbsp;생산 확정 현황</h2>
+            <h2><i class="fas fa-warehouse"></i> &nbsp;최종검사 대기현황</h2>
         </div>
         <div class="header-subtitle">
-            <h4>자재출고 > 생산 확정 현황</h4>
+            <h4>검사등록 > 최종검사 대기현황</h4>
         </div>
     </div>
     <div id="overlay" class="overlay"></div>
@@ -41,14 +41,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>생산날짜</th>
                     <th>BOMNO</th>
-                    <th>고객사</th>
+                    <th>고객사명</th>
                     <th>모델명</th>
                     <th>제품명</th>
-                    <th>작업차수</th>
-                    <th>생산LOT</th>
-                    <th>생산수량</th>
+                    <th>LOTNO</th>
+                    <th>작업수량(EA)</th>
                     <th style="width: 10%;"></th>
                 </tr>
 
@@ -65,32 +63,89 @@
 
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;창고정보</span>
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;최종검사 등록</span>
             <input type="text" id="dataid" style="width:60px; visibility: hidden;">
         </div>
         <div class="modal-footer">
-            <button class="close-button" onclick="datasave()">저장</button>
+            <button class="close-button" onclick="datasave()">검사완료</button>
             <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
         </div>
         <div class="modal-content">
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
                     <tr>
-                        <th style="width:100px">창고코드</th>
-                        <td><input type="text" id="housecode-input" autocomplete="off"></td>
+                        <th colspan="6">생산정보</th>
+
                     </tr>
                     <tr>
-                        <th style="width:100px">창고명</th>
-                        <td><input type="text" id="housename-input" autocomplete="off"></td>
+                        <th style="width:100px">BOMNO</th>
+                        <th style="width:100px">고객사명</th>
+                        <th style="width:100px">모델명</th>
+                        <th style="width:100px">제품명</th>
+                        <th style="width:100px">LOTNO</th>
+                        <th style="width:100px">작업수량(EA)</th>
                     </tr>
                     <tr>
-                        <th style="width:100px">파트</th>
-                        <td><input type="text" id="part-input" autocomplete="off"></td>
+                        <td id="bomno-input"></td>
+                        <td id="customer-input"></td>
+                        <td id="modelname-input"></td>
+                        <td id="itemname-input"></td>
+                        <td id="lotno-input"></td>
+                        <td id="productcount-input"></td>
+                    </tr>
+
+                </thead>
+            </table>
+
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th colspan="8">불량 정보</th>
                     </tr>
                     <tr>
-                        <th style="width:100px">파트명</th>
-                        <td><input type="text" id="partname-input" autocomplete="off"></td>
+                        <th>이물</th>
+                        <th>Burr</th>
+                        <th>미스크랩</th>
+                        <th>구김</th>
+                        <th>찐</th>
+                        <th>기포</th>
+                        <th>누락</th>
+                        <th>펜싱</th>
+
                     </tr>
+                    <tr>
+                        <td><input type="text" id="ng1-input"></td>
+                        <td><input type="text" id="ng2-input"></td>
+                        <td><input type="text" id="ng3-input"></td>
+                        <td><input type="text" id="ng4-input"></td>
+                        <td><input type="text" id="ng5-input"></td>
+                        <td><input type="text" id="ng6-input"></td>
+                        <td><input type="text" id="ng7-input"></td>
+                        <td><input type="text" id="ng8-input"></td>
+
+                    </tr>
+                    <tr>
+                        <th>홀찍힘</th>
+                        <th>이음매</th>
+                        <th>잘림</th>
+                        <th>컬</th>
+                        <th>홀막힘</th>
+                        <th>스크래치</th>
+                        <th>원단</th>
+                        <th>기타</th>
+
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="ng9-input"></td>
+                        <td><input type="text" id="ng10-input"></td>
+                        <td><input type="text" id="ng11-input"></td>
+                        <td><input type="text" id="ng12-input"></td>
+                        <td><input type="text" id="ng13-input"></td>
+                        <td><input type="text" id="ng14-input"></td>
+                        <td><input type="text" id="ng15-input"></td>
+                        <td><input type="text" id="ng16-input"></td>
+                    </tr>
+
                 </thead>
             </table>
         </div>
@@ -121,7 +176,7 @@
 
 
             $.ajax({
-                url: server + '/api/selectproduceplan',
+                url: server + '/api/finalfinal',
                 method: 'post',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -135,18 +190,14 @@
                     for (var i = 0; i < result.length; i++) {
                         $('#iteminfobody').append(
                             '<tr>' +
-                            '<td>' + (result[i].plandate || '') + '</td>' +
-                            '<td>' + (result[i].bomno || '') + '</td>' +
+                            '<td>' + (result[i].bom || '') + '</td>' +
                             '<td>' + (result[i].customer || '') + '</td>' +
                             '<td>' + (result[i].modelname || '') + '</td>' +
                             '<td>' + (result[i].itemname || '') + '</td>' +
-                            '<td>' + (result[i].part || '') + '</td>' +
                             '<td>' + (result[i].lotno || '') + '</td>' +
-                            '<td>' + (result[i].pono.toLocaleString() || '') + '</td>' +
-                            '<td style="display:none;">' + (result[i].linepart || '') + '</td>' +
-                            '<td style="display:none;">' + (result[i].ordernumber || '') + '</td>' +
-                            '<td style="display:none;">' + (result[i].orderno || '') + '</td>' +
-                            '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
+                            '<td>' + (result[i].count.toLocaleString() || '') + '</td>' +
+                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                            '<td><button class="btninfo" onclick="showinfo(this)">최종검사</button></td>' +
                             '</tr>'
                         );
                     }
@@ -166,154 +217,16 @@
             var rowData = row.find('td').map(function () {
                 return $(this).text();
             }).get();
-            var newWindow = window.open('/html/producepaper.html', '_blank', 'width=1000,height=800');
-            newWindow.onload = function () {
-                var ordernumberValue = rowData[9];
-                newWindow.document.getElementById('qrCode').src = "https://api.qrserver.com/v1/create-qr-code/?data=" + ordernumberValue;
-
-                newWindow.document.getElementById('productdate').innerText = rowData[0];
-                newWindow.document.getElementById('bomno').innerText = rowData[1];
-                newWindow.document.getElementById('customer').innerText = rowData[2];
-                newWindow.document.getElementById('modelname').innerText = rowData[3];
-                newWindow.document.getElementById('itemname').innerText = rowData[4];
-                newWindow.document.getElementById('part').innerText = rowData[5];
-                newWindow.document.getElementById('lotno').innerText = rowData[6];
-                newWindow.document.getElementById('productcount').innerText = rowData[7];
-                newWindow.document.getElementById('charlot').innerText = rowData[10];
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/selectiteminfo',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "bomno": rowData[1]
-                    }),
-                    success: function (result) {
-                        newWindow.document.getElementById('itemcode').innerText = result[0].itemcode;
-                        newWindow.document.getElementById('pcs').innerText = result[0].pcs;
-                        newWindow.document.getElementById('direction').innerText = result[0].direction;
-                        newWindow.document.getElementById('linepart').innerText = result[0].workpart;
-                        newWindow.document.getElementById('cavity').innerText = result[0].cavity;
-                        newWindow.document.getElementById('etc').innerText = result[0].additionalnotes;
-                    },
-                });
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/selectbomsoyooutput',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "bomno": rowData[1]
-                    }),
-                    success: function (result1) {
-                        let materialnames = [];
-                        let materialwidths = [];
-                        let useables = [];
-                        let etcs = [];
-                        let onepids = [];
-                        let twopids = [];
-                        let soyos = [];
-                        let nums = [];
-
-                        if (result1.length > 0) {
-                            let maxNum = Math.max(...result1.map(item => item.num));
-                            for (let i = 0; i < maxNum; i++) {
-                                materialnames.push({
-                                    materialnameA: "",
-                                    materialnameHAP: ""
-                                });
-                                etcs.push({
-                                    etcA: "",
-                                    etcHAP: ""
-                                });
-                                materialwidths.push({
-                                    materialwidthA: ""
-                                });
-                                useables.push("");
-                                onepids.push("");
-                                twopids.push("");
-                                soyos.push("");
-                                nums.push("");
-                            }
-                        }
-
-                        result1.forEach(item => {
-                            let index = item.num - 1;
-                            if (item.hap === 'A') {
-                                materialnames[index].materialnameA = item.materialname;
-                                materialwidths[index].materialwidthA = item.materialwidth;
-                                etcs[index] = item.etc;
-                                useables[index] = item.useable;
-                                onepids[index] = item.onepid;
-                                twopids[index] = item.twopid;
-                                soyos[index] = item.soyo;
-                                nums[index] = item.num;
-                            } else if (item.hap === 'HAP') {
-                                materialnames[index].materialnameHAP = item.materialname;
-                                materialwidths[index].materialwidthA = item.materialwidth;
-                                etcs[index] = item.etc;
-                                useables[index] = item.useable;
-                                onepids[index] = item.onepid;
-                                twopids[index] = item.twopid;
-                                soyos[index] = item.soyo;
-                                nums[index] = item.num;
-                            }
-                        });
-
-                        materialnames.forEach((names, index) => {
-                            let materialText = names.materialnameA;
-                            if (names.materialnameA && names.materialnameHAP) {
-                                materialText = names.materialnameA + '+' + names.materialnameHAP;
-                            } else if (names.materialnameA && !names.materialnameHAP) {
-                                materialText = names.materialnameA;
-                            }
-
-                            // Find and set the text for the corresponding materialname element
-                            let materialElement = newWindow.document.getElementById('materialname' + index);
-                            if (materialElement) {
-                                materialElement.innerText = materialText;
-                            }
-
-                            // Set the etc text
-                            let etcElement = newWindow.document.getElementById('etc' + index);
-                            if (etcElement) {
-                                etcElement.innerText = etcs[index];
-                            }
-
-                            // Set the material width text
-                            let materialwidthElement = newWindow.document.getElementById('materialwidth' + index);
-                            if (materialwidthElement) {
-                                materialwidthElement.innerText = materialwidths[index].materialwidthA;
-                            }
-
-                            let onepidElement = newWindow.document.getElementById('onepid' + index);
-                            if (onepidElement) {
-                                onepidElement.innerText = onepids[index];
-                            }
-
-                            let twopidElement = newWindow.document.getElementById('twopid' + index);
-                            if (twopidElement) {
-                                twopidElement.innerText = twopids[index];
-                            }
-
-                            let soyoElement = newWindow.document.getElementById('data' + index);
-                            if (soyoElement) {
-                                // Remove commas from rowData[7] and parse it as a float
-                                let productCount = parseFloat(rowData[7].replace(/,/g, ''));
-                                // Calculate and format the soyo value
-                                let soyoValue = parseFloat(soyos[index]) * productCount;
-                                soyoElement.innerText = soyoValue.toFixed(0).toLocaleString();
-                            }
-                        });
-                    }
-                });
-            };
+            $('#bomno-input').text(rowData[0])
+            $('#customer-input').text(rowData[1])
+            $('#modelname-input').text(rowData[2])
+            $('#itemname-input').text(rowData[3])
+            $('#lotno-input').text(rowData[4])
+            $('#productcount-input').text(rowData[5])
+            $('#dataid').val(rowData[6])
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
         }
-
-
-
 
 
         function closeModal() {
