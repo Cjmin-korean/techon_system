@@ -4313,6 +4313,29 @@ module.exports = function (app) {
     });
     // **** finish
     // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectconfigip', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('inputdate', sql.NVarChar, req.body.inputdate)
+                .input('inputtime', sql.NVarChar, req.body.inputtime)
+                .input('ip', sql.NVarChar, req.body.ip)
+
+                .query(
+                    'select * from configip'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
     // app.post('/api/insertimage', function (req, res) {
     //     res.header("Access-Control-Allow-Origin", "*");
 
