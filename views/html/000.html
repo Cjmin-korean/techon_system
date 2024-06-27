@@ -1,38 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get IP Address</title>
-</head>
-<style>
-    #client-ip {
-        color: #b32051;
-    }
-</style>
-
-<body>
-
-
-    <div>이 컴퓨터의 IP 주소: <span id="client-ip"></span></div>
-
+    <title>Get Local IP Address</title>
     <script>
-        // HTML의 <script> 요소를 생성한다
-        const se = document.createElement('script');
-        // <script> 요소의 src 속성을 설정한다
-        se.src = 'https://ipinfo.io?callback=callback';
-        // <body> 요소의 하위 끝에 붙인다
-        // 그리고 콜백 함수를 호출한다
-        document.body.appendChild(se);
-        // 앞서 생성한 <script> 요소를 제거한다
-        document.body.removeChild(se);
+        function getLocalIP(callback) {
+            // Create a hidden iframe
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
 
-        // 콜백 함수가 호출된다
-        function callback(data) {
-            document.getElementById('client-ip').textContent = data.ip;
+            // Run WebRTC in the iframe context
+            var win = iframe.contentWindow;
+            var RTCPeerConnection = win.RTCPeerConnection || win.mozRTCPeerConnection || win.webkitRTCPeerConnection;
+            var useWebKit = !!win.webkitRTCPeerConnection;
+
+            if (!RTCPeerConnection) {
+                // WebRTC is not supported in this browser
+                callback(null);
+                return;
+            }
+
+            // Minimal requirements for data connection
+            var mediaConstraints = {
+                optional: [{RtpDataChannels: true}]
+            };
+
+            var servers = {iceServers: [{urls: 'stun:stun.services.mozilla.com'}]};
+
+            var pc = new RTCPeerConnection(servers, mediaConstraints);
+
+            // Create a bogus data channel
+            pc.onicecandidate = function (ice) {
+                if (ice.candidate) {
+                    // Extract IP address from candidate
+                    var ip = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(ice.candidate.candidate)[1];
+                    callback(ip);
+                    // Disconnect after finding the first IP address
+                    pc.onicecandidate = null;
+                    pc.close();
+                    document.body.removeChild(iframe);
+                }
+            };
+
+            // Create an offer (this will trigger the icecandidate event)
+            pc.createDataChannel('');
+            pc.createOffer(function (result) {
+                pc.setLocalDescription(result, function () {}, function () {});
+            }, function () {});
+
+            // Wait for a while to let the ice candidate get triggered
+            setTimeout(function () {
+                if (pc.iceGatheringState === 'complete') {
+                    if (pc.localDescription) {
+                        // Extract IP address from local description
+                        var ip = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(pc.localDescription.sdp)[1];
+                        callback(ip);
+                    } else {
+                        callback(null);
+                    }
+                    document.body.removeChild(iframe);
+                }
+            }, 1000);
         }
-    </script>
-</body>
 
+        document.addEventListener('DOMContentLoaded', function () {
+            getLocalIP(function (ip) {
+                if (ip) {
+                    document.getElementById('local-ip').textContent = 'Your local IP address is: ' + ip;
+                } else {
+                    document.getElementById('local-ip').textContent = 'Could not determine local IP address.';
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Your Local IP Address</h1>
+    <p id="local-ip">Loading...</p>
+</body>
 </html>
