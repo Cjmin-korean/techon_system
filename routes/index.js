@@ -4324,7 +4324,7 @@ module.exports = function (app) {
                 .input('ip', sql.NVarChar, req.body.ip)
 
                 .query(
-                    'select * from configip'
+                    'select * from configip order by inputtime,inputdate desc'
                 )
                 .then(result => {
 
