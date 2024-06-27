@@ -402,6 +402,10 @@
         background: #FFE179;
         display: none;
     }
+
+    #client-ip {
+        color: #af4c6d;
+    }
 </style>
 
 <body>
@@ -411,8 +415,7 @@
             <img src="../img/테크온로고.PNG"
                 style="margin-left: 30px; width: 200px; height: 50px;float: left; cursor: pointer;"
                 onclick="loadhtml()">
-
-
+            <a style="float: right; color: black; margin-right: 50px;">IP:<span id="client-ip"></span></a>
         </div>
         <h4 id="countdown"></h4>
         <div id="wrapper">
@@ -1139,6 +1142,47 @@
         // 로그아웃 또는 다른 로직 수행
         // 예: 로그아웃 후 홈페이지로 리디렉션
         window.location.href = '/'; // 홈페이지 URL을 적절히 변경하세요.
+    }
+
+    const se = document.createElement('script');
+    se.src = 'https://ipinfo.io?callback=callback';
+
+    document.body.appendChild(se);
+
+    document.body.removeChild(se);
+    function callback(data1) {
+        document.getElementById('client-ip').textContent = data1.ip;
+
+        var today = new Date();
+
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+        var day = String(today.getDate()).padStart(2, '0'); // 일
+        var hours = String(today.getHours()).padStart(2, '0');
+        var minutes = String(today.getMinutes()).padStart(2, '0');
+        var seconds = String(today.getSeconds()).padStart(2, '0');
+        
+        var formattedDate = year + '-' + month + '-' + day;
+        var formattedTime = hours + ':' + minutes + ':' + seconds;
+
+
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/insertip',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "inputdate": formattedDate,
+                "inputtime": formattedTime,
+                "ip": data1.ip
+
+            }),
+            success: function (result) {
+
+            },
+
+        });
+
     }
 </script>
 <script>
@@ -1956,6 +2000,15 @@
 
     // 페이지 로딩 시 초기 현재 시간 표시
     updateCurrentTime();
+
+    var server = '';
+    var gridApi;
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
 </script>
 
 </html>
