@@ -1162,7 +1162,35 @@
     function callback(data1) {
         document.getElementById('client-ip').textContent = data1.ip;
 
+        var today = new Date();
 
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+        var day = String(today.getDate()).padStart(2, '0'); // 일
+        var hours = String(today.getHours()).padStart(2, '0');
+        var minutes = String(today.getMinutes()).padStart(2, '0');
+        var seconds = String(today.getSeconds()).padStart(2, '0');
+
+        var formattedDate = year + '-' + month + '-' + day;
+        var formattedTime = hours + ':' + minutes + ':' + seconds;
+
+
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/insertip',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "inputdate": formattedDate,
+                "inputtime": formattedTime,
+                "ip": data1.ip
+
+            }),
+            success: function (result) {
+
+            },
+
+        });
 
     }
 </script>
@@ -2071,37 +2099,6 @@
                 document.getElementById('local-ip').textContent = 'Could not determine local IP address.';
             }
         });
-
-        var today = new Date();
-
-        var year = today.getFullYear();
-        var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
-        var day = String(today.getDate()).padStart(2, '0'); // 일
-        var hours = String(today.getHours()).padStart(2, '0');
-        var minutes = String(today.getMinutes()).padStart(2, '0');
-        var seconds = String(today.getSeconds()).padStart(2, '0');
-
-        var formattedDate = year + '-' + month + '-' + day;
-        var formattedTime = hours + ':' + minutes + ':' + seconds;
-
-
-        $.ajax({
-            type: 'POST',
-            url: server + '/api/insertip',
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                "inputdate": formattedDate,
-                "inputtime": formattedTime,
-                "ip": ip
-
-            }),
-            success: function (result) {
-
-            },
-
-        });
-
     });
 </script>
 
