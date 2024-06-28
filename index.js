@@ -31,7 +31,7 @@ app.use((req, res, next) => {
 
 // 정적 파일 불러오기
 app.use(express.static(__dirname + "/views"));
-
+app.use(express.json());
 // 라우팅 정의.start.html
 app.get("/", cors(), (req, res) => {
     res.sendFile(__dirname + "/index.html");
@@ -350,6 +350,15 @@ app.get("/qrprint", cors(), (req, res) => {
 app.get("/calendar.js", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/js/calendar.js");
 });
+
+
+app.post('/api/insertip', (req, res) => {
+    const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    console.log("Client IP:", clientIp);
+    // Log or store the IP address
+    res.json({ success: true, ip: clientIp });
+});
+
 
 // 서버 실행
 app.listen(PORT, () => {
