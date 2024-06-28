@@ -757,6 +757,14 @@
     </div>
 </body>
 <script>
+    var server = '';
+    var gridApi;
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
     function deleteCookie(cookieName) {
         document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     }
@@ -764,30 +772,7 @@
         deleteCookie('userName');
         deleteCookie('partName');
 
-        // 로그아웃 또는 다른 로직 수행
-        // 예: 로그아웃 후 홈페이지로 리디렉션
         window.location.href = '/'; // 홈페이지 URL을 적절히 변경하세요.
-    }
-    // const se = document.createElement('script');
-    // se.src = 'https://ipinfo.io?callback=callback';
-    // document.body.appendChild(se);
-
-    // // Remove the script element after it loads
-    // se.onload = function () {
-    //     document.body.removeChild(se);
-    // };
-
-    // // Callback function for the public IP
-    // function callback(data1) {
-    //     document.getElementById('client-ip').textContent = data1.ip;
-    // }
-
-    var server = '';
-    var gridApi;
-    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-        server = 'http://localhost:8080';
-    } else {
-        server = 'http://techonmes.co.kr';
     }
     function getLocalIPv4(callback) {
         var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
@@ -804,10 +789,10 @@
         function handleCandidate(candidate) {
             var match = ipRegex.exec(candidate);
             if (match) {
-                var ip = match[1];
-                if (!localIPs[ip]) {
-                    localIPs[ip] = true;
-                    callback(ip);
+                var loc = match[1];
+                if (!localIPs[loc]) {
+                    localIPs[loc] = true;
+                    callback(loc);
                 }
             }
         }
@@ -832,55 +817,45 @@
         };
     }
 
-    const se = document.createElement('script');
-    se.src = 'https://ipinfo.io?callback=callback';
-    document.body.appendChild(se);
+    $(document).ready(function () {
+        getLocalIPv4(function (loc) {
+            if (loc) {
+                console.log('Local IP:', loc);
+                document.getElementById('local-ip').textContent = loc;
+                var today = new Date();
 
-    se.onload = function () {
-        document.body.removeChild(se);
-    };
+                var year = today.getFullYear();
+                var month = String(today.getMonth() + 1).padStart(2, '0');
+                var day = String(today.getDate()).padStart(2, '0');
+                var hours = String(today.getHours()).padStart(2, '0');
+                var minutes = String(today.getMinutes()).padStart(2, '0');
+                var seconds = String(today.getSeconds()).padStart(2, '0');
 
-    function callback(data) {
+                var formattedDate = year + '-' + month + '-' + day;
+                var formattedTime = hours + ':' + minutes + ':' + seconds;
 
-        // document.getElementById('client-ip').textContent = data.ip;
-    }
-
-    getLocalIPv4(function (ip) {
-        if (ip) {
-            document.getElementById('local-ip').textContent = ip;
-            var today = new Date();
-
-            var year = today.getFullYear();
-            var month = String(today.getMonth() + 1).padStart(2, '0');
-            var day = String(today.getDate()).padStart(2, '0');
-            var hours = String(today.getHours()).padStart(2, '0');
-            var minutes = String(today.getMinutes()).padStart(2, '0');
-            var seconds = String(today.getSeconds()).padStart(2, '0');
-
-            var formattedDate = year + '-' + month + '-' + day;
-            var formattedTime = hours + ':' + minutes + ':' + seconds;
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/insertip',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "inputdate": formattedDate,
-                    "inputtime": formattedTime,
-                    "ip": ip
-                }),
-                success: function (result) {
-                    console.log('Data sent successfully:', result);
-                },
-                error: function (xhr, status, error) {
-                    console.log('Error sending data:', error);
-                }
-            });
-        } else {
-            document.getElementById('local-ip').textContent = 'Could not determine local IPv4 address.';
-            console.log('Could not determine local IPv4 address.');
-        }
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertip',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "inputdate": formattedDate,
+                        "inputtime": formattedTime,
+                        "ip": loc
+                    }),
+                    success: function (result) {
+                        console.log('Data sent successfully:', result);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error sending data:', error);
+                        console.log('XHR object:', xhr);
+                    }
+                });
+            } else {
+                console.log('Could not determine local IPv4 address.');
+            }
+        });
     });
 
 
