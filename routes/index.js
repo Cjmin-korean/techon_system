@@ -4334,38 +4334,6 @@ module.exports = function (app) {
         });
 
     });
-    // **** finish
-    // **** start       
-    // app.post('/api/insertimage', function (req, res) {
-    //     res.header("Access-Control-Allow-Origin", "*");
-
-    //     // 파일 이름 및 데이터 추출
-    //     const filename = req.body.filename;
-    //     const filedata = req.body.filedata;
-
-    //     // SQL 쿼리 실행
-    //     return pool.request()
-    //         .input('filename', sql.NVarChar, filename)
-    //         // .input('filedata', sql.VarBinary, filedata)
-    //         .query(
-    //             'INSERT INTO filesave (filename) VALUES (@filename)'
-    //         )
-    //         .then(result => {
-    //             console.log(result); // 콘솔에 .query의 결과 출력
-    //             res.json({ success: true, message: '이미지가 성공적으로 삽입되었습니다.' });
-    //         })
-    //         .catch(error => {
-    //             console.error(error);
-    //             res.status(500).json({ success: false, message: '이미지 삽입 중 오류가 발생했습니다.' });
-    //         });
-
-    // });
-    // **** finish
-
-
-    // **** start       
-
-    // **** finish
 
 
     // **** start       
