@@ -37,8 +37,10 @@
             <!-- <a style="float: right; color: black; margin-right: 50px;">IP:<span id="client-ip"></span></a> -->
             <a style="float: right; color: black; margin-right: 50px;">
                 <!-- <p>Local IPv4: <span id="local-ip">Loading...</span></p> -->
-                <ul></ul>
-
+                <!-- <ul></ul> -->
+                <li><strong>Local IPs:</strong></li>
+                <li><strong>Public IPs:</strong></li>
+                <li><strong>IPv6 IPs:</strong></li>
             </a>
         </div>
         <h4 id="countdown"></h4>
@@ -776,63 +778,65 @@
         window.location.href = '/'; // 홈페이지 URL을 적절히 변경하세요.
     }
 
-    function getIPs(callback) {
-        var ip_dups = {};
-        var RTCPeerConnection = window.RTCPeerConnection
-            || window.mozRTCPeerConnection
-            || window.webkitRTCPeerConnection;
 
-        if (!RTCPeerConnection) {
-            console.log("WebRTC not supported");
-            callback(null);
-            return;
-        }
-
-        var pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.services.mozilla.com" }] });
-        var ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})|([a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/;
-
-        function handleCandidate(candidate) {
-            var match = ipRegex.exec(candidate);
-            if (match) {
-                var ip_addr = match[1] || match[3];
-                if (!ip_dups[ip_addr]) {
-                    ip_dups[ip_addr] = true;
-                    callback(ip_addr);
-                }
-            } else {
-                console.error('No match for IP in candidate:', candidate);
-            }
-        }
-
-        pc.onicecandidate = function (ice) {
-            if (ice.candidate) {
-                handleCandidate(ice.candidate.candidate);
-            }
-        };
-
-        pc.createDataChannel("");
-        pc.createOffer().then(function (sdp) {
-            sdp.sdp.split('\n').forEach(function (line) {
-                if (line.indexOf('candidate') >= 0) {
-                    handleCandidate(line);
-                }
-            });
-            pc.setLocalDescription(sdp);
-        }).catch(function (reason) {
-            console.log('Offer failed:', reason);
-        });
-
-        setTimeout(function () {
-            var lines = pc.localDescription.sdp.split('\n');
-            lines.forEach(function (line) {
-                if (line.indexOf('a=candidate:') === 0) {
-                    handleCandidate(line);
-                }
-            });
-        }, 1000);
-    }
 
     $(document).ready(function () {
+        function getIPs(callback) {
+            var ip_dups = {};
+            var RTCPeerConnection = window.RTCPeerConnection
+                || window.mozRTCPeerConnection
+                || window.webkitRTCPeerConnection;
+
+            if (!RTCPeerConnection) {
+                console.log("WebRTC not supported");
+                callback(null);
+                return;
+            }
+
+            var pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.services.mozilla.com" }] });
+            var ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})|([a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/;
+
+            function handleCandidate(candidate) {
+                var match = ipRegex.exec(candidate);
+                if (match) {
+                    var ip_addr = match[1] || match[3];
+                    if (!ip_dups[ip_addr]) {
+                        ip_dups[ip_addr] = true;
+                        callback(ip_addr);
+                    }
+                } else {
+                    console.error('No match for IP in candidate:', candidate);
+                }
+            }
+
+            pc.onicecandidate = function (ice) {
+                if (ice.candidate) {
+                    handleCandidate(ice.candidate.candidate);
+                }
+            };
+
+            pc.createDataChannel("");
+            pc.createOffer().then(function (sdp) {
+                sdp.sdp.split('\n').forEach(function (line) {
+                    if (line.indexOf('candidate') >= 0) {
+                        handleCandidate(line);
+                    }
+                });
+                pc.setLocalDescription(sdp);
+            }).catch(function (reason) {
+                console.log('Offer failed:', reason);
+            });
+
+            setTimeout(function () {
+                var lines = pc.localDescription.sdp.split('\n');
+                lines.forEach(function (line) {
+                    if (line.indexOf('a=candidate:') === 0) {
+                        handleCandidate(line);
+                    }
+                });
+            }, 1000);
+        }
+
         getIPs(function (ip) {
             if (!ip.endsWith('.local')) {  // Skip .local addresses
                 var li = document.createElement("li");
