@@ -848,38 +848,40 @@
         //assume the rest are public IPs
         else
             document.getElementsByTagName("ul")[1].appendChild(li);
+
+        var today = new Date();
+
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0');
+        var day = String(today.getDate()).padStart(2, '0');
+        var hours = String(today.getHours()).padStart(2, '0');
+        var minutes = String(today.getMinutes()).padStart(2, '0');
+        var seconds = String(today.getSeconds()).padStart(2, '0');
+
+        var formattedDate = year + '-' + month + '-' + day;
+        var formattedTime = hours + ':' + minutes + ':' + seconds;
+
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/insertip',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "inputdate": formattedDate,
+                "inputtime": formattedTime,
+                "ip": '11'
+            }),
+            success: function (result) {
+                console.log('Data sent successfully:', result);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error sending data:', error);
+                console.log('XHR object:', xhr);
+            }
+        });
+
     });
 
-    var today = new Date();
-
-    var year = today.getFullYear();
-    var month = String(today.getMonth() + 1).padStart(2, '0');
-    var day = String(today.getDate()).padStart(2, '0');
-    var hours = String(today.getHours()).padStart(2, '0');
-    var minutes = String(today.getMinutes()).padStart(2, '0');
-    var seconds = String(today.getSeconds()).padStart(2, '0');
-
-    var formattedDate = year + '-' + month + '-' + day;
-    var formattedTime = hours + ':' + minutes + ':' + seconds;
-
-    $.ajax({
-        type: 'POST',
-        url: server + '/api/insertip',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            "inputdate": formattedDate,
-            "inputtime": formattedTime,
-            "ip": loc
-        }),
-        success: function (result) {
-            console.log('Data sent successfully:', result);
-        },
-        error: function (xhr, status, error) {
-            console.error('Error sending data:', error);
-            console.log('XHR object:', xhr);
-        }
-    });
 
 
 </script>
