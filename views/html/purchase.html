@@ -92,7 +92,7 @@
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;생산확정 구매 발주</span>
         </div>
         <div class="modal-footer">
-            <button class="close-button" onclick="insertpurchaseorder()">저장</button>
+            <button class="close-button" onclick="accountsave1()">저장</button>
             <button class="delete-button" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
         </div>
         <div id="maintable" class="table-wrapper">
@@ -731,6 +731,119 @@
                 });
             };
         }
+
+
+        function accountsave1(row) {
+            Swal.fire({
+                icon: 'info',
+                title: '저장',
+                text: '정보를 등록 하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // 마지막 주문번호를 서버에서 가져오는 AJAX 요청
+                    $.ajax({
+                        type: 'GET',
+                        url: server + '/api/getLastOrderNumber',
+                        dataType: 'json',
+                        success: function (response) {
+                            var lastOrderNumber = response.lastOrderNumber;
+                            var insertdate = new Date().toISOString().slice(0, 10);
+                            var orderNumbers = {}; // orderno별로 ordernumber를 저장할 객체
+
+                            // 모든 orderno별로 새로운 ordernumber를 생성
+                            $('#orderlistbombody tr').each(function () {
+                                var orderno = $(this).find('#orderno-input').val();
+                                if (!orderNumbers[orderno]) {
+                                    orderNumbers[orderno] = generateNewOrderNumber(lastOrderNumber);
+                                    lastOrderNumber = orderNumbers[orderno]; // 마지막 생성된 주문번호 업데이트
+                                }
+                            });
+
+                            // 각 orderno 그룹에 대해 AJAX 요청 보내기
+                            for (var orderno in orderNumbers) {
+                                var newOrderNumber = orderNumbers[orderno];
+
+                                // 새로운 주문번호를 insertordernumber에 저장
+                                $.ajax({
+                                    type: 'POST',
+                                    url: server + '/api/insertordernumber',
+                                    dataType: 'json',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({
+                                        "ordernumber": newOrderNumber,
+                                    }),
+                                    success: function (result) {
+                                        // 성공했을 때의 처리
+                                    }
+                                });
+
+                                // 같은 orderno를 가진 행들에 대해 insertpurchaseorder 요청 보내기
+                                $('#orderlistbombody tr').each(function () {
+                                    if ($(this).find('#orderno-input').val() === orderno) {
+                                        var row = $(this);
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: server + '/api/insertpurchaseorder',
+                                            dataType: 'json',
+                                            contentType: 'application/json',
+                                            data: JSON.stringify({
+                                                "orderdate": insertdate,
+                                                "orderno": '11',
+                                                "itemname": row.find('#materialname-input').text(),
+                                                "codenumber": row.find('#codenumber-input').val(),
+                                                "width": row.find('#materialwidth-input').text(),
+                                                "length": row.find('#length-input').val(),
+                                                "quantity": row.find('#roundedResult-input').val(),
+                                                "unitprice": row.find('#rollprice-input').val(),
+                                                "supplyamount": parseFloat(row.find('#roundedResult-input').val().replace(/,/g, '')) * parseFloat(row.find('#rollprice-input').val().replace(/,/g, '')),
+                                                "suppliername": row.find('#supplier-input').val(),
+                                                "bomno": row.find('#bomno-input').text(),
+                                                "ordertype": '양산',
+                                                "cutting": row.find('#cutmaterialwidth-input').val(),
+                                                "manufacterer": row.find('#manufacterer-input').val(),
+                                                "productid": row.find('#productid-input').val(),
+                                                "confirmed": result[0].modelname + "/" + result[0].itemname + "/" + result[0].sumquantity.toLocaleString(),
+                                                "etc": row.find('#puretc-input').val(),
+                                                "status": '입고대기'
+                                            }),
+                                            success: function (result) {
+                                                // Ajax 성공 시 수행할 코드
+                                            },
+                                        });
+                                    }
+                                });
+                            }
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: '저장 완료',
+                                text: '영업수주 정보가 저장 되었습니다.',
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $('#modal').fadeOut();
+                                    $('#overlay').fadeOut();
+                                    load();
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function generateNewOrderNumber(lastOrderNumber) {
+            // 새로운 주문번호 생성 로직 구현
+            var newOrderNumber = parseInt(lastOrderNumber) + 1;
+            return newOrderNumber.toString().padStart(6, '0'); // 예시로 6자리 숫자로 패딩
+        }
+
+
+
     </script>
 
 </body>
