@@ -320,14 +320,6 @@
                             );
                         }
 
-                        // 합계 행 추가
-                        $('#materialtbody').append(
-                            '<tr>' +
-                            '<td colspan="7" style="text-align:right; font-weight:bold;">총 합계</td>' +
-                            '<td>' + totalSumQuantity.toLocaleString() + '</td>' +
-                            '<td colspan="8"></td>' +
-                            '</tr>'
-                        );
                     }
                 },
                 error: function (xhr, status, error) {
@@ -394,76 +386,205 @@
 
 
         function searchingdata() {
-            $.ajax({
-                url: server + '/api/selectlistmaterial',
-                method: 'post',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "start": $('#datetimepicker1').val(),
-                    "finish": $('#datetimepicker2').val()
-                }),
-                success: function (result) {
-                    $('#materialtbody').empty();
-                    var totalQuantity = 0;
-                    var totalSumQuantity = 0;
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            var day = String(today.getDate()).padStart(2, '0'); // 일
+            var formattedDate = year + '-' + month + '-' + day;
+            var endDate = $('#datetimepicker2').val();
 
-                    if (result.length === 0) {
-                        // 결과가 없을 경우 메시지 표시
-                        $('#materialtbody').append(
-                            '<tr>' +
-                            '<td colspan="20" style="text-align:center;">데이터가 없습니다</td>' +
-                            '</tr>'
-                        );
-                    } else {
-                        // 결과가 있을 경우 데이터 추가
-                        for (var i = 0; i < result.length; i++) {
-                            var quantity = result[i].quantity * result[i].roll;
-                            var sumQuantity = result[i].quantity * result[i].roll;
+            if (endDate === formattedDate) {
 
-                            if (result[i].input === '원자재출고') {
-                                quantity = -quantity;
-                                sumQuantity = -sumQuantity;
-                            }
 
-                            totalQuantity += quantity;
-                            totalSumQuantity += sumQuantity;
+                var spinnerOverlay = document.querySelector('.spinner-overlay');
+                spinnerOverlay.style.display = 'flex'; // 스피너 표시
 
+                // 첫 번째 AJAX 호출
+                $.ajax({
+                    url: server + '/api/selectlistmaterial',
+                    method: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "start": $('#datetimepicker1').val(),
+                        "finish": formattedDate
+                    }),
+                    success: function (result) {
+                        $('#materialtbody').empty(); // 기존 데이터 초기화
+                        var totalQuantity = 0;
+                        var totalSumQuantity = 0;
+
+                        if (result.length === 0) {
+                            // 결과가 없을 경우 메시지 표시
                             $('#materialtbody').append(
                                 '<tr>' +
-                                '<td>' + result[i].input + '</td>' +
-                                '<td>' + result[i].date + '</td>' +
-                                '<td>' + result[i].materialname + '</td>' +
-                                '<td>' + result[i].codenumber + '</td>' +
-                                '<td>' + result[i].materialwidth.toLocaleString() + '</td>' +
-                                '<td>' + result[i].quantity.toLocaleString() + '</td>' +
-                                '<td>' + result[i].roll.toLocaleString() + '</td>' +
-                                '<td>' + sumQuantity.toLocaleString() + '</td>' +
-                                '<td>' + result[i].customer + '</td>' +
-                                '<td>' + result[i].lotno + '</td>' +
-                                '<td>' + result[i].manufacturedate + '</td>' +
-                                '<td>' + result[i].expirationdate + '</td>' +
-                                '<td>' + result[i].house + '</td>' +
-                                '<td>' + result[i].location + '</td>' +
+                                '<td colspan="20" style="text-align:center;">데이터가 없습니다</td>' +
                                 '</tr>'
                             );
+                        } else {
+                            // 결과가 있을 경우 데이터 추가
+                            for (var i = 0; i < result.length; i++) {
+                                var quantity = result[i].quantity * result[i].roll;
+                                var sumQuantity = result[i].quantity * result[i].roll;
+
+                                if (result[i].input === '원자재출고') {
+                                    quantity = -quantity;
+                                    sumQuantity = -sumQuantity;
+                                }
+
+                                totalQuantity += quantity;
+                                totalSumQuantity += sumQuantity;
+
+                                $('#materialtbody').append(
+                                    '<tr>' +
+                                    '<td>' + result[i].input + '</td>' +
+                                    '<td>' + result[i].date + '</td>' +
+                                    '<td>' + result[i].materialname + '</td>' +
+                                    '<td>' + result[i].codenumber + '</td>' +
+                                    '<td>' + result[i].materialwidth.toLocaleString() + '</td>' +
+                                    '<td>' + result[i].quantity.toLocaleString() + '</td>' +
+                                    '<td>' + result[i].roll.toLocaleString() + '</td>' +
+                                    '<td>' + sumQuantity.toLocaleString() + '</td>' +
+                                    '<td>' + result[i].customer + '</td>' +
+                                    '<td>' + result[i].lotno + '</td>' +
+                                    '<td>' + result[i].manufacturedate + '</td>' +
+                                    '<td>' + result[i].expirationdate + '</td>' +
+                                    '<td>' + result[i].house + '</td>' +
+                                    '<td>' + result[i].location + '</td>' +
+                                    '</tr>'
+                                );
+                            }
                         }
 
-                        // 합계 행 추가
+                        // 첫 번째 AJAX 호출 완료 후, 두 번째 AJAX 호출
+                        $.ajax({
+                            url: server + '/api/selectlistmaterial1',
+                            method: 'post',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "start": formattedDate
+                            }),
+                            success: function (result1) {
+                                var totalQuantity = 0;
+                                var totalSumQuantity = 0;
+
+                                if (result1.length === 0) {
+                                    // 결과가 없을 경우 메시지 표시
+                                    $('#materialtbody').append(
+                                        '<tr>' +
+                                        '<td colspan="20" style="text-align:center;">데이터가 없습니다</td>' +
+                                        '</tr>'
+                                    );
+                                } else {
+                                    // 결과가 있을 경우 데이터 추가
+                                    for (var i = 0; i < result1.length; i++) {
+                                        var quantity = result1[i].quantity * result1[i].roll;
+                                        var sumQuantity = result1[i].quantity * result1[i].roll;
+
+                                        if (result1[i].input === '원자재출고') {
+                                            quantity = -quantity;
+                                            sumQuantity = -sumQuantity;
+                                        }
+
+                                        totalQuantity += quantity;
+                                        totalSumQuantity += sumQuantity;
+                                    }
+
+                                    // 현재고 행 추가
+                                    $('#materialtbody').append(
+                                        '<tr>' +
+                                        '<td colspan="7" style="text-align:right; font-weight:bold;">현재고</td>' +
+                                        '<td>' + totalSumQuantity.toLocaleString() + '</td>' +
+                                        '<td colspan="8"></td>' +
+                                        '</tr>'
+                                    );
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                alert('데이터를 불러오는 중 오류가 발생했습니다.');
+                            },
+                            complete: function () {
+                                spinnerOverlay.style.display = 'none'; // Spinner 숨김
+                            }
+                        });
+                    },
+
+                });
+            } else {
+
+                $.ajax({
+                    url: server + '/api/selectlistmaterial',
+                    method: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "start": $('#datetimepicker1').val(),
+                        "finish": $('#datetimepicker2').val()
+                    }),
+                    success: function (result) {
+                        $('#materialtbody').empty(); // 기존 데이터 초기화
+                        var totalQuantity = 0;
+                        var totalSumQuantity = 0;
+
+                        if (result.length === 0) {
+                            // 결과가 없을 경우 메시지 표시
+                            $('#materialtbody').append(
+                                '<tr>' +
+                                '<td colspan="20" style="text-align:center;">데이터가 없습니다</td>' +
+                                '</tr>'
+                            );
+                        } else {
+                            // 결과가 있을 경우 데이터 추가
+                            for (var i = 0; i < result.length; i++) {
+                                var quantity = result[i].quantity * result[i].roll;
+                                var sumQuantity = result[i].quantity * result[i].roll;
+
+                                if (result[i].input === '원자재출고') {
+                                    quantity = -quantity;
+                                    sumQuantity = -sumQuantity;
+                                }
+
+                                totalQuantity += quantity;
+                                totalSumQuantity += sumQuantity;
+
+                                $('#materialtbody').append(
+                                    '<tr>' +
+                                    '<td>' + result[i].input + '</td>' +
+                                    '<td>' + result[i].date + '</td>' +
+                                    '<td>' + result[i].materialname + '</td>' +
+                                    '<td>' + result[i].codenumber + '</td>' +
+                                    '<td>' + result[i].materialwidth.toLocaleString() + '</td>' +
+                                    '<td>' + result[i].quantity.toLocaleString() + '</td>' +
+                                    '<td>' + result[i].roll.toLocaleString() + '</td>' +
+                                    '<td>' + sumQuantity.toLocaleString() + '</td>' +
+                                    '<td>' + result[i].customer + '</td>' +
+                                    '<td>' + result[i].lotno + '</td>' +
+                                    '<td>' + result[i].manufacturedate + '</td>' +
+                                    '<td>' + result[i].expirationdate + '</td>' +
+                                    '<td>' + result[i].house + '</td>' +
+                                    '<td>' + result[i].location + '</td>' +
+                                    '</tr>'
+                                );
+                            }
+                        }
+
+                        // 첫 번째 AJAX 호출 완료 후, 두 번째 AJAX 호출
                         $('#materialtbody').append(
                             '<tr>' +
                             '<td colspan="7" style="text-align:right; font-weight:bold;">현재고</td>' +
                             '<td>' + totalSumQuantity.toLocaleString() + '</td>' +
-                            '<td colspan="7"></td>' +
+                            '<td colspan="8"></td>' +
                             '</tr>'
                         );
-                    }
-                },
-                error: function (xhr, status, error) {
-                    alert('데이터를 불러오는 중 오류가 발생했습니다.');
-                }
-            });
+                    },
+
+                });
+
+            }
         }
+
+
 
 
 
