@@ -11205,6 +11205,32 @@ module.exports = function (app) {
         });
 
     });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectlistmaterial1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('start', sql.NVarChar, req.body.start)
+
+
+                .query(
+                    "select "+
+                    "    * "+
+                    "    from "+
+                    "    materialinput "+
+                    "    where "+
+                    "    materialname='SJ-5002S BL' "+
+                    "    and "+
+                    "    materialwidth='170' and date between '1999-01-01' and @start order by date asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
