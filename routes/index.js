@@ -11184,6 +11184,8 @@ module.exports = function (app) {
             return pool.request()
 
                 .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('start', sql.NVarChar, req.body.start)
+                .input('finish', sql.NVarChar, req.body.finish)
 
 
                 .query(
@@ -11194,7 +11196,7 @@ module.exports = function (app) {
                     "    where "+
                     "    materialname='SJ-5002S BL' "+
                     "    and "+
-                    "    materialwidth='170' ")
+                    "    materialwidth='170' and date between @start and @finish order by date asc")
                 .then(result => {
 
                     res.json(result.recordset);

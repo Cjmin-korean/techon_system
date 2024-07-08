@@ -79,21 +79,30 @@
 
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;자재정보</span>
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;재고 상세 정보</span>
             <input type="text" id="dataid" style="width:60px; visibility: hidden;">
         </div>
         <div class="modal-footer">
             <button class="close-button" onclick="datasave()">저장</button>
             <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
         </div>
+        <input type="date" style="width:10%; margin-left:10px;" id="datetimepicker1">
+        <input type="date" style="width:10%; " id="datetimepicker2">
+        <button class="save-button" onclick="searchingdata()">조회</button>
+
         <div class="modal-content">
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
                     <tr>
                         <th style="width:100px">자재명</th>
-                        <td colspan="3"><input type="text" id="housecode-input" autocomplete="off"></td>
+                        <td colspan="3"><input type="text" style="text-align: center;" readonly id="housecode-input"
+                                autocomplete="off"></td>
                         <th style="width:100px">자재폭(mm)</th>
-                        <td colspan="2"><input type="text" id="housename-input" autocomplete="off"></td>
+                        <td colspan="2"><input type="text" style="text-align: center;" readonly id="housename-input"
+                                autocomplete="off"></td>
+                        <th style="width:100px">현재고(M)</th>
+                        <td colspan="2"><input type="text" style="text-align: center;" readonly id="sumquantity-input"
+                                autocomplete="off"></td>
                     </tr>
                     <th>구분</th>
                     <th>일자</th>
@@ -129,6 +138,8 @@
         }
 
         $(document).ready(function () {
+
+
             load()
             const selectElement = document.getElementById("location-select");
 
@@ -153,70 +164,7 @@
                 searchTable();
             }
         });
-        // function load() {
-        //     $('#Datatbody').empty();
-        //     $.ajax({
-        //         type: 'POST',
-        //         url: server + '/api/materialstock',
-        //         dataType: 'json',
-        //         contentType: 'application/json',
-        //         data: JSON.stringify({}),
-        //         success: function (data) {
-        //             // Create an object to store grouped data
-        //             var groupedData = {};
 
-        //             for (var i = 0; i < data.length; i++) {
-        //                 var house = data[i].house;
-
-        //                 // If the house is not in groupedData, create an array for it
-        //                 if (!groupedData[house]) {
-        //                     groupedData[house] = [];
-        //                 }
-
-        //                 // Push the current data to the corresponding house in groupedData
-        //                 groupedData[house].push(data[i]);
-        //             }
-
-        //             // Iterate over the groupedData to display the grouped results
-        //             for (var house in groupedData) {
-        //                 if (groupedData.hasOwnProperty(house)) {
-        //                     // Display the house as a header row
-        //                     $('#Datatbody').append('<tr><th colspan="17">' + house + '</th></tr>');
-
-        //                     // Iterate over the items in the current house
-        //                     for (var j = 0; j < groupedData[house].length; j++) {
-        //                         var currentItem = groupedData[house][j];
-
-        //                         // Display each item in the house
-        //                         $('#Datatbody').append(
-        //                             '<tr>' +
-        //                             '<td>' + result[i].materialname + '</td>' +
-        //                             '<td>' + result[i].codenumber + '</td>' +
-        //                             '<td>' + result[i].width.toLocaleString() + '</td>' +
-        //                             '<td>' + result[i].length.toLocaleString() + '</td>' +
-        //                             '<td>' + result[i].usewidth.toLocaleString() + '</td>' +
-        //                             '<td>' + result[i].sqmprice + '</td>' +
-        //                             '<td>' + result[i].unit + '</td>' +
-        //                             '<td>' + result[i].manufacterer + '</td>' +
-        //                             '<td>' + result[i].supplier + '</td>' +
-        //                             '<td>' + result[i].materialtype + '</td>' +
-        //                             '<td>' + result[i].lotno + '</td>' +
-        //                             '<td>' + result[i].manufacturedate + '</td>' +
-        //                             '<td>' + result[i].expirationdate + '</td>' +
-        //                             '<td>' + result[i].sumquantity.toLocaleString() + '</td>' +
-        //                             '<td>' + result[i].sumroll.toLocaleString() + '</td>' +
-        //                             '<td>' + result[i].calculated.toLocaleString() + '</td>' +
-        //                             '<td>' + result[i].house + '</td>' +
-        //                             '</tr>'
-        //                         );
-        //                     }
-        //                 }
-        //             }
-
-        //             $('.data-id').hide();
-        //         }
-        //     });
-        // }
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spinner 표시
@@ -299,6 +247,17 @@
 
 
         function showinfo(button) {
+
+            var today = new Date();
+
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            var day = String(today.getDate()).padStart(2, '0'); // 일
+            var formattedDate = year + '-' + month + '-' + day;
+
+            document.getElementById('datetimepicker1').value = formattedDate;
+            document.getElementById('datetimepicker2').value = formattedDate;
+
             var row = $(button).closest('tr');
             var rowData = row.find('td').map(function () {
                 return $(this).text();
@@ -317,7 +276,8 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    // "location": $('#location-select').val()
+                    "start": $('#datetimepicker1').val(),
+                    "finish": $('#datetimepicker2').val()
                 }),
                 success: function (result) {
                     $('#materialtbody').empty();
@@ -369,6 +329,73 @@
             });
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
+        }
+
+        function searchingdata() {
+            $.ajax({
+                url: server + '/api/selectlistmaterial',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "start": $('#datetimepicker1').val(),
+                    "finish": $('#datetimepicker2').val()
+                }),
+                success: function (result) {
+                    $('#materialtbody').empty();
+                    var totalQuantity = 0;
+
+                    if (result.length === 0) {
+                        // 결과가 없을 경우 메시지 표시
+                        $('#materialtbody').append(
+                            '<tr>' +
+                            '<td colspan="20" style="text-align:center;">데이터가 없습니다</td>' +
+                            '</tr>'
+                        );
+                    } else {
+                        // 결과가 있을 경우 데이터 추가
+                        for (var i = 0; i < result.length; i++) {
+                            var quantity = result[i].quantity;
+                            if (result[i].input === '원자재출고') {
+                                quantity = -quantity;
+                            }
+
+                            totalQuantity += quantity;
+
+                            $('#materialtbody').append(
+                                '<tr>' +
+                                '<td>' + result[i].input + '</td>' +
+                                '<td>' + result[i].date + '</td>' +
+                                '<td>' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].codenumber + '</td>' +
+                                '<td>' + result[i].materialwidth.toLocaleString() + '</td>' +
+                                '<td>' + result[i].quantity.toLocaleString() + '</td>' +
+                                '<td>' + result[i].roll.toLocaleString() + '</td>' +
+                                '<td>' + (result[i].quantity * result[i].roll).toLocaleString() + '</td>' +
+                                '<td>' + result[i].customer + '</td>' +
+                                '<td>' + result[i].lotno + '</td>' +
+                                '<td>' + result[i].manufacturedate + '</td>' +
+                                '<td>' + result[i].expirationdate + '</td>' +
+                                '<td>' + result[i].house + '</td>' +
+                                '<td>' + result[i].location + '</td>' +
+                                '</tr>'
+                            );
+                        }
+
+                        // 합계 행 추가
+                        $('#materialtbody').append(
+                            '<tr>' +
+                            '<td colspan="7" style="text-align:right; font-weight:bold;">총 합계</td>' +
+                            '<td>' + totalQuantity.toLocaleString() + '</td>' +
+                            '<td colspan="8"></td>' +
+                            '</tr>'
+                        );
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('데이터를 불러오는 중 오류가 발생했습니다.');
+                }
+            });
         }
 
 
