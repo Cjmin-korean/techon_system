@@ -1593,79 +1593,79 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    " SELECT  "+
-                    "     i.bomno,  "+
-                    "     i.part,  "+
-                    "     i.modelname,  "+
-                    "     i.itemname,  "+
-                    "     i.itemprice,   "+
-                    "     ROUND( "+
-                    "         COALESCE( "+
-                    "             SUM(ROUND( "+
-                    "                 ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) /  "+
-                    "                 ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  "+
-                    "             1)), 0) +  "+
-                    "         COALESCE( "+
-                    "             SUM(ROUND( "+
-                    "                 ROUND(mi2.rollprice / FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) /  "+
-                    "                 ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  "+
-                    "             1)), 0), 1) as cost,    "+
-                    "     CASE   "+
-                    "         WHEN i.itemprice = 0 THEN 0   "+
-                    "         ELSE  "+
-                    "             ROUND( "+
-                    "                 ( "+
-                    "                     COALESCE( "+
-                    "                         SUM(ROUND( "+
-                    "                             ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / "+
-                    "                             ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  "+
-                    "                         1)), 0) +  "+
-                    "                     COALESCE( "+
-                    "                         SUM(ROUND( "+
-                    "                             ROUND(mi2.rollprice / FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / "+
-                    "                             ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  "+
-                    "                         1)), 0) "+
-                    "                 ) / i.itemprice * 100, 1)   "+
-                    "     END AS costPriceRatio,  "+
-                    "     i.customer,  "+
-                    "     i.itemcode,  "+
-                    "     i.working,  "+
-                    "     i.pcs,  "+
-                    "     i.cavity,  "+
-                    "     i.direction,  "+
-                    "     i.workpart,  "+
-                    "     i.additionalnotes,  "+
-                    "     i.class,  "+
-                    "     i.type, "+
-                    "     bm.bomid, "+
-                    "     MAX(bm.num) as materialcount "+
-                    " FROM  "+
-                    "     iteminfo i  "+
-                    " LEFT JOIN  "+
-                    "     bommanagement bm ON i.bomno = bm.bomno  "+
-                    " LEFT JOIN  "+
-                    "     materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  "+
-                    " LEFT JOIN  "+
-                    "     materialinfoinformation2 mi2 ON bm.hapcodenumber = mi2.codenumber  "+
-                    " WHERE  "+
-                    "     bm.status = 'true'  "+
-                    " GROUP BY  "+
-                    "     i.bomno,  "+
-                    "     i.part,  "+
-                    "     i.modelname,  "+
-                    "     i.itemname,  "+
-                    "     i.itemprice,  "+
-                    "     i.customer,  "+
-                    "     i.itemcode,  "+
-                    "     i.working,  "+
-                    "     i.pcs,  "+
-                    "     i.cavity,  "+
-                    "     i.direction,  "+
-                    "     i.workpart,  "+
-                    "     i.additionalnotes,  "+
-                    "     i.class,  "+
-                    "     i.type, "+
-                    "     bm.bomid, "+
+                    " SELECT  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,   " +
+                    "     ROUND( " +
+                    "         COALESCE( " +
+                    "             SUM(ROUND( " +
+                    "                 ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) /  " +
+                    "                 ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "             1)), 0) +  " +
+                    "         COALESCE( " +
+                    "             SUM(ROUND( " +
+                    "                 ROUND(mi2.rollprice / FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) /  " +
+                    "                 ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "             1)), 0), 1) as cost,    " +
+                    "     CASE   " +
+                    "         WHEN i.itemprice = 0 THEN 0   " +
+                    "         ELSE  " +
+                    "             ROUND( " +
+                    "                 ( " +
+                    "                     COALESCE( " +
+                    "                         SUM(ROUND( " +
+                    "                             ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / " +
+                    "                             ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "                         1)), 0) +  " +
+                    "                     COALESCE( " +
+                    "                         SUM(ROUND( " +
+                    "                             ROUND(mi2.rollprice / FLOOR((mi2.length * 1000 * (FLOOR(mi2.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / " +
+                    "                             ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "                         1)), 0) " +
+                    "                 ) / i.itemprice * 100, 1)   " +
+                    "     END AS costPriceRatio,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
+                    "     MAX(bm.num) as materialcount " +
+                    " FROM  " +
+                    "     iteminfo i  " +
+                    " LEFT JOIN  " +
+                    "     bommanagement bm ON i.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  " +
+                    " LEFT JOIN  " +
+                    "     materialinfoinformation2 mi2 ON bm.hapcodenumber = mi2.codenumber  " +
+                    " WHERE  " +
+                    "     bm.status = 'true'  " +
+                    " GROUP BY  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
                     "     i.workpart;                                ")
                 .then(result => {
 
@@ -11219,11 +11219,11 @@ module.exports = function (app) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
 
-                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('location', sql.NVarChar, req.body.location)
 
 
                 .query(
-                    "SELECT * FROM materialinput ")
+                    "SELECT * FROM materialinput where location=@location")
                 .then(result => {
 
                     res.json(result.recordset);

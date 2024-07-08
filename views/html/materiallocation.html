@@ -52,7 +52,6 @@
                     <th>자재코드</th>
                     <th>자재폭</th>
                     <th>길이</th>
-                    <th>유효폭</th>
                     <th>SQM단가</th>
                     <th>단위</th>
                     <th>제조사</th>
@@ -214,8 +213,7 @@
         // }
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
-            spinnerOverlay.style.display = 'flex'; // Spiner 표시
-
+            spinnerOverlay.style.display = 'flex'; // Spinner 표시
 
             $.ajax({
                 url: server + '/api/selectmaterialinputsearching',
@@ -223,48 +221,56 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-
+                    "location": $('#location-select').val()
                 }),
-
                 success: function (result) {
                     $('#iteminfobody').empty();
 
-                    for (var i = 0; i < result.length; i++) {
+                    if (result.length === 0) {
                         $('#iteminfobody').append(
                             '<tr>' +
-                            '<td>' + result[i].materialname + '</td>' +
-                            '<td>' + result[i].codenumber + '</td>' +
-                            '<td>' + result[i].materialwidth + '</td>' +
-                            '<td>' + result[i].quantity + '</td>' +
-                            '<td>' + result[i].usewidth + '</td>' +
-                            '<td>' + result[i].sqmprice + '</td>' +
-                            '<td>' + result[i].unit + '</td>' +
-                            '<td>' + result[i].manufacterer + '</td>' +
-                            '<td>' + result[i].supplier + '</td>' +
-                            '<td>' + result[i].materialtype + '</td>' +
-                            '<td>' + result[i].lotno + '</td>' +
-                            '<td>' + result[i].manufacturedate + '</td>' +
-                            '<td>' + result[i].expirationdate + '</td>' +
-                            '<td>' + result[i].sumquantity + '</td>' +
-                            '<td>' + result[i].sumroll + '</td>' +
-                            '<td>' + result[i].calculated + '</td>' +
-                            '<td>' + result[i].house + '</td>' +
-                            '<td>' + result[i].location + '</td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
-                            '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
-                            '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+                            '<td colspan="20" style="text-align:center;">데이터가 없습니다</td>' +
                             '</tr>'
                         );
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            $('#iteminfobody').append(
+                                '<tr>' +
+                                '<td>' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].codenumber + '</td>' +
+                                '<td>' + result[i].materialwidth + '</td>' +
+                                '<td>' + result[i].quantity + '</td>' +
+                                '<td>' + result[i].sqmprice + '</td>' +
+                                '<td>' + result[i].unit + '</td>' +
+                                '<td>' + result[i].manufacterer + '</td>' +
+                                '<td>' + result[i].supplier + '</td>' +
+                                '<td>' + result[i].materialtype + '</td>' +
+                                '<td>' + result[i].lotno + '</td>' +
+                                '<td>' + result[i].manufacturedate + '</td>' +
+                                '<td>' + result[i].expirationdate + '</td>' +
+                                '<td>' + result[i].sumquantity + '</td>' +
+                                '<td>' + result[i].sumroll + '</td>' +
+                                '<td>' + result[i].calculated + '</td>' +
+                                '<td>' + result[i].house + '</td>' +
+                                '<td>' + result[i].location + '</td>' +
+                                '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                                '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
+                                '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+                                '</tr>'
+                            );
+                        }
                     }
 
                     $('td#data-id').hide();
                     setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
                     }, 1100);
-
+                },
+                error: function (xhr, status, error) {
+                    spinnerOverlay.style.display = 'none';
+                    alert('데이터를 불러오는 중 오류가 발생했습니다.');
                 }
             });
-
         }
 
         function showinfo(button) {
