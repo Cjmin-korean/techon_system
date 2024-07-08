@@ -55,7 +55,7 @@
                     <th>롤수량</th>
                     <th>합계(M)</th>
                     <th>SQM단가(￦)</th>
-                    <th>재고금액</th>
+                    <th>재고금액(￦)</th>
                     <th>공급사</th>
                     <th>분류</th>
                     <th>LOTNO</th>
@@ -224,6 +224,9 @@
                 success: function (result) {
                     $('#iteminfobody').empty();
 
+                    var totalRoll = 0;
+                    var totalPrice = 0;
+
                     if (result.length === 0) {
                         $('#iteminfobody').append(
                             '<tr>' +
@@ -232,16 +235,22 @@
                         );
                     } else {
                         for (var i = 0; i < result.length; i++) {
+                            var roll = parseFloat(result[i].roll) || 0;
+                            var totalprice = parseFloat(result[i].totalprice) || 0;
+
+                            totalRoll += roll;
+                            totalPrice += totalprice;
+
                             $('#iteminfobody').append(
                                 '<tr>' +
                                 '<td>' + result[i].materialname + '</td>' +
                                 '<td>' + result[i].codenumber + '</td>' +
                                 '<td>' + result[i].materialwidth.toLocaleString() + '</td>' +
                                 '<td>' + result[i].quantity.toLocaleString() + '</td>' +
-                                '<td>' + result[i].roll.toLocaleString() + '</td>' +
+                                '<td>' + roll.toLocaleString() + '</td>' +
                                 '<td>' + result[i].sumquantity.toLocaleString() + '</td>' +
                                 '<td>' + result[i].sqmprice.toLocaleString() + '</td>' +
-                                '<td>' + result[i].totalprice.toLocaleString() + '</td>' +
+                                '<td>' + totalprice.toLocaleString() + '</td>' +
                                 '<td>' + result[i].customer + '</td>' +
                                 '<td>' + result[i].typecategory + '</td>' +
                                 '<td>' + result[i].lotno + '</td>' +
@@ -255,6 +264,17 @@
                                 '</tr>'
                             );
                         }
+
+                        // 합계 행 추가
+                        $('#iteminfobody').append(
+                            '<tr>' +
+                            '<td colspan="4" style="text-align:right; font-weight:bold;">TOTAL</td>' +
+                            '<td>' + totalRoll.toLocaleString() + '</td>' +
+                            '<td colspan="2"></td>' +
+                            '<td>' + totalPrice.toLocaleString() + '</td>' +
+                            '<td colspan="10"></td>' +
+                            '</tr>'
+                        );
                     }
 
                     $('td#data-id').hide();
@@ -268,6 +288,7 @@
                 }
             });
         }
+
 
         function showinfo(button) {
             var row = $(button).closest('tr');
