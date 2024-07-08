@@ -9427,6 +9427,25 @@ module.exports = function (app) {
 
     });
     sql.connect(config).then(pool => {
+        app.post('/api/selectlocation', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                // .input('plandate', sql.NVarChar, req.body.plandate)
+
+                .query(
+                    "select * from materiallocation order by location asc")
+
+
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
         app.post('/api/selectcapawherebomno', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -11187,6 +11206,24 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT * FROM materialinput WHERE codenumber=@codenumber and status is null and materialwidth>300 order by expirationdate asc ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinputsearching', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+
+
+                .query(
+                    "SELECT * FROM materialinput ")
                 .then(result => {
 
                     res.json(result.recordset);

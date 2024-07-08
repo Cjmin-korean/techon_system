@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="../css/materiallocation.css">
+    <link rel="stylesheet" href="../css/spiner.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script src="../js/searchtable.js"></script>
+
+    <title>자재 재고 조회</title>
+</head>
+
+<body>
+
+    <div class="header-container">
+        <div class="header-title">
+            <h2><i class="fas fa-cube"></i> &nbsp;자재 재고 조회</h2>
+        </div>
+        <div class="header-subtitle">
+            <h4>재고 통합조회 > 자재 재고 조회</h4>
+        </div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <div id="overlay1" class="overlay"></div>
+
+    <fieldset>
+        <legend>검색조건</legend>
+        <b>창고 위치</b>
+        <!-- <i class="fas fa-search"></i> -->
+        <!-- <input type="text" id="inputdata" placeholder="검색 후 ENTER 입력 바랍니다." style="width:400px; margin-left: 10px;"
+            autocomplete="off"> -->
+        <select id="location-select" style="width:150px;">
+            <option></option>
+        </select>
+        <button class="save-button" onclick="load()">조회</button>
+
+
+    </fieldset>
+    <div class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
+    <div id="maintable" class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>자재명</th>
+                    <th>자재코드</th>
+                    <th>자재폭</th>
+                    <th>길이</th>
+                    <th>유효폭</th>
+                    <th>SQM단가</th>
+                    <th>단위</th>
+                    <th>제조사</th>
+                    <th>공급사</th>
+                    <th>분류</th>
+                    <th>LOTNO</th>
+                    <th>제조일자</th>
+                    <th>만료일자</th>
+                    <th>수량 합계</th>
+                    <th>롤 합계</th>
+                    <th>재고단가</th>
+                    <th>창고</th>
+                    <th>위치</th>
+                    <th style="width: 5%;"></th>
+                    <th style="width: 5%;"></th>
+                </tr>
+
+            </thead>
+            <tbody id="iteminfobody">
+            </tbody>
+            <tfoot id="iteminfofoot">
+            </tfoot>
+        </table>
+    </div>
+
+
+
+
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;창고정보</span>
+            <input type="text" id="dataid" style="width:60px; visibility: hidden;">
+        </div>
+        <div class="modal-footer">
+            <button class="close-button" onclick="datasave()">저장</button>
+            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
+        </div>
+        <div class="modal-content">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
+                    <tr>
+                        <th style="width:100px">창고코드</th>
+                        <td><input type="text" id="housecode-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">창고명</th>
+                        <td><input type="text" id="housename-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">파트</th>
+                        <td><input type="text" id="part-input" autocomplete="off"></td>
+                    </tr>
+                    <tr>
+                        <th style="width:100px">파트명</th>
+                        <td><input type="text" id="partname-input" autocomplete="off"></td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var server = '';
+        var gridApi;
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'http://techonmes.co.kr';
+        }
+
+        $(document).ready(function () {
+            load()
+            const selectElement = document.getElementById("location-select");
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectlocation',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (result) {
+                    for (let i = 0; i < result.length; i++) {
+                        const option = document.createElement("option");
+                        option.text = result[i].location;
+                        option.value = result[i].location;
+                        selectElement.add(option);
+                    }
+                },
+            });
+        });
+
+        $('#inputdata').on('keyup', function (event) {
+            if (event.key === 'Enter') { // 엔터 키가 눌렸는지 확인
+                searchTable();
+            }
+        });
+        // function load() {
+        //     $('#Datatbody').empty();
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: server + '/api/materialstock',
+        //         dataType: 'json',
+        //         contentType: 'application/json',
+        //         data: JSON.stringify({}),
+        //         success: function (data) {
+        //             // Create an object to store grouped data
+        //             var groupedData = {};
+
+        //             for (var i = 0; i < data.length; i++) {
+        //                 var house = data[i].house;
+
+        //                 // If the house is not in groupedData, create an array for it
+        //                 if (!groupedData[house]) {
+        //                     groupedData[house] = [];
+        //                 }
+
+        //                 // Push the current data to the corresponding house in groupedData
+        //                 groupedData[house].push(data[i]);
+        //             }
+
+        //             // Iterate over the groupedData to display the grouped results
+        //             for (var house in groupedData) {
+        //                 if (groupedData.hasOwnProperty(house)) {
+        //                     // Display the house as a header row
+        //                     $('#Datatbody').append('<tr><th colspan="17">' + house + '</th></tr>');
+
+        //                     // Iterate over the items in the current house
+        //                     for (var j = 0; j < groupedData[house].length; j++) {
+        //                         var currentItem = groupedData[house][j];
+
+        //                         // Display each item in the house
+        //                         $('#Datatbody').append(
+        //                             '<tr>' +
+        //                             '<td>' + result[i].materialname + '</td>' +
+        //                             '<td>' + result[i].codenumber + '</td>' +
+        //                             '<td>' + result[i].width.toLocaleString() + '</td>' +
+        //                             '<td>' + result[i].length.toLocaleString() + '</td>' +
+        //                             '<td>' + result[i].usewidth.toLocaleString() + '</td>' +
+        //                             '<td>' + result[i].sqmprice + '</td>' +
+        //                             '<td>' + result[i].unit + '</td>' +
+        //                             '<td>' + result[i].manufacterer + '</td>' +
+        //                             '<td>' + result[i].supplier + '</td>' +
+        //                             '<td>' + result[i].materialtype + '</td>' +
+        //                             '<td>' + result[i].lotno + '</td>' +
+        //                             '<td>' + result[i].manufacturedate + '</td>' +
+        //                             '<td>' + result[i].expirationdate + '</td>' +
+        //                             '<td>' + result[i].sumquantity.toLocaleString() + '</td>' +
+        //                             '<td>' + result[i].sumroll.toLocaleString() + '</td>' +
+        //                             '<td>' + result[i].calculated.toLocaleString() + '</td>' +
+        //                             '<td>' + result[i].house + '</td>' +
+        //                             '</tr>'
+        //                         );
+        //                     }
+        //                 }
+        //             }
+
+        //             $('.data-id').hide();
+        //         }
+        //     });
+        // }
+        function load() {
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spiner 표시
+
+
+            $.ajax({
+                url: server + '/api/selectmaterialinputsearching',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+
+                }),
+
+                success: function (result) {
+                    $('#iteminfobody').empty();
+
+                    for (var i = 0; i < result.length; i++) {
+                        $('#iteminfobody').append(
+                            '<tr>' +
+                            '<td>' + result[i].materialname + '</td>' +
+                            '<td>' + result[i].codenumber + '</td>' +
+                            '<td>' + result[i].materialwidth + '</td>' +
+                            '<td>' + result[i].quantity + '</td>' +
+                            '<td>' + result[i].usewidth + '</td>' +
+                            '<td>' + result[i].sqmprice + '</td>' +
+                            '<td>' + result[i].unit + '</td>' +
+                            '<td>' + result[i].manufacterer + '</td>' +
+                            '<td>' + result[i].supplier + '</td>' +
+                            '<td>' + result[i].materialtype + '</td>' +
+                            '<td>' + result[i].lotno + '</td>' +
+                            '<td>' + result[i].manufacturedate + '</td>' +
+                            '<td>' + result[i].expirationdate + '</td>' +
+                            '<td>' + result[i].sumquantity + '</td>' +
+                            '<td>' + result[i].sumroll + '</td>' +
+                            '<td>' + result[i].calculated + '</td>' +
+                            '<td>' + result[i].house + '</td>' +
+                            '<td>' + result[i].location + '</td>' +
+                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                            '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
+                            '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+                            '</tr>'
+                        );
+                    }
+
+                    $('td#data-id').hide();
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
+                    }, 1100);
+
+                }
+            });
+
+        }
+
+        function showinfo(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#housecode-input').val(rowData[0])
+            $('#housename-input').val(rowData[1])
+            $('#part-input').val(rowData[2])
+            $('#partname-input').val(rowData[3])
+            $('#dataid').val(rowData[4])
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+
+        function openModal() {
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+
+            // Clear input values
+            $('#housecode-input').val('');
+            $('#housename-input').val('');
+            $('#part-input').val('');
+            $('#partname-input').val('');
+            $('#dataid').val('');
+
+            setTimeout(function () {
+                $('#housecode-input').focus();
+            }, 100);
+        }
+
+        function datasave() {
+            // 데이터가 있으면
+            if ($('#dataid').val()) {
+                Swal.fire({
+                    icon: 'info',
+                    title: '수정',
+                    text: '창고 정보를 수정 하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/houseupdatedata',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "housecode": $('#housecode-input').val(),
+                                "housename": $('#housename-input').val(),
+                                "part": $('#part-input').val(),
+                                "partname": $('#partname-input').val(),
+                                "id": $('#dataid').val(),
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '수정 완료',
+                            text: '창고 정보가 수정 되었습니다.',
+                        }).then(() => {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        });
+                    }
+                });
+            } else {
+                // 데이터가 없으면(등록)
+                Swal.fire({
+                    icon: 'info',
+                    title: '저장',
+                    text: '창고 정보를 등록 하시겠습니까?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '확인',
+                    cancelButtonText: '취소',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/inserthouse',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "housecode": $('#housecode-input').val(),
+                                "housename": $('#housename-input').val(),
+                                "part": $('#part-input').val(),
+                                "partname": $('#partname-input').val(),
+                            }),
+                            success: function (result) {
+
+                            },
+
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '저장 완료',
+                            text: '창고 정보가 저장 되었습니다.',
+                        }).then(() => {
+                            $('#modal').fadeOut();
+                            $('#overlay').fadeOut();
+                            load();
+                        });
+                    }
+                });
+            }
+
+        }
+        //111
+        function deletedata(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+
+            Swal.fire({
+                icon: 'warning',
+                title: '삭제',
+                text: '창고 정보를 삭제하시겠습니까?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText: '취소',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/housedeletedata',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": rowData[4],
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: '창고 정보가 삭제 되었습니다.',
+                    }).then(() => {
+                        $('#modal').fadeOut();
+                        $('#overlay').fadeOut();
+                        load();
+                    });
+                }
+            });
+        }
+
+
+
+
+    </script>
+
+</body>
+
+</html>
