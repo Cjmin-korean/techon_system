@@ -570,13 +570,57 @@
                         }
 
                         // 첫 번째 AJAX 호출 완료 후, 두 번째 AJAX 호출
-                        $('#materialtbody').append(
-                            '<tr>' +
-                            '<td colspan="7" style="text-align:right; font-weight:bold;">현재고</td>' +
-                            '<td>' + totalSumQuantity.toLocaleString() + '</td>' +
-                            '<td colspan="8"></td>' +
-                            '</tr>'
-                        );
+                        $.ajax({
+                            url: server + '/api/selectlistmaterial1',
+                            method: 'post',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "start": $('#datetimepicker2').val()
+                            }),
+                            success: function (result1) {
+                                var totalQuantity = 0;
+                                var totalSumQuantity = 0;
+
+                                if (result1.length === 0) {
+                                    // 결과가 없을 경우 메시지 표시
+                                    $('#materialtbody').append(
+                                        '<tr>' +
+                                        '<td colspan="20" style="text-align:center;">데이터가 없습니다</td>' +
+                                        '</tr>'
+                                    );
+                                } else {
+                                    // 결과가 있을 경우 데이터 추가
+                                    for (var i = 0; i < result1.length; i++) {
+                                        var quantity = result1[i].quantity * result1[i].roll;
+                                        var sumQuantity = result1[i].quantity * result1[i].roll;
+
+                                        if (result1[i].input === '원자재출고') {
+                                            quantity = -quantity;
+                                            sumQuantity = -sumQuantity;
+                                        }
+
+                                        totalQuantity += quantity;
+                                        totalSumQuantity += sumQuantity;
+                                    }
+
+                                    // 현재고 행 추가
+                                    $('#materialtbody').append(
+                                        '<tr>' +
+                                        '<td colspan="7" style="text-align:right; font-weight:bold;">현재고</td>' +
+                                        '<td>' + totalSumQuantity.toLocaleString() + '</td>' +
+                                        '<td colspan="8"></td>' +
+                                        '</tr>'
+                                    );
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                alert('데이터를 불러오는 중 오류가 발생했습니다.');
+                            },
+                            complete: function () {
+                                spinnerOverlay.style.display = 'none'; // Spinner 숨김
+                            }
+                        });
                     },
 
                 });
