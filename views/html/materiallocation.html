@@ -64,7 +64,6 @@
                     <th>창고</th>
                     <th>위치</th>
                     <th style="width: 5%;"></th>
-                    <th style="width: 5%;"></th>
                 </tr>
 
             </thead>
@@ -80,7 +79,7 @@
 
     <div class="modal" id="modal">
         <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;창고정보</span>
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;자재정보</span>
             <input type="text" id="dataid" style="width:60px; visibility: hidden;">
         </div>
         <div class="modal-footer">
@@ -91,22 +90,31 @@
             <table class="styled-table" id="Podatatable">
                 <thead id="tableHead">
                     <tr>
-                        <th style="width:100px">창고코드</th>
-                        <td><input type="text" id="housecode-input" autocomplete="off"></td>
+                        <th style="width:100px">자재명</th>
+                        <td colspan="3"><input type="text" id="housecode-input" autocomplete="off"></td>
+                        <th style="width:100px">자재폭(mm)</th>
+                        <td colspan="2"><input type="text" id="housename-input" autocomplete="off"></td>
                     </tr>
-                    <tr>
-                        <th style="width:100px">창고명</th>
-                        <td><input type="text" id="housename-input" autocomplete="off"></td>
-                    </tr>
-                    <tr>
-                        <th style="width:100px">파트</th>
-                        <td><input type="text" id="part-input" autocomplete="off"></td>
-                    </tr>
-                    <tr>
-                        <th style="width:100px">파트명</th>
-                        <td><input type="text" id="partname-input" autocomplete="off"></td>
-                    </tr>
+                    <th>구분</th>
+                    <th>일자</th>
+                    <th>자재명</th>
+                    <th>자재코드</th>
+                    <th>자재폭</th>
+                    <th>길이(M)</th>
+                    <th>롤수량</th>
+                    <th>합계(M)</th>
+                    <!-- <th>재고금액(￦)</th> -->
+                    <th>공급사</th>
+                    <th>LOTNO</th>
+                    <th>제조일자</th>
+                    <th>만료일자</th>
+                    <th>창고</th>
+                    <th>위치</th>
+
                 </thead>
+                <tbody id="materialtbody">
+
+                </tbody>
             </table>
         </div>
     </div>
@@ -260,7 +268,7 @@
                                 '<td>' + result[i].location + '</td>' +
                                 '<td id="data-id">' + (result[i].id || '') + '</td>' +
                                 '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
-                                '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+                                // '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
                                 '</tr>'
                             );
                         }
@@ -295,11 +303,70 @@
             var rowData = row.find('td').map(function () {
                 return $(this).text();
             }).get();
+            console.log(rowData)
             $('#housecode-input').val(rowData[0])
-            $('#housename-input').val(rowData[1])
-            $('#part-input').val(rowData[2])
-            $('#partname-input').val(rowData[3])
-            $('#dataid').val(rowData[4])
+            $('#housename-input').val(rowData[2])
+
+
+            var spinnerOverlay = document.querySelector('.spinner-overlay');
+            spinnerOverlay.style.display = 'flex'; // Spinner 표시
+
+            $.ajax({
+                url: server + '/api/selectlistmaterial',
+                method: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    // "location": $('#location-select').val()
+                }),
+                success: function (result) {
+                    $('#materialtbody').empty();
+
+                    var totalRoll = 0;
+                    var totalPrice = 0;
+
+                    if (result.length === 0) {
+                        $('#materialtbody').append(
+                            '<tr>' +
+                            '<td colspan="20" style="text-align:center;">데이터가 없습니다</td>' +
+                            '</tr>'
+                        );
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+
+
+                            $('#materialtbody').append(
+                                '<tr>' +
+                                '<td>' + result[i].input + '</td>' +
+                                '<td>' + result[i].date + '</td>' +
+                                '<td>' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].codenumber + '</td>' +
+                                '<td>' + result[i].materialwidth.toLocaleString() + '</td>' +
+                                '<td>' + result[i].quantity.toLocaleString() + '</td>' +
+                                '<td>' + result[i].roll.toLocaleString() + '</td>' +
+                                '<td>' + result[i].quantity * result[i].roll + '</td>' +
+                                '<td>' + result[i].customer + '</td>' +
+                                '<td>' + result[i].lotno + '</td>' +
+                                '<td>' + result[i].manufacturedate + '</td>' +
+                                '<td>' + result[i].expirationdate + '</td>' +
+                                '<td>' + result[i].house + '</td>' +
+                                '<td>' + result[i].location + '</td>' +
+
+                                // '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+                                '</tr>'
+                            );
+                        }
+
+
+                    }
+
+                    $('td#data-id').hide();
+                    setTimeout(function () {
+                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
+                    }, 1100);
+                },
+
+            });
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
