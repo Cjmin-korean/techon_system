@@ -19,3 +19,5 @@ function searchTable() {
         spinnerOverlay.style.display = 'none'; // 1초 후에 Spinner 숨김
     }, 1100);
 }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
