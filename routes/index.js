@@ -9434,7 +9434,9 @@ module.exports = function (app) {
                 // .input('plandate', sql.NVarChar, req.body.plandate)
 
                 .query(
-                    "select * from materiallocation order by location asc")
+                    "SELECT * " +
+                    "  FROM materiallocation " +
+                    "  ORDER BY TRY_CAST(location AS INT) ASC;                        ")
 
 
                 .then(result => {
@@ -11223,7 +11225,29 @@ module.exports = function (app) {
 
 
                 .query(
-                    "SELECT * FROM materialinput where location=@location")
+                    "SELECT " +
+                    "        mi.codenumber, " +
+                    "        mi.materialname, " +
+                    "        mi.materialwidth,  " +
+                    "        mi.quantity, " +
+                    "        mi.roll, " +
+                    "        mi.roll * mi.quantity AS sumquantity, " +
+                    "        mi2.sqmprice, " +
+                    "        mi2.sqmprice * mi.materialwidth * mi.roll * mi.quantity / 1000 AS totalprice, " +
+                    "        mi.customer, " +
+                    "        mi2.typecategory, " +
+                    "        mi.lotno, " +
+                    "        mi.manufacturedate, " +
+                    "        mi.expirationdate, " +
+                    "        mi.house, " +
+                    "        mi.location " +
+                    "    FROM " +
+                    "        materialinput mi " +
+
+                    "    LEFT JOIN " +
+                    "        materialinfoinformation2 mi2 " +
+                    "    ON  " +
+                    "        mi.codenumber = mi2.codenumber where location=@location")
                 .then(result => {
 
                     res.json(result.recordset);
