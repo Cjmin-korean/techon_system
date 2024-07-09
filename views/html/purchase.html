@@ -35,6 +35,7 @@
 
     <div id="overlay" class="overlay"></div>
     <div id="overlay1" class="overlay"></div>
+    <div id="overlay2" class="overlay"></div>
 
     <div class="spinner-overlay">
         <div class="spinner"></div>
@@ -95,7 +96,7 @@
             <button class="close-button" onclick="accountsave1()">저장</button>
             <button class="delete-button" style="margin-left: 10px;" onclick="closeModal1()">닫기</button>
         </div>
-        <div id="maintable" class="table-wrapper">
+        <div id="maintable" class="table-wrapper" style="max-height: 400px; border: 1px solid whitesmoke;">
             <table class="styled-table" style="width: 100%;">
                 <thead id="tableHead">
                     <tr>
@@ -121,9 +122,57 @@
                 </tbody>
             </table>
         </div>
+        <div id="maintable" class="table-wrapper" style="max-height: 400px; border: 1px solid whitesmoke;">
+            <table class="styled-table" style="width: 100%;">
+                <thead id="tableHead">
+                    <tr>
+                        <th colspan="16">자재출고대기<input type="text" id="num" style="width:20px; visibility: hidden;">
+                        </th>
+                    </tr>
+                    <th>품목코드</th>
+                    <th>자재명</th>
+                    <th>자재폭<br>(mm)</th>
+                    <th>M</th>
+                    <th>롤</th>
+                    <th>출고(roll)</th>
+                    <th>제조일자</th>
+                    <th>만료일자</th>
+                    <th></th>
+                </thead>
+                <tbody id="orderlistbombody">
+                </tbody>
+            </table>
+        </div>
     </div>
 
+    <div class="modal2" id="modal2">
+        <div class="modal-header">
+            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;폭 이상 자재 재고정보</span>
+        </div>
+        <div class="modal-content" style="margin-top: 10px;">
+            <table class="styled-table" id="Podatatable">
+                <thead id="tableHead">
 
+                    <th>품목코드</th>
+                    <th>자재명</th>
+                    <th>자재폭<br>(mm)</th>
+                    <th>M</th>
+                    <th>롤</th>
+                    <th>출고(roll)</th>
+                    <th>제조일자</th>
+                    <th>만료일자</th>
+
+                </thead>
+                <tbody id="uplisttbody" style="max-height: 500px; overflow-y: auto;">
+
+                </tbody>
+            </table>
+            <div class="modal-footer" style="margin-top: 10px;">
+                <button class="close-button" onclick="accountsave()">발주조회</button>
+                <button class="delete-button" style="margin-left: 10px;" onclick="closeModal2()">취소</button>
+            </div>
+        </div>
+    </div>
     <script>
         var server = '';
         var gridApi;
@@ -232,10 +281,45 @@
                 openProductModal(event.target.value);
             }
         });
-        function showinfo() {
-            document.getElementById('modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+        function showinfo(button) {
+            var row = $(button).closest('tr');
+            var rowData = row.find('td').map(function () {
+                return $(this).text();
+            }).get();
+            $('#uplisttbody').empty()
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectmaterialinputfive',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    materialname: rowData[3]
+                }),
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        $('#uplisttbody').append(
+                            '<tr>' +
+                            '<td>' + result[i].codenumber + '</td>' +
+                            '<td>' + result[i].materialname + '</td>' +
+                            '<td>' + result[i].materialwidth + '</td>' +
+                            '<td>' + result[i].quantity.toLocaleString() + '</td>' +
+                            '<td>' + result[i].roll + '</td>' +
+                            '<td>' + result[i].sumquantity.toLocaleString() + '</td>' +
+                            '<td><button class="add-button" onclick="add(this)">추가</button></td>' +
+
+                            '</tr>'
+                        );
+                        $("td#data-itemprice").hide();
+
+
+                    }
+                }
+            });
+
+            document.getElementById('modal2').style.display = 'block';
+            document.getElementById('overlay2').style.display = 'block';
         }
+
 
 
         function closeModal() {
@@ -246,7 +330,10 @@
             document.getElementById('modal1').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
         }
-
+        function closeModal2() {
+            document.getElementById('modal2').style.display = 'none';
+            document.getElementById('overlay2').style.display = 'none';
+        }
 
 
         function openProductModal(input) {
@@ -299,7 +386,7 @@
                         $('#orderlistbombody').html('<tr><td colspan="23">데이터가 없습니다.</td></tr>');
                     } else {
                         for (var i = 0; i < data.length; i++) {
-                            var hasButton = data[i].has === 'Y' ? '<button class="close-button" data-row-index="' + i + '">상세</button>' : '';
+                            var hasButton = data[i].has === 'Y' ? '<button onclick="showinfo(this)" class="close-button" data-row-index="' + i + '">상세</button>' : '';
                             var etcValue = data[i].etc || '';
                             var isHapjiIncluded = etcValue.includes('합지');
                             var backgroundColor = '';

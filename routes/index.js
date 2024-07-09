@@ -2743,7 +2743,7 @@ module.exports = function (app) {
                 .input('customerinitial', sql.NVarChar, req.body.customerinitial)
 
                 .query(
-                    "SELECT " +
+                    "SELECT  " +
                     "     id,codenumber,materialname, " +
                     "     width,length,usewidth, " +
                     "     CASE  " +
@@ -11189,13 +11189,13 @@ module.exports = function (app) {
 
 
                 .query(
-                    "select "+
-                    "    * "+
-                    "    from "+
-                    "    materialinput "+
-                    "    where "+
-                    "    materialname='SJ-5002S BL' "+
-                    "    and "+
+                    "select " +
+                    "    * " +
+                    "    from " +
+                    "    materialinput " +
+                    "    where " +
+                    "    materialname='SJ-5002S BL' " +
+                    "    and " +
                     "    materialwidth='170' and date between @start and @finish order by date asc")
                 .then(result => {
 
@@ -11215,13 +11215,13 @@ module.exports = function (app) {
 
 
                 .query(
-                    "select "+
-                    "    * "+
-                    "    from "+
-                    "    materialinput "+
-                    "    where "+
-                    "    materialname='SJ-5002S BL' "+
-                    "    and "+
+                    "select " +
+                    "    * " +
+                    "    from " +
+                    "    materialinput " +
+                    "    where " +
+                    "    materialname='SJ-5002S BL' " +
+                    "    and " +
                     "    materialwidth='170' and date between '1999-01-01' and @start order by date asc")
                 .then(result => {
 
@@ -11342,6 +11342,88 @@ module.exports = function (app) {
                     " GROUP BY " +
                     "     codenumber, materialname, materialwidth, quantity, sqmprice, customer, typecategory, lotno, manufacturedate, expirationdate, house, location " +
                     " ORDER BY " +
+                    "     materialname, materialwidth ASC; ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinputfive', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('location', sql.NVarChar, req.body.location)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+
+
+                .query(
+                    "WITH MaterialCalculations AS ( " +
+                    "     SELECT " +
+                    "         mi.codenumber, " +
+                    "         mi.materialname,  " +
+                    "         mi.materialwidth,  " +
+                    "         mi.customer,  " +
+                    "         mi2.typecategory,  " +
+                    "         mi.lotno,  " +
+                    "         mi.manufacturedate,  " +
+                    "         mi.expirationdate,  " +
+                    "         mi.house,  " +
+                    "         mi.location,  " +
+                    "         mi2.sqmprice,  " +
+                    "         mi.quantity,  " +
+                    "         CASE   " +
+                    "             WHEN mi.input = '원자재입고' THEN mi.roll  " +
+                    "             WHEN mi.input = '원자재출고' THEN -mi.roll  " +
+                    "             WHEN mi.input = '잔재입고' THEN mi.roll  " +
+                    "             ELSE 0  " +
+                    "         END AS adjusted_roll,  " +
+                    "         CASE  " +
+                    "             WHEN mi.input = '원자재입고' THEN mi.roll * mi.quantity  " +
+                    "             WHEN mi.input = '원자재출고' THEN -mi.roll * mi.quantity  " +
+                    "             WHEN mi.input = '잔재입고' THEN mi.roll * mi.quantity  " +
+                    "             ELSE 0  " +
+                    "         END AS sumquantity,  " +
+                    "         mi2.sqmprice * mi.materialwidth * CASE   " +
+                    "             WHEN mi.input = '원자재입고' THEN mi.roll * mi.quantity  " +
+                    "             WHEN mi.input = '원자재출고' THEN -mi.roll * mi.quantity  " +
+                    "             WHEN mi.input = '잔재입고' THEN mi.roll * mi.quantity  " +
+                    "             ELSE 0  " +
+                    "         END / 1000 AS totalprice  " +
+                    "     FROM  " +
+                    "         materialinput mi  " +
+                    "     LEFT JOIN   " +
+                    "         materialinfoinformation2 mi2  " +
+                    "     ON  " +
+                    "         mi.codenumber = mi2.codenumber  " +
+                    "     WHERE   " +
+                    "         mi.location = '창고벽2'  " +
+                    "         AND mi.materialwidth >= 500  and mi.materialname=@materialname" +
+                    " )  " +
+                    " SELECT  " +
+                    "     codenumber, " +
+                    "     materialname, " +
+                    "     materialwidth, " +
+                    "     quantity,  " +
+                    "     SUM(adjusted_roll) AS roll,  " +
+                    "     SUM(sumquantity) AS sumquantity, " +
+                    "     sqmprice, " +
+                    "     SUM(totalprice) AS totalprice, " +
+                    "     customer, " +
+                    "     typecategory, " +
+                    "     lotno, " +
+                    "     manufacturedate, " +
+                    "     expirationdate, " +
+                    "     house, " +
+                    "     location " +
+                    " FROM  " +
+                    "     MaterialCalculations " +
+                    " GROUP BY  " +
+                    "     codenumber, materialname, materialwidth, quantity, sqmprice, customer, typecategory, lotno, manufacturedate, expirationdate, house, location " +
+                    " ORDER BY  " +
                     "     materialname, materialwidth ASC; ")
                 .then(result => {
 
