@@ -8343,7 +8343,7 @@ module.exports = function (app) {
 
 
                 .query(
-                    " WITH RankedSuppliers AS ( "+
+                    " WITH RankedSuppliers AS ("+
                     "        SELECT "+
                     "            supplier, "+
                     "            ROW_NUMBER() OVER (ORDER BY supplier) AS SupplierRank "+
@@ -8355,20 +8355,19 @@ module.exports = function (app) {
                     "    FilteredMaterialInput AS ("+
                     "        SELECT "+
                     "            materialname, "+
+                    "            materialwidth,"+
                     "            SUM(roll * quantity) AS sumquantity "+
                     "        FROM "+
                     "            materialinput "+
-                    "        WHERE "+
-                    "            materialwidth >= 500 "+
                     "        GROUP BY "+
-                    "            materialname "+
-                    "    ), "+
-                    "    InitialOrder AS ( "+
-                    "        SELECT "+
-                    "            MAX(CAST(SUBSTRING(ordernumber, 9, LEN(ordernumber) - 8) AS INT)) AS MaxOrderNumber "+
+                    "            materialname, materialwidth"+
+                    "    ),"+
+                    "    InitialOrder AS ("+
+                    "        SELECT"+
+                    "            MAX(CAST(SUBSTRING(ordernumber, 9, LEN(ordernumber) - 8) AS INT)) AS MaxOrderNumber"+
                     "        FROM"+
                     "            purorder"+
-                    "    )"+
+                    "    ) "+
                     "    SELECT   "+
                     "        ol.itemname,   "+
                     "        ol.modelname,   "+
@@ -8385,7 +8384,7 @@ module.exports = function (app) {
                     "            ELSE 'N'  "+
                     "        END AS has,  "+
                     "        FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue,  "+
-                    "        (CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length) AS calculated_column,  "+
+                    "        CEILING((CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length)) AS calculated_column,  "+
                     "        CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / bm.cavity) AS soyo,  "+
                     "        FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut,  "+
                     "        FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test,  "+
@@ -8397,7 +8396,7 @@ module.exports = function (app) {
                     "        SUM(mi.rollprice) AS rollprice,  "+
                     "        mi.supplier,  "+
                     "        SUM(ol.quantity) AS quantity_sum,  "+
-                    "        mi.codenumber, "+
+                    "        mi.codenumber,"+
                     "        i.customer,  "+
                     "        CASE "+
                     "            WHEN mi.unit = '＄' THEN FLOOR(mi.rollprice * w.currencyprice) "+
@@ -8407,7 +8406,7 @@ module.exports = function (app) {
                     "        ol.qrno,"+
                     "        bm.etc,   "+
                     "        bm.cavity, "+
-                    "        CONCAT(REPLACE(CONVERT(VARCHAR, GETDATE(), 112), '-', ''), '-', rs.SupplierRank + InitialOrder.MaxOrderNumber) AS orderno "+
+                    "        CONCAT(REPLACE(CONVERT(VARCHAR, GETDATE(), 112), '-', ''), '-', rs.SupplierRank + InitialOrder.MaxOrderNumber + 1) AS orderno  "+
                     "    FROM   "+
                     "        orderlist ol   "+
                     "    JOIN  "+
@@ -8421,7 +8420,7 @@ module.exports = function (app) {
                     "    LEFT JOIN  "+
                     "        won w ON mi.unit = w.currencyname "+
                     "    LEFT JOIN "+
-                    "        FilteredMaterialInput fmi ON bm.materialname = fmi.materialname "+
+                    "        FilteredMaterialInput fmi ON bm.materialname = fmi.materialname AND bm.materialwidth = fmi.materialwidth "+
                     "    CROSS JOIN "+
                     "        InitialOrder "+
                     "    WHERE   "+
@@ -8429,9 +8428,9 @@ module.exports = function (app) {
                     "        AND bm.codenumber IS NOT NULL  "+
                     "        AND bm.codenumber <> ''  "+
                     "    GROUP BY   "+
-                    "        ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber, i.customer, mi.rollprice, ol.modelname, bm.bomno, ol.qrno, bm.etc, bm.cavity, SupplierRank, w.currencyprice, mi.unit, fmi.sumquantity, InitialOrder.MaxOrderNumber "+
-                    "    ORDER BY   "+ 
-                    "        bm.materialname ASC;")
+                    "        ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber, i.customer, mi.rollprice, bm.bomno, ol.qrno, bm.etc, bm.cavity, SupplierRank, w.currencyprice, mi.unit, fmi.sumquantity, InitialOrder.MaxOrderNumber "+
+                    "    ORDER BY   "+
+                    "        bm.materialname, bm.materialwidth;")
                 .then(result => {
 
                     res.json(result.recordset);
