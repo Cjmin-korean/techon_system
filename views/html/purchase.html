@@ -104,19 +104,20 @@
                                 style="width:20px; visibility: hidden;">
                         </th>
                     </tr>
-                    <th style="text-align:center;">BOMNO</th>
-                    <th style="text-align:center;">모델명</th>
-                    <th style="text-align:center;">품목명</th>
-                    <th style="text-align:center;">자재명</th>
-                    <th style="text-align:center;">자재폭<br>(mm)</th>
-                    <th style="text-align:center;">필요소요량<br>(M)</th>
-                    <th style="text-align:center;">같은폭재고<br>(M)</th>
-                    <th style="text-align:center;">폭이상재고<br>(Y/N)</th>
-                    <th style="text-align:center; width:70px;">1RL<br>컷수</th>
-                    <th style="text-align:center; width:100px;">재단폭</th>
-                    <th style="text-align:center; width:70px;">필요 발주수량<br>(롤)</th>
-                    <th style="text-align:center; width:120px;">발주수량<br>(롤)</th>
-                    <th style="text-align:center; width:100px;">자재상세</th>
+                    <th>BOMNO</th>
+                    <th>모델명</th>
+                    <th>품목명</th>
+                    <th>자재명</th>
+                    <th>자재폭<br>(mm)</th>
+                    <th>필요소요량<br>(M)</th>
+                    <th>같은폭재고<br>(M)</th>
+                    <th>폭이상재고<br>(Y/N)</th>
+                    <th>출고대기재고<br>(M)</th>
+                    <th style="width:70px;">1RL<br>컷수</th>
+                    <th style="width:100px;">재단폭</th>
+                    <th style="width:70px;">필요 발주수량<br>(롤)</th>
+                    <th style="width:120px;">발주수량<br>(롤)</th>
+                    <th style="width:100px;">자재상세</th>
                 </thead>
                 <tbody id="orderlistbombody">
                 </tbody>
@@ -140,7 +141,7 @@
                     <th>만료일자</th>
                     <th></th>
                 </thead>
-                <tbody id="orderlistbombody">
+                <tbody id="iteminfobody1">
                 </tbody>
             </table>
         </div>
@@ -150,7 +151,12 @@
         <div class="modal-header">
             <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;폭 이상 자재 재고정보</span>
         </div>
+
         <div class="modal-footer" style="margin-top: 10px;">
+            <div class="modal-footer1">
+                <input type="text" style="width: 200px;">
+                <button class="close-button">조회</button>
+            </div>
             <button class="close-button">적용</button>
             <button class="delete-button" style="margin-left: 10px;" onclick="closeModal2()">취소</button>
         </div>
@@ -162,7 +168,7 @@
                     <th>자재폭<br>(mm)</th>
                     <th>M</th>
                     <th>롤</th>
-                    <th>출고(roll)</th>
+                    <th>합계(M)</th>
                     <th>제조일자</th>
                     <th>만료일자</th>
                     <th></th>
@@ -412,6 +418,7 @@
                                 '<td id="soyo-input">' + (data[i].soyo.toLocaleString() || '') + '</td>' +
                                 '<td id="sumquantity-input">' + (data[i].sumquantity.toLocaleString() || '0') + '</td>' +
                                 '<td id="has-input" style="background-color: ' + backgroundColor + '; color: ' + textColor + ';">' + (data[i].has || '') + '</td>' +
+                                '<td id="purwait-input">' + (data[i].purwait || '') + '</td>' +
                                 '<td id="cut-input">' + (data[i].cut || '') + '</td>' +
                                 '<td><select  id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="전폭">전폭</option></select></td>' +
                                 '<td id="a-input">' + (data[i].a || '') + '</td>' +
@@ -445,6 +452,45 @@
                             $('td#productidtd').hide();
                             $('td#ordernotd').hide();
                         }
+
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/purwaitmaterial',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                // start: $('#datetimepicker1').val(),
+                                // finish: $('#datetimepicker2').val(),
+                            }),
+                            success: function (data) {
+                                var tableFoot = $('#dataCount');
+                                if (data.length === 0) {
+                                    $('#iteminfobody1').append('<tr><td colspan="7" style="text-align: center;">데이터가 없습니다.</td></tr>');
+                                    tableFoot.text('총 데이터 개수: 0');
+                                } else {
+
+                                    for (var i = 0; i < data.length; i++) {
+                                        $('#iteminfobody1').append(
+                                            '<tr>' +
+                                            '<td>' + (data[i].codenumber || '') + '</td>' +
+                                            '<td>' + (data[i].materialname || '') + '</td>' +
+                                            '<td>' + (data[i].materialwidth || '') + '</td>' +
+                                            '<td>' + (data[i].quantity || '') + '</td>' +
+                                            '<td>' + (data[i].roll || '') + '</td>' +
+                                            '<td>' + (parseFloat(data[i].roll) * parseFloat(data[i].quantity) || '') + '</td>' +
+                                            '<td>' + (data[i].manufacturedate || '') + '</td>' +
+                                            '<td>' + (data[i].expirationdate || '') + '</td>' +
+                                            '<td><button class="close-button" >삭제</button></td>' +
+                                            '</tr>'
+                                        )
+                                    }
+
+                                    // Append footer row with total supply amount
+
+
+                                }
+                            }
+                        });
 
 
                         $('.detail-btn').click(function () {

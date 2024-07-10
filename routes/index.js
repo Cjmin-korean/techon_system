@@ -776,6 +776,34 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/purwaitmaterial', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    'SELECT ' +
+                    '* ' +
+                    'FROM purwaitmaterial')
+
+                .then(result => {
+
+                    // console.log('내가보고싶은거', result.recordset)
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -8343,94 +8371,109 @@ module.exports = function (app) {
 
 
                 .query(
-                    " WITH RankedSuppliers AS ("+
-                    "        SELECT "+
-                    "            supplier, "+
-                    "            ROW_NUMBER() OVER (ORDER BY supplier) AS SupplierRank "+
-                    "        FROM  "+
-                    "            ( "+
-                    "                SELECT DISTINCT supplier FROM Materialinfoinformation "+
-                    "            ) AS Suppliers "+
-                    "    ), "+
-                    "    FilteredMaterialInput AS ("+
-                    "        SELECT "+
-                    "            materialname, "+
-                    "            materialwidth,"+
-                    "            SUM(roll * quantity) AS sumquantity "+
-                    "        FROM "+
-                    "            materialinput "+
-                    "        GROUP BY "+
-                    "            materialname, materialwidth"+
-                    "    ),"+
-                    "    InitialOrder AS ("+
-                    "        SELECT"+
-                    "            MAX(CAST(SUBSTRING(ordernumber, 9, LEN(ordernumber) - 8) AS INT)) AS MaxOrderNumber"+
-                    "        FROM"+
-                    "            purorder"+
-                    "    ) "+
-                    "    SELECT   "+
-                    "        ol.itemname,   "+
-                    "        ol.modelname,   "+
-                    "        bm.materialname,    "+
-                    "        bm.materialwidth,   "+
-                    "        CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / bm.cavity) AS totalquantity1,   "+
-                    "        COALESCE(fmi.sumquantity, 0) AS sumquantity,  "+
-                    "        CASE  "+
-                    "            WHEN EXISTS (  "+
-                    "                SELECT 1  "+
-                    "                FROM materialinput  "+
-                    "                WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth  "+
-                    "            ) THEN 'Y'  "+
-                    "            ELSE 'N'  "+
-                    "        END AS has,  "+
-                    "        FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue,  "+
-                    "        CEILING((CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length)) AS calculated_column,  "+
-                    "        CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / bm.cavity) AS soyo,  "+
-                    "        FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut,  "+
-                    "        FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test,  "+
-                    "        ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) - COALESCE(fmi.sumquantity, 0)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length) / bm.cavity, 2) AS a,  "+
-                    "        CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03) - COALESCE(fmi.sumquantity, 0)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length) / bm.cavity) AS roundedResult,   "+
-                    "        mi.width,  "+
-                    "        mi.length,  "+
-                    "        mi.sqmprice,  "+
-                    "        SUM(mi.rollprice) AS rollprice,  "+
-                    "        mi.supplier,  "+
-                    "        SUM(ol.quantity) AS quantity_sum,  "+
-                    "        mi.codenumber,"+
-                    "        i.customer,  "+
-                    "        CASE "+
-                    "            WHEN mi.unit = '＄' THEN FLOOR(mi.rollprice * w.currencyprice) "+
-                    "            ELSE FLOOR(mi.rollprice) "+
-                    "        END AS a1,    "+
-                    "        bm.bomno,  "+
-                    "        ol.qrno,"+
-                    "        bm.etc,   "+
-                    "        bm.cavity, "+
-                    "        CONCAT(REPLACE(CONVERT(VARCHAR, GETDATE(), 112), '-', ''), '-', rs.SupplierRank + InitialOrder.MaxOrderNumber + 1) AS orderno  "+
-                    "    FROM   "+
-                    "        orderlist ol   "+
-                    "    JOIN  "+
-                    "        bommanagement bm ON ol.bomno = bm.bomno  "+
-                    "    LEFT JOIN  "+
-                    "        Materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  "+
-                    "    LEFT JOIN  "+
-                    "        iteminfo i ON i.bomno = bm.bomno  "+
-                    "    LEFT JOIN   "+
-                    "        RankedSuppliers rs ON mi.supplier = rs.supplier "+
-                    "    LEFT JOIN  "+
-                    "        won w ON mi.unit = w.currencyname "+
-                    "    LEFT JOIN "+
-                    "        FilteredMaterialInput fmi ON bm.materialname = fmi.materialname AND bm.materialwidth = fmi.materialwidth "+
-                    "    CROSS JOIN "+
-                    "        InitialOrder "+
-                    "    WHERE   "+
-                    "        ol.orderstatus = '생산확정'  "+
-                    "        AND bm.codenumber IS NOT NULL  "+
-                    "        AND bm.codenumber <> ''  "+
-                    "    GROUP BY   "+
-                    "        ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber, i.customer, mi.rollprice, bm.bomno, ol.qrno, bm.etc, bm.cavity, SupplierRank, w.currencyprice, mi.unit, fmi.sumquantity, InitialOrder.MaxOrderNumber "+
-                    "    ORDER BY   "+
-                    "        bm.materialname, bm.materialwidth;")
+                    " WITH RankedSuppliers AS ( "+
+                    "     SELECT  "+
+                    "         supplier,  "+
+                    "         ROW_NUMBER() OVER (ORDER BY supplier) AS SupplierRank  "+
+                    "     FROM   "+
+                    "         (  "+
+                    "             SELECT DISTINCT supplier FROM Materialinfoinformation  "+
+                    "         ) AS Suppliers  "+
+                    " ),  "+
+                    " FilteredMaterialInput AS ( "+
+                    "     SELECT  "+
+                    "         materialname,  "+
+                    "         materialwidth, "+
+                    "         SUM(roll * quantity) AS sumquantity  "+
+                    "     FROM  "+
+                    "         materialinput  "+
+                    "     GROUP BY  "+
+                    "         materialname, materialwidth "+
+                    " ), "+
+                    " InitialOrder AS ( "+
+                    "     SELECT "+
+                    "         MAX(CAST(SUBSTRING(ordernumber, 9, LEN(ordernumber) - 8) AS INT)) AS MaxOrderNumber "+
+                    "     FROM "+
+                    "         purorder "+
+                    " ), "+
+                    " PurwaitMaterialSum AS ( "+
+                    "     SELECT "+
+                    "         materialname, "+
+                    "         materialwidth, "+
+                    "         SUM(quantity) AS sumquantity "+
+                    "     FROM "+
+                    "         purwaitmaterial "+
+                    "     GROUP BY "+
+                    "         materialname, "+
+                    "         materialwidth "+
+                    " ) "+
+                    " SELECT   "+
+                    "     ol.itemname,   "+
+                    "     ol.modelname,   "+
+                    "     mi.codenumber,"+
+                    "     bm.materialname,    "+
+                    "     bm.materialwidth,   "+
+                    "     CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / bm.cavity) AS totalquantity1,   "+
+                    "     COALESCE(fmi.sumquantity, 0) AS sumquantity,  "+
+                    "     COALESCE(pws.sumquantity, 0) AS purwait,"+
+                    "     CASE  "+
+                    "         WHEN EXISTS (  "+
+                    "             SELECT 1  "+
+                    "             FROM materialinput  "+
+                    "             WHERE materialname = bm.materialname AND materialwidth > bm.materialwidth  "+
+                    "         ) THEN 'Y'  "+
+                    "         ELSE 'N'  "+
+                    "     END AS has,  "+
+                    "     FLOOR(COALESCE(mi.usewidth, 0) / bm.materialwidth) AS calculatedvalue,  "+
+                    "     CEILING((CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03)) / (COALESCE(mi.usewidth, 0) / bm.materialwidth) * mi.length)) AS calculated_column,  "+
+                    "     CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) / bm.cavity) AS soyo,  "+
+                    "     FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) AS cut,  "+
+                    "     FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length AS test,  "+ 
+                    "     ROUND(CEILING(SUM(ol.quantity * bm.onepid * 0.001 * 1.03) - COALESCE(fmi.sumquantity, 0) - COALESCE(pws.sumquantity, 0)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length) / bm.cavity, 2) AS a,  "+
+                    "     CEILING((SUM(ol.quantity * bm.onepid * 0.001 * 1.03) - COALESCE(fmi.sumquantity, 0) - COALESCE(pws.sumquantity, 0)) / (FLOOR((COALESCE(mi.usewidth, 0) / bm.materialwidth)) * mi.length) / bm.cavity) AS roundedResult,   "+
+                    "     mi.width,  "+
+                    "     mi.length,  "+
+                    "     mi.sqmprice,  "+
+                    "     SUM(mi.rollprice) AS rollprice,  "+
+                    "     mi.supplier,  "+
+                    "     SUM(ol.quantity) AS quantity_sum,  "+
+                    "     i.customer,  "+
+                    "     CASE "+
+                    "         WHEN mi.unit = '＄' THEN FLOOR(mi.rollprice * w.currencyprice) "+
+                    "         ELSE FLOOR(mi.rollprice) "+
+                    "     END AS a1,    "+
+                    "     bm.bomno,  "+
+                    "     ol.qrno,"+
+                    "     bm.etc,   "+
+                    "     bm.cavity, "+
+                    "     CONCAT(REPLACE(CONVERT(VARCHAR, GETDATE(), 112), '-', ''), '-', rs.SupplierRank + InitialOrder.MaxOrderNumber + 1) AS orderno ,"+
+                    "     InitialOrder.MaxOrderNumber "+
+                    " FROM   "+
+                    "     orderlist ol   "+
+                    " JOIN  "+
+                    "     bommanagement bm ON ol.bomno = bm.bomno  "+
+                    " LEFT JOIN  "+
+                    "     Materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  "+
+                    " LEFT JOIN  "+
+                    "     iteminfo i ON i.bomno = bm.bomno  "+
+                    " LEFT JOIN  "+
+                    "     RankedSuppliers rs ON mi.supplier = rs.supplier "+
+                    " LEFT JOIN  "+
+                    "     won w ON mi.unit = w.currencyname "+
+                    " LEFT JOIN "+
+                    "     FilteredMaterialInput fmi ON bm.materialname = fmi.materialname AND bm.materialwidth = fmi.materialwidth "+
+                    " LEFT JOIN "+
+                    "     PurwaitMaterialSum pws ON bm.materialname = pws.materialname AND bm.materialwidth = pws.materialwidth "+
+                    " CROSS JOIN "+
+                    "     InitialOrder "+
+                    " WHERE   "+
+                    "     ol.orderstatus = '생산확정'  "+
+                    "     AND bm.codenumber IS NOT NULL  "+
+                    "     AND bm.codenumber <> ''  "+
+                    " GROUP BY   "+
+                    "     ol.modelname, ol.itemname, bm.materialname, bm.materialwidth, mi.usewidth, mi.length, mi.width, mi.sqmprice, mi.supplier, mi.codenumber, i.customer, mi.rollprice, bm.bomno, ol.qrno, bm.etc, bm.cavity, SupplierRank, w.currencyprice, mi.unit, fmi.sumquantity, pws.sumquantity, InitialOrder.MaxOrderNumber "+
+                    " ORDER BY   "+
+                    "     bm.materialname, bm.materialwidth;")
                 .then(result => {
 
                     res.json(result.recordset);
