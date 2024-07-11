@@ -8,7 +8,7 @@
   <link rel="icon" href="../img/techonlogosmall.PNG" sizes="16x16" type="image/png">
 
   <script src="../assets/js/core/bootstrap.min.js"></script>
-  <script src="../assets/js/core/loadmenu.js"></script>
+  <!-- <script src="../assets/js/core/loadmenu.js"></script> -->
   <!-- Fonts and icons -->
   <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
 
@@ -54,9 +54,9 @@
                 <i class="fas fa-th-list"></i>
                 <p>기초정보</p>
                 <span class="caret"></span>
-            </a>
-            
-            
+              </a>
+
+
               <div class="collapse" id="dashboard" class="sidebar">
                 <ul class="nav nav-collapse">
                   <li>
@@ -655,6 +655,51 @@
     active: function () {
       sessionStorage.fonts = true;
     },
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const menuItems = document.querySelectorAll('.sidebar ul li a');
+    const contentDiv = document.querySelector('.container');
+
+    menuItems.forEach(menuItem => {
+      menuItem.addEventListener('click', function (event) {
+        // Prevent default action for "기초정보" menu item
+        if (this.classList.contains('main-menu')) {
+          event.preventDefault();
+          return;
+        }
+
+        if (this.classList.contains('submenu-toggle')) {
+          event.preventDefault();
+          const submenu = this.nextElementSibling;
+          submenu.classList.toggle('active');
+          submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+        } else {
+          event.preventDefault();
+          const contentId = this.getAttribute('data-content');
+          loadContent(contentId);
+        }
+      });
+    });
+
+    function loadContent(contentId) {
+      fetch(`/html/${contentId}.html`)
+        .then(response => response.text())
+        .then(html => {
+          contentDiv.innerHTML = html;
+          executeScripts(contentDiv);
+        });
+    }
+
+    function executeScripts(element) {
+      const scripts = element.querySelectorAll('script');
+      scripts.forEach(script => {
+        const newScript = document.createElement('script');
+        newScript.textContent = script.textContent;
+        document.body.appendChild(newScript).parentNode.removeChild(newScript);
+      });
+    }
   });
 </script>
 

@@ -40,7 +40,4 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.appendChild(newScript).parentNode.removeChild(newScript);
         });
     }
-
-    // Load initial content
-    // loadContent('dashboard');
 });
