@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+    <script src="../assets/js/kaiadmin.min.js"></script>
+    <script src="../assets/js/setting-demo2.js"></script>
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+<!-- 
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" /> -->
+</head>
+
+<script>
+    // WebFont.load({
+    //     google: { families: ["Public Sans:300,400,500,600,700"] },
+    //     custom: {
+    //         families: [
+    //             "Font Awesome 5 Solid",
+    //             "Font Awesome 5 Regular",
+    //             "Font Awesome 5 Brands",
+    //             "simple-line-icons",
+    //         ],
+    //         urls: ["../assets/css/fonts.min.css"],
+    //     },
+    //     active: function () {
+    //         sessionStorage.fonts = true;
+    //     },
+    // });
+</script>
+
+<body>
+    <div class="container" >
+        <div class="page-inner" >
+            <div class="page-header" >
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="page-inner">
+                            <div class="page-header">
+                                <h3 class="fw-bold mb-3">거래처정보</h3>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="multi-filter-select" class="display table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>거래처명</th>
+                                            <th>사업자등록번호</th>
+                                            <th>대표자명</th>
+                                            <th>IN</th>
+                                            <th>EN</th>
+                                            <th>날짜</th>
+                                            <th>유형</th>
+                                            <th>구분</th>
+                                            <th>매입매출</th>
+                                            <th style="width: 10%">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="customerinformationtbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    var server = '';
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
+    $(document).ready(function () {
+        // Initialize DataTable with search functionality
+        var table = $("#multi-filter-select").DataTable({
+            pageLength: 5,
+            initComplete: function () {
+                this.api().columns().every(function () {
+                    var column = this;
+                    var select = $('<select class="form-select"><option value=""></option></select>')
+                        .appendTo($(column.footer()).empty())
+                        .on("change", function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val ? "^" + val + "$" : "", true, false).draw();
+                        });
+                    column.data().unique().sort().each(function (d, j) {
+                        select.append('<option value="' + d + '">' + d + "</option>");
+                    });
+                });
+            },
+        });
+
+        // Load data into the table
+        load();
+
+        // Add Row button functionality (if applicable)
+        $("#addRowButton").click(function () {
+            var action = '<td><div class="form-button-action">' +
+                '<button type="button" data-bs-toggle="tooltip" title="Edit Task" class="btn btn-link btn-primary btn-lg">' +
+                '<i class="fa fa-edit"></i>' +
+                '</button>' +
+                '<button type="button" data-bs-toggle="tooltip" title="Remove" class="btn btn-link btn-danger">' +
+                '<i class="fa fa-times"></i>' +
+                '</button>' +
+                '</div></td>';
+            table.row.add([
+                $("#addName").val(),
+                $("#addPosition").val(),
+                $("#addOffice").val(),
+                action,
+            ]).draw(false);
+            $("#addRowModal").modal("hide");
+        });
+    });
+
+    function load() {
+        $.ajax({
+            url: server + '/api/selectcustomerinformation',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
+                var table = $("#multi-filter-select").DataTable();
+                table.clear().draw(); // Clear the table before adding new data
+
+                result.forEach(item => {
+                    table.row.add([
+                        item.customername || '',
+                        item.businessregistrationnumber || '',
+                        item.representativename || '',
+                        item.customerinitial || '',
+                        item.customernameenglish || '',
+                        item.date || '',
+                        item.customerregistrationtype || '',
+                        item.outsourcing || '',
+                        item.purchase || '',
+                        '<div class="form-button-action">' +
+                        '<button type="button" data-bs-toggle="tooltip" title="Edit Task" class="btn btn-link btn-primary btn-lg">' +
+                        '<i class="fa fa-edit"></i>' +
+                        '</button>' +
+                        '<button type="button" data-bs-toggle="tooltip" title="Remove" class="btn btn-link btn-danger">' +
+                        '<i class="fa fa-times"></i>' +
+                        '</button>' +
+                        '</div>'
+                    ]).draw(false);
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Failed to fetch data:', error);
+            }
+        });
+    }
+</script>
+
+</html>
