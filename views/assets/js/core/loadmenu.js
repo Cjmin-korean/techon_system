@@ -4,6 +4,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     menuItems.forEach(menuItem => {
         menuItem.addEventListener('click', function (event) {
+            // Prevent default action for "기초정보" menu item
+            if (this.classList.contains('main-menu')) {
+                event.preventDefault();
+                return;
+            }
+
             if (this.classList.contains('submenu-toggle')) {
                 event.preventDefault();
                 const submenu = this.nextElementSibling;
