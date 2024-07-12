@@ -111,9 +111,8 @@
                                                 <div class="col-sm-12">
                                                     <div class="form-group form-group-default">
                                                         <label>*창고명</label>
-                                                        <input id="housename-input" type="text"
-                                                            autocomplete="off" class="form-control"
-                                                            placeholder="" />
+                                                        <input id="housename-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
                                                     </div>
                                                 </div>
 
@@ -127,9 +126,8 @@
                                                 <div class="col-sm-12">
                                                     <div class="form-group form-group-default">
                                                         <label>*파트명</label>
-                                                        <input id="partname-input" type="text"
-                                                            autocomplete="off" class="form-control"
-                                                            placeholder="" />
+                                                        <input id="partname-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
                                                     </div>
                                                 </div>
 
@@ -139,6 +137,60 @@
                                     <div class="modal-footer border-0">
                                         <button type="button" id="addRowButton" class="btn btn-primary">저장</button>
                                         <button type="button" id="closeButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="updateRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" id="save-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">창고 정보 수정</h4>
+                                            <input type="text" id="id-edit" style="visibility: hidden;">
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*창고코드</label>
+                                                        <input id="housecode-edit" type="text" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*창고명</label>
+                                                        <input id="housename-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*파트</label>
+                                                        <input id="part-edit" type="text" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*파트명</label>
+                                                        <input id="partname-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="updateRowButton" class="btn btn-primary">수정</button>
+                                        <button type="button" id="updatecloseButton" class="btn btn-danger"
                                             data-dismiss="modal">닫기</button>
                                     </div>
                                 </div>
@@ -160,6 +212,7 @@
                             </table>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -197,6 +250,9 @@
         $('#closeButton').on('click', function () {
             $('#addRowModal').modal('hide');
         });
+        $('#updatecloseButton').on('click', function () {
+            $('#updateRowModal').modal('hide');
+        });
 
         $('#deletecancelBtn').on('click', function () {
             $('#deleteConfirmModal').modal('hide');
@@ -209,7 +265,7 @@
             $('#addRowModal').modal('show');
         });
 
-        load();
+
         $('#addRowButton').on('click', function () {
             $.ajax({
                 type: 'POST',
@@ -239,6 +295,39 @@
             }, 100);
         });
 
+        $('#updateRowButton').on('click', function () {
+            var rowIndex = $(this).data('row-index');
+            var rowData = table.row(rowIndex).data();
+            var id = $(this).data('id');
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/houseupdatedata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "housecode": $('#housecode-edit').val(),
+                    "housename": $('#housename-edit').val(),
+                    "part": $('#part-edit').val(),
+                    "partname": $('#partname-edit').val(),
+                    "id": $('#id-edit').val(),
+                }),
+                success: function (result) {
+                    // 성공 시 처리
+                },
+
+            });
+
+            $('#updateRowModal').modal('hide');
+
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            toast.show();
+
+            // 0.5초 뒤에 load() 호출
+            setTimeout(function () {
+                load();
+            }, 100);
+        });
+        load();
 
     });
 
@@ -273,22 +362,23 @@
                 });
 
                 // Attach click event to edit buttons
-                $(document).on('click', '.edit-btn', function () {
+
+
+
+                $('.edit-btn').on('click', function () {
                     var rowIndex = $(this).data('row-index');
                     var rowData = table.row(rowIndex).data();
                     var id = $(this).data('id');
 
                     // Fill the form with the row data
-                    $("#housecode-input").val(rowData[0]);
-                    $("#housename-input").val(rowData[1]);
-                    $("#part-input").val(rowData[2]);
-                    $("#partname-input").val(rowData[3]);
+                    $("#housecode-edit").val(rowData[0]);
+                    $("#housename-edit").val(rowData[1]);
+                    $("#part-edit").val(rowData[2]);
+                    $("#partname-edit").val(rowData[3]);
+                    $("#id-edit").val(id);
 
-                    $('#addRowModal').modal('show');
+                    $('#updateRowModal').modal('show');
                 });
-
-
-
 
                 $(document).on('click', '.delete-btn', function () {
                     deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
