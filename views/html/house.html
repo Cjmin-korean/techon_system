@@ -17,9 +17,16 @@
     <link rel="stylesheet" href="../assets/css/plugins.min.css" />
     <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
     <link rel="stylesheet" href="../assets/css/demo.css" />
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 </head>
 
+<style>
 
+</style>
 
 <body>
 
@@ -29,11 +36,114 @@
                 <div class="card">
                     <div class="page-inner">
                         <div class="card-header">
-                            <h3 class="fw-bold mb-3">창고정보</h3>
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">창고 정보</h4>
+                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" id="addButton">
+                                    <i class="fa fa-plus"></i>
+                                    추가
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">삭제 확인</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <p>정보를 삭제 하시겠습니까?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="deletecancelBtn" class="btn btn-secondary"
+                                        data-dismiss="modal">취소</button>
+                                    <button type="button" id="confirmDeleteButton" class="btn btn-danger">확인</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toast" id="successToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: blue;">
+                            정보가 저장되었습니다.
+                        </div>
+                    </div>
+
+                    <div class="toast" id="deleteToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red;">
+                            정보가 삭제되었습니다.
                         </div>
                     </div>
 
                     <div class="card-body">
+                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" id="save-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">창고 정보 추가</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*창고코드</label>
+                                                        <input id="housecode-input" type="text" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*창고명</label>
+                                                        <input id="housename-input" type="text"
+                                                            autocomplete="off" class="form-control"
+                                                            placeholder="" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*파트</label>
+                                                        <input id="part-input" type="text" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*파트명</label>
+                                                        <input id="partname-input" type="text"
+                                                            autocomplete="off" class="form-control"
+                                                            placeholder="" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="addRowButton" class="btn btn-primary">저장</button>
+                                        <button type="button" id="closeButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table id="multi-filter-select" class="display table table-striped table-hover">
                                 <thead>
@@ -42,7 +152,8 @@
                                         <th>창고명</th>
                                         <th>파트</th>
                                         <th>파트명</th>
-                                        <th style="width: 10%">수정/삭제</th>
+                                        <th style="width: 3%">수정</th>
+                                        <th style="width: 3%">삭제</th>
                                     </tr>
                                 </thead>
                                 <tbody id="housetbody"></tbody>
@@ -83,28 +194,52 @@
                 });
             },
         });
-
-        // Load data into the table
-        load();
-
-        // Add Row button functionality (if applicable)
-        $("#addRowButton").click(function () {
-            var action = '<td><div class="form-button-action">' +
-                '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
-                '<i class="fa fa-edit"></i>' +
-                '</button>' +
-                '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
-                '<i class="fa fa-times"></i>' +
-                '</button>' +
-                '</div></td>';
-            table.row.add([
-                $("#addName").val(),
-                $("#addPosition").val(),
-                $("#addOffice").val(),
-                action,
-            ]).draw(false);
-            $("#addRowModal").modal("hide");
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
         });
+
+        $('#deletecancelBtn').on('click', function () {
+            $('#deleteConfirmModal').modal('hide');
+        });
+        $('#addButton').on('click', function () {
+            $('#housecode-input').val('')
+            $('#housename-input').val('')
+            $('#part-input').val('')
+            $('#partname-input').val('')
+            $('#addRowModal').modal('show');
+        });
+
+        load();
+        $('#addRowButton').on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/inserthouse',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "housecode": $('#housecode-input').val(),
+                    "housename": $('#housename-input').val(),
+                    "part": $('#part-input').val(),
+                    "partname": $('#partname-input').val(),
+                }),
+                success: function (result) {
+                    // 성공 시 처리
+                },
+
+            });
+
+            $('#addRowModal').modal('hide');
+
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            toast.show();
+
+            // 0.5초 뒤에 load() 호출
+            setTimeout(function () {
+                load();
+            }, 100);
+        });
+
+
     });
 
     function load() {
@@ -118,27 +253,82 @@
                 var table = $("#multi-filter-select").DataTable();
                 table.clear().draw(); // Clear the table before adding new data
 
-                result.forEach(item => {
+                result.forEach((item, index) => {
                     table.row.add([
                         item.housecode || '',
                         item.housename || '',
                         item.part || '',
                         item.partname || '',
-
                         '<div class="form-button-action">' +
-                        '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
+                        '<button type="button" data-id="' + item.id + '" data-row-index="' + index + '" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn">' +
                         '<i class="fa fa-edit"></i>' +
                         '</button>' +
-                        '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
+                        '</div>',
+                        '<div class="form-button-action">' +
+                        '<button type="button" data-id="' + item.id + '" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger delete-btn">' +
                         '<i class="fa fa-times"></i>' +
                         '</button>' +
                         '</div>'
                     ]).draw(false);
                 });
-            },
 
+                // Attach click event to edit buttons
+                $(document).on('click', '.edit-btn', function () {
+                    var rowIndex = $(this).data('row-index');
+                    var rowData = table.row(rowIndex).data();
+                    var id = $(this).data('id');
+
+                    // Fill the form with the row data
+                    $("#housecode-input").val(rowData[0]);
+                    $("#housename-input").val(rowData[1]);
+                    $("#part-input").val(rowData[2]);
+                    $("#partname-input").val(rowData[3]);
+
+                    $('#addRowModal').modal('show');
+                });
+
+
+
+
+                $(document).on('click', '.delete-btn', function () {
+                    deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
+                    $('#deleteConfirmModal').modal('show'); // 모달 열기
+                });
+
+                $(document).on('click', '.delete-btn', function () {
+                    deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
+                    $('#deleteConfirmModal').modal('show'); // 모달 열기
+                });
+
+                $('#confirmDeleteButton').on('click', function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/housedeletedata',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "id": deleteId
+                        }),
+                        success: function (result) {
+
+                        },
+
+                    });
+                    var toast = new bootstrap.Toast(document.getElementById('deleteToast'));
+                    toast.show();
+                    $('#deleteConfirmModal').modal('hide'); // 모달 닫기
+
+                    load(); // 데이터 새로 고침
+                });
+
+
+
+            },
         });
     }
+
+
+
 </script>
 
 </html>

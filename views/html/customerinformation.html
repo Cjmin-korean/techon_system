@@ -19,8 +19,6 @@
     <link rel="stylesheet" href="../assets/css/demo.css" />
 </head>
 
-
-
 <body>
 
     <div class="page-inner">
@@ -29,11 +27,84 @@
                 <div class="card">
                     <div class="page-inner">
                         <div class="card-header">
-                            <h3 class="fw-bold mb-3">거래처정보</h3>
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">거래처정보</h4>
+                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
+                                    data-bs-target="#addRowModal">
+                                    <i class="fa fa-plus"></i>
+                                    추가
+                                </button>
+                            </div>
                         </div>
+
                     </div>
 
                     <div class="card-body">
+                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">거래처 정보 추가</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*거래처명</label>
+                                                        <input id="customername-input" type="text" class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 pe-0">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*사업자등록번호</label>
+                                                        <input id="businessregistrationnumber-input" type="text" class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*대표자명</label>
+                                                        <input id="representativename-input" type="text" class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*IN</label>
+                                                        <input id="customerinitial-input" type="text" class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 pe-0">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*ENG</label>
+                                                        <input id="customernameenglish-input" type="text" class="form-control" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*유형</label>
+                                                        <input id="customerregistrationtype-input" type="text" class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*구분</label>
+                                                        <input id="outsourcing-input" type="text" class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="addRowButton" class="btn btn-primary">저장</button>
+                                        <button type="button" id="closeButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table id="multi-filter-select" class="display table table-striped table-hover">
                                 <thead>
@@ -47,7 +118,8 @@
                                         <th>유형</th>
                                         <th>구분</th>
 
-                                        <th style="width: 10%">수정/삭제</th>
+                                        <th style="width: 3%">수정</th>
+                                        <th style="width: 3%">삭제</th>
                                     </tr>
                                 </thead>
                                 <tbody id="customerinformationtbody"></tbody>
@@ -68,6 +140,7 @@
     } else {
         server = 'http://techonmes.co.kr';
     }
+
 
     $(document).ready(function () {
         // Initialize DataTable with search functionality
@@ -91,25 +164,11 @@
 
         // Load data into the table
         load();
-
-        // Add Row button functionality (if applicable)
-        $("#addRowButton").click(function () {
-            alert('123123123')
-            var action = '<td><div class="form-button-action">' +
-                '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
-                '<i class="fa fa-edit"></i>' +
-                '</button>' +
-                '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
-                '<i class="fa fa-times"></i>' +
-                '</button>' +
-                '</div></td>';
-            table.row.add([
-                $("#addName").val(),
-                $("#addPosition").val(),
-                $("#addOffice").val(),
-                action,
-            ]).draw(false);
-            $("#addRowModal").modal("hide");
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
+        });
+        $(document).on('click', '.edit-btn', function () {
+            $('#addRowModal').modal('show');
         });
     });
 
@@ -134,21 +193,24 @@
                         item.date || '',
                         item.customerregistrationtype || '',
                         item.outsourcing || '',
-
                         '<div class="form-button-action">' +
-                        '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
-                        '<i class="fa fa-edit"></i>' +
+                        '<button type="button" id="editButton" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn" >' +
+                        '<i class="fa fa-edit" ></i>' +
                         '</button>' +
-                        '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
+                        '</div>',
+                        '<div class="form-button-action">' +
+                        '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger delete-btn">' +
                         '<i class="fa fa-times"></i>' +
                         '</button>' +
                         '</div>'
                     ]).draw(false);
                 });
-            },
-
+            }
         });
     }
+
+
+
 </script>
 
 </html>
