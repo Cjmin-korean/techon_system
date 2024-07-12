@@ -3,140 +3,144 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../css/mescss.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <style>
-        .loading-spinner {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            /* Initially hide the spinner */
-        }
-
-        .loading-spinner::before {
-            content: '';
-            box-sizing: border-box;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 4px solid rgba(0, 0, 0, 0.3);
-            border-top: 4px solid #3498db;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .ag-theme-alpine {
-            font-weight: bold;
-
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+    <script src="../assets/js/kaiadmin.min.js"></script>
+    <script src="../assets/js/setting-demo2.js"></script>
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" />
 </head>
 
+
+
 <body>
-    <div class="menu-title" style="width:150%;">
-        <i class="fas fa-chart-line"></i>환율정보
-    </div>
-    <div class="search-container">
-        <label for="search" class="search-label"> 검색 :</label>
-        <div class="search-input-wrapper">
-            <input type="text" id="search" placeholder="검색어를 입력하세요...">
-            <i class="fas fa-search search-icon"></i>
+
+    <div class="page-inner">
+        <div class="page-header">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="page-inner">
+                        <div class="card-header">
+                            <h3 class="fw-bold mb-3">환율정보</h3>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="multi-filter-select" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>시작날짜</th>
+                                        <th>종료날짜</th>
+                                        <th>통화코드</th>
+                                        <th>통화명</th>
+                                        <th>통화가격</th>
+                                        <th style="width: 10%">수정/삭제</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="housetbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button class="new-registration-button" onclick="openModal()">신규등록</button>
-
     </div>
 
-    <div id="loadingSpinner" class="loading-spinner"></div>
-    <div id="myGrid" style="height: 900px; width:50%; " class="ag-theme-alpine"></div>
-    <script>
-        var server = '';
-        var gridApi;
+</body>
 
-        if (window.location.hostname == 'localhost') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'http://techonmes.co.kr';
-        }
-        $(document).ready(function () {
-            initializeGrid();
+<script>
+    var server = '';
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
+    $(document).ready(function () {
+        // Initialize DataTable with search functionality
+        var table = $("#multi-filter-select").DataTable({
+            pageLength: 15,
+            initComplete: function () {
+                this.api().columns().every(function () {
+                    var column = this;
+                    var select = $('<select class="form-select"><option value=""></option></select>')
+                        .appendTo($(column.footer()).empty())
+                        .on("change", function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val ? "^" + val + "$" : "", true, false).draw();
+                        });
+                    column.data().unique().sort().each(function (d, j) {
+                        select.append('<option value="' + d + '">' + d + "</option>");
+                    });
+                });
+            },
+        });
+
+        // Load data into the table
+        load();
+
+        // Add Row button functionality (if applicable)
+        $("#addRowButton").click(function () {
+            var action = '<td><div class="form-button-action">' +
+                '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
+                '<i class="fa fa-edit"></i>' +
+                '</button>' +
+                '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
+                '<i class="fa fa-times"></i>' +
+                '</button>' +
+                '</div></td>';
+            table.row.add([
+                $("#addName").val(),
+                $("#addPosition").val(),
+                $("#addOffice").val(),
+                action,
+            ]).draw(false);
+            $("#addRowModal").modal("hide");
+        });
+    });
+
+    function load() {
+        $.ajax({
+            url: server + '/api/selectwon',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
+                var table = $("#multi-filter-select").DataTable();
+                table.clear().draw(); // Clear the table before adding new data
+
+                result.forEach(item => {
+                    table.row.add([
+                        item.startdate || '',
+                        item.finishdate || '',
+                        item.currencycode || '',
+                        item.currencyname || '',
+                        item.currencyprice || '',
+
+                        '<div class="form-button-action">' +
+                        '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
+                        '<i class="fa fa-edit"></i>' +
+                        '</button>' +
+                        '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
+                        '<i class="fa fa-times"></i>' +
+                        '</button>' +
+                        '</div>'
+                    ]).draw(false);
+                });
+            },
 
         });
-        function onBtShowLoading() {
-            gridApi.showLoadingOverlay();
-        }
-        function initializeGrid() {
-            if (typeof agGrid !== 'undefined') {
-                const gridOptions = {
-                    columnDefs: [
-                        {
-                            headerCheckboxSelection: true,
-                            checkboxSelection: true,
-                            minWidth: 50,
-                            maxWidth: 50 // Adjust the minWidth as needed
-                        },
-                        { field: "startdate", headerName: "시작날짜", filter: true },
-                        { field: "finishdate", headerName: "종료날짜", filter: true },
-                        { field: "currencycode", headerName: "통화코드", filter: true },
-                        { field: "currencyname", headerName: "통화명", filter: true },
-                        { field: "currencyprice", headerName: "통화가격", filter: true },
-
-
-
-                    ],
-                    autoSizeStrategy: {
-                        type: 'fitGridWidth',
-                        defaultMinWidth: 150
-                    },
-                    rowHeight: 45,
-                    enableFilter: true
-                };
-
-                const gridDiv = document.querySelector('#myGrid');
-                gridApi = agGrid.createGrid(gridDiv, gridOptions);
-
-                loadData();
-            } else {
-                console.error('ag-Grid is not defined. Make sure the ag-Grid script is loaded.');
-            }
-        }
-
-        function loadData() {
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectwon',
-                dataType: 'json',
-                success: function (data) {
-                    hideLoadingSpinner();
-                    gridApi.setRowData(data);
-                },
-            });
-        }
-
-        function showLoadingSpinner() {
-            $('#loadingSpinner').show();
-        }
-
-        function hideLoadingSpinner() {
-            $('#loadingSpinner').hide();
-        }
-
-    </script>
-</body>
+    }
+</script>
 
 </html>

@@ -2721,7 +2721,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT " +
                     "*" +
-                    " FROM customerinformation ")
+                    " FROM customerinformation order by customername asc")
 
                 .then(result => {
 
