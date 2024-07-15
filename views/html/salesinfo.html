@@ -34,10 +34,81 @@
         font-weight: bold;
         background-color: #f8f9fa;
     }
+
+    .modal-header {
+        justify-content: center;
+        /* 가운데 정렬 */
+
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        border-top: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    table th {
+        background-color: red;
+    }
+
+    .styled-input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 5px;
+        border: 1px solid #ccc;
+        /* 연한 테두리 색상 */
+        border-radius: 5px;
+        /* 약간 둥근 테두리 */
+    }
+
+    .btn-round {
+        border-radius: 20px;
+    }
+
+    .table-bordered th {
+        background-color: rgb(247, 247, 247);
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        /* Dark semi-transparent background */
+        z-index: 1080;
+        display: none;
+    }
+
+    #newModal {
+        z-index: 1090;
+    }
+
+    #addRowModal {
+        z-index: 1070;
+    }
+
+    #addToast {
+        z-index: 1100;
+    }
 </style>
 
 <body>
-
+    <div class="overlay" id="overlay"></div>
     <div class="page-inner">
         <div class="page-header">
             <div class="col-md-12">
@@ -61,147 +132,61 @@
                                     <input type="date" id="enddate" class="form-control">
                                 </div>
                                 <div>
-                                    <button class="btn btn-primary btn-round ms-auto">조회</button>
+                                    <button onclick="load()" class="btn btn-primary btn-round ms-auto">조회</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">삭제 확인</h5>
-                                </div>
-                                <div class="modal-body">
-                                    <p>정보를 삭제 하시겠습니까?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" id="deletecancelBtn" class="btn btn-secondary"
-                                        data-dismiss="modal">취소</button>
-                                    <button type="button" id="confirmDeleteButton" class="btn btn-danger">확인</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="toast" id="successToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
-                        role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <strong class="me-auto">Message</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body" style="color: blue;">
-                            정보가 저장되었습니다.
-                        </div>
-                    </div>
-
-                    <div class="toast" id="deleteToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
-                        role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <strong class="me-auto">Message</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body" style="color: red;">
-                            정보가 삭제되었습니다.
-                        </div>
-                    </div>
-                    <div class="toast" id="nuToast" style="position: fixed; top: 20px; right: 20px; z-index: 1051;"
-                        role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <strong class="me-auto">Message</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body" style="color: red;">
-                            정보가 누락되었습니다.
-                        </div>
-                    </div>
 
                     <div class="card-body">
-                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
-                            <div class="modal-dialog" id="save-dialog" role="document">
-                                <div class="modal-content" style="background-color: red;">
-                                    <div class="card-header">
-                                        <div class="d-flex align-items-center">
-                                            <h4 class="card-title">주문서 추가</h4>
-                                        </div>
-                                    </div>
+                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true"
+                            data-backdrop="static" data-keyboard="false">
 
+                            <div class="modal-dialog" id="save-dialog" role="document" style="width: 200vh;">
+                                <div class="modal-content" style="height: 80vh;">
+                                    <div class="modal-header">
+                                        <h4 class="card-title">주문서 추가</h4>
+                                    </div>
                                     <div class="modal-body">
                                         <form>
-                                            <div class="row">
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*설비코드</label>
-                                                        <input id="codenumber-input" type="text" class="form-control"
-                                                            autocomplete="off" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*호기명</label>
-                                                        <input id="equipmentname-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*설비명</label>
-                                                        <input id="eqname-input" type="text" class="form-control"
-                                                            autocomplete="off" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*구분</label>
-                                                        <input id="part-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*규격</label>
-                                                        <input id="size-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*차수</label>
-                                                        <input id="num-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*설비제작업체</label>
-                                                        <input id="customer-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*SerialNO</label>
-                                                        <input id="serialno-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*제작일자</label>
-                                                        <input id="manudate-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*설비위치</label>
-                                                        <input id="position-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
+                                            <div style="max-height: 400px; overflow-y: auto;">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th colspan="12" style="text-align: center;">영업수주정보</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th style="text-align: center;">제품검색</th>
+                                                            <td colspan="10">
+                                                                <input class="styled-input" id="itemcode-input"
+                                                                    placeholder="검색어를 입력후 Enter키를 누르세요" type="text"
+                                                                    autocomplete="off">
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th style="text-align: center; width: 200px;">품목코드</th>
+                                                            <th style="text-align: center;">BOMNO</th>
+                                                            <th style="text-align: center;">모델명</th>
+                                                            <th style="text-align: center;">품목명</th>
+                                                            <th style="text-align: center;">고객사</th>
+                                                            <th style="text-align: center; width:100px;">단가(￦)</th>
+                                                            <th style="text-align: center; width:200px;">PO수량(개)</th>
+                                                            <th style="text-align: center; width:200px;">판매금액(￦)</th>
+                                                            <th style="text-align: center; width:100px;">영업확정</th>
+                                                            <th style="text-align: center;">적요</th>
+                                                            <th style="text-align: center;"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="accountdatatbody">
+                                                        <tr id="no-data-row">
+                                                            <td colspan="11" style="text-align: center;">데이터가 없습니다</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                             </div>
+
                                         </form>
                                     </div>
                                     <div class="modal-footer border-0">
@@ -212,99 +197,112 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal fade" id="updateRowModal" tabindex="-1" role="dialog" aria-hidden="true">
-                            <div class="modal-dialog" id="save-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="card-header">
-                                        <div class="d-flex align-items-center">
-                                            <h4 class="card-title">설비 정보 수정</h4>
-                                            <input type="text" id="id-edit" style="visibility: hidden;">
-                                        </div>
+                        <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document" style="width: 150vh;">
+                                <div class="modal-content" style="height: 90vh;">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">제품검색</h5>
                                     </div>
-
                                     <div class="modal-body">
                                         <form>
-                                            <div class="row">
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*설비코드</label>
-                                                        <input id="codenumber-edit" type="text" class="form-control"
-                                                            autocomplete="off" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*호기명</label>
-                                                        <input id="equipmentname-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <th style="text-align: center;">제품검색</th>
 
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*설비명</label>
-                                                        <input id="eqname-edit" type="text" class="form-control"
-                                                            autocomplete="off" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*구분</label>
-                                                        <input id="part-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*규격</label>
-                                                        <input id="size-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*차수</label>
-                                                        <input id="num-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*설비제작업체</label>
-                                                        <input id="customer-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*SerialNO</label>
-                                                        <input id="serialno-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*제작일자</label>
-                                                        <input id="manudate-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*설비위치</label>
-                                                        <input id="position-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                    <td colspan="10"><input class="styled-input" id="search-input"
+                                                            placeholder="검색어를 입력후 Enter키를 누르세요" type="text"
+                                                            autocomplete="off">
+                                                    </td>
+                                                    <tr>
+                                                        <th style="text-align: center;">제품코드</th>
+                                                        <th style="text-align: center;">BOMNO</th>
+                                                        <th style="text-align: center;">모델명</th>
+                                                        <th style="text-align: center;">품목명</th>
+                                                        <th style="text-align: center;">고객사</th>
+                                                        <th style="text-align: center;">단가(￦)</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="itemtbody">
+                                                    <tr id="no-search-row">
+                                                        <td colspan="11" style="text-align: center;">검색내용이 없습니다</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </form>
                                     </div>
-                                    <div class="modal-footer border-0">
-                                        <button type="button" id="updateRowButton" class="btn btn-primary">수정</button>
-                                        <button type="button" id="updatecloseButton" class="btn btn-danger"
+                                    <div class="modal-footer">
+                                        <button type="button" id="searchingcloseButton" class="btn btn-danger"
                                             data-dismiss="modal">닫기</button>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">삭제 확인</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>정보를 삭제 하시겠습니까?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="deletecancelBtn" class="btn btn-secondary"
+                                            data-dismiss="modal">취소</button>
+                                        <button type="button" id="confirmDeleteButton"
+                                            class="btn btn-danger">확인</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="toast" id="successToast"
+                            style="position: fixed; top: 20px; right: 20px; z-index: 1050;" role="alert"
+                            aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <strong class="me-auto">Message</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body" style="color: blue;">
+                                정보가 저장되었습니다.
+                            </div>
+                        </div>
+
+                        <div class="toast" id="deleteToast"
+                            style="position: fixed; top: 20px; right: 20px; z-index: 1050;" role="alert"
+                            aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <strong class="me-auto">Message</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body" style="color: red;">
+                                정보가 삭제되었습니다.
+                            </div>
+                        </div>
+                        <div class="toast" id="nuToast" style="position: fixed; top: 20px; right: 20px; z-index: 1051;"
+                            role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <strong class="me-auto">Message</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body" style="color: red;">
+                                정보가 누락되었습니다.
+                            </div>
+                        </div>
+                        <div class="toast" id="addToast" style="position: fixed; top: 20px; right: 20px; z-index: 1100;"
+                            role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <strong class="me-auto">Message</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body" style="color: red;">
+                                제품이 추가되었습니다
                             </div>
                         </div>
                         <div class="card-body">
@@ -314,6 +312,7 @@
                                         <tr>
                                             <th>주문번호</th>
                                             <th>주문일자</th>
+                                            <th>고객사</th>
                                             <th style="width: 500px;">주문내용</th>
                                             <th>수량합계(EA)</th>
                                             <th>금액합계(￦)</th>
@@ -377,6 +376,9 @@
         $('#closeButton').on('click', function () {
             $('#addRowModal').modal('hide');
         });
+        $('#searchingcloseButton').on('click', function () {
+            $('#newModal').modal('hide');
+        });
         $('#updatecloseButton').on('click', function () {
             $('#updateRowModal').modal('hide');
         });
@@ -385,16 +387,7 @@
             $('#deleteConfirmModal').modal('hide');
         });
         $('#addButton').on('click', function () {
-            $('#codenumber-input').val('');
-            $('#equipmentname-input').val('');
-            $('#eqname-input').val('');
-            $('#part-input').val('');
-            $('#size-input').val('');
-            $('#num-input').val('');
-            $('#customer-input').val('');
-            $('#serialno-input').val('');
-            $('#manudate-input').val('');
-            $('#position-input').val('');
+            $('#itemcode-input').val('');
             $('#addRowModal').modal('show');
         });
 
@@ -553,8 +546,8 @@
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify({
-                start: '2024-07-15',
-                finish: '2024-07-15'
+                start: $('#startdate').val(),
+                finish: $('#enddate').val()
             }),
             success: function (result) {
                 var table = $("#multi-filter-select").DataTable();
@@ -573,6 +566,7 @@
                         table.row.add([
                             item.ordernumber || '',
                             item.deliverydate || '',
+                            item.customer || '',
                             item.items || '',
                             item.quantity.toLocaleString() || '',
                             item.totalprice.toLocaleString() || '',
@@ -596,7 +590,7 @@
                     // tfoot에 합계 추가
                     $('#iteminfofoot').html(
                         '<tr>' +
-                        '<td style="font-weight:bold;" colspan="2">총합계</td>' +
+                        '<td style="font-weight:bold;" colspan="3">총합계</td>' +
                         '<td style="font-weight:bold;">주문건수 :' + result.length.toLocaleString() + '</td>' +
                         '<td style="font-weight:bold;">' + totalQuantity.toLocaleString() + '</td>' +
                         '<td style="font-weight:bold;">' + totalTotalPrice.toLocaleString() + '</td>' +
@@ -610,6 +604,114 @@
         });
     }
 
+    $('#itemcode-input').on('keypress', function (event) {
+        if (event.which === 13) { // Enter key code
+            event.preventDefault(); // Prevent default action
+            $('#overlay').show(); // Show the overlay
+            $('#newModal').modal('show'); // Open the new modal
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomnoaccountinput',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    itemcode: $('#itemcode-input').val()
+                }),
+                success: function (result) {
+                    $('#itemtbody').empty(); // Clear previous results
+
+                    if (result.length === 0) {
+                        $('#no-search-row').show(); // Show "no search" row
+                    } else {
+                        $('#no-search-row').hide(); // Hide "no search" row
+                        for (var i = 0; i < result.length; i++) {
+                            $('#itemtbody').append(
+                                '<tr>' +
+                                '<td style="text-align:center;">' + result[i].itemcode + '</td>' +
+                                '<td style="text-align:center;">' + result[i].bomno + '</td>' +
+                                '<td style="text-align:center;">' + result[i].modelname + '</td>' +
+                                '<td style="text-align:center;">' + result[i].itemname + '</td>' +
+                                '<td style="text-align:center;">' + result[i].customer + '</td>' +
+                                '<td style="text-align:center;">' + result[i].itemprice + '</td>' +
+                                '<td style="text-align:center;">' +
+                                '<button class="btn btn-primary" onclick="add(this); event.preventDefault();">추가</button>' +
+                                '</td>' + '</tr>'
+                            );
+                        }
+                    }
+
+                    $("td#data-itemprice").hide(); // Hide specific cell if needed
+                },
+
+            });
+        }
+    });
+    function add(row) {
+        var rowData = $(row).closest('tr').find('td').map(function () {
+            return $(this).text();
+        }).get();
+
+        // Check if the "no data" row exists and remove it
+        if ($('#accountdatatbody #no-data-row').length) {
+            $('#accountdatatbody #no-data-row').remove();
+        }
+
+        var newRow = '<tr>' +
+            '<td style="text-align:center;" id="itemcode-input">' + rowData[0] + '</td>' +
+            '<td style="text-align:center;" id="bomno-input">' + rowData[1] + '</td>' +
+            '<td style="text-align:center;" id="modelname-input">' + rowData[2] + '</td>' +
+            '<td style="text-align:center;" id="itemname-input">' + rowData[3] + '</td>' +
+            '<td style="text-align:center;" id="customer-input">' + rowData[4] + '</td>' +
+            '<td style="text-align:center;" id="itemprice-input">' + rowData[5] + '</td>' +
+            '<td style="width:100px;"><input type="text" autocomplete="off" id="pocount-input" oninput="valuechanged(); validateNumericInput(this);" style="text-align:right;" class="styled-input"></td>' +
+            '<td style="text-align:right;" id="price-input">0</td>' +
+            '<td style="text-align:center;"><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;"></td>' +
+            '<td><input type="text" id="etc-input" autocomplete="off" class="styled-input"></td>' +
+            '<td style="text-align:center;"><input type="button" onclick="deleteRow(this)" value="삭제" class="btn btn-danger"></td>' +
+            '</tr>';
+
+        // Add the new row to the table body
+        $('#accountdatatbody').append(newRow);
+
+        var toast = new bootstrap.Toast(document.getElementById('addToast'));
+        toast.show();
+    }
+
+    $('#newModal').on('hidden.bs.modal', function (e) {
+        $('#overlay').hide(); // Show the overlay
+    });
+
+    function valuechanged() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        const itempriceValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').text().replace(/,/g, '')) || 0;
+        const countValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').val().replace(/,/g, '')) || 0;
+        const priceValue = itempriceValue * countValue;
+        // 쉼표가 추가된 값을 입력 필드에 설정합니다.
+        $('#accountdatatbody tr:eq(' + rowIndex + ') #price-input').text(priceValue.toLocaleString());
+        const input = document.querySelector('#pocount-input');
+
+    }
+    function validateNumericInput(input) {
+            // 숫자와 소수점만 입력
+            input.value = input.value.replace(/[^0-9.]/g, '');
+
+            // 소수점이 여러 번 입력되지 않도록 함
+            if ((input.value.match(/\./g) || []).length > 1) {
+                input.value = input.value.replace(/\.+$/, "");
+            }
+
+            // 쉼표 추가 전 숫자만 추출
+            let parts = input.value.split('.');
+            parts[0] = parts[0].replace(/,/g, ''); // 기존 쉼표 제거
+
+            // 천의 자리마다 쉼표 추가
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+            // 소수점 있는 경우 다시 결합
+            input.value = parts.join('.');
+        }
 </script>
 
 </html>
