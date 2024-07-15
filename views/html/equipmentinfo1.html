@@ -31,8 +31,7 @@
                         <div class="card-header">
                             <div class="d-flex align-items-center">
                                 <h4 class="card-title">설비 정보</h4>
-                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
-                                    data-bs-target="#addRowModal">
+                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" id="addButton">
                                     <i class="fa fa-plus"></i>
                                     추가
                                 </button>
@@ -41,32 +40,273 @@
 
                     </div>
 
+                    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">삭제 확인</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <p>정보를 삭제 하시겠습니까?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="deletecancelBtn" class="btn btn-secondary"
+                                        data-dismiss="modal">취소</button>
+                                    <button type="button" id="confirmDeleteButton" class="btn btn-danger">확인</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toast" id="successToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: blue;">
+                            정보가 저장되었습니다.
+                        </div>
+                    </div>
+
+                    <div class="toast" id="deleteToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red;">
+                            정보가 삭제되었습니다.
+                        </div>
+                    </div>
+                    <div class="toast" id="nuToast" style="position: fixed; top: 20px; right: 20px; z-index: 1051;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red;">
+                            정보가 누락되었습니다.
+                        </div>
+                    </div>
+
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="multi-filter-select" class="display table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>설비코드</th>
-                                        <th>호기명</th>
-                                        <th>설비명</th>
-                                        <th>구분</th>
-                                        <th>규격</th>
-                                        <th>차수</th>
-                                        <th>설비제작업체</th>
-                                        <th>SerialNO.</th>
-                                        <th>제작일자</th>
-                                        <th>설비위치</th>
-                                        <th style="width: 10%">수정/삭제</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="housetbody"></tbody>
-                            </table>
+                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" id="save-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">설비 정보 추가</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*설비코드</label>
+                                                        <input id="codenumber-input" type="text" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*호기명</label>
+                                                        <input id="equipmentname-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*설비명</label>
+                                                        <input id="eqname-input" type="text" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*구분</label>
+                                                        <input id="part-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*규격</label>
+                                                        <input id="size-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*차수</label>
+                                                        <input id="num-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*설비제작업체</label>
+                                                        <input id="customer-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*SerialNO</label>
+                                                        <input id="serialno-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*제작일자</label>
+                                                        <input id="manudate-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*설비위치</label>
+                                                        <input id="position-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="addRowButton" class="btn btn-primary">저장</button>
+                                        <button type="button" id="closeButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="updateRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" id="save-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">설비 정보 수정</h4>
+                                            <input type="text" id="id-edit" style="visibility: hidden;">
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*설비코드</label>
+                                                        <input id="codenumber-edit" type="text" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*호기명</label>
+                                                        <input id="equipmentname-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*설비명</label>
+                                                        <input id="eqname-edit" type="text" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*구분</label>
+                                                        <input id="part-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*규격</label>
+                                                        <input id="size-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*차수</label>
+                                                        <input id="num-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*설비제작업체</label>
+                                                        <input id="customer-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*SerialNO</label>
+                                                        <input id="serialno-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*제작일자</label>
+                                                        <input id="manudate-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*설비위치</label>
+                                                        <input id="position-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="updateRowButton" class="btn btn-primary">수정</button>
+                                        <button type="button" id="updatecloseButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="multi-filter-select" class="display table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>설비코드</th>
+                                            <th>호기명</th>
+                                            <th>설비명</th>
+                                            <th>구분</th>
+                                            <th>규격</th>
+                                            <th>차수</th>
+                                            <th>설비제작업체</th>
+                                            <th>SerialNO.</th>
+                                            <th>제작일자</th>
+                                            <th>설비위치</th>
+                                            <th style="width: 3%">수정</th>
+                                            <th style="width: 3%">삭제</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="housetbody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
 </body>
 
@@ -98,27 +338,136 @@
             },
         });
 
-        // Load data into the table
-        load();
 
-        // Add Row button functionality (if applicable)
-        $("#addRowButton").click(function () {
-            var action = '<td><div class="form-button-action">' +
-                '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
-                '<i class="fa fa-edit"></i>' +
-                '</button>' +
-                '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
-                '<i class="fa fa-times"></i>' +
-                '</button>' +
-                '</div></td>';
-            table.row.add([
-                $("#addName").val(),
-                $("#addPosition").val(),
-                $("#addOffice").val(),
-                action,
-            ]).draw(false);
-            $("#addRowModal").modal("hide");
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
         });
+        $('#updatecloseButton').on('click', function () {
+            $('#updateRowModal').modal('hide');
+        });
+
+        $('#deletecancelBtn').on('click', function () {
+            $('#deleteConfirmModal').modal('hide');
+        });
+        $('#addButton').on('click', function () {
+            $('#codenumber-input').val('');
+            $('#equipmentname-input').val('');
+            $('#eqname-input').val('');
+            $('#part-input').val('');
+            $('#size-input').val('');
+            $('#num-input').val('');
+            $('#customer-input').val('');
+            $('#serialno-input').val('');
+            $('#manudate-input').val('');
+            $('#position-input').val('');
+            $('#addRowModal').modal('show');
+        });
+
+
+        $('#addRowButton').on('click', function () {
+            // 입력값 확인
+            const codenumber = $('#codenumber-input').val();
+            const equipmentname = $('#equipmentname-input').val();
+            const eqname = $('#eqname-input').val();
+            const part = $('#part-input').val();
+
+            // 누락된 필드 체크
+            if (!codenumber || !equipmentname || !eqname || !part) {
+
+                var toast = new bootstrap.Toast(document.getElementById('nuToast'));
+                toast.show();
+                return; // 누락된 필드가 있으면 종료
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/inserteqdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "codenumber": $('#codenumber-input').val(),
+                    "equipmentname": $('#equipmentname-input').val(),
+                    "eqname": $('#eqname-input').val(),
+                    "part": $('#part-input').val(),
+                    "size": $('#size-input').val(),
+                    "num": $('#num-input').val(),
+                    "customer": $('#customer-input').val(),
+                    "serialno": $('#serialno-input').val(),
+                    "manudate": $('#manudate-input').val(),
+                    "position": $('#position-input').val(),
+                }),
+                success: function (result) {
+
+                },
+
+            });
+
+            $('#addRowModal').modal('hide');
+
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            toast.show();
+
+            // 0.5초 뒤에 load() 호출
+            setTimeout(function () {
+                load();
+            }, 100);
+        });
+
+
+        $('#updateRowButton').on('click', function () {
+            var rowIndex = $(this).data('row-index');
+            var rowData = table.row(rowIndex).data();
+            var id = $(this).data('id');
+
+            // 입력값 확인
+            const codenumber = $('#codenumber-edit').val();
+            const equipmentname = $('#equipmentname-edit').val();
+            const eqname = $('#eqname-edit').val();
+            const part = $('#part-edit').val();
+            const editId = $('#id-edit').val();
+
+            // 누락된 필드 체크
+            if (!codenumber || !equipmentname || !eqname || !part) {
+                var toast = new bootstrap.Toast(document.getElementById('nuToast'));
+                toast.show();
+                return; // 누락된 필드가 있으면 종료
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updateeqdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "codenumber": $('#codenumber-edit').val(),
+                    "equipmentname": $('#equipmentname-edit').val(),
+                    "eqname": $('#eqname-edit').val(),
+                    "part": $('#part-edit').val(),
+                    "size": $('#size-edit').val(),
+                    "num": $('#num-edit').val(),
+                    "customer": $('#customer-edit').val(),
+                    "serialno": $('#serialno-edit').val(),
+                    "manudate": $('#manudate-edit').val(),
+                    "position": $('#position-edit').val(),
+                    "id": editId,
+                }),
+                success: function (result) {
+                    // 성공 시 처리
+                },
+
+            });
+
+            $('#updateRowModal').modal('hide');
+
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            toast.show();
+
+            // 0.5초 뒤에 load() 호출
+            setTimeout(function () {
+                load();
+            }, 100);
+        });
+        load();
     });
 
     function load() {
@@ -132,7 +481,7 @@
                 var table = $("#multi-filter-select").DataTable();
                 table.clear().draw(); // Clear the table before adding new data
 
-                result.forEach(item => {
+                result.forEach((item, index) => {
                     table.row.add([
                         item.codenumber || '',
                         item.equipmentname || '',
@@ -144,19 +493,71 @@
                         item.serialno || '',
                         item.manudate || '',
                         item.position || '',
-
                         '<div class="form-button-action">' +
-                        '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
+                        '<button type="button" data-id="' + item.id + '" data-row-index="' + index + '" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn">' +
                         '<i class="fa fa-edit"></i>' +
                         '</button>' +
-                        '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
+                        '</div>',
+                        '<div class="form-button-action">' +
+                        '<button type="button" data-id="' + item.id + '" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger delete-btn">' +
                         '<i class="fa fa-times"></i>' +
                         '</button>' +
                         '</div>'
                     ]).draw(false);
                 });
+
+                $('.edit-btn').on('click', function () {
+                    var rowIndex = $(this).data('row-index');
+                    var rowData = table.row(rowIndex).data();
+                    var id = $(this).data('id');
+                    console.log(rowData)
+                    $("#codenumber-edit").val(rowData[0]);
+                    $("#equipmentname-edit").val(rowData[1]);
+                    $("#eqname-edit").val(rowData[2]);
+                    $("#part-edit").val(rowData[3]);
+                    $("#size-edit").val(rowData[4]);
+                    $("#num-edit").val(rowData[5]);
+                    $("#customer-edit").val(rowData[6]);
+                    $("#serialno-edit").val(rowData[7]);
+                    $("#manudate-edit").val(rowData[8]);
+                    $("#position-edit").val(rowData[9]);
+                    $("#id-edit").val(id);
+
+                    $('#updateRowModal').modal('show');
+                });
             },
 
+        });
+
+
+
+        $(document).on('click', '.delete-btn', function () {
+            deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
+            $('#deleteConfirmModal').modal('show'); // 모달 열기
+        });
+
+
+
+
+        $('#confirmDeleteButton').on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/deleteeqdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "id": deleteId
+                }),
+                success: function (result) {
+
+                },
+
+            });
+            var toast = new bootstrap.Toast(document.getElementById('deleteToast'));
+            toast.show();
+            $('#deleteConfirmModal').modal('hide'); // 모달 닫기
+
+            load(); // 데이터 새로 고침
         });
     }
 </script>

@@ -29,35 +29,177 @@
                 <div class="card">
                     <div class="page-inner">
                         <div class="card-header">
-                            <h3 class="fw-bold mb-3">단가 등록 및 조회</h3>
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">단가 정보 등록 및 조회</h4>
+                                <!-- <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" id="addButton">
+                                    <i class="fa fa-plus"></i>
+                                    추가
+                                </button> -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">삭제 확인</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <p>정보를 삭제 하시겠습니까?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="deletecancelBtn" class="btn btn-secondary"
+                                        data-dismiss="modal">취소</button>
+                                    <button type="button" id="confirmDeleteButton" class="btn btn-danger">확인</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toast" id="successToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: blue;">
+                            정보가 저장되었습니다.
+                        </div>
+                    </div>
+
+                    <div class="toast" id="deleteToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red;">
+                            정보가 삭제되었습니다.
+                        </div>
+                    </div>
+                    <div class="toast" id="nuToast" style="position: fixed; top: 20px; right: 20px; z-index: 1051;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red;">
+                            정보가 누락되었습니다.
                         </div>
                     </div>
 
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="multi-filter-select" class="display table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>BOMNO</th>
-                                        <th>구분</th>
-                                        <th>모델명</th>
-                                        <th>제품명</th>
-                                        <th>고객사</th>
-                                        <th>제품군</th>
-                                        <th>판매단가(￦)</th>
-                                        <th>원가(￦)</th>
-                                        <th>재료비율(%)</th>
-                                        <th style="width: 10%">수정/삭제</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="housetbody"></tbody>
-                            </table>
+
+                        <div class="modal fade" id="updateRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" id="save-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">제품 정보 수정</h4>
+                                            <input type="text" id="id-edit" style="visibility: hidden;">
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*BOMNO</label>
+                                                        <input id="bomno-edit" type="text" class="form-control"
+                                                            autocomplete="off" readonly placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*구분</label>
+                                                        <input id="part-edit" type="text" autocomplete="off"
+                                                            class="form-control" readonly placeholder="" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*모델명</label>
+                                                        <input id="modelname-edit" type="text" class="form-control"
+                                                            autocomplete="off" readonly placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*제품명</label>
+                                                        <input id="itemname-edit" type="text" autocomplete="off"
+                                                            class="form-control" readonly placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*고객사</label>
+                                                        <input id="customer-edit" type="text" autocomplete="off"
+                                                            class="form-control" readonly placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*제품군</label>
+                                                        <input id="class-edit" type="text" autocomplete="off"
+                                                            class="form-control" readonly placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*원가(￦)</label>
+                                                        <input id="cost-edit" type="text" autocomplete="off"
+                                                            class="form-control" readonly placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*단가(￦)</label>
+                                                        <input id="itemprice-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="updateRowButton" class="btn btn-primary">수정</button>
+                                        <button type="button" id="updatecloseButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="multi-filter-select" class="display table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>BOMNO</th>
+                                            <th>구분</th>
+                                            <th>모델명</th>
+                                            <th>제품명</th>
+                                            <th>고객사</th>
+                                            <th>제품군</th>
+                                            <th>단가(￦)</th>
+                                            <th>원가(￦)</th>
+                                            <th>재료비(%)</th>
+                                            <th style="width: 3%">수정</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="housetbody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
 </body>
 
@@ -89,27 +231,149 @@
             },
         });
 
-        // Load data into the table
-        load();
 
-        // Add Row button functionality (if applicable)
-        $("#addRowButton").click(function () {
-            var action = '<td><div class="form-button-action">' +
-                '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
-                '<i class="fa fa-edit"></i>' +
-                '</button>' +
-                '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
-                '<i class="fa fa-times"></i>' +
-                '</button>' +
-                '</div></td>';
-            table.row.add([
-                $("#addName").val(),
-                $("#addPosition").val(),
-                $("#addOffice").val(),
-                action,
-            ]).draw(false);
-            $("#addRowModal").modal("hide");
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
         });
+        $('#updatecloseButton').on('click', function () {
+            $('#updateRowModal').modal('hide');
+        });
+
+        $('#deletecancelBtn').on('click', function () {
+            $('#deleteConfirmModal').modal('hide');
+        });
+        $('#addButton').on('click', function () {
+            $('#codenumber-input').val('');
+            $('#equipmentname-input').val('');
+            $('#eqname-input').val('');
+            $('#part-input').val('');
+            $('#size-input').val('');
+            $('#num-input').val('');
+            $('#customer-input').val('');
+            $('#serialno-input').val('');
+            $('#manudate-input').val('');
+            $('#position-input').val('');
+            $('#addRowModal').modal('show');
+        });
+
+
+        $('#addRowButton').on('click', function () {
+            // 입력값 확인
+            const codenumber = $('#codenumber-input').val();
+            const equipmentname = $('#equipmentname-input').val();
+            const eqname = $('#eqname-input').val();
+            const part = $('#part-input').val();
+
+            // 누락된 필드 체크
+            if (!codenumber || !equipmentname || !eqname || !part) {
+
+                var toast = new bootstrap.Toast(document.getElementById('nuToast'));
+                toast.show();
+                return; // 누락된 필드가 있으면 종료
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/inserteqdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "codenumber": $('#codenumber-input').val(),
+                    "equipmentname": $('#equipmentname-input').val(),
+                    "eqname": $('#eqname-input').val(),
+                    "part": $('#part-input').val(),
+                    "size": $('#size-input').val(),
+                    "num": $('#num-input').val(),
+                    "customer": $('#customer-input').val(),
+                    "serialno": $('#serialno-input').val(),
+                    "manudate": $('#manudate-input').val(),
+                    "position": $('#position-input').val(),
+                }),
+                success: function (result) {
+
+                },
+
+            });
+
+            $('#addRowModal').modal('hide');
+
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            toast.show();
+
+            // 0.5초 뒤에 load() 호출
+            setTimeout(function () {
+                load();
+            }, 100);
+        });
+
+
+        $('#updateRowButton').on('click', function () {
+            var rowIndex = $(this).data('row-index');
+            var rowData = table.row(rowIndex).data();
+            var id = $(this).data('id');
+
+            // 입력값 확인
+            const itemprice = $('#itemprice-edit').val();
+
+
+            // 누락된 필드 체크
+            if (!itemprice) {
+                var toast = new bootstrap.Toast(document.getElementById('nuToast'));
+                toast.show();
+                return; // 누락된 필드가 있으면 종료
+            }
+
+            var today = new Date();
+
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+            var day = String(today.getDate()).padStart(2, '0'); // 일
+            var formattedDate = year + '-' + month + '-' + day;
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updateiteminfoitemprice',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "itemprice": $('#itemprice-edit').val(),
+                    "class": $('#class-edit').val(),
+                    "bomno": $('#bomno-edit').val()
+
+                }),
+                success: function (result) {
+                },
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/pricechange',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "bomno": $('#bomno-edit').val(),
+                    "modelname": $('#modelname-edit').val(),
+                    "itemname": $('#itemname-edit').val(),
+                    "customer": $('#customer-edit').val(),
+                    "savedate": formattedDate,
+                    "price": $('#itemprice-edit').val(),
+                }),
+                success: function (result) {
+                },
+
+            });
+
+            $('#updateRowModal').modal('hide');
+
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            toast.show();
+
+            // 0.5초 뒤에 load() 호출
+            setTimeout(function () {
+                load();
+            }, 100);
+        });
+        load();
     });
 
     function load() {
@@ -123,7 +387,7 @@
                 var table = $("#multi-filter-select").DataTable();
                 table.clear().draw(); // Clear the table before adding new data
 
-                result.forEach(item => {
+                result.forEach((item, index) => {
                     table.row.add([
                         item.bomno || '',
                         item.part || '',
@@ -135,17 +399,63 @@
                         item.cost || '',
                         item.costPriceRatio || '',
                         '<div class="form-button-action">' +
-                        '<button type="button" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg">' +
+                        '<button type="button" data-id="' + item.id + '" data-row-index="' + index + '" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn">' +
                         '<i class="fa fa-edit"></i>' +
                         '</button>' +
-                        '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger">' +
-                        '<i class="fa fa-times"></i>' +
-                        '</button>' +
-                        '</div>'
+                        '</div>',
+
                     ]).draw(false);
+                });
+
+                $('.edit-btn').on('click', function () {
+                    var rowIndex = $(this).data('row-index');
+                    var rowData = table.row(rowIndex).data();
+
+                    $("#bomno-edit").val(rowData[0]);
+                    $("#part-edit").val(rowData[1]);
+                    $("#modelname-edit").val(rowData[2]);
+                    $("#itemname-edit").val(rowData[3]);
+                    $("#customer-edit").val(rowData[4]);
+                    $("#class-edit").val(rowData[5]);
+                    $("#itemprice-edit").val(rowData[6]);
+                    $("#cost-edit").val(rowData[7]);
+
+
+                    $('#updateRowModal').modal('show');
                 });
             },
 
+        });
+
+
+
+        $(document).on('click', '.delete-btn', function () {
+            deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
+            $('#deleteConfirmModal').modal('show'); // 모달 열기
+        });
+
+
+
+
+        $('#confirmDeleteButton').on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/deleteeqdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "id": deleteId
+                }),
+                success: function (result) {
+
+                },
+
+            });
+            var toast = new bootstrap.Toast(document.getElementById('deleteToast'));
+            toast.show();
+            $('#deleteConfirmModal').modal('hide'); // 모달 닫기
+
+            load(); // 데이터 새로 고침
         });
     }
 </script>

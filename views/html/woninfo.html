@@ -4,363 +4,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../css/woninfo.css">
-    <link rel="stylesheet" href="../css/spiner.css">
-    <link rel="stylesheet" href="../css/header.css">
-    <script src="../js/searchtable.js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>환율정보</title>
+    <title>Document</title>
+    <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+    <script src="../assets/js/kaiadmin.min.js"></script>
+    <script src="../assets/js/setting-demo2.js"></script>
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" />
 </head>
 
+
+
 <body>
-    <div class="header-container">
-        <div class="header-title">
-            <h2><i class="fas fa-chart-line"></i> &nbsp;환율정보</h2>
+
+    <div class="page-inner">
+        <div class="page-header">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="page-inner">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">환율 정보</h4>
+                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" id="addButton">
+                                    <i class="fa fa-plus"></i>
+                                    추가
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">삭제 확인</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <p>정보를 삭제 하시겠습니까?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="deletecancelBtn" class="btn btn-secondary"
+                                        data-dismiss="modal">취소</button>
+                                    <button type="button" id="confirmDeleteButton" class="btn btn-danger">확인</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toast" id="successToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: blue;">
+                            정보가 저장되었습니다.
+                        </div>
+                    </div>
+
+                    <div class="toast" id="deleteToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red;">
+                            정보가 삭제되었습니다.
+                        </div>
+                    </div>
+                    <div class="toast" id="nuToast" style="position: fixed; top: 20px; right: 20px; z-index: 1051;"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Message</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red;">
+                            정보가 누락되었습니다.
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" id="save-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">환율 정보 추가</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*시작날짜</label>
+                                                        <input id="startdate-input" type="date" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*종료날짜</label>
+                                                        <input id="finishdate-input" type="date" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*통화코드</label>
+                                                        <select id="currencycode-input" class="form-control">
+                                                            <option value=""></option>
+                                                            <option value="미국 달러"></option>
+                                                            <option value="베트남 동"></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*통화명</label>
+                                                        <input id="currencyname-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*통화가격</label>
+                                                        <input id="currencyprice-input" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="addRowButton" class="btn btn-primary">저장</button>
+                                        <button type="button" id="closeButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="updateRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" id="save-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">환율 정보 수정</h4>
+                                            <input type="text" id="id-edit" style="visibility: hidden;">
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*시작날짜</label>
+                                                        <input id="startdate-edit" type="date" class="form-control"
+                                                            autocomplete="off" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*종료날짜</label>
+                                                        <input id="finishdate-edit" type="date" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*통화코드</label>
+                                                        <select id="currencycode-edit" class="form-control">
+                                                            <option value=""></option>
+                                                            <option value="미국 달러"></option>
+                                                            <option value="베트남 동"></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*통화명</label>
+                                                        <input id="currencyname-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*통화가격</label>
+                                                        <input id="currencyprice-edit" type="text" autocomplete="off"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="updateRowButton" class="btn btn-primary">수정</button>
+                                        <button type="button" id="updatecloseButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="multi-filter-select" class="display table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>시작날짜</th>
+                                            <th>종료날짜</th>
+                                            <th>통화코드</th>
+                                            <th>통화명</th>
+                                            <th>통화가격</th>
+                                            <th style="width: 3%">수정</th>
+                                            <th style="width: 3%">삭제</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="housetbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="header-subtitle">
-            <h4>기초정보 > 환율정보</h4>
-        </div>
-    </div>
-    <div id="overlay" class="overlay"></div>
-    <div id="overlay1" class="overlay"></div>
-    <fieldset>
-        <legend>검색조건</legend>
-        <i class="fas fa-search"></i>
-
-        <b style="margin-left: 10px;;">시작날짜</b>
-        <input type="date" style="width:10%; margin-left: 10px;" id="datetimepicker1">
-
-        <button class="close-button" style="margin-left: 10px; " onclick="openModal()">조회</button>
-        <button class="save-button" style="margin-left: 10px;" onclick="openModal()">신규등록</button>
-    </fieldset>
-
-    <div class="spinner-overlay">
-        <div class="spinner"></div>
-    </div>
-    <div id="maintable" class="table-wrapper">
-        <table>
-            <thead>
-                <th style="width:100px">시작날짜</th>
-                <th style="width:100px">종료날짜</th>
-                <th style="width:100px">통화코드</th>
-                <th style="width:100px">통화명</th>
-                <th style="width:100px">통화가격</th>
-                <th style="width:10%"></th>
-                <th style="width:10%"></th>
-            </thead>
-
-            <tbody id="iteminfobody">
-            </tbody>
-            <tfoot id="iteminfofoot">
-            </tfoot>
-        </table>
-    </div>
-
-
-
-    <div class="modal" id="modal">
-        <div class="modal-header">
-            <span style="font-weight: bold;"> <i class="fas fa-address-book"></i>&nbsp;환율정보</span>
-            <input type="text" id="dataid" style="width:60px; visibility: hidden;">
-        </div>
-        <div class="modal-footer">
-            <button class="close-button" onclick="datasave()">저장</button>
-            <button class="delete-button" style="margin-left: 10px;" onclick="closeModal()">취소</button>
-        </div>
-        <div class="modal-content">
-            <table class="styled-table" id="Podatatable">
-                <thead id="tableHead">
-                    <tr>
-                        <th style="width:100px">시작날짜</th>
-                        <td><input type="date" id="startdate-input" autocomplete="off"></td>
-                    </tr>
-                    <tr>
-                        <th style="width:100px">종료날짜</th>
-                        <td><input type="date" id="finishdate-input" autocomplete="off"></td>
-                    </tr>
-                    <tr>
-                        <th style="width:100px">통화코드</th>
-                        <td><input type="text" id="currencycode-input" autocomplete="off"></td>
-                    </tr>
-                    <tr>
-                        <th style="width:100px">통화명</th>
-                        <td><input type="text" id="currencyname-input" autocomplete="off"></td>
-                    </tr>
-                    <tr>
-                        <th style="width:100px">통화가격</th>
-                        <td><input type="text" id="currencyprice-input" autocomplete="off"></td>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-
-
-
-    <script>
-        var server = '';
-        var gridApi;
-        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'http://techonmes.co.kr';
-        }
-
-        $(document).ready(function () {
-
-            var today = new Date();
-
-            var year = today.getFullYear();
-            var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
-            var day = String(today.getDate()).padStart(2, '0'); // 일
-            var formattedDate = year + '-' + month + '-' + day;
-            document.getElementById('datetimepicker1').value = formattedDate;
-            load()
-        });
-
-        function load() {
-            var spinnerOverlay = document.querySelector('.spinner-overlay');
-            spinnerOverlay.style.display = 'flex'; // Spiner 표시
-
-
-            $.ajax({
-                url: server + '/api/selectwon',
-                method: 'post',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-
-                }),
-
-                success: function (result) {
-                    $('#iteminfobody').empty();
-
-                    for (var i = 0; i < result.length; i++) {
-                        $('#iteminfobody').append(
-                            '<tr>' +
-                            '<td>' + (result[i].startdate || '') + '</td>' +
-                            '<td>' + (result[i].finishdate || '') + '</td>' +
-                            '<td>' + (result[i].currencycode || '') + '</td>' +
-                            '<td>' + (result[i].currencyname || '') + '</td>' +
-                            '<td>' + (result[i].currencyprice.toLocaleString() || '') + '</td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
-                            '<td><button class="btninfo" onclick="showinfo(this)">상세정보</button></td>' +
-                            '<td><button class="btninfo" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
-                            '</tr>'
-                        );
-                    }
-
-                    $('td#data-id').hide();
-                    setTimeout(function () {
-                        spinnerOverlay.style.display = 'none'; // 1초 후에 Spiner 숨김
-                    }, 1100);
-
-                }
-            });
-
-
-        }
-
-
-
-        // updateaccountiteminfo
-
-        function showinfo(button) {
-            var row = $(button).closest('tr');
-            var rowData = row.find('td').map(function () {
-                return $(this).text();
-            }).get();
-            $('#startdate-input').val(rowData[0])
-            $('#finishdate-input').val(rowData[1])
-            $('#currencycode-input').val(rowData[2])
-            $('#currencyname-input').val(rowData[3])
-            $('#currencyprice-input').val(rowData[4])
-            $('#dataid').val(rowData[5])
-            document.getElementById('modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-        function closeModal1() {
-            document.getElementById('modal1').style.display = 'none';
-            document.getElementById('overlay1').style.display = 'none';
-        }
-
-        function openModal() {
-            document.getElementById('modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-            var insertdate = new Date().toISOString().slice(0, 10);
-
-            // Clear input values
-            $('#startdate-input').val(insertdate)
-            $('#finishdate-input').val(insertdate)
-            $('#currencycode-input').val('')
-            $('#currencyname-input').val('')
-            $('#currencyprice-input').val('')
-            $('#dataid').val('')
-
-            setTimeout(function () {
-                $('#housecode-input').focus();
-            }, 100);
-        }
-        function saveprocessname() {
-            $.ajax({
-                url: server + '/api/insertprocessname',
-                method: 'post',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    processname: $('#processname-input').val()
-                }),
-                success: function (data) {
-
-                }
-            });
-            $('#processnametbody').empty()
-            selectprocessname()
-        }
-        // 상세 정보 버튼에 대한 클릭 이벤트 처리
-
-        function datasave() {
-            // 데이터가 있으면
-            if ($('#dataid').val()) {
-                Swal.fire({
-                    icon: 'info',
-                    title: '수정',
-                    text: '환율 정보를 수정 하시겠습니까?',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: '확인',
-                    cancelButtonText: '취소',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/wonupdatedata',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "startdate": $('#startdate-input').val(),
-                                "finishdate": $('#finishdate-input').val(),
-                                "currencycode": $('#currencycode-input').val(),
-                                "currencyname": $('#currencyname-input').val(),
-                                "currencyprice": $('#currencyprice-input').val(),
-                                "id": $('#dataid').val(),
-                            }),
-                            success: function (result) {
-
-                            },
-
-                        });
-                        Swal.fire({
-                            icon: 'success',
-                            title: '수정 완료',
-                            text: '환율 정보가 수정 되었습니다.',
-                        }).then(() => {
-                            $('#modal').fadeOut();
-                            $('#overlay').fadeOut();
-                            load();
-                        });
-                    }
-                });
-            } else {
-                // 데이터가 없으면(등록)
-                Swal.fire({
-                    icon: 'info',
-                    title: '저장',
-                    text: '환율 정보를 등록 하시겠습니까?',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: '확인',
-                    cancelButtonText: '취소',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/insertwon',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "startdate": $('#startdate-input').val(),
-                                "finishdate": $('#finishdate-input').val(),
-                                "currencycode": $('#currencycode-input').val(),
-                                "currencyname": $('#currencyname-input').val(),
-                                "currencyprice": $('#currencyprice-input').val(),
-                            }),
-                            success: function (result) {
-
-                            },
-
-                        });
-                        Swal.fire({
-                            icon: 'success',
-                            title: '저장 완료',
-                            text: '환율 정보가 저장 되었습니다.',
-                        }).then(() => {
-                            $('#modal').fadeOut();
-                            $('#overlay').fadeOut();
-                            load();
-                        });
-                    }
-                });
-            }
-
-        }
-        function deletedata(button) {
-            var row = $(button).closest('tr');
-            var rowData = row.find('td').map(function () {
-                return $(this).text();
-            }).get();
-
-            Swal.fire({
-                icon: 'warning',
-                title: '삭제',
-                text: '환율 정보를 삭제하시겠습니까?',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: '확인',
-                cancelButtonText: '취소',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/wondeletedata',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "id": rowData[5],
-                        }),
-                        success: function (result) {
-
-                        },
-
-                    });
-                    Swal.fire({
-                        icon: 'success',
-                        title: '삭제 완료',
-                        text: '환율 정보가 삭제 되었습니다.',
-                    }).then(() => {
-                        $('#modal').fadeOut();
-                        $('#overlay').fadeOut();
-                        load();
-                    });
-                }
-            });
-        }
-
-    </script>
 
 </body>
+
+<script>
+    var server = '';
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
+    $(document).ready(function () {
+        // Initialize DataTable with search functionality
+        var table = $("#multi-filter-select").DataTable({
+            pageLength: 15,
+            initComplete: function () {
+                this.api().columns().every(function () {
+                    var column = this;
+                    var select = $('<select class="form-select"><option value=""></option></select>')
+                        .appendTo($(column.footer()).empty())
+                        .on("change", function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val ? "^" + val + "$" : "", true, false).draw();
+                        });
+                    column.data().unique().sort().each(function (d, j) {
+                        select.append('<option value="' + d + '">' + d + "</option>");
+                    });
+                });
+            },
+        });
+
+        var startdate = document.getElementById('startdate-input');
+        var finishdate = document.getElementById('finishdate-input');
+        var today = new Date();
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0');
+        var day = String(today.getDate()).padStart(2, '0');
+        var todayString = `${year}-${month}-${day}`;
+        startdate.value = todayString;
+        finishdate.value = todayString;
+
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
+        });
+        $('#updatecloseButton').on('click', function () {
+            $('#updateRowModal').modal('hide');
+        });
+
+        $('#deletecancelBtn').on('click', function () {
+            $('#deleteConfirmModal').modal('hide');
+        });
+        $('#addButton').on('click', function () {
+            $('#startdate-input').val(todayString);
+            $('#finishdate-input').val(todayString);
+            $('#currencycode-input').val('');
+            $('#currencyname-input').val('');
+            $('#currencyprice-input').val('');
+
+            $('#addRowModal').modal('show');
+        });
+
+
+        $('#addRowButton').on('click', function () {
+            // 입력값 확인
+            const startdate = $('#startdate-input').val();
+            const finishdate = $('#finishdate-input').val();
+            const currencycode = $('#currencycode-input').val();
+            const currencyname = $('#currencyname-input').val();
+            const currencyprice = $('#currencyprice-input').val();
+
+            // 누락된 필드 체크
+            if (!startdate || !finishdate || !currencycode || !currencyname || !currencyprice) {
+
+            var toast = new bootstrap.Toast(document.getElementById('nuToast'));
+            toast.show();
+            return; // 누락된 필드가 있으면 종료
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/insertwon',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "startdate": $('#startdate-input').val(),
+                "finishdate": $('#finishdate-input').val(),
+                "currencycode": $('#currencycode-input').val(),
+                "currencyname": $('#currencyname-input').val(),
+                "currencyprice": $('#currencyprice-input').val()
+            }),
+            success: function (result) {
+
+            },
+
+        });
+
+        $('#addRowModal').modal('hide');
+
+        var toast = new bootstrap.Toast(document.getElementById('successToast'));
+        toast.show();
+
+        // 0.5초 뒤에 load() 호출
+        setTimeout(function () {
+            load();
+        }, 100);
+    });
+
+
+    $('#updateRowButton').on('click', function () {
+        var rowIndex = $(this).data('row-index');
+        var rowData = table.row(rowIndex).data();
+        var id = $(this).data('id');
+
+        // 입력값 확인
+        const codenumber = $('#codenumber-edit').val();
+        const equipmentname = $('#equipmentname-edit').val();
+        const eqname = $('#eqname-edit').val();
+        const part = $('#part-edit').val();
+        const editId = $('#id-edit').val();
+
+        // 누락된 필드 체크
+        if (!codenumber || !equipmentname || !eqname || !part) {
+            var toast = new bootstrap.Toast(document.getElementById('nuToast'));
+            toast.show();
+            return; // 누락된 필드가 있으면 종료
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/updateeqdata',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "codenumber": $('#codenumber-edit').val(),
+                "equipmentname": $('#equipmentname-edit').val(),
+                "eqname": $('#eqname-edit').val(),
+                "part": $('#part-edit').val(),
+                "size": $('#size-edit').val(),
+                "num": $('#num-edit').val(),
+                "customer": $('#customer-edit').val(),
+                "serialno": $('#serialno-edit').val(),
+                "manudate": $('#manudate-edit').val(),
+                "position": $('#position-edit').val(),
+                "id": editId,
+            }),
+            success: function (result) {
+                // 성공 시 처리
+            },
+
+        });
+
+        $('#updateRowModal').modal('hide');
+
+        var toast = new bootstrap.Toast(document.getElementById('successToast'));
+        toast.show();
+
+        // 0.5초 뒤에 load() 호출
+        setTimeout(function () {
+            load();
+        }, 100);
+    });
+    load();
+    });
+
+    function load() {
+        $.ajax({
+            url: server + '/api/selectwon',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
+                var table = $("#multi-filter-select").DataTable();
+                table.clear().draw(); // Clear the table before adding new data
+
+                result.forEach((item, index) => {
+                    table.row.add([
+                        item.startdate || '',
+                        item.finishdate || '',
+                        item.currencycode || '',
+                        item.currencyname || '',
+                        item.currencyprice || '',
+                        '<div class="form-button-action">' +
+                        '<button type="button" data-id="' + item.id + '" data-row-index="' + index + '" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn">' +
+                        '<i class="fa fa-edit"></i>' +
+                        '</button>' +
+                        '</div>',
+                        '<div class="form-button-action">' +
+                        '<button type="button" data-id="' + item.id + '" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger delete-btn">' +
+                        '<i class="fa fa-times"></i>' +
+                        '</button>' +
+                        '</div>'
+                    ]).draw(false);
+                });
+
+                $('.edit-btn').on('click', function () {
+                    var rowIndex = $(this).data('row-index');
+                    var rowData = table.row(rowIndex).data();
+                    var id = $(this).data('id');
+                    console.log(rowData)
+                    $("#codenumber-edit").val(rowData[0]);
+                    $("#equipmentname-edit").val(rowData[1]);
+                    $("#eqname-edit").val(rowData[2]);
+                    $("#part-edit").val(rowData[3]);
+                    $("#size-edit").val(rowData[4]);
+                    $("#num-edit").val(rowData[5]);
+                    $("#customer-edit").val(rowData[6]);
+                    $("#serialno-edit").val(rowData[7]);
+                    $("#manudate-edit").val(rowData[8]);
+                    $("#position-edit").val(rowData[9]);
+                    $("#id-edit").val(id);
+
+                    $('#updateRowModal').modal('show');
+                });
+            },
+
+        });
+
+
+
+        $(document).on('click', '.delete-btn', function () {
+            deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
+            $('#deleteConfirmModal').modal('show'); // 모달 열기
+        });
+
+
+
+
+        $('#confirmDeleteButton').on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/deleteeqdata',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "id": deleteId
+                }),
+                success: function (result) {
+
+                },
+
+            });
+            var toast = new bootstrap.Toast(document.getElementById('deleteToast'));
+            toast.show();
+            $('#deleteConfirmModal').modal('hide'); // 모달 닫기
+
+            load(); // 데이터 새로 고침
+        });
+    }
+</script>
 
 </html>
