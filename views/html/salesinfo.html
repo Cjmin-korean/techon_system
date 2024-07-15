@@ -190,7 +190,8 @@
                                         </form>
                                     </div>
                                     <div class="modal-footer border-0">
-                                        <button type="button" id="addRowButton" class="btn btn-primary">저장</button>
+                                        <button type="button" id="addRowButton" class="btn btn-primary"
+                                            onclick="accountsave()">저장</button>
                                         <button type="button" id="closeButton" class="btn btn-danger"
                                             data-dismiss="modal">닫기</button>
                                     </div>
@@ -267,7 +268,7 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="toast-body" style="color: blue;">
-                                정보가 저장되었습니다.
+                                정보가 저장 되었습니다.
                             </div>
                         </div>
 
@@ -280,9 +281,10 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="toast-body" style="color: red;">
-                                정보가 삭제되었습니다.
+                                정보가 삭제 되었습니다.
                             </div>
                         </div>
+
                         <div class="toast" id="nuToast" style="position: fixed; top: 20px; right: 20px; z-index: 1051;"
                             role="alert" aria-live="assertive" aria-atomic="true">
                             <div class="toast-header">
@@ -361,6 +363,17 @@
                     });
                 });
             },
+
+            columns: [
+                { title: "주문번호" },
+                { title: "주문일자" },
+                { title: "고객사" },
+                { title: "주문내용" },
+                { title: "수량합계" },
+                { title: "금액합계" },
+                { title: "수정" },
+                { title: "삭제" }
+            ]
         });
 
 
@@ -388,6 +401,7 @@
         });
         $('#addButton').on('click', function () {
             $('#itemcode-input').val('');
+            $('#accountdatatbody').empty();
             $('#addRowModal').modal('show');
         });
 
@@ -498,48 +512,7 @@
         load();
     });
 
-    // function load() {
-    //     $.ajax({
-    //         url: server + '/api/selectaccountinputordernumber',
-    //         method: 'post',
-    //         dataType: 'json',
-    //         contentType: 'application/json',
-    //         data: JSON.stringify({}),
-    //         success: function (result) {
-    //             var table = $("#multi-filter-select").DataTable();
-    //             table.clear().draw(); // Clear the table before adding new data
-
-    //             result.forEach((item, index) => {
-    //                 table.row.add([
-    //                     item.ordernumber || '',
-    //                     item.deliverydate || '',
-    //                     item.items || '',
-    //                     item.quantity.toLocaleString() || '',
-    //                     item.totalprice.toLocaleString() || '',
-
-    //                     '<div class="form-button-action">' +
-    //                     '<button type="button" data-id="' + item.id + '" data-row-index="' + index + '" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn">' +
-    //                     '<i class="fa fa-edit"></i>' +
-    //                     '</button>' +
-    //                     '</div>',
-    //                     '<div class="form-button-action">' +
-    //                     '<button type="button" data-id="' + item.id + '" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger delete-btn">' +
-    //                     '<i class="fa fa-times"></i>' +
-    //                     '</button>' +
-    //                     '</div>'
-    //                 ]).draw(false);
-    //             });
-
-
-    //         },
-
-    //     });
-
-    // }
-
     function load() {
-
-
         $.ajax({
             url: server + '/api/selectaccountinputordernumber',
             method: 'post',
@@ -551,18 +524,27 @@
             }),
             success: function (result) {
                 var table = $("#multi-filter-select").DataTable();
-                table.clear().draw(); // Clear the table before adding new data
+                table.clear(); // Clear the table before adding new data
 
-                var totalQuantity = 0; // quantity 합계를 저장할 변수 초기화
-                var totalTotalPrice = 0; // totalprice 합계를 저장할 변수 초기화
+                var totalQuantity = 0; // Initialize total quantity
+                var totalTotalPrice = 0; // Initialize total price
 
                 if (result.length === 0) {
+                    // If no data, add a row indicating no data
                     table.row.add([
-                        '<td colspan="6" style="text-align:center; font-weight:bold;">데이터가 없습니다</td>'
+                        '<td colspan="6" style="text-align:center; font-weight:bold;">데이터가 없습니다</td>',// No data message
+                        '', // 주문번호
+                        '', // 배송일
+                        '', // 고객
+                        '', // 품목
+                        '', // 수량
+                        '', // 총금액
+                        '', // 총금액
+
                     ]).draw(false);
-                    $('#iteminfofoot').hide(); // tfoot 숨기기
+                    $('#iteminfofoot').hide(); // Hide footer
                 } else {
-                    result.forEach((item, index) => {
+                    result.forEach((item) => {
                         table.row.add([
                             item.ordernumber || '',
                             item.deliverydate || '',
@@ -571,38 +553,43 @@
                             item.quantity.toLocaleString() || '',
                             item.totalprice.toLocaleString() || '',
                             '<div class="form-button-action">' +
-                            '<button type="button" data-id="' + item.id + '" data-row-index="' + index + '" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn">' +
+                            '<button type="button" data-id="' + item.id +
+                            '" class="btn btn-link btn-primary btn-lg edit-btn">' +
                             '<i class="fa fa-edit"></i>' +
                             '</button>' +
                             '</div>',
                             '<div class="form-button-action">' +
-                            '<button type="button" data-id="' + item.id + '" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger delete-btn">' +
+                            '<button type="button" data-id="' + item.id +
+                            '" class="btn btn-link btn-danger delete-btn">' +
                             '<i class="fa fa-times"></i>' +
                             '</button>' +
                             '</div>'
                         ]).draw(false);
 
-                        // 합계 계산
+                        // Accumulate totals
                         totalQuantity += parseFloat(item.quantity);
                         totalTotalPrice += parseFloat(item.totalprice);
                     });
 
-                    // tfoot에 합계 추가
+                    // Update footer with totals
                     $('#iteminfofoot').html(
                         '<tr>' +
                         '<td style="font-weight:bold;" colspan="3">총합계</td>' +
                         '<td style="font-weight:bold;">주문건수 :' + result.length.toLocaleString() + '</td>' +
                         '<td style="font-weight:bold;">' + totalQuantity.toLocaleString() + '</td>' +
                         '<td style="font-weight:bold;">' + totalTotalPrice.toLocaleString() + '</td>' +
-                        '<td colspan="3"></td>' + // 나머지 열은 빈 열로 채워짐
+                        '<td colspan="2"></td>' + // Ensure remaining columns are empty
                         '</tr>'
-                    ).show(); // tfoot 표시
+                    ).show(); // Show footer
                 }
-
-
             },
+         
         });
     }
+
+
+
+
 
     $('#itemcode-input').on('keypress', function (event) {
         if (event.which === 13) { // Enter key code
@@ -671,7 +658,7 @@
             '<td style="text-align:center;"><input type="button" onclick="deleteRow(this)" value="삭제" class="btn btn-danger"></td>' +
             '</tr>';
 
-        // Add the new row to the table body
+        // Add the new row to the table body1
         $('#accountdatatbody').append(newRow);
 
         var toast = new bootstrap.Toast(document.getElementById('addToast'));
@@ -694,24 +681,103 @@
 
     }
     function validateNumericInput(input) {
-            // 숫자와 소수점만 입력
-            input.value = input.value.replace(/[^0-9.]/g, '');
-
-            // 소수점이 여러 번 입력되지 않도록 함
-            if ((input.value.match(/\./g) || []).length > 1) {
-                input.value = input.value.replace(/\.+$/, "");
-            }
-
-            // 쉼표 추가 전 숫자만 추출
-            let parts = input.value.split('.');
-            parts[0] = parts[0].replace(/,/g, ''); // 기존 쉼표 제거
-
-            // 천의 자리마다 쉼표 추가
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-            // 소수점 있는 경우 다시 결합
-            input.value = parts.join('.');
+        input.value = input.value.replace(/[^0-9.]/g, '');
+        if ((input.value.match(/\./g) || []).length > 1) {
+            input.value = input.value.replace(/\.+$/, "");
         }
+        let parts = input.value.split('.');
+        parts[0] = parts[0].replace(/,/g, ''); // 기존 쉼표 제거
+
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        input.value = parts.join('.');
+    }
+    function accountsave(row) {
+        $.ajax({
+            type: 'GET',
+            url: server + '/api/getLastOrderNumber',
+            dataType: 'json',
+            success: function (response) {
+                // 마지막 주문번호 기반으로 새로운 주문번호 생성
+                var lastOrderNumber = response.lastOrderNumber;
+                var newOrderNumber = generateNewOrderNumber(lastOrderNumber);
+                var rowCount = $('#accountdatatbody tr').length;
+                var insertdate = new Date().toISOString().slice(0, 10);
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertordernumber',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "ordernumber": newOrderNumber,
+                    }),
+                    success: function (result) {
+                        // 성공했을 때의 처리
+                    }
+                });
+                for (var i = 0; i < rowCount; i++) {
+                    // Get the value of the checkbox with id=checkbox-input
+                    var checkboxChecked = $('#accountdatatbody tr:eq(' + i + ') #checkbox-input').prop('checked');
+
+                    // Set the value of ad based on the checkbox status
+                    var adValue = checkboxChecked ? 'A' : 'D';
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/openinsertdata',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "ordernumber": newOrderNumber,
+                            "bomno": $('#accountdatatbody tr:eq(' + i + ') #bomno-input').text(),
+                            "modelname": $('#accountdatatbody tr:eq(' + i + ') #modelname-input').text(),
+                            "itemname": $('#accountdatatbody tr:eq(' + i + ') #itemname-input').text(),
+                            "customer": $('#accountdatatbody tr:eq(' + i + ') #customer-input').text(),
+                            "quantity": $('#accountdatatbody tr:eq(' + i + ') #pocount-input').val().replaceAll(',', ''),
+                            "itemcode": $('#accountdatatbody tr:eq(' + i + ') #itemcode-input').text(),
+                            "itemprice": $('#accountdatatbody tr:eq(' + i + ') #itemprice-input').text(),
+                            "num": '1',
+                            "status": '생산발주대기',
+                            "ad": adValue, // Use the adValue variable here
+                            "deliverydate": insertdate,
+                            "part": '양산',
+                            "etc": $('#accountdatatbody tr:eq(' + i + ') #etc-input').val(),
+                        }),
+                        success: function (result) {
+                            // 성공했을 때의 처리
+                        }
+                    });
+                }
+
+            }
+        });
+
+        var toast = new bootstrap.Toast(document.getElementById('successToast'));
+        toast.show();
+        $('#addRowModal').modal('hide');
+        setTimeout(function () {
+            load();
+        }, 100);
+    }
+    function generateNewOrderNumber(lastOrderNumber) {
+        var today = new Date();
+        var year = String(today.getFullYear()).slice(2); // 두 자리 연도
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 두 자리 월
+        var day = String(today.getDate()).padStart(2, '0'); // 두 자리 일
+
+        var datePart = year + month + day;
+
+        if (!lastOrderNumber || !lastOrderNumber.startsWith(datePart)) {
+            // 만약 마지막 주문번호가 없거나 오늘 날짜로 시작하지 않는다면 초기값 설정
+            return datePart + '-1';
+        }
+
+        var parts = lastOrderNumber.split('-');
+        var orderPart = parseInt(parts[1], 10) + 1;
+
+        // 새로운 주문번호 생성 (예: 240611-2)
+        return datePart + '-' + orderPart;
+    }
 </script>
 
 </html>
