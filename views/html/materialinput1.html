@@ -32,22 +32,26 @@
                     <div class="container-fluid">
                         <div class="row">
                             <!-- First table -->
-                            <div class="col-md-6">
+                            <div class="col-md-6" style="height: 60vh; overflow-y: auto;">
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th colspan="7">발주정보</th>
+                                            <th colspan="10">발주정보</th>
                                         </tr>
                                         <tr>
                                             <td>발주NO</td>
-                                            <td colspan="6"><input type="text" id="orderno" autocomplete="off"
-                                                    placeholder="발주번호를 입력 후 Enter를 누르세요"></td>
+                                            <td colspan="9"><input type="text" id="orderno" autocomplete="off"
+                                                    placeholder="발주번호를 입력 후 Enter를 누르세요">
+                                            </td>
                                         </tr>
                                         <tr>
-                                            <th>발주일자</th>
                                             <th>자재명</th>
-                                            <th>자재폭</th>
-                                            <th>롤</th>
+                                            <th>전폭</th>
+                                            <th>발주폭</th>
+                                            <th>발주롤</th>
+                                            <th>M</th>
+                                            <th>컷수</th>
+                                            <th>M합계</th>
                                             <th>금액(￦)</th>
                                             <th>공급처</th>
                                             <th></th>
@@ -62,11 +66,11 @@
                                 </table>
                             </div>
                             <!-- Second table -->
-                            <div class="col-md-6">
+                            <div class="col-md-6" style="height: 60vh; overflow-y: auto;">
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th colspan="7">입고정보</th>
+                                            <th colspan="9">입고정보</th>
                                         </tr>
 
                                         <tr>
@@ -74,13 +78,16 @@
                                             <th>자재폭</th>
                                             <th>롤</th>
                                             <th>M</th>
+                                            <th>컷수</th>
+                                            <th>M합계</th>
+                                            <th>LOTNO</th>
                                             <th>금액(￦)</th>
                                             <th>공급처</th>
                                             <th></th>
                                         </tr>
                                     </thead>
                                     <tbody id="accountdatatbody2">
-                                        <tr id="no-data-row">
+                                        <tr id="no-data-row2">
                                             <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
                                         </tr>
                                     </tbody>
@@ -261,11 +268,15 @@
                     }),
                     success: function (result) {
                         const tableBody = $('#accountdatatbody');
+                        const tableFoot = $('#accountdatatfoot');
                         let totalSupplyAmount = 0; // To store the total supply amount
 
                         tableBody.empty();
+                        tableFoot.empty(); // Clear the table footer
+
                         if (result.length === 0) {
-                            tableBody.append('<tr><td colspan="8">생산확정 데이터가 없습니다.</td></tr>');
+                            tableBody.append('<tr><td colspan="8">구매발주 데이터가 없습니다.</td></tr>');
+                            tableFoot.hide(); // Hide the tfoot element
                         } else {
                             for (let i = 0; i < result.length; i++) {
                                 const item = result[i];
@@ -274,13 +285,16 @@
                                 // Append row to table
                                 const row = `
                             <tr>
-                                <td>${item.orderdate}</td>
                                 <td>${item.itemname}</td>
+                                <td>${item.materialwidth.toLocaleString()}</td>
                                 <td>${item.width}</td>
                                 <td>${item.quantity.toLocaleString()}</td>
+                                <td>${item.length.toLocaleString()}</td>
+                                <td>${item.cut}</td>
+                                <td>${(parseFloat(item.length) * parseFloat(item.cut) * parseFloat(item.quantity)).toLocaleString()}</td>
                                 <td>${item.supplyamount.toLocaleString()}</td>
                                 <td>${item.suppliername}</td>
-                                <td><button class="btn btn-success add-btn" style="text-align:center;">추가</button></td>
+                                <td><button class="btn btn-success add-btn" style="text-align:center; padding:10px;">추가</button></td>
                                 <td class="data-id" style="display:none;">${item.id}</td>
                             </tr>
                         `;
@@ -290,42 +304,53 @@
                             // Append the total row to the tfoot
                             const tableFooter = `
                         <tr>
-                            <td colspan="4" style="text-align:right;"><strong>합계금액:</strong></td>
+                            <td colspan="7" style="text-align:right;"><strong>합계</strong></td>
                             <td>${totalSupplyAmount.toLocaleString()}</td>
                             <td colspan="3"></td>
                         </tr>
                     `;
-                            $('#accountdatatfoot').html(tableFooter);
+                            tableFoot.append(tableFooter);
+                            tableFoot.show(); // Show the tfoot element
                         }
 
-                        $('.add-btn').on('click', function () {
+                        // Add click event listener to each add button
+                        $(document).on('click', '.add-btn', function () {
                             const row = $(this).closest('tr'); // Get the closest row
-                            const itemname = row.find('td:nth-child(2)').text();
+                            const itemname = row.find('td:nth-child(1)').text(); // Ensure correct index for itemname
                             const width = row.find('td:nth-child(3)').text();
                             const quantity = row.find('td:nth-child(4)').text();
-                            const supplyamount = row.find('td:nth-child(5)').text();
-                            const suppliername = row.find('td:nth-child(6)').text();
+                            const length = row.find('td:nth-child(5)').text();
+                            const cut = row.find('td:nth-child(6)').text();
 
-                            const noDataRow = $('#accountdatatbody2 #no-data-row');
+                            // Remove the "데이터가 없습니다" row if it exists
+                            const noDataRow = $('#accountdatatbody2 #no-data-row2');
                             if (noDataRow.length) {
                                 noDataRow.remove();
                             }
-                            const newRow = `
-                        <tr>
-                            <td>${itemname}</td>
-                            <td>${width}</td>
-                            <td>${quantity}</td>
-                            <td>${supplyamount}</td>
-                            <td>${suppliername}</td>
-                        </tr>
-                    `;
 
+                            // Calculate the value for the last column
+                            const totalValue = (parseFloat(length) * parseFloat(quantity) * parseFloat(cut)).toLocaleString();
+
+                            // Append the new row to accountdatatfoot2
+                            const newRow = `
+        <tr>
+            <td>${itemname}</td>
+            <td><input type="text" style="text-align:right;" value="${width}"></td>
+            <td><input type="text" style="text-align:right;" value="${quantity}"></td>
+            <td><input type="text" style="text-align:right;" value="${length}"></td>
+            <td>${cut}</td>
+            <td>${totalValue}</td>
+            <td><input type="text" style="text-align:right;" value=""></td>
+        </tr>
+    `;
                             $('#accountdatatfoot2').append(newRow);
                         });
+
                     },
                 });
             }
         });
+
 
         // Initialize DataTable with search functionality
         $('#orderdatatable thead input[type="checkbox"]').on('change', function () {
@@ -372,12 +397,13 @@
             <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
         </tr>
     `);
+            $('#accountdatatfoot').hide(); // Hide the tfoot element
 
             $('#productModal').modal('show'); // Show the modal
 
             // Set the value and focus on the input field after the modal is shown
             $('#productModal').on('shown.bs.modal', function () {
-                $('#orderno').val('').focus();
+                $('#orderno').val('20240716-41').focus();
             });
         });
 

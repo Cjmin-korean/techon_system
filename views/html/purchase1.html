@@ -738,93 +738,6 @@
 
         input.value = parts.join('.');
     }
-    function accountsave() {
-        var rowCount = $('#productiondatatbody tr').length;
-        let tableBody = document.getElementById('productiondatatbody');
-
-        if (tableBody) {
-            let rowCount = tableBody.children.length;
-
-            for (let i = 0; i < rowCount; i++) {
-                var count = $('#productiondatatbody tr:eq(' + i + ') #count-input').val();
-
-                if (count === '' || count === '0') {
-                    alert((i + 1) + '번째 작업지시 수량 확인 바랍니다.'); // Swal 대신 alert 사용
-                    return;
-                }
-            }
-        }
-
-        if (confirm('생산 지시 정보를 저장하시겠습니까? 생산지시가 저장됩니다.')) { // Swal 대신 confirm 사용
-            var insertdate = new Date().toISOString().slice(0, 10);
-            let today = new Date();
-            let formattedTime = today.toLocaleTimeString('en-US', { hour12: false });
-
-            for (var i = 0; i < rowCount; i++) {
-                var quantity = $('#productiondatatbody tr:eq(' + i + ') #count-input').val().replace(/,/g, ''); // Remove commas
-                quantity = parseInt(quantity, 10); // Convert to number
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/productorderinstruction',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "bomno": $('#bomno-edit').val(),
-                        "qrno": $('#orderid').val(),
-                        "productdate": insertdate,
-                        "modelname": $('#modelname-edit').val(),
-                        "itemname": $('#itemname-edit').val(),
-                        "lotno": $('#ad-edit').val() + '-' + $('#bomno-edit').val() + '-' + insertdate.replace(/-/g, '') + '-' + (parseInt($('#num').val()) + i),
-                        "quantity": quantity, // Use the converted quantity
-                        "status": 'true',
-                        "orderstatus": '생산보류',
-                        "lotdate": insertdate,
-                        "inserttime": formattedTime,
-                        "customer": $('#customer-edit').val(),
-                        "part": $('#part-edit').val()
-                    }),
-                    success: function (result) {
-                        // 성공했을 때의 처리
-                    }
-                });
-            }
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/updatestatusaccountinput',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "orderid": $('#orderid').val(),
-                    "status": '생산지시완료',
-                }),
-                success: function (result) {
-                    // 성공했을 때의 처리
-                }
-            });
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/updatenum',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "orderid": $('#orderid').val(),
-                    "num": (parseInt($('#num').val()) + rowCount)
-                }),
-                success: function (result) {
-                    // 성공했을 때의 처리
-                }
-            });
-
-            $('#orderModal').fadeOut();
-
-            alert('저장 완료: 생산지시 정보가 저장 되었습니다.'); // Swal 대신 alert 사용
-            load();
-            load1();
-        }
-    }
 
 
     function generateNewOrderNumber(lastOrderNumber) {
@@ -1151,6 +1064,8 @@
                 const manufacterer = $('#orderlistbombody tr:eq(' + i + ') #manufacterer-input').val();
                 const productid = $('#orderlistbombody tr:eq(' + i + ') #productid-input').val();
                 const orderno = $('#orderlistbombody tr:eq(' + i + ') #orderno-input').val();
+                const materialwidth = $('#orderlistbombody tr:eq(' + i + ') #width-input').val();
+                const cut = $('#orderlistbombody tr:eq(' + i + ') #cut-input').text();
 
                 // Calculate supply amount
                 const supplyAmount = quantity * unitPrice;
@@ -1177,6 +1092,8 @@
                         "productid": productid,
                         "status": '입고대기',
                         "orderno": orderno,
+                        "materialwidth": materialwidth,
+                        "cut": cut,
                         "confirmed": modelname + "/" + itemName + "/" + quantity.toLocaleString(),
 
                     }),

@@ -8710,11 +8710,13 @@ module.exports = function (app) {
                 .input('orderno', sql.NVarChar, req.body.orderno)
                 .input('inputcode', sql.NVarChar, req.body.inputcode)
                 .input('status', sql.NVarChar, req.body.status)
+                .input('materialwidth', sql.Float, req.body.materialwidth)
+                .input('cut', sql.Float, req.body.cut)
 
 
                 .query(
-                    'insert into purchaseorder(orderno,productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc,inputcode,status)' +
-                    ' values(@orderno,@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc,@inputcode,@status)'
+                    'insert into purchaseorder(orderno,productid,orderdate,itemname,codenumber,width,length,quantity,unitprice,supplyamount,suppliername,bomno,ordertype,cutting,confirmed,manufacterer,etc,inputcode,status,materialwidth,cut)' +
+                    ' values(@orderno,@productid,@orderdate,@itemname,@codenumber,@width,@length,@quantity,@unitprice,@supplyamount,@suppliername,@bomno,@ordertype,@cutting,@confirmed,@manufacterer,@etc,@inputcode,@status,@materialwidth,@cut)'
                 )
                 .then(result => {
 
