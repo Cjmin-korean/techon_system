@@ -32,7 +32,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <!-- First table -->
-                            <div class="col-md-6" style="height: 60vh; overflow-y: auto;">
+                            <div class="col-md-6" style="height: 60vh;">
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
@@ -41,8 +41,7 @@
                                         <tr>
                                             <td>발주NO</td>
                                             <td colspan="9"><input type="text" id="orderno" autocomplete="off"
-                                                    placeholder="발주번호를 입력 후 Enter를 누르세요">
-                                            </td>
+                                                    placeholder="발주번호를 입력 후 Enter를 누르세요"></td>
                                         </tr>
                                         <tr>
                                             <th>자재명</th>
@@ -75,12 +74,12 @@
 
                                         <tr>
                                             <th>자재명</th>
-                                            <th>자재폭</th>
-                                            <th>롤</th>
-                                            <th>M</th>
-                                            <th>컷수</th>
+                                            <th style="width:100px;">자재폭</th>
+                                            <th style="width:100px;">롤</th>
+                                            <th style="width:100px;">M</th>
+                                            <th style="width:100px;">컷수</th>
                                             <th>M합계</th>
-                                            <th>LOTNO</th>
+                                            <th style="width:200px;">LOTNO</th>
                                             <th>금액(￦)</th>
                                             <th>공급처</th>
                                             <th></th>
@@ -222,14 +221,22 @@
                             <table class="styled-table">
                                 <thead id="tableHead">
                                     <tr>
-                                        <th>품목코드</th>
+                                        <th>입고날짜</th>
                                         <th>자재명</th>
-                                        <th>자재폭(mm)</th>
-                                        <th>수량(M)</th>
-                                        <th>발주ROLL(￦)</th>
-                                        <th>합계(M)</th>
-                                        <th>입고ROLL</th>
-                                        <th>입고합계(M)</th>
+                                        <th>품목코드</th>
+                                        <th>LOTNO</th>
+                                        <th>제조일자</th>
+                                        <th>만료일자</th>
+                                        <th>자재폭<br>(mm)</th>
+                                        <th>수량<br>(M)</th>
+                                        <th>롤<br>(RL)</th>
+                                        <th>롤단가<br>(￦)</th>
+                                        <th>공급가액<br>(￦)</th>
+                                        <th>부가세<br>(￦)</th>
+                                        <th>합계<br>(￦)</th>
+                                        <th>입고현황</th>
+                                        <th style="width: 120px;"></th>
+                                        <th style="width: 120px;"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="Datatbody">
@@ -237,6 +244,7 @@
                                         <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
                                     </tr>
                                 </tbody>
+                                <tfoot id="iteminfofoot"></tfoot>
                             </table>
                         </div>
                     </div>
@@ -338,15 +346,15 @@
                             const newRow = `
                                 <tr>
                                     <td>${itemname}</td>
-                                    <td><input type="text" style="text-align:right;" value="${width}" ></td>
-                                    <td><input type="text" style="text-align:right;" value="${quantity}"></td>
-                                    <td><input type="text" style="text-align:right;" value="${length}"></td>
-                                    <td>${cut}</td>
-                                    <td>${totalValue}</td>
+                                    <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${width}"></td>
+                                    <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${quantity}" id="quantity"></td>
+                                    <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${length}" id="length"></td>
+                                    <td><input type="text" style="text-align:right;" autocomplete="off" readonly oninput="updateTotalValue();" value="${cut}" id="cut"></td>
+                                    <td id="totalValue">${totalValue}</td>
                                     <td><input type="text" style="text-align:right;" value=""></td>
                                 </tr>
                             `;
-                            $('#accountdatatfoot2').append(newRow);
+                            $('#accountdatatbody2').append(newRow);
                         });
 
                     },
@@ -393,216 +401,116 @@
             $('#deleteConfirmModal').modal('hide');
         });
         $('#addButton').on('click', function () {
-            $('#accountdatatbody').empty(); // Clear the table body
-            // Add the "데이터가 없습니다" row
-            $('#accountdatatbody').append(`
-        <tr id="no-data-row">
-            <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
-        </tr>
-    `);
-            $('#accountdatatfoot').hide(); // Hide the tfoot element
-
-            $('#productModal').modal('show'); // Show the modal
+            // Show the modal first
+            $('#productModal').modal('show');
 
             // Set the value and focus on the input field after the modal is shown
             $('#productModal').on('shown.bs.modal', function () {
                 $('#orderno').val('20240716-41').focus();
+
+                // Clear and update the first table body
+                $('#accountdatatbody').empty();
+                $('#accountdatatbody').append('<tr id="no-data-row"><td colspan="11" style="text-align: center;">데이터가 없습니다</td></tr>');
+
+                // Clear and update the second table body
+                $('#accountdatatbody2').empty();
+                $('#accountdatatbody2').append('<tr id="no-data-row2"><td colspan="11" style="text-align: center;">데이터가 없습니다</td></tr>');
+
+                // Hide the tfoot element
+                $('#accountdatatfoot').hide();
             });
         });
 
 
 
 
-        $('#datatable').on('click', '#orderbutton', function () {
-            // Find the closest row (tr) of the clicked button
-            var $row = $(this).closest('tr');
-
-            // Retrieve data from the row
-            var rowData = $row.children('td').map(function () {
-                return $(this).text();
-            }).get();
-            console.log(rowData)
-            // Display the row data (for example, in an alert or console)
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/capasearchingwherebomno',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "bomno": rowData[1]
-                }),
-                success: function (result) {
-                    $('#capa-edit').val(result[0].cv2.toLocaleString())
-                }
-            });
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectbomsoyo1',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "bomno": rowData[1]
-                }),
-                success: function (result) {
-                    // Perform a case-insensitive comparison after trimming
-
-                    $('#productiondatatbody').empty()
-                    var newRow = $('<tr></tr>');
-                    var rowCount = $('#productiondatatbody tr').length;
-
-                    newRow.append('<td ><input type="text" style="text-align:right;" oninput="valuechanged(); validateNumericInput(this);" id="count-input"  value="" autocomplete="off"></td>');
-                    newRow.append('<td ><input type="text" readonly style="text-align:right;" id="onepidding-input"  value="' + result[0].onepid + '" autocomplete="off"></td>');
-                    newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyo-input"  value="' + result[0].soyo + '" autocomplete="off"></td>');
-                    newRow.append('<td ><input type="text" readonly style="text-align:right;" id="length-input"  value="' + result[0].length + '" autocomplete="off"></td>');
-                    newRow.append('<td ><input type="text" style="text-align:right;" oninput="rollvaluechanged()" id="roll-input"  value="0" autocomplete="off"></td>');
-                    newRow.append('<td ><input type="text" readonly style="text-align:right;" id="soyosum-input"  value="0" autocomplete="off"></td>');
-                    newRow.append('<td><button id="deleteRowBtn" onclick="deleteRow(this)" class="btn btn-danger" style="background-color: red;"> 삭제</button ></td > ');
 
 
 
-                    $('#productiondatatbody').append(newRow);
-                }
-            });
 
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/searchnum',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "orderid": rowData[12]
-                }),
-                success: function (result) {
-                    $('#num').val(result[0].num)
-
-                }
-            });
-            $('#bomno-edit').val(rowData[1])
-            $('#accountdate-edit').val(rowData[0])
-            $('#customer-edit').val(rowData[2])
-            $('#itemcode-edit').val(rowData[5])
-            $('#modelname-edit').val(rowData[3])
-            $('#itemname-edit').val(rowData[4])
-            $('#ad-edit').val(rowData[6])
-            $('#part-edit').val(rowData[7])
-            $('#count-edit').val(rowData[8])
-            $('#orderid').val(rowData[12])
-            $('#orderModal').modal('show');
-        });
-
-
-
-        $('#updateRowButton').on('click', function () {
-            var rowIndex = $(this).data('row-index');
-            var rowData = table.row(rowIndex).data();
-            var id = $(this).data('id');
-
-            // 입력값 확인
-            const codenumber = $('#codenumber-edit').val();
-            const equipmentname = $('#equipmentname-edit').val();
-            const eqname = $('#eqname-edit').val();
-            const part = $('#part-edit').val();
-            const editId = $('#id-edit').val();
-
-            // 누락된 필드 체크
-            if (!codenumber || !equipmentname || !eqname || !part) {
-                var toast = new bootstrap.Toast(document.getElementById('nuToast'));
-                toast.show();
-                return; // 누락된 필드가 있으면 종료
-            }
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/updateeqdata',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "codenumber": $('#codenumber-edit').val(),
-                    "equipmentname": $('#equipmentname-edit').val(),
-                    "eqname": $('#eqname-edit').val(),
-                    "part": $('#part-edit').val(),
-                    "size": $('#size-edit').val(),
-                    "num": $('#num-edit').val(),
-                    "customer": $('#customer-edit').val(),
-                    "serialno": $('#serialno-edit').val(),
-                    "manudate": $('#manudate-edit').val(),
-                    "position": $('#position-edit').val(),
-                    "id": editId,
-                }),
-                success: function (result) {
-                    // 성공 시 처리
-                },
-
-            });
-
-            $('#updateRowModal').modal('hide');
-
-            var toast = new bootstrap.Toast(document.getElementById('successToast'));
-            toast.show();
-
-            // 0.5초 뒤에 load() 호출
-            setTimeout(function () {
-                load();
-            }, 100);
-        });
-        // load();
+        load();
     });
+
 
     function load() {
 
 
-        $('#Datatbody').empty()
-
         $.ajax({
-            type: 'POST',
-            url: server + '/api/purchaseorderload',
+            url: server + '/api/selectmaterialinputinformation1',
+            method: 'post',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify({
                 start: $('#startdate').val(),
                 finish: $('#enddate').val(),
             }),
-            success: function (data) {
-                var tableFoot = $('#dataCount');
-                if (data.length === 0) {
-                    $('#Datatbody').append('<tr><td colspan="7" style="text-align: center;">데이터가 없습니다.</td></tr>');
-                    tableFoot.text('총 데이터 개수: 0');
+            success: function (result) {
+                $('#Datatbody').empty();
+                $('#iteminfofoot').empty(); // tfoot 비우기
+                var totalQuantity = 0; // quantity 합계를 저장할 변수 초기화
+                var totalRoll = 0; // 롤 합계를 저장할 변수 초기화
+                var totalRollPrice = 0; // 롤 가격 합계를 저장할 변수 초기화
+                var totalCalculation1 = 0; // 계산된 값 합계를 저장할 변수 초기화
+                var totalCalculation2 = 0; // 계산된 값 합계를 저장할 변수 초기화
+                var totalCalculation3 = 0; // 계산된 값 합계를 저장할 변수 초기화
+
+                if (result.length === 0) {
+                    $('#Datatbody').append('<tr><td colspan="17" style="text-align:center; font-weight:bold;"  >데이터가 없습니다</td></tr>');
+                    $('#iteminfofoot').hide(); // tfoot 숨기기
                 } else {
-                    var totalQuantity = 0;
-                    var totalSupplyAmount = 0;
-
-                    for (var i = 0; i < data.length; i++) {
-                        totalQuantity += parseFloat(data[i].quantity) || 0;
-                        totalSupplyAmount += parseFloat(data[i].totalSupplyAmount) || 0;
-
+                    for (var i = 0; i < result.length; i++) {
+                        var inputText = result[i].input || '';
+                        var inputColor = inputText === '수입검사대기' ? 'red' : 'black';
 
                         $('#Datatbody').append(
                             '<tr>' +
-                            '<td>' + (data[i].orderno || '') + '</td>' +
-                            '<td>' + (data[i].orderdate || '') + '</td>' +
-                            '<td>' + (data[i].suppliername || '') + '</td>' +
-                            '<td>' + (data[i].orderSummary || '') + '</td>' +
-                            '<td style="text-align:right;">' + (parseFloat(data[i].totalSupplyAmount).toLocaleString() || '') + '</td>' +
-                            '<td><button class="btn btn-success" onclick="openInvoice(this)">발주서</button></td>' +
+                            '<td>' + (result[i].date || '') + '</td>' +
+                            '<td>' + (result[i].materialname || '') + '</td>' +
+                            '<td>' + (result[i].codenumber || '') + '</td>' +
+                            '<td>' + (result[i].lotno || '') + '</td>' +
+                            '<td>' + (result[i].manufacturedate || '') + '</td>' +
+                            '<td>' + (result[i].expirationdate || '') + '</td>' +
+                            '<td>' + (result[i].materialwidth.toLocaleString() || '') + '</td>' +
+                            '<td>' + (result[i].quantity.toLocaleString() || '') + '</td>' +
+                            '<td>' + (result[i].roll.toLocaleString() || '') + '</td>' +
+                            '<td>' + (result[i].rollprice.toLocaleString() || '') + '</td>' +
+                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll)).toLocaleString() + '</td>' +
+                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 0.1).toLocaleString() + '</td>' +
+                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 1.1).toLocaleString() + '</td>' +
+                            '<td style="font-weight:bold; color:' + inputColor + ';">' + inputText + '</td>' +
+                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                            '<td><button class="btn btn-primary" onclick="showinfo(this)">상세</button></td>' +
+                            '<td><button class="btn btn-danger" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
                             '</tr>'
-                        )
+                        );
+                        $('td#data-id').hide();
+                        // 합계 계산
+                        totalQuantity += parseFloat(result[i].quantity);
+                        totalRoll += parseFloat(result[i].roll);
+                        totalRollPrice += parseFloat(result[i].rollprice);
+                        totalCalculation1 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll);
+                        totalCalculation2 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 0.1;
+                        totalCalculation3 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 1.1;
                     }
 
-                    // Append footer row with total supply amount
-                    $('#iteminfobody').append(
+                    // tfoot에 합계 추가
+                    $('#iteminfofoot').html(
                         '<tr>' +
-                        '<td colspan="4" style="text-align:right; font-weight:bold;">발주금액 합계:</td>' +
-                        '<td style="text-align:right; font-weight:bold;">' + totalSupplyAmount.toLocaleString() + '</td>' +
-                        '<td></td>' +
+                        '<td style="font-weight:bold;" colspan="8">총합계</td>' +
+                        '<td style="font-weight:bold;">' + totalRoll.toLocaleString() + '</td>' +
+                        '<td style="font-weight:bold;">' + totalRollPrice.toLocaleString() + '</td>' +
+                        '<td style="font-weight:bold;">' + totalCalculation1.toLocaleString() + '</td>' +
+                        '<td style="font-weight:bold;">' + totalCalculation2.toLocaleString() + '</td>' +
+                        '<td style="font-weight:bold;">' + totalCalculation3.toLocaleString() + '</td>' +
+                        '<td colspan="3"></td>' + // 나머지 열은 빈 열로 채워짐
                         '</tr>'
-                    );
-
-                    tableFoot.text('총 데이터 개수: ' + data.length);
+                    ).show(); // tfoot 표시
                 }
+
+                $('td#data-id').hide();
+
             }
         });
-
-
     }
 
 
@@ -1329,12 +1237,17 @@
     }
 
 
-    function validateNumberInput(input) {
-        // Replace any non-numeric characters
-        input.value = input.value.replace(/[^0-9.]/g, '');
+    function updateTotalValue() {
+        const quantityInput = document.getElementById('quantity');
+        const lengthInput = document.getElementById('length');
+        const cutInput = document.getElementById('cut');
+        const totalValueCell = document.getElementById('totalValue');
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const length = parseFloat(lengthInput.value) || 0;
+        const cut = parseFloat(cutInput.value) || 0;
+        const totalValue = cut * length * quantity;
+        totalValueCell.textContent = totalValue.toLocaleString();  // Adjust toFixed to desired decimal places
     }
-
-
 
 
 </script>
