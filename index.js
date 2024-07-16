@@ -42,6 +42,9 @@ app.get("/config.json", cors(), (req, res) => {
 app.get("/main", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/mainmenu.html");
 });
+// app.get("/customerinformation.html", cors(), (req, res) => {
+//     res.sendFile(__dirname + "/views/html/customerinformation.html");
+// });
 app.get("/loadmain", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/menu.html");
 });
