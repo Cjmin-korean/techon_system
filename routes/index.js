@@ -10118,6 +10118,29 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/ordernoselect', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .input('orderno', sql.NVarChar, req.body.orderno)
+
+
+                .query(
+                    "select " +
+                    "* " +
+                    "from " +
+                    "purchaseorder where orderno=@orderno ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/selectordernopurchaseorder', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
