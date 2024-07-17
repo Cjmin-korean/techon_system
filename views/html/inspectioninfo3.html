@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>수입검사완료현황</title>
     <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
     <script src="../assets/js/core/popper.min.js"></script>
     <script src="../assets/js/core/bootstrap.min.js"></script>
@@ -189,7 +189,7 @@
                     <div class="page-inner">
                         <div class="card-header">
                             <div class="d-flex align-items-center">
-                                <h4 class="card-title">자재 입고 등록</h4>
+                                <h4 class="card-title">수입검사 완료 현황</h4>
 
                             </div>
                             <div class="card-body">
@@ -206,11 +206,11 @@
                                     <div>
                                         <button onclick="load()" class="btn btn-primary btn-round ms-auto">조회</button>
                                     </div>
-                                    <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
+                                    <!-- <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
                                         id="addButton">
                                         <i class="fa fa-plus"></i>
                                         발주조회
-                                    </button>
+                                    </button> -->
                                 </div>
                             </div>
                         </div>
@@ -221,27 +221,27 @@
                             <table class="styled-table">
                                 <thead id="tableHead">
                                     <tr>
-                                        <th>입고날짜</th>
+                                        <th>검사일자</th>
+                                        <th>검사자</th>
                                         <th>자재명</th>
-                                        <th>품목코드</th>
                                         <th>LOTNO</th>
-                                        <th>제조일자</th>
-                                        <th>만료일자</th>
-                                        <th>자재폭<br>(mm)</th>
-                                        <th>수량<br>(M)</th>
-                                        <th>롤<br>(RL)</th>
-                                        <th>롤단가<br>(￦)</th>
-                                        <th>공급가액<br>(￦)</th>
-                                        <th>부가세<br>(￦)</th>
-                                        <th>합계<br>(￦)</th>
-                                        <th>입고현황</th>
-                                        <th style="width: 120px;"></th>
+                                        <th>공급사</th>
+                                        <th>제조사</th>
+                                        <th>TYPE</th>
+                                        <th>입고수량</th>
+                                        <th>검사수량</th>
+                                        <th>외관검사</th>
+                                        <th>두께판정</th>
+                                        <th>점착력(내측)</th>
+                                        <th>점착력(외측)</th>
+                                        <th>이형력(외측)</th>
+                                        <th style="width: 120px;">성적서</th>
                                         <th style="width: 120px;"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="Datatbody">
                                     <tr id="no-data-row">
-                                        <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
+                                        <td colspan="16" style="text-align: center;">데이터가 없습니다</td>
                                     </tr>
                                 </tbody>
                                 <tfoot id="iteminfofoot"></tfoot>
@@ -428,11 +428,11 @@
 
                 // Clear and update the first table body
                 $('#accountdatatbody').empty();
-                $('#accountdatatbody').append('<tr id="no-data-row"><td colspan="11" style="text-align: center;">데이터가 없습니다</td></tr>');
+                $('#accountdatatbody').append('<tr id="no-data-row"><td colspan="12" style="text-align: center;">데이터가 없습니다</td></tr>');
 
                 // Clear and update the second table body
                 $('#accountdatatbody2').empty();
-                $('#accountdatatbody2').append('<tr id="no-data-row2"><td colspan="11" style="text-align: center;">데이터가 없습니다</td></tr>');
+                $('#accountdatatbody2').append('<tr id="no-data-row2"><td colspan="12" style="text-align: center;">데이터가 없습니다</td></tr>');
 
                 // Hide the tfoot element
                 $('#accountdatatfoot').hide();
@@ -451,10 +451,8 @@
 
 
     function load() {
-
-
         $.ajax({
-            url: server + '/api/selectmaterialinputinformation1',
+            url: server + '/api/selectinspection',
             method: 'post',
             dataType: 'json',
             contentType: 'application/json',
@@ -464,72 +462,93 @@
             }),
             success: function (result) {
                 $('#Datatbody').empty();
-                $('#iteminfofoot').empty(); // tfoot 비우기
-                var totalQuantity = 0; // quantity 합계를 저장할 변수 초기화
-                var totalRoll = 0; // 롤 합계를 저장할 변수 초기화
-                var totalRollPrice = 0; // 롤 가격 합계를 저장할 변수 초기화
-                var totalCalculation1 = 0; // 계산된 값 합계를 저장할 변수 초기화
-                var totalCalculation2 = 0; // 계산된 값 합계를 저장할 변수 초기화
-                var totalCalculation3 = 0; // 계산된 값 합계를 저장할 변수 초기화
-
+                console.log(result);
                 if (result.length === 0) {
-                    $('#Datatbody').append('<tr><td colspan="17" style="text-align:center; font-weight:bold;"  >데이터가 없습니다</td></tr>');
-                    $('#iteminfofoot').hide(); // tfoot 숨기기
+                    var emptyRow = $('<tr>');
+                    var emptyCell = $('<td colspan="18" style="font-weight:bold;">').text('데이터가 없습니다.');
+                    emptyRow.append(emptyCell);
+                    $('#Datatbody').append(emptyRow);
                 } else {
-                    for (var i = 0; i < result.length; i++) {
-                        var inputText = result[i].input || '';
-                        var inputColor = inputText === '수입검사대기' ? 'red' : 'black';
+                    result.forEach(function (item) {
+                        var row = $('<tr>');
+                        row.append('<td>' + (item.inspectiondate || '') + '</td>');
+                        row.append('<td>' + (item.employee || '') + '</td>');
+                        row.append('<td>' + (item.materialname || '') + '</td>');
+                        row.append('<td>' + (item.lotno || '') + '</td>');
+                        row.append('<td>' + (item.supplier || '') + '</td>');
+                        row.append('<td>' + (item.manufacterer || '') + '</td>');
+                        row.append('<td>' + (item.typecategory || '') + '</td>');
+                        row.append('<td>' + (item.roll || '') + '</td>');
+                        row.append('<td>' + (item.inspectionroll || '') + '</td>');
+                        row.append('<td>' + (item.exterior1 || '') + '</td>');
+                        row.append('<td>' + (item.data1result || '') + '</td>');
+                        row.append('<td>' + (item.data2result || '') + '</td>');
+                        row.append('<td>' + (item.data3result || '') + '</td>');
+                        row.append('<td>' + (item.data4result || '') + '</td>');
 
-                        $('#Datatbody').append(
-                            '<tr>' +
-                            '<td>' + (result[i].date || '') + '</td>' +
-                            '<td>' + (result[i].materialname || '') + '</td>' +
-                            '<td>' + (result[i].codenumber || '') + '</td>' +
-                            '<td>' + (result[i].lotno || '') + '</td>' +
-                            '<td>' + (result[i].manufacturedate || '') + '</td>' +
-                            '<td>' + (result[i].expirationdate || '') + '</td>' +
-                            '<td>' + (result[i].materialwidth.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].quantity.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].roll.toLocaleString() || '') + '</td>' +
-                            '<td>' + (result[i].rollprice.toLocaleString() || '') + '</td>' +
-                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll)).toLocaleString() + '</td>' +
-                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 0.1).toLocaleString() + '</td>' +
-                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 1.1).toLocaleString() + '</td>' +
-                            '<td style="font-weight:bold; color:' + inputColor + ';">' + inputText + '</td>' +
-                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
-                            '<td><button class="btn btn-primary" onclick="showinfo(this)">상세</button></td>' +
-                            '<td><button class="btn btn-danger" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
-                            '</tr>'
-                        );
-                        $('td#data-id').hide();
-                        // 합계 계산
-                        totalQuantity += parseFloat(result[i].quantity);
-                        totalRoll += parseFloat(result[i].roll);
-                        totalRollPrice += parseFloat(result[i].rollprice);
-                        totalCalculation1 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll);
-                        totalCalculation2 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 0.1;
-                        totalCalculation3 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 1.1;
-                    }
+                        // Create 성적서 button
+                        var gradeButton = $('<button class="btn btn-success" style="background-color:green;">성적서</button>');
+                        gradeButton.click(function () {
+                            // Open 00.html in a new window
+                            var newWindow = window.open('/html/00.html', '_blank', 'width=1000,height=1000');
 
-                    // tfoot에 합계 추가
-                    $('#iteminfofoot').html(
-                        '<tr>' +
-                        '<td style="font-weight:bold;" colspan="8">총합계</td>' +
-                        '<td style="font-weight:bold;">' + totalRoll.toLocaleString() + '</td>' +
-                        '<td style="font-weight:bold;">' + totalRollPrice.toLocaleString() + '</td>' +
-                        '<td style="font-weight:bold;">' + totalCalculation1.toLocaleString() + '</td>' +
-                        '<td style="font-weight:bold;">' + totalCalculation2.toLocaleString() + '</td>' +
-                        '<td style="font-weight:bold;">' + totalCalculation3.toLocaleString() + '</td>' +
-                        '<td colspan="3"></td>' + // 나머지 열은 빈 열로 채워짐
-                        '</tr>'
-                    ).show(); // tfoot 표시
+                            // Ensure the new window is fully loaded before trying to modify its content
+                            newWindow.onload = function () {
+                                newWindow.document.getElementById("inputdate").innerText = item.inspectiondate || '';
+                                newWindow.document.getElementById("inspectiondate").innerText = item.inspectiondate || '';
+                                newWindow.document.getElementById("materialname").innerText = item.materialname || '';
+                                newWindow.document.getElementById("lotno").innerText = item.lotno || '';
+                                newWindow.document.getElementById("supplier").innerText = item.supplier || '';
+                                newWindow.document.getElementById("manufacterer").innerText = item.manufacterer || '';
+                                newWindow.document.getElementById("inspectionroll").innerText = item.roll + '/' + item.inspectionroll || '';
+                                newWindow.document.getElementById("data11").innerText = item.data11 || '';
+                                newWindow.document.getElementById("data12").innerText = item.data12 || '';
+                                newWindow.document.getElementById("data13").innerText = item.data13 || '';
+                                newWindow.document.getElementById("data14").innerText = item.data14 || '';
+                                newWindow.document.getElementById("data15").innerText = item.data15 || '';
+                                newWindow.document.getElementById("data1result").innerText = item.data1result || '';
+                                newWindow.document.getElementById("data21").innerText = item.data21 || '';
+                                newWindow.document.getElementById("data22").innerText = item.data22 || '';
+                                newWindow.document.getElementById("data23").innerText = item.data23 || '';
+                                newWindow.document.getElementById("data24").innerText = item.data24 || '';
+                                newWindow.document.getElementById("data25").innerText = item.data25 || '';
+                                newWindow.document.getElementById("data2result").innerText = item.data2result || '';
+                                newWindow.document.getElementById("data31").innerText = item.data31 || '';
+                                newWindow.document.getElementById("data32").innerText = item.data32 || '';
+                                newWindow.document.getElementById("data33").innerText = item.data33 || '';
+                                newWindow.document.getElementById("data34").innerText = item.data34 || '';
+                                newWindow.document.getElementById("data35").innerText = item.data35 || '';
+                                newWindow.document.getElementById("data3result").innerText = item.data3result || '';
+                                newWindow.document.getElementById("data41").innerText = item.data41 || '';
+                                newWindow.document.getElementById("data42").innerText = item.data42 || '';
+                                newWindow.document.getElementById("data43").innerText = item.data43 || '';
+                                newWindow.document.getElementById("data44").innerText = item.data44 || '';
+                                newWindow.document.getElementById("data45").innerText = item.data45 || '';
+                                newWindow.document.getElementById("data4result").innerText = item.data4result || '';
+                                newWindow.document.getElementById("data51").innerText = item.data51 || '';
+                                newWindow.document.getElementById("data52").innerText = item.data52 || '';
+                                newWindow.document.getElementById("data53").innerText = item.data53 || '';
+                                newWindow.document.getElementById("data54").innerText = item.data54 || '';
+                                newWindow.document.getElementById("data55").innerText = item.data55 || '';
+                                newWindow.document.getElementById("data5result").innerText = item.data5result || '';
+                            };
+                        });
+                        row.append($('<td>').append(gradeButton));
+
+                        // Create 상세 button
+                        var detailButton = $('<button class="btn btn-primary">상세</button>');
+                        row.append($('<td>').append(detailButton));
+
+                        row.data('id', item.id); // Store ID as data attribute
+
+                        $('#Datatbody').append(row);
+                    });
                 }
-
-                $('td#data-id').hide();
-
             }
         });
     }
+
+
 
 
     function load1() {
