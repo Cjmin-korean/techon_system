@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수입검사완료현황</title>
+    <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+    <script src="../assets/js/kaiadmin.min.js"></script>
+    <script src="../assets/js/setting-demo2.js"></script>
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" />
+    <link rel="stylesheet" href="../assets/css/demo1.css" />
+</head>
+
+
+<body>
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 200vh;">
+            <div class="modal-content" style=" height: 80vh;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">수입검사</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="company-info mb-3">
+                        <i class="fas fa-box" style="font-weight: bold;"></i> 검사준비
+                    </div>
+                    <div class="modal-section mb-3">
+                        <b>★ 원단성적서와 같이 자재가 입고되면, 원단의 최외곽 1바퀴를 제외하고, 30x30cm 이상 크기의 원단을 재단하여 수입검사 시료를 준비한다</b>
+                    </div>
+                    <div class="modal-section mb-3">
+                        <b>★ 수입검사 항목은 하기 기준을 따르며 특수 자재의 경우는 자재업체 성적서 항목 및 기준을 따른다</b>
+                    </div>
+                    <div class="modal-section">
+                        <b style="color: red;">★ 수입검사 완료 시료는 수입검사성적서 內 기록 넘버 동일하게 기재하여 3부 보관한다</b>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <!-- First table -->
+                        <div class="col-md-6" style="height: 60vh;">
+                            <table class="table table-bordered">
+
+                                <tbody id="accountdatatbody">
+                                    <tr id="no-data-row">
+                                        <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot id="accountdatatfoot"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                        onclick="accountsave()">검사완료</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="page-inner">
+        <div class="page-header">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="page-inner">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">수입검사 대기현황</h4>
+
+                            </div>
+                            <div class="card-body">
+                                <div class="date-input-group">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body" style="height: 70vh; max-height: 70vh; overflow-y: auto;">
+                        <div style="margin-top: -10px;">
+                            <table class="styled-table">
+                                <thead id="tableHead">
+
+                                    <tr>
+                                        <th>입고날짜</th>
+                                        <th>자재유형</th>
+                                        <th>제조사</th>
+                                        <th>공급사</th>
+                                        <th>자재명</th>
+                                        <th>색상</th>
+                                        <th>자재LOT</th>
+                                        <th>ROLL</th>
+                                        <th style="width: 150px;"></th>
+                                    </tr>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="Datatbody">
+                                    <tr id="no-data-row">
+                                        <td colspan="20" style="text-align: center;">데이터가 없습니다</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot id="iteminfofoot"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+<script>
+    var server = '';
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+    $(document).on('click', '.add-btn', function () {
+        const row = $(this).closest('tr'); // Get the closest row
+        const itemname = row.find('td:nth-child(1)').text(); // Ensure correct index for itemname
+        const width = row.find('td:nth-child(3)').text();
+        const quantity = row.find('td:nth-child(4)').text();
+        const length = row.find('td:nth-child(5)').text();
+        const cut = row.find('td:nth-child(6)').text();
+        const rollprice = row.find('td:nth-child(8)').text();
+        const suppliername = row.find('td:nth-child(9)').text();
+
+        const totalValue = (parseFloat(length) * parseFloat(quantity) * parseFloat(cut)).toFixed(0).toLocaleString();
+
+        // Check if a row with the same itemname already exists in accountdatatbody2
+        let exists = false;
+        $('#accountdatatbody2 tr').each(function () {
+            if ($(this).find('td:first').text() === itemname) {
+                exists = true;
+                return false; // Exit loop early
+            }
+        });
+
+        // Remove the "데이터가 없습니다" row if it exists
+        const noDataRow = $('#accountdatatbody2 #no-data-row2');
+        if (noDataRow.length) {
+            noDataRow.remove();
+        }
+
+        // Append the new row to accountdatatfoot2
+        const newRow = `
+    <tr>
+        <td>${itemname}</td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${width}"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${quantity}" id="quantity"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${length}" id="length"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" readonly value="${cut}" id="cut"></td>
+        <td id="totalValue">${totalValue}</td>
+        <td><input type="text" style="text-align:right;" value=""></td>
+        <td id="rollprice">${rollprice}</td>
+        <td id="suppliername">${suppliername}</td>
+    </tr>
+    `;
+        $('#accountdatatbody2').append(newRow);
+        console.log('Row added: ', itemname);
+    });
+
+
+
+    $(document).ready(function () {
+
+
+        $('#orderno').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/ordernoselect',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderno": $('#orderno').val()
+                    }),
+                    success: function (result) {
+                        const tableBody = $('#accountdatatbody');
+                        const tableFoot = $('#accountdatatfoot');
+                        let totalSupplyAmount = 0; // To store the total supply amount
+
+                        tableBody.empty();
+                        tableFoot.empty(); // Clear the table footer
+
+                        if (result.length === 0) {
+                            tableBody.append('<tr><td colspan="8">구매발주 데이터가 없습니다.</td></tr>');
+                            tableFoot.hide(); // Hide the tfoot element
+                        } else {
+                            for (let i = 0; i < result.length; i++) {
+                                const item = result[i];
+                                totalSupplyAmount += item.supplyamount; // Add to total
+
+                                // Append row to table
+                                const row = `
+                            <tr>
+                                <td>${item.itemname}</td>
+                                <td>${item.materialwidth.toLocaleString()}</td>
+                                <td>${item.width}</td>
+                                <td>${item.quantity.toLocaleString()}</td>
+                                <td>${item.length.toLocaleString()}</td>
+                                <td>${item.cut}</td>
+                                <td>${(parseFloat(item.length) * parseFloat(item.cut) * parseFloat(item.quantity)).toLocaleString()}</td>
+                                <td>${item.supplyamount.toLocaleString()}</td>
+                                <td>${item.suppliername}</td>
+                                <td><button class="btn btn-success add-btn"  style="text-align:center; padding:10px;">추가</button></td>
+                                <td class="data-id" style="display:none;">${item.id}</td>
+                            </tr>
+                        `;
+                                tableBody.append(row);
+                            }
+
+                            // Append the total row to the tfoot
+                            const tableFooter = `
+                        <tr>
+                            <td colspan="7" style="text-align:right;"><strong>합계</strong></td>
+                            <td>${totalSupplyAmount.toLocaleString()}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    `;
+                            tableFoot.append(tableFooter);
+                            tableFoot.show(); // Show the tfoot element
+                        }
+
+                        // Add click event listener to each add button
+
+
+
+                    },
+                });
+            }
+        });
+
+
+        // Initialize DataTable with search functionality
+        $('#orderdatatable thead input[type="checkbox"]').on('change', function () {
+            var isChecked = $(this).prop('checked');
+
+            $('#orderdatatable tbody input[type="checkbox"]').prop('checked', isChecked);
+
+            if (isChecked) {
+                // Get the IDs of checked checkboxes
+                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                    return $(this).closest('tr').find('td#data-id').text();
+                }).get();
+            }
+        });
+
+
+        var today = new Date();
+
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+        var day = String(today.getDate()).padStart(2, '0'); // 일
+        var formattedDate = year + '-' + month + '-' + day;
+        $('#startdate').val(formattedDate)
+        $('#enddate').val(formattedDate)
+
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
+        });
+        $('#searchingcloseButton').on('click', function () {
+            $('#newModal').modal('hide');
+        });
+        $('#updatecloseButton').on('click', function () {
+            $('#updateRowModal').modal('hide');
+        });
+
+        $('#deletecancelBtn').on('click', function () {
+            $('#deleteConfirmModal').modal('hide');
+        });
+        $('#addButton').on('click', function () {
+            $('#productModal').modal('show');
+        });
+
+
+
+
+
+
+
+
+        load();
+    });
+
+
+    function load() {
+        $.ajax({
+            url: server + '/api/selectwaitinspection',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
+                $('#Datatbody').empty();
+
+                if (result.length === 0) {
+                    var emptyRow = $('<tr>');
+                    var emptyCell = $('<td colspan="8" style="font-weight:bold;">').text('데이터가 없습니다.');
+                    emptyRow.append(emptyCell);
+                    $('#Datatbody').append(emptyRow);
+                } else {
+                    result.forEach(function (item) {
+                        var row = $('<tr>');
+                        row.append('<td>' + (item.date || '') + '</td>');
+                        row.append('<td>' + (item.materialtype || '') + '</td>');
+                        row.append('<td>' + (item.manufacterer || '') + '</td>');
+                        row.append('<td>' + (item.supplier || '') + '</td>');
+                        row.append('<td>' + (item.materialname || '') + '</td>');
+                        row.append('<td>' + (item.color || '') + '</td>');
+                        row.append('<td>' + (item.lotno || '') + '</td>');
+                        row.append('<td>' + (item.roll || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.thickness11 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.thickness12 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.thickness13 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength11 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength12 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength13 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength21 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength22 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength23 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength31 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength32 || '') + '</td>');
+                        row.append('<td style="display:none;">' + (item.adhesionstrength33 || '') + '</td>');
+                        row.append('<td><button class="btn btn-primary addButton">수입검사</button></td>');
+                        row.data('id', item.id); // Store ID as data attribute
+
+                        $('#Datatbody').append(row);
+                    });
+                }
+
+
+            }
+        });
+    }
+
+    $(document).on('click', '.addButton', function () {
+        // Show the modal first
+        $('#productModal').modal('show');
+    });
+
+
+
+
+
+
+</script>
+
+</html>
