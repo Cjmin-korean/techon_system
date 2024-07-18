@@ -13,6 +13,8 @@
     <script src="../assets/js/kaiadmin.min.js"></script>
     <script src="../assets/js/setting-demo2.js"></script>
     <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <script src="../js/bommasssave.js"></script>
+    <script src="../js/bommass.js"></script>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../assets/css/plugins.min.css" />
     <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
@@ -44,9 +46,65 @@
         height: 200px;
         min-height: 200px;
     }
+
+    .table-container {
+        width: 100%;
+        height: 700px;
+        /* Adjust the height as needed */
+        overflow-y: auto;
+        border: 1px solid #ccc;
+    }
 </style>
 
 <body>
+
+    <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width: 150vh;">
+            <div class="modal-content" style="height: 90vh;">
+                <div class="modal-header">
+                    <h5 class="modal-title">자재검색</h5>
+                    <input type="text" id="numericPart" style="width: 50px; visibility: hidden;">
+
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="table-container">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <th style="text-align: center;">자재검색</th>
+
+                                    <td colspan="10"><input class="styled-input" id="search-input"
+                                            placeholder="검색어를 입력후 Enter키를 누르세요" style="text-align: left;" type="text"
+                                            autocomplete="off">
+                                    </td>
+                                    <tr>
+                                        <th>자재명</th>
+                                        <th>자재폭(mm)</th>
+                                        <th>길이(M)</th>
+                                        <th>구매처</th>
+                                        <th>자재종류</th>
+                                        <th>NO</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemtbody1">
+                                    <tr id="no-search-row">
+                                        <td colspan="11" style="text-align: center;">검색내용이 없습니다</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="searchingcloseButton" class="btn btn-danger"
+                        data-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay"></div>
     <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
         <div class="modal-dialog" style="width: 190vh;">
             <div class="modal-content" style=" height: 95vh;">
@@ -509,6 +567,7 @@
         });
         $('#searchingcloseButton').on('click', function () {
             $('#newModal').modal('hide');
+            $('#overlay').hide();
         });
         $('#updatecloseButton').on('click', function () {
             $('#updateRowModal').modal('hide');
@@ -595,7 +654,7 @@
         newRow.append('<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>');
         newRow.append('<td><input type="checkbox" id="main-edit" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
         newRow.append('<td><input type="text" id="materialname-input" placeholder="자재명검색" ondblclick="handleKeyPress2(event)" onkeypress="handleKeyPress1(event)" style="cursor: pointer;" value="" autocomplete="off"></td>');
-        newRow.append('<td><input type="text" id="materialclassification-input" style="background-color:whitesmoke; "  value="" autocomplete="off"></td>');
+        newRow.append('<td><input type="text" id="materialclassification-input" readonly style="background-color:whitesmoke; "  value="" autocomplete="off"></td>');
         newRow.append('<td><input type="text" id="etc-input" placeholder="자재 특이사항을 입력하세요" value="" autocomplete="off"></td>');
         newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk1-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
         newRow.append('<td><input type="checkbox" onclick="handleCheckboxChange(this)" id="chk2-input" style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>');
@@ -733,6 +792,312 @@
             currentRow.remove();
         }
     });
+
+    $('#itemcode-input').on('keypress', function (event) {
+        if (event.which === 13) { // Enter key code
+            event.preventDefault(); // Prevent default action
+            $('#overlay').show(); // Show the overlay
+            $('#newModal').modal('show'); // Open the new modal
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomnoaccountinput',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    itemcode: $('#itemcode-input').val()
+                }),
+                success: function (result) {
+                    $('#itemtbody').empty(); // Clear previous results
+
+                    if (result.length === 0) {
+                        $('#no-search-row').show(); // Show "no search" row
+                    } else {
+                        $('#no-search-row').hide(); // Hide "no search" row
+                        for (var i = 0; i < result.length; i++) {
+                            $('#itemtbody').append(
+                                '<tr>' +
+                                '<td style="text-align:center;">' + result[i].itemcode + '</td>' +
+                                '<td style="text-align:center;">' + result[i].bomno + '</td>' +
+                                '<td style="text-align:center;">' + result[i].modelname + '</td>' +
+                                '<td style="text-align:center;">' + result[i].itemname + '</td>' +
+                                '<td style="text-align:center;">' + result[i].customer + '</td>' +
+                                '<td style="text-align:center;">' + result[i].itemprice + '</td>' +
+                                '<td style="text-align:center;">' +
+                                '<button class="btn btn-primary" onclick="add(this); event.preventDefault();">추가</button>' +
+                                '</td>' + '</tr>'
+                            );
+                        }
+                    }
+
+                    $("td#data-itemprice").hide(); // Hide specific cell if needed
+                },
+
+            });
+        }
+    });
+    function handleKeyPress1(event) {
+        if (event.key === "Enter") {
+            var parentRow = $(event.target).closest('tr');
+            // Extract data from the parent row
+            var rowData = parentRow.find('td').map(function () {
+                return $(this).text();
+            }).get();
+            var rowIndex = parentRow.index();
+            $("#numericPart").val(rowIndex);
+            searchingmaterial();
+        }
+    }
+
+    function searchingmaterial() {
+        var cavitySaveValue = $("#cavity-save").val();
+        if (cavitySaveValue === '') {
+            alert('Cavity가 누락되었습니다')
+
+
+            return;  // Stop further execution
+        }
+        if ($('#bomtableBody tr:eq(' + $("#numericPart").val() + ') #materialname-input').val() === '') {
+            $('#itemtbody1').empty();
+
+            var noDataMessage = '<tr><td colspan="15">데이터가 없습니다</td></tr>';
+            $('#itemtbody1').append(noDataMessage);
+            $('#itemcode1-input').focus();
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbommaterial',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    materialname: $('#bomtableBody tr:eq(' + $("#numericPart").val() + ') #materialname-input').val()
+                }),
+                success: function (result) {
+                    $('#itemtbody1').empty();
+                    if (result.length === 0) {
+                        var noDataMessage = '<tr><td colspan="15">데이터가 없습니다</td></tr>';
+                        $('#itemtbody1').append(noDataMessage);
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            var row = '<tr>' +
+                                '<td>' + result[i].materialname + '</td>' +
+                                '<td>' + result[i].width.toLocaleString() + '</td>' +
+                                '<td>' + result[i].length.toLocaleString() + '</td>' +
+                                '<td>' + result[i].supplier + '</td>' +
+                                '<td class="data-width">' + result[i].width + '</td>' +
+                                '<td class="data-usewidth">' + result[i].usewidth + '</td>' +
+                                '<td class="data-length">' + result[i].length + '</td>' +
+                                '<td class="data-sqmprice">' + result[i].sqmprice + '</td>' +
+                                '<td class="data-rollprice">' + result[i].rollprice + '</td>' +
+                                '<td class="data-unit">' + result[i].unit + '</td>' +
+                                '<td class="data-manufacterer">' + result[i].manufacterer + '</td>' +
+                                '<td class="data-supplier">' + result[i].supplier + '</td>' +
+                                '<td class="data-typecategory">' + result[i].typecategory + '</td>' +
+                                '<td class="data-codenumber">' + result[i].codenumber + '</td>' +
+                                '<td>' + result[i].num + '</td>' +
+                                '<td><button class="btn btn-primary" onclick="insertmaterialdata(this)" >추가</button></td>' +
+                                '</tr>';
+
+                            $('#itemtbody1').append(row);
+                        }
+
+                        // 한 번의 선택으로 모든 숨길 요소를 처리합니다.
+                        $('#itemtbody1').find('.data-width, .data-usewidth, .data-length, .data-sqmprice, .data-rollprice, .data-unit, .data-manufacterer, .data-supplier, .data-codenumber').hide();
+                    }
+                }
+            });
+        }
+
+        $("#itemcode1-input").val('');
+        $('#overlay').show(); // Show the overlay
+        $('#newModal').modal('show'); // Open the new modal
+    }
+    function insertmaterialdata(button) {
+        var parentRow = $(button).closest('tr');
+        var rowData = parentRow.find('td').map(function () {
+            return $(this).text();
+        }).get();
+
+        var rowIndex = $('#numericPart').val();
+        var targetRow = $('#bomtableBody tr:eq(' + rowIndex + ')');
+
+        // Ensure the row exists
+        if (targetRow.length === 0) {
+            console.error('Specified row does not exist');
+            return;
+        }
+
+        // Update input fields in the specified row
+        targetRow.find('#materialname-input').val(rowData[0]);
+        targetRow.find('#materialaname-input').val(rowData[0]);
+        targetRow.find('#materialclassification-input').val(rowData[12]);
+        targetRow.find('#width-input').val(rowData[4]);
+        targetRow.find('#usewidth-input').val(rowData[5]);
+        targetRow.find('#length-input').val(rowData[6]);
+        targetRow.find('#sqmprice-input').val(rowData[7]);
+        targetRow.find('#rollprice-input').val(rowData[8]);
+        targetRow.find('#unit-input').val(rowData[9]);
+        targetRow.find('#manufacterer-input').val(rowData[10]);
+        targetRow.find('#supplier-input').val(rowData[11]);
+        targetRow.find('#codenumber-input').val(rowData[13]);
+        targetRow.find('#num-input').val(parseFloat(rowIndex) + 1);
+
+        var useWidth = parseFloat(targetRow.find('#usewidth-input').val().replace(/,/g, '')) || 0;
+        var materialWidth = parseFloat(targetRow.find('#materialwidth-input').val().replace(/,/g, '')) || 0;
+
+        targetRow.find('.rlcut-input').val(Math.floor(useWidth / materialWidth));
+
+        let lengthValue = parseFloat(targetRow.find('#length-input').val()) || 0;
+        let rlcutValue = parseFloat(targetRow.find('#rlcut-input').val()) || 0;
+        let cavitySaveValue = parseFloat(targetRow.find('#cavity-input').val()) || 0;
+        let onepiddingValue = parseFloat(targetRow.find('#onepidding-input').val()) || 0;
+        let taLengthValue = parseFloat(targetRow.find('#talength-input').val()) || 0;
+        let twopiddingValue = parseFloat(targetRow.find('#twopidding-input').val()) || 0;
+        let alltaValue = parseFloat(targetRow.find('#allta-input').val()) || 0;
+        let lossValue = parseFloat(targetRow.find('#loss-input').val()) || 0;
+
+        let rlproductValue = ((lengthValue * 1000 * rlcutValue * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        targetRow.find('#rlproduct-input').val(rlproductValue);
+
+        const rollpriceInput = targetRow.find('#rollprice-input');
+        const rollpriceValue = parseFloat(rollpriceInput.val().replace(/,/g, '')) || 0;
+        const costValue = rollpriceValue / rlproductValue;
+
+        targetRow.find('#cost-input').val(costValue.toFixed(2));
+
+        // Hide the modal and overlay
+        $('#overlay').hide();
+        $('#newModal').modal('hide');
+
+        // Prevent default button action (form submit or link follow)
+        event.preventDefault();
+        return false; // For good measure
+    }
+
+</script>
+<script>
+    function updateCavity() {
+        const cavitySaveValue = parseFloat($("#cavity-save").val()) || 0;
+        const taInputValue = cavitySaveValue !== 0 ? (1 / cavitySaveValue) : 0;
+        $("[id='cavity-input']").val(cavitySaveValue);
+    }
+
+    function updateRlcutValue() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        $('#bomtableBody tr:eq(' + rowIndex + ') #rlcut-input').val(
+            Math.floor(
+                parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #usewidth-input').val()) /
+                parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val())
+            ) || 0
+        );
+        $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlcut-input').val(
+            Math.floor(
+                parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-usewidth-input').val()) /
+                parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val())
+            ) || 0
+        );
+    }
+
+    function updateSoyoValue() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        const taValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #ta-input').val()) || 0;
+        const onepiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #onepidding-input').val()) || 0;
+        const taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
+        const twopiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #twopidding-input').val()) || 0;
+        const alltaValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #allta-input').val()) || 0;
+        const lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #loss-input').val()) || 0;
+
+        let soyoValue = (taValue * ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue) * 0.001 * (1 + (lossValue / 100))).toFixed(4);
+        soyoValue = soyoValue.replace(/\.?0+$/, '');
+
+        $('#bomtableBody tr:eq(' + rowIndex + ') #soyo-input').val(soyoValue);
+    }
+
+    function updateRlProduct() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+
+        let materialWidthValue = $('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val().trim();
+        if (materialWidthValue === '') {
+            return;
+        }
+
+        let materialWidth = parseFloat(materialWidthValue) || 0;
+        let lengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #length-input').val()) || 0;
+        let rlcutValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #rlcut-input').val()) || 0;
+        let cavitySaveValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #cavity-input').val()) || 0;
+        let onepiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #onepidding-input').val()) || 0;
+        let taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
+        let twopiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #twopidding-input').val()) || 0;
+        let alltaValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #allta-input').val()) || 0;
+        let lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #loss-input').val()) || 0;
+
+        let useWidthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #usewidth-input').val()) || 0;
+        let hapUseWidthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-usewidth-input').val()) || 0;
+
+        let rlcutValue1 = Math.floor(useWidthValue / materialWidth) || 0;
+        let rlcutValueA = Math.floor(hapUseWidthValue / materialWidth) || 0;
+
+        let rlproductValue = ((lengthValue * 1000 * rlcutValue1 * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        rlproductValue = isFinite(rlproductValue) && !isNaN(rlproductValue) ? rlproductValue : 0;
+
+        let rlproductValueA = ((lengthValue * 1000 * rlcutValueA * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        rlproductValueA = isFinite(rlproductValueA) && !isNaN(rlproductValueA) ? rlproductValueA : 0;
+
+        $('#bomtableBody tr:eq(' + rowIndex + ') #rlproduct-input').val(rlproductValue);
+        $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlproduct-input').val(rlproductValueA);
+    }
+
+    function calculateCost() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        const rollpriceInput = $('#bomtableBody tr:eq(' + rowIndex + ') #rollprice-input');
+        const rollpriceValue = parseFloat(rollpriceInput.val()) || 0;
+        const rollpriceInputA = $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rollprice-input');
+        const rollpriceValueA = parseFloat(rollpriceInputA.val()) || 0;
+
+        let lengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #length-input').val()) || 0;
+        let rlcutValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #rlcut-input').val()) || 0;
+        let lengthValueA = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-length-input').val()) || 0;
+        let rlcutValueA = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlcut-input').val()) || 0;
+
+        let onepiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #onepidding-input').val()) || 0;
+        let twopiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #twopidding-input').val()) || 0;
+        let alltaValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #allta-input').val()) || 0;
+        let lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #costloss-input').val()) || 0;
+        let taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
+        let cavitySaveValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #cavity-input').val()) || 0;
+
+        let rlproductValue = ((lengthValue * 1000 * rlcutValue * cavitySaveValue * (1 - (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        rlproductValue = isFinite(rlproductValue) && !isNaN(rlproductValue) ? rlproductValue : 0;
+
+        const costValue = rollpriceValue / rlproductValue || 0;
+
+        let rlproductValueA = ((lengthValueA * 1000 * rlcutValueA * cavitySaveValue * (1 - (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        rlproductValueA = isFinite(rlproductValueA) && !isNaN(rlproductValueA) ? rlproductValueA : 0;
+
+        const costValueA = rollpriceValueA / rlproductValueA || 0;
+
+        // 값 설정하기
+        $('#bomtableBody tr:eq(' + rowIndex + ') #cost-input').val(isFinite(costValue) && !isNaN(costValue) ? costValue.toFixed(2) : 0);
+        $('#bomtableBody tr:eq(' + rowIndex + ') #hap-cost-input').val(isFinite(costValueA) && !isNaN(costValueA) ? costValueA.toFixed(2) : 0);
+        $('#bomtableBody tr:eq(' + rowIndex + ') #costsum-input').val((costValue + costValueA).toFixed(2));
+
+
+        var totalCostSum = 0;
+        $('#bomtableBody tr').each(function () {
+            var costSumValue = parseFloat($(this).find('#costsum-input').val()) || 0;
+            totalCostSum += costSumValue;
+        });
+        $('#costsum-save').val(totalCostSum.toFixed(2))
+        return totalCostSum;
+
+    }
+
+
+    document.getElementById('cavity-save').addEventListener('input', updateCavity);
 
 
 </script>
