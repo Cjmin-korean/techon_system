@@ -1,11 +1,567 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>수입검사완료현황</title>
+    <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+    <script src="../assets/js/kaiadmin.min.js"></script>
+    <script src="../assets/js/setting-demo2.js"></script>
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" />
+    <link rel="stylesheet" href="../assets/css/demo1.css" />
 </head>
+<style>
+
+</style>
+
 <body>
-    
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 190vh;">
+            <div class="modal-content" style=" height: 95vh;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">BOM정보</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <!-- First table -->
+                        <div class="col-md-12" style="height: 40vh;">
+                            <table class="table-bordered" id="Podatatable">
+                                <thead id="tableHead">
+                                    <tr>
+                                        <th colspan="12">제품정보
+                                        </th>
+                                    </tr>
+
+                                    <tr>
+                                        <th>BOMNO</th>
+                                        <td><input type="text" id="bomno-save" oninput="bomchanged()" value=""
+                                                autocomplete="off"></td>
+                                        <th>고객사명</th>
+                                        <td><input type="text" ondblclick="customerDoubleClick();" id="customer-save"
+                                                value="" autocomplete="off"></td>
+                                        <th>모델명</th>
+                                        <td><input type="text" id="modelname-save" value="" autocomplete="off"></td>
+                                        <th>제품명</th>
+                                        <td><input type="text" id="itemname-save" value="" autocomplete="off"></td>
+
+                                        <th>PCS수량</th>
+                                        <td><input type="text" style="text-align: right;" id="pcs-save" value=""
+                                                autocomplete="off" onkeypress="return onlyNumberKey(event)"
+                                                oninput="validateNumericInput(this)" placeholder="숫자만 입력 가능합니다">
+                                        </td>
+                                        <th>Cavity</th>
+                                        <td><input type="text" style="text-align: right;" id="cavity-save" value=""
+                                                autocomplete="off" onkeypress="return onlyNumberKey(event)"
+                                                placeholder="숫자만 입력 가능합니다"
+                                                oninput="updateCavity(); validateNumericInput(this);">
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>고객코드</th>
+                                        <td><input type="text" id="itemcode-save" value="" autocomplete="off"></td>
+                                        <th>공정구분</th>
+                                        <td><select class="form-select" id="workpart-save">
+                                                <option style="font-weight: bold; font-size: 20px;" value=""></option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="2차피딩작업">
+                                                    2차피딩작업</option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="이중피딩작업">
+                                                    이중피딩작업</option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="일반피딩작업">
+                                                    일반피딩작업</option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="유압6565(본딩)">
+                                                    유압6565(본딩)
+                                                </option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="PP">PP
+                                                </option>
+                                            </select></td>
+                                        <th>작업차수</th>
+                                        <td><input type="text" style="text-align: right;" id="working-save"
+                                                oninput="validateNumericInput(this)" value="" autocomplete="off"
+                                                onkeypress="return onlyNumberKey(event)" placeholder="숫자만 입력 가능합니다">
+                                        </td>
+                                        <th>타발방향</th>
+                                        <td>
+                                            <select class="form-select" id="direction-save" style="font-weight: bold;">
+                                                <option style="font-weight: bold; font-size: 20px;" value=""></option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="정">정</option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="역">역</option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="정-정">정-정
+                                                </option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="역-정">역-정
+                                                </option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="정-역">정-역
+                                                </option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="역-역-정">역-역-정
+                                                </option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="역-역-역-역">
+                                                    역-역-역-역</option>
+
+                                            </select>
+                                        </td>
+                                        <th>Type</th>
+
+                                        <td>
+                                            <select class="form-select" id="type-save" style="font-weight: bold;">
+                                                <option style="font-weight: bold; font-size: 20px;" value=""></option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="ROLL TYPE">
+                                                    ROLL TYPE</option>
+                                                <option style="font-weight: bold; font-size: 20px;" value="SHEET TYPE">
+                                                    SHEET TYPE
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <th>원가합계</th>
+                                        <td><input type="text" style="text-align: right;" id="costsum-save" readonly
+                                                value="" autocomplete="off"></td>
+                                    </tr>
+                                    <tr style="height:50px;">
+                                        <th colspan="12">
+                                            작업특이사항</th>
+                                    </tr>
+                                    <tr style="height: 100px;">
+                                        <td colspan="12">
+                                            <textarea id="additionalNote" class="form-control"
+                                                placeholder="작업특이사항을 입력 바랍니다." autocomplete="off"></textarea>
+
+                                        </td>
+                                    </tr>
+
+                                </thead>
+                                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
+
+                                </tbody>
+
+
+                            </table>
+                            <div style="height: 50%; max-height: 50%; overflow-y: auto; display: block;"
+                                id="containers">
+
+                                <table class="table-bordered" style="width: 300%;">
+                                    <thead id="tableHead">
+                                        <tr>
+                                            <th colspan="22">
+                                                BOM정보</th>
+                                            <th colspan="12" style="background-color: rgb(165, 165, 165); color:white">
+                                                자재정보
+                                            </th>
+                                            <th colspan="12" style="background-color: rgb(121, 121, 121); color:white">
+                                                합지자재정보</th>
+                                            <th colspan="2"></th>
+                                        </tr>
+                                        <tr style="height: 30px;">
+                                            <th style="width: 90px;" rowspan="2"><button id="addRowBtn"
+                                                    class="btn btn-primary" class="close-button"
+                                                    onclick="addRow()">추가</button>
+                                            </th>
+                                            <th style="width: 50px;" rowspan="2"> </th>
+                                            <th style="width: 100px;" rowspan="2"><button id="addRowBtn"
+                                                    class="btn btn-success" class="close-button"
+                                                    onclick="habji()">합지</button>
+                                            </th>
+                                            <th style="width: 50px;" rowspan="2">작업<br>차수</th>
+                                            <th style="width: 50px;" rowspan="2">메인<br>자재</th>
+                                            <th style="width: 350px;" rowspan="2">원자재명</th>
+                                            <th style="width: 90px;" rowspan="2">자재종류</th>
+                                            <th rowspan="2" style="width: 500px;">자재별 특이사항</th>
+                                            <th style="width: 80px;" rowspan="2">고객사<br>지정</th>
+                                            <th style="width: 80px;" rowspan="2">자체<br>지정</th>
+                                            <th style="width: 80px;" rowspan="2">미지정</th>
+                                            <th style="width: 90px;">원단폭</th>
+                                            <th style="width: 90px;">사용<br>가능폭</th>
+                                            <th style="width: 90px;">1차<br>피딩</th>
+                                            <th style="width: 90px;">2차<br>피딩</th>
+                                            <th style="width: 120px;">1타<br>소요량</th>
+                                            <th style="width: 90px;">타</th>
+                                            <th style="width: 90px;">All타</th>
+                                            <th style="width: 90px;">타길이</th>
+                                            <th style="width: 90px;">소요<br>LOSS</th>
+                                            <th style="width: 90px;">원가<br>LOSS</th>
+                                            <th style="width: 120px;">원가합계<br>(1EA)</th>
+
+
+                                            <th style="width: 200px;" rowspan="2">자재명</th>
+                                            <th style="width: 90px;">전폭</th>
+                                            <th style="width: 90px;">유효폭</th>
+                                            <th style="width: 90px;">길이</th>
+                                            <th style="width: 120px;">롤단가</th>
+                                            <th style="width: 70px;" rowspan="2">단위</th>
+                                            <th style="width: 130px;" rowspan="2">제조사</th>
+                                            <th style="width: 130px;" rowspan="2">공급사</th>
+                                            <th style="width: 200px;" rowspan="2">자재채번</th>
+                                            <th style="width: 120px;">원가<br>(1EA)</th>
+                                            <th style="width: 90px;">1R/L<br>컷팅수량</th>
+                                            <th style="width: 90px;">1R/L<br>생산수량</th>
+
+                                            <th style="width: 200px;" rowspan="2">자재명</th>
+                                            <th style="width: 90px;">전폭</th>
+                                            <th style="width: 90px;">유효폭</th>
+                                            <th style="width: 90px;">길이</th>
+                                            <th style="width: 120px;">롤단가</th>
+                                            <th style="width: 70px;" rowspan="2">단위</th>
+                                            <th style="width: 130px;" rowspan="2">제조사</th>
+                                            <th style="width: 130px;" rowspan="2">공급사</th>
+                                            <th style="width: 200px;" rowspan="2">자재채번</th>
+                                            <th style="width: 120px;">원가<br>(1EA)</th>
+                                            <th style="width: 90px;">1R/L<br>컷팅수량</th>
+                                            <th style="width: 90px;">1R/L<br>생산수량</th>
+
+                                            <th style="width: 50px;" rowspan="2">C/V</th>
+                                            <th style="width: 50px;" rowspan="2">NO</th>
+
+
+
+                                        </tr>
+                                        <tr style="height: 30px;">
+                                            <th>mm</th>
+                                            <th>mm</th>
+                                            <th>mm</th>
+                                            <th>mm</th>
+                                            <th>M</th>
+                                            <th>타수</th>
+                                            <th>타수</th>
+                                            <th>mm</th>
+                                            <th>%</th>
+                                            <th>%</th>
+                                            <th>￦</th>
+
+                                            <th>mm</th>
+                                            <th>mm</th>
+                                            <th>M</th>
+                                            <th>￦</th>
+                                            <th>EA</th>
+                                            <th>EA</th>
+
+                                            <th>mm</th>
+                                            <th>mm</th>
+                                            <th>M</th>
+                                            <th>￦</th>
+                                            <th>￦</th>
+                                            <th>￦</th>
+                                            <th>EA</th>
+                                            <th>EA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bomtableBody">
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                        onclick="accountsave()">저장</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="page-inner">
+        <div class="page-header">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="page-inner">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">BOM(양산) 상세정보</h4>
+                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" id="addButton">
+                                    <i class="fa fa-plus"></i>
+                                    BOM 추가
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="date-input-group">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body" style="height: 70vh; max-height: 70vh; overflow-y: auto;">
+                        <div style="margin-top: -10px;">
+                            <table class="styled-table">
+                                <thead id="tableHead">
+
+                                    <tr>
+                                        <th>BOMNO</th>
+                                        <th>구분</th>
+                                        <th>고객사</th>
+                                        <th>모델명</th>
+                                        <th>제품명</th>
+                                        <th>고객사코드</th>
+                                        <th>TYPE</th>
+                                        <th>공정구분</th>
+                                        <th>원가(￦)</th>
+                                        <th>단가(￦)</th>
+                                        <th>재료비(%)</th>
+                                        <th>자재개수</th>
+                                        <th style="width: 150px;"></th>
+                                    </tr>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="Datatbody">
+                                    <tr id="no-data-row">
+                                        <td colspan="20" style="text-align: center;">데이터가 없습니다</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot id="iteminfofoot"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
 </body>
+
+<script>
+    var server = '';
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+    $(document).on('click', '.add-btn', function () {
+        const row = $(this).closest('tr'); // Get the closest row
+        const itemname = row.find('td:nth-child(1)').text(); // Ensure correct index for itemname
+        const width = row.find('td:nth-child(3)').text();
+        const quantity = row.find('td:nth-child(4)').text();
+        const length = row.find('td:nth-child(5)').text();
+        const cut = row.find('td:nth-child(6)').text();
+        const rollprice = row.find('td:nth-child(8)').text();
+        const suppliername = row.find('td:nth-child(9)').text();
+
+        const totalValue = (parseFloat(length) * parseFloat(quantity) * parseFloat(cut)).toFixed(0).toLocaleString();
+
+        // Check if a row with the same itemname already exists in accountdatatbody2
+        let exists = false;
+        $('#accountdatatbody2 tr').each(function () {
+            if ($(this).find('td:first').text() === itemname) {
+                exists = true;
+                return false; // Exit loop early
+            }
+        });
+
+        // Remove the "데이터가 없습니다" row if it exists
+        const noDataRow = $('#accountdatatbody2 #no-data-row2');
+        if (noDataRow.length) {
+            noDataRow.remove();
+        }
+
+        // Append the new row to accountdatatfoot2
+        const newRow = `
+    <tr>
+        <td>${itemname}</td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${width}"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${quantity}" id="quantity"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${length}" id="length"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" readonly value="${cut}" id="cut"></td>
+        <td id="totalValue">${totalValue}</td>
+        <td><input type="text" style="text-align:right;" value=""></td>
+        <td id="rollprice">${rollprice}</td>
+        <td id="suppliername">${suppliername}</td>
+    </tr>
+    `;
+        $('#accountdatatbody2').append(newRow);
+        console.log('Row added: ', itemname);
+    });
+
+
+
+    $(document).ready(function () {
+
+
+        $('#orderno').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/ordernoselect',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderno": $('#orderno').val()
+                    }),
+                    success: function (result) {
+                        const tableBody = $('#accountdatatbody');
+                        const tableFoot = $('#accountdatatfoot');
+                        let totalSupplyAmount = 0; // To store the total supply amount
+
+                        tableBody.empty();
+                        tableFoot.empty(); // Clear the table footer
+
+                        if (result.length === 0) {
+                            tableBody.append('<tr><td colspan="8">구매발주 데이터가 없습니다.</td></tr>');
+                            tableFoot.hide(); // Hide the tfoot element
+                        } else {
+                            for (let i = 0; i < result.length; i++) {
+                                const item = result[i];
+                                totalSupplyAmount += item.supplyamount; // Add to total
+
+                                // Append row to table
+                                const row = `
+                            <tr>
+                                <td>${item.itemname}</td>
+                                <td>${item.materialwidth.toLocaleString()}</td>
+                                <td>${item.width}</td>
+                                <td>${item.quantity.toLocaleString()}</td>
+                                <td>${item.length.toLocaleString()}</td>
+                                <td>${item.cut}</td>
+                                <td>${(parseFloat(item.length) * parseFloat(item.cut) * parseFloat(item.quantity)).toLocaleString()}</td>
+                                <td>${item.supplyamount.toLocaleString()}</td>
+                                <td>${item.suppliername}</td>
+                                <td><button class="btn btn-success add-btn"  style="text-align:center; padding:10px;">추가</button></td>
+                                <td class="data-id" style="display:none;">${item.id}</td>
+                            </tr>
+                        `;
+                                tableBody.append(row);
+                            }
+
+                            // Append the total row to the tfoot
+                            const tableFooter = `
+                        <tr>
+                            <td colspan="7" style="text-align:right;"><strong>합계</strong></td>
+                            <td>${totalSupplyAmount.toLocaleString()}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    `;
+                            tableFoot.append(tableFooter);
+                            tableFoot.show(); // Show the tfoot element
+                        }
+
+                        // Add click event listener to each add button
+
+
+
+                    },
+                });
+            }
+        });
+
+
+        // Initialize DataTable with search functionality
+        $('#orderdatatable thead input[type="checkbox"]').on('change', function () {
+            var isChecked = $(this).prop('checked');
+
+            $('#orderdatatable tbody input[type="checkbox"]').prop('checked', isChecked);
+
+            if (isChecked) {
+                // Get the IDs of checked checkboxes
+                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                    return $(this).closest('tr').find('td#data-id').text();
+                }).get();
+            }
+        });
+
+
+        var today = new Date();
+
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+        var day = String(today.getDate()).padStart(2, '0'); // 일
+        var formattedDate = year + '-' + month + '-' + day;
+        $('#startdate').val(formattedDate)
+        $('#enddate').val(formattedDate)
+
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
+        });
+        $('#searchingcloseButton').on('click', function () {
+            $('#newModal').modal('hide');
+        });
+        $('#updatecloseButton').on('click', function () {
+            $('#updateRowModal').modal('hide');
+        });
+
+        $('#deletecancelBtn').on('click', function () {
+            $('#deleteConfirmModal').modal('hide');
+        });
+
+
+
+
+
+
+
+
+
+        load();
+    });
+
+
+    function load() {
+        $('#Datatbody').empty()
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/iteminfobom',
+            dataType: 'json',
+            success: function (data) {
+                if (data.length === 0) {
+                    $('#Datatbody').append(
+                        '<tr><td colspan="13" style="text-align:center;">데이터가 없습니다</td></tr>'
+                    );
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+                        var totalcost = data[i].cost !== null ? data[i].cost.toLocaleString() : '';
+                        var itemprice = data[i].itemprice !== null ? data[i].itemprice.toLocaleString() : '';
+                        var costPriceRatio = data[i].costPriceRatio !== null ? data[i].costPriceRatio : '';
+                        var itemcode1 = data[i].itemcode !== null ? data[i].itemcode : '';
+                        var fontColor = data[i].status === '미사용' ? 'silver' : '';
+
+                        var rowData = JSON.stringify(data[i]);
+
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td>' + data[i].bomno + '</td>' +
+                            '<td>' + data[i].part + '</td>' +
+                            '<td>' + data[i].customer + '</td>' +
+                            '<td>' + data[i].modelname + '</td>' +
+                            '<td>' + data[i].itemname + '</td>' +
+                            '<td>' + itemcode1 + '</td>' +
+                            '<td>' + data[i].type + '</td>' +
+                            '<td>' + data[i].workpart + '</td>' +
+                            '<td style="text-align:right;">' + totalcost + '</td>' +
+                            '<td style="text-align:right;">' + itemprice + '</td>' +
+                            '<td style="text-align:right;">' + costPriceRatio.toFixed(2) + '</td>' +
+                            '<td style="text-align:right;">' + data[i].materialcount + '</td>' +
+                            '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>상세정보</button></td>' +
+                            '</tr>'
+                        );
+                    }
+                }
+
+            }
+        });
+    }
+    $('#addButton').on('click', function () {
+
+        $('#productModal').modal('show');
+
+    });
+
+
+
+
+
+</script>
+
 </html>
