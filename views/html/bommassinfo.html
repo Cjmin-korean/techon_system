@@ -326,9 +326,32 @@
             var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
             var day = String(today.getDate()).padStart(2, '0'); // 일
             var formattedDate = year + '-' + month + '-' + day;
+
+            // 버튼 클릭 이벤트 핸들러
+
+
+
             load()
         });
+        $('#bomtableBody').on('click', '#RowBtnadd-input', function () {
+            // 클릭된 버튼의 행을 찾습니다.
+            var currentRow = $(this).closest('tr');
+            console.log('123123123')
+            // 새로운 행의 HTML을 정의합니다.
+            var newRowHtml = `  
+            <tr>
+                <td><input type="text" id="materialname-input" /></td>
+                <td><input type="text" id="materialwidth-input" /></td>
+                <td><input type="text" id="onepidding-input" /></td>
+                <td><input type="text" id="twopidding-input" /></td>
+                <td><input type="text" id="char-input" /></td>
+                <td><button id="RowBtnadd" class="rowadd-button" style="background-color: #4f56b6; color:white;">+</button></td>
+            </tr>
+        `;
 
+            // 새로운 행을 현재 행 아래에 추가합니다.
+            currentRow.after(newRowHtml);
+        });
         function load() {
             var spinnerOverlay = document.querySelector('.spinner-overlay');
             spinnerOverlay.style.display = 'flex'; // Spinner 표시
@@ -1320,23 +1343,8 @@
         }
 
         function Bomsave() {
-
             function showMissingFieldAlert(fieldName, message) {
-                Swal.fire({
-                    icon: 'error',
-                    title: '오류',
-                    text: message,
-                    showConfirmButton: true,
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: '확인',
-                    background: '#f4f4f4',
-                    customClass: {
-                        title: 'my-title',
-                        content: 'my-content',
-                    },
-                    padding: '2rem',
-                    width: '500px',
-                });
+                alert(message);
             }
 
             if ($('#bomno-save').val() === '') {
@@ -1384,7 +1392,6 @@
                 return;
             }
 
-
             let tableBody = document.getElementById('bomtableBody');
             if (tableBody) {
                 let rowCount = tableBody.children.length;
@@ -1396,25 +1403,11 @@
                     var twopidding = $('#bomtableBody tr:eq(' + i + ') #twopidding-input').val();
                     var char = $('#bomtableBody tr:eq(' + i + ') #char-input').val();
                     if (materialname === '' || materialwidth === '' || onepidding === '' || twopidding === '' || char === '') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: '누락',
-                            text: `${i + 1}번째 필수 입력 항목이 누락되었습니다.`,
-                            showConfirmButton: true,
-                            confirmButtonColor: '#3085d6',
-                            confirmButtonText: '확인',
-                            background: '#f4f4f4',
-                            customClass: {
-                                title: 'my-title',
-                                content: 'my-content',
-                            },
-                            padding: '2rem',
-                            width: '500px',
-                        }).then((result) => { });
+                        alert(`${i + 1}번째 필수 입력 항목이 누락되었습니다.`);
                         return;
                     }
                 }
-            } else { }
+            }
 
             if (tableBody) {
                 let rowCount = tableBody.children.length;
@@ -1424,360 +1417,232 @@
                     var useWidthValue = $('#bomtableBody tr:eq(' + i + ') #usewidth-input').val();
 
                     if (parseFloat(materialWidthValue) > parseFloat(useWidthValue)) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: '오류',
-                            text: `${i + 1}번째 원단폭이 유효폭보다 클 수 없습니다.`,
-                            showConfirmButton: true,
-                            confirmButtonColor: '#3085d6',
-                            confirmButtonText: '확인',
-                            background: '#f4f4f4',
-                            customClass: {
-                                title: 'my-title',
-                                content: 'my-content',
-                            },
-                            padding: '2rem',
-                            width: '500px',
-                        }).then((result) => { });
-
+                        alert(`${i + 1}번째 원단폭이 유효폭보다 클 수 없습니다.`);
                         return;
                     }
                 }
-            } else { }
+            }
+
             if ($('#bomid-edit').val()) {
                 var insertdate = new Date().toISOString().slice(0, 10);
-                Swal.fire({
-                    icon: 'info',
-                    title: 'BOM 정보 수정',
-                    text: 'BOM정보(양산) 데이터를 수정하시겠습니까?',
-                    showCancelButton: true, // 취소 버튼 표시
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: '확인',
-                    cancelButtonText: '취소', // 취소 버튼 텍스트
-                    background: '#f4f4f4',
-                    customClass: {
-                        title: 'my-title',
-                        content: 'my-content',
-                    },
-                    padding: '2rem',
-                    width: '500px',
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                var confirmResult = confirm('BOM정보(양산) 데이터를 수정하시겠습니까?');
+                if (confirmResult) {
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updateiteminformation',
+                        dataType: 'json',
+                        async: false,
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "bomno": $('#bomno-save').val(),
+                            "modelname": $('#modelname-save').val(),
+                            "itemname": $('#itemname-save').val(),
+                            "customer": $('#customer-save').val(),
+                            "itemcode": $('#itemcode-save').val(),
+                            "pcs": $('#pcs-save').val(),
+                            "cavity": $('#cavity-save').val(),
+                            "direction": $('#direction-save').val(),
+                            "workpart": $('#workpart-save').val(),
+                            "additionalnotes": $('#additionalNote').val(),
+                            "working": $('#working-save').val(),
+                            "type": $('#type-save').val(),
+                        }),
+                        success: function (result) {
+                            // Handle success
+                        }
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/updatebomstatus',
+                        dataType: 'json',
+                        async: false,
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "bomid": $('#bomid-edit').val(),
+                            "status": 'false'
+                        }),
+                        success: function (result) {
+                            // Handle success
+                        }
+                    });
+
+                    $('[id^="num-input"]').each(function (index) {
+                        var cavity = $('#cavity-save').val();
+                        var bomno = $('#bomno-save').val();
+                        var model = $('#modelname-save').val();
+                        var itemname = $('#itemname-save').val();
+                        var materialname = $('[id^="materialname-input"]').eq(index).val();
+                        var char = $('[id^="char-input"]').eq(index).val();
+                        var main = $('[id^="main-edit"]').eq(index).prop('checked') ? '메인자재' : '';
+                        var etc = $('[id^="etc-input"]').eq(index).val();
+                        var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
+                        var onepid = ($('[id^="onepidding-input"]').eq(index).val())
+                        var twopid = ($('[id^="twopidding-input"]').eq(index).val())
+                        var soyo = ($('[id^="soyo-input"]').eq(index).val())
+                        var ta = ($('[id^="ta-input"]').eq(index).val())
+                        var allta = ($('[id^="allta-input"]').eq(index).val())
+                        var talength = ($('[id^="talength-input"]').eq(index).val())
+                        var loss = ($('[id^="loss-input"]').eq(index).val())
+                        var num = ($('[id^="num-input"]').eq(index).val());
+                        var cavity = ($('[id^="cavity-input"]').eq(index).val());
+                        var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
+                        var useable = ($('[id^="useable-input"]').eq(index).val());
+                        var bomid = $('#bomid-save').val();
+                        var costloss = ($('[id^="costloss-input"]').eq(index).val());
+                        var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked') ? true : false;
+                        var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked') ? true : false;
+                        var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked') ? true : false;
 
                         $.ajax({
                             type: 'POST',
-                            url: server + '/api/updateiteminformation',
+                            url: server + '/api/bommasssavebommanagement',
                             dataType: 'json',
-                            async: false,
                             contentType: 'application/json',
                             data: JSON.stringify({
-                                "bomno": $('#bomno-save').val(),
-                                "modelname": $('#modelname-save').val(),
-                                "itemname": $('#itemname-save').val(),
-                                "customer": $('#customer-save').val(),
-                                "itemcode": $('#itemcode-save').val(),
-                                "pcs": $('#pcs-save').val(),
-                                "cavity": $('#cavity-save').val(),
-                                "direction": $('#direction-save').val(),
-                                "workpart": $('#workpart-save').val(),
-                                "additionalnotes": $('#additionalNote').val(),
-                                "working": $('#working-save').val(),
-                                "type": $('#type-save').val(),
+                                "savedate": insertdate,
+                                "bomno": bomno,
+                                "model": model,
+                                "itemname": itemname,
+                                "materialname": materialname,
+                                "status": 'true',
+                                "char": char,
+                                "main": main,
+                                "etc": etc,
+                                "materialwidth": materialwidth,
+                                "onepid": onepid,
+                                "twopid": twopid,
+                                "ta": ta,
+                                "allta": allta,
+                                "talength": talength,
+                                "loss": loss,
+                                "cavity": cavity,
+                                "codenumber": codenumber,
+                                "useable": useable,
+                                "num": num,
+                                "costloss": costloss,
+                                "bomid": bomid,
+                                "chk1": chk1,
+                                "chk2": chk2,
+                                "chk3": chk3
                             }),
                             success: function (result) {
-                            }
+                                // Handle success
+                            },
+                            error: function (error) {
+                                // Handle error
+                            },
                         });
+                    });
 
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/updatebomstatus',
-                            dataType: 'json',
-                            async: false,
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "bomid": $('#bomid-edit').val(),
-                                "status": 'false'
-                            }),
-                            success: function (result) {
-                            }
-                        });
-
-
-
-                        $('[id^="num-input"]').each(function (index) {
-                            var cavity = $('#cavity-save').val();
-                            var bomno = $('#bomno-save').val();
-                            var model = $('#modelname-save').val();
-                            var itemname = $('#itemname-save').val();
-                            var materialname = $('[id^="materialname-input"]').eq(index).val();
-                            var char = $('[id^="char-input"]').eq(index).val();
-                            var main = $('[id^="main-edit"]').eq(index).prop('checked') ? '메인자재' : '';
-                            var etc = $('[id^="etc-input"]').eq(index).val();
-                            var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
-                            var onepid = ($('[id^="onepidding-input"]').eq(index).val())
-                            var twopid = ($('[id^="twopidding-input"]').eq(index).val())
-                            var soyo = ($('[id^="soyo-input"]').eq(index).val())
-                            var ta = ($('[id^="ta-input"]').eq(index).val())
-                            var allta = ($('[id^="allta-input"]').eq(index).val())
-                            var talength = ($('[id^="talength-input"]').eq(index).val())
-                            var loss = ($('[id^="loss-input"]').eq(index).val())
-                            var num = ($('[id^="num-input"]').eq(index).val());
-                            var cavity = ($('[id^="cavity-input"]').eq(index).val());
-                            var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
-                            var useable = ($('[id^="useable-input"]').eq(index).val());
-                            var bomid = $('#bomid-save').val();
-                            var costloss = ($('[id^="costloss-input"]').eq(index).val());
-                            var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked') ? true : false;
-                            var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked') ? true : false;
-                            var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked') ? true : false;
-
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/bommasssavebommanagement',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "savedate": insertdate,
-                                    "bomno": bomno,
-                                    "model": model,
-                                    "itemname": itemname,
-                                    "materialname": materialname,
-                                    "status": 'true',
-                                    "char": char,
-                                    "main": main,
-                                    "etc": etc,
-                                    "materialwidth": materialwidth,
-                                    "onepid": onepid,
-                                    "twopid": twopid,
-                                    "ta": ta,
-                                    "allta": allta,
-                                    "talength": talength,
-                                    "loss": loss,
-                                    "cavity": cavity,
-                                    "codenumber": codenumber,
-                                    "useable": useable,
-                                    "num": num,
-                                    "costloss": costloss,
-                                    "bomid": bomid,
-                                    "chk1": chk1,
-                                    "chk2": chk2,
-                                    "chk3": chk3
-                                }),
-                                success: function (result) {
-                                    // Handle success
-                                },
-                                error: function (error) {
-                                    // Handle error
-                                },
-                            });
-                        });
-
-                        $('#overlay').fadeOut();
-                        $('#modal').fadeOut();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Bom 수정 완료',
-                            text: '데이터가 성공적으로 수정 되었습니다.',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                load();
-                            }
-                        });
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        // 취소 버튼이 클릭되었을 때 실행할 작업
-                    }
-                });
-
+                    $('#overlay').fadeOut();
+                    $('#modal').fadeOut();
+                    alert('데이터가 성공적으로 수정 되었습니다.');
+                    load();
+                }
             } else {
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/selectbomno',
+                    url: server + '/api/bommasssavebommanagement',
                     dataType: 'json',
                     contentType: 'application/json',
                     data: JSON.stringify({
                         "bomno": $('#bomno-save').val(),
+                        "modelname": $('#modelname-save').val(),
+                        "itemname": $('#itemname-save').val(),
+                        "customer": $('#customer-save').val(),
+                        "itemcode": $('#itemcode-save').val(),
+                        "pcs": $('#pcs-save').val(),
+                        "cavity": $('#cavity-save').val(),
+                        "direction": $('#direction-save').val(),
+                        "workpart": $('#workpart-save').val(),
+                        "additionalnotes": $('#additionalNote').val(),
+                        "working": $('#working-save').val(),
+                        "type": $('#type-save').val(),
                     }),
                     success: function (result) {
-                        if (result && result.length > 0) {
-                            // alert('BOM NO가 중복되었습니다.');
-                            showMissingFieldAlert('BOMNO중복', 'BOMNO가 기존에 등록되었습니다');
-                            return;
-                        } else {
-                        }
-                    }
+                        // Handle success
+                    },
+                    error: function (error) {
+                        // Handle error
+                    },
                 });
 
-                var insertdate = new Date().toISOString().slice(0, 10);
-                var rowCount = $('#bomtableBody tr').length;
-                for (var i = 0; i < rowCount; i++) {
-                    $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
-                }
+                $('[id^="num-input"]').each(function (index) {
+                    var cavity = $('#cavity-save').val();
+                    var bomno = $('#bomno-save').val();
+                    var model = $('#modelname-save').val();
+                    var itemname = $('#itemname-save').val();
+                    var materialname = $('[id^="materialname-input"]').eq(index).val();
+                    var char = $('[id^="char-input"]').eq(index).val();
+                    var main = $('[id^="main-edit"]').eq(index).prop('checked') ? '메인자재' : '';
+                    var etc = $('[id^="etc-input"]').eq(index).val();
+                    var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
+                    var onepid = ($('[id^="onepidding-input"]').eq(index).val())
+                    var twopid = ($('[id^="twopidding-input"]').eq(index).val())
+                    var soyo = ($('[id^="soyo-input"]').eq(index).val())
+                    var ta = ($('[id^="ta-input"]').eq(index).val())
+                    var allta = ($('[id^="allta-input"]').eq(index).val())
+                    var talength = ($('[id^="talength-input"]').eq(index).val())
+                    var loss = ($('[id^="loss-input"]').eq(index).val())
+                    var num = ($('[id^="num-input"]').eq(index).val());
+                    var cavity = ($('[id^="cavity-input"]').eq(index).val());
+                    var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
+                    var useable = ($('[id^="useable-input"]').eq(index).val());
+                    var bomid = $('#bomid-save').val();
+                    var costloss = ($('[id^="costloss-input"]').eq(index).val());
+                    var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked') ? true : false;
+                    var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked') ? true : false;
+                    var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked') ? true : false;
 
-                var bomno = $('#bomno-save').val();
-                var customer = $('#customer-save').val();
-                var modelname = $('#modelname-save').val();
-                var itemname = $('#itemname-save').val();
-                var pcs = $('#pcs-save').val();
-                var cavity = $('#cavity-save').val();
-                var itemcode = $('#itemcode-save').val();
-                var workpart = $('#workpart-save').val();
-                var working = $('#working-save').val();
-                var direction = $('#direction-save').val();
-                var costsum = $('#costsum-save').val();
-                var additionalnotes = $('#additionalNote').val();
-                var type = $('#type-save').val();
-
-                // if (bomno !== '' && modelname !== '') {
-                if (bomno !== '') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'BOM 신규등록',
-                        text: 'BOM정보(양산) 데이터를 저장하시겠습니까?',
-                        showCancelButton: true, // 취소 버튼 표시
-                        confirmButtonColor: '#3085d6',
-                        confirmButtonText: '확인',
-                        cancelButtonText: '취소', // 취소 버튼 텍스트
-                        background: '#f4f4f4',
-                        customClass: {
-                            title: 'my-title',
-                            content: 'my-content',
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/bommasssavebommanagement',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            "savedate": insertdate,
+                            "bomno": bomno,
+                            "model": model,
+                            "itemname": itemname,
+                            "materialname": materialname,
+                            "status": 'true',
+                            "char": char,
+                            "main": main,
+                            "etc": etc,
+                            "materialwidth": materialwidth,
+                            "onepid": onepid,
+                            "twopid": twopid,
+                            "ta": ta,
+                            "allta": allta,
+                            "talength": talength,
+                            "loss": loss,
+                            "cavity": cavity,
+                            "codenumber": codenumber,
+                            "useable": useable,
+                            "num": num,
+                            "costloss": costloss,
+                            "bomid": bomid,
+                            "chk1": chk1,
+                            "chk2": chk2,
+                            "chk3": chk3
+                        }),
+                        success: function (result) {
+                            // Handle success
                         },
-                        padding: '2rem',
-                        width: '500px',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/selectbomno',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "bomno": $('#bomno-save').val(),
-                                }),
-                                success: function (result) {
-
-                                }
-                            });
-                            $.ajax({
-                                type: 'POST',
-                                url: server + '/api/bommasssaveiteminfo',
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    "insertdate": insertdate,
-                                    "updatedate": insertdate,
-                                    "bomno": bomno,
-                                    "customer": customer,
-                                    "modelname": modelname,
-                                    "itemname": itemname,
-                                    "pcs": pcs,
-                                    "cavity": cavity,
-                                    "itemcode": itemcode,
-                                    "part": "양산",
-                                    "workpart": workpart,
-                                    "working": working,
-                                    "direction": direction,
-                                    "costsum": costsum,
-                                    "additionalnotes": additionalnotes,
-                                    "type": type,
-                                    "itemprice": '0',
-                                }),
-                                success: function (result) {
-
-                                }
-                            });
-                            $('[id^="num-input"]').each(function (index) {
-                                var cavity = $('#cavity-save').val();
-                                var bomno = $('#bomno-save').val();
-                                var model = $('#modelname-save').val();
-                                var itemname = $('#itemname-save').val();
-                                var materialname = $('[id^="materialname-input"]').eq(index).val();
-                                var char = $('[id^="char-input"]').eq(index).val();
-                                var main = $('[id^="main-edit"]').eq(index).prop('checked') ? '메인자재' : '';
-                                var etc = $('[id^="etc-input"]').eq(index).val();
-                                var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
-                                var onepid = ($('[id^="onepidding-input"]').eq(index).val())
-                                var twopid = ($('[id^="twopidding-input"]').eq(index).val())
-                                var soyo = ($('[id^="soyo-input"]').eq(index).val())
-                                var ta = ($('[id^="ta-input"]').eq(index).val())
-                                var allta = ($('[id^="allta-input"]').eq(index).val())
-                                var talength = ($('[id^="talength-input"]').eq(index).val())
-                                var loss = ($('[id^="loss-input"]').eq(index).val())
-                                var num = ($('[id^="num-input"]').eq(index).val());
-                                var cavity = ($('[id^="cavity-input"]').eq(index).val());
-                                var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
-                                var useable = ($('[id^="useable-input"]').eq(index).val());
-                                var bomid = $('#bomid-save').val();
-                                var costloss = ($('[id^="costloss-input"]').eq(index).val());
-                                var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked') ? true : false;
-                                var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked') ? true : false;
-                                var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked') ? true : false;
-
-                                $.ajax({
-                                    type: 'POST',
-                                    url: server + '/api/bommasssavebommanagement',
-                                    dataType: 'json',
-                                    contentType: 'application/json',
-                                    data: JSON.stringify({
-                                        "savedate": insertdate,
-                                        "bomno": bomno,
-                                        "model": model,
-                                        "itemname": itemname,
-                                        "materialname": materialname,
-                                        "status": 'true',
-                                        "char": char,
-                                        "main": main,
-                                        "etc": etc,
-                                        "materialwidth": materialwidth,
-                                        "onepid": onepid,
-                                        "twopid": twopid,
-                                        "ta": ta,
-                                        "allta": allta,
-                                        "talength": talength,
-                                        "loss": loss,
-                                        "cavity": cavity,
-                                        "codenumber": codenumber,
-                                        "useable": useable,
-                                        "num": num,
-                                        "costloss": costloss,
-                                        "bomid": bomid,
-                                        "chk1": chk1,
-                                        "chk2": chk2,
-                                        "chk3": chk3
-                                    }),
-                                    success: function (result) {
-                                        // Handle success
-                                    },
-                                    error: function (error) {
-                                        // Handle error
-                                    },
-                                });
-                            });
-
-                            $('#overlay').fadeOut();
-                            $('#modal').fadeOut();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Bom 저장 완료',
-                                text: '데이터가 성공적으로 저장 되었습니다.',
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    load();
-                                }
-                            });
-                        } else if (result.dismiss === Swal.DismissReason.cancel) {
-                            // 취소 버튼이 클릭되었을 때 실행할 작업
-                        }
+                        error: function (error) {
+                            // Handle error
+                        },
                     });
+                });
 
-
-
-                }
+                $('#overlay').fadeOut();
+                $('#modal').fadeOut();
+                alert('데이터가 성공적으로 저장 되었습니다.');
+                load();
             }
-
-
-
         }
+
 
 
         function bomchanged() {
