@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+    <script src="../assets/js/kaiadmin.min.js"></script>
+    <script src="../assets/js/setting-demo2.js"></script>
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" />
+    <link rel="stylesheet" href="../assets/css/demo1.css" />
+</head>
+
+
+<body>
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 200vh;">
+            <div class="modal-content" style=" height: 80vh;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">자재 입고 등록</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <!-- First table -->
+                            <div class="col-md-6" style="height: 60vh;">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10">발주정보</th>
+                                        </tr>
+                                        <tr>
+                                            <td>발주NO</td>
+                                            <td colspan="9"><input type="text" id="orderno" autocomplete="off"
+                                                    placeholder="발주번호를 입력 후 Enter를 누르세요"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>자재명</th>
+                                            <th>전폭</th>
+                                            <th>발주폭</th>
+                                            <th>발주롤</th>
+                                            <th>M</th>
+                                            <th>컷수</th>
+                                            <th>M합계</th>
+                                            <th>금액(￦)</th>
+                                            <th>공급처</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="accountdatatbody">
+                                        <tr id="no-data-row">
+                                            <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot id="accountdatatfoot"></tfoot>
+                                </table>
+                            </div>
+                            <!-- Second table -->
+                            <div class="col-md-6" style="height: 60vh; overflow-y: auto;">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10">입고정보</th>
+                                        </tr>
+
+                                        <tr>
+                                            <th>자재명</th>
+                                            <th style="width:100px;">자재폭</th>
+                                            <th style="width:100px;">롤</th>
+                                            <th style="width:100px;">M</th>
+                                            <th style="width:100px;">컷수</th>
+                                            <th>M합계</th>
+                                            <th style="width:200px;">LOTNO</th>
+                                            <th>금액(￦)</th>
+                                            <th>공급처</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="accountdatatbody2">
+                                        <tr id="no-data-row2">
+                                            <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot id="accountdatatfoot2"></tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                        onclick="accountsave()">입고저장</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Structure -->
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="max-width: 90%; width: 300vh;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderModalLabel">구매 발주</h5>
+                </div>
+
+                <div class="modal-body">
+                    <div class="table-wrapper"
+                        style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 20px;">
+                        <table class="styled-table" style="width: 100%; border-collapse: collapse;">
+                            <thead id="tableHead">
+                                <tr>
+                                    <th colspan="16">구매 발주 목록 <input type="text" id="num"
+                                            style="width:20px; visibility: hidden;"></th>
+                                </tr>
+                                <tr>
+                                    <th>BOMNO</th>
+                                    <th>모델명</th>
+                                    <th>품목명</th>
+                                    <th>자재명</th>
+                                    <th>자재폭<br>(mm)</th>
+                                    <th>필요소요량<br>(M)</th>
+                                    <th>같은폭재고<br>(M)</th>
+                                    <th>폭이상재고<br>(Y/N)</th>
+                                    <th>출고대기재고<br>(M)</th>
+                                    <th style="width:70px;">1RL<br>컷수</th>
+                                    <th style="width:100px;">재단폭</th>
+                                    <th style="width:70px;">필요 발주수량<br>(롤)</th>
+                                    <th style="width:120px;">발주수량<br>(롤)</th>
+                                    <th style="width:100px;">자재상세</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderlistbombody">
+                                <!-- Dynamic rows will be appended here -->
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                    <div class="table-wrapper"
+                        style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 5px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: rgb(196, 207, 207);">
+                                    <th colspan="9">자재출고대기 <input type="text" id="num"
+                                            style="width:20px; visibility: hidden;"></th>
+                                </tr>
+                                <tr>
+                                    <th>품목코드</th>
+                                    <th>자재명</th>
+                                    <th>자재폭<br>(mm)</th>
+                                    <th>M</th>
+                                    <th>롤</th>
+                                    <th>합계(M)</th>
+                                    <th>제조일자</th>
+                                    <th>만료일자</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="iteminfobody1">
+                                <!-- Dynamic rows will be appended here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="purchasesave()">저장</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="page-inner">
+        <div class="page-header">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="page-inner">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">자재슬리팅</h4>
+
+                            </div>
+                            <div class="card-body">
+                                <div class="date-input-group">
+                                    <div>
+                                        <i class="far fa-calendar-alt"></i>
+                                    </div>
+                                    <div>
+                                        <input type="date" id="startdate" class="form-control">
+                                    </div>
+                                    <div>
+                                        <input type="date" id="enddate" class="form-control">
+                                    </div>
+                                    <div>
+                                        <button onclick="load()" class="btn btn-primary btn-round ms-auto">조회</button>
+                                    </div>
+                                    <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
+                                        id="addButton">
+                                        <i class="fa fa-plus"></i>
+                                        발주조회
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body" style="height: 70vh; max-height: 70vh; overflow-y: auto;">
+                        <div style="margin-top: -10px;">
+                            <table class="styled-table">
+                                <thead id="tableHead">
+                                    <tr>
+                                        <th>입고날짜</th>
+                                        <th>자재명</th>
+                                        <th>품목코드</th>
+                                        <th>LOTNO</th>
+                                        <th>제조일자</th>
+                                        <th>만료일자</th>
+                                        <th>자재폭<br>(mm)</th>
+                                        <th>수량<br>(M)</th>
+                                        <th>롤<br>(RL)</th>
+                                        <th>롤단가<br>(￦)</th>
+                                        <th>공급가액<br>(￦)</th>
+                                        <th>부가세<br>(￦)</th>
+                                        <th>합계<br>(￦)</th>
+                                        <th>입고현황</th>
+                                        <th style="width: 120px;"></th>
+                                        <th style="width: 120px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="Datatbody">
+                                    <tr id="no-data-row">
+                                        <td colspan="15" style="text-align: center;">데이터가 없습니다</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot id="iteminfofoot"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+<script>
+    var server = '';
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+    $(document).on('click', '.add-btn', function () {
+        const row = $(this).closest('tr'); // Get the closest row
+        const itemname = row.find('td:nth-child(1)').text(); // Ensure correct index for itemname
+        const width = row.find('td:nth-child(3)').text();
+        const quantity = row.find('td:nth-child(4)').text();
+        const length = row.find('td:nth-child(5)').text();
+        const cut = row.find('td:nth-child(6)').text();
+        const rollprice = row.find('td:nth-child(8)').text();
+        const suppliername = row.find('td:nth-child(9)').text();
+
+        const totalValue = (parseFloat(length) * parseFloat(quantity) * parseFloat(cut)).toFixed(0).toLocaleString();
+
+        // Check if a row with the same itemname already exists in accountdatatbody2
+        let exists = false;
+        $('#accountdatatbody2 tr').each(function () {
+            if ($(this).find('td:first').text() === itemname) {
+                exists = true;
+                return false; // Exit loop early
+            }
+        });
+
+        // Remove the "데이터가 없습니다" row if it exists
+        const noDataRow = $('#accountdatatbody2 #no-data-row2');
+        if (noDataRow.length) {
+            noDataRow.remove();
+        }
+
+        // Append the new row to accountdatatfoot2
+        const newRow = `
+    <tr>
+        <td>${itemname}</td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${width}"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${quantity}" id="quantity"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${length}" id="length"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" readonly value="${cut}" id="cut"></td>
+        <td id="totalValue">${totalValue}</td>
+        <td><input type="text" style="text-align:right;" value=""></td>
+        <td id="rollprice">${rollprice}</td>
+        <td id="suppliername">${suppliername}</td>
+    </tr>
+    `;
+        $('#accountdatatbody2').append(newRow);
+        console.log('Row added: ', itemname);
+    });
+
+
+
+    $(document).ready(function () {
+
+
+        $('#orderno').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/ordernoselect',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderno": $('#orderno').val()
+                    }),
+                    success: function (result) {
+                        const tableBody = $('#accountdatatbody');
+                        const tableFoot = $('#accountdatatfoot');
+                        let totalSupplyAmount = 0; // To store the total supply amount
+
+                        tableBody.empty();
+                        tableFoot.empty(); // Clear the table footer
+
+                        if (result.length === 0) {
+                            tableBody.append('<tr><td colspan="8">구매발주 데이터가 없습니다.</td></tr>');
+                            tableFoot.hide(); // Hide the tfoot element
+                        } else {
+                            for (let i = 0; i < result.length; i++) {
+                                const item = result[i];
+                                totalSupplyAmount += item.supplyamount; // Add to total
+
+                                // Append row to table
+                                const row = `
+                            <tr>
+                                <td>${item.itemname}</td>
+                                <td>${item.materialwidth.toLocaleString()}</td>
+                                <td>${item.width}</td>
+                                <td>${item.quantity.toLocaleString()}</td>
+                                <td>${item.length.toLocaleString()}</td>
+                                <td>${item.cut}</td>
+                                <td>${(parseFloat(item.length) * parseFloat(item.cut) * parseFloat(item.quantity)).toLocaleString()}</td>
+                                <td>${item.supplyamount.toLocaleString()}</td>
+                                <td>${item.suppliername}</td>
+                                <td><button class="btn btn-success add-btn" style="text-align:center; padding:10px;">추가</button></td>
+                                <td class="data-id" style="display:none;">${item.id}</td>
+                            </tr>
+                        `;
+                                tableBody.append(row);
+                            }
+
+                            // Append the total row to the tfoot
+                            const tableFooter = `
+                        <tr>
+                            <td colspan="7" style="text-align:right;"><strong>합계</strong></td>
+                            <td>${totalSupplyAmount.toLocaleString()}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    `;
+                            tableFoot.append(tableFooter);
+                            tableFoot.show(); // Show the tfoot element
+                        }
+
+                        // Add click event listener to each add button
+
+
+
+                    },
+                });
+            }
+        });
+
+
+        // Initialize DataTable with search functionality
+        $('#orderdatatable thead input[type="checkbox"]').on('change', function () {
+            var isChecked = $(this).prop('checked');
+
+            $('#orderdatatable tbody input[type="checkbox"]').prop('checked', isChecked);
+
+            if (isChecked) {
+                // Get the IDs of checked checkboxes
+                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                    return $(this).closest('tr').find('td#data-id').text();
+                }).get();
+            }
+        });
+
+
+        var today = new Date();
+
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+        var day = String(today.getDate()).padStart(2, '0'); // 일
+        var formattedDate = year + '-' + month + '-' + day;
+        $('#startdate').val(formattedDate)
+        $('#enddate').val(formattedDate)
+
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
+        });
+        $('#searchingcloseButton').on('click', function () {
+            $('#newModal').modal('hide');
+        });
+        $('#updatecloseButton').on('click', function () {
+            $('#updateRowModal').modal('hide');
+        });
+        $('#deletecancelBtn').on('click', function () {
+            $('#deleteConfirmModal').modal('hide');
+        });
+        $('#addButton').on('click', function () {
+            // Show the modal first
+            $('#productModal').modal('show');
+
+            // Set the value and focus on the input field after the modal is shown
+            $('#productModal').on('shown.bs.modal', function () {
+                $('#orderno').val('20240716-41').focus();
+
+                // Clear and update the first table body
+                $('#accountdatatbody').empty();
+                $('#accountdatatbody').append('<tr id="no-data-row"><td colspan="11" style="text-align: center;">데이터가 없습니다</td></tr>');
+
+                // Clear and update the second table body
+                $('#accountdatatbody2').empty();
+                $('#accountdatatbody2').append('<tr id="no-data-row2"><td colspan="11" style="text-align: center;">데이터가 없습니다</td></tr>');
+
+                // Hide the tfoot element
+                $('#accountdatatfoot').hide();
+            });
+        });
+
+
+
+
+
+
+
+
+        load();
+    });
+
+
+    function load() {
+
+
+        $.ajax({
+            url: server + '/api/selectmaterialinputinformation1',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                start: $('#startdate').val(),
+                finish: $('#enddate').val(),
+            }),
+            success: function (result) {
+                $('#Datatbody').empty();
+                $('#iteminfofoot').empty(); // tfoot 비우기
+                var totalQuantity = 0; // quantity 합계를 저장할 변수 초기화
+                var totalRoll = 0; // 롤 합계를 저장할 변수 초기화
+                var totalRollPrice = 0; // 롤 가격 합계를 저장할 변수 초기화
+                var totalCalculation1 = 0; // 계산된 값 합계를 저장할 변수 초기화
+                var totalCalculation2 = 0; // 계산된 값 합계를 저장할 변수 초기화
+                var totalCalculation3 = 0; // 계산된 값 합계를 저장할 변수 초기화
+
+                if (result.length === 0) {
+                    $('#Datatbody').append('<tr><td colspan="17" style="text-align:center; font-weight:bold;"  >데이터가 없습니다</td></tr>');
+                    $('#iteminfofoot').hide(); // tfoot 숨기기
+                } else {
+                    for (var i = 0; i < result.length; i++) {
+                        var inputText = result[i].input || '';
+                        var inputColor = inputText === '수입검사대기' ? 'red' : 'black';
+
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td>' + (result[i].date || '') + '</td>' +
+                            '<td>' + (result[i].materialname || '') + '</td>' +
+                            '<td>' + (result[i].codenumber || '') + '</td>' +
+                            '<td>' + (result[i].lotno || '') + '</td>' +
+                            '<td>' + (result[i].manufacturedate || '') + '</td>' +
+                            '<td>' + (result[i].expirationdate || '') + '</td>' +
+                            '<td>' + (result[i].materialwidth.toLocaleString() || '') + '</td>' +
+                            '<td>' + (result[i].quantity.toLocaleString() || '') + '</td>' +
+                            '<td>' + (result[i].roll.toLocaleString() || '') + '</td>' +
+                            '<td>' + (result[i].rollprice.toLocaleString() || '') + '</td>' +
+                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll)).toLocaleString() + '</td>' +
+                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 0.1).toLocaleString() + '</td>' +
+                            '<td>' + (parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 1.1).toLocaleString() + '</td>' +
+                            '<td style="font-weight:bold; color:' + inputColor + ';">' + inputText + '</td>' +
+                            '<td id="data-id">' + (result[i].id || '') + '</td>' +
+                            '<td><button class="btn btn-primary" onclick="showinfo(this)">상세</button></td>' +
+                            '<td><button class="btn btn-danger" style="background-color:red;" onclick="deletedata(this)">삭제</button></td>' +
+                            '</tr>'
+                        );
+                        $('td#data-id').hide();
+                        // 합계 계산
+                        totalQuantity += parseFloat(result[i].quantity);
+                        totalRoll += parseFloat(result[i].roll);
+                        totalRollPrice += parseFloat(result[i].rollprice);
+                        totalCalculation1 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll);
+                        totalCalculation2 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 0.1;
+                        totalCalculation3 += parseFloat(result[i].rollprice) * parseFloat(result[i].roll) * 1.1;
+                    }
+
+                    // tfoot에 합계 추가
+                    $('#iteminfofoot').html(
+                        '<tr>' +
+                        '<td style="font-weight:bold;" colspan="8">총합계</td>' +
+                        '<td style="font-weight:bold;">' + totalRoll.toLocaleString() + '</td>' +
+                        '<td style="font-weight:bold;">' + totalRollPrice.toLocaleString() + '</td>' +
+                        '<td style="font-weight:bold;">' + totalCalculation1.toLocaleString() + '</td>' +
+                        '<td style="font-weight:bold;">' + totalCalculation2.toLocaleString() + '</td>' +
+                        '<td style="font-weight:bold;">' + totalCalculation3.toLocaleString() + '</td>' +
+                        '<td colspan="3"></td>' + // 나머지 열은 빈 열로 채워짐
+                        '</tr>'
+                    ).show(); // tfoot 표시
+                }
+
+                $('td#data-id').hide();
+
+            }
+        });
+    }
+
+
+    function load1() {
+        $('#orderlistbombody').empty();
+        $.ajax({
+            url: server + '/api/selectorderlistinformation',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+
+            }),
+            success: function (data) {
+                $('#num').val(data.length);
+                var tableFoot = $('#dataCount');
+                if (data.length === 0) {
+                    $('#orderlistbombody').html('<tr><td colspan="23">데이터가 없습니다.</td></tr>');
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+                        var hasButton = data[i].has === 'Y' ? '<button onclick="showinfo(this)" class="btn btn-primary" data-row-index="' + i + '">상세</button>' : '';
+                        var etcValue = data[i].etc || '';
+                        var isHapjiIncluded = etcValue.includes('합지');
+                        var backgroundColor = '';
+                        var textColor = '';
+
+                        // 'has' 속성이 'y'인 경우에만 배경색과 텍스트색 변경
+                        if (data[i].has === 'Y') {
+                            backgroundColor = 'red';
+                            textColor = 'white';
+                        }
+                        // Check if "합지" is included in the value
+
+                        $('#orderlistbombody').append(
+                            '<tr class="order-list-row">' +
+                            '<td id="bomno-input">' + (data[i].bomno || '') + '</td>' +
+                            '<td id="modelname-input">' + (data[i].modelname || '') + '</td>' +
+                            '<td id="itemname-input">' + (data[i].itemname || '') + '</td>' +
+                            '<td id="materialname-input">' + (data[i].materialname || '') + '</td>' +
+                            '<td id="materialwidth-input">' + (data[i].materialwidth.toLocaleString() || '') + '</td>' +
+                            '<td id="soyo-input">' + (data[i].soyo.toLocaleString() || '') + '</td>' +
+                            '<td id="sumquantity-input">' + (data[i].sumquantity.toLocaleString() || '0') + '</td>' +
+                            '<td id="has-input" style="background-color: ' + backgroundColor + '; color: ' + textColor + ';">' + (data[i].has || '') + '</td>' +
+                            '<td id="purwait-input">' + (data[i].purwait || '') + '</td>' +
+                            '<td id="cut-input">' + (data[i].cut || '') + '</td>' +
+                            '<td><select class="form-select" id="cutmaterialwidth-input"><option value="' + numberWithCommas(data[i].materialwidth) + '">' + numberWithCommas(data[i].materialwidth || '') + '</option><option value="전폭">전폭</option></select></td>' +
+                            '<td id="a-input">' + (data[i].a || '') + '</td>' +
+                            '<td><input type="text" style="text-align:right;" onkeypress="return validateNumericInput(event)" placeholder="숫자입력" id="roundedResult-input" value="' + (data[i].roundedResult || '0') + '" autocomplete="off"></td>' +
+                            '<td id="sqmpricetd"><input type="text" id="sqmprice-input" value="' + (data[i].sqmprice || '0') + '"></td>' +
+                            '<td id="rollpricetd"><input type="text" id="rollprice-input" value="' + (data[i].a1 || '0') + '"></td>' +
+                            '<td id="quantitytd"><input type="text" id="quantity-input" value="' + (data[i].quantity || '0') + '"></td>' +
+                            '<td id="codenumbertd"><input type="text" id="codenumber-input" value="' + (data[i].codenumber || '0') + '"></td>' +
+                            '<td id="suppliertd"><input type="text" id="supplier-input" value="' + (data[i].supplier || '0') + '"></td>' +
+                            '<td id="widthtd"><input type="text" id="width-input" value="' + (data[i].width || '0') + '"></td>' +
+                            '<td id="lengthtd"><input type="text" id="length-input" value="' + (data[i].length || '0') + '"></td>' +
+                            '<td id="manufacterertd"><input type="text" id="manufacterer-input" value="' + (data[i].customer || '0') + '"></td>' +
+                            '<td id="productidtd"><input type="text" id="productid-input" value="' + (data[i].qrno || '') + '"></td>' +
+                            '<td>' + hasButton + '</td>' +
+                            '<td id="ordernotd"><input type="text" id="orderno-input" value="' + (data[i].orderno || '') + '"></td>' +
+                            '</tr>'
+                        );
+
+
+
+                        $('td#rollpricetd').hide();
+                        $('td#sqmpricetd').hide();
+                        $('td#olquantitytd').hide();
+                        $('td#codenumbertd').hide();
+                        $('td#supplietd').hide();
+                        $('td#widthtd').hide();
+                        $('td#lengthtd').hide();
+                        $('td#quantitytd').hide();
+                        $('td#suppliertd').hide();
+                        $('td#manufacterertd').hide();
+                        $('td#productidtd').hide();
+                        $('td#ordernotd').hide();
+                    }
+                    $('#iteminfobody1').empty()
+                    $.ajax({
+                        type: 'POST',
+                        url: server + '/api/purwaitmaterial',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            // start: $('#datetimepicker1').val(),
+                            // finish: $('#datetimepicker2').val(),
+                        }),
+                        success: function (data) {
+                            var tableFoot = $('#dataCount');
+                            if (data.length === 0) {
+                                $('#iteminfobody1').append('<tr><td colspan="7" style="text-align: center;">데이터가 없습니다.</td></tr>');
+                                tableFoot.text('총 데이터 개수: 0');
+                            } else {
+
+                                for (var i = 0; i < data.length; i++) {
+                                    $('#iteminfobody1').append(
+                                        '<tr>' +
+                                        '<td>' + (data[i].codenumber || '') + '</td>' +
+                                        '<td>' + (data[i].materialname || '') + '</td>' +
+                                        '<td>' + (data[i].materialwidth || '') + '</td>' +
+                                        '<td>' + (data[i].quantity || '') + '</td>' +
+                                        '<td>' + (data[i].roll || '') + '</td>' +
+                                        '<td>' + (parseFloat(data[i].roll) * parseFloat(data[i].quantity) || '') + '</td>' +
+                                        '<td>' + (data[i].manufacturedate || '') + '</td>' +
+                                        '<td>' + (data[i].expirationdate || '') + '</td>' +
+                                        '<td><button class="btn btn-danger" style="background-color:red;" >삭제</button></td>' +
+                                        '</tr>'
+                                    )
+                                }
+
+                                // Append footer row with total supply amount
+
+
+                            }
+                        }
+                    });
+
+
+                    $('.detail-btn').click(function () {
+                        var rowIndex = $(this).data('row-index');
+                        var rowData = data[rowIndex];
+                        var codenumber = rowData.codenumber || '';
+                        var materialwidth = rowData.materialwidth || '';
+                        $('#selectmaterialbody').empty();
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/selectmaxwidthmaterial',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "codenumber": codenumber,
+                                "materialwidth": materialwidth,
+                            }),
+
+                            success: function (result) {
+                                var tableFoot = $('#dataCount');
+                                if (result.length === 0) {
+                                } else {
+                                    // Iterate through sorted data
+                                    for (var i = 0; i < result.length; i++) {
+                                        $('#selectmaterialbody').append(
+                                            '<tr class="order-list-row">' +
+                                            '<td><input type="checkbox" style="width:20px; height:20px;  onclick="toggleRow(this)""></td>' +
+                                            '<td id="materialname-input">' + (result[i].materialname || '') + '</td>' +
+                                            '<td style="text-align:right;" id="materialwidth-input">' + (result[i].materialwidth || '').toLocaleString() + '</td>' +
+                                            '<td style="text-align:right;" id="quantity-input">' + (result[i].quantity || '').toLocaleString() + '</td>' +
+                                            '<td id="materialname-input">' + (result[i].lotno || '') + '</td>' +
+                                            '<td id="materialname-input">' + (result[i].manufacturedate || '') + '</td>' +
+                                            '<td id="materialname-input">' + (result[i].expirationdate || '') + '</td>' +
+
+
+
+                                            '<td id="id-input">' + result[i].id + '</td>' +
+                                            '</tr>'
+                                        );
+                                        $('td#id-input').hide();
+                                    }
+
+
+
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    $('#itemcode-input').on('keypress', function (event) {
+        if (event.which === 13) { // Enter key code
+            event.preventDefault(); // Prevent default action
+            $('#overlay').show(); // Show the overlay
+            $('#newModal').modal('show'); // Open the new modal
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomnoaccountinput',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    itemcode: $('#itemcode-input').val()
+                }),
+                success: function (result) {
+                    $('#itemtbody').empty(); // Clear previous results
+
+                    if (result.length === 0) {
+                        $('#no-search-row').show(); // Show "no search" row
+                    } else {
+                        $('#no-search-row').hide(); // Hide "no search" row
+                        for (var i = 0; i < result.length; i++) {
+                            $('#itemtbody').append(
+                                '<tr>' +
+                                '<td style="text-align:center;">' + result[i].itemcode + '</td>' +
+                                '<td style="text-align:center;">' + result[i].bomno + '</td>' +
+                                '<td style="text-align:center;">' + result[i].modelname + '</td>' +
+                                '<td style="text-align:center;">' + result[i].itemname + '</td>' +
+                                '<td style="text-align:center;">' + result[i].customer + '</td>' +
+                                '<td style="text-align:center;">' + result[i].itemprice + '</td>' +
+                                '<td style="text-align:center;">' +
+                                '<button class="btn btn-primary" onclick="add(this); event.preventDefault();">추가</button>' +
+                                '</td>' + '</tr>'
+                            );
+                        }
+                    }
+
+                    $("td#data-itemprice").hide(); // Hide specific cell if needed
+                },
+
+            });
+        }
+    });
+    function add(row) {
+        var rowData = $(row).closest('tr').find('td').map(function () {
+            return $(this).text();
+        }).get();
+
+        // Check if the "no data" row exists and remove it
+        if ($('#accountdatatbody #no-data-row').length) {
+            $('#accountdatatbody #no-data-row').remove();
+        }
+
+        var newRow = '<tr>' +
+            '<td style="text-align:center;" id="itemcode-input">' + rowData[0] + '</td>' +
+            '<td style="text-align:center;" id="bomno-input">' + rowData[1] + '</td>' +
+            '<td style="text-align:center;" id="modelname-input">' + rowData[2] + '</td>' +
+            '<td style="text-align:center;" id="itemname-input">' + rowData[3] + '</td>' +
+            '<td style="text-align:center;" id="customer-input">' + rowData[4] + '</td>' +
+            '<td style="text-align:center;" id="itemprice-input">' + rowData[5] + '</td>' +
+            '<td style="width:100px;"><input type="text" autocomplete="off" id="pocount-input" oninput="valuechanged(); validateNumericInput(this);" style="text-align:right;" class="styled-input"></td>' +
+            '<td style="text-align:right;" id="price-input">0</td>' +
+            '<td style="text-align:center;"><input type="checkbox" id="checkbox-input" style="width:20px; height:20px; cursor:pointer;"></td>' +
+            '<td><input type="text" id="etc-input" autocomplete="off" class="styled-input"></td>' +
+            '<td style="text-align:center;"><input type="button" onclick="deleteRow(this)" value="삭제" class="btn btn-danger"></td>' +
+            '</tr>';
+
+        // Add the new row to the table body1
+        $('#accountdatatbody').append(newRow);
+
+        var toast = new bootstrap.Toast(document.getElementById('addToast'));
+        toast.show();
+    }
+
+    $('#newModal').on('hidden.bs.modal', function (e) {
+        $('#overlay').hide(); // Show the overlay
+    });
+
+    function valuechanged() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        const itempriceValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #itemprice-input').text().replace(/,/g, '')) || 0;
+        const countValue = parseFloat($('#accountdatatbody tr:eq(' + rowIndex + ') #pocount-input').val().replace(/,/g, '')) || 0;
+        const priceValue = itempriceValue * countValue;
+        // 쉼표가 추가된 값을 입력 필드에 설정합니다.
+        $('#accountdatatbody tr:eq(' + rowIndex + ') #price-input').text(priceValue.toLocaleString());
+        const input = document.querySelector('#pocount-input');
+
+    }
+    function validateNumericInput(input) {
+        input.value = input.value.replace(/[^0-9.]/g, '');
+        if ((input.value.match(/\./g) || []).length > 1) {
+            input.value = input.value.replace(/\.+$/, "");
+        }
+        let parts = input.value.split('.');
+        parts[0] = parts[0].replace(/,/g, ''); // 기존 쉼표 제거
+
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        input.value = parts.join('.');
+    }
+    function accountsave() {
+        var rowCount = $('#productiondatatbody tr').length;
+        let tableBody = document.getElementById('productiondatatbody');
+
+        if (tableBody) {
+            let rowCount = tableBody.children.length;
+
+            for (let i = 0; i < rowCount; i++) {
+                var count = $('#productiondatatbody tr:eq(' + i + ') #count-input').val();
+
+                if (count === '' || count === '0') {
+                    alert((i + 1) + '번째 작업지시 수량 확인 바랍니다.'); // Swal 대신 alert 사용
+                    return;
+                }
+            }
+        }
+
+        if (confirm('생산 지시 정보를 저장하시겠습니까? 생산지시가 저장됩니다.')) { // Swal 대신 confirm 사용
+            var insertdate = new Date().toISOString().slice(0, 10);
+            let today = new Date();
+            let formattedTime = today.toLocaleTimeString('en-US', { hour12: false });
+
+            for (var i = 0; i < rowCount; i++) {
+                var quantity = $('#productiondatatbody tr:eq(' + i + ') #count-input').val().replace(/,/g, ''); // Remove commas
+                quantity = parseInt(quantity, 10); // Convert to number
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/productorderinstruction',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "bomno": $('#bomno-edit').val(),
+                        "qrno": $('#orderid').val(),
+                        "productdate": insertdate,
+                        "modelname": $('#modelname-edit').val(),
+                        "itemname": $('#itemname-edit').val(),
+                        "lotno": $('#ad-edit').val() + '-' + $('#bomno-edit').val() + '-' + insertdate.replace(/-/g, '') + '-' + (parseInt($('#num').val()) + i),
+                        "quantity": quantity, // Use the converted quantity
+                        "status": 'true',
+                        "orderstatus": '생산보류',
+                        "lotdate": insertdate,
+                        "inserttime": formattedTime,
+                        "customer": $('#customer-edit').val(),
+                        "part": $('#part-edit').val()
+                    }),
+                    success: function (result) {
+                        // 성공했을 때의 처리
+                    }
+                });
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updatestatusaccountinput',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "orderid": $('#orderid').val(),
+                    "status": '생산지시완료',
+                }),
+                success: function (result) {
+                    // 성공했을 때의 처리
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updatenum',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "orderid": $('#orderid').val(),
+                    "num": (parseInt($('#num').val()) + rowCount)
+                }),
+                success: function (result) {
+                    // 성공했을 때의 처리
+                }
+            });
+
+            $('#orderModal').fadeOut();
+
+            alert('저장 완료: 생산지시 정보가 저장 되었습니다.'); // Swal 대신 alert 사용
+            load();
+            load1();
+        }
+    }
+
+
+    function generateNewOrderNumber(lastOrderNumber) {
+        var today = new Date();
+        var year = String(today.getFullYear()).slice(2); // 두 자리 연도
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 두 자리 월
+        var day = String(today.getDate()).padStart(2, '0'); // 두 자리 일
+
+        var datePart = year + month + day;
+
+        if (!lastOrderNumber || !lastOrderNumber.startsWith(datePart)) {
+            // 만약 마지막 주문번호가 없거나 오늘 날짜로 시작하지 않는다면 초기값 설정
+            return datePart + '-1';
+        }
+
+        var parts = lastOrderNumber.split('-');
+        var orderPart = parseInt(parts[1], 10) + 1;
+
+        // 새로운 주문번호 생성 (예: 240611-2)
+        return datePart + '-' + orderPart;
+    }
+
+    function deletedata() {
+        var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+            return $(this).closest('tr').find('td#data-id').text();
+        }).get();
+
+        if (checkedIds.length === 0) {
+            alert('선택된 항목이 없습니다.');
+            return;
+        }
+
+        var isConfirmed = confirm('정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!');
+        if (isConfirmed) {
+            // Array to store promises for each AJAX request
+            var ajaxPromises = [];
+
+            checkedIds.forEach(function (currentId) {
+                // Create a promise for each AJAX request
+                var ajaxPromise = $.ajax({
+                    type: 'POST',
+                    url: server + '/api/deleteaccountstatus',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "id": currentId
+                    })
+                });
+                ajaxPromises.push(ajaxPromise);
+            });
+
+            // Wait for all AJAX requests to complete
+            alert('생산지시정보가 삭제되었습니다.');
+            load();
+            load1();
+            $('#orderdatatable thead input[type="checkbox"]').prop('checked', false);
+
+            selectedIds = [];
+        }
+    }
+    function add() {
+        var newRow = $('#productiondatatbody tr:first').clone();
+
+        var rowCount = $('#productiondatatbody tr').length + 1;
+        $('#lot-input').val($('#ad-edit').val() + '-' + $('#bomno-edit').val() + '-' + $('#accountdate-edit').val().replace(/-/g, '') + '-' + rowCount);
+
+        newRow.appendTo('#productiondatatbody');
+
+
+        var countSum = 0;
+        $('#productiondatatbody #count-input').each(function () {
+            const value = parseFloat($(this).val().replace(/,/g, '')) || 0;
+            countSum += value;
+
+
+        });
+
+        // 계산된 합계를 countsum TD 요소에 설정
+        $('#countsum').text(countSum.toLocaleString());
+
+        const countEditValue = parseFloat($('#count-edit').val().replace(/,/g, '')) || 0;
+        const difference = countEditValue - countSum;
+        $('#minus').text(difference.toLocaleString());
+    }
+    function valuechanged() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        const itempriceValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #soyo-input').val().replace(/,/g, '')) || 0;
+        const countValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #count-input').val().replace(/,/g, '')) || 0;
+        const lengthValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #length-input').val().replace(/,/g, '')) || 0;
+        const priceValue = itempriceValue * countValue;
+        const rollValue = priceValue / lengthValue
+        $('#productiondatatbody tr:eq(' + rowIndex + ') #soyosum-input').val(priceValue.toLocaleString());
+        $('#productiondatatbody tr:eq(' + rowIndex + ') #roll-input').val(rollValue.toLocaleString());
+
+        var countSum = 0;
+        $('#productiondatatbody #count-input').each(function () {
+            const value = parseFloat($(this).val().replace(/,/g, '')) || 0;
+            countSum += value;
+
+
+        });
+
+        // 계산된 합계를 countsum TD 요소에 설정
+        $('#countsum').text(countSum.toLocaleString());
+
+        const countEditValue = parseFloat($('#count-edit').val().replace(/,/g, '')) || 0;
+        const difference = countEditValue - countSum;
+        $('#minus').text(difference.toLocaleString());
+    }
+    function rollvaluechanged() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        const soyoValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #soyo-input').val().replace(/,/g, '')) || 0;
+        const rollValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #roll-input').val().replace(/,/g, '')) || 0;
+        const lengthValue = parseFloat($('#productiondatatbody tr:eq(' + rowIndex + ') #length-input').val().replace(/,/g, '')) || 0;
+        const priceValue = rollValue * lengthValue;
+        const countValue = Math.ceil(priceValue / soyoValue);
+        $('#productiondatatbody tr:eq(' + rowIndex + ') #soyosum-input').val(priceValue);
+        $('#productiondatatbody tr:eq(' + rowIndex + ') #count-input').val(countValue);
+
+        var countSum = 0;
+        $('#productiondatatbody #count-input').each(function () {
+            const value = parseFloat($(this).val().replace(/,/g, '')) || 0;
+            countSum += value;
+
+
+        });
+
+        // 계산된 합계를 countsum TD 요소에 설정
+        $('#countsum').text(countSum.toLocaleString());
+
+        const countEditValue = parseFloat($('#count-edit').val().replace(/,/g, '')) || 0;
+        const difference = countEditValue - countSum;
+        $('#minus').text(difference.toLocaleString());
+    }
+
+    function deleteRow(button) {
+        // 해당 버튼이 속한 행을 찾아서 삭제
+        var row = button.closest('tr');
+        row.remove();
+    }
+
+    function savedata() {
+        var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+            return $(this).closest('tr').find('td#data-id').text();
+        }).get();
+
+        if (checkedIds.length === 0) {
+            alert('선택된 항목이 없습니다.'); // Swal 대신 alert 사용
+            return;
+        }
+
+        if (confirm('선택항목 생산 확정하시겠습니까? 선택된 항목이 확정됩니다.')) { // Swal 대신 confirm 사용
+            var ajaxPromises = [];
+
+            checkedIds.forEach(function (currentId) {
+                var ajaxPromise = $.ajax({
+                    type: 'POST',
+                    url: server + '/api/updateaccountstatus',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "id": currentId,
+                        "orderstatus": '생산확정'
+                    })
+                });
+                ajaxPromises.push(ajaxPromise); // Promise 저장
+            });
+
+            // 모든 AJAX 요청이 완료된 후 처리
+            alert('생산지시정보가 확정 되었습니다.'); // 성공 메시지
+
+            // 데이터 새로고침
+            load();
+            load1();
+            $('#orderdatatable thead input[type="checkbox"]').prop('checked', false);
+        }
+    }
+    function pausedata() {
+        var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+            return $(this).closest('tr').find('td#data-id').text();
+        }).get();
+
+        if (checkedIds.length === 0) {
+            alert('선택된 항목이 없습니다.'); // Swal 대신 alert 사용
+            return;
+        }
+
+        if (confirm('선택항목 생산 보류하시겠습니까? 선택된 항목이 보류됩니다.')) { // Swal 대신 confirm 사용
+            var ajaxPromises = [];
+
+            checkedIds.forEach(function (currentId) {
+                var ajaxPromise = $.ajax({
+                    type: 'POST',
+                    url: server + '/api/updateaccountstatus',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "id": currentId,
+                        "orderstatus": '생산보류'
+                    })
+                });
+                ajaxPromises.push(ajaxPromise); // Promise 저장
+            });
+
+            // 모든 AJAX 요청이 완료된 후 처리
+            alert('생산지시정보가 보류 되었습니다.'); // 성공 메시지
+
+            // 데이터 새로고침
+            load();
+            load1();
+            $('#orderdatatable thead input[type="checkbox"]').prop('checked', false);
+        }
+    }
+    function validateNumericInput(input) {
+        input.value = input.value.replace(/[^0-9.]/g, '');
+        if ((input.value.match(/\./g) || []).length > 1) {
+            input.value = input.value.replace(/\.+$/, "");
+        }
+        let parts = input.value.split('.');
+        parts[0] = parts[0].replace(/,/g, ''); // 기존 쉼표 제거
+
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        input.value = parts.join('.');
+    }
+
+    function accountsave() {
+        // Create a loading overlay with enhanced styling
+        const loadingOverlay = $('<div class="loading-overlay">')
+            .html(`
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <strong>발주 소요량 계산중입니다...</strong>
+                <p>잠시만 기다려 주세요.</p>
+            </div>
+        `)
+            .css({
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                color: '#fff',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 1000,
+            });
+
+        // Spinner style
+        $('<style>')
+            .prop('type', 'text/css')
+            .html(`
+            .loading-overlay {
+                font-family: Arial, sans-serif;
+            }
+            .loading-content {
+                text-align: center;
+            }
+            .spinner {
+                border: 8px solid rgba(255, 255, 255, 0.3);
+                border-top: 8px solid #fff;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin-bottom: 10px;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `)
+            .appendTo('head');
+
+        $('body').append(loadingOverlay);
+
+        setTimeout(function () {
+            loadingOverlay.remove(); // Remove loading overlay
+            $('#orderModal').modal('show');
+            load1();                 // Call the load1 function
+        }, 1300); // Simulated delay of 1.3 seconds
+    }
+
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    function validateNumericInput(input) {
+        input.value = input.value.replace(/[^0-9.]/g, '');
+        if ((input.value.match(/\./g) || []).length > 1) {
+            input.value = input.value.replace(/\.+$/, "");
+        }
+        let parts = input.value.split('.');
+        parts[0] = parts[0].replace(/,/g, ''); // 기존 쉼표 제거
+
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        input.value = parts.join('.');
+    }
+
+    function purchasesave() {
+        const confirmed = confirm('구매발주 정보를 등록 하시겠습니까?');
+
+        if (confirmed) {
+            const insertdate = new Date().toISOString().slice(0, 10);
+            const rowCount = $('#orderlistbombody tr').length;
+            let completedRequests = 0; // Track completed requests
+
+            for (let i = 0; i < rowCount; i++) {
+                const itemName = $('#orderlistbombody tr:eq(' + i + ') #itemname-input').text();
+                const codeNumber = $('#orderlistbombody tr:eq(' + i + ') #codenumber-input').val();
+                const width = $('#orderlistbombody tr:eq(' + i + ') #materialwidth-input').text();
+                const length = $('#orderlistbombody tr:eq(' + i + ') #length-input').val();
+                const quantity = parseFloat($('#orderlistbombody tr:eq(' + i + ') #roundedResult-input').val().replace(/,/g, ''));
+                const unitPrice = parseFloat($('#orderlistbombody tr:eq(' + i + ') #rollprice-input').val().replace(/,/g, ''));
+                const suppliername = $('#orderlistbombody tr:eq(' + i + ') #supplier-input').val();
+                const bomno = $('#orderlistbombody tr:eq(' + i + ') #bomno-input').text();
+                const cutting = $('#orderlistbombody tr:eq(' + i + ') #cutmaterialwidth-input').val();
+                const modelname = $('#orderlistbombody tr:eq(' + i + ') #modelname-input').text();
+                const manufacterer = $('#orderlistbombody tr:eq(' + i + ') #manufacterer-input').val();
+                const productid = $('#orderlistbombody tr:eq(' + i + ') #productid-input').val();
+                const orderno = $('#orderlistbombody tr:eq(' + i + ') #orderno-input').val();
+
+                // Calculate supply amount
+                const supplyAmount = quantity * unitPrice;
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertpurchaseorder',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderdate": insertdate,
+                        "itemname": itemName,
+                        "codenumber": codeNumber,
+                        "width": width,
+                        "length": length,
+                        "quantity": quantity,
+                        "unitprice": unitPrice,
+                        "supplyamount": supplyAmount,
+                        "suppliername": suppliername,
+                        "bomno": bomno,
+                        "ordertype": '양산',
+                        "cutting": cutting,
+                        "manufacterer": manufacterer,
+                        "productid": productid,
+                        "status": '입고대기',
+                        "orderno": orderno,
+                        "confirmed": modelname + "/" + itemName + "/" + quantity.toLocaleString(),
+
+                    }),
+                    success: function (result) {
+
+                    },
+
+                });
+
+            }
+            alert('저장 완료: 영업수주 정보가 저장 되었습니다.');
+            $('#orderModal').modal('hide'); // Hide the modal
+            load(); // Reload data or perform any necessary actions
+        }
+    }
+
+
+    function updateTotalValue() {
+        const quantityInput = document.getElementById('quantity');
+        const lengthInput = document.getElementById('length');
+        const cutInput = document.getElementById('cut');
+        const totalValueCell = document.getElementById('totalValue');
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const length = parseFloat(lengthInput.value) || 0;
+        const cut = parseFloat(cutInput.value) || 0;
+        const totalValue = cut * length * quantity;
+        totalValueCell.textContent = totalValue.toLocaleString();  // Adjust toFixed to desired decimal places
+    }
+
+
+</script>
+
+</html>
