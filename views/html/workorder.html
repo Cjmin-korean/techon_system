@@ -1,206 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="../css/mesmain.css">
-    <link rel="stylesheet" href="../css/mesaccountinput.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../js/sorttable.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <meta charset="UTF-8">
-    <title>작업지시서 QR 리딩</title>
+    <title>Styled Checkboxes</title>
+    <style>
+        .checkbox-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 200px; /* 필요에 따라 너비 조정 */
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px; /* 텍스트와 체크박스 사이의 간격 */
+        }
+        
+        .checkbox-group b {
+            font-size: 18px; /* 텍스트 크기 */
+        }
+    </style>
 </head>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f2f2f2;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-    }
-
-    .slideshow-container {
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-    }
-
-    .mySlides {
-        display: none;
-        text-align: center;
-        padding: 20px;
-    }
-
-    h1 {
-        color: #333;
-    }
-
-    input[type="text"] {
-        display: block;
-        margin: 20px auto;
-        padding: 10px 20px;
-        width: 80%;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
-    /* 작업지시서 슬라이드에서만 이전/다음 버튼을 숨김 */
-    .mySlides:first-child .prev,
-    .mySlides:first-child .next {
-        display: none;
-    }
-
-    /* 결과를 표시하는 스타일 */
-    .result-container {
-        font-size: 18px;
-        margin-top: 20px;
-    }
-</style>
-
 <body>
-    <div class="slideshow-container">
-        <!-- 작업지시서 리딩 슬라이드 -->
-        <div class="mySlides">
-            <h1>작업지시서를 리딩하세요</h1>
-            <b id="orderno"></b>
-            <input type="text" id="qr-input-1" placeholder="작업지시서의 QR을 리딩해주세요" autofocus>
-
-            <div id="result-1"></div>
-        </div>
+    <div class="checkbox-group">
+        <input type="checkbox" id="korea-checkbox">
+        <label for="korea-checkbox"><b>KOREA</b></label>
+        <input type="checkbox" id="vina-checkbox">
+        <label for="vina-checkbox"><b>VINA</b></label>
     </div>
 
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Set focus on the qr-input text box
-            var qrInput = document.getElementById('qr-input-1');
-            qrInput.focus();
+        const koreaCheckbox = document.getElementById('korea-checkbox');
+        const vinaCheckbox = document.getElementById('vina-checkbox');
 
-            // Add a click event listener to the document
-            document.addEventListener('click', function () {
-                // Set focus on the qr-input text box when any part of the document is clicked
-                qrInput.focus();
-            });
-
-
-        });
-        const slides = document.getElementsByClassName("mySlides"); // slides 변수를 전역으로 정의
-        let slideIndex = 1;
-        showSlides(slideIndex);
-
-        function plusSlides(n) {
-            showSlides(slideIndex += n);
-        }
-
-        function showSlides(n) {
-            if (n > slides.length) {
-                slideIndex = 1;
-            }
-            if (n < 1) {
-                slideIndex = slides.length;
-            }
-
-            for (let i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";
-            }
-
-            slides[slideIndex - 1].style.display = "block";
-        }
-
-        var server = '';
-
-        if (window.location.hostname == 'localhost') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'http://techonmes.co.kr';
-        }
-        const inputElement1 = document.getElementById('qr-input-1');
-
-        inputElement1.addEventListener('keyup', async function (event) {
-            if (event.key === 'Enter') {
-                const inputValue = inputElement1.value;
-                const ordernoText = $('#orderno').text();
-
-                if (inputValue === ordernoText) {
-                    try {
-                        const result = await $.ajax({
-                            type: 'POST',
-                            url: server + '/api/searchorderno',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                orderno: inputValue
-                            }),
-                        });
-
-                        const newWindow = window.open('/html/a.html', '_blank', 'width=1800,height=1200');
-
-                        const result1 = await $.ajax({
-                            type: 'POST',
-                            url: server + '/api/selectbomnobomtoolcode',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                bomno: result[0]?.bomno
-                            }),
-                        });
-
-                        newWindow.onload = function () {
-                            window.close();
-                            const leftPosition = (screen.width - newWindow.outerWidth) / 2;
-                            const topPosition = (screen.height - newWindow.outerHeight) / 2;
-                            newWindow.moveTo(leftPosition, topPosition);
-
-                            // Update elements in the new window with result data
-                            newWindow.document.getElementById("bomno").innerText = result[0]?.bomno || '';
-                            newWindow.document.getElementById("modelname").innerText = result[0]?.modelname || '';
-                            newWindow.document.getElementById("itemname").innerText = result[0]?.itemname || '';
-                            newWindow.document.getElementById("itemcode").innerText = result[0]?.bomno || '';
-                            newWindow.document.getElementById("lotno").innerText = result[0]?.lotno || '';
-
-                            // Post a message to the child window with the production tool data
-                            newWindow.postMessage(result1, '*');
-                            console.log(result1)
-                        };
-                    } catch (error) {
-                        console.error(error);
-                        // Handle error as needed
-                    }
-                } else {
-                    $('#qr-input-1').val('');
-                    $('#qr-input-1').focus();
-                    Swal.fire({
-                        icon: 'error',
-                        title: '불일치',
-                        text: '작업지시번호가 일치하지 않습니다.',
-                        showCancelButton: true,
-                        confirmButton: false,
-                    });
-                }
+        koreaCheckbox.addEventListener('change', function() {
+            if (koreaCheckbox.checked) {
+                vinaCheckbox.checked = false;
             }
         });
 
-
-
-
-
-
-
+        vinaCheckbox.addEventListener('change', function() {
+            if (vinaCheckbox.checked) {
+                koreaCheckbox.checked = false;
+            }
+        });
     </script>
 </body>
-
 </html>

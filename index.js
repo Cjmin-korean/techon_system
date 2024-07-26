@@ -48,6 +48,9 @@ app.get("/main", cors(), (req, res) => {
 app.get("/loadmain", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/menu.html");
 });
+app.get("/vinamain", cors(), (req, res) => {
+    res.sendFile(__dirname + "/views/html/menuvina.html");
+});
 app.get("/customerinformation", cors(), (req, res) => {
     res.sendFile(__dirname + "/views/html/customerinformation.html");
 });
