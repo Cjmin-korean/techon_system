@@ -3,48 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Styled Checkboxes</title>
+    <title>생산 모니터링 시스템</title>
     <style>
-        .checkbox-group {
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        #machines-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 200px; /* 필요에 따라 너비 조정 */
-            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: 25px;
-            height: 25px;
-            margin-right: 10px; /* 텍스트와 체크박스 사이의 간격 */
+
+        .machine {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 10px;
+            padding: 20px;
+            width: 150px;
+            box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
         }
-        
-        .checkbox-group b {
-            font-size: 18px; /* 텍스트 크기 */
+
+        .machine h2 {
+            margin-top: 0;
+        }
+
+        .machine .status {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        .producing {
+            color: red;
         }
     </style>
 </head>
 <body>
-    <div class="checkbox-group">
-        <input type="checkbox" id="korea-checkbox">
-        <label for="korea-checkbox"><b>KOREA</b></label>
-        <input type="checkbox" id="vina-checkbox">
-        <label for="vina-checkbox"><b>VINA</b></label>
-    </div>
-
+    <h1>생산 모니터링 시스템</h1>
+    <div id="machines-container"></div>
     <script>
-        const koreaCheckbox = document.getElementById('korea-checkbox');
-        const vinaCheckbox = document.getElementById('vina-checkbox');
+        document.addEventListener('DOMContentLoaded', () => {
+            const machinesContainer = document.getElementById('machines-container');
 
-        koreaCheckbox.addEventListener('change', function() {
-            if (koreaCheckbox.checked) {
-                vinaCheckbox.checked = false;
+            // 기계 생성
+            for (let i = 1; i <= 20; i++) {
+                const machineElement = document.createElement('div');
+                machineElement.className = 'machine';
+                machineElement.id = `machine-${i}`;
+                
+                machineElement.innerHTML = `
+                    <h2>설비 ${i}호기</h2>
+                    <div class="status">대기중</div>
+                `;
+                
+                machinesContainer.appendChild(machineElement);
             }
-        });
 
-        vinaCheckbox.addEventListener('change', function() {
-            if (vinaCheckbox.checked) {
-                koreaCheckbox.checked = false;
+            // 무작위 제품 생산 시뮬레이션
+            function simulateProduction(machineId) {
+                const machineElement = document.getElementById(`machine-${machineId}`);
+                const statusElement = machineElement.querySelector('.status');
+                const productCountElement = machineElement.querySelector('.product-count');
+                
+                let productCount = 0;
+                
+                setInterval(() => {
+                    const produced = Math.random() < 0.5;
+                    if (produced) {
+                        productCount++;
+                        statusElement.textContent = '제품 생산 중';
+                        statusElement.classList.add('producing');
+                    } else {
+                        statusElement.textContent = '비가동';
+                        statusElement.classList.remove('producing');
+                    }
+                    productCountElement.textContent = productCount;
+                }, 5000);
+            }
+
+            // 모든 기계에 대해 시뮬레이션 시작
+            for (let i = 1; i <= 20; i++) {
+                simulateProduction(i);
             }
         });
     </script>

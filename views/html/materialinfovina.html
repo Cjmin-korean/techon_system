@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+    <script src="../assets/js/kaiadmin.min.js"></script>
+    <script src="../assets/js/setting-demo2.js"></script>
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" />
+</head>
+
+<body>
+
+    <div class="page-inner">
+        <div class="page-header">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="page-inner">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">자재정보</h4>
+                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
+                                    data-bs-target="#addRowModal">
+                                    <i class="fa fa-plus"></i>
+                                    추가
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="card-title">자재 정보 추가</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*거래처명</label>
+                                                        <input id="customername-input" type="text" class="form-control"
+                                                            placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 pe-0">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*사업자등록번호</label>
+                                                        <input id="businessregistrationnumber-input" type="text"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*대표자명</label>
+                                                        <input id="representativename-input" type="text"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*IN</label>
+                                                        <input id="customerinitial-input" type="text"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 pe-0">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*ENG</label>
+                                                        <input id="customernameenglish-input" type="text"
+                                                            class="form-control" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*유형</label>
+                                                        <input id="customerregistrationtype-input" type="text"
+                                                            class="form-control" placeholder="" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-group-default">
+                                                        <label>*구분</label>
+                                                        <input id="outsourcing-input" type="text" class="form-control"
+                                                            placeholder="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" id="addRowButton" class="btn btn-primary">저장</button>
+                                        <button type="button" id="closeButton" class="btn btn-danger"
+                                            data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="multi-filter-select" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        										
+
+                                        <th>품목코드</th>
+                                        <th>자재명</th>
+                                        <th>자재폭(mm)</th>
+                                        <th>길이(M)</th>
+                                        <th>유효폭(mm)</th>
+                                        <th>SQM단가</th>
+                                        <th>롤단가</th>
+                                        <th>단위</th>
+                                        <th>순번</th>
+                                        <th>제조사</th>
+                                        <th>공급사</th>
+
+                                        <th style="width: 3%">수정</th>
+                                        <th style="width: 3%">삭제</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customerinformationtbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    var server = '';
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'http://techonmes.co.kr';
+    }
+
+
+    $(document).ready(function () {
+        // Initialize DataTable with search functionality
+        var table = $("#multi-filter-select").DataTable({
+            pageLength: 15,
+            initComplete: function () {
+                this.api().columns().every(function () {
+                    var column = this;
+                    var select = $('<select class="form-select"><option value=""></option></select>')
+                        .appendTo($(column.footer()).empty())
+                        .on("change", function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val ? "^" + val + "$" : "", true, false).draw();
+                        });
+                    column.data().unique().sort().each(function (d, j) {
+                        select.append('<option value="' + d + '">' + d + "</option>");
+                    });
+                });
+            },
+        });
+
+        // Load data into the table
+        load();
+        $('#closeButton').on('click', function () {
+            $('#addRowModal').modal('hide');
+        });
+        $(document).on('click', '.edit-btn', function () {
+            $('#addRowModal').modal('show');
+        });
+    });
+
+    function load() {
+        $.ajax({
+            url: server + '/api/selectcustomerinformation',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (result) {
+                var table = $("#multi-filter-select").DataTable(ㅇ);
+                table.clear().draw(); // Clear the table before adding new data
+
+                result.forEach(item => {
+                    table.row.add([
+                        item.customername || '',
+                        item.businessregistrationnumber || '',
+                        item.representativename || '',
+                        item.customerinitial || '',
+                        item.customernameenglish || '',
+                        item.date || '',
+                        item.customerregistrationtype || '',
+                        item.outsourcing || '',
+                        '<div class="form-button-action">' +
+                        '<button type="button" id="editButton" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn" >' +
+                        '<i class="fa fa-edit" ></i>' +
+                        '</button>' +
+                        '</div>',
+                        '<div class="form-button-action">' +
+                        '<button type="button" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger delete-btn">' +
+                        '<i class="fa fa-times"></i>' +
+                        '</button>' +
+                        '</div>'
+                    ]).draw(false);
+                });
+            }
+        });
+    }
+
+
+
+</script>
+
+</html>

@@ -11,6 +11,8 @@ var port = process.env.PORT || 8080;
 var router = require('./routes')(app);
 var server = app.listen(port, function () { console.log(port + "서버에 접속 완료 되었습니다.") });
 
+
+
 const PORT = 3001;
 
 const corsOptions = {

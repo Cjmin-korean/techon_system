@@ -669,6 +669,33 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/houseinformationvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    'SELECT ' +
+                    '* ' +
+                    'FROM housevina')
+
+                .then(result => {
+
+                    // console.log('내가보고싶은거', result.recordset)
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/selectshipmentinput', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -1322,6 +1349,29 @@ module.exports = function (app) {
 
                 .query(
                     " INSERT INTO house (housecode,housename,part,partname)" +
+                    " VALUES (@housecode,@housename,@part,@partname)")
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  거래처정보 조회 쿼리  
+    sql.connect(config).then(pool => {
+        app.post('/api/inserthousevina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+                .input('housecode', sql.NVarChar, req.body.housecode)
+                .input('housename', sql.NVarChar, req.body.housename)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('partname', sql.NVarChar, req.body.partname)
+
+                .query(
+                    " INSERT INTO housevina (housecode,housename,part,partname)" +
                     " VALUES (@housecode,@housename,@part,@partname)")
                 .then(result => {
                     res.json(result.recordset);
@@ -14041,6 +14091,32 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start  창고수정쿼리
+    sql.connect(config).then(pool => {
+        app.post('/api/houseupdatedatavina', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+                .input('housecode', sql.NVarChar, req.body.housecode)
+                .input('housename', sql.NVarChar, req.body.housename)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('partname', sql.NVarChar, req.body.partname)
+
+
+                .query(
+                    'update housevina set housecode=@housecode,housename=@housename,part=@part,partname=@partname where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
     // **** start  품목수정쿼리
     sql.connect(config).then(pool => {
         app.post('/api/iteminfoupdatedata', function (req, res) {
@@ -14204,6 +14280,28 @@ module.exports = function (app) {
 
                 .query(
                     'delete from house where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  창고삭제쿼리     
+    sql.connect(config).then(pool => {
+        app.post('/api/housedeletedatavina', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+
+
+                .query(
+                    'delete from housevina where id=@id'
                 )
                 .then(result => {
 
