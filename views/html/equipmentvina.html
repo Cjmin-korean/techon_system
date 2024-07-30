@@ -37,7 +37,7 @@
                     <div class="page-inner">
                         <div class="card-header">
                             <div class="d-flex align-items-center">
-                                <h4 class="card-title">thông tin thiết bị(자재 기초 정보)</h4>
+                                <h4 class="card-title">thông tin thiết bị(설비 정보)</h4>
                                 <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" id="addButton">
                                     <i class="fa fa-plus"></i>
                                     thêm vào(추가)
@@ -301,17 +301,16 @@
                                 <table id="multi-filter-select" class="display table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Mã hàng<br>(품목코드)</th>
-                                            <th>Tên nguyên liệu<br>(자재명)</th>
-                                            <th>Chiều rộng nguyên liệu<br>자재폭(mm)</th>
-                                            <th>Chiều dài<br>길이(M)</th>
-                                            <th>Chiều rộng hữu hiệu<br>유효폭(mm)</th>
-                                            <th>Đơn giá SQM<br>(SQM단가)</th>
-                                            <th>Đơn giá Roll<br>(롤단가)</th>
-                                            <th>Đơn vị<br>(단위)</th>
-                                            <th>Số thứ tự<br>(순번)</th>
-                                            <th>Nhà sản xuất<br>(제조사)</th>
-                                            <th>Nhà cung cấp<br>(공급사)</th>
+                                            <th>Mã thiết bị<br>(설비코드)</th>
+                                            <th>Tên máy<br>(호기명)</th>
+                                            <th>Tên thiết bị<br>(설비명)</th>
+                                            <th>Phân loại<br>(구분)</th>
+                                            <th>Quy cách<br>(규격)</th>
+                                            <th>Số công đoạn sản xuất<br>(차수)</th>
+                                            <th>Nhà sản xuất thiết bị<br>(설비제작업체)</th>
+                                            <th>Số serial<br>(SerialNO) </th>
+                                            <th>Ngày sản xuất<br>(제작일자) </th>
+                                            <th>Vị trí thiết bị<br>(설비위치)</th>
                                             <th style="width: 6%">
                                                 biên tập<br>(수정)</th>
                                             <th style="width: 6%">
@@ -370,19 +369,19 @@
         $('#deletecancelBtn').on('click', function () {
             $('#deleteConfirmModal').modal('hide');
         });
-        // $('#addButton').on('click', function () {
-        //     $('#codenumber-input').val('');
-        //     $('#equipmentname-input').val('');
-        //     $('#eqname-input').val('');
-        //     $('#part-input').val('');
-        //     $('#size-input').val('');
-        //     $('#num-input').val('');
-        //     $('#customer-input').val('');
-        //     $('#serialno-input').val('');
-        //     $('#manudate-input').val('');
-        //     $('#position-input').val('');
-        //     $('#addRowModal').modal('show');
-        // });
+        $('#addButton').on('click', function () {
+            $('#codenumber-input').val('');
+            $('#equipmentname-input').val('');
+            $('#eqname-input').val('');
+            $('#part-input').val('');
+            $('#size-input').val('');
+            $('#num-input').val('');
+            $('#customer-input').val('');
+            $('#serialno-input').val('');
+            $('#manudate-input').val('');
+            $('#position-input').val('');
+            $('#addRowModal').modal('show');
+        });
 
 
         $('#addRowButton').on('click', function () {
@@ -493,7 +492,7 @@
 
     function load() {
         $.ajax({
-            url: server + '/api/selectmaterialinformationvina',
+            url: server + '/api/equipmentvina',
             method: 'post',
             dataType: 'json',
             contentType: 'application/json',
@@ -505,16 +504,15 @@
                 result.forEach((item, index) => {
                     table.row.add([
                         item.codenumber || '',
-                        item.materialname || '',
-                        item.width.toLocaleString() || '',
-                        item.length.toLocaleString() || '',
-                        item.usewidth.toLocaleString() || '',
-                        item.sqmprice.toLocaleString() || '',
-                        item.rollprice.toLocaleString() || '',
-                        item.unit || '',
+                        item.equipmentname || '',
+                        item.eqname || '',
+                        item.part || '',
+                        item.size || '',
                         item.num || '',
-                        item.manufacterer || '',
-                        item.supplier || '',
+                        item.customer || '',
+                        item.serialno || '',
+                        item.manudate || '',
+                        item.position || '',
                         '<div class="form-button-action">' +
                         '<button type="button" data-id="' + item.id + '" data-row-index="' + index + '" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn">' +
                         '<i class="fa fa-edit"></i>' +
@@ -528,35 +526,35 @@
                     ]).draw(false);
                 });
 
-                // $('.edit-btn').on('click', function () {
-                //     var rowIndex = $(this).data('row-index');
-                //     var rowData = table.row(rowIndex).data();
-                //     var id = $(this).data('id');
-                //     console.log(rowData)
-                //     $("#codenumber-edit").val(rowData[0]);
-                //     $("#equipmentname-edit").val(rowData[1]);
-                //     $("#eqname-edit").val(rowData[2]);
-                //     $("#part-edit").val(rowData[3]);
-                //     $("#size-edit").val(rowData[4]);
-                //     $("#num-edit").val(rowData[5]);
-                //     $("#customer-edit").val(rowData[6]);
-                //     $("#serialno-edit").val(rowData[7]);
-                //     $("#manudate-edit").val(rowData[8]);
-                //     $("#position-edit").val(rowData[9]);
-                //     $("#id-edit").val(id);
+                $('.edit-btn').on('click', function () {
+                    var rowIndex = $(this).data('row-index');
+                    var rowData = table.row(rowIndex).data();
+                    var id = $(this).data('id');
+                    console.log(rowData)
+                    $("#codenumber-edit").val(rowData[0]);
+                    $("#equipmentname-edit").val(rowData[1]);
+                    $("#eqname-edit").val(rowData[2]);
+                    $("#part-edit").val(rowData[3]);
+                    $("#size-edit").val(rowData[4]);
+                    $("#num-edit").val(rowData[5]);
+                    $("#customer-edit").val(rowData[6]);
+                    $("#serialno-edit").val(rowData[7]);
+                    $("#manudate-edit").val(rowData[8]);
+                    $("#position-edit").val(rowData[9]);
+                    $("#id-edit").val(id);
 
-                //     $('#updateRowModal').modal('show');
-                // });
+                    $('#updateRowModal').modal('show');
+                });
             },
 
         });
 
 
 
-        // $(document).on('click', '.delete-btn', function () {
-        //     deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
-        //     $('#deleteConfirmModal').modal('show'); // 모달 열기
-        // });
+        $(document).on('click', '.delete-btn', function () {
+            deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
+            $('#deleteConfirmModal').modal('show'); // 모달 열기
+        });
 
 
 

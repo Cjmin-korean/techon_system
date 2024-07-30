@@ -1759,6 +1759,100 @@ module.exports = function (app) {
     // **** finish
     // **** start  BOM창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/iteminfobomvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+
+                .query(
+                    " SELECT  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,   " +
+                    "     ROUND( " +
+                    "         COALESCE( " +
+                    "             SUM(ROUND( " +
+                    "                 ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) /  " +
+                    "                 ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "             1)), 0) +  " +
+                    "         COALESCE( " +
+                    "             SUM(ROUND( " +
+                    "                 ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) /  " +
+                    "                 ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "             1)), 0), 1) as cost,    " +
+                    "     CASE   " +
+                    "         WHEN i.itemprice = 0 THEN 0   " +
+                    "         ELSE  " +
+                    "             ROUND( " +
+                    "                 ( " +
+                    "                     COALESCE( " +
+                    "                         SUM(ROUND( " +
+                    "                             ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / " +
+                    "                             ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "                         1)), 0) +  " +
+                    "                     COALESCE( " +
+                    "                         SUM(ROUND( " +
+                    "                             ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / " +
+                    "                             ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "                         1)), 0) " +
+                    "                 ) / i.itemprice * 100, 1)   " +
+                    "     END AS costPriceRatio,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
+                    "     MAX(bm.num) as materialcount " +
+                    " FROM  " +
+                    "     iteminfovina i  " +
+                    " LEFT JOIN  " +
+                    "     bommanagementvina bm ON i.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  " +
+       
+                    " WHERE  " +
+                    "     bm.status = 'true'  " +
+                    " GROUP BY  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
+                    "     i.workpart;                                ")
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  BOM창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/iteminfobom1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -2556,6 +2650,30 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/equipmentvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .query(
+                    "SELECT " +
+                    " * " +
+                    " FROM equipmentvina ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/mr1equipment', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -2798,6 +2916,32 @@ module.exports = function (app) {
                     "SELECT " +
                     "customername" +
                     " FROM customerinformation where customerinitial=@customerinitial")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinformationvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('customerinitial', sql.NVarChar, req.body.customerinitial)
+
+                .query(
+                    "SELECT " +
+                    "*" +
+                    " FROM materialinformationvina ")
 
                 .then(result => {
 
@@ -4650,6 +4794,37 @@ module.exports = function (app) {
 
     });
     // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/inserteqdatavina', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('eqname', sql.NVarChar, req.body.eqname)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('size', sql.NVarChar, req.body.size)
+                .input('num', sql.NVarChar, req.body.num)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('serialno', sql.NVarChar, req.body.serialno)
+                .input('manudate', sql.NVarChar, req.body.manudate)
+                .input('position', sql.NVarChar, req.body.position)
+
+
+                .query(
+                    'insert into equipmentvina(codenumber,equipmentname,eqname,part,size,num,customer,serialno,manudate,position)' +
+                    ' values(@codenumber,@equipmentname,@eqname,@part,@size,@num,@customer,@serialno,@manudate,@position)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
 
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
@@ -5112,6 +5287,87 @@ module.exports = function (app) {
                     "     materialinfoinformation2 mi2 ON bm.hapcodenumber = mi2.codenumber  " +
                     " JOIN  " +
                     "     materialinfoinformation2 mi ON bm.codenumber = mi.codenumber  " +
+                    " LEFT JOIN " +
+                    "     won w ON mi.unit = w.currencyname " +
+                    " WHERE   " +
+                    "     bm.bomno = @bomno " +
+                    "     AND bm.status = 'true'  " +
+                    " ORDER BY  " +
+                    "     bm.num, bm.hap ASC; ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/selectwherebomnobommanagement1vina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                // .input('status', sql.NVarChar, req.body.status)
+
+                .query(
+                    "SELECT  " +
+                    "     bm.char,  " +
+                    "     bm.main, " +
+                    "     bm.materialname, " +
+                    "     mi.typecategory, " +
+                    "     bm.etc, " +
+                    "     bm.chk1, " +
+                    "     bm.chk2, " +
+                    "     bm.chk3, " +
+                    "     bm.materialwidth,  " +
+                    "     bm.useable,  " +
+                    "     bm.onepid,  " +
+                    "     bm.twopid,  " +
+                    "     ROUND(bm.ta * ((bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0)) * 0.001 * (1 + (bm.loss / 100)), 4) AS soyo,  " +
+                    "     bm.ta,  " +
+                    "     bm.allta,  " +
+                    "     bm.talength,  " +
+                    "     bm.loss,  " +
+                    "     bm.costloss, " +
+                    " 	 CASE  " +
+                    "         WHEN mi.unit = '＄' THEN ROUND(mi.rollprice * w.currencyprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)  " +
+                    "         ELSE ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 2)  " +
+                    "     END AS cost, " +
+                    " 	FLOOR(NULLIF(mi.usewidth, 0) / bm.materialwidth) AS rlcut, " +
+                    "     CASE " +
+                    "         WHEN NULLIF((bm.onepid + bm.talength + bm.twopid) / bm.allta, 0) = 0 THEN 0  " +
+                    "         ELSE FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / (bm.onepid + bm.talength + bm.twopid) / bm.allta)) " +
+                    "     END AS productcount,  " +
+
+                    "     mi.width, " +
+                    "     mi.usewidth, " +
+                    "     mi.length, " +
+                    "     CASE " +
+                    "         WHEN mi.unit = '＄' THEN FLOOR(mi.rollprice * w.currencyprice) " +
+                    "         ELSE FLOOR(mi.rollprice) " +
+                    "     END AS rollprice,  " +
+                    "     CASE  " +
+                    "         WHEN mi.unit = '＄' THEN '￦' " +
+                    "         ELSE mi.unit " +
+                    "     END AS unit,  " +
+                    "     mi.manufacterer,  " +
+                    "     mi.supplier,  " +
+                    "     mi.codenumber, " +
+                    "     bm.cavity,  " +
+                    "     bm.num, " +
+                    " 	bm.hap  " +
+                    " FROM   " +
+                    "     bommanagementvina bm  " +
+                    " LEFT JOIN  " +
+                    "     materialinformationvina mi2 ON bm.hapcodenumber = mi2.codenumber  " +
+                    " JOIN  " +
+                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  " +
                     " LEFT JOIN " +
                     "     won w ON mi.unit = w.currencyname " +
                     " WHERE   " +
@@ -11272,6 +11528,34 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/selectbommaterialvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('materialname', sql.NVarChar, '%' + req.body.materialname + '%')
+
+                .query(
+                    "SELECT * " +
+                    "FROM materialinformationvina " +
+                    "WHERE " +
+                    "materialname LIKE @materialname  " +
+
+                    "ORDER BY materialname ASC"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
+    });
+
+
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/searchingcustomername', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -11717,6 +12001,48 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/bommasssaveiteminfovina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+
+                .input('insertdate', sql.NVarChar, req.body.insertdate)
+                .input('updatedate', sql.NVarChar, req.body.updatedate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('pcs', sql.NVarChar, req.body.pcs)
+                .input('cavity', sql.Float, req.body.cavity)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('working', sql.NVarChar, req.body.working)
+                .input('direction', sql.NVarChar, req.body.direction)
+                .input('cost', sql.Float, req.body.cost)
+                .input('ordercount', sql.Float, req.body.ordercount)
+                .input('workpart', sql.NVarChar, req.body.workpart)
+                .input('additionalnotes', sql.NVarChar, req.body.additionalnotes)
+                .input('itemprice', sql.Float, req.body.itemprice)
+                .input('type', sql.NVarChar, req.body.type)
+
+
+                .query(
+                    'insert into iteminfovina(itemprice,updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, part, working, direction, cost, ordercount, additionalnotes,workpart,type)' +
+                    ' values(@itemprice,@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @part, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart,@type)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/bommasssaveiteminfo1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
@@ -11808,6 +12134,68 @@ module.exports = function (app) {
 
                 .query(
                     'insert into bommanagement(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss,chk1,chk2,chk3)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss,@chk1,@chk2,@chk3)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/bommasssavebommanagementvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('savedate', sql.NVarChar, req.body.savedate)
+                .input('main', sql.NVarChar, req.body.main)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('model', sql.NVarChar, req.body.model)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('materialname', sql.NVarChar, req.body.materialname)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('materialwidth', sql.Float, req.body.materialwidth)
+                .input('using', sql.NVarChar, req.body.using)
+                .input('onepid', sql.Float, req.body.onepid)
+                .input('twopid', sql.Float, req.body.twopid)
+                .input('soyo', sql.Float, req.body.soyo)
+                .input('ta', sql.Float, req.body.ta)
+                .input('allta', sql.Float, req.body.allta)
+                .input('talength', sql.Float, req.body.talength)
+                .input('loss', sql.Float, req.body.loss)
+                .input('cost', sql.Float, req.body.cost)
+                .input('rlcut', sql.Float, req.body.rlcut)
+                .input('rlproduct', sql.Float, req.body.rlproduct)
+                .input('width', sql.Float, req.body.width)
+                .input('length', sql.Float, req.body.length)
+                .input('sqmprice', sql.Float, req.body.sqmprice)
+                .input('rollprice', sql.Float, req.body.rollprice)
+                .input('unit', sql.NVarChar, req.body.unit)
+                .input('manufacterer', sql.NVarChar, req.body.manufacterer)
+                .input('supplier', sql.NVarChar, req.body.supplier)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('usewidth', sql.Float, req.body.usewidth)
+                .input('num', sql.Float, req.body.num)
+                .input('materialclassification', sql.NVarChar, req.body.materialclassification)
+                .input('cavity', sql.NVarChar, req.body.cavity)
+                .input('useable', sql.NVarChar, req.body.useable)
+                .input('bomid', sql.NVarChar, req.body.bomid)
+                .input('costloss', sql.Float, req.body.costloss)
+                .input('chk1', sql.NVarChar, req.body.chk1)
+                .input('chk2', sql.NVarChar, req.body.chk2)
+                .input('chk3', sql.NVarChar, req.body.chk3)
+
+
+
+
+                .query(
+                    'insert into bommanagementvina(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss,chk1,chk2,chk3)' +
                     ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss,@chk1,@chk2,@chk3)'
                 )
                 .then(result => {
@@ -13623,6 +14011,40 @@ module.exports = function (app) {
     });
     // **** finish
 
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateeqdatavina', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+                .input('codenumber', sql.NVarChar, req.body.codenumber)
+                .input('equipmentname', sql.NVarChar, req.body.equipmentname)
+                .input('eqname', sql.NVarChar, req.body.eqname)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('size', sql.NVarChar, req.body.size)
+                .input('num', sql.NVarChar, req.body.num)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('serialno', sql.NVarChar, req.body.serialno)
+                .input('manudate', sql.NVarChar, req.body.manudate)
+                .input('position', sql.NVarChar, req.body.position)
+
+
+                .query(
+                    'update equipmentvina set codenumber=@codenumber,equipmentname=@equipmentname,eqname=@eqname,part=@part,size=@size,num=@num,serialno=@serialno,customer=@customer,position=@position,manudate=@manudate where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -14346,6 +14768,28 @@ module.exports = function (app) {
 
                 .query(
                     'delete from equipment where id=@id'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  창고삭제쿼리     
+    sql.connect(config).then(pool => {
+        app.post('/api/deleteeqdatavina', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+                .input('id', sql.Int, req.body.id)
+
+
+                .query(
+                    'delete from equipmentvina where id=@id'
                 )
                 .then(result => {
 
