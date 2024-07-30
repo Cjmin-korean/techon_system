@@ -12190,13 +12190,14 @@ module.exports = function (app) {
                 .input('chk1', sql.NVarChar, req.body.chk1)
                 .input('chk2', sql.NVarChar, req.body.chk2)
                 .input('chk3', sql.NVarChar, req.body.chk3)
+                .input('hap', sql.NVarChar, req.body.hap)
 
 
 
 
                 .query(
-                    'insert into bommanagementvina(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss,chk1,chk2,chk3)' +
-                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss,@chk1,@chk2,@chk3)'
+                    'insert into bommanagementvina(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss,chk1,chk2,chk3,hap)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss,@chk1,@chk2,@chk3,@hap)'
                 )
                 .then(result => {
 
