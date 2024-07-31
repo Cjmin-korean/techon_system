@@ -21,8 +21,25 @@
     <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
     <link rel="stylesheet" href="../assets/css/demo.css" />
     <link rel="stylesheet" href="../assets/css/demo1.css" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </head>
 <style>
+    #containers {
+        height: 50vh;
+        max-height: 50vh;
+        overflow-y: auto;
+        overflow-x: auto;
+        display: block;
+    }
+
+    #tableHead {
+        position: sticky;
+        top: 0;
+    }
+
     input[type="text"],
     select {
         font-family: Arial, sans-serif;
@@ -36,11 +53,7 @@
         /* overflow-y: auto; */
     }
 
-    #containers {
-        height: 90%;
-        /* overflow-y: auto; */
-        display: block;
-    }
+
 
     .table-bordered {
         width: 300%;
@@ -59,7 +72,9 @@
 
 <body>
 
-    <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-hidden="true"> -->
+    <div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"
+        data-bs-keyboard="false" data-bs-backdrop="static">
         <div class="modal-dialog" role="document" style="width: 150vh;">
             <div class="modal-content" style="height: 90vh;">
                 <div class="modal-header">
@@ -106,7 +121,12 @@
     </div>
 
     <div id="overlay" class="overlay"></div>
-    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <!-- <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"> -->
+
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"
+        data-bs-keyboard="false" data-bs-backdrop="static">
+
+
         <div class="modal-dialog" style="width: 190vh;">
             <div class="modal-content" style=" height: 95vh;">
                 <div class="modal-header" style="height: 40px;">
@@ -207,8 +227,8 @@
 
 
                             </table>
-                            <div style="height: 50vh; overflow-y: auto; display: block;" id="containers">
 
+                            <div id="containers">
                                 <table class="table-bordered" style="width: 300%; height: 200px; min-height: 200px;">
                                     <thead id="tableHead">
                                         <tr>
@@ -233,7 +253,8 @@
                                             <th style="width: 50px;">Nguyên liệu chính<br>메인자재</th>
                                             <th style="width: 350px;">Tên nguyên liệu<br>원자재명</th>
                                             <th style="width: 90px;">Chủng loại liệu<br>자재종류</th>
-                                            <th style="width: 500px;">hạng mục đặc biệt theo từng vật liệu<br>자재별 특이사항
+                                            <th style="width: 500px;">hạng mục đặc biệt theo từng vật liệu<br>자재별
+                                                특이사항
                                             </th>
                                             <th style="width: 80px;">Khách hàng chỉ định<br>고객사지정</th>
                                             <th style="width: 80px;">Tự chỉ định<br>자체지정</th>
@@ -336,7 +357,6 @@
 
 
 
-
     <div class="page-inner">
         <div class="page-header">
             <div class="col-md-12">
@@ -345,7 +365,8 @@
                         <div class="card-header">
                             <div class="d-flex align-items-center">
                                 <h4 class="card-title">BOM thông tin(BOM정보)</h4>
-                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" id="addButton">
+                                <button type="button" class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
+                                    id="addButton" data-bs-target="#productModal">
                                     <i class="fa fa-plus"></i>
                                     thêm vào(추가)
                                 </button>
@@ -891,56 +912,105 @@
                     $('#bomtableBody').append(
                         '<tr>' +
                         '<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white; ">Delete</button></td>' +
-                        '<td><button id="RowBtnadd" class="btn btn-primary" style="background-color: #4f56b6; color:white; ">+</button></td>' +
+                        '<td><button id="RowBtnadd-input" class="btn btn-primary">+</button></td>' +
                         '<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                         '<td><input type="text" id="char-input" style="text-align:right;" value="' + (result[index].char || '') + '" autocomplete="off"></td>' +
                         '<td><input type="checkbox" id="main-edit" ' + (mains[index].main === 'MAIN' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke;" value="' + materialText + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke;" readonly value="' + typecategoryText + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke;" value="' + etcs[index].etcA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" id="materialname-input" placeholder="Tìm kiếm tên vật liệu(자재명검색)"  value="' + materialText + '" ondblclick="handleKeyPress2(event)" onkeypress="handleKeyPress1(event)" style="cursor: pointer;" autocomplete="off"></td>' +
+                        '<td><input type="text" id="materialclassification-input" readonly style="background-color:whitesmoke; "  value="' + typecategoryText + '" autocomplete="off"></td>' +
+                        '<td><input type="text" id="etc-input" placeholder="Vui lòng nhập thông tin đặc biệt quan trọng(자재 특이사항을 입력하세요)" value="' + etcs[index].etcA + '"  autocomplete="off"></td>' +
                         '<td><input type="checkbox" id="chk1-input" ' + (chk1s[index].chk1 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                         '<td><input type="checkbox" id="chk2-input" ' + (chk2s[index].chk2 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                         '<td><input type="checkbox" id="chk3-input" ' + (chk3s[index].chk3 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + materialwidths[index].materialwidthA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + useables[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + onepids[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + twopids[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + soyos[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + tas[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + alltas[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + talengths[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + losss[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + costlosss[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + costsumText + '" autocomplete="off"></td>' +
-                        // 원자재정보 
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + names.materialnameA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + widths[index].widthA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + usewidths[index].usewidthA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + lengths[index].lengthA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + rollprices[index].rollpriceA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + units[index].unitA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + manufacterers[index].manufactererA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + suppliers[index].supplierA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + codenumbers[index].codenumberA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + costs[index].costA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + rlcuts[index].rlcutA + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + productcounts[index].productcountA + '" autocomplete="off"></td>' +
-                        // 합지품정보
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + names.materialnameHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + widths[index].widthHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + usewidths[index].usewidthHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + lengths[index].lengthHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + rollprices[index].rollpriceHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + units[index].unitHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + manufacterers[index].manufactererHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + suppliers[index].supplierHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + codenumbers[index].codenumberHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + costs[index].costHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + rlcuts[index].rlcutHAP + '" autocomplete="off"></td>' +
-                        '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + productcounts[index].productcountHAP + '" autocomplete="off"></td>' +
-                        // 정보
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" readonly value="' + cavitys[index] + '" autocomplete="off"></td>' +
-                        '<td><input type="text" style="background-color: whitesmoke; text-align:right;" readonly value="' + nums[index] + '" autocomplete="off"></td>' + '</tr>'
+                        '<td><input type="text" style="text-align:right;" value="' + materialwidths[index].materialwidthA + '"  id="materialwidth-input" onkeypress="return onlyNumberKey(event)" placeholder="con số(숫자)" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); validateNumericInput(this);" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right;" id="useable-input" value="' + useables[index] + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right;" id="onepidding-input" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();  validateNumericInput(this);" value="' + onepids[index] + '"  autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right;" id="twopidding-input" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); "  value="' + twopids[index] + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-input" value="' + soyos[index] + '" autocomplete="off" ></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;"  id="ta-input" oninput="updateSoyoValue()" value="' + tas[index] + '"   autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); formatDecimalInput(this, 2);"  value="' + alltas[index] + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right;" id="talength-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + talengths[index] + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right;" id="loss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();"  value="' + losss[index] + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right;" id="costloss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();"  value="' + costlosss[index] + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCost();" id="costsum-input" readonly value="' + costsumText + '"  autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="materialaname-input" value="' + names.materialnameA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="' + widths[index].widthA + '"  autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" value="' + usewidths[index].usewidthA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" value="" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="' + rollprices[index].rollpriceA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="' + units[index].unitA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="' + manufacterers[index].manufactererA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="supplier-input" value="' + suppliers[index].supplierA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="codenumber-input" value="' + codenumbers[index].codenumberA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cost-input" value="' + costs[index].costA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-input" value="' + rlcuts[index].rlcutA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-input"  value="' + productcounts[index].productcountA + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-materialname-input" value="' + names.materialnameHAP + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-width-input" value="' + widths[index].widthHAP + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-usewidth-input" value="' + usewidths[index].usewidthHAP + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-length-input" value="' + lengths[index].lengthHAP + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-rollprice-input" value="' + rollprices[index].rollpriceHAP + '"  autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="hap-unit-input" value="' + units[index].unitHAP + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="hap-manufacterer-input"  value="' + manufacterers[index].manufactererHAP + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="hap-supplier-input" value="' + suppliers[index].supplierHAP + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="hap-codenumber-input"   value="' + codenumbers[index].codenumberHAP + '"  autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-cost-input" value="' + costs[index].costHAP + '"  autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-rlcut-input" value="' + rlcuts[index].rlcutHAP + '" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-rlproduct-input"  value="' + productcounts[index].productcountHAP + '"  autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" value="' + cavitys[index] + '" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>' +
+                        '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input" value="' + nums[index] + '"  autocomplete="off"></td>'
+
+                        // '<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white; ">Delete</button></td>' +
+                        // '<td><button id="RowBtnadd" class="btn btn-primary" style="background-color: #4f56b6; color:white; ">+</button></td>' +
+                        // '<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                        // '<td><input type="text" id="char-input" style="text-align:right;" value="' + (result[index].char || '') + '" autocomplete="off"></td>' +
+                        // '<td><input type="checkbox" id="main-edit" ' + (mains[index].main === 'MAIN' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke;" value="' + materialText + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke;" readonly value="' + typecategoryText + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke;" value="' + etcs[index].etcA + '" autocomplete="off"></td>' +
+                        // '<td><input type="checkbox" id="chk1-input" ' + (chk1s[index].chk1 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                        // '<td><input type="checkbox" id="chk2-input" ' + (chk2s[index].chk2 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                        // '<td><input type="checkbox" id="chk3-input" ' + (chk3s[index].chk3 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + materialwidths[index].materialwidthA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + useables[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + onepids[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + twopids[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + soyos[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + tas[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + alltas[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + talengths[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + losss[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + costlosss[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + costsumText + '" autocomplete="off"></td>' +
+                        // // 원자재정보   
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + names.materialnameA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + widths[index].widthA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + usewidths[index].usewidthA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + lengths[index].lengthA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + rollprices[index].rollpriceA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + units[index].unitA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + manufacterers[index].manufactererA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + suppliers[index].supplierA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + codenumbers[index].codenumberA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + costs[index].costA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + rlcuts[index].rlcutA + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + productcounts[index].productcountA + '" autocomplete="off"></td>' +
+                        // // 합지품정보
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" value="' + names.materialnameHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + widths[index].widthHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + usewidths[index].usewidthHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + lengths[index].lengthHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + rollprices[index].rollpriceHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + units[index].unitHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + manufacterers[index].manufactererHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + suppliers[index].supplierHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:center;" value="' + codenumbers[index].codenumberHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + costs[index].costHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + rlcuts[index].rlcutHAP + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" readonly style="background-color: whitesmoke; text-align:right;" value="' + productcounts[index].productcountHAP + '" autocomplete="off"></td>' +
+                        // // 정보
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" readonly value="' + cavitys[index] + '" autocomplete="off"></td>' +
+                        // '<td><input type="text" style="background-color: whitesmoke; text-align:right;" readonly value="' + nums[index] + '" autocomplete="off"></td>' + '</tr>'
                     );
                 });
             }
@@ -996,8 +1066,12 @@
     }
     $('#addButton').on('click', function () {
         var container = document.getElementById('containers');
-        container.scrollLeft = 0;
-        container.scrollTop = 0;
+        if (container) {
+            container.scrollLeft = 0;
+            container.scrollTop = 0;
+            console.log("스크롤 위치 초기화됨"); // 디버깅을 위한 로그 추가
+        }
+
 
         $('[id$="-save"]').val('');
         $('#costsum-save').val('0');
@@ -1060,11 +1134,12 @@
 
         $('#savebtn').text('cứu(저장)');
         $('#bomtableBody').append(newRow);
-        $('#productModal').modal('show');
         $('.col-md-12').scrollLeft(0);
 
 
     });
+
+
 
     function onlyNumberKey(event) {
         // Only allows number keys, backspace, delete, left and right arrows
@@ -1544,7 +1619,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/updatebomstatus',
+                    url: server + '/api/updatebomstatusvina',
                     dataType: 'json',
                     async: false,
                     contentType: 'application/json',
@@ -1554,138 +1629,6 @@
                     }),
                     success: function (result) {
                         // Handle success
-                    }
-                });
-
-                $('[id^="num-input"]').each(function (index) {
-                    var cavity = $('#cavity-save').val();
-                    var bomno = $('#bomno-save').val();
-                    var model = $('#modelname-save').val();
-                    var itemname = $('#itemname-save').val();
-
-                    var materialname = $('[id^="materialname-input"]').eq(index).val();
-                    var char = $('[id^="char-input"]').eq(index).val();
-                    var main = $('[id^="main-edit"]').eq(index).prop('checked') ? 'MAIN' : '';
-                    var etc = $('[id^="etc-input"]').eq(index).val();
-                    var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
-                    var onepid = ($('[id^="onepidding-input"]').eq(index).val())
-                    var twopid = ($('[id^="twopidding-input"]').eq(index).val())
-                    var soyo = ($('[id^="soyo-input"]').eq(index).val())
-                    var ta = ($('[id^="ta-input"]').eq(index).val())
-                    var allta = ($('[id^="allta-input"]').eq(index).val())
-                    var talength = ($('[id^="talength-input"]').eq(index).val())
-                    var loss = ($('[id^="loss-input"]').eq(index).val())
-                    var num = ($('[id^="num-input"]').eq(index).val());
-                    var cavity = ($('[id^="cavity-input"]').eq(index).val());
-                    var codenumber = ($('[id^="codenumber-input"]').eq(index).val());
-                    var useable = ($('[id^="useable-input"]').eq(index).val());
-                    var bomid = $('#bomid-save').val();
-                    var costloss = ($('[id^="costloss-input"]').eq(index).val());
-                    var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked') ? true : false;
-                    var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked') ? true : false;
-                    var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked') ? true : false;
-
-                    var hapmaterialname = $('[id^="hap-materialname-input"]').eq(index).val();
-                    var hapcodenumber = ($('[id^="hap-codenumber-input"]').eq(index).val());
-
-
-
-                    var hapchk1 = $('[id^="chk1-input"]').eq(index).prop('checked') ? true : false;
-                    var hapchk2 = $('[id^="chk2-input"]').eq(index).prop('checked') ? true : false;
-                    var hapchk3 = $('[id^="chk3-input"]').eq(index).prop('checked') ? true : false;
-
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/bommasssavebommanagement',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "savedate": insertdate,
-                            "bomno": bomno,
-                            "model": model,
-                            "itemname": itemname,
-                            "materialname": materialname,
-                            "status": 'true',
-                            "char": char,
-                            "main": main,
-                            "etc": etc,
-                            "materialwidth": materialwidth,
-                            "onepid": onepid,
-                            "twopid": twopid,
-                            "ta": ta,
-                            "allta": allta,
-                            "talength": talength,
-                            "loss": loss,
-                            "cavity": cavity,
-                            "codenumber": codenumber,
-                            "useable": useable,
-                            "num": num,
-                            "costloss": costloss,
-                            "bomid": bomid,
-                            "chk1": chk1,
-                            "chk2": chk2,
-                            "chk3": chk3,
-                            "hap": 'A'
-                        }),
-                        success: function (result) {
-                            // Handle success
-                        },
-                        error: function (error) {
-                            // Handle error
-                        },
-                    });
-                });
-
-                $('#newModal').modal('hide');
-                alert('데이터가 성공적으로 수정 되었습니다.');
-                load();
-            }
-        } else {
-            var confirmResult = confirm('Bạn có muốn lưu thông tin BOM?\nBOM정보(양산) 데이터를 저장하시겠습니까?');
-            if (confirmResult) {
-                var rowCount = $('#bomtableBody tr').length;
-                for (var i = 0; i < rowCount; i++) {
-                    $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
-                }
-                var bomno = $('#bomno-save').val();
-                var customer = $('#customer-save').val();
-                var modelname = $('#modelname-save').val();
-                var itemname = $('#itemname-save').val();
-                var pcs = $('#pcs-save').val();
-                var cavity = $('#cavity-save').val();
-                var itemcode = $('#itemcode-save').val();
-                var workpart = $('#workpart-save').val();
-                var working = $('#working-save').val();
-                var direction = $('#direction-save').val();
-                var costsum = $('#costsum-save').val();
-                var additionalnotes = $('#additionalNote').val();
-                var type = $('#type-save').val();
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/bommasssaveiteminfovina',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "insertdate": insertdate,
-                        "updatedate": insertdate,
-                        "bomno": bomno,
-                        "customer": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "pcs": pcs,
-                        "cavity": cavity,
-                        "itemcode": itemcode,
-                        "part": "định giá",
-                        "workpart": workpart,
-                        "working": working,
-                        "direction": direction,
-                        "costsum": costsum,
-                        "additionalnotes": additionalnotes,
-                        "type": type,
-                        "itemprice": '0',
-                    }),
-                    success: function (result) {
-
                     }
                 });
 
@@ -1725,7 +1668,7 @@
                     var insertdate = new Date().toISOString().slice(0, 10);
 
 
-                
+
                     if (hapmaterialname) {
 
                         $.ajax({
@@ -1852,7 +1795,226 @@
                         });
                     }
 
-                    
+
+                });
+                $('#newModal').modal('hide');
+                $('#productModal').modal('hide');
+                alert('데이터가 성공적으로 저장 되었습니다\nDữ liệu đã được lưu thành công');
+                load();
+            }
+        } else {
+            var confirmResult = confirm('Bạn có muốn lưu thông tin BOM?\nBOM정보(양산) 데이터를 저장하시겠습니까?');
+            if (confirmResult) {
+                var rowCount = $('#bomtableBody tr').length;
+                for (var i = 0; i < rowCount; i++) {
+                    $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
+                }
+                var bomno = $('#bomno-save').val();
+                var customer = $('#customer-save').val();
+                var modelname = $('#modelname-save').val();
+                var itemname = $('#itemname-save').val();
+                var pcs = $('#pcs-save').val();
+                var cavity = $('#cavity-save').val();
+                var itemcode = $('#itemcode-save').val();
+                var workpart = $('#workpart-save').val();
+                var working = $('#working-save').val();
+                var direction = $('#direction-save').val();
+                var costsum = $('#costsum-save').val();
+                var additionalnotes = $('#additionalNote').val();
+                var type = $('#type-save').val();
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/bommasssaveiteminfovina',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "insertdate": insertdate,
+                        "updatedate": insertdate,
+                        "bomno": bomno,
+                        "customer": customer,
+                        "modelname": modelname,
+                        "itemname": itemname,
+                        "pcs": pcs,
+                        "cavity": cavity,
+                        "itemcode": itemcode,
+                        "part": "định giá",
+                        "workpart": workpart,
+                        "working": working,
+                        "direction": direction,
+                        "costsum": costsum,
+                        "additionalnotes": additionalnotes,
+                        "type": type,
+                        "itemprice": '0',
+                    }),
+                    success: function (result) {
+
+                    }
+                });
+
+                $('[id^="num-input"]').each(function (index) {
+                    var cavity = $('#cavity-save').val();
+                    var bomno = $('#bomno-save').val();
+                    var model = $('#modelname-save').val();
+                    var itemname = $('#itemname-save').val();
+
+                    var materialname = $('[id^="materialname-input"]').eq(index).val();
+                    var char = $('[id^="char-input"]').eq(index).val();
+                    var main = $('[id^="main-edit"]').eq(index).prop('checked') ? 'MAIN' : '';
+                    var etc = $('[id^="etc-input"]').eq(index).val();
+                    var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
+                    var onepid = $('[id^="onepidding-input"]').eq(index).val();
+                    var twopid = $('[id^="twopidding-input"]').eq(index).val();
+                    var soyo = $('[id^="soyo-input"]').eq(index).val();
+                    var ta = $('[id^="ta-input"]').eq(index).val();
+                    var allta = $('[id^="allta-input"]').eq(index).val();
+                    var talength = $('[id^="talength-input"]').eq(index).val();
+                    var loss = $('[id^="loss-input"]').eq(index).val();
+                    var num = $('[id^="num-input"]').eq(index).val();
+                    var cavity = $('[id^="cavity-input"]').eq(index).val();
+                    var codenumber = $('[id^="codenumber-input"]').eq(index).val();
+                    var useable = $('[id^="useable-input"]').eq(index).val();
+                    var bomid = $('#bomid-save').val();
+                    var costloss = $('[id^="costloss-input"]').eq(index).val();
+                    var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked');
+                    var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked');
+                    var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked');
+
+                    var hapmaterialname = $('[id^="hap-materialname-input"]').eq(index).val();
+                    var hapcodenumber = $('[id^="hap-codenumber-input"]').eq(index).val();
+                    var hapchk1 = $('[id^="hap-chk1-input"]').eq(index).prop('checked');
+                    var hapchk2 = $('[id^="hap-chk2-input"]').eq(index).prop('checked');
+                    var hapchk3 = $('[id^="hap-chk3-input"]').eq(index).prop('checked');
+                    var insertdate = new Date().toISOString().slice(0, 10);
+
+
+
+                    if (hapmaterialname) {
+
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/bommasssavebommanagementvina',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "savedate": insertdate,
+                                "bomno": bomno,
+                                "model": model,
+                                "itemname": itemname,
+                                "materialname": materialname,
+                                "status": 'true',
+                                "char": char,
+                                "main": main,
+                                "etc": etc,
+                                "materialwidth": materialwidth,
+                                "onepid": onepid,
+                                "twopid": twopid,
+                                "ta": ta,
+                                "allta": allta,
+                                "talength": talength,
+                                "loss": loss,
+                                "cavity": cavity,
+                                "codenumber": codenumber,
+                                "useable": useable,
+                                "num": num,
+                                "costloss": costloss,
+                                "bomid": bomid,
+                                "chk1": chk1,
+                                "chk2": chk2,
+                                "chk3": chk3,
+                                "hap": 'A'
+                            }),
+                            success: function (result) {
+                                // Handle success
+                            },
+                            error: function (error) {
+                                // Handle error
+                            },
+                        });
+
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/bommasssavebommanagementvina',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "savedate": insertdate,
+                                "bomno": bomno,
+                                "model": model,
+                                "itemname": itemname,
+                                "materialname": hapmaterialname,
+                                "status": 'true',
+                                "char": char,
+                                "main": main,
+                                "etc": etc,
+                                "materialwidth": materialwidth,
+                                "onepid": onepid,
+                                "twopid": twopid,
+                                "ta": ta,
+                                "allta": allta,
+                                "talength": talength,
+                                "loss": loss,
+                                "cavity": cavity,
+                                "codenumber": hapcodenumber,
+                                "useable": useable,
+                                "num": num,
+                                "costloss": costloss,
+                                "bomid": bomid,
+                                "chk1": chk1,
+                                "chk2": chk2,
+                                "chk3": chk3,
+                                "hap": 'HAP'
+                            }),
+                            success: function (result) {
+                                // Handle success
+                            },
+                            error: function (error) {
+                                // Handle error
+                            },
+                        });
+                    } else {
+                        $.ajax({
+                            type: 'POST',
+                            url: server + '/api/bommasssavebommanagementvina',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                "savedate": insertdate,
+                                "bomno": bomno,
+                                "model": model,
+                                "itemname": itemname,
+                                "materialname": materialname,
+                                "status": 'true',
+                                "char": char,
+                                "main": main,
+                                "etc": etc,
+                                "materialwidth": materialwidth,
+                                "onepid": onepid,
+                                "twopid": twopid,
+                                "ta": ta,
+                                "allta": allta,
+                                "talength": talength,
+                                "loss": loss,
+                                "cavity": cavity,
+                                "codenumber": codenumber,
+                                "useable": useable,
+                                "num": num,
+                                "costloss": costloss,
+                                "bomid": bomid,
+                                "chk1": chk1,
+                                "chk2": chk2,
+                                "chk3": chk3,
+                                "hap": 'A'
+                            }),
+                            success: function (result) {
+                                // Handle success
+                            },
+                            error: function (error) {
+                                // Handle error
+                            },
+                        });
+                    }
+
+
                 });
 
 
