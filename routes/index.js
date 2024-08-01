@@ -1766,70 +1766,70 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "SELECT  "+
-                    "     i.bomno,  "+
-                    "     i.part,  "+
-                    "     i.modelname,  "+
-                    "     i.itemname,  "+
-                    "     i.itemprice,   "+
-                    "     ROUND( "+
-                    "         "+
-                    "         COALESCE( "+
-                    "             SUM(ROUND( "+
-                    "                 ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) /  "+
-                    "                 ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  "+
-                    "             1)), 0), 1) as cost,    "+
-                    "     CASE   "+
-                    "         WHEN i.itemprice = 0 THEN 0   "+
-                    "         ELSE  "+
-                    "             ROUND( "+
-                    "                 ( "+
-                    "                     "+
-                    "                     COALESCE( "+
-                    "                         SUM(ROUND( "+
-                    "                             ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / "+
-                    "                             ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  "+
-                    "                         1)), 0) "+
-                    "                 ) / i.itemprice * 100, 1)   "+
-                    "     END AS costPriceRatio,  "+
-                    "     i.customer,  "+
-                    "     i.itemcode,  "+
-                    "     i.working,  "+
-                    "     i.pcs,  "+
-                    "     i.cavity,  "+
-                    "     i.direction,  "+
-                    "     i.workpart,  "+
-                    "     i.additionalnotes,  "+
-                    "     i.class,  "+
-                    "     i.type, "+
-                    "     bm.bomid, "+
-                    "     MAX(bm.num) as materialcount "+
-                    " FROM  "+
-                    "     iteminfovina i  "+
-                    " LEFT JOIN  "+
-                    "     bommanagementvina bm ON i.bomno = bm.bomno  "+
-                    " LEFT JOIN  "+
-                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  "+
-       ""+
-                    " WHERE  "+
-                    "     bm.status = 'true'  "+
-                    " GROUP BY  "+
-                    "     i.bomno,  "+
-                    "     i.part,  "+
-                    "     i.modelname,  "+
-                    "     i.itemname,  "+
-                    "     i.itemprice,  "+
-                    "     i.customer,  "+
-                    "     i.itemcode,  "+
-                    "     i.working,  "+
-                    "     i.pcs,  "+
-                    "     i.cavity,  "+
-                    "     i.direction,  "+
-                    "     i.workpart,  "+
-                    "     i.additionalnotes,  "+
-                    "     i.class,  "+
-                    "     i.type, "+
-                    "     bm.bomid, "+
+                    "SELECT  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,   " +
+                    "     ROUND( " +
+                    "         " +
+                    "         COALESCE( " +
+                    "             SUM(ROUND( " +
+                    "                 ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) /  " +
+                    "                 ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "             1)), 0), 1) as cost,    " +
+                    "     CASE   " +
+                    "         WHEN i.itemprice = 0 THEN 0   " +
+                    "         ELSE  " +
+                    "             ROUND( " +
+                    "                 ( " +
+                    "                     " +
+                    "                     COALESCE( " +
+                    "                         SUM(ROUND( " +
+                    "                             ROUND(mi.rollprice / FLOOR((mi.length * 1000 * (FLOOR(mi.usewidth / bm.materialwidth)) * bm.cavity * (1 - (bm.costloss / 100)) / " +
+                    "                             ((bm.onepid + bm.talength + bm.twopid) / bm.allta))), 1),  " +
+                    "                         1)), 0) " +
+                    "                 ) / i.itemprice * 100, 1)   " +
+                    "     END AS costPriceRatio,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
+                    "     MAX(bm.num) as materialcount " +
+                    " FROM  " +
+                    "     iteminfovina i  " +
+                    " LEFT JOIN  " +
+                    "     bommanagementvina bm ON i.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  " +
+                    "" +
+                    " WHERE  " +
+                    "     bm.status = 'true'  " +
+                    " GROUP BY  " +
+                    "     i.bomno,  " +
+                    "     i.part,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid, " +
                     "     i.workpart;                                 ")
                 .then(result => {
 
@@ -2931,9 +2931,7 @@ module.exports = function (app) {
                 .input('customerinitial', sql.NVarChar, req.body.customerinitial)
 
                 .query(
-                    "SELECT " +
-                    "*" +
-                    " FROM materialinformationvina ")
+                    "SELECT * from  materialinformationvina")
 
                 .then(result => {
 
@@ -13875,7 +13873,7 @@ module.exports = function (app) {
 
                 // 
                 .query(
-                    'update iteminfovina set modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes,working=@working,type=@type where bomno=@bomno'
+                    'update iteminfovina set bomno=@bomno, modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes,working=@working,type=@type where bomno=@bomno'
                 )
                 .then(result => {
 
