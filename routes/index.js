@@ -1768,7 +1768,7 @@ module.exports = function (app) {
                 .query(
                     "SELECT  " +
                     "     i.bomno,  " +
-                    "     i.part,  " +
+                    "     i.savedate,  " +
                     "     i.modelname,  " +
                     "     i.itemname,  " +
                     "     i.itemprice,   " +
@@ -1802,7 +1802,7 @@ module.exports = function (app) {
                     "     i.additionalnotes,  " +
                     "     i.class,  " +
                     "     i.type, " +
-                    "     bm.bomid, " +
+                   "     bm.bomid, " +
                     "     MAX(bm.num) as materialcount " +
                     " FROM  " +
                     "     iteminfovina i  " +
@@ -1829,6 +1829,7 @@ module.exports = function (app) {
                     "     i.additionalnotes,  " +
                     "     i.class,  " +
                     "     i.type, " +
+                    "     i.savedate," +
                     "     bm.bomid, " +
                     "     i.workpart;                                 ")
                 .then(result => {
@@ -12007,7 +12008,7 @@ module.exports = function (app) {
                 .input('pcs', sql.NVarChar, req.body.pcs)
                 .input('cavity', sql.Float, req.body.cavity)
                 .input('itemcode', sql.NVarChar, req.body.itemcode)
-                .input('part', sql.NVarChar, req.body.part)
+                .input('savedate', sql.NVarChar, req.body.savedate)
                 .input('working', sql.NVarChar, req.body.working)
                 .input('direction', sql.NVarChar, req.body.direction)
                 .input('cost', sql.Float, req.body.cost)
@@ -12019,8 +12020,8 @@ module.exports = function (app) {
 
 
                 .query(
-                    'insert into iteminfovina(itemprice,updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, part, working, direction, cost, ordercount, additionalnotes,workpart,type)' +
-                    ' values(@itemprice,@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @part, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart,@type)'
+                    'insert into iteminfovina(itemprice,updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, savedate, working, direction, cost, ordercount, additionalnotes,workpart,type)' +
+                    ' values(@itemprice,@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @savedate, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart,@type)'
                 )
                 .then(result => {
 
