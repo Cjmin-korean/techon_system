@@ -404,7 +404,7 @@
                                         <th>Chi phí nguyên liệu (%)<br>재료비(%)</th>
                                         <th>Số nguyên liệu<br>자재개수</th>
 
-                                        <th style="width: 150px;"></th>
+                                        <th style="width: 150px;" id="datacount"></th>
                                     </tr>
 
                                     </tr>
@@ -482,7 +482,18 @@
 
 
     $(document).ready(function () {
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectiteminfovina',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
 
+            }),
+            success: function (result) {
+                $('#datacount').text('DATA : ' + result[0].datacount)
+            }
+        })
         $('#tableContainer').scrollLeft(0);
         $('#orderno').on('keydown', function (event) {
             if (event.key === 'Enter') {
@@ -1765,233 +1776,241 @@
                 load();
             }
         } else {
-            var confirmResult = confirm('Bạn có muốn lưu thông tin BOM?\nBOM정보(양산) 데이터를 저장하시겠습니까?');
-            if (confirmResult) {
-                var rowCount = $('#bomtableBody tr').length;
-                for (var i = 0; i < rowCount; i++) {
-                    $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
-                }
-                var insertdate = new Date().toISOString().slice(0, 10);
-
-                var bomno = $('#bomno-save').val();
-                var customer = $('#customer-save').val();
-                var modelname = $('#modelname-save').val();
-                var itemname = $('#itemname-save').val();
-                var pcs = $('#pcs-save').val();
-                var cavity = $('#cavity-save').val();
-                var itemcode = $('#itemcode-save').val();
-                var workpart = $('#workpart-save').val();
-                var working = $('#working-save').val();
-                var direction = $('#direction-save').val();
-                var costsum = $('#costsum-save').val();
-                var additionalnotes = $('#additionalNote').val();
-                var type = $('#type-save').val();
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/bommasssaveiteminfovina',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "insertdate": insertdate,
-                        "updatedate": insertdate,
-                        "bomno": bomno,
-                        "customer": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "pcs": pcs,
-                        "cavity": cavity,
-                        "itemcode": itemcode,
-                        "savedate": insertdate,
-                        "workpart": workpart,
-                        "working": working,
-                        "direction": direction,
-                        "costsum": costsum,
-                        "additionalnotes": additionalnotes,
-                        "type": type,
-                        "itemprice": '0',
-                    }),
-                    success: function (result) {
-
-                    }
-                });
-
-                $('[id^="num-input"]').each(function (index) {
-                    var cavity = $('#cavity-save').val();
-                    var bomno = $('#bomno-save').val();
-                    var model = $('#modelname-save').val();
-                    var itemname = $('#itemname-save').val();
-                    var cavity = $('#cavity-save').val();
-
-                    var materialname = $('[id^="materialaname-input"]').eq(index).val();
-                    var char = $('[id^="char-input"]').eq(index).val();
-                    var main = $('[id^="main-edit"]').eq(index).prop('checked') ? 'MAIN' : '';
-                    var etc = $('[id^="etc-input"]').eq(index).val();
-                    var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
-                    var onepid = $('[id^="onepidding-input"]').eq(index).val();
-                    var twopid = $('[id^="twopidding-input"]').eq(index).val();
-                    var soyo = $('[id^="soyo-input"]').eq(index).val();
-                    var ta = $('[id^="ta-input"]').eq(index).val();
-                    var allta = $('[id^="allta-input"]').eq(index).val();
-                    var talength = $('[id^="talength-input"]').eq(index).val();
-                    var loss = $('[id^="loss-input"]').eq(index).val();
-                    var num = $('[id^="num-input"]').eq(index).val();
-                    var codenumber = $('[id^="codenumber-input"]').eq(index).val();
-                    var useable = $('[id^="useable-input"]').eq(index).val();
-                    var bomid = $('#bomid-save').val();
-                    var costloss = $('[id^="costloss-input"]').eq(index).val();
-                    var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked');
-                    var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked');
-                    var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked');
-
-                    var hapmaterialname = $('[id^="hap-materialname-input"]').eq(index).val();
-                    var hapcodenumber = $('[id^="hap-codenumber-input"]').eq(index).val();
-                    var hapchk1 = $('[id^="hap-chk1-input"]').eq(index).prop('checked');
-                    var hapchk2 = $('[id^="hap-chk2-input"]').eq(index).prop('checked');
-                    var hapchk3 = $('[id^="hap-chk3-input"]').eq(index).prop('checked');
-                    var insertdate = new Date().toISOString().slice(0, 10);
-
-
-
-                    if (hapmaterialname) {
-
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/bommasssavebommanagementvina',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "savedate": insertdate,
-                                "bomno": bomno,
-                                "model": model,
-                                "itemname": itemname,
-                                "materialname": materialname,
-                                "status": 'true',
-                                "char": char,
-                                "main": main,
-                                "etc": etc,
-                                "materialwidth": materialwidth,
-                                "onepid": onepid,
-                                "twopid": twopid,
-                                "ta": ta,
-                                "allta": allta,
-                                "talength": talength,
-                                "loss": loss,
-                                "cavity": cavity,
-                                "codenumber": codenumber,
-                                "useable": useable,
-                                "num": num,
-                                "costloss": costloss,
-                                "bomid": bomid,
-                                "chk1": chk1,
-                                "chk2": chk2,
-                                "chk3": chk3,
-                                "hap": 'A'
-                            }),
-                            success: function (result) {
-                                // Handle success
-                            },
-                            error: function (error) {
-                                // Handle error
-                            },
-                        });
-
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/bommasssavebommanagementvina',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "savedate": insertdate,
-                                "bomno": bomno,
-                                "model": model,
-                                "itemname": itemname,
-                                "materialname": hapmaterialname,
-                                "status": 'true',
-                                "char": char,
-                                "main": main,
-                                "etc": etc,
-                                "materialwidth": materialwidth,
-                                "onepid": onepid,
-                                "twopid": twopid,
-                                "ta": ta,
-                                "allta": allta,
-                                "talength": talength,
-                                "loss": loss,
-                                "cavity": cavity,
-                                "codenumber": hapcodenumber,
-                                "useable": useable,
-                                "num": num,
-                                "costloss": costloss,
-                                "bomid": bomid,
-                                "chk1": chk1,
-                                "chk2": chk2,
-                                "chk3": chk3,
-                                "hap": 'HAP'
-                            }),
-                            success: function (result) {
-                                // Handle success
-                            },
-                            error: function (error) {
-                                // Handle error
-                            },
-                        });
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomnovina',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "bomno": $('#bomno-save').val(),
+                }),
+                success: function (result) {
+                    if (result.length > 0) {
+                        showMissingFieldAlert('BOM sự nhân bản', 'BOM sự nhân bản(BOM이 중복 되었습니다)');
+                        return;
                     } else {
-                        $.ajax({
-                            type: 'POST',
-                            url: server + '/api/bommasssavebommanagementvina',
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                "savedate": insertdate,
-                                "bomno": bomno,
-                                "model": model,
-                                "itemname": itemname,
-                                "materialname": materialname,
-                                "status": 'true',
-                                "char": char,
-                                "main": main,
-                                "etc": etc,
-                                "materialwidth": materialwidth,
-                                "onepid": onepid,
-                                "twopid": twopid,
-                                "ta": ta,
-                                "allta": allta,
-                                "talength": talength,
-                                "loss": loss,
-                                "cavity": cavity,
-                                "codenumber": codenumber,
-                                "useable": useable,
-                                "num": num,
-                                "costloss": costloss,
-                                "bomid": bomid,
-                                "chk1": chk1,
-                                "chk2": chk2,
-                                "chk3": chk3,
-                                "hap": 'A'
-                            }),
-                            success: function (result) {
-                                // Handle success
-                            },
-                            error: function (error) {
-                                // Handle error
-                            },
-                        });
+                        var confirmResult = confirm('Bạn có muốn lưu thông tin BOM?\nBOM정보(양산) 데이터를 저장하시겠습니까?');
+                        if (confirmResult) {
+                            var rowCount = $('#bomtableBody tr').length;
+                            for (var i = 0; i < rowCount; i++) {
+                                $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
+                            }
+                            var insertdate = new Date().toISOString().slice(0, 10);
+
+                            var bomno = $('#bomno-save').val();
+                            var customer = $('#customer-save').val();
+                            var modelname = $('#modelname-save').val();
+                            var itemname = $('#itemname-save').val();
+                            var pcs = $('#pcs-save').val();
+                            var cavity = $('#cavity-save').val();
+                            var itemcode = $('#itemcode-save').val();
+                            var workpart = $('#workpart-save').val();
+                            var working = $('#working-save').val();
+                            var direction = $('#direction-save').val();
+                            var costsum = $('#costsum-save').val();
+                            var additionalnotes = $('#additionalNote').val();
+                            var type = $('#type-save').val();
+                            $.ajax({
+                                type: 'POST',
+                                url: server + '/api/bommasssaveiteminfovina',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    "insertdate": insertdate,
+                                    "updatedate": insertdate,
+                                    "bomno": bomno,
+                                    "customer": customer,
+                                    "modelname": modelname,
+                                    "itemname": itemname,
+                                    "pcs": pcs,
+                                    "cavity": cavity,
+                                    "itemcode": itemcode,
+                                    "savedate": insertdate,
+                                    "workpart": workpart,
+                                    "working": working,
+                                    "direction": direction,
+                                    "costsum": costsum,
+                                    "additionalnotes": additionalnotes,
+                                    "type": type,
+                                    "itemprice": '0',
+                                    "part": 'định giá',
+                                }),
+                                success: function (result) {
+                                    // Handle success
+                                }
+                            });
+
+                            $('[id^="num-input"]').each(function (index) {
+                                var cavity = $('#cavity-save').val();
+                                var bomno = $('#bomno-save').val();
+                                var model = $('#modelname-save').val();
+                                var itemname = $('#itemname-save').val();
+
+                                var materialname = $('[id^="materialaname-input"]').eq(index).val();
+                                var char = $('[id^="char-input"]').eq(index).val();
+                                var main = $('[id^="main-edit"]').eq(index).prop('checked') ? 'MAIN' : '';
+                                var etc = $('[id^="etc-input"]').eq(index).val();
+                                var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
+                                var onepid = $('[id^="onepidding-input"]').eq(index).val();
+                                var twopid = $('[id^="twopidding-input"]').eq(index).val();
+                                var soyo = $('[id^="soyo-input"]').eq(index).val();
+                                var ta = $('[id^="ta-input"]').eq(index).val();
+                                var allta = $('[id^="allta-input"]').eq(index).val();
+                                var talength = $('[id^="talength-input"]').eq(index).val();
+                                var loss = $('[id^="loss-input"]').eq(index).val();
+                                var num = $('[id^="num-input"]').eq(index).val();
+                                var codenumber = $('[id^="codenumber-input"]').eq(index).val();
+                                var useable = $('[id^="useable-input"]').eq(index).val();
+                                var bomid = $('#bomid-save').val();
+                                var costloss = $('[id^="costloss-input"]').eq(index).val();
+                                var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked');
+                                var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked');
+                                var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked');
+
+                                var hapmaterialname = $('[id^="hap-materialname-input"]').eq(index).val();
+                                var hapcodenumber = $('[id^="hap-codenumber-input"]').eq(index).val();
+                                var hapchk1 = $('[id^="hap-chk1-input"]').eq(index).prop('checked');
+                                var hapchk2 = $('[id^="hap-chk2-input"]').eq(index).prop('checked');
+                                var hapchk3 = $('[id^="hap-chk3-input"]').eq(index).prop('checked');
+                                var insertdate = new Date().toISOString().slice(0, 10);
+
+                                if (hapmaterialname) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: server + '/api/bommasssavebommanagementvina',
+                                        dataType: 'json',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({
+                                            "savedate": insertdate,
+                                            "bomno": bomno,
+                                            "model": model,
+                                            "itemname": itemname,
+                                            "materialname": materialname,
+                                            "status": 'true',
+                                            "char": char,
+                                            "main": main,
+                                            "etc": etc,
+                                            "materialwidth": materialwidth,
+                                            "onepid": onepid,
+                                            "twopid": twopid,
+                                            "ta": ta,
+                                            "allta": allta,
+                                            "talength": talength,
+                                            "loss": loss,
+                                            "cavity": cavity,
+                                            "codenumber": codenumber,
+                                            "useable": useable,
+                                            "num": num,
+                                            "costloss": costloss,
+                                            "bomid": bomid,
+                                            "chk1": chk1,
+                                            "chk2": chk2,
+                                            "chk3": chk3,
+                                            "hap": 'A'
+                                        }),
+                                        success: function (result) {
+                                            // Handle success
+                                        },
+                                        error: function (error) {
+                                            // Handle error
+                                        },
+                                    });
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: server + '/api/bommasssavebommanagementvina',
+                                        dataType: 'json',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({
+                                            "savedate": insertdate,
+                                            "bomno": bomno,
+                                            "model": model,
+                                            "itemname": itemname,
+                                            "materialname": hapmaterialname,
+                                            "status": 'true',
+                                            "char": char,
+                                            "main": main,
+                                            "etc": etc,
+                                            "materialwidth": materialwidth,
+                                            "onepid": onepid,
+                                            "twopid": twopid,
+                                            "ta": ta,
+                                            "allta": allta,
+                                            "talength": talength,
+                                            "loss": loss,
+                                            "cavity": cavity,
+                                            "codenumber": hapcodenumber,
+                                            "useable": useable,
+                                            "num": num,
+                                            "costloss": costloss,
+                                            "bomid": bomid,
+                                            "chk1": chk1,
+                                            "chk2": chk2,
+                                            "chk3": chk3,
+                                            "hap": 'HAP'
+                                        }),
+                                        success: function (result) {
+                                            // Handle success
+                                        },
+                                        error: function (error) {
+                                            // Handle error
+                                        },
+                                    });
+                                } else {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: server + '/api/bommasssavebommanagementvina',
+                                        dataType: 'json',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({
+                                            "savedate": insertdate,
+                                            "bomno": bomno,
+                                            "model": model,
+                                            "itemname": itemname,
+                                            "materialname": materialname,
+                                            "status": 'true',
+                                            "char": char,
+                                            "main": main,
+                                            "etc": etc,
+                                            "materialwidth": materialwidth,
+                                            "onepid": onepid,
+                                            "twopid": twopid,
+                                            "ta": ta,
+                                            "allta": allta,
+                                            "talength": talength,
+                                            "loss": loss,
+                                            "cavity": cavity,
+                                            "codenumber": codenumber,
+                                            "useable": useable,
+                                            "num": num,
+                                            "costloss": costloss,
+                                            "bomid": bomid,
+                                            "chk1": chk1,
+                                            "chk2": chk2,
+                                            "chk3": chk3,
+                                            "hap": 'A'
+                                        }),
+                                        success: function (result) {
+                                            // Handle success
+                                        },
+                                        error: function (error) {
+                                            // Handle error
+                                        },
+                                    });
+                                }
+                            });
+
+                            $('#newModal').modal('hide');
+                            $('#productModal').modal('hide');
+
+                            alert('데이터가 성공적으로 저장 되었습니다\nDữ liệu đã được lưu thành công');
+                            load();
+                        } else {
+                            return;
+                        }
                     }
-
-
-                });
-
-
-                $('#newModal').modal('hide');
-                $('#productModal').modal('hide');
-
-                alert('데이터가 성공적으로 저장 되었습니다\nDữ liệu đã được lưu thành công');
-                load();
-            } else {
-                return;
-
-            }
-
+                }
+            });
 
 
         }

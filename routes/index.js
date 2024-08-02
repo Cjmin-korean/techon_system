@@ -5422,6 +5422,54 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectbomnovina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    " select * from bommanagementvina where bomno=@bomno")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
+        app.post('/api/selectiteminfovina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    " select count(*) as datacount from iteminfovina")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectmaxwidthmaterial', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -12017,11 +12065,12 @@ module.exports = function (app) {
                 .input('additionalnotes', sql.NVarChar, req.body.additionalnotes)
                 .input('itemprice', sql.Float, req.body.itemprice)
                 .input('type', sql.NVarChar, req.body.type)
+                .input('part', sql.NVarChar, req.body.part)
 
 
                 .query(
-                    'insert into iteminfovina(itemprice,updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, savedate, working, direction, cost, ordercount, additionalnotes,workpart,type)' +
-                    ' values(@itemprice,@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @savedate, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart,@type)'
+                    'insert into iteminfovina(itemprice,updatedate, bomno, customer, modelname, itemname, pcs, cavity, itemcode, savedate, working, direction, cost, ordercount, additionalnotes,workpart,type,part)' +
+                    ' values(@itemprice,@updatedate, @bomno, @customer, @modelname, @itemname, @pcs, @cavity, @itemcode, @savedate, @working, @direction, @cost, @ordercount, @additionalnotes,@workpart,@type,@part)'
                 )
                 .then(result => {
 
