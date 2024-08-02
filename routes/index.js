@@ -13822,6 +13822,7 @@ module.exports = function (app) {
 
 
                 .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('bomno1', sql.NVarChar, req.body.bomno1)
                 .input('modelname', sql.NVarChar, req.body.modelname)
                 .input('itemname', sql.NVarChar, req.body.itemname)
                 .input('customer', sql.NVarChar, req.body.customer)
@@ -13837,7 +13838,7 @@ module.exports = function (app) {
 
                 // 
                 .query(
-                    'update iteminfovina set modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes,working=@working,type=@type where bomno=@bomno'
+                    'update iteminfovina set bomno=@bomno,modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes,working=@working,type=@type where bomno=@bomno1'
                 )
                 .then(result => {
 
