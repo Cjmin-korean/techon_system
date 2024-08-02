@@ -95,10 +95,14 @@
                             <thead>
                                 <th style="text-align: center;">Tìm kiếm tài liệu(자재검색)</th>
 
-                                <td colspan="10"><input class="styled-input" id="search-input"
+                                <td colspan="10">
+                                    <input class="styled-input" id="search-input"
                                         placeholder="Nhập cụm từ tìm kiếm và nhấn Enter(입력후 Enter누르세요)."
-                                        style="text-align: left;" type="text" autocomplete="off">
+                                        style="text-align: left;"
+                                        onkeydown="if (event.key === 'Enter') searchingmaterialvina()" type="text"
+                                        autocomplete="off">
                                 </td>
+
                                 <tr>
                                     <th>Tên nguyên liệu<br>자재명</th>
                                     <th>Chiều rộng nguyên liệu<br>자재폭(mm)</th>
@@ -1260,9 +1264,6 @@
         var cavitySaveValue = $("#cavity-save").val();
         if (cavitySaveValue === '') {
             alert('Cavity가 누락되었습니다\ncavity đang thiếu');
-
-
-
             return;  // Stop further execution
         }
         if ($('#bomtableBody tr:eq(' + $("#numericPart").val() + ') #materialname-input').val() === '') {
@@ -1320,6 +1321,54 @@
         $('#overlay').show(); // Show the overlay
         $('#newModal').modal('show'); // Open the new modal
     }
+
+    function searchingmaterialvina() {
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectbommaterialvina',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                materialname: $('#search-input').val()
+            }),
+            success: function (result) {
+                $('#itemtbody1').empty();
+                if (result.length === 0) {
+                    var noDataMessage = '<tr><td colspan="15">Không có dữ liệu(데이터가 없습니다)</td></tr>';
+                    $('#itemtbody1').append(noDataMessage);
+                } else {
+                    for (var i = 0; i < result.length; i++) {
+                        var row = '<tr>' +
+                            '<td>' + result[i].materialname + '</td>' +
+                            '<td>' + result[i].width.toLocaleString() + '</td>' +
+                            '<td>' + result[i].length.toLocaleString() + '</td>' +
+                            '<td>' + result[i].supplier + '</td>' +
+                            '<td class="data-width">' + result[i].width + '</td>' +
+                            '<td class="data-usewidth">' + result[i].usewidth + '</td>' +
+                            '<td class="data-length">' + result[i].length + '</td>' +
+                            '<td class="data-sqmprice">' + result[i].sqmprice + '</td>' +
+                            '<td class="data-rollprice">' + result[i].rollprice + '</td>' +
+                            '<td class="data-unit">' + result[i].unit + '</td>' +
+                            '<td class="data-manufacterer">' + result[i].manufacterer + '</td>' +
+                            '<td class="data-supplier">' + result[i].supplier + '</td>' +
+                            '<td class="data-typecategory">' + result[i].typecategory + '</td>' +
+                            '<td class="data-codenumber">' + result[i].codenumber + '</td>' +
+                            '<td>' + result[i].num + '</td>' +
+                            '<td><button class="btn btn-primary" onclick="insertmaterialdata(this)" >추가</button></td>' +
+                            '</tr>';
+
+                        $('#itemtbody1').append(row);
+                    }
+
+                    // 한 번의 선택으로 모든 숨길 요소를 처리합니다.
+                    $('#itemtbody1').find('.data-width, .data-usewidth, .data-length,  .data-rollprice, .data-manufacterer, .data-supplier, .data-codenumber').hide();
+                }
+            }
+        });
+
+
+    }
+
     function insertmaterialdata(button) {
         var parentRow = $(button).closest('tr');
         var rowData = parentRow.find('td').map(function () {
