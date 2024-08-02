@@ -5492,7 +5492,7 @@ module.exports = function (app) {
                     " LEFT JOIN"+
                     "     won w ON mi.unit = w.currencyname"+
                     " WHERE  "+
-                    "     bm.bomno = 'BOMTEST1'"+
+                    "     bm.bomno = @bomno"+
                     "     AND bm.status = 'true' "+
                     " ORDER BY "+
                     "     bm.num, bm.hap ASC; ")
