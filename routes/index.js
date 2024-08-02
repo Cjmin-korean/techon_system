@@ -5426,42 +5426,48 @@ module.exports = function (app) {
                     "     bm.useable, "+
                     "     bm.onepid, "+
                     "     bm.twopid, "+
-                    "     ROUND("+
-                    "         bm.ta * "+
-                    "         CASE "+
-                    "             WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 "+
-                    "             ELSE ((bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0)) "+
-                    "         END "+
-                    "         * 0.001 * (1 + (bm.loss / 100)), "+
-                    "         4"+
-                    "     ) AS soyo,  "+
+                    "     CASE "+
+                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0"+
+                    "         ELSE ROUND("+
+                    "             bm.ta * "+
+                    "             CASE "+
+                    "                 WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 "+
+                    "                 ELSE ((bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0)) "+
+                    "             END "+
+                    "             * 0.001 * (1 + (bm.loss / 100)), "+
+                    "             4"+
+                    "         )"+
+                    "     END AS soyo,  "+
                     "     bm.ta, "+
                     "     bm.allta, "+
                     "     bm.talength, "+
                     "     bm.loss, "+
                     "     bm.costloss,"+
                     "     CASE "+
-                    "         WHEN mi.unit = '＄' THEN "+
-                    "             ROUND("+
-                    "                 mi.rollprice * w.currencyprice / "+
-                    "                 FLOOR("+
-                    "                     (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
-                    "                     CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END"+
-                    "                 ), "+
-                    "             2) "+
-                    "         ELSE "+
-                    "             ROUND("+
-                    "                 mi.rollprice / "+
-                    "                 FLOOR("+
-                    "                     (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
-                    "                     CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END"+
-                    "                 ), "+
-                    "             2) "+
-                    "     END AS cost,"+
-                    "     FLOOR(NULLIF(mi.usewidth, 0) / bm.materialwidth) AS rlcut,"+
-                    "     CASE"+
-                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0 "+
-                    "         ELSE FLOOR("+
+                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0"+
+                    "         ELSE CASE "+
+                    "             WHEN mi.unit = '＄' THEN "+
+                    "                 ROUND("+
+                    "                     mi.rollprice * w.currencyprice / "+
+                    "                     FLOOR("+
+                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
+                    "                         CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END"+
+                    "                     ), "+
+                    "                 2) "+
+                    "             ELSE "+
+                    "                 ROUND("+
+                    "                     mi.rollprice / "+
+                    "                     FLOOR("+
+                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
+                    "                         CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END"+
+                    "                     ),  "+
+                    "                 2)  "+
+                    "         END "+
+                    "     END AS cost, "+
+                    "     FLOOR(NULLIF(mi.usewidth, 0) / bm.materialwidth) AS rlcut, "+
+                    "     CASE "+
+                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0  "+
+                    "         ELSE FLOOR( "+
                     "             (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
                     "             ((bm.onepid + bm.talength + bm.twopid) / bm.allta)"+
                     "         )"+
@@ -5488,14 +5494,14 @@ module.exports = function (app) {
                     " LEFT JOIN "+
                     "     materialinformationvina mi2 ON bm.hapcodenumber = mi2.codenumber "+
                     " JOIN "+
-                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber "+
-                    " LEFT JOIN"+
-                    "     won w ON mi.unit = w.currencyname"+
+                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  "+
+                    " LEFT JOIN "+
+                    "     won w ON mi.unit = w.currencyname "+
                     " WHERE  "+
-                    "     bm.bomno = @bomno"+
+                    "     bm.bomno = @bomno "+
                     "     AND bm.status = 'true' "+
                     " ORDER BY "+
-                    "     bm.num, bm.hap ASC; ")
+                    "     bm.num, bm.hap ASC;")
 
                 .then(result => {
 
