@@ -1826,7 +1826,7 @@ module.exports = function (app) {
                     "     i.additionalnotes,  "+
                     "     i.class,  "+
                     "     i.type, "+
-                    "     bm.bomid, "+
+                    "     bm.bomid,i.approval, "+
                     "     MAX(bm.num) AS materialcount "+
                     " FROM  "+
                     "     iteminfovina i  "+
@@ -1851,7 +1851,7 @@ module.exports = function (app) {
                     "     i.workpart,  "+
                     "     i.additionalnotes,  "+
                     "     i.class,  "+
-                    "     i.type, "+
+                    "     i.type,i.approval, "+
                     "     bm.bomid;")
                 .then(result => {
 
@@ -5476,11 +5476,11 @@ module.exports = function (app) {
                     "     mi.usewidth,"+
                     "     mi.length,"+
                     "     CASE"+
-                    "         WHEN mi.unit = '＄' THEN FLOOR(mi.rollprice * w.currencyprice)"+
+                    "         WHEN mi.unit = '￦' THEN FLOOR(mi.rollprice * w.currencyprice)"+
                     "         ELSE FLOOR(mi.rollprice)"+
                     "     END AS rollprice, "+
                     "     CASE "+
-                    "         WHEN mi.unit = '＄' THEN '￦'"+
+                    "         WHEN mi.unit = '￦' THEN 'VND'"+
                     "         ELSE mi.unit"+
                     "     END AS unit, "+
                     "     mi.manufacterer, "+
@@ -5488,7 +5488,7 @@ module.exports = function (app) {
                     "     mi.codenumber,"+
                     "     bm.cavity, "+
                     "     bm.num,"+
-                    "     bm.hap "+
+                    "     bm.hap , bm.hapmaterialname, bm.hapnum "+
                     " FROM  "+
                     "     bommanagementvina bm "+
                     " LEFT JOIN "+
@@ -5496,7 +5496,7 @@ module.exports = function (app) {
                     " JOIN "+
                     "     materialinformationvina mi ON bm.codenumber = mi.codenumber  "+
                     " LEFT JOIN "+
-                    "     won w ON mi.unit = w.currencyname "+
+                    "     wonvina w ON mi.unit = w.currencyname "+
                     " WHERE  "+
                     "     bm.bomno = @bomno "+
                     "     AND bm.status = 'true' "+
@@ -12448,13 +12448,15 @@ module.exports = function (app) {
                 .input('chk2', sql.NVarChar, req.body.chk2)
                 .input('chk3', sql.NVarChar, req.body.chk3)
                 .input('hap', sql.NVarChar, req.body.hap)
+                .input('hapnum', sql.NVarChar, req.body.hapnum)
+                .input('hapmaterialname', sql.NVarChar, req.body.hapmaterialname)
 
 
 
 
                 .query(
-                    'insert into bommanagementvina(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss,chk1,chk2,chk3,hap)' +
-                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss,@chk1,@chk2,@chk3,@hap)'
+                    'insert into bommanagementvina(bomid,useable,materialclassification,num,usewidth,main,savedate, bomno, model, itemname, materialname, status, char, etc, materialwidth, using, onepid, twopid, soyo, ta, allta, talength, loss, cost, rlcut, rlproduct, width, length, sqmprice, rollprice, unit, manufacterer, supplier , codenumber,cavity,costloss,chk1,chk2,chk3,hap,hapnum,hapmaterialname)' +
+                    ' values(@bomid,@useable,@materialclassification ,@num,@usewidth,@main,@savedate, @bomno, @model, @itemname, @materialname, @status, @char, @etc, @materialwidth, @using, @onepid, @twopid, @soyo, @ta, @allta, @talength, @loss, @cost, @rlcut, @rlproduct, @width, @length, @sqmprice, @rollprice, @unit, @manufacterer, @supplier ,@codenumber,@cavity,@costloss,@chk1,@chk2,@chk3,@hap,@hapnum,@hapmaterialname)'
                 )
                 .then(result => {
 
