@@ -1632,9 +1632,10 @@ module.exports = function (app) {
             return pool.request()
                 // .input('start', sql.NVarChar, req.body.orderdate)
                 .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('approval', sql.NVarChar, req.body.approval)
 
                 .query(
-                    "update iteminfovina set approval='true' where bomno=@bomno                       ")
+                    "update iteminfovina set approval=@approval where bomno=@bomno                       ")
 
                 .then(result => {
 
