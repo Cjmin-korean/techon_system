@@ -1625,6 +1625,31 @@ module.exports = function (app) {
     // **** finish
     // **** start 영업수주조회창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/updateiteminfovina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                // .input('start', sql.NVarChar, req.body.orderdate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+
+                .query(
+                    "update iteminfovina set approval='true' where bomno=@bomno                       ")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start 영업수주조회창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectbommateriallistwherebomno', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 

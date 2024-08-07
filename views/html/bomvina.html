@@ -346,6 +346,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="approvalbtn" onclick="approval()">Phê
+                        duyệt(승인)</button>
                     <button type="button" class="btn btn-success" id="copybtn" onclick="Copy()">sự phô tô(복사)</button>
                     <button type="button" class="btn btn-primary" id="savebtn" onclick="Bomsave()">Lưu(저장)</button>
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">đóng(닫기)</button>
@@ -672,8 +674,34 @@
 
             var copybtn = document.getElementById('copybtn');
             copybtn.style.display = 'none';
+
+
             $('#savebtn').text('Lưu(저장)');
 
+        } else {
+            return;
+        }
+    }
+    function approval() {
+        var confirmResult = confirm('Bạn có muốn sao chép dữ liệu không?\nBOM정보를 승인하시겠습니까?');
+        if (confirmResult) {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updateiteminfovina',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    bomno: $('#bomno-save').val()
+                }),
+                success: function (result) {
+                },
+
+            });
+
+            alert('승인 되었습니다.\nPhê duyệt thành công');
+            $('#productModal').modal('hide');
+
+            load()
         } else {
             return;
         }
@@ -682,6 +710,9 @@
         // console.log(rowData)
         var copybtn = document.getElementById('copybtn');
         copybtn.style.display = 'block';
+
+        var approvalbtn = document.getElementById('approvalbtn');
+        approvalbtn.style.display = 'none';
 
         $('#bomid-save').val(new Date().getTime());
         $('#bomid-edit').val(rowData.bomid)
@@ -847,6 +878,179 @@
         $('#savebtn').text('biên tập (수정)');
 
     }
+
+    function showinfo1(rowData) {
+        // console.log(rowData)
+        var copybtn = document.getElementById('copybtn');
+        copybtn.style.display = 'block';
+        var approvalbtn = document.getElementById('approvalbtn');
+        approvalbtn.style.display = 'block';
+
+        $('#bomid-save').val(new Date().getTime());
+        $('#bomid-edit').val(rowData.bomid)
+        $('#bomno-save').val(rowData.bomno)
+        $('#bomno-edit').val(rowData.bomno)
+        $('#customer-save').val(rowData.customer)
+        $('#modelname-save').val(rowData.modelname)
+        $('#itemname-save').val(rowData.itemname)
+        $('#pcs-save').val(rowData.pcs)
+        $('#cavity-save').val(rowData.cavity)
+        $('#itemcode-save').val(rowData.itemcode)
+        $('#workpart-save').val(rowData.workpart)
+        $('#working-save').val(rowData.working)
+        $('#direction-save').val(rowData.direction)
+        $('#additionalNote').val(rowData.additionalnotes)
+        $('#type-save').val(rowData.type)
+        $('#costsum-save').val(rowData.cost.toFixed(2))
+
+
+
+
+        var counter = 1;
+        var container = document.getElementById('containers');
+        container.scrollLeft = 0;
+        container.scrollTop = 0;
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectwherebomnobommanagement1vina',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "bomno": rowData.bomno
+            }),
+            success: function (result) {
+                console.log(result)
+                var foundHap = result.some(function (item) {
+                    return item.hap === 'HAP';
+                });
+
+                if (foundHap) {
+                    var rows = [];
+
+                    for (var i = 0; i < result.length; i++) {
+                        var isFirstInGroup = (i === 0 || result[i].hapnum !== result[i - 1].hapnum);
+                        var rowspan = 1;
+
+                        // Calculate rowspan for the current group
+                        if (isFirstInGroup) {
+                            for (var j = i + 1; j < result.length; j++) {
+                                if (result[j].hapnum === result[i].hapnum) {
+                                    rowspan++;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Generate row HTML
+                        var row = '<tr>' +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white;">Delete</button></td>' : '') +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"></td>' : '') +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"></td>' : '') +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="char-input" style="text-align:right;" value="' + (result[i].char || '') + '" autocomplete="off"></td>' : '') +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="checkbox" id="main-input" ' + (result[i].main === 'MAIN' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' : '') +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="materialname-input" placeholder="Tìm kiếm tên vật liệu(자재명검색)" value="' + (result[i].hap === 'HAP' ? result[i].hapmaterialname : result[i].materialname) + '" ondblclick="handleKeyPress2(event)" onkeypress="handleKeyPress1(event)" style="cursor: pointer;" autocomplete="off"></td>' : '') +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="materialclassification-input" readonly style="background-color:whitesmoke; text-align:center;" value="' + (result[i].hap === 'HAP' ? 'HAP' : result[i].typecategory) + '" autocomplete="off"></td>' : '') +
+                            '<td><input type="text" id="etc-input" placeholder="Vui lòng nhập thông tin đặc biệt quan trọng(자재 특이사항을 입력하세요)" value="' + result[i].etc + '" autocomplete="off"></td>' +
+                            '<td><input type="checkbox" id="chk1-input" ' + (result[i].chk1 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                            '<td><input type="checkbox" id="chk2-input" ' + (result[i].chk2 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                            '<td><input type="checkbox" id="chk3-input" ' + (result[i].chk3 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" value="' + result[i].materialwidth + '" id="materialwidth-input" onkeypress="return onlyNumberKey(event)" placeholder="con số(숫자)" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); validateNumericInput(this);" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="useable-input" value="' + result[i].useable + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="onepidding-input" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); validateNumericInput(this);" value="' + result[i].onepid + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="twopidding-input" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + result[i].twopid + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-input" value="' + result[i].soyo + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="ta-input" oninput="updateSoyoValue()" value="' + result[i].ta + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); formatDecimalInput(this, 2);" value="' + result[i].allta + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="talength-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + result[i].talength + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="loss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + result[i].loss + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="costloss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + result[i].costloss + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCost();" id="costsum-input" readonly value="' + result[i].cost + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="materialaname-input" value="' + result[i].materialname + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="' + result[i].width + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" value="' + result[i].usewidth + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" value="' + result[i].length + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="' + result[i].rollprice + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="' + result[i].unit + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="' + result[i].manufacterer + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="supplier-input" value="' + result[i].supplier + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="codenumber-input" value="' + result[i].codenumber + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cost-input" value="' + result[i].cost + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-input" value="' + result[i].rlcut + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-input" value="' + result[i].productcount + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" value="' + result[i].cavity + '" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input" value="' + result[i].num + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-input" value="' + result[i].hapnum + '" autocomplete="off"></td>' +
+                            '<td  style="display:none;"><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hapmaterialname-input" value="' + result[i].hapmaterialname + '" autocomplete="off"></td>' +
+                            '</tr>';
+
+                        rows.push(row);
+                    }
+
+                    var tableBody = document.getElementById("bomtableBody");
+                    tableBody.innerHTML = rows.join('');
+                    // $('#bomtableBody').empty().append(rows.join(''));
+                }
+                else {
+                    $('#bomtableBody').empty()
+
+                    for (var i = 0; i < result.length; i++) {
+                        $('#bomtableBody').append(
+                            '<tr>' +
+                            '<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white;">Delete</button></td>' +
+                            '<td><button id="RowBtnadd-input" class="btn btn-primary">+</button></td>' +
+                            '<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                            '<td><input type="text" id="char-input" style="text-align:right;" value=' + (result[i].char || '') + ' autocomplete="off"></td>' +
+                            '<td><input type="checkbox" id="main-input" ' + (result[i].main === 'MAIN' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                            '<td><input type="text" id="materialname-input" style="cursor: pointer;"  ondblclick="handleDoubleClickedit();" value="' + (result[i].materialname || '') + '" autocomplete="off"></td>' +
+                            '<td><input type="text" id="materialclassification-input" style="background-color: whitesmoke; " readonly value="' + (result[i].typecategory || '') + '" autocomplete="off"></td>' +
+                            '<td><input type="text" id="etc-input" placeholder="Vui lòng nhập thông tin đặc biệt quan trọng(자재 특이사항을 입력하세요)" value="' + result[i].etc + '" autocomplete="off"></td>' +
+                            '<td><input type="checkbox" id="chk1-input" ' + (result[i].chk1 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                            '<td><input type="checkbox" id="chk2-input" ' + (result[i].chk2 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                            '<td><input type="checkbox" id="chk3-input" ' + (result[i].chk3 === 'true' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" value="' + result[i].materialwidth + '" id="materialwidth-input" onkeypress="return onlyNumberKey(event)" placeholder="con số(숫자)" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); validateNumericInput(this);" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="useable-input" value="' + result[i].useable + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="onepidding-input" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); validateNumericInput(this);" value="' + result[i].onepid + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="twopidding-input" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + result[i].twopid + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="soyo-input" value="' + result[i].soyo + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" id="ta-input" oninput="updateSoyoValue()" value="' + result[i].ta + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="allta-input" oninput="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost(); formatDecimalInput(this, 2);" value="' + result[i].allta + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="talength-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + result[i].talength + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="loss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + result[i].loss + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right;" id="costloss-input" oninput="formatDecimalInput(this, 2); updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" value="' + result[i].costloss + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" oninput="formatDecimalInput(this, 2); calculateCost();" id="costsum-input" readonly value="' + result[i].cost + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="materialaname-input" value="' + result[i].materialname + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="width-input" value="' + result[i].width + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="usewidth-input" value="' + result[i].usewidth + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="length-input" value="' + result[i].length + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rollprice-input" value="' + result[i].rollprice + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="unit-input" value="' + result[i].unit + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="manufacterer-input" value="' + result[i].manufacterer + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="supplier-input" value="' + result[i].supplier + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:center; background-color: whitesmoke;" readonly id="codenumber-input" value="' + result[i].codenumber + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cost-input" value="' + result[i].cost + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlcut-input" value="' + result[i].rlcut + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="rlproduct-input" value="' + result[i].productcount + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" value="' + result[i].cavity + '" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input" value="' + result[i].num + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-input" value="' + result[i].hapnum + '" autocomplete="off"></td>' +
+
+                            '</tr>'
+                        )
+                        // counter++;
+                    }
+
+
+                }
+            },
+
+        });
+
+        $('#productModal').modal('show');
+        $('#savebtn').text('biên tập (수정)');
+
+    }
+
     function handleCheckboxChange(checkbox) {
         // Get all checkboxes with the same class
         var checkboxes = document.getElementsByClassName('checkbox');
@@ -858,7 +1062,7 @@
                 checkboxes[i].checked = false;
             }
         }
-        
+
     }
 
     function load() {
@@ -884,7 +1088,7 @@
 
                         var approvalButton = data[i].approval === 'true' ?
                             '<td><button class="btn btn" style="padding: 4px 5px; font-size: 14px;">Phê duyệt<br>승인</button></td>' :
-                            '<td><button class="btn btn-primary" style="padding: 4px 5px; font-size: 14px;">Chờ duyệt<br>승인대기</button></td>';
+                            '<td><button class="btn btn-primary" onclick=\'showinfo1(' + rowData + ')\' style="padding: 4px 5px; font-size: 14px;">Chờ duyệt<br>승인대기</button></td>';
 
                         $('#Datatbody').append(
                             '<tr>' +
@@ -914,6 +1118,8 @@
         var container = document.getElementById('containers');
         var copybtn = document.getElementById('copybtn');
         copybtn.style.display = 'none';
+        var approvalbtn = document.getElementById('approvalbtn');
+        approvalbtn.style.display = 'none';
 
         if (container) {
             container.scrollLeft = 0;
@@ -1044,6 +1250,7 @@
 
         $('#bomtableBody').append(newRowHtml)
         $('#bomtableBody tr:last').find('#cavity-input').val($('#cavity-save').val());
+        $('#bomtableBody tr:last').find('#onepidding-input').val($('#onepidding-input').val());
 
     }
 
@@ -1577,9 +1784,8 @@
                     var bomno = $('#bomno-save').val();
                     var model = $('#modelname-save').val();
                     var itemname = $('#itemname-save').val();
-                    var cavity = $('#cavity-save').val();
-
-                    var materialname = $('[id^="materialaname-input"]').eq(index).val();
+                    var materialnamea = $('[id^="materialaname-input"]').eq(index).val();
+                    var materialname = $('[id^="materialname-input"]').eq(index).val();
                     var char = $('[id^="char-input"]').eq(index).val();
                     var main = $('[id^="main-edit"]').eq(index).prop('checked') ? 'MAIN' : '';
                     var etc = $('[id^="etc-input"]').eq(index).val();
@@ -1600,13 +1806,20 @@
                     var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked');
                     var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked');
 
-                    var hapmaterialname = $('[id^="hap-materialname-input"]').eq(index).val();
+                    var hapmaterialname = $('[id^="hapmaterialname-input"]').eq(index).val();
                     var hapcodenumber = $('[id^="hap-codenumber-input"]').eq(index).val();
                     var hapnum = $('[id^="hap-input"]').eq(index).val();
-                    var hapmaterialname = $('[id^="materialaname-input"]').eq(index).val();
 
-                    // Check if hapnum has a value
+                    // Determine hap value
                     var hap = hapnum ? 'HAP' : 'A';
+
+                    // Find the matching hapmaterialname-input if hap-input values match
+                    $('[id^="hap-input"]').each(function (innerIndex) {
+                        if ($(this).val() === hapnum) {
+                            hapmaterialname = $('[id^="hapmaterialname-input"]').eq(innerIndex).val();
+                            return false; // Break the loop
+                        }
+                    });
 
                     var insertdate = new Date().toISOString().slice(0, 10);
 
@@ -1620,7 +1833,7 @@
                             "bomno": bomno,
                             "model": model,
                             "itemname": itemname,
-                            "materialname": materialname,
+                            "materialname": materialnamea,
                             "status": 'true',
                             "char": char,
                             "main": main,
@@ -1641,9 +1854,9 @@
                             "chk1": chk1,
                             "chk2": chk2,
                             "chk3": chk3,
-                            "hap": hap, // Use the determined hap value
+                            "hap": hap,
                             "hapnum": hapnum,
-                            "hapmaterialname": hapmaterialname
+                            "hapmaterialname": hapmaterialname // Use the determined hapmaterialname value
                         }),
                         success: function (result) {
                             // Handle success
