@@ -41,9 +41,18 @@
         display: block;
     }
 
-    #tableHead {
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+
+    thead {
+        background-color: #f8f8f8;
         position: sticky;
         top: 0;
+        z-index: 1000;
+        /* 헤더가 콘텐츠 위에 오도록 설정 */
     }
 
     input[type="text"],
@@ -683,8 +692,233 @@
         }
     }
     function approval() {
+        function showMissingFieldAlert(fieldName, message) {
+            alert(message);
+        }
+
+        if ($('#bomno-save').val() === '') {
+            showMissingFieldAlert('BOMNO', 'BOMNO bị thiếu(BOMNO가 누락되었습니다)');
+            return;
+        }
+        if ($('#customer-save').val() === '') {
+            showMissingFieldAlert('고객사', 'Khách hàng bị thiếu(고객사가 누락되었습니다)');
+            return;
+        }
+        if ($('#modelname-save').val() === '') {
+            showMissingFieldAlert('모델명', 'Tên Model bị thiếu(모델명이 누락되었습니다)');
+            return;
+        }
+        if ($('#itemname-save').val() === '') {
+            showMissingFieldAlert('제품명', 'Tên sản phẩm bị thiếu(제품명이 누락되었습니다)');
+            return;
+        }
+        if ($('#pcs-save').val() === '') {
+            showMissingFieldAlert('PCS', 'PCS bị thiếu(PCS가 누락되었습니다)');
+            return;
+        }
+        if ($('#cavity-save').val() === '') {
+            showMissingFieldAlert('cavity', 'CAVITY bị thiếu(cavity가 누락되었습니다)');
+            return;
+        }
+        if ($('#itemcode-save').val() === '') {
+            showMissingFieldAlert('itemcode', 'mã khách hàng bị thiếu(고객코드가 누락되었습니다)');
+            return;
+        }
+        if ($('#workpart-save').val() === '') {
+            showMissingFieldAlert('공정구분', 'Phân loại công đoạn bị thiếu(공정구분이 누락되었습니다)');
+            return;
+        }
+        if ($('#working-save').val() === '') {
+            showMissingFieldAlert('작업차수', 'Số công đoạn làm việc bị thiếu(작업차수가 누락되었습니다)');
+            return;
+        }
+        if ($('#direction-save').val() === '') {
+            showMissingFieldAlert('타발방향', 'Phương hướng dập bị thiếu(타발방향이 누락되었습니다)');
+            return;
+        }
+        if ($('#type-save').val() === '') {
+            showMissingFieldAlert('type', 'TYPE bị thiếu(type이 누락되었습니다)');
+            return;
+        }
+        let tableBody = document.getElementById('bomtableBody');
+        if (tableBody) {
+            let rowCount = tableBody.children.length;
+
+            for (let i = 0; i < rowCount; i++) {
+                var materialname = $('#bomtableBody tr:eq(' + i + ') #materialname-input').val();
+                var materialwidth = $('#bomtableBody tr:eq(' + i + ') #materialwidth-input').val();
+                var onepidding = $('#bomtableBody tr:eq(' + i + ') #onepidding-input').val();
+                var twopidding = $('#bomtableBody tr:eq(' + i + ') #twopidding-input').val();
+                var char = $('#bomtableBody tr:eq(' + i + ') #char-input').val();
+                if (materialname === '' || materialwidth === '' || onepidding === '' || twopidding === '' || char === '') {
+                    alert(`${i + 1}hàng ngang Thiếu trường bắt buộc`);
+                    return;
+                }
+            }
+        }
+
+        if (tableBody) {
+            let rowCount = tableBody.children.length;
+
+            for (let i = 0; i < rowCount; i++) {
+                var materialWidthValue = $('#bomtableBody tr:eq(' + i + ') #materialwidth-input').val();
+                var useWidthValue = $('#bomtableBody tr:eq(' + i + ') #usewidth-input').val();
+
+                if (parseFloat(materialWidthValue) > parseFloat(useWidthValue)) {
+                    alert(`${i + 1}번째 원단폭이 유효폭보다 클 수 없습니다.`);
+                    return;
+                }
+            }
+        }
+
         var confirmResult = confirm('Bạn có muốn sao chép dữ liệu không?\nBOM정보를 승인하시겠습니까?');
         if (confirmResult) {
+
+            var insertdate = new Date().toISOString().slice(0, 10);
+            var rowCount = $('#bomtableBody tr').length;
+            for (var i = 0; i < rowCount; i++) {
+                $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
+            }
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updateiteminformationvina',
+                dataType: 'json',
+                async: false,
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "bomno": $('#bomno-save').val(),
+                    "bomno1": $('#bomno-edit').val(),
+                    "modelname": $('#modelname-save').val(),
+                    "itemname": $('#itemname-save').val(),
+                    "customer": $('#customer-save').val(),
+                    "itemcode": $('#itemcode-save').val(),
+                    "pcs": $('#pcs-save').val(),
+                    "cavity": $('#cavity-save').val(),
+                    "direction": $('#direction-save').val(),
+                    "workpart": $('#workpart-save').val(),
+                    "additionalnotes": $('#additionalNote').val(),
+                    "working": $('#working-save').val(),
+                    "type": $('#type-save').val(),
+                }),
+                success: function (result) {
+                    // Handle success
+                }
+            });
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updateiteminfovina',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    bomno: $('#bomno-save').val(),
+                    approval: 'false'
+                }),
+                success: function (result) {
+                },
+
+            });
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updatebomstatusvina',
+                dataType: 'json',
+                async: false,
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "bomid": $('#bomid-edit').val(),
+                    "status": 'false'
+                }),
+                success: function (result) {
+                    // Handle success
+                }
+            });
+
+            $('[id^="num-input"]').each(function (index) {
+                var cavity = $('#cavity-save').val();
+                var bomno = $('#bomno-save').val();
+                var model = $('#modelname-save').val();
+                var itemname = $('#itemname-save').val();
+                var materialnamea = $('[id^="materialaname-input"]').eq(index).val();
+                var materialname = $('[id^="materialname-input"]').eq(index).val();
+                var char = $('[id^="char-input"]').eq(index).val();
+                var main = $('[id^="main-edit"]').eq(index).prop('checked') ? 'MAIN' : '';
+                var etc = $('[id^="etc-input"]').eq(index).val();
+                var materialwidth = parseFloat($('[id^="materialwidth-input"]').eq(index).val()) || 0;
+                var onepid = $('[id^="onepidding-input"]').eq(index).val();
+                var twopid = $('[id^="twopidding-input"]').eq(index).val();
+                var soyo = $('[id^="soyo-input"]').eq(index).val();
+                var ta = $('[id^="ta-input"]').eq(index).val();
+                var allta = $('[id^="allta-input"]').eq(index).val();
+                var talength = $('[id^="talength-input"]').eq(index).val();
+                var loss = $('[id^="loss-input"]').eq(index).val();
+                var num = $('[id^="num-input"]').eq(index).val();
+                var codenumber = $('[id^="codenumber-input"]').eq(index).val();
+                var useable = $('[id^="useable-input"]').eq(index).val();
+                var bomid = $('#bomid-save').val();
+                var costloss = $('[id^="costloss-input"]').eq(index).val();
+                var chk1 = $('[id^="chk1-input"]').eq(index).prop('checked');
+                var chk2 = $('[id^="chk2-input"]').eq(index).prop('checked');
+                var chk3 = $('[id^="chk3-input"]').eq(index).prop('checked');
+
+                var hapmaterialname = $('[id^="hapmaterialname-input"]').eq(index).val();
+                var hapcodenumber = $('[id^="hap-codenumber-input"]').eq(index).val();
+                var hapnum = $('[id^="hap-input"]').eq(index).val();
+
+                // Determine hap value
+                var hap = hapmaterialname ? 'HAP' : 'A';
+
+                // Find the matching hapmaterialname-input if hap-input values match
+                $('[id^="hap-input"]').each(function (innerIndex) {
+                    if ($(this).val() === hapnum) {
+                        hapmaterialname = $('[id^="hapmaterialname-input"]').eq(innerIndex).val();
+                        return false; // Break the loop
+                    }
+                });
+
+                var insertdate = new Date().toISOString().slice(0, 10);
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/bommasssavebommanagementvina',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "savedate": insertdate,
+                        "bomno": bomno,
+                        "model": model,
+                        "itemname": itemname,
+                        "materialname": materialnamea,
+                        "status": 'true',
+                        "char": char,
+                        "main": main,
+                        "etc": etc,
+                        "materialwidth": materialwidth,
+                        "onepid": onepid,
+                        "twopid": twopid,
+                        "ta": ta,
+                        "allta": allta,
+                        "talength": talength,
+                        "loss": loss,
+                        "cavity": cavity,
+                        "codenumber": codenumber,
+                        "useable": useable,
+                        "num": num,
+                        "costloss": costloss,
+                        "bomid": bomid,
+                        "chk1": chk1,
+                        "chk2": chk2,
+                        "chk3": chk3,
+                        "hap": hap,
+                        "hapnum": hapnum,
+                        "hapmaterialname": hapmaterialname // Use the determined hapmaterialname value
+                    }),
+                    success: function (result) {
+                        // Handle success
+                    },
+                    error: function (error) {
+                        // Handle error
+                    }
+                });
+            });
             $.ajax({
                 type: 'POST',
                 url: server + '/api/updateiteminfovina',
@@ -698,15 +932,16 @@
                 },
 
             });
-
+            $('#newModal').modal('hide');
+            $('#productModal').modal('hide');
             alert('승인 되었습니다.\nPhê duyệt thành công');
             $('#productModal').modal('hide');
-
             load()
-        } else {
-            return;
         }
     }
+
+
+
     function showinfo(rowData) {
         // console.log(rowData)
         var copybtn = document.getElementById('copybtn');
@@ -714,7 +949,7 @@
 
         var approvalbtn = document.getElementById('approvalbtn');
         approvalbtn.style.display = 'none';
-        
+
         $('#bomid-save').val(new Date().getTime());
         $('#bomid-edit').val(rowData.bomid)
         $('#bomno-save').val(rowData.bomno)
@@ -775,7 +1010,7 @@
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white;">Delete</button></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"></td>' : '') +
-                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="char-input" style="text-align:right;" value="' + (result[i].char || '') + '" autocomplete="off"></td>' : '') +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="checkbox" id="main-input" ' + (result[i].main === 'MAIN' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="materialname-input" placeholder="Tìm kiếm tên vật liệu(자재명검색)" value="' + (result[i].hap === 'HAP' ? result[i].hapmaterialname : result[i].materialname) + '" ondblclick="handleKeyPress2(event)" onkeypress="handleKeyPress1(event)" style="cursor: pointer;" autocomplete="off"></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="materialclassification-input" readonly style="background-color:whitesmoke; text-align:center;" value="' + (result[i].hap === 'HAP' ? 'HAP' : result[i].typecategory) + '" autocomplete="off"></td>' : '') +
@@ -809,7 +1044,7 @@
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" value="' + result[i].cavity + '" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>' +
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input" value="' + result[i].num + '" autocomplete="off"></td>' +
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-input" value="' + result[i].hapnum + '" autocomplete="off"></td>' +
-                            '<td  style="display:none;"><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hapmaterialname-input" value="' + result[i].hapmaterialname + '" autocomplete="off"></td>' +
+                            '<td ><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hapmaterialname-input" value="' + result[i].hapmaterialname + '" autocomplete="off"></td>' +
                             '</tr>';
 
                         rows.push(row);
@@ -828,7 +1063,7 @@
                             '<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white;">Delete</button></td>' +
                             '<td><button id="RowBtnadd-input" class="btn btn-primary">+</button></td>' +
                             '<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
-                            '<td><input type="text" id="char-input" style="text-align:right;" value=' + (result[i].char || '') + ' autocomplete="off"></td>' +
+                            '<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>' +
                             '<td><input type="checkbox" id="main-input" ' + (result[i].main === 'MAIN' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                             '<td><input type="text" id="materialname-input" style="cursor: pointer;"  ondblclick="handleDoubleClickedit();" value="' + (result[i].materialname || '') + '" autocomplete="off" onkeypress="handleKeyPress1(event)"></td>' +
                             '<td><input type="text" id="materialclassification-input" style="background-color: whitesmoke; " readonly value="' + (result[i].typecategory || '') + '" autocomplete="off"></td>' +
@@ -947,7 +1182,7 @@
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white;">Delete</button></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"></td>' : '') +
-                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="char-input" style="text-align:right;" value="' + (result[i].char || '') + '" autocomplete="off"></td>' : '') +
+                            (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="checkbox" id="main-input" ' + (result[i].main === 'MAIN' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="materialname-input" placeholder="Tìm kiếm tên vật liệu(자재명검색)" value="' + (result[i].hap === 'HAP' ? result[i].hapmaterialname : result[i].materialname) + '" ondblclick="handleKeyPress2(event)" onkeypress="handleKeyPress1(event)" style="cursor: pointer;" autocomplete="off"></td>' : '') +
                             (isFirstInGroup ? '<td rowspan="' + rowspan + '"><input type="text" id="materialclassification-input" readonly style="background-color:whitesmoke; text-align:center;" value="' + (result[i].hap === 'HAP' ? 'HAP' : result[i].typecategory) + '" autocomplete="off"></td>' : '') +
@@ -981,7 +1216,7 @@
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" value="' + result[i].cavity + '" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>' +
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input" value="' + result[i].num + '" autocomplete="off"></td>' +
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-input" value="' + result[i].hapnum + '" autocomplete="off"></td>' +
-                            '<td  style="display:none;"><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hapmaterialname-input" value="' + result[i].hapmaterialname + '" autocomplete="off"></td>' +
+                            '<td  ><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hapmaterialname-input" value="' + result[i].hapmaterialname + '" autocomplete="off"></td>' +
                             '</tr>';
 
                         rows.push(row);
@@ -1000,7 +1235,7 @@
                             '<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white;">Delete</button></td>' +
                             '<td><button id="RowBtnadd-input" class="btn btn-primary">+</button></td>' +
                             '<td><input type="checkbox" id="check-input" onchange="handleCheckboxChange(this)" style="text-align:right; width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
-                            '<td><input type="text" id="char-input" style="text-align:right;" value=' + (result[i].char || '') + ' autocomplete="off"></td>' +
+                            '<td><input type="text" id="char-input" style="text-align:right;" value="1" autocomplete="off"></td>' +
                             '<td><input type="checkbox" id="main-input" ' + (result[i].main === 'MAIN' ? 'checked' : '') + ' style="width: 20px; height: 20px; cursor:pointer;" autocomplete="off"></td>' +
                             '<td><input type="text" id="materialname-input" onkeypress="handleKeyPress1(event)" style="cursor: pointer;"  ondblclick="handleDoubleClickedit();" value="' + (result[i].materialname || '') + '" autocomplete="off"></td>' +
                             '<td><input type="text" id="materialclassification-input" style="background-color: whitesmoke; " readonly value="' + (result[i].typecategory || '') + '" autocomplete="off"></td>' +
@@ -1700,7 +1935,6 @@
             showMissingFieldAlert('type', 'TYPE bị thiếu(type이 누락되었습니다)');
             return;
         }
-
         let tableBody = document.getElementById('bomtableBody');
         if (tableBody) {
             let rowCount = tableBody.children.length;
@@ -1849,7 +2083,7 @@
                             "itemname": itemname,
                             "materialname": materialnamea,
                             "status": 'true',
-                            "char": char,
+                            "char": "1",
                             "main": main,
                             "etc": etc,
                             "materialwidth": materialwidth,
@@ -2007,7 +2241,7 @@
                                         "itemname": itemname,
                                         "materialname": materialnamea,
                                         "status": 'true',
-                                        "char": char,
+                                        "char": "1",
                                         "main": main,
                                         "etc": etc,
                                         "materialwidth": materialwidth,
