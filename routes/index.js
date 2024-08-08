@@ -1651,6 +1651,31 @@ module.exports = function (app) {
     // **** finish
     // **** start 영업수주조회창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/deletematerialinformationvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                // .input('start', sql.NVarChar, req.body.orderdate)
+                .input('id', sql.Int, req.body.id)
+
+                .query(
+                    "delete from materialinformationvina  where id=@id")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start 영업수주조회창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectbommateriallistwherebomno', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
@@ -17328,6 +17353,27 @@ module.exports = function (app) {
 
                 .query(
                     "select * from sampleorder order by bomno,partcustomer,toolcode asc"
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start itemname,materialwidth변수로  chk확인 쿼리      
+    sql.connect(config).then(pool => {
+        app.post('/api/sampleordervina', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+
+                .query(
+                    "select * from sampleordervina order by bomno,partcustomer,toolcode asc"
                 )
                 .then(result => {
 
