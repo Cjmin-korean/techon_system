@@ -11858,7 +11858,31 @@ module.exports = function (app) {
                 });
         });
     });
+// **** start       
+sql.connect(config).then(pool => {
+    app.post('/api/selectbomvina', function (req, res) {
+        res.header("Access-Control-Allow-Origin", "*");
+        return pool.request()
+            .input('bomno', sql.NVarChar, '%' + req.body.bomno + '%')
 
+            .query(
+                "SELECT * " +
+                "FROM iteminfovina " +
+                "WHERE " +
+                "bomno LIKE @bomno  " +
+
+                "ORDER BY bomno ASC"
+            )
+            .then(result => {
+                res.json(result.recordset);
+                res.end();
+            })
+            .catch(err => {
+                console.error('SQL error', err);
+                res.status(500).send('Server error');
+            });
+    });
+});
 
     // **** finish
     // **** start       
@@ -17629,6 +17653,44 @@ module.exports = function (app) {
 
                 .query(
                     'insert into sampleorder(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice,partcustomer,etc,classification)' +
+                    ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice,@partcustomer,@etc,@classification)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  품질검사 등록 쿼리    
+    sql.connect(config).then(pool => {
+        app.post('/api/insertpinaclevina', function (req, res) {
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+
+                .input('insertdate', sql.NVarChar, req.body.insertdate)
+                .input('toolcode', sql.NVarChar, req.body.toolcode)
+                .input('madedate', sql.NVarChar, req.body.madedate)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('char', sql.NVarChar, req.body.char)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('inputprice', sql.Float, req.body.inputprice)
+                .input('outputprice', sql.Float, req.body.outputprice)
+                .input('partcustomer', sql.NVarChar, req.body.partcustomer)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('classification', sql.NVarChar, req.body.classification)
+
+
+                .query(
+                    'insert into sampleordervina(insertdate,toolcode,madedate,bomno,customer,modelname,itemname,char,part,inputprice,outputprice,partcustomer,etc,classification)' +
                     ' values(@insertdate,@toolcode,@madedate,@bomno,@customer,@modelname,@itemname,@char,@part,@inputprice,@outputprice,@partcustomer,@etc,@classification)'
                 )
                 .then(result => {
