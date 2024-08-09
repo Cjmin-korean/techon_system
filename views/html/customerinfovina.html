@@ -213,23 +213,20 @@
                     <div class="page-inner">
                         <div class="card-header">
                             <div class="d-flex align-items-center">
-                                <h4 class="card-title">TOOL thông tin(TOOL 정보)</h4>
+                                <h4 class="card-title">thông tin tỷ giá(거래처정보)</h4>
                                 <button type="button" class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
-                                    id="addButton" data-bs-target="#productModal">
+                                    id="addButton" data-bs-target="#">
                                     <i class="fa fa-plus"></i>
                                     thêm vào(추가)
                                 </button>
                             </div>
                             <div class="card-body">
                                 <div class="date-input-group">
-                                    <div class="date-input-group">
-                                        <input type="text" id="searchInput"
-                                            placeholder="🔍 Tìm kiếm và nhấn Enter (Search and press Enter)"
-                                            autocomplete="off" style="width: 500px;">
-                                    </div>
+                                    <input type="text" id="searchInput"
+                                        placeholder="🔍 Tìm kiếm và nhấn Enter (Search and press Enter)"
+                                        autocomplete="off" style="width: 500px;">
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
@@ -239,20 +236,11 @@
                                 <thead id="tableHead">
 
                                     <tr>
-                                        <th style="width: 150px;" id="datacount"></th>
-                                        <th style="width: 150px;">BOMNO</th>
-                                        <th>Phân loại<br>구분 </th>
-                                        <th>Nhà sản xuất<br>제조사</th>
-                                        <th>TOOL CODE</th>
-                                        <th>Khách hàng<br>고객사</th>
-                                        <th>Tên Model<br>모델명</th>
-                                        <th>Tên sản phẩm<br>품목명</th>
-                                        <th>Số lần dập tương ứng<br>해당차수</th>
-                                        <th>Chủng loại<br>종류</th>
-                                        <th>Đơn giá nhập kho(VND)<br>입고단가(VND)</th>
-                                        <th>Đơn giá xuất kho(VND)<br>출고단가(VND)</th>
-                                        <th>Ghi chú<br>비고</th>
-
+                                        <th>Tên nhà cung cấp<br>거래처명</th>
+                                        <th>Số đăng ký kinh doanh<br>사업자등록번호</th>
+                                        <th>Tên người đại diện<br>대표자명</th>
+                                        <th>IN</th>
+                                        <th style="width: 10vh;"></th>
                                     </tr>
 
 
@@ -342,7 +330,7 @@
     $(document).ready(function () {
         $.ajax({
             type: 'POST',
-            url: server + '/api/selectsamplevina',
+            url: server + '/api/selectiteminfovina',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -353,7 +341,86 @@
             }
         })
         $('#tableContainer').scrollLeft(0);
-        
+        $('#orderno').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/ordernoselect',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderno": $('#orderno').val()
+                    }),
+                    success: function (result) {
+                        const tableBody = $('#accountdatatbody');
+                        const tableFoot = $('#accountdatatfoot');
+                        let totalSupplyAmount = 0; // To store the total supply amount
+
+                        tableBody.empty();
+                        tableFoot.empty(); // Clear the table footer
+
+                        if (result.length === 0) {
+                            tableBody.append('<tr><td colspan="8">구매발주 데이터가 없습니다.</td></tr>');
+                            tableFoot.hide(); // Hide the tfoot element
+                        } else {
+                            for (let i = 0; i < result.length; i++) {
+                                const item = result[i];
+                                totalSupplyAmount += item.supplyamount; // Add to total
+
+                                // Append row to table
+                                const row = `
+                            <tr>
+                                <td>${item.itemname}</td>
+                                <td>${item.materialwidth.toLocaleString()}</td>
+                                <td>${item.width}</td>
+                                <td>${item.quantity.toLocaleString()}</td>
+                                <td>${item.length.toLocaleString()}</td>
+                                <td>${item.cut}</td>
+                                <td>${(parseFloat(item.length) * parseFloat(item.cut) * parseFloat(item.quantity)).toLocaleString()}</td>
+                                <td>${item.supplyamount.toLocaleString()}</td>
+                                <td>${item.suppliername}</td>
+                                <td><button class="btn btn-success add-btn"  style="text-align:center; padding:10px;">THÊM</button></td>
+                                <td class="data-id" style="display:none;">${item.id}</td>
+                            </tr>
+                        `;
+                                tableBody.append(row);
+                            }
+
+                            // Append the total row to the tfoot
+                            const tableFooter = `
+                        <tr>
+                            <td colspan="7" style="text-align:right;"><strong>합계</strong></td>
+                            <td>${totalSupplyAmount.toLocaleString()}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    `;
+                            tableFoot.append(tableFooter);
+                            tableFoot.show(); // Show the tfoot element
+                        }
+
+                        // Add click event listener to each add button
+
+
+
+                    },
+                });
+            }
+        });
+
+
+        // Initialize DataTable with search functionality
+        $('#orderdatatable thead input[type="checkbox"]').on('change', function () {
+            var isChecked = $(this).prop('checked');
+
+            $('#orderdatatable tbody input[type="checkbox"]').prop('checked', isChecked);
+
+            if (isChecked) {
+                // Get the IDs of checked checkboxes
+                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                    return $(this).closest('tr').find('td#data-id').text();
+                }).get();
+            }
+        });
 
 
         var today = new Date();
@@ -486,7 +553,7 @@
         $('#Datatbody').empty();
         $.ajax({
             type: 'POST',
-            url: server + '/api/sampleordervina',
+            url: server + '/api/selectcustomerinfovina',
             dataType: 'json',
             success: function (data) {
                 if (data.length === 0) {
@@ -500,21 +567,12 @@
 
                         $('#Datatbody').append(
                             '<tr>' +
-                            '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
-
-                            '<td>' + data[i].bomno + '</td>' +
-                            '<td>' + data[i].classification + '</td>' +
-                            '<td>' + data[i].partcustomer + '</td>' +
-                            '<td>' + data[i].toolcode + '</td>' +
-                            '<td>' + data[i].customer + '</td>' +
-                            '<td>' + data[i].modelname + '</td>' +
-                            '<td>' + data[i].itemname + '</td>' +
-                            '<td style="text-align:right;">' + data[i].char + '</td>' +
-                            '<td>' + data[i].part + '</td>' +
-                            '<td style="text-align:right;">' + data[i].inputprice.toLocaleString() + '</td>' +
-                            '<td style="text-align:right;">' + data[i].outputprice.toLocaleString() + '</td>' +
-                            '<td>' + data[i].etc + '</td>' +
+                            '<td>' + data[i].customername + '</td>' +
+                            '<td>' + data[i].businessregistrationnumber + '</td>' +
+                            '<td>' + data[i].representativename + '</td>' +
+                            '<td>' + data[i].initial + '</td>' +
                             '<td id="data-id" style="display:none;">' + data[i].id + '</td>' +
+                            '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
                             '</tr>'
                         );
                     }
@@ -523,49 +581,7 @@
         });
     }
 
-    $('#addButton').on('click', function () {
 
-        $('#accountdatatbody').empty();
-        var newRow = $('<tr></tr>');
-
-        newRow.append('<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white; ">Delete</button></td>');
-        newRow.append(`
-                        <td>
-                            <select id="classification-input" style="text-align:right;">
-                                <option value="" disabled selected>Select an option</option>
-                                <option value="MASS">MASS</option>
-                                <option value="SAMPLE">SAMPLE</option>
-                            </select>
-                        </td>
-                    `);
-        newRow.append('<td><input type="text" style="text-align:right;" id="bomno-input" onkeypress="handleKeyPress1(event)" value="" autocomplete="off" placeholder="sự khám xét"></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="partcustomer-input" value="" autocomplete="off" placeholder="sự khám xét"></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="toolcode-input" value="" autocomplete="off" placeholder="KeyIn"></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="customer-input" value="" autocomplete="off" readonly></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="modelname-input" value="" autocomplete="off" readonly></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="itemname-input" value="" autocomplete="off" readonly></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="char-input" value="1" autocomplete="off" ></td>');
-        newRow.append(`
-                        <td>
-                            <select id="part-input" style="text-align:right;">
-                                <option value="" disabled selected>Select an option</option>
-                                <option value="PINACLE">PINACLE</option>
-                                <option value="SILING">SILING</option>
-                                <option value="PVC">PVC</option>
-                                <option value="">MOLD</option>
-                            </select>
-                        </td>
-                    `);
-        newRow.append('<td><input type="text" style="text-align:right;" id="inputprice-input" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2);" value="" autocomplete="off" onkeypress="return onlyNumberKey(event)" ></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="outputprice-input" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2);"  value="" autocomplete="off" onkeypress="return onlyNumberKey(event)" ></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="etc-input" value="" autocomplete="off"></td>');
-
-
-
-        $('#accountdatatbody').append(newRow);
-
-
-    });
 
 
 
