@@ -55,11 +55,10 @@
         /* 헤더가 콘텐츠 위에 오도록 설정 */
     }
 
-    input[type="text"],
-    select {
+    input[type="text"] {
         font-family: Arial, sans-serif;
         font-size: 14px;
-        text-align: right;
+        text-align: left;
     }
 
     .modal-body {
@@ -68,6 +67,12 @@
         /* overflow-y: auto; */
     }
 
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
+    }
 
 
     .table-bordered {
@@ -381,8 +386,12 @@
                                     thêm vào(추가)
                                 </button>
                             </div>
+
                             <div class="card-body">
                                 <div class="date-input-group">
+                                    <input type="text" id="searchInput"
+                                        placeholder="Tìm kiếm và nhấn Enter(Search and press Enter)" autocomplete="off">
+
                                 </div>
                             </div>
                         </div>
@@ -390,7 +399,7 @@
 
                     <div class="card-body" style="height: 70vh; max-height: 70vh; overflow-y: auto;">
                         <div style="margin-top: -10px;">
-                            <table class="styled-table">
+                            <table class="styled-table" id="dataTable">
                                 <thead id="tableHead">
 
                                     <tr>
@@ -2419,7 +2428,34 @@
             input.value = `${parts[0]}.${parts[1].slice(0, decimalPlaces)}`;
         }
     }
+    document.getElementById("searchInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            searchTable();
+        }
+    });
 
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("dataTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    }
+                }
+            }
+        }
+    }
 </script>
 
 </html>
