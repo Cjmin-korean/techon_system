@@ -5781,6 +5781,28 @@ module.exports = function (app) {
         });
 
     });
+    sql.connect(config).then(pool => {
+        app.post('/api/deletesampleordervina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('id', sql.NVarChar, req.body.id)
+
+                .query(
+                    " delete from sampleordervina where id=@id")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
