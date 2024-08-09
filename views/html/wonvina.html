@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>창고정보</title>
+    <title>BOM양산정보</title>
     <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
     <script src="../assets/js/core/popper.min.js"></script>
     <script src="../assets/js/core/bootstrap.min.js"></script>
@@ -13,22 +13,198 @@
     <script src="../assets/js/kaiadmin.min.js"></script>
     <script src="../assets/js/setting-demo2.js"></script>
     <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <script src="../js/bommasssave.js"></script>
+    <script src="../js/bommass.js"></script>
+    <script src="../js/bomsave.js"></script>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../assets/css/plugins.min.css" />
     <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
     <link rel="stylesheet" href="../assets/css/demo.css" />
+    <link rel="stylesheet" href="../assets/css/demo1.css" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 </head>
-
 <style>
+    #Datatbody td {
+        /* color: red; */
+        font-size: 13px;
+        font-weight: bold;
+    }
 
+    #containers {
+        height: 50vh;
+        max-height: 50vh;
+        overflow-y: auto;
+        overflow-x: auto;
+        display: block;
+    }
+
+    #tableHead {
+        position: sticky;
+        top: 0;
+    }
+
+    input[type="text"],
+    select {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        /* text-align: right; */
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
+    }
+
+    .modal-body {
+        max-height: calc(100vh - 100px);
+        /* Adjust based on your modal header/footer height */
+        /* overflow-y: auto; */
+    }
+
+
+
+    .table-bordered {
+        width: 300%;
+        height: 200px;
+        min-height: 200px;
+    }
+
+    .table-container {
+        width: 100%;
+        height: 70vh;
+        /* Adjust the height as needed */
+        overflow-y: auto;
+        border: 1px solid #ccc;
+    }
 </style>
 
 <body>
+
+    <!-- <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-hidden="true"> -->
+    <div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"
+        data-bs-keyboard="false" data-bs-backdrop="static">
+        <div class="modal-dialog" role="document" style="width: 150vh;">
+            <div class="modal-content" style="height: 90vh;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tìm kiếm BOM(BOM검색)</h5>
+                    <input type="text" id="numericPart" style="width: 50px; visibility: hidden;">
+
+                </div>
+                <div class="modal-body" style="height: 100%;">
+
+                    <div class="table-container">
+                        <table class="table table-bordered">
+                            <thead>
+                                <th style="text-align: center;">Tìm kiếm BOM(BOM검색)</th>
+
+                                <td colspan="10">
+                                    <input class="styled-input" id="search-input"
+                                        placeholder="Nhập cụm từ tìm kiếm và nhấn Enter(입력후 Enter누르세요)."
+                                        style="text-align: left;"
+                                        onkeydown="if (event.key === 'Enter') searchingmaterialvina()" type="text"
+                                        autocomplete="off">
+                                </td>
+
+                                <tr>
+                                    <th>BOMNO</th>
+                                    <th>Khách hàng<br>(고객사)</th>
+                                    <th>Tên Model<br>(모델명)</th>
+                                    <th>Tên sản phẩm<br>(제품명)</th>
+                                    <th>Mã khách hàng<br>(고객사코드)</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemtbody1">
+                                <tr id="no-search-row">
+                                    <td colspan="11" style="text-align: center;">Không có kết quả tìm kiếm(검색내용이 없습니다)
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="searchingcloseButton" class="btn btn-danger"
+                        data-dismiss="modal">đóng(닫기)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay"></div>
+    <!-- <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"> -->
+
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"
+        data-bs-keyboard="false" data-bs-backdrop="static">
+
+
+        <div class="modal-dialog" style="width: 200vh;">
+            <div class="modal-content" style=" height: 95vh;">
+                <div class="modal-header" style="height: 40px;">
+                    <input type="text" id="bomid-save" style="width: 20px; visibility: hidden;">
+                    <h5 class="modal-title" id="productModalLabel">TOOL thông tin(TOOL 정보)</h5>
+                    <input type="text" id="bomid-edit" style="width: 20px; visibility: hidden;">
+                    <input type="text" id="bomno-edit" style="width: 20px; visibility: hidden;">
+
+
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid" style="margin-top: -20px; ">
+                        <!-- First table -->
+                        <div class="col-md-12" style="height: auto;" id="tableContainer">
+                            <table class="table-bordered" id="Podatatable">
+                                <thead id="tableHead">
+                                    <tr>
+                                        <th colspan="14">TOOL thông tin(TOOL 정보)
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th style="width: 100px;"><button id="addRowBtn" class="btn btn-primary"
+                                                class="close-button" onclick="addRow()">Thêm<br>추가</button>
+                                        </th>
+                                        <th>Phân loại<br>구분</th>
+                                        <th style="width: 150px;">BOMNO</th>
+                                        <th>Nhà sản xuất<br>제조사</th>
+                                        <th>TOOL CODE</th>
+                                        <th>Khách hàng<br>고객사</th>
+                                        <th>Tên Model<br>모델명</th>
+                                        <th>Tên sản phẩm<br>품목명</th>
+                                        <th>Số lần dập tương ứng<br>해당차수</th>
+                                        <th>Chủng loại<br>종류</th>
+                                        <th>Đơn giá nhập kho(VND)<br>입고단가(VND)</th>
+                                        <th>Đơn giá xuất kho(VND)<br>출고단가(VND)</th>
+                                        <th>Ghi chú<br>비고</th>
+                                    </tr>
+
+
+
+                                </thead>
+                                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
+
+                                </tbody>
+
+
+                            </table>
+
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="savebtn" onclick="Bomsave()">Lưu(저장)</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">đóng(닫기)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <div class="page-inner">
         <div class="page-header">
@@ -37,206 +213,53 @@
                     <div class="page-inner">
                         <div class="card-header">
                             <div class="d-flex align-items-center">
-                                <h4 class="card-title">thông tin tỷ giá(환율정보)</h4>
-                                <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" id="addButton">
+                                <h4 class="card-title">thông tin tỷ giá(환율 정보)</h4>
+                                <button type="button" class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
+                                    id="addButton" data-bs-target="#">
                                     <i class="fa fa-plus"></i>
                                     thêm vào(추가)
                                 </button>
                             </div>
-                        </div>
-
-                    </div>
-
-
-                    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog" role="document" style="width: 500px;">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">
-                                        xóa thông tin<br>삭제 확인</h5>
-                                </div>
-                                <div class="modal-body">
-                                    <p>
-                                        Bạn có muốn xóa thông tin của bạn?<br>정보를 삭제 하시겠습니까?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" id="deletecancelBtn" class="btn btn-secondary"
-                                        data-dismiss="modal">
-                                        Hủy bỏ(취소)</button>
-                                    <button type="button" id="confirmDeleteButton" class="btn btn-danger">
-                                        kiểm tra(확인)</button>
+                            <div class="card-body">
+                                <div class="date-input-group">
+                                    
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="toast" id="successToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
-                        role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <strong class="me-auto">Message</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body" style="color: blue;">
+                    <div class="card-body" style="height: 70vh; max-height: 70vh; overflow-y: auto;">
+                        <div style="margin-top: -10px;">
+                            <table class="styled-table">
+                                <thead id="tableHead">
 
-                            Thông tin của bạn đã được lưu<br>정보가 저장되었습니다.
-                        </div>
-                    </div>
-
-                    <div class="toast" id="deleteToast" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"
-                        role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <strong class="me-auto">Message</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body" style="color: red;">
-                            Thông tin của bạn đã bị xóa<br>정보가 삭제되었습니다.
-                        </div>
-                    </div>
-                    <div class="toast" id="nuToast" style="position: fixed; top: 20px; right: 20px; z-index: 1051;"
-                        role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <strong class="me-auto">Message</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body" style="color: red;">
-                            Thông tin bị thiếu<br>정보가 누락되었습니다.
-                        </div>
-                    </div>
-
-                    <div class="card-body">
-                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
-                            <div class="modal-dialog" id="save-dialog" role="document" style="width:600px;">
-                                <div class="modal-content">
-                                    <div class="card-header">
-                                        <div class="d-flex align-items-center">
-                                            <h4 class="card-title">Thêm thông tin kho hàng(창고 정보 추가)</h4>
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-body">
-                                        <form>
-                                            <div class="row">
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*Mã kho(창고코드)</label>
-                                                        <input id="housecode-input" type="text" class="form-control"
-                                                            autocomplete="off" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*Tên kho(창고명)</label>
-                                                        <input id="housename-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*Phần(파트)</label>
-                                                        <input id="part-input" type="text" class="form-control"
-                                                            autocomplete="off" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*Tên phần(파트명)</label>
-                                                        <input id="partname-input" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer border-0">
-                                        <button type="button" id="addRowButton" class="btn btn-primary">
-                                            cứu(저장)</button>
-                                        <button type="button" id="closeButton" class="btn btn-danger"
-                                            data-dismiss="modal">đóng(닫기)</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal fade" id="updateRowModal" tabindex="-1" role="dialog" aria-hidden="true">
-                            <div class="modal-dialog" id="save-dialog" role="document" style="width:600px;">
-                                <div class="modal-content">
-                                    <div class="card-header">
-                                        <div class="d-flex align-items-center">
-                                            <h4 class="card-title">
-                                                Chỉnh sửa thông tin kho(창고 정보 수정)</h4>
-                                            <input type="text" id="id-edit" style="visibility: hidden;">
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-body">
-                                        <form>
-                                            <div class="row">
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*Mã kho(창고코드)</label>
-                                                        <input id="housecode-edit" type="text" class="form-control"
-                                                            autocomplete="off" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*Tên kho(창고명)</label>
-                                                        <input id="housename-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*Phần(파트)</label>
-                                                        <input id="part-edit" type="text" class="form-control"
-                                                            autocomplete="off" placeholder="" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>*Tên phần(파트명)</label>
-                                                        <input id="partname-edit" type="text" autocomplete="off"
-                                                            class="form-control" placeholder="" />
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer border-0">
-                                        <button type="button" id="updateRowButton" class="btn btn-primary">biên
-                                            tập(수정)</button>
-                                        <button type="button" id="updatecloseButton" class="btn btn-danger"
-                                            data-dismiss="modal">đóng(닫기)</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table id="multi-filter-select" class="display table table-striped table-hover">
-                                <thead>
                                     <tr>
-                                        <th>Mã kho(창고코드)</th>
-                                        <th>Tên kho(창고명)</th>
-                                        <th>Phần(파트)</th>
-                                        <th>Tên phần(파트명)</th>
-                                        <th style="width: 10%">
-                                            biên tập(수정)</th>
-                                        <th style="width: 10%">
-                                            xóa bỏ(삭제)</th>
+                                        <th>Phân loại<br>시작날짜</th>
+                                        <th>Nhà sản xuất<br>종료날짜</th>
+                                        <th>Mã tiền tệ<br>통화코드</th>
+                                        <th>Tên tiền tệ<br>통화명</th>
+                                        <th>Giá tiền tệ<br>통화가격</th>
+                                        <th style="width: 10vh;"></th>
                                     </tr>
+
+
                                 </thead>
-                                <tbody id="housetbody"></tbody>
+                                <tbody id="Datatbody">
+                                    <tr id="no-data-row">
+                                        <td colspan="20" style="text-align: center;">
+                                            Không có dữ liệu(데이터가 없습니다)</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot id="iteminfofoot"></tfoot>
                             </table>
                         </div>
                     </div>
-
                 </div>
+
             </div>
         </div>
     </div>
+
 
 </body>
 
@@ -248,27 +271,172 @@
         server = 'http://techonmes.co.kr';
     }
 
-    $(document).ready(function () {
-        // Initialize DataTable with search functionality
-        var table = $("#multi-filter-select").DataTable({
-            pageLength: 15,
-            initComplete: function () {
-                this.api().columns().every(function () {
-                    var column = this;
-                    var select = $('<select class="form-select"><option value=""></option></select>')
-                        .appendTo($(column.footer()).empty())
-                        .on("change", function () {
-                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                            column.search(val ? "^" + val + "$" : "", true, false).draw();
-                        });
-                    column.data().unique().sort().each(function (d, j) {
-                        select.append('<option value="' + d + '">' + d + "</option>");
-                    });
-                });
-            },
+    function countTableRows() {
+        // Get the tbody element by its ID
+        var tbody = document.getElementById('bomtableBody');
+        // Count the number of rows in the tbody
+        var rowCount = tbody.getElementsByTagName('tr').length;
+        // Display the row count (this can be done in many ways, e.g., alert, console log, or updating some element's innerHTML)
+        alert("Number of rows: " + rowCount);
+    }
+
+    $(document).on('click', '.add-btn', function () {
+        const row = $(this).closest('tr'); // Get the closest row
+        const itemname = row.find('td:nth-child(1)').text(); // Ensure correct index for itemname
+        const width = row.find('td:nth-child(3)').text();
+        const quantity = row.find('td:nth-child(4)').text();
+        const length = row.find('td:nth-child(5)').text();
+        const cut = row.find('td:nth-child(6)').text();
+        const rollprice = row.find('td:nth-child(8)').text();
+        const suppliername = row.find('td:nth-child(9)').text();
+
+        const totalValue = (parseFloat(length) * parseFloat(quantity) * parseFloat(cut)).toFixed(0).toLocaleString();
+
+        // Check if a row with the same itemname already exists in accountdatatbody2
+        let exists = false;
+        $('#accountdatatbody2 tr').each(function () {
+            if ($(this).find('td:first').text() === itemname) {
+                exists = true;
+                return false; // Exit loop early
+            }
         });
+
+        // Remove the "데이터가 없습니다" row if it exists
+        const noDataRow = $('#accountdatatbody2 #no-data-row2');
+        if (noDataRow.length) {
+            noDataRow.remove();
+        }
+
+        // Append the new row to accountdatatfoot2
+        const newRow = `
+    <tr>
+        <td>${itemname}</td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${width}"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${quantity}" id="quantity"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" oninput="updateTotalValue();" value="${length}" id="length"></td>
+        <td><input type="text" style="text-align:right;" autocomplete="off" readonly value="${cut}" id="cut"></td>
+        <td id="totalValue">${totalValue}</td>
+        <td><input type="text" style="text-align:right;" value=""></td>
+        <td id="rollprice">${rollprice}</td>
+        <td id="suppliername">${suppliername}</td>
+    </tr>
+    `;
+        $('#accountdatatbody2').append(newRow);
+    });
+
+
+
+    $(document).ready(function () {
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectiteminfovina',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+
+            }),
+            success: function (result) {
+                $('#datacount').text('DATA : ' + result[0].datacount)
+            }
+        })
+        $('#tableContainer').scrollLeft(0);
+        $('#orderno').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/ordernoselect',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "orderno": $('#orderno').val()
+                    }),
+                    success: function (result) {
+                        const tableBody = $('#accountdatatbody');
+                        const tableFoot = $('#accountdatatfoot');
+                        let totalSupplyAmount = 0; // To store the total supply amount
+
+                        tableBody.empty();
+                        tableFoot.empty(); // Clear the table footer
+
+                        if (result.length === 0) {
+                            tableBody.append('<tr><td colspan="8">구매발주 데이터가 없습니다.</td></tr>');
+                            tableFoot.hide(); // Hide the tfoot element
+                        } else {
+                            for (let i = 0; i < result.length; i++) {
+                                const item = result[i];
+                                totalSupplyAmount += item.supplyamount; // Add to total
+
+                                // Append row to table
+                                const row = `
+                            <tr>
+                                <td>${item.itemname}</td>
+                                <td>${item.materialwidth.toLocaleString()}</td>
+                                <td>${item.width}</td>
+                                <td>${item.quantity.toLocaleString()}</td>
+                                <td>${item.length.toLocaleString()}</td>
+                                <td>${item.cut}</td>
+                                <td>${(parseFloat(item.length) * parseFloat(item.cut) * parseFloat(item.quantity)).toLocaleString()}</td>
+                                <td>${item.supplyamount.toLocaleString()}</td>
+                                <td>${item.suppliername}</td>
+                                <td><button class="btn btn-success add-btn"  style="text-align:center; padding:10px;">THÊM</button></td>
+                                <td class="data-id" style="display:none;">${item.id}</td>
+                            </tr>
+                        `;
+                                tableBody.append(row);
+                            }
+
+                            // Append the total row to the tfoot
+                            const tableFooter = `
+                        <tr>
+                            <td colspan="7" style="text-align:right;"><strong>합계</strong></td>
+                            <td>${totalSupplyAmount.toLocaleString()}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    `;
+                            tableFoot.append(tableFooter);
+                            tableFoot.show(); // Show the tfoot element
+                        }
+
+                        // Add click event listener to each add button
+
+
+
+                    },
+                });
+            }
+        });
+
+
+        // Initialize DataTable with search functionality
+        $('#orderdatatable thead input[type="checkbox"]').on('change', function () {
+            var isChecked = $(this).prop('checked');
+
+            $('#orderdatatable tbody input[type="checkbox"]').prop('checked', isChecked);
+
+            if (isChecked) {
+                // Get the IDs of checked checkboxes
+                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
+                    return $(this).closest('tr').find('td#data-id').text();
+                }).get();
+            }
+        });
+
+
+        var today = new Date();
+
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+        var day = String(today.getDate()).padStart(2, '0'); // 일
+        var formattedDate = year + '-' + month + '-' + day;
+        $('#startdate').val(formattedDate)
+        $('#enddate').val(formattedDate)
+
         $('#closeButton').on('click', function () {
             $('#addRowModal').modal('hide');
+        });
+        $('#searchingcloseButton').on('click', function () {
+            $('#newModal').modal('hide');
+            $('#overlay').hide();
         });
         $('#updatecloseButton').on('click', function () {
             $('#updateRowModal').modal('hide');
@@ -277,203 +445,670 @@
         $('#deletecancelBtn').on('click', function () {
             $('#deleteConfirmModal').modal('hide');
         });
-        $('#addButton').on('click', function () {
-            $('#housecode-input').val('')
-            $('#housename-input').val('')
-            $('#part-input').val('')
-            $('#partname-input').val('')
-            $('#addRowModal').modal('show');
-        });
 
 
-        $('#addRowButton').on('click', function () {
-            // 입력값 확인
-            const housecode = $('#housecode-input').val();
-            const housename = $('#housename-input').val();
-            const part = $('#part-input').val();
-            const partname = $('#partname-input').val();
-
-            // 누락된 필드 체크
-            if (!housecode || !housename || !part || !partname) {
-
-                var toast = new bootstrap.Toast(document.getElementById('nuToast'));
-                toast.show();
-                return; // 누락된 필드가 있으면 종료
-            }
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/inserthousevina',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "housecode": housecode,
-                    "housename": housename,
-                    "part": part,
-                    "partname": partname,
-                }),
-                success: function (result) {
-                    // 성공 시 처리
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error:', error);
-                }
-            });
-
-            $('#addRowModal').modal('hide');
-
-            var toast = new bootstrap.Toast(document.getElementById('successToast'));
-            toast.show();
-
-            // 0.5초 뒤에 load() 호출
-            setTimeout(function () {
-                load();
-            }, 100);
-        });
 
 
-        $('#updateRowButton').on('click', function () {
-            var rowIndex = $(this).data('row-index');
-            var rowData = table.row(rowIndex).data();
-            var id = $(this).data('id');
 
-            // 입력값 확인
-            const housecode = $('#housecode-edit').val();
-            const housename = $('#housename-edit').val();
-            const part = $('#part-edit').val();
-            const partname = $('#partname-edit').val();
-            const editId = $('#id-edit').val();
-
-            // 누락된 필드 체크
-            if (!housecode || !housename || !part || !partname || !editId) {
-                var toast = new bootstrap.Toast(document.getElementById('nuToast'));
-                toast.show();
-                return; // 누락된 필드가 있으면 종료
-            }
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/houseupdatedatavina',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "housecode": housecode,
-                    "housename": housename,
-                    "part": part,
-                    "partname": partname,
-                    "id": editId,
-                }),
-                success: function (result) {
-                    // 성공 시 처리
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error:', error);
-                }
-            });
-
-            $('#updateRowModal').modal('hide');
-
-            var toast = new bootstrap.Toast(document.getElementById('successToast'));
-            toast.show();
-
-            // 0.5초 뒤에 load() 호출
-            setTimeout(function () {
-                load();
-            }, 100);
-        });
         load();
-    })
+    });
+    function Copy() {
+        var confirmResult = confirm('Bạn có muốn sao chép dữ liệu không?\n데이터를 복사하시겠습니까?');
+        if (confirmResult) {
+            $('#bomid-edit').val('')
+            $('#bomno-save').val('')
+
+            var copybtn = document.getElementById('copybtn');
+            copybtn.style.display = 'none';
 
 
-    function load() {
-        $.ajax({
-            url: server + '/api/houseinformationvina',
-            method: 'post',
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify({}),
-            success: function (result) {
-                var table = $("#multi-filter-select").DataTable();
-                table.clear().draw(); // Clear the table before adding new data
+            $('#savebtn').text('Lưu(저장)');
 
-                result.forEach((item, index) => {
-                    table.row.add([
-                        item.housecode || '',
-                        item.housename || '',
-                        item.part || '',
-                        item.partname || '',
-                        '<div class="form-button-action">' +
-                        '<button type="button" data-id="' + item.id + '" data-row-index="' + index + '" data-bs-toggle="tooltip" title="상세" class="btn btn-link btn-primary btn-lg edit-btn">' +
-                        '<i class="fa fa-edit"></i>' +
-                        '</button>' +
-                        '</div>',
-                        '<div class="form-button-action">' +
-                        '<button type="button" data-id="' + item.id + '" data-bs-toggle="tooltip" title="삭제" class="btn btn-link btn-danger delete-btn">' +
-                        '<i class="fa fa-times"></i>' +
-                        '</button>' +
-                        '</div>'
-                    ]).draw(false);
-                });
+        } else {
+            return;
+        }
+    }
+    function approval() {
+        var confirmResult = confirm('Bạn có muốn sao chép dữ liệu không?\nBOM정보를 승인하시겠습니까?');
+        if (confirmResult) {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/updateiteminfovina',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    bomno: $('#bomno-save').val(),
+                    approval: 'true'
+                }),
+                success: function (result) {
+                },
 
-                // Attach click event to edit buttons
+            });
 
+            alert('승인 되었습니다.\nPhê duyệt thành công');
+            $('#productModal').modal('hide');
 
+            load()
+        } else {
+            return;
+        }
+    }
+    function showinfo(rowData) {
+        // console.log(rowData)
+        var copybtn = document.getElementById('copybtn');
+        copybtn.style.display = 'block';
 
-                $('.edit-btn').on('click', function () {
-                    var rowIndex = $(this).data('row-index');
-                    var rowData = table.row(rowIndex).data();
-                    var id = $(this).data('id');
+        var approvalbtn = document.getElementById('approvalbtn');
+        approvalbtn.style.display = 'none';
 
-                    // Fill the form with the row data
-                    $("#housecode-edit").val(rowData[0]);
-                    $("#housename-edit").val(rowData[1]);
-                    $("#part-edit").val(rowData[2]);
-                    $("#partname-edit").val(rowData[3]);
-                    $("#id-edit").val(id);
-
-                    $('#updateRowModal').modal('show');
-                });
-
-                $(document).on('click', '.delete-btn', function () {
-                    deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
-                    $('#deleteConfirmModal').modal('show'); // 모달 열기
-                });
-
-                $(document).on('click', '.delete-btn', function () {
-                    deleteId = $(this).data('id'); // 클릭한 버튼의 ID 저장
-                    $('#deleteConfirmModal').modal('show'); // 모달 열기
-                });
-
-                $('#confirmDeleteButton').on('click', function () {
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/housedeletedatavina',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "id": deleteId
-                        }),
-                        success: function (result) {
-
-                        },
-
-                    });
-                    var toast = new bootstrap.Toast(document.getElementById('deleteToast'));
-                    toast.show();
-                    $('#deleteConfirmModal').modal('hide'); // 모달 닫기
-
-                    load(); // 데이터 새로 고침
-                });
+        $('#bomid-save').val(new Date().getTime());
+        $('#bomid-edit').val(rowData.bomid)
+        $('#bomno-save').val(rowData.bomno)
+        $('#bomno-edit').val(rowData.bomno)
+        $('#customer-save').val(rowData.customer)
+        $('#modelname-save').val(rowData.modelname)
+        $('#itemname-save').val(rowData.itemname)
+        $('#pcs-save').val(rowData.pcs)
+        $('#cavity-save').val(rowData.cavity)
+        $('#itemcode-save').val(rowData.itemcode)
+        $('#workpart-save').val(rowData.workpart)
+        $('#working-save').val(rowData.working)
+        $('#direction-save').val(rowData.direction)
+        $('#additionalNote').val(rowData.additionalnotes)
+        $('#type-save').val(rowData.type)
+        $('#costsum-save').val(rowData.cost.toFixed(2))
 
 
 
-            },
-        });
+
+        var counter = 1;
+        var container = document.getElementById('containers');
+        container.scrollLeft = 0;
+        container.scrollTop = 0;
+
+
+        $('#productModal').modal('show');
+        $('#savebtn').text('biên tập (수정)');
 
     }
 
 
 
+    function handleCheckboxChange(checkbox) {
+        // Get all checkboxes with the same class
+        var checkboxes = document.getElementsByClassName('checkbox');
+
+        // Loop through all checkboxes
+        for (var i = 0; i < checkboxes.length; i++) {
+            // If the checkbox is not the one clicked, uncheck it
+            if (checkboxes[i] !== checkbox) {
+                checkboxes[i].checked = false;
+            }
+        }
+
+    }
+
+    function load() {
+        $('#Datatbody').empty();
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectwonvina',
+            dataType: 'json',
+            success: function (data) {
+                if (data.length === 0) {
+                    $('#Datatbody').append(
+                        '<tr><td colspan="13" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
+                    );
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+
+                        var rowData = JSON.stringify(data[i]);
+
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td>' + data[i].startdate + '</td>' +
+                            '<td>' + data[i].finishdate + '</td>' +
+                            '<td>' + data[i].currencycode + '</td>' +
+                            '<td>' + data[i].currencyname + '</td>' +
+                            '<td>' + data[i].currencyprice + '</td>' +
+                          
+                            '<td id="data-id" style="display:none;">' + data[i].id + '</td>' +
+                            '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
+                            '</tr>'
+                        );
+                    }
+                }
+            }
+        });
+    }
+
+  
+
+
+
+    function onlyNumberKey(event) {
+        // Only allows number keys, backspace, delete, left and right arrows
+        const charCode = event.which ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function validateNumericInput(input) {
+        // 숫자와 소수점만 입력 가능하게 함
+        input.value = input.value.replace(/[^0-9.]/g, '');
+
+        // 소수점이 여러 개 입력되지 않도록 함
+        if ((input.value.match(/\./g) || []).length > 1) {
+            input.value = input.value.replace(/\.+$/, '');
+        }
+    }
+    function addRow() {
+
+        var newRow = $('<tr></tr>');
+
+        newRow.append('<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white; ">Delete</button></td>');
+        newRow.append(`
+                        <td>
+                            <select id="classification-input" style="text-align:right;">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="MASS">MASS</option>
+                                <option value="SAMPLE">SAMPLE</option>
+                            </select>
+                        </td>
+                    `);
+        newRow.append('<td><input type="text" style="text-align:right;" id="bomno-input" onkeypress="handleKeyPress1(event)" value="" autocomplete="off" placeholder="sự khám xét"></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="partcustomer-input" value="" autocomplete="off" placeholder="sự khám xét"></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="toolcode-input" value="" autocomplete="off" placeholder="KeyIn"></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="customer-input" value="" autocomplete="off" readonly></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="modelname-input" value="" autocomplete="off" readonly></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="itemname-input" value="" autocomplete="off" readonly></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="char-input" value="1" autocomplete="off" ></td>');
+        newRow.append(`
+                        <td>
+                            <select id="part-input" style="text-align:right;">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="PINACLE">PINACLE</option>
+                                <option value="SILING">SILING</option>
+                                <option value="PVC">PVC</option>
+                                <option value="">MOLD</option>
+                            </select>
+                        </td>
+                    `);
+        newRow.append('<td><input type="text" style="text-align:right;" id="inputprice-input" value="" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2);" autocomplete="off" onkeypress="return onlyNumberKey(event)" ></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="outputprice-input" value="" placeholder="con số(숫자)" oninput="formatDecimalInput(this, 2);" autocomplete="off" onkeypress="return onlyNumberKey(event)" ></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="etc-input" value="" autocomplete="off"></td>');
+
+
+
+        $('#accountdatatbody').append(newRow);
+
+    }
+
+    $(document).off('click', '#deleteRowBtn').on('click', '#deleteRowBtn', function () {
+        const currentRow = $(this).closest('tr');
+        const tbodyLength = $('#accountdatatbody').find('tr').length;
+
+        if (tbodyLength === 1) {
+            alert('첫행은 삭제 불가합니다\nKhông thể xóa hàng đầu tiên');
+            return;
+        }
+
+        // Check for rowspan attribute
+        const rowspan = currentRow.find('td[rowspan]').first().attr('rowspan');
+
+        if (rowspan) {
+            // Delete the rows affected by the rowspan
+            const index = currentRow.index();
+            for (let i = 0; i < parseInt(rowspan); i++) {
+                $('#bomtableBody').find('tr').eq(index).remove();
+            }
+        } else {
+            // Delete just the single row
+            currentRow.remove();
+        }
+    });
+    function addCheckboxListeners() {
+        const checkboxes = document.querySelectorAll('#check-input');
+
+        checkboxes.forEach((checkbox, index) => {
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    if (index > 0 && !checkboxes[index - 1].checked) {
+                        alert('You must check the previous checkbox first!');
+                        e.target.checked = false;
+                    }
+                }
+            });
+        });
+    }
+    $('#bomno-input').on('keypress', function (event) {
+        if (event.which === 13) { // Enter key code
+            event.preventDefault(); // Prevent default action
+            $('#overlay').show(); // Show the overlay
+            $('#newModal').modal('show'); // Open the new modal
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomnoaccountinput',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    itemcode: $('#itemcode-input').val()
+                }),
+                success: function (result) {
+                    $('#itemtbody').empty(); // Clear previous results
+
+                    if (result.length === 0) {
+                        $('#no-search-row').show(); // Show "no search" row
+                    } else {
+                        $('#no-search-row').hide(); // Hide "no search" row
+                        for (var i = 0; i < result.length; i++) {
+                            $('#itemtbody').append(
+                                '<tr>' +
+                                '<td style="text-align:center;">' + result[i].itemcode + '</td>' +
+                                '<td style="text-align:center;">' + result[i].bomno + '</td>' +
+                                '<td style="text-align:center;">' + result[i].modelname + '</td>' +
+                                '<td style="text-align:center;">' + result[i].itemname + '</td>' +
+                                '<td style="text-align:center;">' + result[i].customer + '</td>' +
+                                '<td style="text-align:center;">' + result[i].itemprice + '</td>' +
+                                '<td style="text-align:center;">' +
+                                '<button class="btn btn-primary" onclick="add(this); event.preventDefault();">THÊM</button>' +
+                                '</td>' + '</tr>'
+                            );
+                        }
+                    }
+
+                    $("td#data-itemprice").hide(); // Hide specific cell if needed
+                },
+
+            });
+        }
+    });
+    function handleKeyPress1(event) {
+        if (event.key === "Enter") {
+            var parentRow = $(event.target).closest('tr');
+            // Extract data from the parent row
+            var rowData = parentRow.find('td').map(function () {
+                return $(this).text();
+            }).get();
+            var rowIndex = parentRow.index();
+            $("#numericPart").val(rowIndex);
+            searchingmaterial();
+        }
+    }
+
+    function searchingmaterial() {
+
+        if ($('#accountdatatbody tr:eq(' + $("#numericPart").val() + ') #materialname-input').val() === '') {
+            $('#itemtbody1').empty();
+
+            var noDataMessage = '<tr><td colspan="15">Không có dữ liệu(데이터가 없습니다)</td></tr>';
+            $('#itemtbody1').append(noDataMessage);
+            $('#itemcode1-input').focus();
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectbomvina',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    bomno: $('#accountdatatbody tr:eq(' + $("#numericPart").val() + ') #bomno-input').val()
+                }),
+                success: function (result) {
+                    $('#itemtbody1').empty();
+                    if (result.length === 0) {
+                        var noDataMessage = '<tr><td colspan="15">Không có dữ liệu(데이터가 없습니다)</td></tr>';
+                        $('#itemtbody1').append(noDataMessage);
+                    } else {
+                        for (var i = 0; i < result.length; i++) {
+                            var row = '<tr>' +
+                                '<td>' + result[i].bomno + '</td>' +
+                                '<td>' + result[i].customer + '</td>' +
+                                '<td>' + result[i].modelname + '</td>' +
+                                '<td>' + result[i].itemname + '</td>' +
+                                '<td>' + result[i].itemcode + '</td>' +
+
+                                '<td><button class="btn btn-primary" onclick="insertmaterialdata(this)" >THÊM</button></td>' +
+                                '</tr>';
+
+                            $('#itemtbody1').append(row);
+                        }
+
+                        // 한 번의 선택으로 모든 숨길 요소를 처리합니다.
+                        $('#itemtbody1').find('.data-width, .data-usewidth, .data-length,  .data-rollprice, .data-manufacterer, .data-supplier, .data-codenumber').hide();
+                    }
+                }
+            });
+        }
+
+        $("#itemcode1-input").val('');
+        $('#overlay').show(); // Show the overlay
+        $('#newModal').modal('show'); // Open the new modal
+    }
+
+    function searchingmaterialvina() {
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectbommaterialvina',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                materialname: $('#search-input').val()
+            }),
+            success: function (result) {
+                $('#itemtbody1').empty();
+                if (result.length === 0) {
+                    var noDataMessage = '<tr><td colspan="15">Không có dữ liệu(데이터가 없습니다)</td></tr>';
+                    $('#itemtbody1').append(noDataMessage);
+                } else {
+                    for (var i = 0; i < result.length; i++) {
+                        var row = '<tr>' +
+                            '<td>' + result[i].materialname + '</td>' +
+                            '<td>' + result[i].width.toLocaleString() + '</td>' +
+                            '<td>' + result[i].length.toLocaleString() + '</td>' +
+                            '<td>' + result[i].supplier + '</td>' +
+                            '<td class="data-width">' + result[i].width + '</td>' +
+                            '<td class="data-usewidth">' + result[i].usewidth + '</td>' +
+                            '<td class="data-length">' + result[i].length + '</td>' +
+                            '<td class="data-sqmprice">' + result[i].sqmprice + '</td>' +
+                            '<td class="data-rollprice">' + result[i].rollprice + '</td>' +
+                            '<td class="data-unit">' + result[i].unit + '</td>' +
+                            '<td class="data-manufacterer">' + result[i].manufacterer + '</td>' +
+                            '<td class="data-supplier">' + result[i].supplier + '</td>' +
+                            '<td class="data-typecategory">' + result[i].typecategory + '</td>' +
+                            '<td class="data-codenumber">' + result[i].codenumber + '</td>' +
+                            '<td>' + result[i].num + '</td>' +
+                            '<td><button class="btn btn-primary" onclick="insertmaterialdata(this)">THÊM</button></td>' +
+                            '</tr>';
+
+                        $('#itemtbody1').append(row);
+                    }
+
+                    // 한 번의 선택으로 모든 숨길 요소를 처리합니다.
+                    $('#itemtbody1').find('.data-width, .data-usewidth, .data-length,  .data-rollprice, .data-manufacterer, .data-supplier, .data-codenumber').hide();
+                }
+            }
+        });
+
+
+    }
+
+    function insertmaterialdata(button) {
+        var parentRow = $(button).closest('tr');
+        var rowData = parentRow.find('td').map(function () {
+            return $(this).text();
+        }).get();
+
+        var rowIndex = $('#numericPart').val();
+        var targetRow = $('#accountdatatbody tr:eq(' + rowIndex + ')');
+
+        // Ensure the row exists
+        if (targetRow.length === 0) {
+            console.error('Specified row does not exist');
+            return;
+        }
+
+        // Update input fields in the specified row
+        targetRow.find('#bomno-input').val(rowData[0]);
+        targetRow.find('#customer-input').val(rowData[1]);
+        targetRow.find('#modelname-input').val(rowData[2]);
+        targetRow.find('#itemname-input').val(rowData[3]);
+
+
+
+
+        $('#overlay').hide();
+        $('#newModal').modal('hide');
+
+        // Prevent default button action (form submit or link follow)
+        event.preventDefault();
+        return false; // For good measure
+    }
+
+
+
+
+
+    function Bomsave() {
+        // function showMissingFieldAlert(fieldName, message) {
+        //     alert(message);
+        // }
+
+        // if ($('#bomno-save').val() === '') {
+        //     showMissingFieldAlert('BOMNO', 'BOMNO bị thiếu(BOMNO가 누락되었습니다)');
+        //     return;
+        // }
+
+
+
+        var insertdate = new Date().toISOString().slice(0, 10);
+        var confirmResult = confirm('Bạn có muốn lưu dữ liệu không?\n데이터를 저장하시겠습니까?');
+        if (confirmResult) {
+            $('[id^="bomno-input"]').each(function (index) {
+                var classification = ($('[id^="classification-input"]').eq(index).val());
+                var bomno = ($('[id^="bomno-input"]').eq(index).val());
+                var toolcode = 'TOOL-' + ($('[id^="toolcode-input"]').eq(index).val());
+                var partcustomer = ($('[id^="partcustomer-input"]').eq(index).val());
+                var customer = ($('[id^="customer-input"]').eq(index).val());
+                var modelname = ($('[id^="modelname-input"]').eq(index).val());
+                var itemname = ($('[id^="itemname-input"]').eq(index).val());
+                var char = ($('[id^="char-input"]').eq(index).val());
+                var part = ($('[id^="part-input"]').eq(index).val());
+                var inputprice = ($('[id^="inputprice-input"]').eq(index).val().replace(/,/g, ''));
+                var outputprice = ($('[id^="outputprice-input"]').eq(index).val().replace(/,/g, '')) || 0; // 공란이면 0으로 설정
+                var etc = $('[id^="etc-input"]').eq(index).val() || ''; // 공란이면 빈 문자열로 설정
+
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertpinaclevina',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "classification": classification,
+                        "bomno": bomno,
+                        "toolcode": toolcode,
+                        "partcustomer": partcustomer,
+                        "customer": customer,
+                        "modelname": modelname,
+                        "itemname": itemname,
+                        "char": char,
+                        "part": part,
+                        "inputprice": inputprice,
+                        "outputprice": outputprice,
+                        "etc": etc,
+
+                    }),
+                    success: function (result) {
+                        // Handle success
+                    },
+                    error: function (error) {
+                        // Handle error
+                    },
+                });
+            });
+
+        } else {
+            return;
+
+        }
+
+
+
+        $('#newModal').modal('hide');
+        alert('데이터가 성공적으로 저장 되었습니다\nDữ liệu đã được lưu thành công');
+        load();
+
+
+    }
+
+
+</script>
+<script>
+    function updateCavity() {
+        const cavitySaveValue = parseFloat($("#cavity-save").val()) || 0;
+        const taInputValue = cavitySaveValue !== 0 ? (1 / cavitySaveValue) : 0;
+        $("[id='cavity-input']").val(cavitySaveValue);
+    }
+
+    function updateRlcutValue() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        $('#bomtableBody tr:eq(' + rowIndex + ') #rlcut-input').val(
+            Math.floor(
+                parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #usewidth-input').val()) /
+                parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val())
+            ) || 0
+        );
+        $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlcut-input').val(
+            Math.floor(
+                parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-usewidth-input').val()) /
+                parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val())
+            ) || 0
+        );
+    }
+
+    function updateSoyoValue() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        const taValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #ta-input').val()) || 0;
+        const onepiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #onepidding-input').val()) || 0;
+        const taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
+        const twopiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #twopidding-input').val()) || 0;
+        const alltaValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #allta-input').val()) || 0;
+        const lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #loss-input').val()) || 0;
+
+        let soyoValue = (taValue * ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue) * 0.001 * (1 + (lossValue / 100))).toFixed(4);
+        soyoValue = soyoValue.replace(/\.?0+$/, '');
+
+        $('#bomtableBody tr:eq(' + rowIndex + ') #soyo-input').val(soyoValue);
+    }
+
+    function updateRlProduct() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+
+        let materialWidthValue = $('#bomtableBody tr:eq(' + rowIndex + ') #materialwidth-input').val().trim();
+        if (materialWidthValue === '') {
+            return;
+        }
+
+        let materialWidth = parseFloat(materialWidthValue) || 0;
+        let lengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #length-input').val()) || 0;
+        let rlcutValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #rlcut-input').val()) || 0;
+        let cavitySaveValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #cavity-input').val()) || 0;
+        let onepiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #onepidding-input').val()) || 0;
+        let taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
+        let twopiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #twopidding-input').val()) || 0;
+        let alltaValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #allta-input').val()) || 0;
+        let lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #loss-input').val()) || 0;
+
+        let useWidthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #usewidth-input').val()) || 0;
+        let hapUseWidthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-usewidth-input').val()) || 0;
+
+        let rlcutValue1 = Math.floor(useWidthValue / materialWidth) || 0;
+        let rlcutValueA = Math.floor(hapUseWidthValue / materialWidth) || 0;
+
+        let rlproductValue = ((lengthValue * 1000 * rlcutValue1 * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        rlproductValue = isFinite(rlproductValue) && !isNaN(rlproductValue) ? rlproductValue : 0;
+
+        let rlproductValueA = ((lengthValue * 1000 * rlcutValueA * cavitySaveValue * (1 + (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        rlproductValueA = isFinite(rlproductValueA) && !isNaN(rlproductValueA) ? rlproductValueA : 0;
+
+        $('#bomtableBody tr:eq(' + rowIndex + ') #rlproduct-input').val(rlproductValue);
+        $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlproduct-input').val(rlproductValueA);
+    }
+
+    function calculateCost() {
+        var currentRow = $(event.target).closest('tr');
+        var rowIndex = currentRow.index();
+        const rollpriceInput = $('#bomtableBody tr:eq(' + rowIndex + ') #rollprice-input');
+        const rollpriceValue = parseFloat(rollpriceInput.val()) || 0;
+        const rollpriceInputA = $('#bomtableBody tr:eq(' + rowIndex + ') #hap-rollprice-input');
+        const rollpriceValueA = parseFloat(rollpriceInputA.val()) || 0;
+
+        let lengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #length-input').val()) || 0;
+        let rlcutValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #rlcut-input').val()) || 0;
+        let lengthValueA = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-length-input').val()) || 0;
+        let rlcutValueA = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #hap-rlcut-input').val()) || 0;
+
+        let onepiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #onepidding-input').val()) || 0;
+        let twopiddingValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #twopidding-input').val()) || 0;
+        let alltaValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #allta-input').val()) || 0;
+        let lossValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #costloss-input').val()) || 0;
+        let taLengthValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #talength-input').val()) || 0;
+        let cavitySaveValue = parseFloat($('#bomtableBody tr:eq(' + rowIndex + ') #cavity-input').val()) || 0;
+
+        let rlproductValue = ((lengthValue * 1000 * rlcutValue * cavitySaveValue * (1 - (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        rlproductValue = isFinite(rlproductValue) && !isNaN(rlproductValue) ? rlproductValue : 0;
+
+        const costValue = rollpriceValue / rlproductValue || 0;
+
+        let rlproductValueA = ((lengthValueA * 1000 * rlcutValueA * cavitySaveValue * (1 - (lossValue / 100))) / ((onepiddingValue + taLengthValue + twopiddingValue) / alltaValue)).toFixed(0);
+        rlproductValueA = isFinite(rlproductValueA) && !isNaN(rlproductValueA) ? rlproductValueA : 0;
+
+        const costValueA = rollpriceValueA / rlproductValueA || 0;
+
+        // 값 설정하기
+        $('#bomtableBody tr:eq(' + rowIndex + ') #cost-input').val(isFinite(costValue) && !isNaN(costValue) ? costValue.toFixed(2) : 0);
+        $('#bomtableBody tr:eq(' + rowIndex + ') #hap-cost-input').val(isFinite(costValueA) && !isNaN(costValueA) ? costValueA.toFixed(2) : 0);
+        $('#bomtableBody tr:eq(' + rowIndex + ') #costsum-input').val((costValue + costValueA).toFixed(2));
+
+
+        var totalCostSum = 0;
+        $('#bomtableBody tr').each(function () {
+            var costSumValue = parseFloat($(this).find('#costsum-input').val()) || 0;
+            totalCostSum += costSumValue;
+        });
+        $('#costsum-save').val(totalCostSum.toFixed(2))
+        return totalCostSum;
+
+    }
+
+
+    function formatDecimalInput(input, decimalPlaces) {
+        // 숫자만 추출
+        let value = input.value.replace(/,/g, '');
+
+        // 소수점을 위한 처리
+        let parts = value.split('.');
+        let integerPart = parts[0];
+        let decimalPart = parts[1] ? '.' + parts[1].substring(0, decimalPlaces) : '';
+
+        // 천 단위마다 쉼표 추가
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        input.value = integerPart + decimalPart;
+    }
+    document.getElementById("searchInput").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            searchTable();
+        }
+    });
+
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("dataTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    }
+                }
+            }
+        }
+    }
 </script>
 
 </html>

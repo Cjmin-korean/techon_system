@@ -50,7 +50,14 @@
     select {
         font-family: Arial, sans-serif;
         font-size: 14px;
-        text-align: right;
+        /* text-align: right; */
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
     }
 
     .modal-body {
@@ -109,7 +116,6 @@
                                     <th>Tên Model<br>(모델명)</th>
                                     <th>Tên sản phẩm<br>(제품명)</th>
                                     <th>Mã khách hàng<br>(고객사코드)</th>
-                                    <th>TYPE</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -216,6 +222,11 @@
                             </div>
                             <div class="card-body">
                                 <div class="date-input-group">
+                                    <div class="date-input-group">
+                                        <input type="text" id="searchInput"
+                                            placeholder="🔍 Tìm kiếm và nhấn Enter (Search and press Enter)"
+                                            autocomplete="off" style="width: 500px;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -239,6 +250,7 @@
                                         <th>Đơn giá nhập kho(VND)<br>입고단가(VND)</th>
                                         <th>Đơn giá xuất kho(VND)<br>출고단가(VND)</th>
                                         <th>Ghi chú<br>비고</th>
+                                        <th></th>
                                     </tr>
 
 
@@ -577,8 +589,8 @@
                             '<td style="text-align:right;">' + data[i].inputprice.toLocaleString() + '</td>' +
                             '<td style="text-align:right;">' + data[i].outputprice.toLocaleString() + '</td>' +
                             '<td>' + data[i].etc + '</td>' +
-                            '<td id="data-id">' + data[i].id + '</td>' +
-                            '<td><button class="btninfo" onclick=\'showinfo(' + rowData + ')\'>상세정보</button></td>' +
+                            '<td id="data-id" style="display:none;">' + data[i].id + '</td>' +
+                            '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
                             '</tr>'
                         );
                     }
@@ -593,17 +605,25 @@
         var newRow = $('<tr></tr>');
 
         newRow.append('<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white; ">Delete</button></td>');
-        newRow.append('<td>định giá</td>');
+        newRow.append(`
+                        <td>
+                            <select id="classification-input" style="text-align:right;">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="MASS">MASS</option>
+                                <option value="SAMPLE">SAMPLE</option>
+                            </select>
+                        </td>
+                    `);
         newRow.append('<td><input type="text" style="text-align:right;" id="bomno-input" onkeypress="handleKeyPress1(event)" value="" autocomplete="off" placeholder="sự khám xét"></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="toolcode-input" value="" autocomplete="off" placeholder="sự khám xét"></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="partcustomer-input" value="" autocomplete="off" placeholder="KeyIn"></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="partcustomer-input" value="" autocomplete="off" placeholder="sự khám xét"></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="toolcode-input" value="" autocomplete="off" placeholder="KeyIn"></td>');
         newRow.append('<td><input type="text" style="text-align:right;" id="customer-input" value="" autocomplete="off" readonly></td>');
         newRow.append('<td><input type="text" style="text-align:right;" id="modelname-input" value="" autocomplete="off" readonly></td>');
         newRow.append('<td><input type="text" style="text-align:right;" id="itemname-input" value="" autocomplete="off" readonly></td>');
         newRow.append('<td><input type="text" style="text-align:right;" id="char-input" value="1" autocomplete="off" ></td>');
         newRow.append(`
                         <td>
-                            <select id="part-select" style="text-align:right;">
+                            <select id="part-input" style="text-align:right;">
                                 <option value="" disabled selected>Select an option</option>
                                 <option value="PINACLE">PINACLE</option>
                                 <option value="SILING">SILING</option>
@@ -648,17 +668,25 @@
         var newRow = $('<tr></tr>');
 
         newRow.append('<td><button id="deleteRowBtn" class="btn btn-danger" style="background-color: red; color:white; ">Delete</button></td>');
-        newRow.append('<td>định giá</td>');
+        newRow.append(`
+                        <td>
+                            <select id="classification-input" style="text-align:right;">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="MASS">MASS</option>
+                                <option value="SAMPLE">SAMPLE</option>
+                            </select>
+                        </td>
+                    `);
         newRow.append('<td><input type="text" style="text-align:right;" id="bomno-input" onkeypress="handleKeyPress1(event)" value="" autocomplete="off" placeholder="sự khám xét"></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="toolcode-input" value="" autocomplete="off" placeholder="sự khám xét"></td>');
-        newRow.append('<td><input type="text" style="text-align:right;" id="partcustomer-input" value="" autocomplete="off" placeholder="KeyIn"></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="partcustomer-input" value="" autocomplete="off" placeholder="sự khám xét"></td>');
+        newRow.append('<td><input type="text" style="text-align:right;" id="toolcode-input" value="" autocomplete="off" placeholder="KeyIn"></td>');
         newRow.append('<td><input type="text" style="text-align:right;" id="customer-input" value="" autocomplete="off" readonly></td>');
         newRow.append('<td><input type="text" style="text-align:right;" id="modelname-input" value="" autocomplete="off" readonly></td>');
         newRow.append('<td><input type="text" style="text-align:right;" id="itemname-input" value="" autocomplete="off" readonly></td>');
         newRow.append('<td><input type="text" style="text-align:right;" id="char-input" value="1" autocomplete="off" ></td>');
         newRow.append(`
                         <td>
-                            <select id="part-select" style="text-align:right;">
+                            <select id="part-input" style="text-align:right;">
                                 <option value="" disabled selected>Select an option</option>
                                 <option value="PINACLE">PINACLE</option>
                                 <option value="SILING">SILING</option>
@@ -679,7 +707,7 @@
 
     $(document).off('click', '#deleteRowBtn').on('click', '#deleteRowBtn', function () {
         const currentRow = $(this).closest('tr');
-        const tbodyLength = $('#bomtableBody').find('tr').length;
+        const tbodyLength = $('#accountdatatbody').find('tr').length;
 
         if (tbodyLength === 1) {
             alert('첫행은 삭제 불가합니다\nKhông thể xóa hàng đầu tiên');
@@ -899,132 +927,6 @@
     }
 
 
-    function habji() {
-
-        var checkedRows = $('input[id="check-input"]:checked').map(function () {
-            var row = $(this).closest('tr');
-            return {
-                row: row,
-                materialnameValue: row.find('#materialname-input').val(),
-                materialWidthValue: row.find('#width-input').val(),
-                useWidthValue: row.find('#usewidth-input').val(),
-                lengthValue: row.find('#length-input').val(),
-                sqmpriceValue: row.find('#sqmprice-input').val(),
-                rollpriceValue: row.find('#rollprice-input').val(),
-                unitValue: row.find('#unit-input').val(),
-                manufactererValue: row.find('#manufacterer-input').val(),
-                supplierValue: row.find('#supplier-input').val(),
-                codenumberValue: row.find('#codenumber-input').val()
-            };
-        }).get();
-
-        addCheckboxListeners()
-        if (checkedRows.length === 1) {
-            alert("Vui lòng kiểm tra nhiều hơn hai cái\n2개체크 이상 바랍니다");
-            return;
-        }
-        for (var i = 0; i < checkedRows.length; i++) {
-            if (!checkedRows[i].codenumberValue) {
-                alert("Vui lòng tìm kiếm tài liệu\n자재검색 해주세요");
-                return; // Exit the function early if a blank codenumber is found
-            }
-        }
-
-        // Check if exactly two or three rows are selected
-        if (checkedRows.length === 2) {
-            var concatenatedValue = checkedRows[0].materialnameValue + '+' + checkedRows[1].materialnameValue;
-            var timestamp = new Date().getTime();
-
-            // Update the first row with concatenated value and classification
-            checkedRows[0].row.find('#materialname-input').val(concatenatedValue);
-            checkedRows[0].row.find('#materialclassification-input').val('HAP');
-            checkedRows[0].row.find('#hap-input').val(timestamp);
-            checkedRows[0].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
-            checkedRows[1].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
-
-            // Set the second row's classification and HAP value
-            checkedRows[1].row.find('#materialclassification-input').val('HAP');
-            checkedRows[1].row.find('#hap-input').val(timestamp);
-
-            // Merge the cells by setting rowspan and hiding the second cell
-            var firstRowMaterialCell = checkedRows[0].row.find('#materialname-input').closest('td');
-            var secondRowMaterialCell = checkedRows[1].row.find('#materialname-input').closest('td');
-            var firstdeleteCell = checkedRows[0].row.find('#deleteRowBtn').closest('td');
-            var seconddeleteCell = checkedRows[1].row.find('#deleteRowBtn').closest('td');
-
-            var firstcheckinputCell = checkedRows[0].row.find('#check-input');
-            var SecondcheckinputCell = checkedRows[1].row.find('#check-input');
-
-
-
-            var RowBtnaddCell = checkedRows[0].row.find('#RowBtnadd-input');
-
-            firstRowMaterialCell.attr('rowspan', 2);
-            firstdeleteCell.attr('rowspan', 2);
-            secondRowMaterialCell.remove();
-            seconddeleteCell.remove();
-            RowBtnaddCell.remove();
-
-            firstcheckinputCell.remove()
-            SecondcheckinputCell.remove()
-
-            // Uncheck all checked checkboxes
-            $('input[id="check-input"]:checked').prop('checked', false);
-        }
-        if (checkedRows.length === 3) {
-            var concatenatedValue = checkedRows[0].materialnameValue + '+' + checkedRows[1].materialnameValue + '+' + checkedRows[2].materialnameValue;
-            var timestamp = new Date().getTime();
-
-            // Update the first row with concatenated value and classification
-            checkedRows[0].row.find('#materialname-input').val(concatenatedValue);
-            checkedRows[0].row.find('#materialclassification-input').val('HAP');
-            checkedRows[0].row.find('#hap-input').val(timestamp);
-            checkedRows[0].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
-            checkedRows[1].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
-            checkedRows[2].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
-
-            // Set the second row's classification and HAP value
-            checkedRows[1].row.find('#materialclassification-input').val('HAP');
-            checkedRows[1].row.find('#hap-input').val(timestamp);
-
-            checkedRows[2].row.find('#materialclassification-input').val('HAP');
-            checkedRows[2].row.find('#hap-input').val(timestamp);
-            // Merge the cells by setting rowspan and hiding the second cell
-            var firstRowMaterialCell = checkedRows[0].row.find('#materialname-input').closest('td');
-            var secondRowMaterialCell = checkedRows[1].row.find('#materialname-input').closest('td');
-            var thirdMaterialCell = checkedRows[2].row.find('#materialname-input').closest('td');
-
-            var firstdeleteCell = checkedRows[0].row.find('#deleteRowBtn').closest('td');
-            var seconddeleteCell = checkedRows[1].row.find('#deleteRowBtn').closest('td');
-            var thirddeleteCell = checkedRows[2].row.find('#deleteRowBtn').closest('td');
-
-            var firstcheckinputCell = checkedRows[0].row.find('#check-input');
-            var SecondcheckinputCell = checkedRows[1].row.find('#check-input');
-            var thirdcheckinputCell = checkedRows[2].row.find('#check-input');
-
-            var RowBtnaddCell = checkedRows[0].row.find('#RowBtnadd-input');
-            var RowBtnaddCell1 = checkedRows[1].row.find('#RowBtnadd-input');
-
-
-            firstRowMaterialCell.attr('rowspan', 3);
-            firstdeleteCell.attr('rowspan', 3);
-            secondRowMaterialCell.remove();
-            thirdMaterialCell.remove();
-
-            RowBtnaddCell.remove()
-            RowBtnaddCell1.remove()
-
-            firstcheckinputCell.remove()
-            SecondcheckinputCell.remove()
-            thirdcheckinputCell.remove()
-
-            seconddeleteCell.remove()
-            thirddeleteCell.remove()
-
-            // Uncheck all checked checkboxes
-            $('input[id="check-input"]:checked').prop('checked', false);
-        }
-    }
 
 
 
@@ -1040,63 +942,66 @@
 
 
 
-        if ($('#bomid-edit').val()) {
-            var insertdate = new Date().toISOString().slice(0, 10);
-            var confirmResult = confirm('Bạn có muốn lưu dữ liệu không?\n데이터를 저장하시겠습니까?');
-            if (confirmResult) {
-                $('[id^="bomno-input"]').each(function (index) {
-                    var classification = ($('[id^="classification-input"]').eq(index).val());
-                    var bomno = ($('[id^="bomno-input"]').eq(index).val());
-                    var toolcode = 'TOOL-' + ($('[id^="toolcode-input"]').eq(index).val());
-                    var partcustomer = ($('[id^="partcustomer-input"]').eq(index).val());
-                    var customer = ($('[id^="customer-input"]').eq(index).val());
-                    var modelname = ($('[id^="modelname-input"]').eq(index).val());
-                    var itemname = ($('[id^="itemname-input"]').eq(index).val());
-                    var char = ($('[id^="char-input"]').eq(index).val());
-                    var part = ($('[id^="part-input"]').eq(index).val());
-                    var inputprice = ($('[id^="inputprice-input"]').eq(index).val());
-                    var outputprice = ($('[id^="outputprice-input"]').eq(index).val()) || 0; // 공란이면 0으로 설정
-                    var etc = $('[id^="etc-input"]').eq(index).val() || ''; // 공란이면 빈 문자열로 설정
+        var insertdate = new Date().toISOString().slice(0, 10);
+        var confirmResult = confirm('Bạn có muốn lưu dữ liệu không?\n데이터를 저장하시겠습니까?');
+        if (confirmResult) {
+            $('[id^="bomno-input"]').each(function (index) {
+                var classification = ($('[id^="classification-input"]').eq(index).val());
+                var bomno = ($('[id^="bomno-input"]').eq(index).val());
+                var toolcode = 'TOOL-' + ($('[id^="toolcode-input"]').eq(index).val());
+                var partcustomer = ($('[id^="partcustomer-input"]').eq(index).val());
+                var customer = ($('[id^="customer-input"]').eq(index).val());
+                var modelname = ($('[id^="modelname-input"]').eq(index).val());
+                var itemname = ($('[id^="itemname-input"]').eq(index).val());
+                var char = ($('[id^="char-input"]').eq(index).val());
+                var part = ($('[id^="part-input"]').eq(index).val());
+                var inputprice = ($('[id^="inputprice-input"]').eq(index).val().replace(/,/g, ''));
+                var outputprice = ($('[id^="outputprice-input"]').eq(index).val().replace(/,/g, '')) || 0; // 공란이면 0으로 설정
+                var etc = $('[id^="etc-input"]').eq(index).val() || ''; // 공란이면 빈 문자열로 설정
 
-                    $.ajax({
-                        type: 'POST',
-                        url: server + '/api/insertpinaclevina',
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            "classification": classification,
-                            "bomno": bomno,
-                            "toolcode": toolcode,
-                            "partcustomer": partcustomer,
-                            "customer": customer,
-                            "modelname": modelname,
-                            "itemname": itemname,
-                            "char": char,
-                            "part": part,
-                            "inputprice": inputprice,
-                            "outputprice": outputprice,
-                            "etc": etc,
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/insertpinaclevina',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "classification": classification,
+                        "bomno": bomno,
+                        "toolcode": toolcode,
+                        "partcustomer": partcustomer,
+                        "customer": customer,
+                        "modelname": modelname,
+                        "itemname": itemname,
+                        "char": char,
+                        "part": part,
+                        "inputprice": inputprice,
+                        "outputprice": outputprice,
+                        "etc": etc,
 
-                        }),
-                        success: function (result) {
-                            // Handle success
-                        },
-                        error: function (error) {
-                            // Handle error
-                        },
-                    });
+                    }),
+                    success: function (result) {
+                        // Handle success
+                    },
+                    error: function (error) {
+                        // Handle error
+                    },
                 });
-            }
+            });
 
-
-
-            $('#newModal').modal('hide');
-            alert('데이터가 성공적으로 저장 되었습니다\nDữ liệu đã được lưu thành công');
-            load();
-
+        } else {
+            return;
 
         }
+
+
+
+        $('#newModal').modal('hide');
+        alert('데이터가 성공적으로 저장 되었습니다\nDữ liệu đã được lưu thành công');
+        load();
+
+
     }
+
 
 </script>
 <script>
@@ -1221,16 +1126,48 @@
     }
 
 
-    document.getElementById('cavity-save').addEventListener('input', updateCavity);
     function formatDecimalInput(input, decimalPlaces) {
-        // 소수두째짜리까지만 입력가능
-        input.value = input.value.replace(/[^0-9.]/g, '');
-        const parts = input.value.split('.');
-        if (parts.length > 1) {
-            input.value = `${parts[0]}.${parts[1].slice(0, decimalPlaces)}`;
+        // 숫자만 추출
+        let value = input.value.replace(/,/g, '');
+
+        // 소수점을 위한 처리
+        let parts = value.split('.');
+        let integerPart = parts[0];
+        let decimalPart = parts[1] ? '.' + parts[1].substring(0, decimalPlaces) : '';
+
+        // 천 단위마다 쉼표 추가
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        input.value = integerPart + decimalPart;
+    }
+    document.getElementById("searchInput").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            searchTable();
+        }
+    });
+
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("dataTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    }
+                }
+            }
         }
     }
-
 </script>
 
 </html>

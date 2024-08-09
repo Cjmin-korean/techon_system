@@ -9722,6 +9722,23 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/selectwonvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+                .query(
+                    "select * from wonvina ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/planorderlist', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
