@@ -1,103 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Searchable Data Table</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #ddd;
-        }
-    </style>
+    <title>Scroll Position Refresh</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+
+    .table-container {
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background-color: #f2f2f2;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    th,
+    td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f4f4f4;
+    }
+
+    tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* 새로 고침 버튼 스타일 */
+    #refreshButton {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+
 <body>
 
-<h2>Searchable Data Table</h2>
+    <!-- 새로 고침 버튼 -->
+    <button id="refreshButton">데이터 새로 고침</button>
 
-<input type="text" id="searchInput" placeholder="Search for names..">
+    <div class="table-container">
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>City</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 초기 데이터 행 -->
+                <tr>
+                    <td>1</td>
+                    <td>John</td>
+                    <td>28</td>
+                    <td>New York</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Jane</td>
+                    <td>22</td>
+                    <td>Los Angeles</td>
+                </tr>
+                <!-- 데이터 행이 동적으로 추가됩니다. -->
+            </tbody>
+        </table>
+    </div>
 
-<table id="dataTable">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Country</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>John Doe</td>
-            <td>25</td>
-            <td>USA</td>
-        </tr>
-        <tr>
-            <td>Jane Smith</td>
-            <td>30</td>
-            <td>UK</td>
-        </tr>
-        <tr>
-            <td>Michael Johnson</td>
-            <td>45</td>
-            <td>Canada</td>
-        </tr>
-        <tr>
-            <td>Linda Davis</td>
-            <td>28</td>
-            <td>Australia</td>
-        </tr>
-        <tr>
-            <td>James Brown</td>
-            <td>35</td>
-            <td>USA</td>
-        </tr>
-    </tbody>
-</table>
-
+    <!-- <script src="script.js"></script> -->
+</body>
 <script>
-    document.getElementById("searchInput").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            searchTable();
-        }
-    });
+    // 데이터 갱신 함수
+    function updateTableData() {
+        // 현재 스크롤 위치 저장
+        const scrollPosition = document.documentElement.scrollTop || document.body.scrollTop;
 
-    function searchTable() {
-        var input, filter, table, tr, td, i, j, txtValue;
-        input = document.getElementById("searchInput");
-        filter = input.value.toLowerCase();
-        table = document.getElementById("dataTable");
-        tr = table.getElementsByTagName("tr");
+        // 데이터 예시 - 실제로는 AJAX를 통해 서버에서 데이터 받아오기
+        const newData = [
+            { id: 1, name: 'John', age: 28, city: 'New York' },
+            { id: 2, name: 'Jane', age: 22, city: 'Los Angeles' },
+            { id: 3, name: 'Mike', age: 32, city: 'Chicago' },
+            { id: 4, name: 'Alice', age: 29, city: 'San Francisco' },
+            { id: 5, name: 'Robert', age: 45, city: 'Boston' }
+            // 더 많은 데이터 추가 가능
+        ];
 
-        for (i = 1; i < tr.length; i++) {
-            tr[i].style.display = "none";
-            td = tr[i].getElementsByTagName("td");
-            for (j = 0; j < td.length; j++) {
-                if (td[j]) {
-                    txtValue = td[j].textContent || td[j].innerText;
-                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                        break;
-                    }
-                }
-            }
-        }
+        // 테이블의 tbody 요소 선택
+        const tbody = document.querySelector('#data-table tbody');
+
+        // 기존 데이터 삭제
+        tbody.innerHTML = '';
+
+        // 새로운 데이터로 테이블 업데이트
+        newData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${item.id}</td><td>${item.name}</td><td>${item.age}</td><td>${item.city}</td>`;
+            tbody.appendChild(row);
+        });
+
+        // 스크롤 위치 복원
+        document.documentElement.scrollTop = scrollPosition;
+        document.body.scrollTop = scrollPosition; // Safari를 위한 설정
     }
+
+    // 버튼 클릭 시 데이터 갱신
+    document.getElementById('refreshButton').onclick = function () {
+        updateTableData();
+    }
+
+
+
 </script>
 
-</body>
 </html>

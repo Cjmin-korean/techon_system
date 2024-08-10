@@ -1817,92 +1817,92 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "                    SELECT  "+
-                    "     i.bomno,  "+
-                    "     i.savedate,  "+
-                    "     i.modelname,  "+
-                    "     i.itemname,  "+
-                    "     i.itemprice,   "+
-                    "     ROUND("+
-                    "         COALESCE("+
-                    "             SUM("+
-                    "                 ROUND("+
-                    "                     mi.rollprice / "+
-                    "                     FLOOR("+
-                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
-                    "                         CASE "+
-                    "                             WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 "+
-                    "                             ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) "+
-                    "                         END"+
-                    "                     ), "+
-                    "                     1"+
-                    "                 )"+
-                    "             ), "+
-                    "             0"+
-                    "         ), "+
-                    "         1"+
-                    "     ) AS cost,    "+
-                    "     CASE   "+
-                    "         WHEN i.itemprice = 0 THEN 0   "+
-                    "         ELSE  "+
-                    "             ROUND("+
-                    "                 ( "+
-                    "                     COALESCE("+
-                    "                         SUM("+
-                    "                             ROUND("+
-                    "                                 mi.rollprice / "+
-                    "                                 FLOOR("+
-                    "                                     (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
-                    "                                     CASE "+
-                    "                                         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 "+
-                    "                                         ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) "+
-                    "                                     END"+
-                    "                                 ), "+
-                    "                                 1"+
-                    "                             )"+
-                    "                         ), "+
-                    "                         0"+
-                    "                     ) "+
-                    "                 ) / i.itemprice * 100, "+
-                    "                 1"+
-                    "             )   "+
-                    "     END AS costPriceRatio,  "+
-                    "     i.customer,  "+
-                    "     i.itemcode,  "+
-                    "     i.working,  "+
-                    "     i.pcs,  "+
-                    "     i.cavity,  "+
-                    "     i.direction,  "+
-                    "     i.workpart,  "+
-                    "     i.additionalnotes,  "+
-                    "     i.class,  "+
-                    "     i.type, "+
-                    "     bm.bomid,i.approval, "+
-                    "     MAX(bm.num) AS materialcount "+
-                    " FROM  "+
-                    "     iteminfovina i  "+
-                    " LEFT JOIN  "+
-                    "     bommanagementvina bm ON i.bomno = bm.bomno  "+
-                    " LEFT JOIN  "+
-                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  "+
-                    " WHERE  "+
-                    "     bm.status = 'true'  "+
-                    " GROUP BY  "+
-                    "     i.bomno,  "+
-                    "     i.savedate,"+
-                    "     i.modelname,  "+
-                    "     i.itemname,  "+
-                    "     i.itemprice,  "+
-                    "     i.customer,  "+
-                    "     i.itemcode,  "+
-                    "     i.working,  "+
-                    "     i.pcs,  "+
-                    "     i.cavity,  "+
-                    "     i.direction,  "+
-                    "     i.workpart,  "+
-                    "     i.additionalnotes,  "+
-                    "     i.class,  "+
-                    "     i.type,i.approval, "+
+                    "                    SELECT  " +
+                    "     i.bomno,i.part,  " +
+                    "     i.savedate,  " +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,   " +
+                    "     ROUND(" +
+                    "         COALESCE(" +
+                    "             SUM(" +
+                    "                 ROUND(" +
+                    "                     mi.rollprice / " +
+                    "                     FLOOR(" +
+                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "                         CASE " +
+                    "                             WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
+                    "                             ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) " +
+                    "                         END" +
+                    "                     ), " +
+                    "                     1" +
+                    "                 )" +
+                    "             ), " +
+                    "             0" +
+                    "         ), " +
+                    "         1" +
+                    "     ) AS cost,    " +
+                    "     CASE   " +
+                    "         WHEN i.itemprice = 0 THEN 0   " +
+                    "         ELSE  " +
+                    "             ROUND(" +
+                    "                 ( " +
+                    "                     COALESCE(" +
+                    "                         SUM(" +
+                    "                             ROUND(" +
+                    "                                 mi.rollprice / " +
+                    "                                 FLOOR(" +
+                    "                                     (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "                                     CASE " +
+                    "                                         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
+                    "                                         ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) " +
+                    "                                     END" +
+                    "                                 ), " +
+                    "                                 1" +
+                    "                             )" +
+                    "                         ), " +
+                    "                         0" +
+                    "                     ) " +
+                    "                 ) / i.itemprice * 100, " +
+                    "                 1" +
+                    "             )   " +
+                    "     END AS costPriceRatio,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type, " +
+                    "     bm.bomid,i.approval,i.nap,i.deadline, " +
+                    "     MAX(bm.num) AS materialcount " +
+                    " FROM  " +
+                    "     iteminfovina i  " +
+                    " LEFT JOIN  " +
+                    "     bommanagementvina bm ON i.bomno = bm.bomno  " +
+                    " LEFT JOIN  " +
+                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  " +
+                    " WHERE  " +
+                    "     bm.status = 'true'  " +
+                    " GROUP BY  " +
+                    "     i.bomno,  " +
+                    "     i.savedate," +
+                    "     i.modelname,  " +
+                    "     i.itemname,  " +
+                    "     i.itemprice,  " +
+                    "     i.customer,  " +
+                    "     i.itemcode,  " +
+                    "     i.working,  " +
+                    "     i.pcs,  " +
+                    "     i.cavity,  " +
+                    "     i.direction,  " +
+                    "     i.workpart,  " +
+                    "     i.additionalnotes,  " +
+                    "     i.class,  " +
+                    "     i.type,i.approval,i.part,i.nap,i.deadline," +
                     "     bm.bomid;")
                 .then(result => {
 
@@ -5464,94 +5464,94 @@ module.exports = function (app) {
                 // .input('status', sql.NVarChar, req.body.status)
 
                 .query(
-                    " SELECT DISTINCT "+
-                    "     bm.char, "+
-                    "     bm.main,"+
-                    "     bm.materialname,"+
-                    "     mi.typecategory,"+
-                    "     bm.etc,"+
-                    "     bm.chk1,"+
-                    "     bm.chk2,"+
-                    "     bm.chk3,"+
-                    "     bm.materialwidth, "+
-                    "     bm.useable, "+
-                    "     bm.onepid, "+
-                    "     bm.twopid, "+
-                    "     CASE "+
-                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0"+
-                    "         ELSE ROUND("+
-                    "             bm.ta * "+
-                    "             CASE "+
-                    "                 WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 "+
-                    "                 ELSE ((bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0)) "+
-                    "             END "+
-                    "             * 0.001 * (1 + (bm.loss / 100)), "+
-                    "             4"+
-                    "         )"+
-                    "     END AS soyo,  "+
-                    "     bm.ta, "+
-                    "     bm.allta, "+
-                    "     bm.talength, "+
-                    "     bm.loss, "+
-                    "     bm.costloss,"+
-                    "     CASE "+
-                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0"+
-                    "         ELSE CASE "+
-                    "             WHEN mi.unit = '＄' THEN "+
-                    "                 ROUND("+
-                    "                     mi.rollprice * w.currencyprice / "+
-                    "                     FLOOR("+
-                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
-                    "                         CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END"+
-                    "                     ), "+
-                    "                 2) "+
-                    "             ELSE "+
-                    "                 ROUND("+
-                    "                     mi.rollprice / "+
-                    "                     FLOOR("+
-                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
-                    "                         CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END"+
-                    "                     ),  "+
-                    "                 2)  "+
-                    "         END "+
-                    "     END AS cost, "+
-                    "     FLOOR(NULLIF(mi.usewidth, 0) / bm.materialwidth) AS rlcut, "+
-                    "     CASE "+
-                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0  "+
-                    "         ELSE FLOOR( "+
-                    "             (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / "+
-                    "             ((bm.onepid + bm.talength + bm.twopid) / bm.allta)"+
-                    "         )"+
-                    "     END AS productcount, "+
-                    "     mi.width,"+
-                    "     mi.usewidth,"+
-                    "     mi.length,"+
-                    "     CASE"+
-                    "         WHEN mi.unit = '￦' THEN FLOOR(mi.rollprice * w.currencyprice)"+
-                    "         ELSE FLOOR(mi.rollprice)"+
-                    "     END AS rollprice, "+
-                    "     CASE "+
-                    "         WHEN mi.unit = '￦' THEN 'VND'"+
-                    "         ELSE mi.unit"+
-                    "     END AS unit, "+
-                    "     mi.manufacterer, "+
-                    "     mi.supplier, "+
-                    "     mi.codenumber,"+
-                    "     bm.cavity, "+
-                    "     bm.num,"+
-                    "     bm.hap , bm.hapmaterialname, bm.hapnum "+
-                    " FROM  "+
-                    "     bommanagementvina bm "+
-                    " LEFT JOIN "+
-                    "     materialinformationvina mi2 ON bm.hapcodenumber = mi2.codenumber "+
-                    " JOIN "+
-                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  "+
-                    " LEFT JOIN "+
-                    "     wonvina w ON mi.unit = w.currencyname "+
-                    " WHERE  "+
-                    "     bm.bomno = @bomno "+
-                    "     AND bm.status = 'true' "+
-                    " ORDER BY "+
+                    " SELECT DISTINCT " +
+                    "     bm.char, " +
+                    "     bm.main," +
+                    "     bm.materialname," +
+                    "     mi.typecategory," +
+                    "     bm.etc," +
+                    "     bm.chk1," +
+                    "     bm.chk2," +
+                    "     bm.chk3," +
+                    "     bm.materialwidth, " +
+                    "     bm.useable, " +
+                    "     bm.onepid, " +
+                    "     bm.twopid, " +
+                    "     CASE " +
+                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0" +
+                    "         ELSE ROUND(" +
+                    "             bm.ta * " +
+                    "             CASE " +
+                    "                 WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
+                    "                 ELSE ((bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0)) " +
+                    "             END " +
+                    "             * 0.001 * (1 + (bm.loss / 100)), " +
+                    "             4" +
+                    "         )" +
+                    "     END AS soyo,  " +
+                    "     bm.ta, " +
+                    "     bm.allta, " +
+                    "     bm.talength, " +
+                    "     bm.loss, " +
+                    "     bm.costloss," +
+                    "     CASE " +
+                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0" +
+                    "         ELSE CASE " +
+                    "             WHEN mi.unit = '＄' THEN " +
+                    "                 ROUND(" +
+                    "                     mi.rollprice * w.currencyprice / " +
+                    "                     FLOOR(" +
+                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "                         CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END" +
+                    "                     ), " +
+                    "                 2) " +
+                    "             ELSE " +
+                    "                 ROUND(" +
+                    "                     mi.rollprice / " +
+                    "                     FLOOR(" +
+                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "                         CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END" +
+                    "                     ),  " +
+                    "                 2)  " +
+                    "         END " +
+                    "     END AS cost, " +
+                    "     FLOOR(NULLIF(mi.usewidth, 0) / bm.materialwidth) AS rlcut, " +
+                    "     CASE " +
+                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0  " +
+                    "         ELSE FLOOR( " +
+                    "             (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "             ((bm.onepid + bm.talength + bm.twopid) / bm.allta)" +
+                    "         )" +
+                    "     END AS productcount, " +
+                    "     mi.width," +
+                    "     mi.usewidth," +
+                    "     mi.length," +
+                    "     CASE" +
+                    "         WHEN mi.unit = '￦' THEN FLOOR(mi.rollprice * w.currencyprice)" +
+                    "         ELSE FLOOR(mi.rollprice)" +
+                    "     END AS rollprice, " +
+                    "     CASE " +
+                    "         WHEN mi.unit = '￦' THEN 'VND'" +
+                    "         ELSE mi.unit" +
+                    "     END AS unit, " +
+                    "     mi.manufacterer, " +
+                    "     mi.supplier, " +
+                    "     mi.codenumber," +
+                    "     bm.cavity, " +
+                    "     bm.num," +
+                    "     bm.hap , bm.hapmaterialname, bm.hapnum " +
+                    " FROM  " +
+                    "     bommanagementvina bm " +
+                    " LEFT JOIN " +
+                    "     materialinformationvina mi2 ON bm.hapcodenumber = mi2.codenumber " +
+                    " JOIN " +
+                    "     materialinformationvina mi ON bm.codenumber = mi.codenumber  " +
+                    " LEFT JOIN " +
+                    "     wonvina w ON mi.unit = w.currencyname " +
+                    " WHERE  " +
+                    "     bm.bomno = @bomno " +
+                    "     AND bm.status = 'true' " +
+                    " ORDER BY " +
                     "     bm.num, bm.hap ASC;")
 
                 .then(result => {
@@ -11943,31 +11943,31 @@ module.exports = function (app) {
                 });
         });
     });
-// **** start       
-sql.connect(config).then(pool => {
-    app.post('/api/selectbomvina', function (req, res) {
-        res.header("Access-Control-Allow-Origin", "*");
-        return pool.request()
-            .input('bomno', sql.NVarChar, '%' + req.body.bomno + '%')
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectbomvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                .input('bomno', sql.NVarChar, '%' + req.body.bomno + '%')
 
-            .query(
-                "SELECT * " +
-                "FROM iteminfovina " +
-                "WHERE " +
-                "bomno LIKE @bomno  " +
+                .query(
+                    "SELECT * " +
+                    "FROM iteminfovina " +
+                    "WHERE " +
+                    "bomno LIKE @bomno  " +
 
-                "ORDER BY bomno ASC"
-            )
-            .then(result => {
-                res.json(result.recordset);
-                res.end();
-            })
-            .catch(err => {
-                console.error('SQL error', err);
-                res.status(500).send('Server error');
-            });
+                    "ORDER BY bomno ASC"
+                )
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+                })
+                .catch(err => {
+                    console.error('SQL error', err);
+                    res.status(500).send('Server error');
+                });
+        });
     });
-});
 
     // **** finish
     // **** start       
