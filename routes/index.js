@@ -14277,43 +14277,43 @@ sql.connect(config).then(pool => {
 
     });
     // **** finish
-    // **** start       
-    sql.connect(config).then(pool => {
-        app.post('/api/updateiteminformationvina', function (req, res) {
+    // // **** start       
+    // sql.connect(config).then(pool => {
+    //     app.post('/api/updateiteminformationvina', function (req, res) {
 
 
-            res.header("Access-Control-Allow-Origin", "*");
-            return pool.request()
+    //         res.header("Access-Control-Allow-Origin", "*");
+    //         return pool.request()
 
 
 
-                .input('bomno', sql.NVarChar, req.body.bomno)
-                .input('modelname', sql.NVarChar, req.body.modelname)
-                .input('itemname', sql.NVarChar, req.body.itemname)
-                .input('customer', sql.NVarChar, req.body.customer)
-                .input('itemcode', sql.NVarChar, req.body.itemcode)
-                .input('pcs', sql.NVarChar, req.body.pcs)
-                .input('cavity', sql.Int, req.body.cavity)
-                .input('direction', sql.NVarChar, req.body.direction)
-                .input('workpart', sql.NVarChar, req.body.workpart)
-                .input('ordercount', sql.Float, req.body.ordercount)
-                .input('additionalnotes', sql.NVarChar, req.body.additionalnotes)
-                .input('working', sql.NVarChar, req.body.working)
-                .input('type', sql.NVarChar, req.body.type)
+    //             .input('bomno', sql.NVarChar, req.body.bomno)
+    //             .input('modelname', sql.NVarChar, req.body.modelname)
+    //             .input('itemname', sql.NVarChar, req.body.itemname)
+    //             .input('customer', sql.NVarChar, req.body.customer)
+    //             .input('itemcode', sql.NVarChar, req.body.itemcode)
+    //             .input('pcs', sql.NVarChar, req.body.pcs)
+    //             .input('cavity', sql.Int, req.body.cavity)
+    //             .input('direction', sql.NVarChar, req.body.direction)
+    //             .input('workpart', sql.NVarChar, req.body.workpart)
+    //             .input('ordercount', sql.Float, req.body.ordercount)
+    //             .input('additionalnotes', sql.NVarChar, req.body.additionalnotes)
+    //             .input('working', sql.NVarChar, req.body.working)
+    //             .input('type', sql.NVarChar, req.body.type)
 
-                // 
-                .query(
-                    'update iteminfovina set bomno=@bomno, modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes,working=@working,type=@type where bomno=@bomno'
-                )
-                .then(result => {
+    //             // 
+    //             .query(
+    //                 'update iteminfovina set bomno=@bomno, modelname=@modelname,itemname=@itemname,customer=@customer,itemcode=@itemcode,pcs=@pcs,cavity=@cavity,direction=@direction,workpart=@workpart,ordercount=@ordercount,additionalnotes=@additionalnotes,working=@working,type=@type where bomno=@bomno'
+    //             )
+    //             .then(result => {
 
-                    res.json(result.recordset);
-                    res.end();
-                });
-        });
+    //                 res.json(result.recordset);
+    //                 res.end();
+    //             });
+    //     });
 
-    });
-    // **** finish
+    // });
+    // // **** finish
     // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/updateiteminformation1', function (req, res) {

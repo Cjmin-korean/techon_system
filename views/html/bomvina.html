@@ -1309,6 +1309,9 @@
     }
 
     function load() {
+        // 현재 스크롤 위치 저장
+        var currentScrollPosition = document.getElementById('containers').scrollTop;
+
         $('#Datatbody').empty();
         $.ajax({
             type: 'POST',
@@ -1353,9 +1356,13 @@
                         );
                     }
                 }
+
+                // 스크롤 위치 복원
+                document.getElementById('containers').scrollTop = currentScrollPosition;
             }
         });
     }
+
 
     $('#addButton').on('click', function () {
         var container = document.getElementById('containers');
@@ -1982,30 +1989,7 @@
                 for (var i = 0; i < rowCount; i++) {
                     $('#bomtableBody tr:eq(' + i + ') #num-input').val(i + 1);
                 }
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/updateiteminformationvina',
-                    dataType: 'json',
-                    async: false,
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "bomno": $('#bomno-save').val(),
-                        "modelname": $('#modelname-save').val(),
-                        "itemname": $('#itemname-save').val(),
-                        "customer": $('#customer-save').val(),
-                        "itemcode": $('#itemcode-save').val(),
-                        "pcs": $('#pcs-save').val(),
-                        "cavity": $('#cavity-save').val(),
-                        "direction": $('#direction-save').val(),
-                        "workpart": $('#workpart-save').val(),
-                        "additionalnotes": $('#additionalNote').val(),
-                        "working": $('#working-save').val(),
-                        "type": $('#type-save').val(),
-                    }),
-                    success: function (result) {
-                        // Handle success
-                    }
-                });
+
                 $.ajax({
                     type: 'POST',
                     url: server + '/api/updateiteminfovina',
@@ -2034,6 +2018,32 @@
                     }
                 });
 
+                $.ajax({
+                    type: 'POST',
+                    url: server + '/api/updateiteminformationvina',
+                    dataType: 'json',
+                    async: false,
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "bomno": $('#bomno-save').val(),
+                        "bomno1": $('#bomno-edit').val(),
+
+                        "modelname": $('#modelname-save').val(),
+                        "itemname": $('#itemname-save').val(),
+                        "customer": $('#customer-save').val(),
+                        "itemcode": $('#itemcode-save').val(),
+                        "pcs": $('#pcs-save').val(),
+                        "cavity": $('#cavity-save').val(),
+                        "direction": $('#direction-save').val(),
+                        "workpart": $('#workpart-save').val(),
+                        "additionalnotes": $('#additionalNote').val(),
+                        "working": $('#working-save').val(),
+                        "type": $('#type-save').val(),
+                    }),
+                    success: function (result) {
+                        // Handle success
+                    }
+                });
                 $('[id^="num-input"]').each(function (index) {
                     var cavity = $('#cavity-save').val();
                     var bomno = $('#bomno-save').val();
