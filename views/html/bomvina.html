@@ -1110,6 +1110,7 @@
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="cavity-input" value="' + result[i].cavity + '" onchange="updateSoyoValue(); updateRlProduct(); updateRlcutValue(); calculateCost();" autocomplete="off"></td>' +
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="num-input" value="' + result[i].num + '" autocomplete="off"></td>' +
                             '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hap-input" value="' + result[i].hapnum + '" autocomplete="off"></td>' +
+                            '<td><input type="text" style="text-align:right; background-color: whitesmoke;" readonly id="hapmaterialname-input" value="' + result[i].hapmaterialname + '" autocomplete="off"></td>' +
 
                             '</tr>'
                         )
@@ -1167,7 +1168,6 @@
                 "bomno": rowData.bomno
             }),
             success: function (result) {
-                console.log(result)
                 var foundHap = result.some(function (item) {
                     return item.hap === 'HAP';
                 });
@@ -1904,6 +1904,74 @@
 
             seconddeleteCell.remove()
             thirddeleteCell.remove()
+
+            // Uncheck all checked checkboxes
+            $('input[id="check-input"]:checked').prop('checked', false);
+        }
+        if (checkedRows.length === 4) {
+            var concatenatedValue = checkedRows[0].materialnameValue + '+' + checkedRows[1].materialnameValue + '+' + checkedRows[2].materialnameValue + '+' + checkedRows[3].materialnameValue;
+            var timestamp = new Date().getTime();
+
+            // Update the first row with concatenated value and classification
+            checkedRows[0].row.find('#materialname-input').val(concatenatedValue);
+      
+            checkedRows[0].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
+            checkedRows[1].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
+            checkedRows[2].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
+            checkedRows[3].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
+        
+        
+            checkedRows[0].row.find('#materialclassification-input').val('HAP');
+            checkedRows[0].row.find('#hap-input').val(timestamp);
+            // Set the second row's classification and HAP value
+            checkedRows[1].row.find('#materialclassification-input').val('HAP');
+            checkedRows[1].row.find('#hap-input').val(timestamp);
+
+            checkedRows[2].row.find('#materialclassification-input').val('HAP');
+            checkedRows[2].row.find('#hap-input').val(timestamp);
+
+            checkedRows[3].row.find('#materialclassification-input').val('HAP');
+            checkedRows[3].row.find('#hap-input').val(timestamp);
+
+            // Merge the cells by setting rowspan and hiding the second cell
+            var firstRowMaterialCell = checkedRows[0].row.find('#materialname-input').closest('td');
+            var secondRowMaterialCell = checkedRows[1].row.find('#materialname-input').closest('td');
+            var thirdMaterialCell = checkedRows[2].row.find('#materialname-input').closest('td');
+            var fourthMaterialCell = checkedRows[3].row.find('#materialname-input').closest('td');
+
+            var firstdeleteCell = checkedRows[0].row.find('#deleteRowBtn').closest('td');
+            var seconddeleteCell = checkedRows[1].row.find('#deleteRowBtn').closest('td');
+            var thirddeleteCell = checkedRows[2].row.find('#deleteRowBtn').closest('td');
+            var fourthdeleteCell = checkedRows[3].row.find('#deleteRowBtn').closest('td');
+
+            var firstcheckinputCell = checkedRows[0].row.find('#check-input');
+            var SecondcheckinputCell = checkedRows[1].row.find('#check-input');
+            var thirdcheckinputCell = checkedRows[2].row.find('#check-input');
+            var fourthcheckinputCell = checkedRows[2].row.find('#check-input');
+
+            var RowBtnaddCell = checkedRows[0].row.find('#RowBtnadd-input');
+            var RowBtnaddCell1 = checkedRows[1].row.find('#RowBtnadd-input');
+            var RowBtnaddCell2 = checkedRows[2].row.find('#RowBtnadd-input');
+
+
+            firstRowMaterialCell.attr('rowspan', 4);
+            firstdeleteCell.attr('rowspan', 4);
+            secondRowMaterialCell.remove();
+            thirdMaterialCell.remove();
+            fourthMaterialCell.remove();
+
+            RowBtnaddCell.remove()
+            RowBtnaddCell1.remove()
+            RowBtnaddCell2.remove()
+
+            firstcheckinputCell.remove()
+            SecondcheckinputCell.remove()
+            thirdcheckinputCell.remove()
+            fourthcheckinputCell.remove()
+
+            seconddeleteCell.remove()
+            thirddeleteCell.remove()
+            fourthdeleteCell.remove()
 
             // Uncheck all checked checkboxes
             $('input[id="check-input"]:checked').prop('checked', false);
