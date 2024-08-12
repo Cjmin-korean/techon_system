@@ -1877,7 +1877,7 @@ module.exports = function (app) {
                     "     i.additionalnotes,  " +
                     "     i.class,  " +
                     "     i.type, " +
-                    "     bm.bomid,i.approval,i.nap,i.deadline, " +
+                    "     bm.bomid,i.approval,i.nap,i.deadline,i.itempriceusd, " +
                     "     MAX(bm.num) AS materialcount " +
                     " FROM  " +
                     "     iteminfovina i  " +
@@ -1902,7 +1902,7 @@ module.exports = function (app) {
                     "     i.workpart,  " +
                     "     i.additionalnotes,  " +
                     "     i.class,  " +
-                    "     i.type,i.approval,i.part,i.nap,i.deadline," +
+                    "     i.type,i.approval,i.part,i.nap,i.deadline,i.itempriceusd," +
                     "     bm.bomid;")
                 .then(result => {
 
@@ -14165,6 +14165,36 @@ module.exports = function (app) {
 
                 .query(
                     'update iteminfo set itemprice=@itemprice,class=@class where bomno=@bomno'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/updateiteminfovinaprice', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('class', sql.NVarChar, req.body.class)
+                .input('nap', sql.NVarChar, req.body.nap)
+                .input('deadline', sql.NVarChar, req.body.deadline)
+                .input('itemprice', sql.Float, req.body.itemprice)
+                .input('itempriceusd', sql.Float, req.body.itempriceusd)
+
+
+                .query(
+                    'update iteminfovina set itemprice=@itemprice,itempriceusd=@itempriceusd,nap=@nap,class=@class,deadline=@deadline where bomno=@bomno'
                 )
                 .then(result => {
 
