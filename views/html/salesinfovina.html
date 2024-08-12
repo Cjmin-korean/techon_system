@@ -90,15 +90,21 @@
                     <div class="page-inner">
                         <div class="card-header">
                             <div class="d-flex align-items-center">
-                                <h4 class="card-title">Đăng ký và tra cứu đơn giá(단가 등록 및 조회)</h4>
+                                <h4 class="card-title">Thông tin tiếp nhậ đơn hàng kinh doanh(영업 수주 정보)</h4>
+                                <button type="button" class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
+                                    id="addButton" data-bs-target="#productModal">
+                                    <i class="fa fa-plus"></i>
+                                    thêm vào(추가)
+                                </button>
                             </div>
                             <div class="card-body">
+                                <!-- Input type="date" 추가 -->
                                 <div class="date-input-group">
-                                    <div class="date-input-group">
-                                        <input type="text" id="searchInput"
-                                            placeholder="🔍 Tìm kiếm và nhấn Enter (Search and press Enter)"
-                                            autocomplete="off" style="width: 500px;">
-                                    </div>
+                                    <input type="date" id="datePicker1"
+                                        style="width: 200px; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;">
+                                    <input type="date" id="datePicker2"
+                                        style="width: 200px; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;">
+                                    <button class="btn btn-primary">Search</button>
                                 </div>
                             </div>
                         </div>
@@ -107,29 +113,18 @@
                         <div style="margin-top: -10px;">
                             <table class="styled-table" id="dataTable">
                                 <thead id="tableHead">
-
                                     <tr>
-                                        <th style="width: 150px;" id="datacount"></th>
-                                        <th style="width: 150px;">BOMNO</th>
-                                        <th>Phân loại<br>구분 </th>
-                                        <th>Khách hàng<br>고객사</th>
-                                        <th>Tên Model<br>모델명</th>
-                                        <th>Tên sản phẩm<br>품목명</th>
-                                        <th>Hình thức giao hàng<br>납품형태</th>
-                                        <th>Phân loại hàng<br>제품군</th>
-                                        <th>Tiêu chuẩn chốt tháng<br>마감기준</th>
-                                        <th>Đơn giá bán (VND)<br>판매단가(VND)</th>
-                                        <th>Đơn giá bán (USD)<br>판매단가(USD)</th>
-                                        <th>Giá vốn(VND)<br>원가(VND)</th>
-                                        <th>Giá vốn(USD)<br>원가(USD)</th>
-                                        <th>Tỷ lệ nguyên liệu(VND)(%)<br>재료비율(VND)(%)</th>
-                                        <th>Tỷ lệ nguyên liệu(USD)(%)<br>재료비율(USD)(%)</th>
+                                        <th>Phân loại<br>주문번호</th>
+                                        <th>Phân loại<br>주문일자</th>
+                                        <th style="width: 850px;">Phân loại<br>주문내용</th>
+                                        <th>Phân loại<br>수량합계</th>
+                                        <th>Phân loại<br>금액합계</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="Datatbody">
                                     <tr id="no-data-row">
-                                        <td colspan="20" style="text-align: center;">
-                                            Không có dữ liệu(데이터가 없습니다)</td>
+                                        <td colspan="20" style="text-align: center;">Không có dữ liệu(데이터가 없습니다)</td>
                                     </tr>
                                 </tbody>
                                 <tfoot id="iteminfofoot"></tfoot>
@@ -137,10 +132,10 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
+
     <!-- <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-hidden="true"> -->
     <div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"
         data-bs-keyboard="false" data-bs-backdrop="static">
@@ -362,18 +357,15 @@
 
 
     $(document).ready(function () {
-        // $.ajax({
-        //     type: 'POST',
-        //     url: server + '/api/selectsamplevina',
-        //     dataType: 'json',
-        //     contentType: 'application/json',
-        //     data: JSON.stringify({
+        var today = new Date();
 
-        //     }),
-        //     success: function (result) {
-        //         $('#datacount').text('DATA : ' + result[0].datacount)
-        //     }
-        // })
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해준다.
+        var day = String(today.getDate()).padStart(2, '0'); // 일
+        var formattedDate = year + '-' + month + '-' + day;
+
+        document.getElementById('datePicker1').value = formattedDate;
+        document.getElementById('datePicker2').value = formattedDate;
         $('#tableContainer').scrollLeft(0);
 
 
@@ -489,53 +481,53 @@
     }
 
     function load() {
-        $.ajax({
-            type: 'POST',
-            url: server + '/api/iteminfobomvina',
-            dataType: 'json',
-            success: function (data) {
-                $('#Datatbody').empty();
-                if (data.length === 0) {
-                    $('#Datatbody').append(
-                        '<tr><td colspan="13" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
-                    );
-                } else {
-                    for (var i = 0; i < data.length; i++) {
-                        var rowData = JSON.stringify(data[i]);
+        // $.ajax({
+        //     type: 'POST',
+        //     url: server + '/api/iteminfobomvina',
+        //     dataType: 'json',
+        //     success: function (data) {
+        //         $('#Datatbody').empty();
+        //         if (data.length === 0) {
+        //             $('#Datatbody').append(
+        //                 '<tr><td colspan="13" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
+        //             );
+        //         } else {
+        //             for (var i = 0; i < data.length; i++) {
+        //                 var rowData = JSON.stringify(data[i]);
 
-                        // 값 계산
-                        var vndToUsd = (data[i].cost / 25139.6).toFixed(4);
-                        var costToPriceVND = ((data[i].cost / data[i].itemprice) * 100).toFixed(2);
-                        var costToPriceUSD = ((vndToUsd / data[i].itempriceusd) * 100).toFixed(2);
+        //                 // 값 계산
+        //                 var vndToUsd = (data[i].cost / 25139.6).toFixed(4);
+        //                 var costToPriceVND = ((data[i].cost / data[i].itemprice) * 100).toFixed(2);
+        //                 var costToPriceUSD = ((data[i].cost / data[i].itempriceusd) * 100).toFixed(2);
 
-                        // Infinity 체크 후 값 대체
-                        vndToUsd = isFinite(vndToUsd) ? vndToUsd.toLocaleString() : '0';
-                        costToPriceVND = isFinite(costToPriceVND) ? costToPriceVND.toLocaleString() : '0';
-                        costToPriceUSD = isFinite(costToPriceUSD) ? costToPriceUSD.toLocaleString() : '0';
+        //                 // Infinity 체크 후 값 대체
+        //                 vndToUsd = isFinite(vndToUsd) ? vndToUsd.toLocaleString() : '0';
+        //                 costToPriceVND = isFinite(costToPriceVND) ? costToPriceVND.toLocaleString() : '0';
+        //                 costToPriceUSD = isFinite(costToPriceUSD) ? costToPriceUSD.toLocaleString() : '0';
 
-                        $('#Datatbody').append(
-                            '<tr>' +
-                            '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
-                            '<td>' + (data[i].bomno || '') + '</td>' +
-                            '<td>' + (data[i].part || '') + '</td>' +
-                            '<td>' + (data[i].customer || '') + '</td>' +
-                            '<td>' + (data[i].modelname || '') + '</td>' +
-                            '<td>' + (data[i].itemname || '') + '</td>' +
-                            '<td>' + (data[i].nap || '') + '</td>' +
-                            '<td>' + (data[i].class || '') + '</td>' +
-                            '<td>' + (data[i].deadline || '') + '</td>' +
-                            '<td>' + (data[i].itemprice.toLocaleString() || '') + '</td>' +
-                            '<td>' + (data[i].itempriceusd.toLocaleString() || '') + '</td>' +//11
-                            '<td>' + (data[i].cost.toLocaleString() || '') + '</td>' +
-                            '<td>' + vndToUsd + '</td>' + //11
-                            '<td>' + costToPriceVND + '</td>' +
-                            '<td>' + costToPriceUSD + '</td>' +
-                            '</tr>'
-                        );
-                    }
-                }
-            }
-        });
+        //                 $('#Datatbody').append(
+        //                     '<tr>' +
+        //                     '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
+        //                     '<td>' + (data[i].bomno || '') + '</td>' +
+        //                     '<td>' + (data[i].part || '') + '</td>' +
+        //                     '<td>' + (data[i].customer || '') + '</td>' +
+        //                     '<td>' + (data[i].modelname || '') + '</td>' +
+        //                     '<td>' + (data[i].itemname || '') + '</td>' +
+        //                     '<td>' + (data[i].nap || '') + '</td>' +
+        //                     '<td>' + (data[i].class || '') + '</td>' +
+        //                     '<td>' + (data[i].deadline || '') + '</td>' +
+        //                     '<td>' + (data[i].itemprice.toLocaleString() || '') + '</td>' +
+        //                     '<td>' + (data[i].itempriceusd.toLocaleString() || '') + '</td>' +
+        //                     '<td>' + (data[i].cost.toLocaleString() || '') + '</td>' +
+        //                     '<td>' + vndToUsd + '</td>' +
+        //                     '<td>' + costToPriceVND + '</td>' +
+        //                     '<td>' + costToPriceUSD + '</td>' +
+        //                     '</tr>'
+        //                 );
+        //             }
+        //         }
+        //     }
+        // });
     }
 
 
@@ -874,6 +866,7 @@
 
 
 </script>
+
 <script>
     function updateCavity() {
         const cavitySaveValue = parseFloat($("#cavity-save").val()) || 0;
