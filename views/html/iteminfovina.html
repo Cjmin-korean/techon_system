@@ -540,21 +540,27 @@
 
 
     function onlyNumberKey(event) {
-        // Only allows number keys, backspace, delete, left and right arrows
-        const charCode = event.which ? event.which : event.keyCode;
-        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        var charCode = event.which ? event.which : event.keyCode;
+
+        // 숫자(0-9)와 소수점(.) 허용
+        if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57))
             return false;
-        }
+
+        // 소수점은 한 번만 입력 가능하도록 허용
+        if (charCode == 46 && event.target.value.indexOf('.') !== -1)
+            return false;
+
         return true;
     }
 
     function validateNumericInput(input) {
-        // 숫자와 소수점만 입력 가능하게 함
+        // 입력된 값에서 숫자와 소수점만 남기고 나머지를 제거
         input.value = input.value.replace(/[^0-9.]/g, '');
 
-        // 소수점이 여러 개 입력되지 않도록 함
-        if ((input.value.match(/\./g) || []).length > 1) {
-            input.value = input.value.replace(/\.+$/, '');
+        // 소수점은 최대 1개만 남기고 제거
+        var parts = input.value.split('.');
+        if (parts.length > 2) {
+            input.value = parts[0] + '.' + parts.slice(1).join('');
         }
     }
     function addRow() {
