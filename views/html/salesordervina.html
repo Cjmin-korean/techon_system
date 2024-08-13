@@ -114,6 +114,8 @@
                             <table class="styled-table" id="dataTable">
                                 <thead id="tableHead">
                                     <tr>
+                                        <th></th>
+
                                         <th>Ngày đặt hàng<br>주문일자</th>
                                         <th>Khách hàng<br>고객사</th>
                                         <th>PONO</th>
@@ -122,7 +124,9 @@
                                         <th>Tên sản phẩm<br>ITEMNAME</th>
                                         <th>Mã khách hàng<br>고객사코드</th>
                                         <th>Số lượng PO (EA)<br>PO수량</th>
-                                        <th></th>
+                                        <th>Đơn vị<br>단위</th>
+                                        <th>Đơn giá<br>단가</th>
+                                        <th>Đơn giá<br>합계금액</th>
                                     </tr>
                                 </thead>
                                 <tbody id="Datatbody">
@@ -484,54 +488,60 @@
     }
 
     function load() {
-        // $.ajax({
-        //     type: 'POST',
-        //     url: server + '/api/iteminfobomvina',
-        //     dataType: 'json',
-        //     success: function (data) {
-        //         $('#Datatbody').empty();
-        //         if (data.length === 0) {
-        //             $('#Datatbody').append(
-        //                 '<tr><td colspan="13" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
-        //             );
-        //         } else {
-        //             for (var i = 0; i < data.length; i++) {
-        //                 var rowData = JSON.stringify(data[i]);
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectaccountvina',
+            dataType: 'json',
+            success: function (data) {
+                $('#Datatbody').empty();
+                var totalQuantity = 0;
+                var totalAmount = 0;
 
-        //                 // 값 계산
-        //                 var vndToUsd = (data[i].cost / 25139.6).toFixed(4);
-        //                 var costToPriceVND = ((data[i].cost / data[i].itemprice) * 100).toFixed(2);
-        //                 var costToPriceUSD = ((data[i].cost / data[i].itempriceusd) * 100).toFixed(2);
+                if (data.length === 0) {
+                    $('#Datatbody').append(
+                        '<tr><td colspan="13" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
+                    );
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+                        var rowData = JSON.stringify(data[i]);
 
-        //                 // Infinity 체크 후 값 대체
-        //                 vndToUsd = isFinite(vndToUsd) ? vndToUsd.toLocaleString() : '0';
-        //                 costToPriceVND = isFinite(costToPriceVND) ? costToPriceVND.toLocaleString() : '0';
-        //                 costToPriceUSD = isFinite(costToPriceUSD) ? costToPriceUSD.toLocaleString() : '0';
+                        // Quantity와 Amount의 합계를 계산
+                        totalQuantity += data[i].quantity;
+                        totalAmount += data[i].quantity * data[i].itemprice;
 
-        //                 $('#Datatbody').append(
-        //                     '<tr>' +
-        //                     '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
-        //                     '<td>' + (data[i].bomno || '') + '</td>' +
-        //                     '<td>' + (data[i].part || '') + '</td>' +
-        //                     '<td>' + (data[i].customer || '') + '</td>' +
-        //                     '<td>' + (data[i].modelname || '') + '</td>' +
-        //                     '<td>' + (data[i].itemname || '') + '</td>' +
-        //                     '<td>' + (data[i].nap || '') + '</td>' +
-        //                     '<td>' + (data[i].class || '') + '</td>' +
-        //                     '<td>' + (data[i].deadline || '') + '</td>' +
-        //                     '<td>' + (data[i].itemprice.toLocaleString() || '') + '</td>' +
-        //                     '<td>' + (data[i].itempriceusd.toLocaleString() || '') + '</td>' +
-        //                     '<td>' + (data[i].cost.toLocaleString() || '') + '</td>' +
-        //                     '<td>' + vndToUsd + '</td>' +
-        //                     '<td>' + costToPriceVND + '</td>' +
-        //                     '<td>' + costToPriceUSD + '</td>' +
-        //                     '</tr>'
-        //                 );
-        //             }
-        //         }
-        //     }
-        // });
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
+                            '<td>' + (data[i].accountdate || '') + '</td>' +
+                            '<td>' + (data[i].customer || '') + '</td>' +
+                            '<td>' + (data[i].ordernumber || '') + '</td>' +
+                            '<td>' + (data[i].bomno || '') + '</td>' +
+                            '<td>' + (data[i].modelname || '') + '</td>' +
+                            '<td>' + (data[i].itemname || '') + '</td>' +
+                            '<td>' + (data[i].itemcode || '') + '</td>' +
+                            '<td>' + (data[i].quantity.toLocaleString() || '') + '</td>' +
+                            '<td>VND</td>' +
+                            '<td>' + (data[i].itemprice.toLocaleString() || '') + '</td>' +
+                            '<td>' + ((data[i].quantity * data[i].itemprice).toLocaleString() || '') + '</td>' +
+                            '</tr>'
+                        );
+                    }
+
+                    // 테이블 하단에 합계 추가
+                    $('#Datatbody').append(
+                        '<tr>' +
+                        '<td colspan="8" style="text-align:right;"><strong>Tổng cộng (총합):</strong></td>' +
+                        '<td><strong>' + totalQuantity.toLocaleString() + '</strong></td>' +
+                        '<td></td>' +
+                        '<td></td>' +
+                        '<td><strong>' + totalAmount.toLocaleString() + '</strong></td>' +
+                        '</tr>'
+                    );
+                }
+            }
+        });
     }
+
 
 
     function onlyNumberKey(event) {

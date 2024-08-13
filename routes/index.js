@@ -14207,6 +14207,32 @@ module.exports = function (app) {
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {
+        app.post('/api/selectaccountvina', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+                // .input('bomno', sql.NVarChar, req.body.bomno)
+
+
+
+                .query(
+                    'select * from accountinputvina'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
         app.post('/api/updateiteminfoitemprice1', function (req, res) {
 
 
