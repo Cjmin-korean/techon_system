@@ -2258,6 +2258,7 @@ module.exports = function (app) {
 
     });
     // **** finish
+
     // **** start  BOM창 띄우기  
     sql.connect(config).then(pool => {
         app.post('/api/bomfinalsheet2', function (req, res) {
@@ -8910,12 +8911,75 @@ module.exports = function (app) {
         });
 
     });
+    sql.connect(config).then(pool => {
+        app.post('/api/openinsertdatavina', function (req, res) {
+
+            // console.log("11", req)
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+                .input('ordernumber', sql.NVarChar, req.body.ordernumber)
+                .input('accountdate', sql.NVarChar, req.body.accountdate)
+                .input('deliverydate', sql.NVarChar, req.body.deliverydate)
+                .input('customer', sql.NVarChar, req.body.customer)
+                .input('itemcode', sql.NVarChar, req.body.itemcode)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .input('modelname', sql.NVarChar, req.body.modelname)
+                .input('itemname', sql.NVarChar, req.body.itemname)
+                .input('size', sql.NVarChar, req.body.size)
+                .input('itemprice', sql.Float, req.body.itemprice)
+                .input('itemcost', sql.Float, req.body.itemcost)
+                .input('quantity', sql.Float, req.body.quantity)
+                .input('price', sql.Float, req.body.price)
+                .input('salesorder', sql.NVarChar, req.body.accountdate)
+                .input('contentname', sql.NVarChar, req.body.contentname)
+                .input('ponum', sql.NVarChar, req.body.ponum)
+                .input('countsum', sql.Float, req.body.countsum)
+                .input('pricesum', sql.Float, req.body.pricesum)
+                .input('status', sql.NVarChar, req.body.status)
+                .input('ad', sql.NVarChar, req.body.ad)
+                .input('pcs', sql.NVarChar, req.body.pcs)
+                .input('bucakcustomer', sql.NVarChar, req.body.bucakcustomer)
+                .input('processname', sql.NVarChar, req.body.processname)
+                .input('num', sql.Float, req.body.num)
+                .input('part', sql.NVarChar, req.body.part)
+                .input('etc', sql.NVarChar, req.body.etc)
+                .input('shipmentdate', sql.NVarChar, req.body.shipmentdate)
+                .input('pono', sql.NVarChar, req.body.pono)
+                .input('unit', sql.NVarChar, req.body.unit)
+
+                .query(
+                    'insert into accountinputvina(ordernumber,num,accountdate,deliverydate,customer,itemcode,bomno,modelname,itemname,size,itemprice,quantity,price,salesorder,contentname,countsum,pricesum,itemcost,ponum,status,ad,pcs,bucakcustomer,processname,part,etc,shipmentdate,pono,unit)' +
+                    ' values(@ordernumber,@num,@accountdate,@deliverydate,@customer,@itemcode,@bomno,@modelname,@itemname,@size,@itemprice,@quantity,@price,@salesorder,@contentname,@countsum,@pricesum,@itemcost,@ponum,@status,@ad,@pcs,@bucakcustomer,@processname,@part,@etc,@shipmentdate,@pono,@unit)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
 
     // /api/getLastOrderNumber endpoint
     app.get('/api/getLastOrderNumber', function (req, res) {
         res.header("Access-Control-Allow-Origin", "*");
         return pool.request()
             .query('SELECT TOP 1 orderNumber FROM orders ORDER BY orderNumber DESC')
+            .then(result => {
+                if (result.recordset.length > 0) {
+                    res.json({ lastOrderNumber: result.recordset[0].orderNumber });
+                } else {
+                    res.json({ lastOrderNumber: null });
+                }
+                res.end();
+            });
+    });
+    app.get('/api/getLastOrderNumbervina', function (req, res) {
+        res.header("Access-Control-Allow-Origin", "*");
+        return pool.request()
+            .query('SELECT TOP 1 orderNumber FROM ordersvina ORDER BY orderNumber DESC')
             .then(result => {
                 if (result.recordset.length > 0) {
                     res.json({ lastOrderNumber: result.recordset[0].orderNumber });
@@ -8969,6 +9033,29 @@ module.exports = function (app) {
 
                 .query(
                     'insert into orders(ordernumber)' +
+                    ' values(@ordernumber)'
+                )
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/api/insertordernumbervina', function (req, res) {
+
+            // console.log("11", req)
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+                //.input('변수',값 형식, 값)
+
+                .input('ordernumber', sql.NVarChar, req.body.ordernumber)
+
+
+                .query(
+                    'insert into ordersvina(ordernumber)' +
                     ' values(@ordernumber)'
                 )
                 .then(result => {
@@ -11944,6 +12031,48 @@ module.exports = function (app) {
         });
     });
     // **** start       
+    // **** start       
+    sql.connect(config).then(pool => {
+        // API 엔드포인트 정의
+        app.post('/api/selectbomitemvina', function (req, res) {
+            // CORS 설정
+            res.header("Access-Control-Allow-Origin", "*");
+
+            // 쿼리 실행
+            return pool.request()
+                .input('bomno', sql.NVarChar, '%' + req.body.bomno + '%') // 입력 파라미터 처리
+                .query(
+                    "SELECT " +
+                    "    bomno, " +
+                    "    modelname, " +
+                    "    itemname, " +
+                    "    customer, " +
+                    "    itemcode, " +
+                    "    deadline, " +
+                    "    CASE " +
+                    "        WHEN deadline = 'USD' THEN itempriceusd " +
+                    "        WHEN deadline = 'VND' THEN itemprice " +
+                    "        ELSE 0 " +
+                    "    END AS price " +
+                    "FROM " +
+                    "    iteminfovina " +
+                    "WHERE " +
+                    "    bomno LIKE @bomno " + // 파라미터 바인딩
+                    "ORDER BY bomno ASC" // 정렬
+                )
+                .then(result => {
+                    res.json(result.recordset); // JSON 응답 전송
+                })
+                .catch(err => {
+                    console.error('SQL error', err); // 오류 로그
+                    res.status(500).send('Server error'); // 서버 오류 응답
+                });
+        });
+    }).catch(err => {
+        console.error('Database connection error', err); // 데이터베이스 연결 오류 처리
+    });
+
+    // **** start       
     sql.connect(config).then(pool => {
         app.post('/api/selectbomvina', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -14220,8 +14349,60 @@ module.exports = function (app) {
 
 
                 .query(
-                    'select * from accountinputvina'
-                )
+                    " SELECT " +
+                    "    id," +
+                    "    ordernumber," +
+                    "    accountdate," +
+                    "    customer," +
+                    "    itemcode," +
+                    "    bomno," +
+                    "    modelname," +
+                    "    itemname," +
+                    "    unit," +
+                    "    pono," +
+                    "    itemprice," +
+                    "    quantity," +
+                    "    CASE " +
+                    "        WHEN unit = 'VND' THEN itemprice * quantity" +
+                    "        ELSE 0 " +
+                    "    END AS total_vnd," +
+                    "    CASE " +
+                    "        WHEN unit = 'USD' THEN itemprice * quantity" +
+                    "        ELSE 0 " +
+                    "    END AS total_usd" +
+                    " FROM accountinputvina;")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/selectaccountinfovina', function (req, res) {
+
+
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+
+
+                // .input('bomno', sql.NVarChar, req.body.bomno)
+
+
+
+                .query(
+                    " SELECT "+
+                    "     ordernumber, "+
+                    "     pono, "+
+                    "     COUNT(*) AS total_count, "+
+                    "     ROUND(SUM(CASE WHEN unit = 'USD' THEN itemprice * quantity ELSE 0 END), 4) AS total_usd, "+
+                    "     SUM(CASE WHEN unit = 'VND' THEN itemprice * quantity ELSE 0 END) AS total_vnd "+
+                    " FROM accountinputvina "+
+                    " GROUP BY ordernumber, pono;")
                 .then(result => {
 
                     res.json(result.recordset);

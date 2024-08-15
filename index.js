@@ -3,10 +3,32 @@ var cors = require('cors');
 
 console.log('ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=')
 var express = require('express');
-var app = express();
 var bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser')
+const dotenv = require('dotenv')
+
+const app = express();
+dotenv.config();
+
+//JWT TOKEN WORK
+// app.use(express.json());
+// app.use(cookieParser());
+// app.use(cors({
+//     origin: 'http://localhost:8080',
+//     methods: ['GET', 'POST'],
+//     credentials: true,
+
+// }))
+// app.post('/login',)
+// app.get('/accesstoken',)
+// app.get('/refreshtoken',)
+// app.get('/login/success',)
+// app.post('/logout,')
+
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 var port = process.env.PORT || 8080;
 var router = require('./routes')(app);
 var server = app.listen(port, function () { console.log(port + "서버에 접속 완료 되었습니다.") });
@@ -23,6 +45,9 @@ const corsOptions = {
 console.log('corsOptions', corsOptions)
 console.log('process.env', process.env.PORT)
 app.use(cors(corsOptions));
+
+
+
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "http://techonmes.co.kr");

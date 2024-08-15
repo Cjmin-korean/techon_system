@@ -116,6 +116,7 @@
                                     <tr>
                                         <th></th>
 
+                                        <th>số thứ tự<br>주문번호</th>
                                         <th>Ngày đặt hàng<br>주문일자</th>
                                         <th>Khách hàng<br>고객사</th>
                                         <th>PONO</th>
@@ -126,7 +127,8 @@
                                         <th>Số lượng PO (EA)<br>PO수량</th>
                                         <th>Đơn vị<br>단위</th>
                                         <th>Đơn giá<br>단가</th>
-                                        <th>Đơn giá<br>합계금액</th>
+                                        <th>Đơn giá<br>합계금액(VND)</th>
+                                        <th>Đơn giá<br>합계금액(USD)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="Datatbody">
@@ -454,20 +456,20 @@
     }
     function showinfo(rowData) {
         // console.log(rowData)
-        $('#classification-edit').val(rowData.classification)
-        $('#bomno-edit').val(rowData.bomno)
-        $('#part-edit').val(rowData.part)
-        $('#customer-edit').val(rowData.customer)
-        $('#modelname-edit').val(rowData.modelname)
-        $('#deadline-edit').val(rowData.deadline)
-        $('#class-edit').val(rowData.class)
-        $('#itemname-edit').val(rowData.itemname)
-        $('#nap-edit').val(rowData.nap)
-        $('#pricevnd-edit').val(rowData.itemprice)
-        $('#priceusd-edit').val(rowData.itempriceusd)
+        // $('#classification-edit').val(rowData.classification)
+        // $('#bomno-edit').val(rowData.bomno)
+        // $('#part-edit').val(rowData.part)
+        // $('#customer-edit').val(rowData.customer)
+        // $('#modelname-edit').val(rowData.modelname)
+        // $('#deadline-edit').val(rowData.deadline)
+        // $('#class-edit').val(rowData.class)
+        // $('#itemname-edit').val(rowData.itemname)
+        // $('#nap-edit').val(rowData.nap)
+        // $('#pricevnd-edit').val(rowData.itemprice)
+        // $('#priceusd-edit').val(rowData.itempriceusd)
 
 
-        $('#editModal').modal('show');
+        // $('#editModal').modal('show');
 
     }
 
@@ -496,6 +498,8 @@
                 $('#Datatbody').empty();
                 var totalQuantity = 0;
                 var totalAmount = 0;
+                var totalVnd = 0;
+                var totalUsd = 0;
 
                 if (data.length === 0) {
                     $('#Datatbody').append(
@@ -509,20 +513,26 @@
                         totalQuantity += data[i].quantity;
                         totalAmount += data[i].quantity * data[i].itemprice;
 
+                        // 각 통화별 총합 계산
+                        totalVnd += data[i].unit === 'VND' ? data[i].quantity * data[i].itemprice : 0;
+                        totalUsd += data[i].unit === 'USD' ? data[i].quantity * data[i].itemprice : 0;
+
                         $('#Datatbody').append(
                             '<tr>' +
                             '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
+                            '<td>' + (data[i].ordernumber || '') + '</td>' +
                             '<td>' + (data[i].accountdate || '') + '</td>' +
                             '<td>' + (data[i].customer || '') + '</td>' +
-                            '<td>' + (data[i].ordernumber || '') + '</td>' +
+                            '<td>' + (data[i].pono || '') + '</td>' +
                             '<td>' + (data[i].bomno || '') + '</td>' +
                             '<td>' + (data[i].modelname || '') + '</td>' +
                             '<td>' + (data[i].itemname || '') + '</td>' +
                             '<td>' + (data[i].itemcode || '') + '</td>' +
                             '<td>' + (data[i].quantity.toLocaleString() || '') + '</td>' +
-                            '<td>VND</td>' +
+                            '<td>' + (data[i].unit || '') + '</td>' +
                             '<td>' + (data[i].itemprice.toLocaleString() || '') + '</td>' +
-                            '<td>' + ((data[i].quantity * data[i].itemprice).toLocaleString() || '') + '</td>' +
+                            '<td>' + ((data[i].unit === 'VND' ? data[i].quantity * data[i].itemprice : 0).toLocaleString() || '') + '</td>' +
+                            '<td>' + ((data[i].unit === 'USD' ? data[i].quantity * data[i].itemprice : 0).toLocaleString() || '') + '</td>' +
                             '</tr>'
                         );
                     }
@@ -530,17 +540,20 @@
                     // 테이블 하단에 합계 추가
                     $('#Datatbody').append(
                         '<tr>' +
-                        '<td colspan="8" style="text-align:right;"><strong>Tổng cộng (총합):</strong></td>' +
+                        '<td colspan="9" style="text-align:right;"><strong>Tổng cộng (총합):</strong></td>' +
                         '<td><strong>' + totalQuantity.toLocaleString() + '</strong></td>' +
                         '<td></td>' +
-                        '<td></td>' +
-                        '<td><strong>' + totalAmount.toLocaleString() + '</strong></td>' +
-                        '</tr>'
+                        '<td></td>' +   
+                        '<td><strong>' + totalVnd.toLocaleString() + '</strong></td>' +
+                        '<td><strong>' + totalUsd.toLocaleString() + '</strong></td>' +
+                        '</tr>' 
+                        
                     );
                 }
             }
         });
     }
+
 
 
 
