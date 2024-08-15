@@ -4,26 +4,6 @@ var cors = require('cors');
 console.log('ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=ReStart=>=>=>=>=>=>=>=')
 var express = require('express');
 var bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser')
-const dotenv = require('dotenv')
-
-const app = express();
-dotenv.config();
-
-//JWT TOKEN WORK
-// app.use(express.json());
-// app.use(cookieParser());
-// app.use(cors({
-//     origin: 'http://localhost:8080',
-//     methods: ['GET', 'POST'],
-//     credentials: true,
-
-// }))
-// app.post('/login',)
-// app.get('/accesstoken',)
-// app.get('/refreshtoken',)
-// app.get('/login/success',)
-// app.post('/logout,')
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
