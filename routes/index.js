@@ -12041,6 +12041,7 @@ module.exports = function (app) {
             // 쿼리 실행
             return pool.request()
                 .input('bomno', sql.NVarChar, '%' + req.body.bomno + '%') // 입력 파라미터 처리
+                .input('itemcode', sql.NVarChar, '%' + req.body.bomno + '%') // 입력 파라미터 처리
                 .query(
                     "SELECT " +
                     "    bomno, " +
@@ -12057,7 +12058,7 @@ module.exports = function (app) {
                     "FROM " +
                     "    iteminfovina " +
                     "WHERE " +
-                    "    bomno LIKE @bomno " + // 파라미터 바인딩
+                    "    bomno LIKE @bomno or itemcode LIKE @itemcode " + // 파라미터 바인딩 및 조건 조정
                     "ORDER BY bomno ASC" // 정렬
                 )
                 .then(result => {
