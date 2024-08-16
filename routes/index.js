@@ -12072,6 +12072,29 @@ module.exports = function (app) {
     }).catch(err => {
         console.error('Database connection error', err); // 데이터베이스 연결 오류 처리
     });
+    sql.connect(config).then(pool => {
+        // API 엔드포인트 정의
+        app.post('/api/selectpricechangevina', function (req, res) {
+            // CORS 설정
+            res.header("Access-Control-Allow-Origin", "*");
+
+            // 쿼리 실행
+            return pool.request()
+                .input('bomno', sql.NVarChar, '%' + req.body.bomno + '%') // 입력 파라미터 처리
+                .input('itemcode', sql.NVarChar, '%' + req.body.bomno + '%') // 입력 파라미터 처리
+                .query(
+                    "SELECT * FROM PRICECHANGE")
+                .then(result => {
+                    res.json(result.recordset); // JSON 응답 전송
+                })
+                .catch(err => {
+                    console.error('SQL error', err); // 오류 로그
+                    res.status(500).send('Server error'); // 서버 오류 응답
+                });
+        });
+    }).catch(err => {
+        console.error('Database connection error', err); // 데이터베이스 연결 오류 처리
+    });
 
     // **** start       
     sql.connect(config).then(pool => {
@@ -14396,13 +14419,13 @@ module.exports = function (app) {
 
 
                 .query(
-                    " SELECT "+
-                    "     ordernumber, "+
-                    "     pono, "+
-                    "     COUNT(*) AS total_count, "+
-                    "     ROUND(SUM(CASE WHEN unit = 'USD' THEN itemprice * quantity ELSE 0 END), 4) AS total_usd, "+
-                    "     SUM(CASE WHEN unit = 'VND' THEN itemprice * quantity ELSE 0 END) AS total_vnd "+
-                    " FROM accountinputvina "+
+                    " SELECT " +
+                    "     ordernumber, " +
+                    "     pono, " +
+                    "     COUNT(*) AS total_count, " +
+                    "     ROUND(SUM(CASE WHEN unit = 'USD' THEN itemprice * quantity ELSE 0 END), 4) AS total_usd, " +
+                    "     SUM(CASE WHEN unit = 'VND' THEN itemprice * quantity ELSE 0 END) AS total_vnd " +
+                    " FROM accountinputvina " +
                     " GROUP BY ordernumber, pono;")
                 .then(result => {
 
