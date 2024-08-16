@@ -169,7 +169,8 @@
                                 <thead id="tableHead">
                                     <tr>
                                         <th>PO DATE</th>
-                                        <td colspan="12"><input type="date" id="datePicker3" style="width: 200px; float: left;"></td>
+                                        <td colspan="12"><input type="date" id="datePicker3"
+                                                style="width: 200px; float: left;"></td>
                                     </tr>
                                     <tr>
                                         <th>PONO</th>
@@ -256,6 +257,7 @@
                                 <thead id="tableHead">
 
                                     <tr>
+                                        <th style="width:100px;"></th>
                                         <th>Mã khách hàng<br>(주문번호)</th>
                                         <th>PONO</th>
                                         <th style="width: 800px;">TIÊU ĐỀ<br>(제목)</th>
@@ -460,14 +462,19 @@
                     tbodyContent = '<tr><td colspan="6" style="text-align:center;">Không có dữ liệu (데이터가 없습니다)</td></tr>';
                 } else {
                     for (var i = 0; i < data.length; i++) {
+                        // total_usd가 0이 아닐 때만 표시
+                        // var totalUsdDisplay = (data[i].total_usd !== 0)
+                        //     ? parseFloat(data[i].total_usd).toFixed(4).replace(/(\.00|(?<=\.\d)0)$/, '') // 소수점 두 자리로 반올림하고, 불필요한 0을 제거
+                        //     : '';
+
                         tbodyContent +=
                             '<tr>' +
-                            // '<td><button class="btn btn-primary" onclick=\'showinfo(' + JSON.stringify(data[i]) + ')\'>Info</button></td>' +
+                            '<td><button class="btn btn-primary" onclick=\'showinfo(' + JSON.stringify(data[i]) + ')\'>Info</button></td>' +
                             '<td>' + data[i].ordernumber + '</td>' +
                             '<td>' + data[i].pono + '</td>' +
-                            '<td>' + data[i].total_count + 'sản phẩm đã được đăng ký  /  ' + data[i].total_count + '건의 제품이 등록되었습니다' + '</td>' +
+                            '<td>' + data[i].total_count + ' sản phẩm đã được đăng ký  /  ' + data[i].total_count + ' 건의 제품이 등록되었습니다' + '</td>' +
                             '<td>' + data[i].total_vnd.toLocaleString() + '</td>' +
-                            '<td>' + parseFloat(data[i].total_usd).toFixed(4).toLocaleString() + '</td>' +
+                            '<td>' + data[i].total_usd.toLocaleString() + '</td>' +
                             '</tr>';
                     }
                 }
@@ -482,6 +489,8 @@
             }
         });
     }
+
+
 
 
 
@@ -948,6 +957,8 @@
 
         var datePart = year + month + day;
 
+        console.log('Date Part:', datePart); // 디버깅: 날짜 부분 확인
+
         if (!lastOrderNumber || !lastOrderNumber.startsWith(datePart)) {
             // 만약 마지막 주문번호가 없거나 오늘 날짜로 시작하지 않는다면 초기값 설정
             return datePart + '-1';
@@ -956,9 +967,16 @@
         var parts = lastOrderNumber.split('-');
         var orderPart = parseInt(parts[1], 10) + 1;
 
+        // 디버깅: 마지막 주문번호와 새로운 주문번호 확인
+        console.log('Last Order Number:', lastOrderNumber);
+        console.log('Order Part:', orderPart);
+
         // 새로운 주문번호 생성 (예: 240611-2)
         return datePart + '-' + orderPart;
     }
+
+    // 예제 호출
+
 
 </script>
 

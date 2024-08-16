@@ -407,7 +407,12 @@
                         <div style="margin-top: -10px;">
                             <table class="styled-table" id="dataTable">
                                 <thead id="tableHead">
-
+                                    <tr>
+                                        <th colspan="8"></th>
+                                        <th colspan="3">Giá vốn<br>원가</th>
+                                        <th colspan="3">Đơn giá<br>단가</th>
+                                        <th colspan="4"></th>
+                                    </tr>
                                     <tr>
                                         <th style="width: 150px;" id="datacount"></th>
                                         <th style="width: 100px;" id="datacount"></th>
@@ -417,12 +422,17 @@
                                         <th>Tên Model<br>모델명 </th>
                                         <th>Tên sản phẩm<br>제품명 </th>
                                         <th>Mã khách hàng<br>고객사코드 </th>
-                                        <th>TYPE</th>
-                                        <th>Phân loại công đoạn<br>공정구분</th>
-                                        <th>Giá vốn (VND)<br>원가(VND)</th>
-                                        <th>Đơn giá (VND)<br>단가(VND)</th>
+
+                                        <th>VND</th>
+                                        <th>USD</th>
+                                        <th>￦</th>
+                                        <th>VND</th>
+                                        <th>USD</th>
+                                        <th>￦</th>
                                         <th>Chi phí nguyên liệu (%)<br>재료비(%)</th>
                                         <th>Số nguyên liệu<br>자재개수</th>
+                                        <th>TYPE</th>
+                                        <th>Phân loại công đoạn<br>공정구분</th>
                                     </tr>
 
                                     </tr>
@@ -1332,7 +1342,6 @@
                     for (var i = 0; i < data.length; i++) {
                         var totalcost = data[i].cost !== null ? data[i].cost.toLocaleString() : '';
                         var itemprice = data[i].itemprice !== null ? data[i].itemprice.toLocaleString() : '';
-                        var costPriceRatio = data[i].costPriceRatio !== null ? data[i].costPriceRatio.toFixed(2) : '';
                         var itemcode1 = data[i].itemcode !== null ? data[i].itemcode : '';
                         var fontColor = data[i].status === '미사용' ? 'silver' : '';
 
@@ -1341,6 +1350,16 @@
                         var approvalButton = data[i].approval === 'true' ?
                             '<td><button class="btn btn" style="padding: 4px 5px; font-size: 14px;">Phê duyệt<br>승인</button></td>' :
                             '<td><button class="btn btn-dark" onclick=\'showinfo1(' + rowData + ')\' style="padding: 4px 5px; font-size: 14px;">Chờ duyệt<br>승인대기</button></td>';
+
+                        // Calculate percentage and handle Infinity case
+                        var cost = parseFloat(data[i].cost) || 0;
+                        var itemprice = parseFloat(data[i].itemprice) || 0;
+                        var percentage = itemprice !== 0 ? (cost / itemprice * 100).toFixed(1) : '0.0';
+
+                        // Convert percentage to '0.0' if it's 'Infinity'
+                        if (percentage === 'Infinity') {
+                            percentage = '0.0';
+                        }
 
                         tbodyContent +=
                             '<tr>' +
@@ -1352,12 +1371,17 @@
                             '<td>' + data[i].modelname + '</td>' +
                             '<td>' + data[i].itemname + '</td>' +
                             '<td>' + itemcode1 + '</td>' +
+                            '<td>' + data[i].cost + '</td>' +
+                            '<td>' + data[i].cost_usd + '</td>' +
+                            '<td>' + data[i].cost_won + '</td>' +
+                            '<td>' + data[i].itemprice + '</td>' +
+                            '<td>' + data[i].itempriceusd + '</td>' +
+                            '<td>' + data[i].itempricekor + '</td>' +
+
+                            '<td>' + percentage + '</td>' +
+                            '<td>' + data[i].materialcount + '</td>' +
                             '<td>' + data[i].type + '</td>' +
                             '<td>' + data[i].workpart + '</td>' +
-                            '<td>' + totalcost + '</td>' +
-                            '<td>' + itemprice + '</td>' +
-                            '<td>' + costPriceRatio + '</td>' +
-                            '<td>' + data[i].materialcount + '</td>' +
                             '</tr>';
                     }
                 }
@@ -1372,6 +1396,7 @@
             }
         });
     }
+
 
 
 
@@ -1915,13 +1940,13 @@
 
             // Update the first row with concatenated value and classification
             checkedRows[0].row.find('#materialname-input').val(concatenatedValue);
-      
+
             checkedRows[0].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
             checkedRows[1].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
             checkedRows[2].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
             checkedRows[3].row.find('#hapmaterialname-input').val(concatenatedValue); // Set the concatenated value to hapmaterialname-input
-        
-        
+
+
             checkedRows[0].row.find('#materialclassification-input').val('HAP');
             checkedRows[0].row.find('#hap-input').val(timestamp);
             // Set the second row's classification and HAP value
