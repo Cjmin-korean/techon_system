@@ -559,7 +559,7 @@
                             '<td>' + data[i].customer + '</td>' +
                             '<td>' + data[i].modelname + '</td>' +
                             '<td>' + data[i].itemname + '</td>' +
-                            '<td style="text-align:right;">' + data[i].char + '</td>' +
+                            '<td>' + data[i].char + '</td>' +
                             '<td>' + data[i].part + '</td>' +
                             '<td style="text-align:right;">' + data[i].inputprice.toLocaleString() + '</td>' +
                             '<td style="text-align:right;">' + data[i].outputprice.toLocaleString() + '</td>' +
@@ -927,76 +927,50 @@
 
 
     function Bomsave() {
-        // function showMissingFieldAlert(fieldName, message) {
-        //     alert(message);
-        // }
-
-        // if ($('#bomno-save').val() === '') {
-        //     showMissingFieldAlert('BOMNO', 'BOMNO bị thiếu(BOMNO가 누락되었습니다)');
-        //     return;
-        // }
-
-
-
-        var insertdate = new Date().toISOString().slice(0, 10);
         var confirmResult = confirm('Bạn có muốn lưu dữ liệu không?\n데이터를 저장하시겠습니까?');
-        if (confirmResult) {
-            $('[id^="bomno-input"]').each(function (index) {
-                var classification = ($('[id^="classification-input"]').eq(index).val());
-                var bomno = ($('[id^="bomno-input"]').eq(index).val());
-                var toolcode = 'TOOL-' + ($('[id^="toolcode-input"]').eq(index).val());
-                var partcustomer = ($('[id^="partcustomer-input"]').eq(index).val());
-                var customer = ($('[id^="customer-input"]').eq(index).val());
-                var modelname = ($('[id^="modelname-input"]').eq(index).val());
-                var itemname = ($('[id^="itemname-input"]').eq(index).val());
-                var char = ($('[id^="char-input"]').eq(index).val());
-                var part = ($('[id^="part-input"]').eq(index).val());
-                var inputprice = ($('[id^="inputprice-input"]').eq(index).val().replace(/,/g, ''));
-                var outputprice = ($('[id^="outputprice-input"]').eq(index).val().replace(/,/g, '')) || 0; // 공란이면 0으로 설정
-                var etc = $('[id^="etc-input"]').eq(index).val() || ''; // 공란이면 빈 문자열로 설정
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertpinaclevina',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "classification": classification,
-                        "bomno": bomno,
-                        "toolcode": toolcode,
-                        "partcustomer": partcustomer,
-                        "customer": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "char": char,
-                        "part": part,
-                        "inputprice": inputprice,
-                        "outputprice": outputprice,
-                        "etc": etc,
-
-                    }),
-                    success: function (result) {
-                        // Handle success
-                    },
-                    error: function (error) {
-                        // Handle error
-                    },
-                });
-            });
-
-        } else {
-            return;
-
+        if (!confirmResult) {
+            return; // Stop the function if the user cancels the confirmation
         }
 
+        var insertdate = new Date().toISOString().slice(0, 10);
 
+        $('[id^="bomno-input"]').each(function (index) {
+            var $this = $(this); // Cache jQuery object for performance
+
+            var data = {
+                "classification": $('[id^="classification-input"]').eq(index).val(),
+                "bomno": $this.val(),
+                "toolcode": $('[id^="toolcode-input"]').eq(index).val(),
+                "partcustomer": $('[id^="partcustomer-input"]').eq(index).val(),
+                "customer": $('[id^="customer-input"]').eq(index).val(),
+                "modelname": $('[id^="modelname-input"]').eq(index).val(),
+                "itemname": $('[id^="itemname-input"]').eq(index).val(),
+                "char": $('[id^="char-input"]').eq(index).val(),
+                "part": $('[id^="part-input"]').eq(index).val(),
+                "inputprice": $('[id^="inputprice-input"]').eq(index).val().replace(/,/g, '') || 0, // 공란이면 0으로 설정,
+                "outputprice": $('[id^="outputprice-input"]').eq(index).val().replace(/,/g, '') || 0, // 공란이면 0으로 설정
+                "etc": $('[id^="etc-input"]').eq(index).val() || '' // 공란이면 빈 문자열로 설정
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/insertpinaclevina',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (result) {
+                    // Handle success if needed
+                },
+              
+            });
+        });
 
         $('#productModal').modal('hide');
         alert('데이터가 성공적으로 저장 되었습니다\nDữ liệu đã được lưu thành công');
-        load();
-
-
+        load(); // Assuming `load` is a function to reload or refresh data
     }
+
+
 
 
 </script>
