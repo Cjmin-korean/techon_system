@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Price Change History</title>
-    <!-- Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- jQuery library -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
@@ -28,7 +26,7 @@
                 <!-- Data will be dynamically inserted here -->
             </tbody>
         </table>
-        <canvas id="priceHistoryChart" style="margin-top: 50px;"></canvas>
+        <canvas id="priceHistoryChart" style="margin-top: 50px; width: 100%; max-width: 800px; height: 200px;"></canvas>
     </div>
 
     <script>
@@ -40,24 +38,32 @@
         }
 
         function load() {
-            $('#Datatbody').empty();
+            $('#Datatbody').empty(); // Clear existing table content
+
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectpricechangevina',
+                url: server + '/api/selectpricechangevinawherebomno',
                 dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    bomno: 'MTT-02-515'
+                }),
                 success: function (data) {
                     if (data.length === 0) {
+                        // Append a row indicating no data
                         $('#Datatbody').append(
-                            '<tr><td colspan="6" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
+                            '<tr><td colspan="6" style="text-align:center;">Không có dữ liệu (데이터가 없습니다)</td></tr>'
                         );
                     } else {
                         // Prepare data for chart
                         const labels = [];
                         const prices = [];
 
+                        // Iterate over the data
                         for (var i = 0; i < data.length; i++) {
                             var rowData = data[i];
 
+                            // Append data rows to the table
                             $('#Datatbody').append(
                                 '<tr>' +
                                 '<td>' + rowData.bomno + '</td>' +
@@ -65,21 +71,22 @@
                                 '<td>' + rowData.itemname + '</td>' +
                                 '<td>' + rowData.customer + '</td>' +
                                 '<td>' + rowData.savedate + '</td>' +
-                                '<td>' + rowData.price.toLocaleString() + '</td>' +
+                                '<td>' + rowData.price + '</td>' +
                                 '</tr>'
                             );
 
-                            // Format date for chart
+                            // Format date and price for chart
                             labels.push(new Date(rowData.savedate).toLocaleDateString());
                             prices.push(rowData.price);
                         }
 
-                        // Render chart
+                        // Render the chart with the prepared data
                         renderChart(labels, prices);
                     }
                 }
             });
         }
+
 
         function renderChart(labels, prices) {
             const ctx = document.getElementById('priceHistoryChart').getContext('2d');
@@ -88,7 +95,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Price',
+                        label: '가격',
                         data: prices,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -101,7 +108,7 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Price Change History'
+                            text: '단가변동 이력'
                         }
                     },
                     scales: {
