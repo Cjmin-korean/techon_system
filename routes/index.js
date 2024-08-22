@@ -1817,77 +1817,91 @@ module.exports = function (app) {
             return pool.request()
 
                 .query(
-                    "  SELECT  " +
-                    "     i.bomno," +
-                    "     i.part," +
-                    "     i.savedate," +
-                    "     i.modelname," +
-                    "     i.itemname," +
+                    " SELECT  " +
+                    "    i.bomno," +
+                    "    i.part," +
+                    "    i.savedate," +
+                    "    i.modelname," +
+                    "    i.itemname," +
+                    "    i.itemcode," +
 
+                    "    ROUND(" +
+                    "        COALESCE(" +
+                    "            SUM(" +
+                    "                ROUND(" +
+                    "                    CASE" +
+                    "                        WHEN mi.unit = '＄' THEN mi.rollprice * 25208" +
+                    "                        WHEN mi.unit = '￦' THEN mi.rollprice * 18.5" +
+                    "                        ELSE mi.rollprice " +
+                    "                    END /" +
+                    "                    FLOOR(" +
+                    "                        (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "                        CASE " +
+                    "                            WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
+                    "                            ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) " +
+                    "                        END" +
+                    "                    ), " +
+                    "                    1" +
+                    "                )" +
+                    "            ), " +
+                    "            0" +
+                    "        ), " +
+                    "        1" +
+                    "    ) AS cost, " +
+                    "    ROUND(" +
+                    "        COALESCE(" +
+                    "            SUM(" +
+                    "                ROUND(" +
+                    "                    CASE" +
+                    "                        WHEN mi.unit = '＄' THEN mi.rollprice * 25208" +
+                    "                        WHEN mi.unit = '￦' THEN mi.rollprice * 18.5" +
+                    "                        ELSE mi.rollprice" +
+                    "                    END /" +
+                    "                    FLOOR(" +
+                    "                        (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "                        CASE " +
+                    "                            WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
+                    "                            ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) " +
+                    "                        END" +
+                    "                    ), " +
+                    "                    1" +
+                    "                )" +
+                    "            ), " +
+                    "            0" +
+                    "        )/25208," +
+                    "        4" +
+                    "    ) AS cost_usd, " +
 
-                    "     ROUND(" +
-                    "         COALESCE(" +
-                    "             SUM(" +
-                    "                 ROUND(" +
-                    "                     mi.rollprice / " +
-                    "                     FLOOR(" +
-                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
-                    "                         CASE " +
-                    "                             WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
-                    "                             ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) " +
-                    "                         END" +
-                    "                     ), " +
-                    "                     1" +
-                    "                 )" +
-                    "             ), " +
-                    "             0" +
-                    "         ), " +
-                    "         1" +
-                    "     ) AS cost, " +
-                    "     ROUND(" +
-                    "         COALESCE(" +
-                    "             SUM(" +
-                    "                 ROUND(" +
-                    "                     mi.rollprice / " +
-                    "                     FLOOR(" +
-                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
-                    "                         CASE " +
-                    "                             WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
-                    "                             ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) " +
-                    "                         END" +
-                    "                     ), " +
-                    "                     1" +
-                    "                 )" +
-                    "             ), " +
-                    "             0" +
-                    "         ) / 25208, " +
-                    "         4" +
-                    "     ) AS cost_usd," +
-                    "     ROUND(" +
-                    "         COALESCE(" +
-                    "             SUM(" +
-                    "                 ROUND(" +
-                    "                     mi.rollprice / " +
-                    "                     FLOOR(" +
-                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
-                    "                         CASE " +
-                    "                             WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
-                    "                             ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) " +
-                    "                         END" +
-                    "                     ), " +
-                    "                     1" +
-                    "                 )" +
-                    "             ), " +
-                    "             0" +
-                    "         ) / 18.5, " +
-                    "         2" +
-                    "     ) AS cost_won," +
-                    "     CASE" +
+                    "    ROUND(" +
+                    "        COALESCE(" +
+                    "            SUM(" +
+                    "                ROUND(" +
+                    "                    CASE" +
+                    "                        WHEN mi.unit = '＄' THEN mi.rollprice * 25208" +
+                    "                        WHEN mi.unit = '￦' THEN mi.rollprice * 18.5" +
+                    "                        ELSE mi.rollprice " +
+                    "                    END /" +
+                    "                    FLOOR(" +
+                    "                        (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "                        CASE " +
+                    "                            WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
+                    "                            ELSE (bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0) " +
+                    "                        END" +
+                    "                    ), " +
+                    "                    1" +
+                    "                )" +
+                    "            ), " +
+                    "            0" +
+                    "        )/18.5," +
+                    "        2" +
+                    "    ) AS cost_won, " +
+
+                    "  CASE " +
                     "     WHEN i.deadline = 'VND' THEN COALESCE(i.itemprice, 0)" +
                     "     ELSE ROUND(COALESCE(i.itempriceusd, 0) * 25208, 2)" +
                     "     END AS itemprice,	   " +
                     "     CASE" +
-                    "         WHEN i.deadline = 'USD' THEN ROUND(COALESCE(i.itempriceusd, 0), 4)" +
+                    "         WHEN i.deadline = '＄' THEN ROUND(COALESCE(i.itempriceusd, 0), 4)" +
                     "         ELSE  ROUND(COALESCE(i.itemprice, 0) / 25208, 4)" +
                     "     END AS itempriceusd,   " +
                     "         ROUND(COALESCE(i.itempriceusd, 0) * 1367, 2) AS itempricekor, " +
@@ -1918,7 +1932,7 @@ module.exports = function (app) {
 
                     " WHERE  " +
                     "     bm.status = 'true'  " +
-
+					
                     " GROUP BY  " +
                     "     i.bomno,  " +
                     "     i.savedate," +
@@ -1940,7 +1954,7 @@ module.exports = function (app) {
                     "     i.nap," +
                     "     i.deadline," +
                     "     i.itempriceusd, " +
-                    "     bm.bomid;")
+                    "     bm.bomid; ")
                 .then(result => {
 
 
@@ -5502,23 +5516,23 @@ module.exports = function (app) {
                 // .input('status', sql.NVarChar, req.body.status)
 
                 .query(
-                    " SELECT DISTINCT " +
+                    "SELECT DISTINCT " +
                     "     bm.char, " +
-                    "     bm.main," +
-                    "     bm.materialname," +
-                    "     mi.typecategory," +
-                    "     bm.etc," +
-                    "     bm.chk1," +
-                    "     bm.chk2," +
-                    "     bm.chk3," +
-                    "     bm.materialwidth, " +
+                    "     bm.main, " +
+                    "     bm.materialname, " +
+                    "     mi.typecategory, " +
+                    "     bm.etc, " +
+                    "     bm.chk1, " +
+                    "     bm.chk2, " +
+                    "     bm.chk3, " +
+                    "     bm.materialwidth,  " +
                     "     bm.useable, " +
                     "     bm.onepid, " +
                     "     bm.twopid, " +
                     "     CASE " +
-                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0" +
-                    "         ELSE ROUND(" +
-                    "             bm.ta * " +
+                    "         WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 0 " +
+                    "         ELSE ROUND( " +
+                    "             bm.ta *  " +
                     "             CASE " +
                     "                 WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 " +
                     "                 ELSE ((bm.onepid + bm.talength + bm.twopid) / NULLIF(bm.allta, 0)) " +
@@ -5542,7 +5556,16 @@ module.exports = function (app) {
                     "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
                     "                         CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END" +
                     "                     ), " +
+                    "                 2)" +
+                    "             WHEN mi.unit = '￦' THEN " +
+                    "                 ROUND(" +
+                    "                     mi.rollprice * w.currencyprice / " +
+                    "                     FLOOR(" +
+                    "                         (mi.length * 1000 * FLOOR(mi.usewidth / bm.materialwidth) * bm.cavity * (1 - (bm.costloss / 100))) / " +
+                    "                         CASE WHEN (bm.onepid + bm.talength + bm.twopid) = 0 THEN 1 ELSE (bm.onepid + bm.talength + bm.twopid) / bm.allta END" +
+                    "                     ), " +
                     "                 2) " +
+                    "         " +
                     "             ELSE " +
                     "                 ROUND(" +
                     "                     mi.rollprice / " +
@@ -5566,10 +5589,12 @@ module.exports = function (app) {
                     "     mi.length," +
                     "     CASE" +
                     "         WHEN mi.unit = '￦' THEN FLOOR(mi.rollprice * w.currencyprice)" +
+                    "         WHEN mi.unit = '＄' THEN FLOOR(mi.rollprice * w.currencyprice)" +
                     "         ELSE FLOOR(mi.rollprice)" +
                     "     END AS rollprice, " +
                     "     CASE " +
                     "         WHEN mi.unit = '￦' THEN 'VND'" +
+                    "         WHEN mi.unit = '＄' THEN 'VND'" +
                     "         ELSE mi.unit" +
                     "     END AS unit, " +
                     "     mi.manufacterer, " +
@@ -14515,11 +14540,11 @@ module.exports = function (app) {
                     "        WHEN unit = 'USD' THEN itemprice * quantity" +
                     "        ELSE 0 " +
                     "    END AS total_usd" +
-                    " FROM accountinputvina "+
-                    " WHERE  "+
-                    "     accountdate BETWEEN @start AND @finish "+
-                    "                    order by"+
-                    "                    LEFT(ordernumber, CHARINDEX('-', ordernumber) - 1) ASC,"+
+                    " FROM accountinputvina " +
+                    " WHERE  " +
+                    "     accountdate BETWEEN @start AND @finish " +
+                    "                    order by" +
+                    "                    LEFT(ordernumber, CHARINDEX('-', ordernumber) - 1) ASC," +
                     "CAST(SUBSTRING(ordernumber, CHARINDEX('-', ordernumber) + 1, LEN(ordernumber)) AS INT) ASC;                    ")
                 .then(result => {
 
@@ -16090,7 +16115,7 @@ module.exports = function (app) {
 
             res.header("Access-Control-Allow-Origin", "*");
             return pool.request()
-        
+
                 .input('bomno', sql.NVarChar, req.body.bomno)
 
 
