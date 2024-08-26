@@ -12,7 +12,7 @@ $(document).ready(function () {
     if (window.location.hostname == 'localhost') {
         server = 'http://localhost:8080';
     } else {
-        server = 'http://techonmes.co.kr';
+        server = 'https://mestechon.com';
     }
     $('#popupCloseBtn-save-close').click(function () {
         $('#popupOverlay').fadeOut();
