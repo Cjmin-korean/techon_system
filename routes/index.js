@@ -18,6 +18,16 @@ module.exports = function (app) {
             enableArithAbort: true
         }
     };
+    // const config = {
+    //     user: 'sa',
+    //     password: 'techon1234!',
+    //     server: '221.153.121.221',
+    //     database: 'Techon',
+    //     options: {
+    //         encrypt: false,
+    //         enableArithAbort: true
+    //     }
+    // };
     const pool = new sql.ConnectionPool(config);
     const poolConnect = pool.connect();
 
@@ -4733,28 +4743,28 @@ module.exports = function (app) {
     });
     // **** finish
     // **** start       
-    sql.connect(config).then(pool => {
-        app.post('/api/insertip', function (req, res) {
+    // sql.connect(config).then(pool => {
+    //     app.post('/api/insertip', function (req, res) {
 
-            res.header("Access-Control-Allow-Origin", "*");
-            return pool.request()
-                //.input('변수',값 형식, 값)
-                .input('inputdate', sql.NVarChar, req.body.inputdate)
-                .input('inputtime', sql.NVarChar, req.body.inputtime)
-                .input('ip', sql.NVarChar, req.body.ip)
+    //         res.header("Access-Control-Allow-Origin", "*");
+    //         return pool.request()
+    //             //.input('변수',값 형식, 값)
+    //             .input('inputdate', sql.NVarChar, req.body.inputdate)
+    //             .input('inputtime', sql.NVarChar, req.body.inputtime)
+    //             .input('ip', sql.NVarChar, req.body.ip)
 
-                .query(
-                    'insert into configip(inputdate,inputtime,ip)' +
-                    ' values(@inputdate,@inputtime,@ip)'
-                )
-                .then(result => {
+    //             .query(
+    //                 'insert into configip(inputdate,inputtime,ip)' +
+    //                 ' values(@inputdate,@inputtime,@ip)'
+    //             )
+    //             .then(result => {
 
-                    res.json(result.recordset);
-                    res.end();
-                });
-        });
+    //                 res.json(result.recordset);
+    //                 res.end();
+    //             });
+    //     });
 
-    });
+    // });
     // **** finish
     // **** start       
     sql.connect(config).then(pool => {

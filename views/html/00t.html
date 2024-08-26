@@ -2,135 +2,87 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <title>EJ2 Grid</title>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Change History</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="description" content="Typescript Grid Control">
+    <meta name="author" content="Syncfusion">
+    <!-- <link href="index.css" rel="stylesheet"> -->
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-base/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-grids/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-buttons/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-popups/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-richtexteditor/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-navigations/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-dropdowns/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-lists/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-inputs/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-calendars/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-notifications/styles/bootstrap5.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-splitbuttons/styles/bootstrap5.css" rel="stylesheet">
+    <script src="https://cdn.syncfusion.com/ej2/26.2.4/dist/ej2.min.js" type="text/javascript"></script>
+    <script src="es5-datasource.js" type="text/javascript"></script>
 </head>
 
-<body>
-    <div style="width: 80%; margin: 50px auto;">
-        <table>
-            <thead>
-                <tr>
-                    <th>BOM No</th>
-                    <th>Model Name</th>
-                    <th>Item Name</th>
-                    <th>Customer</th>
-                    <th>Save Date</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody id="Datatbody">
-                <!-- Data will be dynamically inserted here -->
-            </tbody>
-        </table>
-        <canvas id="priceHistoryChart" style="margin-top: 50px; width: 100%; max-width: 800px; height: 200px;"></canvas>
+<style>
+    #container {
+        visibility: hidden;
+    }
+
+    #loader {
+        color: #008cff;
+        font-family: 'Helvetica Neue', 'calibiri';
+        font-size: 14px;
+        height: 40px;
+        left: 45%;
+        position: absolute;
+        top: 45%;
+        width: 30%;
+    }
+</style>
+
+<body style="margin-top: 100px;">
+    <div id="container">
+        <div id="Grid"></div>
     </div>
-
     <script>
-        var server = '';
-        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'http://techonmes.co.kr';
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            var ele = document.getElementById('container');
+            if (ele) {
+                ele.style.visibility = "visible";
+            }
 
-        function load() {
-            $('#Datatbody').empty(); // Clear existing table content
+            // 데이터 로드 후 그리드 생성
+            loadGrid();
+        });
 
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectpricechangevinawherebomno',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    bomno: 'MTT-02-515'
-                }),
-                success: function (data) {
-                    if (data.length === 0) {
-                        // Append a row indicating no data
-                        $('#Datatbody').append(
-                            '<tr><td colspan="6" style="text-align:center;">Không có dữ liệu (데이터가 없습니다)</td></tr>'
-                        );
-                    } else {
-                        // Prepare data for chart
-                        const labels = [];
-                        const prices = [];
+        function loadGrid() {
+            ej.grids.Grid.Inject(ej.grids.Filter);
 
-                        // Iterate over the data
-                        for (var i = 0; i < data.length; i++) {
-                            var rowData = data[i];
-
-                            // Append data rows to the table
-                            $('#Datatbody').append(
-                                '<tr>' +
-                                '<td>' + rowData.bomno + '</td>' +
-                                '<td>' + rowData.modelname + '</td>' +
-                                '<td>' + rowData.itemname + '</td>' +
-                                '<td>' + rowData.customer + '</td>' +
-                                '<td>' + rowData.savedate + '</td>' +
-                                '<td>' + rowData.price + '</td>' +
-                                '</tr>'
-                            );
-
-                            // Format date and price for chart
-                            labels.push(new Date(rowData.savedate).toLocaleDateString());
-                            prices.push(rowData.price);
-                        }
-
-                        // Render the chart with the prepared data
-                        renderChart(labels, prices);
-                    }
-                }
-            });
-        }
-
-
-        function renderChart(labels, prices) {
-            const ctx = document.getElementById('priceHistoryChart').getContext('2d');
-            const priceHistoryChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '가격',
-                        data: prices,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: '단가변동 이력'
+            var grid = new ej.grids.Grid({
+                dataSource: categoryData,  // es5-datasource.js에서 로드된 데이터 사용
+                allowPaging: true,
+                allowFiltering: true,
+                filterSettings: { type: 'Excel' },
+                columns: [
+                    { field: 'CategoryName', headerText: 'Category Name', width: 120 },
+                    {
+                        field: 'Delivered', headerText: 'Delivered', width: 120, displayAsCheckBox: true, filter: {
+                            type: 'CheckBox', itemTemplate: function (args) {
+                                return args.Delivered ? 'Delivered' : 'Not delivered';  
+                            }
                         }
                     },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Price'
-                            }
-                        }
-                    }
-                }
+                    { field: 'ProductID', headerText: 'Product ID', width: 120 },
+                ],
+                pageSettings: { pageSize: 6 },
+                height: 273
             });
+
+            grid.appendTo('#Grid');
         }
 
-        // Call the load function to populate data and render the chart
-        load();
+        
     </script>
 </body>
 
