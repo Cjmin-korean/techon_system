@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Typescript Grid Control">
     <meta name="author" content="Syncfusion">
-    <!-- <link href="index.css" rel="stylesheet"> -->
+    <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
+
+
     <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-base/styles/bootstrap5.css" rel="stylesheet">
     <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-grids/styles/bootstrap5.css" rel="stylesheet">
     <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-buttons/styles/bootstrap5.css" rel="stylesheet">
@@ -20,69 +22,63 @@
     <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-calendars/styles/bootstrap5.css" rel="stylesheet">
     <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-notifications/styles/bootstrap5.css" rel="stylesheet">
     <link href="https://cdn.syncfusion.com/ej2/26.2.4/ej2-splitbuttons/styles/bootstrap5.css" rel="stylesheet">
+
     <script src="https://cdn.syncfusion.com/ej2/26.2.4/dist/ej2.min.js" type="text/javascript"></script>
     <script src="es5-datasource.js" type="text/javascript"></script>
+    <script src="https://cdn.syncfusion.com/ej2/syncfusion-helper.js" type="text/javascript"></script>
+
 </head>
 
-<style>
-    #container {
-        visibility: hidden;
-    }
+<body>
 
-    #loader {
-        color: #008cff;
-        font-family: 'Helvetica Neue', 'calibiri';
-        font-size: 14px;
-        height: 40px;
-        left: 45%;
-        position: absolute;
-        top: 45%;
-        width: 30%;
-    }
-</style>
-
-<body style="margin-top: 100px;">
     <div id="container">
         <div id="Grid"></div>
     </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var ele = document.getElementById('container');
-            if (ele) {
-                ele.style.visibility = "visible";
-            }
-
-            // 데이터 로드 후 그리드 생성
-            loadGrid();
-        });
-
-        function loadGrid() {
-            ej.grids.Grid.Inject(ej.grids.Filter);
-
-            var grid = new ej.grids.Grid({
-                dataSource: categoryData,  // es5-datasource.js에서 로드된 데이터 사용
-                allowPaging: true,
-                allowFiltering: true,
-                filterSettings: { type: 'Excel' },
-                columns: [
-                    { field: 'CategoryName', headerText: 'Category Name', width: 120 },
-                    {
-                        field: 'Delivered', headerText: 'Delivered', width: 120, displayAsCheckBox: true, filter: {
-                            type: 'CheckBox', itemTemplate: function (args) {
-                                return args.Delivered ? 'Delivered' : 'Not delivered';  
-                            }
-                        }
-                    },
-                    { field: 'ProductID', headerText: 'Product ID', width: 120 },
-                ],
-                pageSettings: { pageSize: 6 },
-                height: 273
-            });
-
-            grid.appendTo('#Grid');
+        var ele = document.getElementById('container');
+        if (ele) {
+            ele.style.visibility = "visible";
+        }
+    </script>
+    <script>
+        var server = '';
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'https://mestechon.com';
         }
 
-        
+        $(document).ready(function () {
+            $.ajax({
+                type: 'POST',
+                url: server + '/api/selectcustomerinfovina',
+                dataType: 'json',
+                success: function (data) {
+                    // 행 번호를 추가하는 데이터 가공
+                    data = data.map((item, index) => ({ ...item, rowIndex: index + 1 }));
+
+                    // Grid 초기화
+                    ej.grids.Grid.Inject(ej.grids.Filter);
+                    var grid = new ej.grids.Grid({
+                        dataSource: data, // 서버에서 불러온 데이터를 데이터 소스로 설정
+                        allowSorting: true,
+                        allowFiltering: true,
+                        filterSettings: { type: 'Excel' },
+                        columns: [
+                            { field: 'rowIndex', headerText: '번호', width: 50, textAlign: 'Center' }, // 번호 열 추가
+                            { field: 'customername', headerText: '주문번호', width: 150 },
+                            { field: 'businessregistrationnumber', headerText: '고객번호', width: 120 },
+                            { field: 'representativename', headerText: '단가', textAlign: 'Right', format: 'C2', width: 90 },
+                            { field: 'OrderDate', headerText: '주문날짜', textAlign: 'Right', format: 'yMd', width: 120 }
+                        ],
+                        height: 500
+                    });
+                    grid.appendTo('#Grid');
+                },
+
+            });
+        });
     </script>
 </body>
 

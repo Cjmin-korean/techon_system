@@ -1,397 +1,370 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>TECHON 합지슬리팅</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <style type="text/css">
-        table {
-            border-collapse: collapse;
-            width: 100%;
-
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            color: #333;
-            font-weight: bold;
-
-        }
-
-        #editableTable td:nth-child(1),
-        #editableTable th:nth-child(1) {
-            width: 20%;
-        }
-
-        #editableTable td:nth-child(2),
-        #editableTable th:nth-child(2) {
-            width: 20%;
-        }
-
-        #editableTable td:nth-child(3),
-        #editableTable th:nth-child(3) {
-            width: 20%;
-        }
-
-        #editableTable td:nth-child(4),
-        #editableTable th:nth-child(4) {
-            width: 10%;
-        }
-
-        #editableTable td:nth-child(5),
-        #editableTable th:nth-child(5) {
-            width: 10%;
-        }
-
-        #editableTable td:nth-child(6),
-        #editableTable th:nth-child(6) {
-            width: 10%;
-        }
-
-        #editableTable td:nth-child(7),
-        #editableTable th:nth-child(7) {
-            width: 10%;
-        }
-
-        .add-row-btn {
-            background-color: #4CAF50;
-            /* Green */
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .delete-row-btn {
-            background-color: #f44336;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .highlight {
-            background-color: #fdfde3;
-            /* 원하는 배경색으로 변경 가능 */
-        }
-
-        #textInput {
-            padding: 8px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin: auto;
-            display: block;
-            width: 500px;
-            position: absolute;
-            margin-top: 10px;
-        }
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Data Table</title>
+    <script data-require="jquery@2.0.3" data-semver="2.0.3" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
+            background-color: #f5f5f5;
             padding: 20px;
         }
 
-        b {
+        table.grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        table.grid thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        table.grid tbody {
+            display: block;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        table.grid thead tr td {
+            background-color: #d9dce2;
+            color: rgb(0, 0, 0);
             font-weight: bold;
+            padding: 10px;
+            position: relative;
+            /* cursor: pointer; */
+            text-align: left;
+            border: 1px solid #ddd;
         }
 
-        .qr-code-section {
-            margin-bottom: 20px;
+        table.grid tbody tr:nth-child(odd) {
+            background-color: #eef0f5;
         }
 
-        .qr-code-section input[type="text"] {
-            padding: 8px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 300px;
+        table.grid tbody tr td {
+            padding: 5px;
+            /* Adjusted padding to make the rows wider */
+            border: 1px solid #ddd;
         }
 
-        button {
+        table.grid thead,
+        table.grid tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            padding: 10px;
+            /* Ensures columns are of equal width */
+        }
+
+        .filter {
+            position: absolute;
+            border: solid 1px #ddd;
+            top: 35px;
+            background-color: white;
+            width: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            right: 0;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .filter .filter-content {
+            overflow-y: auto;
+            /* Allows scrolling for the checkbox list */
+            flex-grow: 1;
+        }
+
+        .filter .filter-actions {
+            padding: 5px;
+            border-top: 1px solid #ddd;
+            background-color: white;
+            display: flex;
+            justify-content: flex-end;
+            /* Aligns buttons to the right */
+        }
+
+        .filter div {
+            padding: 5px;
+        }
+
+        .filter div input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.5);
+            /* 체크박스 크기 확대 */
+        }
+
+        .filter .filter-actions input[type="button"] {
+            margin-left: 5px;
+            padding: 5px 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .filter div input[type="button"] {
+            margin: 5px;
+            padding: 5px 10px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+
+        .filter .filter-actions input#ok {
+            background-color: #4531b6;
+            /* Green for OK */
+        }
+
+        .filter .filter-actions input#ok:hover {
+            background-color: #2c0e70;
+        }
+
+        .filter .filter-actions input#close {
             background-color: #f44336;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 5px;
+            /* Red for Cancel */
         }
 
-        #confirmBtn {
-            background-color: black;
-            color: white;
-            padding: 10px 20px;
+        .filter .filter-actions input#close:hover {
+            background-color: #e53935;
+        }
+
+        .filter-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            /* color: white; */
             border: none;
-            border-radius: 5px;
+            border-radius: 20%;
+            padding: 5px;
             cursor: pointer;
+            font-size: 14px;
+            width: 20px;
+            height: 20px;
+            float: right;
+        }
+
+        .filter-button:hover {
+            /* background-color: #45a049; */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .filter-icon {
+            font-size: 20px;
+            margin: 0;
         }
     </style>
 </head>
 
 <body>
-    <div class="qr-code-section">
-        <b>QR CODE A: </b>
-        <div>
-            <input type="text" id="textInputA" autocomplete="off" placeholder="합지 첫번째 자재를 리딩하세요" value=""
-                style="width: 500px;">
-            <button onclick="reseta()">RESET</button>
-
-        </div>
-    </div>
-    <div class="qr-code-section">
-        <b>QR CODE B: </b>
-        <br>
-        <div>
-            <input type="text" id="textInputB" autocomplete="off" placeholder="합지 두번째 자재를 리딩하세요" value=""
-                style="width: 500px;">
-            <button onclick="resetb()">RESET</button>
-            <button id="confirmBtn" onclick="checkInputs()">슬리팅 확인</button>
-            <button id="confirmBtn" style="background-color: navy;" onclick="checkInputs1()">슬리팅저장</button>
-        </div>
-    </div>
-    <table id="editableTable">
+    <h1>Customer information</h1>
+    <table class="grid">
         <thead>
-            <tr class="table-light">
-                <th colspan="7">합지슬리팅</th>
+            <tr>
+                <td index="0" style="text-align: center;">Tên nhà cung cấp<br>거래처명
+                    <div class="filter"></div>
+                </td>
+                <td index="1" style="text-align: center;">Số đăng ký kinh doanh<br>사업자등록번호
+                    <div class="filter"></div>
+                </td>
+                <td index="2" style="text-align: center;">Tên người đại diện<br>대표자명
+                    <div class="filter"></div>
+                </td>
+                <td index="3" style="text-align: center;">IN
+                    <div class="filter"></div>
+                </td>
 
-            </tr>
-            <tr class="table-light">
-                <th>자재명</th>
-                <th>규격폭(mm)</th>
-                <th>수량(M)</th>
-                <th>LOTNO</th>
-                <th>롤 수량</th>
-                <th>총 입고수량(M)</th>
-                <th></th>
             </tr>
         </thead>
-        <tbody id="info">
-
+        <tbody id="Datatbody">
 
         </tbody>
     </table>
-
-    <script>
-        var server = '';
-
-        if (window.location.hostname == 'localhost') {
-            server = 'http://localhost:8080';
-        } else {
-            server = 'https://mestechon.com';
-        }
-
-        document.getElementById('textInputA').focus();
-        function reseta() {
-            document.getElementById('textInputA').focus();
-            $('#textInputA').val(''); // 입력란의 값을 공백으로 설정
-
-        }
-        function resetb() {
-            document.getElementById('textInputB').focus();
-            $('#textInputB').val(''); // 입력란의 값을 공백으로 설정
-
-        }
-        $('#textInputA').keypress(function (event) {
-            if (event.which === 13) { // Enter 키 코드인 13인지 확인
-                $('#textInputB').focus(); // 입력란의 값을 공백으로 설정
-            }
-        });
-
-        function checkInputs() {
-            var inputA = document.getElementById("textInputA").value.trim();
-            var inputB = document.getElementById("textInputB").value.trim();
-
-            if (inputA === "") {
-                alert("첫번째 자재 항목이 누락되었습니다");
-                return;
-            }
-            if (inputB === "") {
-                alert("두번째 자재 항목이 누락되었습니다");
-                return;
-            }
-
-            var text = document.getElementById("textInputA").value.replace(/\s/g, ''); // 모든 공백 제거
-            var contents = text.split('/');
-
-            var materialName = contents[0];
-            var lotNo = contents[1];
-            var manufacturingDate = contents[2];
-            var quantity = contents[3];
-            var expirationDate = contents[4];
-            var newRow1 = document.createElement("tr");
-            var materialwidth = contents[5] || ""; // 6번째 내용이 없으면 공란 처리
-            var orderno = contents[6] || ""; // 7번째 내용이 없으면 공란 처리
-
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/selectcodenumber',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "materialname": contents[0],
-                    "length": contents[3]
-                }),
-                success: function (result) {
-                    // 첫 번째 행 생성
-                    var newRow1 = document.createElement("tr");
-                    newRow1.innerHTML = `
-            <td>${materialName}</td>
-            <td>${result[0].width}</td>
-            <td>${quantity}</td>
-            <td>${lotNo}</td>
-            <td>1</td>
-            <td>${quantity}</td>
-            <td></td>
-        `;
-
-                    // 두 번째 행 생성
-                    var newRow2 = document.createElement("tr");
-                    newRow2.innerHTML = `
-            <td>${materialName}</td>
-            <td>${result[0].width}</td>
-            <td>${quantity}</td>
-            <td>${lotNo}</td>
-            <td>1</td>
-            <td>${quantity}</td>
-            <td><button class="add-row-btn" onclick="addRow(this)">슬리팅 추가</button></td>
-        `;
-
-                    // 테이블에 행 추가
-                    document.getElementById("info").appendChild(newRow1);
-                    document.getElementById("info").appendChild(newRow2);
-                },
-            });
-
-
-            // 테이블에 행 추가
-            document.getElementById("info").appendChild(newRow1);
-        }
-        var newRow; // newRow 변수를 전역 범위에서 정의합니다.
-
-        function addRow(btn) {
-            var tableRow = btn.parentNode.parentNode;
-            var rowData = [];
-            // 해당 행의 첫 번째 셀(자재명) 데이터를 가져옴
-
-
-            var firstMaterialName = tableRow.previousElementSibling.cells[0].innerText;
-            var firstlot = tableRow.previousElementSibling.cells[3].innerText;
-
-            // 두 번째 행의 첫 번째 셀(자재명) 데이터를 가져옴
-            var secondMaterialName = tableRow.cells[0].innerText;
-            var secondlot = tableRow.cells[3].innerText;
-
-            // 두 행의 자재명을 결합하여 출력
-
-            rowData.push(firstMaterialName + '+' + secondMaterialName);
-            // 나머지 열은 공란으로 추가
-            for (var i = 1; i < 3; i++) {
-                rowData.push('');
-            }
-            rowData.push(firstlot + '/' + secondlot);
-
-            // 해당 행의 네 번째 셀(LOTNO) 데이터를 가져옴
-
-            // 나머지 열은 공란으로 추가
-            for (var i = 5; i < 7; i++) {
-                rowData.push('');
-            }
-
-            // 가져온 데이터를 새로운 행으로 추가
-            newRow = document.createElement('tr'); // newRow 변수를 설정합니다.
-            for (var i = 0; i < rowData.length; i++) {
-                var newCell = document.createElement('td');
-                newCell.innerText = rowData[i];
-                newRow.appendChild(newCell);
-                newCell.setAttribute('contenteditable', 'true');
-
-                if (i === 2 || i === 4) {
-                    newCell.setAttribute('oninput', 'onchanged(this)');
-                }
-
-                // 키다운 이벤트 리스너 추가
-                newCell.addEventListener('keydown', function (event) {
-                    if (event.key === 'Enter') {
-                        this.blur(); // 수정 종료
-                        event.preventDefault(); // 기본 동작 방지 (새 줄 생성 방지)
-                    }
-                });
-            }
-
-            // 삭제 버튼 추가
-            var deleteBtnCell = document.createElement('td');
-            var deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-row-btn';
-            deleteBtn.textContent = '삭제';
-            deleteBtn.onclick = function () {
-                deleteRow(this);
-            };
-            deleteBtnCell.appendChild(deleteBtn);
-            newRow.appendChild(deleteBtnCell);
-
-            // 새로운 행을 마지막에 추가
-            tableRow.parentNode.insertBefore(newRow, tableRow.nextSibling);
-            newRow.classList.add('highlight');
-        }
-
-        function deleteRow(btn) {
-            var tableRow = btn.parentNode.parentNode;
-            tableRow.parentNode.removeChild(tableRow);
-        }
-
-        function onchanged(cell) {
-            // 두 번째 셀과 네 번째 셀의 값 가져오기
-            var cell2Value = parseInt(cell.parentNode.cells[2].innerText);
-            var cell4Value = parseInt(cell.parentNode.cells[4].innerText);
-
-            // 값이 유효한지 확인
-            if (!isNaN(cell2Value) && !isNaN(cell4Value)) {
-                // 총 입고수량 계산
-                var totalValue = cell2Value * cell4Value;
-                // 결과를 다섯 번째 셀에 표시
-                cell.parentNode.cells[5].innerText = totalValue.toLocaleString();
-            }
-        }
-
-        document.querySelectorAll('[contenteditable="true"]').forEach(function (element) {
-            element.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
-                    element.blur(); // 수정 종료
-                    event.preventDefault(); // 기본 동작 방지 (새 줄 생성 방지)
-                }
-            });
-        });
-
-
-    </script>
-
 </body>
+
+<script>
+    var server = '';
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        server = 'http://localhost:8080';
+    } else {
+        server = 'https://mestechon.com';
+    }
+
+
+    $(document).ready(function () {
+        $(".grid thead td").append('<button style="float:right; " class="filter-button"><span class="filter-icon">🔍</span></button>'); // Add filter button to each header
+        $(".filter-button").click(function (e) {
+            e.stopPropagation();
+            showFilterOption(this);
+        });
+
+        $(".grid thead td").not('.filtered-column').click(function () {
+            groupData(this);
+        });
+        load();
+    });
+    function load() {
+        $('#Datatbody').empty();
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectcustomerinfovina',
+            dataType: 'json',
+            success: function (data) {
+                if (data.length === 0) {
+                    $('#Datatbody').append(
+                        '<tr><td colspan="13" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
+                    );
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+
+                        var rowData = JSON.stringify(data[i]);
+
+                        $('#Datatbody').append(
+                            '<tr>' +
+                            '<td>' + data[i].customername + '</td>' +
+                            '<td>' + data[i].businessregistrationnumber + '</td>' +
+                            '<td>' + data[i].representativename + '</td>' +
+                            '<td>' + data[i].initial + '</td>' +
+                            '<td id="data-id" style="display:none;">' + data[i].id + '</td>' +
+                            // '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
+                            '</tr>'
+                        );
+                    }
+                }
+            }
+        });
+    }
+
+
+    var arrayMap = {};
+
+    function showFilterOption(button) {
+        var tdObject = $(button).parent();
+        var filterGrid = $(tdObject).find(".filter");
+
+        if (filterGrid.is(":visible")) {
+            filterGrid.hide();
+            return;
+        }
+
+        $(".filter").hide();
+
+        var index = 0;
+        filterGrid.empty();
+        var allSelected = true;
+        filterGrid.append('<div><input id="all" type="checkbox" checked>Select All</div>');
+
+        var $rows = $(tdObject).parents("table").find("tbody tr");
+        var uniqueValues = {}; // Object to store unique values
+
+        $rows.each(function (ind, ele) {
+            var currentTd = $(ele).children()[$(tdObject).attr("index")];
+            var text = currentTd.innerHTML;
+
+            // Store unique values
+            if (!uniqueValues[text]) {
+                uniqueValues[text] = true;
+                var div = document.createElement("div");
+                div.classList.add("grid-item");
+                var str = $(ele).is(":visible") ? 'checked' : '';
+                if ($(ele).is(":hidden")) {
+                    allSelected = false;
+                }
+                div.innerHTML = '<input type="checkbox" ' + str + ' >' + text;
+                filterGrid.append(div);
+                arrayMap[index] = ele;
+                index++;
+            }
+        });
+
+        if (!allSelected) {
+            filterGrid.find("#all").removeAttr("checked");
+        }
+
+        filterGrid.append('<div><input id="close" type="button" value="Close"/><input id="ok" type="button" value="Ok"/></div>');
+        filterGrid.show();
+
+        var $closeBtn = filterGrid.find("#close");
+        var $okBtn = filterGrid.find("#ok");
+        var $checkElems = filterGrid.find("input[type='checkbox']");
+        var $gridItems = filterGrid.find(".grid-item");
+        var $all = filterGrid.find("#all");
+
+        $closeBtn.click(function () {
+            filterGrid.hide();
+            return false;
+        });
+
+        $okBtn.click(function () {
+            var filterApplied = false;
+            filterGrid.find(".grid-item").each(function (ind, ele) {
+                if ($(ele).find("input").is(":checked")) {
+                    $(arrayMap[ind]).show();
+                } else {
+                    $(arrayMap[ind]).hide();
+                    filterApplied = true; // 필터가 적용된 것으로 표시
+                }
+            });
+
+            if (filterApplied) {
+                tdObject.addClass("filtered-column"); // 필터가 적용된 컬럼에 표시 추가
+                tdObject.append('<span class="filter-icon">&#x1F50D;</span>'); // 필터 아이콘 추가
+            } else {
+                tdObject.removeClass("filtered-column"); // 필터 해제 시 표시 제거
+                tdObject.find(".filter-icon").remove(); // 필터 아이콘 제거
+            }
+
+            filterGrid.hide();
+            return false;
+        });
+
+        $checkElems.click(function (event) {
+            event.stopPropagation();
+        });
+
+        $gridItems.click(function (event) {
+            var chk = $(this).find("input[type='checkbox']");
+            $(chk).prop("checked", !$(chk).is(":checked"));
+        });
+
+        $all.change(function () {
+            var chked = $(this).is(":checked");
+            filterGrid.find(".grid-item [type='checkbox']").prop("checked", chked);
+        });
+
+        filterGrid.click(function (event) {
+            event.stopPropagation();
+        });
+
+        return filterGrid;
+    }
+
+    function groupData(tdObject) {
+        var index = $(tdObject).attr("index");
+        var $rows = $(tdObject).parents("table").find("tbody tr:visible");
+        var uniqueValues = {};
+
+        $rows.each(function () {
+            var cellValue = $(this).children().eq(index).text();
+            if (uniqueValues[cellValue]) {
+                $(this).hide(); // 동일한 값이 이미 존재하면 숨기기
+            } else {
+                uniqueValues[cellValue] = true;
+            }
+        });
+    }
+</script>
 
 </html>

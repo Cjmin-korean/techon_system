@@ -61,42 +61,41 @@
                 <p>LOGIN</p>
 
             </div>
-            <div class="login_main_id_div">
-                <label>ID</label>
-                <input type="text" placeholder="아이디를 입력해 주세요." id="login_id" onkeydown="login()">
-            </div>
-            <br>
-            <div class="login_main_password_div">
-                <label>Password</label>
-                <input type="password" placeholder="비밀번호를 입력해 주세요." id="login_password" onkeydown="login()">
-            </div>
+            <form autocomplete="off">
+                <div class="login_main_id_div">
+                    <label>ID</label>
+                    <input type="text" placeholder="Enter your ID" id="login_id" name="login_id" autocomplete="off" onkeydown="login()"
+                        autocorrect="off" autocapitalize="off">
+                </div>
+                <br>
+                <div class="login_main_password_div">
+                    <label>Password</label>
+                    <input type="password" placeholder="Enter your password" id="login_password" name="login_password" onkeydown="login()"
+                        autocomplete="off" autocorrect="off" autocapitalize="off">
+                </div>
+            </form>
+
 
             <p id="passwordchkid" class="passwordchk"></p>
             <div class="checkbox-group">
+                <input type="checkbox" id="vina-checkbox" checked="true">
+                <label for="vina-checkbox"><b>VINA</b></label>
                 <input type="checkbox" id="korea-checkbox">
                 <label for="korea-checkbox"><b>KOREA</b></label>
-                <input type="checkbox" id="vina-checkbox">
-                <label for="vina-checkbox"><b>VINA</b></label>
+
             </div>
             <div class="login_main_button">
-                <button onclick="loginclick()" class="login_button"> LOGIN</button>
+                <button  class="login_button" onclick="loginbtn();">
+                    LOGIN</button>
                 <br>
-                <!-- <br> -->
-                <!-- <button onclick="join_btn()" class="join_button"> 회원가입 </button> -->
             </div>
-            <!-- <input type="text" onkeydown="onenter()"> -->
         </div>
-        <!-- <div class="login_sub_div">
-        <a>아이디 찾기</a>
-        <a>|</a>
-        <a>비밀번호 찾기</a>
-    </div> -->
     </div>
 
 </body>
 <script>
     var server = '';
-    server = data[0].Ipconfig;
+    // server = data[0].Ipconfig;
     if (window.location.hostname == 'localhost') {
         server = 'localhost:8080';
     } else {
@@ -109,52 +108,109 @@
         }
     }
 
+    function logout() {
+        // Remove tokens from session storage
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('refreshToken');
+
+        // Logging to confirm deletion
+        console.log("Tokens removed. accessToken:", sessionStorage.getItem('accessToken'));
+        console.log("Tokens removed. refreshToken:", sessionStorage.getItem('refreshToken'));
+
+        alert('You have been logged out.');
+
+        // Uncomment the following line if you want to redirect to login page or another page after logout
+        // window.location.href = 'login.html'; 
+    }
+
+    // Add event listener to logout button
+    $("#logoutBtn").click(logout);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('login_id').setAttribute('autocomplete', 'off');
+        document.getElementById('login_password').setAttribute('autocomplete', 'new-password');
+    });
     function login() {
+        // Trigger login on Enter key press
+        if (window.event.keyCode === 13) {
+            var nameid = $("#login_id").val().trim();
+            var password = $("#login_password").val().trim();
 
-
-        if (window.event.keyCode == 13) {
-            //var idvalue = $('.id').val()
-            var nameid = $("#login_id").val();
-            var password = $("#login_password").val();
-
-            if (nameid !== '' && password !== '') {
-
+            if (nameid && password) {
                 $.ajax({
                     type: 'POST',
-                    url: server + '/api/users',
-                    dataType: 'json',
+                    url: 'https://mestechon.com:8000/auth/login',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        "nameid": nameid,
-                        "password": password,
+                        nameid: nameid,
+                        password: password,
                     }),
-                    dataType: 'text',
-                    ///datatype text 인이유 : string
-                    success: function (data) {
-                        const obj = JSON.parse(data)
-                        console.log(data[0].name)
+                    dataType: 'json',
+                    success: function (data, textStatus, xhr) {
+                        if (xhr.status === 200 && data.accessToken && data.refreshToken) {
+                            sessionStorage.setItem('accessToken', data.accessToken);
+                            sessionStorage.setItem('refreshToken', data.refreshToken);
+                            sessionStorage.setItem('name', data.member.name); // member 값을 sessionStorage에 저장
 
-                        if (obj.judgment == 'NG') {
-                            // alert('실패')
-                            $(".passwordchk").text('비밀번호가 맞지 않습니다.   ');
-                            $(".passwordchk").css("color", "red");
+                            console.log(data.member)
+                            // console.log(sessionStorage)
 
+                            loginpage_move();
                         } else {
-                            setCookie(nameid, data[0].name);
-                            loginpage_move()
-                            // alert('성공')
+                            alert('LOGIN FAIL: Invalid response.');
                         }
-
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert('LOGIN FAIL');
+                        console.error("AJAX error:", textStatus, errorThrown);
                     }
-                })
-                // alert('성공하였습니다.')
-                //  loginpage_move()
+                });
             } else {
-                alert('정보를 확인바랍니다')
+                alert('Please check your information.');
             }
         }
-
     }
+    function loginbtn() {
+        var nameid = $("#login_id").val().trim();
+        var password = $("#login_password").val().trim();
+
+        if (nameid && password) {
+            $.ajax({
+                type: 'POST',
+                url: 'https://mestechon.com:8000/auth/login',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    nameid: nameid,
+                    password: password,
+                }),
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
+                    if (xhr.status === 200 && data.accessToken && data.refreshToken) {
+                        sessionStorage.setItem('accessToken', data.accessToken);
+                        sessionStorage.setItem('refreshToken', data.refreshToken);
+                        sessionStorage.setItem('name', data.member.name); // member 값을 sessionStorage에 저장
+
+                        console.log(data.member)
+                        // console.log(sessionStorage)
+
+                        loginpage_move();
+                    } else {
+                        alert('LOGIN FAIL: Invalid response.');
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('LOGIN FAIL');
+                    console.error("AJAX error:", textStatus, errorThrown);
+                }
+            });
+        } else {
+            alert('Please check your information.');
+        }
+    }
+    // ==================session 삭제====================
+
+    // sessionStorage.removeItem('accessToken');
+    // sessionStorage.removeItem('refreshToken');
 
     function setCookie(userName, partName) {
         // const exdate = new Date();
@@ -167,59 +223,9 @@
     }
 
 
-    function loginclick() {
-
-        //var idvalue = $('.id').val()
-        var nameid = $("#login_id").val();
-        var password = $("#login_password").val();
-
-        if (nameid !== '' && password !== '') {
-          
-
-            $.ajax({
-                type: 'POST',
-                url: server + '/api/users',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    "nameid": nameid,
-                    "password": password,
-                }),
-                dataType: 'text',
-                ///datatype text 인이유 : string
-                success: function (data) {
-                    const obj = JSON.parse(data)
-
-
-                    if (obj.judgment == 'NG') {
-                        // alert('실패')
-                        $(".passwordchk").text('비밀번호가 맞지 않습니다.   ');
-                        $(".passwordchk").css("color", "red");
-
-                    } else {
-                        console.log('obj', obj)
-                        setCookie(obj.name, obj.part);
-                        loginpage_move()
-
-                        // alert('성공')
-                    }
-
-                }
-            })
-            // alert('성공하였습니다.')
-            //  loginpage_move()
-        } else {
-            alert('정보를 확인 바랍니다.')
-        }
-
-
-    }
-    function join_btn() {
-        location.href = "/html/join.html"
-    }
     function loginpage_move() {
 
-        location.href = "/main"
+        location.href = "/vinamain"
     }
 
 </script>

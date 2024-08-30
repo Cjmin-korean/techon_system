@@ -3,15 +3,16 @@ const xlsx = require('xlsx');
 const fs = require('fs');
 const cors = require('cors');
 const express = require('express');
+const { request } = require('http');
 const app = express();
 
 
 module.exports = function (app) {
     const sql = require('mssql');
     const config = {
-        user: 'pswel1',
-        password: '1234',
-        server: '118.46.215.214',
+        user: 'sa',
+        password: 'techon1234!',
+        server: '221.153.121.221',
         database: 'Techon',
         options: {
             encrypt: false,
@@ -66,20 +67,23 @@ module.exports = function (app) {
 
     module.exports = app;
     // **** start
+    // app.use((req, res, next) => {
+    //     if (!req.session.accessToken && req.path !== '../index.html' && req.path !== '../login.html') {
+    //         // accessToken이 없고, 요청된 페이지가 index.html 또는 login.html이 아닌 경우
+    //         return res.redirect('/index.html');
+    //     }
+    //     next();
+    // });
+
     sql.connect(config).then(pool => {
         app.post('/api/users', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
-            // console.log('req', req)
             console.log('req body', req.body)
 
 
             var nameid = req.body.nameid;
             var password = req.body.password;
 
-            console.log(nameid)
-            console.log(password)
-
-            // console.log('req',req)
             return pool.request()
                 .input('nameid', sql.NVarChar, nameid)
                 .query(
@@ -89,8 +93,7 @@ module.exports = function (app) {
                     'part ' +
                     'FROM member where nameid = @nameid')
                 .then(result => {
-                    // console.log('result',result)
-                    // console.log('이름 :', result.recordset[0].name)
+
                     var judgment = 'NG';
                     if (password == result.recordset[0].password) {
                         judgment = 'OK';
@@ -457,6 +460,51 @@ module.exports = function (app) {
                     " SELECT bomno, model, itemname, materialname, swidth, mwidth, classification, cost, @lotno, dpid, @pono " +
                     " FROM bommanagement " +
                     " WHERE status = 'true' and bomno=@bomno")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    sql.connect(config).then(pool => {
+        app.post('/auth/register', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('name', sql.NVarChar, req.body.name)
+                .input('nameid', sql.NVarChar, req.body.nameid)
+                .input('password', sql.NVarChar, req.body.password)
+                .input('role', sql.NVarChar, req.body.role)
+                .query(
+                    " INSERT INTO member (name,nameid,password,role) " +
+                    " values(@name,@nameid,@password,@role) ")
+
+                .then(result => {
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+
+    sql.connect(config).then(pool => {
+        app.post('/api/selectmember', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                .input('pono', sql.NVarChar, req.body.pono)
+                .input('lotno', sql.NVarChar, req.body.lotno)
+                .input('bomno', sql.NVarChar, req.body.bomno)
+                .query(
+                    " select * from member")
 
                 .then(result => {
                     res.json(result.recordset);
@@ -1942,7 +1990,7 @@ module.exports = function (app) {
 
                     " WHERE  " +
                     "     bm.status = 'true'  " +
-					
+
                     " GROUP BY  " +
                     "     i.bomno,  " +
                     "     i.savedate," +

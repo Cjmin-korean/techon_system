@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOM양산정보</title>
+    <title>사원정보</title>
     <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
     <script src="../assets/js/core/popper.min.js"></script>
     <script src="../assets/js/core/bootstrap.min.js"></script>
@@ -50,13 +50,12 @@
     select {
         font-family: Arial, sans-serif;
         font-size: 14px;
-        /* text-align: right; */
     }
 
     input[type="text"] {
         width: 100%;
         padding: 12px;
-        margin-bottom: 12px;
+        /* margin-bottom: 12px; */
         border: 1px solid #ddd;
     }
 
@@ -84,7 +83,59 @@
 </style>
 
 <body>
+    <div class="page-inner">
+        <div class="page-header">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="page-inner">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-title">Đăng ký và tra cứu đơn giá(사원정보)</h4>
+                                <button type="button" class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
+                                    id="addButton" data-bs-target="#productModal">
+                                    <i class="fa fa-plus"></i>
+                                    thêm vào(추가)
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="date-input-group">
+                                    <div class="date-input-group">
+                                        <input type="text" id="searchInput"
+                                            placeholder="🔍 Tìm kiếm và nhấn Enter (Search and press Enter)"
+                                            autocomplete="off" style="width: 500px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" style="height: 70vh; max-height: 70vh; overflow-y: auto;">
+                        <div style="margin-top: -10px;">
+                            <table class="styled-table" id="dataTable">
+                                <thead id="tableHead">
 
+                                    <tr>
+                                        <th style="width: 150px;" id="datacount"></th>
+                                        <th>tên<br>사원명</th>
+                                        <th>ID</th>
+                                        <th>Ngày đăng ký<br>등록일자</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="Datatbody">
+                                    <tr id="no-data-row">
+                                        <td colspan="20" style="text-align: center;">
+                                            Không có dữ liệu(데이터가 없습니다)</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot id="iteminfofoot"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
     <!-- <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-hidden="true"> -->
     <div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"
         data-bs-keyboard="false" data-bs-backdrop="static">
@@ -136,129 +187,80 @@
         </div>
     </div>
 
-    <div id="overlay" class="overlay"></div>
-    <!-- <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"> -->
-
-    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true"
         data-bs-keyboard="false" data-bs-backdrop="static">
-
-
-        <div class="modal-dialog" style="width: 200vh;">
-            <div class="modal-content" style=" height: 95vh;">
-                <div class="modal-header" style="height: 40px;">
-                    <input type="text" id="bomid-save" style="width: 20px; visibility: hidden;">
-                    <h5 class="modal-title" id="productModalLabel">TOOL thông tin(TOOL 정보)</h5>
-                    <input type="text" id="bomid-edit" style="width: 20px; visibility: hidden;">
-                    <input type="text" id="bomno-edit" style="width: 20px; visibility: hidden;">
-
-
+        <div class="modal-dialog" role="document" style="width: 100vh;">
+            <div class="modal-content" style="height: auto;">
+                <div class="modal-header">
+                    <h5 class="modal-title">thông tin thành viên(사원 정보)</h5>
                 </div>
-                <div class="modal-body">
-                    <div class="container-fluid" style="margin-top: -20px; ">
-                        <!-- First table -->
-                        <div class="col-md-12" style="height: auto;" id="tableContainer">
-                            <table class="table-bordered" id="Podatatable">
-                                <thead id="tableHead">
-                                    <tr>
-                                        <th colspan="14">TOOL thông tin(TOOL 정보)
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th style="width: 100px;"><button id="addRowBtn" class="btn btn-primary"
-                                                class="close-button" onclick="addRow()">Thêm<br>추가</button>
-                                        </th>
-                                        <th>Phân loại<br>구분</th>
-                                        <th style="width: 150px;">BOMNO</th>
-                                        <th>Nhà sản xuất<br>제조사</th>
-                                        <th>TOOL CODE</th>
-                                        <th>Khách hàng<br>고객사</th>
-                                        <th>Tên Model<br>모델명</th>
-                                        <th>Tên sản phẩm<br>품목명</th>
-                                        <th>Số lần dập tương ứng<br>해당차수</th>
-                                        <th>Chủng loại<br>종류</th>
-                                        <th>Đơn giá nhập kho(VND)<br>입고단가(VND)</th>
-                                        <th>Đơn giá xuất kho(VND)<br>출고단가(VND)</th>
-                                        <th>Ghi chú<br>비고</th>
-                                    </tr>
+                <div class="modal-body" style="height: 100%;">
 
-
-
-                                </thead>
-                                <tbody id="accountdatatbody" style="max-height: 500px; overflow-y: auto;">
-
-                                </tbody>
-
-
-                            </table>
-
-
-                        </div>
-
+                    <div class="table-container" style="height: auto;">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>NAME</th>
+                                    <td><input type="text" id="name-edit"></td>
+                                </tr>
+                                <tr>
+                                    <th>ID</th>
+                                    <td><input type="text" id="nameid-edit"></td>
+                                </tr>
+                                <tr>
+                                    <th>Password</th>
+                                    <td><input type="password" id="password-edit"></td>
+                                </tr>
+                                <tr>
+                                    <th>Password confirm</th>
+                                    <td><input type="password" id="passwordconfirm-edit"></td>
+                                </tr>
+                                <tr>
+                                    <th>PART</th>
+                                    <td>
+                                        <select id="part-edit">
+                                            <option value="" disabled selected>Select option</option>
+                                            <option value="Team Kinh Doanh">Team Kinh Doanh(영업팀)</option>
+                                            <option value="Team Phát Triển">Team Phát Triển(개발팀)</option>
+                                            <option value="Team NVL">Team NVL(자재팀)</option>
+                                            <option value="Team Mua Hàng">Team Mua Hàng(구매팀)</option>
+                                            <option value="Team Sản Xuất">Team Sản Xuất(생산팀)</option>
+                                            <option value="Team KTSX">Team KTSX(생산기술팀)</option>
+                                            <option value="Team Chất Lượng">Team Chất Lượng(품질팀)</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>ROLE</th>
+                                    <td>
+                                        <select id="role-edit">
+                                            <option value="" disabled selected>Select option</option>
+                                            <option value="ROLE_ADMIN">Manager(관리자)</option>
+                                            <option value="ROLE_USER">USER(사용자)</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="savebtn" onclick="Bomsave()">Lưu(저장)</button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">đóng(닫기)</button>
+                    <button type="button" id="editbtn" class="btn btn-primary" data-dismiss="modal"
+                        onclick="Bomsave()">SAVE</button>
+                    <button type="button" id="searchingclose1Button" class="btn btn-danger"
+                        data-dismiss="modal">CLOSE</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="overlay" class="overlay"></div>
 
 
-    <div class="page-inner">
-        <div class="page-header">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="page-inner">
-                        <div class="card-header">
-                            <div class="d-flex align-items-center">
-                                <h4 class="card-title">thông tin tỷ giá(환율 정보)</h4>
-                                <button type="button" class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal"
-                                    id="addButton" data-bs-target="#">
-                                    <i class="fa fa-plus"></i>
-                                    thêm vào(추가)
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="date-input-group">
-                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-body" style="height: 70vh; max-height: 70vh; overflow-y: auto;">
-                        <div style="margin-top: -10px;">
-                            <table class="styled-table">
-                                <thead id="tableHead">
-
-                                    <tr>
-                                        <th>Phân loại<br>시작날짜</th>
-                                        <th>Nhà sản xuất<br>종료날짜</th>
-                                        <th>Mã tiền tệ<br>통화코드</th>
-                                        <th>Tên tiền tệ<br>통화명</th>
-                                        <th>Giá tiền tệ<br>통화가격</th>
-                                        <th style="width: 10vh;"></th>
-                                    </tr>
 
 
-                                </thead>
-                                <tbody id="Datatbody">
-                                    <tr id="no-data-row">
-                                        <td colspan="20" style="text-align: center;">
-                                            Không có dữ liệu(데이터가 없습니다)</td>
-                                    </tr>
-                                </tbody>
-                                <tfoot id="iteminfofoot"></tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
 
-            </div>
-        </div>
-    </div>
+
 
 
 </body>
@@ -327,99 +329,20 @@
 
 
     $(document).ready(function () {
-        $.ajax({
-            type: 'POST',
-            url: server + '/api/selectiteminfovina',
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify({
+        // $.ajax({
+        //     type: 'POST',
+        //     url: server + '/api/selectsamplevina',
+        //     dataType: 'json',
+        //     contentType: 'application/json',
+        //     data: JSON.stringify({
 
-            }),
-            success: function (result) {
-                $('#datacount').text('DATA : ' + result[0].datacount)
-            }
-        })
+        //     }),
+        //     success: function (result) {
+        //         $('#datacount').text('DATA : ' + result[0].datacount)
+        //     }
+        // })
         $('#tableContainer').scrollLeft(0);
-        $('#orderno').on('keydown', function (event) {
-            if (event.key === 'Enter') {
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/ordernoselect',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "orderno": $('#orderno').val()
-                    }),
-                    success: function (result) {
-                        const tableBody = $('#accountdatatbody');
-                        const tableFoot = $('#accountdatatfoot');
-                        let totalSupplyAmount = 0; // To store the total supply amount
 
-                        tableBody.empty();
-                        tableFoot.empty(); // Clear the table footer
-
-                        if (result.length === 0) {
-                            tableBody.append('<tr><td colspan="8">구매발주 데이터가 없습니다.</td></tr>');
-                            tableFoot.hide(); // Hide the tfoot element
-                        } else {
-                            for (let i = 0; i < result.length; i++) {
-                                const item = result[i];
-                                totalSupplyAmount += item.supplyamount; // Add to total
-
-                                // Append row to table
-                                const row = `
-                            <tr>
-                                <td>${item.itemname}</td>
-                                <td>${item.materialwidth.toLocaleString()}</td>
-                                <td>${item.width}</td>
-                                <td>${item.quantity.toLocaleString()}</td>
-                                <td>${item.length.toLocaleString()}</td>
-                                <td>${item.cut}</td>
-                                <td>${(parseFloat(item.length) * parseFloat(item.cut) * parseFloat(item.quantity)).toLocaleString()}</td>
-                                <td>${item.supplyamount.toLocaleString()}</td>
-                                <td>${item.suppliername}</td>
-                                <td><button class="btn btn-success add-btn"  style="text-align:center; padding:10px;">THÊM</button></td>
-                                <td class="data-id" style="display:none;">${item.id}</td>
-                            </tr>
-                        `;
-                                tableBody.append(row);
-                            }
-
-                            // Append the total row to the tfoot
-                            const tableFooter = `
-                        <tr>
-                            <td colspan="7" style="text-align:right;"><strong>합계</strong></td>
-                            <td>${totalSupplyAmount.toLocaleString()}</td>
-                            <td colspan="3"></td>
-                        </tr>
-                    `;
-                            tableFoot.append(tableFooter);
-                            tableFoot.show(); // Show the tfoot element
-                        }
-
-                        // Add click event listener to each add button
-
-
-
-                    },
-                });
-            }
-        });
-
-
-        // Initialize DataTable with search functionality
-        $('#orderdatatable thead input[type="checkbox"]').on('change', function () {
-            var isChecked = $(this).prop('checked');
-
-            $('#orderdatatable tbody input[type="checkbox"]').prop('checked', isChecked);
-
-            if (isChecked) {
-                // Get the IDs of checked checkboxes
-                var checkedIds = $('#orderdatatable tbody input[type="checkbox"]:checked').map(function () {
-                    return $(this).closest('tr').find('td#data-id').text();
-                }).get();
-            }
-        });
 
 
         var today = new Date();
@@ -436,6 +359,10 @@
         });
         $('#searchingcloseButton').on('click', function () {
             $('#newModal').modal('hide');
+            $('#overlay').hide();
+        });
+        $('#searchingclose1Button').on('click', function () {
+            $('#editModal').modal('hide');
             $('#overlay').hide();
         });
         $('#updatecloseButton').on('click', function () {
@@ -495,40 +422,20 @@
     }
     function showinfo(rowData) {
         // console.log(rowData)
-        var copybtn = document.getElementById('copybtn');
-        copybtn.style.display = 'block';
-
-        var approvalbtn = document.getElementById('approvalbtn');
-        approvalbtn.style.display = 'none';
-
-        $('#bomid-save').val(new Date().getTime());
-        $('#bomid-edit').val(rowData.bomid)
-        $('#bomno-save').val(rowData.bomno)
+        $('#classification-edit').val(rowData.classification)
         $('#bomno-edit').val(rowData.bomno)
-        $('#customer-save').val(rowData.customer)
-        $('#modelname-save').val(rowData.modelname)
-        $('#itemname-save').val(rowData.itemname)
-        $('#pcs-save').val(rowData.pcs)
-        $('#cavity-save').val(rowData.cavity)
-        $('#itemcode-save').val(rowData.itemcode)
-        $('#workpart-save').val(rowData.workpart)
-        $('#working-save').val(rowData.working)
-        $('#direction-save').val(rowData.direction)
-        $('#additionalNote').val(rowData.additionalnotes)
-        $('#type-save').val(rowData.type)
-        $('#costsum-save').val(rowData.cost.toFixed(2))
+        $('#part-edit').val(rowData.part)
+        $('#customer-edit').val(rowData.customer)
+        $('#modelname-edit').val(rowData.modelname)
+        $('#deadline-edit').val(rowData.deadline)
+        $('#class-edit').val(rowData.class)
+        $('#itemname-edit').val(rowData.itemname)
+        $('#nap-edit').val(rowData.nap)
+        $('#pricevnd-edit').val(rowData.itemprice)
+        $('#priceusd-edit').val(rowData.itempriceusd)
 
 
-
-
-        var counter = 1;
-        var container = document.getElementById('containers');
-        container.scrollLeft = 0;
-        container.scrollTop = 0;
-
-
-        $('#productModal').modal('show');
-        $('#savebtn').text('biên tập (수정)');
+        $('#editModal').modal('show');
 
     }
 
@@ -549,31 +456,29 @@
     }
 
     function load() {
-        $('#Datatbody').empty();
         $.ajax({
             type: 'POST',
-            url: server + '/api/selectwonvina',
+            url: server + '/api/selectmember',
             dataType: 'json',
             success: function (data) {
+                $('#Datatbody').empty();
                 if (data.length === 0) {
                     $('#Datatbody').append(
                         '<tr><td colspan="13" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
                     );
                 } else {
                     for (var i = 0; i < data.length; i++) {
-
                         var rowData = JSON.stringify(data[i]);
+
+                        // 값 계산
 
                         $('#Datatbody').append(
                             '<tr>' +
-                            '<td>' + data[i].startdate + '</td>' +
-                            '<td>' + data[i].finishdate + '</td>' +
-                            '<td>' + data[i].currencycode + '</td>' +
-                            '<td>' + data[i].currencyname + '</td>' +
-                            '<td>' + data[i].currencyprice + '</td>' +
-                          
-                            '<td id="data-id" style="display:none;">' + data[i].id + '</td>' +
                             '<td><button class="btn btn-primary" onclick=\'showinfo(' + rowData + ')\'>Info</button></td>' +
+                            '<td>' + (data[i].name || '') + '</td>' +
+                            '<td>' + (data[i].nameid || '') + '</td>' +
+                            '<td>' + (data[i].created_at || '') + '</td>' +
+
                             '</tr>'
                         );
                     }
@@ -582,26 +487,33 @@
         });
     }
 
-  
+    $('#addButton').on('click', function () {
+        $('#editModal').modal('show');
 
-
+    })
 
     function onlyNumberKey(event) {
-        // Only allows number keys, backspace, delete, left and right arrows
-        const charCode = event.which ? event.which : event.keyCode;
-        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        var charCode = event.which ? event.which : event.keyCode;
+
+        // 숫자(0-9)와 소수점(.) 허용
+        if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57))
             return false;
-        }
+
+        // 소수점은 한 번만 입력 가능하도록 허용
+        if (charCode == 46 && event.target.value.indexOf('.') !== -1)
+            return false;
+
         return true;
     }
 
     function validateNumericInput(input) {
-        // 숫자와 소수점만 입력 가능하게 함
+        // 입력된 값에서 숫자와 소수점만 남기고 나머지를 제거
         input.value = input.value.replace(/[^0-9.]/g, '');
 
-        // 소수점이 여러 개 입력되지 않도록 함
-        if ((input.value.match(/\./g) || []).length > 1) {
-            input.value = input.value.replace(/\.+$/, '');
+        // 소수점은 최대 1개만 남기고 제거
+        var parts = input.value.split('.');
+        if (parts.length > 2) {
+            input.value = parts[0] + '.' + parts.slice(1).join('');
         }
     }
     function addRow() {
@@ -612,7 +524,7 @@
         newRow.append(`
                         <td>
                             <select id="classification-input" style="text-align:right;">
-                                <option value="" disabled selected>Select an option</option>
+                                <option value="" disabled selected>Select option</option>
                                 <option value="MASS">MASS</option>
                                 <option value="SAMPLE">SAMPLE</option>
                             </select>
@@ -628,7 +540,7 @@
         newRow.append(`
                         <td>
                             <select id="part-input" style="text-align:right;">
-                                <option value="" disabled selected>Select an option</option>
+                                <option value="" disabled selected>Select option</option>
                                 <option value="PINACLE">PINACLE</option>
                                 <option value="SILING">SILING</option>
                                 <option value="PVC">PVC</option>
@@ -872,74 +784,36 @@
 
 
     function Bomsave() {
-        // function showMissingFieldAlert(fieldName, message) {
-        //     alert(message);
-        // }
-
-        // if ($('#bomno-save').val() === '') {
-        //     showMissingFieldAlert('BOMNO', 'BOMNO bị thiếu(BOMNO가 누락되었습니다)');
-        //     return;
-        // }
-
-
 
         var insertdate = new Date().toISOString().slice(0, 10);
         var confirmResult = confirm('Bạn có muốn lưu dữ liệu không?\n데이터를 저장하시겠습니까?');
         if (confirmResult) {
-            $('[id^="bomno-input"]').each(function (index) {
-                var classification = ($('[id^="classification-input"]').eq(index).val());
-                var bomno = ($('[id^="bomno-input"]').eq(index).val());
-                var toolcode = 'TOOL-' + ($('[id^="toolcode-input"]').eq(index).val());
-                var partcustomer = ($('[id^="partcustomer-input"]').eq(index).val());
-                var customer = ($('[id^="customer-input"]').eq(index).val());
-                var modelname = ($('[id^="modelname-input"]').eq(index).val());
-                var itemname = ($('[id^="itemname-input"]').eq(index).val());
-                var char = ($('[id^="char-input"]').eq(index).val());
-                var part = ($('[id^="part-input"]').eq(index).val());
-                var inputprice = ($('[id^="inputprice-input"]').eq(index).val().replace(/,/g, ''));
-                var outputprice = ($('[id^="outputprice-input"]').eq(index).val().replace(/,/g, '')) || 0; // 공란이면 0으로 설정
-                var etc = $('[id^="etc-input"]').eq(index).val() || ''; // 공란이면 빈 문자열로 설정
-
-                $.ajax({
-                    type: 'POST',
-                    url: server + '/api/insertpinaclevina',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        "classification": classification,
-                        "bomno": bomno,
-                        "toolcode": toolcode,
-                        "partcustomer": partcustomer,
-                        "customer": customer,
-                        "modelname": modelname,
-                        "itemname": itemname,
-                        "char": char,
-                        "part": part,
-                        "inputprice": inputprice,
-                        "outputprice": outputprice,
-                        "etc": etc,
-
-                    }),
-                    success: function (result) {
-                        // Handle success
-                    },
-                    error: function (error) {
-                        // Handle error
-                    },
-                });
+            $.ajax({
+                type: 'POST',
+                url: 'https://mestechon.com:8000/auth/register',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "name": $('#name-edit').val(),
+                    "nameid": $('#nameid-edit').val(),
+                    "password": $('#password-edit').val(),
+                    "role": $('#role-edit').val(),
+                }),
+                success: function (result) {
+                    // Handle success
+                },
+                error: function (error) {
+                    // Handle error
+                },
             });
 
         } else {
             return;
 
         }
-
-
-
-        $('#newModal').modal('hide');
+        $('#editModal').modal('hide');
         alert('데이터가 성공적으로 저장 되었습니다\nDữ liệu đã được lưu thành công');
         load();
-
 
     }
 
