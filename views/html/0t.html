@@ -9,9 +9,12 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background-color: white;
             padding: 20px;
+            overflow-y: hidden;
+            margin: 0;
         }
+
 
         table.grid {
             width: 100%;
@@ -70,6 +73,7 @@
             top: 35px;
             background-color: white;
             width: 200px;
+            min-height: 400px;
             max-height: 400px;
             overflow-y: auto;
             right: 0;
@@ -78,10 +82,30 @@
             z-index: 10;
         }
 
+
+        .grid-item {
+            text-align: left;
+            /* Align checkboxes and text to the left */
+            padding: 5px;
+        }
+
+
+        .button-container {
+            position: relative;
+            padding: 10px 0;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            bottom: 0;
+            /* height: 100px; */
+            /* Optional: add a border at the top of the button container */
+        }
+
         .filter .filter-content {
             overflow-y: auto;
             /* Allows scrolling for the checkbox list */
             flex-grow: 1;
+            max-height: 32vh;
+            min-height: 32vh;
         }
 
         .filter .filter-actions {
@@ -169,9 +193,12 @@
 </head>
 
 <body>
-    <h1>Customer information</h1>
+    <h3 style="margin-top: 10px; font-weight: bold;"> Thông tin khách hàng / 거래처 정보</h3>
     <table class="grid">
         <thead>
+            <tr>
+                <th id="datacount"></th>
+            </tr>
             <tr>
                 <td index="0" style="text-align: center;">Tên nhà cung cấp<br>거래처명
                     <div class="filter"></div>
@@ -182,7 +209,7 @@
                 <td index="2" style="text-align: center;">Tên người đại diện<br>대표자명
                     <div class="filter"></div>
                 </td>
-                <td index="3" style="text-align: center;">IN
+                <td index="3" style="text-align: center;">IN<br>
                     <div class="filter"></div>
                 </td>
 
@@ -214,6 +241,7 @@
             groupData(this);
         });
         load();
+        updateRowCount();
     });
     function load() {
         $('#Datatbody').empty();
@@ -242,6 +270,7 @@
                             '</tr>'
                         );
                     }
+                    $("#datacount").text("Data: " + data.length);
                 }
             }
         });
@@ -249,7 +278,6 @@
 
 
     var arrayMap = {};
-
     function showFilterOption(button) {
         var tdObject = $(button).parent();
         var filterGrid = $(tdObject).find(".filter");
@@ -264,7 +292,10 @@
         var index = 0;
         filterGrid.empty();
         var allSelected = true;
-        filterGrid.append('<div><input id="all" type="checkbox" checked>Select All</div>');
+        var contentDiv = $('<div class="filter-content"></div>');
+        filterGrid.append(contentDiv);
+
+        contentDiv.append('<div><input id="all" type="checkbox" checked>Select All</div>');
 
         var $rows = $(tdObject).parents("table").find("tbody tr");
         var uniqueValues = {}; // Object to store unique values
@@ -283,24 +314,25 @@
                     allSelected = false;
                 }
                 div.innerHTML = '<input type="checkbox" ' + str + ' >' + text;
-                filterGrid.append(div);
+                contentDiv.append(div);
                 arrayMap[index] = ele;
                 index++;
             }
         });
 
         if (!allSelected) {
-            filterGrid.find("#all").removeAttr("checked");
+            contentDiv.find("#all").removeAttr("checked");
         }
 
-        filterGrid.append('<div><input id="close" type="button" value="Close"/><input id="ok" type="button" value="Ok"/></div>');
+        // Separate button container
+        filterGrid.append('<div class="button-container"><input id="close" type="button" value="Close"/><input id="ok" type="button" value="Ok"/></div>');
         filterGrid.show();
 
         var $closeBtn = filterGrid.find("#close");
         var $okBtn = filterGrid.find("#ok");
-        var $checkElems = filterGrid.find("input[type='checkbox']");
-        var $gridItems = filterGrid.find(".grid-item");
-        var $all = filterGrid.find("#all");
+        var $checkElems = contentDiv.find("input[type='checkbox']");
+        var $gridItems = contentDiv.find(".grid-item");
+        var $all = contentDiv.find("#all");
 
         $closeBtn.click(function () {
             filterGrid.hide();
@@ -309,7 +341,7 @@
 
         $okBtn.click(function () {
             var filterApplied = false;
-            filterGrid.find(".grid-item").each(function (ind, ele) {
+            contentDiv.find(".grid-item").each(function (ind, ele) {
                 if ($(ele).find("input").is(":checked")) {
                     $(arrayMap[ind]).show();
                 } else {
@@ -341,7 +373,7 @@
 
         $all.change(function () {
             var chked = $(this).is(":checked");
-            filterGrid.find(".grid-item [type='checkbox']").prop("checked", chked);
+            contentDiv.find(".grid-item [type='checkbox']").prop("checked", chked);
         });
 
         filterGrid.click(function (event) {
@@ -350,6 +382,7 @@
 
         return filterGrid;
     }
+
 
     function groupData(tdObject) {
         var index = $(tdObject).attr("index");
@@ -365,6 +398,21 @@
             }
         });
     }
+
+
+    $(document).mouseup(function (e) {
+        var $filter = $('.filter');
+
+        // If the target of the click isn't the filter div nor a descendant of the filter div
+        if (!$filter.is(e.target) && $filter.has(e.target).length === 0) {
+            $filter.hide(); // Hide the filter div
+        }
+    });
+
+  
+
+
+
 </script>
 
 </html>
