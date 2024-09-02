@@ -162,30 +162,44 @@
 <body>
     <div class="info-container">
         <i class="fas fa-th-list"></i>
-        <h5>Thông tin khách hàng / 거래처 정보</h5>
+        <h5>
+            Thông tin đơn giá / 단가 정보</h5>
     </div>
     <div class="button-container">
         <button id="excelButton" style="background-color: green; width:80px;">Excel</button>
-        <button id="addButton" style="width:80px;">Add</button>
-        <button id="deleteButton" style="background-color: red; width:80px;">Delete</button>
+
     </div>
-    <div class="table-container">
+    <div class="table-container" style="width:130%;">
         <table id="dataTable">
             <thead>
                 <tr>
-                    <th style="text-align:center; width:50px;">
-                        <div class="custom-checkbox">
-                            <input type="checkbox" id="selectAll">
-                        </div>
-                    </th>
-                    <th data-column="customername" data-order="asc">Tên nhà cung cấp<br>거래처명
-                    </th>
-                    <th data-column="businessregistrationnumber" data-order="asc">Số đăng ký
-                        kinh doanh<br>사업자등록번호</th>
-                    <th data-column="representativename" data-order="asc">Tên người đại
-                        diện<br>대표자명</th>
-                    <th data-column="initial" data-order="asc">ENG<br></th>
+                    <th colspan="8"></th>
+                    <th style="text-align: center;" colspan="3">Giá vốn / 원가</th>
+                    <th style="text-align: center;" colspan="3">Đơn giá / 단가</th>
+                    <th colspan="4"></th>
                 </tr>
+                <tr>
+                    <th style="width: 150px;" id="datacount"></th>
+                    <th style="width: 100px;" id="datacount"></th>
+                    <th style="width: 150px;">BOMNO</th>
+                    <th style="width: 120px;">ngày lưu<br>등록날짜</th>
+                    <th>Khách hàng<br>고객사 </th>
+                    <th>Tên Model<br>모델명 </th>
+                    <th>Tên sản phẩm<br>제품명 </th>
+                    <th>Mã khách hàng<br>고객사코드 </th>
+
+                    <th style="text-align: center;">VND</th>
+                    <th style="text-align: center;">USD</th>
+                    <th style="text-align: center;">￦</th>
+                    <th style="text-align: center;">VND</th>
+                    <th style="text-align: center;">USD</th>
+                    <th style="text-align: center;">￦</th>
+                    <th>Chi phí nguyên liệu (%)<br>재료비(%)</th>
+                    <th>Số nguyên liệu<br>자재개수</th>
+                    <th>TYPE</th>
+                    <th>Phân loại công đoạn<br>공정구분</th>
+                </tr>
+
             </thead>
             <tbody id="Datatbody">
                 <!-- Data will be populated here by AJAX -->
@@ -205,7 +219,7 @@
             $('#Datatbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectcustomerinfovina',
+                url: server + '/api/iteminfobomvina',
                 dataType: 'json',
                 success: function (data) {
                     if (data.length === 0) {
@@ -267,15 +281,44 @@
 
         function renderTable(data) {
             var str = "";
+
             for (var i = 0; i < data.length; i++) {
                 var rowData = JSON.stringify(data[i]);
+                var totalcost = data[i].cost !== null ? data[i].cost : '';
+                var itemprice = data[i].itemprice !== null ? data[i].itemprice : '';
+                var itemcode1 = data[i].itemcode !== null ? data[i].itemcode : '';
+                var fontColor = data[i].status === '미사용' ? 'silver' : '';
+
+                var rowData = JSON.stringify(data[i]);
+
+                var approvalButton = data[i].approval === 'true' ?
+                    '<td><button class="btn btn" style="padding: 4px 5px; font-size: 14px;">Phê duyệt<br>승인</button></td>' :
+                    '<td><button class="btn btn-dark" onclick=\'showinfo1(' + rowData + ')\' style="padding: 4px 5px; font-size: 14px;">Chờ duyệt<br>승인대기</button></td>';
+
+                // Calculate percentage and handle Infinity case
+                var cost = parseFloat(data[i].cost) || 0;
+                var itemprice = parseFloat(data[i].itemprice) || 0;
+                var percentage = itemprice !== 0 ? (cost / itemprice * 100).toFixed(1) : '0.0';
+
+
                 str += '<tr>';
-                str += '<td><div class="custom-checkbox"><input type="checkbox"></div></td>';
-                str += '<td>' + data[i].customername + '</td>';
-                str += '<td>' + data[i].businessregistrationnumber + '</td>';
-                str += '<td>' + data[i].representativename + '</td>';
-                str += '<td>' + data[i].initial + '</td>';
-                str += '<td id="data-id" style="display:none;">' + data[i].id + '</td>';
+                str += '<td>' + approvalButton + '</td>'
+                str += '<td>' + data[i].bomno + '</td>'
+                str += '<td>' + data[i].savedate + '</td>'
+                str += '<td>' + data[i].customer + '</td>'
+                str += '<td>' + data[i].modelname + '</td>'
+                str += '<td>' + data[i].itemname + '</td>'
+                str += '<td>' + itemcode1 + '</td>'
+                str += '<td>' + data[i].cost + '</td>'
+                str += '<td>' + data[i].cost_usd + '</td>'
+                str += '<td>' + data[i].cost_won + '</td>'
+                str += '<td>' + data[i].itemprice + '</td>'
+                str += '<td>' + data[i].itempriceusd + '</td>'
+                str += '<td>' + data[i].itempricekor + '</td>'
+                str += '<td>' + percentage + '</td>'
+                str += '<td>' + data[i].materialcount + '</td>'
+                str += '<td>' + data[i].type + '</td>'
+                str += '<td>' + data[i].workpart + '</td>'
                 str += '</tr>';
             }
             $("#Datatbody").html(str);

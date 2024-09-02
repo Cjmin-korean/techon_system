@@ -1,103 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ag-Grid Example</title>
-    <!-- Ag-Grid의 스타일 및 스크립트를 불러옵니다. -->
-    <link rel="stylesheet" href="https://unpkg.com/@ag-grid-community/all-modules@26.2.0/dist/styles/ag-grid.css">
-    <link rel="stylesheet"
-        href="https://unpkg.com/@ag-grid-community/all-modules@26.2.0/dist/styles/ag-theme-alpine.css">
+    <title>QR Code Generator</title>
+
+    <!-- jQuery 로드 -->
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"
+        integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+
+    <!-- QRCode.js 라이브러리 로드 (CDN 사용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
-    <!-- 테이블을 랜더링할 div 요소입니다. -->
-    <div id="myGrid" style="height: 500px;" class="ag-theme-alpine"></div>
+    <h1>QR Code Generator</h1>
 
-    <!-- Ag-Grid의 스크립트를 불러옵니다. -->
-    <script
-        src="https://unpkg.com/@ag-grid-community/all-modules@26.2.0/dist/ag-grid-community.min.noStyle.js"></script>
+    <label for="textInput">Enter text to generate QR code:</label>
+    <input type="text" id="textInput" placeholder="Enter your text here">
+    <button onclick="generateQRCode()">Generate QR Code</button>
+
+    <div id="qrcode" style="margin-top: 20px;"></div>
+
     <script>
+        function generateQRCode() {
+            const qrText = document.getElementById('textInput').value.trim();
+            const qrcodeContainer = document.getElementById('qrcode');
+            qrcodeContainer.innerHTML = "";  // Clear previous QR code if any
 
-        // 테이블에 사용할 컬럼들을 정의합니다.
-        const columnDefs = [
-            { headerName: 'Column 2', field: 'col2', width: 150 },
-
-            {
-                headerName: '판매계획',
-                children: [
-                    {
-                        headerName: '판매계획 1',
-                        children: [
-                            { headerName: '판매계획 1-1', field: 'plan11', width: 120 },
-                            { headerName: '판매계획 1-2', field: 'plan12', width: 120 }
-                        ]
-                    },
-                    {
-                        headerName: '판매계획 2',
-                        children: [
-                            { headerName: '판매계획 2-1', field: 'plan21', width: 120 },
-                            { headerName: '판매계획 2-2', field: 'plan22', width: 120 }
-                        ]
-                    }
-                ],
-                headerGroupComponent: 'customHeaderGroupComponent'
-            },
-            { headerName: 'Column 2', field: 'col2', width: 150 },
-            { headerName: 'Column 3', field: 'col3', width: 150 },
-            {
-                headerName: 'Difference (Col2 - Col3)',
-                valueGetter: function (params) {
-                    return params.data.col2 - params.data.col3;
-                },
-                width: 200,
-                cellStyle: function (params) {
-                    const diff = params.data.col2 - params.data.col3;
-                    if (diff < 0) {
-                        return { color: 'red', 'font-weight': 'bold', background: 'skyblue' };
-                    }
-                    return null;
-                }
+            if (qrText === "") {
+                alert("Please enter some text to generate a QR code.");
+                return;
             }
-        ];
 
-
-
-        // 테이블에 랜더링할 데이터를 생성합니다. 여기서는 각 셀에 랜덤한 숫자를 생성하여 넣습니다.
-        const rowData = [];
-        for (let i = 0; i < 10; i++) {
-            const col1 = Math.floor(Math.random() * 100);
-            const col2 = Math.floor(Math.random() * 100);
-            const col3 = Math.floor(Math.random() * 100);
-            rowData.push({
-                col1: col1,
-                col2: col2,
-                col3: col3
+            // 새로운 QRCode 인스턴스 생성
+            new QRCode(qrcodeContainer, {
+                text: qrText,
+                width: 128,
+                height: 128,
             });
         }
-
-        // Ag-Grid의 옵션을 설정합니다.
-        const gridOptions = {
-            columnDefs: columnDefs,
-            rowData: rowData,
-        };
-
-        // Ag-Grid을 생성하고 설정합니다.
-        const gridDiv = document.querySelector('#myGrid');
-        new agGrid.Grid(gridDiv, gridOptions);
-
-        function CustomHeaderGroupComponent() { }
-
-        CustomHeaderGroupComponent.prototype.init = function (params) {
-            this.params = params;
-            this.eGui = document.createElement('div');
-            this.eGui.innerHTML = `<div style="text-align: center;">${params.displayName}</div>`;
-        };
-
-        CustomHeaderGroupComponent.prototype.getGui = function () {
-            return this.eGui;
-        };
     </script>
 </body>
 

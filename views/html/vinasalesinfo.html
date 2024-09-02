@@ -162,7 +162,7 @@
 <body>
     <div class="info-container">
         <i class="fas fa-th-list"></i>
-        <h5>Thông tin khách hàng / 거래처 정보</h5>
+        <h5>Thông tin tiếp nhậ đơn hàng kinh doanh / 영업 수주 정보</h5>
     </div>
     <div class="button-container">
         <button id="excelButton" style="background-color: green; width:80px;">Excel</button>
@@ -178,13 +178,11 @@
                             <input type="checkbox" id="selectAll">
                         </div>
                     </th>
-                    <th data-column="customername" data-order="asc">Tên nhà cung cấp<br>거래처명
-                    </th>
-                    <th data-column="businessregistrationnumber" data-order="asc">Số đăng ký
-                        kinh doanh<br>사업자등록번호</th>
-                    <th data-column="representativename" data-order="asc">Tên người đại
-                        diện<br>대표자명</th>
-                    <th data-column="initial" data-order="asc">ENG<br></th>
+                    <th>Mã khách hàng / 주문번호</th>
+                    <th>PONO</th>
+                    <th style="width: 800px;">TIÊU ĐỀ / 제목</th>
+                    <th>Đơn giá / 합계금액(VND)</th>
+                    <th>Đơn giá / 합계금액(USD)</th>
                 </tr>
             </thead>
             <tbody id="Datatbody">
@@ -205,12 +203,12 @@
             $('#Datatbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectcustomerinfovina',
+                url: server + '/api/selectaccountinfovina',
                 dataType: 'json',
                 success: function (data) {
                     if (data.length === 0) {
                         $('#Datatbody').append(
-                            '<tr><td colspan="5" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
+                            '<tr><td colspan="11" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
                         );
                     } else {
                         renderTable(data);
@@ -218,31 +216,6 @@
                 }
             });
 
-
-            // 테이블 정렬 기능 추가
-            $('th[data-column]').on('click', function () {
-                var column = $(this).data('column');
-                var order = $(this).data('order');
-                var rows = $('#Datatbody tr').get();
-
-                rows.sort(function (a, b) {
-                    var A = $(a).children('td').eq($(this).index() - 1).text().toUpperCase();
-                    var B = $(b).children('td').eq($(this).index() - 1).text().toUpperCase();
-
-                    if (order === 'asc') {
-                        return (A < B) ? -1 : (A > B) ? 1 : 0;
-                    } else {
-                        return (A > B) ? -1 : (A < B) ? 1 : 0;
-                    }
-                }.bind(this));
-
-                $.each(rows, function (index, row) {
-                    $('#Datatbody').append(row);
-                });
-
-                // 정렬 순서 토글
-                $(this).data('order', order === 'asc' ? 'desc' : 'asc');
-            });
 
             // 더블 클릭 이벤트 추가
 
@@ -271,11 +244,12 @@
                 var rowData = JSON.stringify(data[i]);
                 str += '<tr>';
                 str += '<td><div class="custom-checkbox"><input type="checkbox"></div></td>';
-                str += '<td>' + data[i].customername + '</td>';
-                str += '<td>' + data[i].businessregistrationnumber + '</td>';
-                str += '<td>' + data[i].representativename + '</td>';
-                str += '<td>' + data[i].initial + '</td>';
-                str += '<td id="data-id" style="display:none;">' + data[i].id + '</td>';
+                str += '<td>' + data[i].ordernumber + '</td>';
+                str += '<td>' + data[i].pono + '</td>';
+                str += '<td>' + data[i].total_count + ' sản phẩm đã được đăng ký  /  ' + data[i].total_count + ' 건의 제품이 등록되었습니다' + '</td>';
+                str += '<td>' + data[i].total_vnd.toLocaleString() + '</td>';
+                str += '<td>' + data[i].total_usd.toLocaleString() + '</td>';
+        
                 str += '</tr>';
             }
             $("#Datatbody").html(str);

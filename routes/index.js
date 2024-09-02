@@ -3199,7 +3199,7 @@ module.exports = function (app) {
                 .input('customerinitial', sql.NVarChar, req.body.customerinitial)
 
                 .query(
-                    "SELECT * from  materialinformationvina")
+                    "SELECT * from  materialinformationvina order by materialname asc")
 
                 .then(result => {
 
@@ -14599,8 +14599,8 @@ module.exports = function (app) {
                     "        ELSE 0 " +
                     "    END AS total_usd" +
                     " FROM accountinputvina " +
-                    " WHERE  " +
-                    "     accountdate BETWEEN @start AND @finish " +
+                    // " WHERE  " +
+                    // "     accountdate BETWEEN @start AND @finish " +
                     "                    order by" +
                     "                    LEFT(ordernumber, CHARINDEX('-', ordernumber) - 1) ASC," +
                     "CAST(SUBSTRING(ordernumber, CHARINDEX('-', ordernumber) + 1, LEN(ordernumber)) AS INT) ASC;                    ")

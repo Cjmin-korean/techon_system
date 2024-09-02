@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table with Scrollable tbody</title>
+    <script data-require="jquery@2.0.3" data-semver="2.0.3" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="../css/vinamain.css">
+
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div class="info-container">
+        <i class="fas fa-th-list"></i>
+        <h5>
+            Thông tin đơn giá / 단가 정보</h5>
+    </div>
+    <div class="button-container">
+        <button id="excelButton" style="background-color: green; width:80px;">Excel</button>
+
+    </div>
+    <div class="table-container">
+        <table id="dataTable">
+            <thead>
+                <tr>
+
+
+                    <th>số thứ tự<br>주문번호</th>
+                    <th>Ngày đặt hàng<br>주문일자</th>
+                    <th>Khách hàng<br>고객사</th>
+                    <th>PONO</th>
+                    <th>BOMNO</th>
+                    <th>Tên Model<br>모델명</th>
+                    <th>Tên sản phẩm<br>제품명</th>
+                    <th>Mã khách hàng<br>고객사코드</th>
+                    <th>Số lượng PO (EA)<br>PO수량</th>
+                    <th>Đơn vị<br>단위</th>
+                    <th>Đơn giá<br>단가</th>
+                    <th>Đơn giá<br>합계금액(VND)</th>
+                    <th>Đơn giá<br>합계금액(USD)</th>
+                    <!-- <th>Tỷ lệ nguyên liệu<br>재료비율(USD)(%)</th> -->
+                </tr>
+            </thead>
+            <tbody id="Datatbody">
+                <!-- Data will be populated here by AJAX -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        var server = '';
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            server = 'http://localhost:8080';
+        } else {
+            server = 'https://mestechon.com';
+        }
+
+        $(document).ready(function () {
+            $('#Datatbody').empty();
+
+
+
+            // 테이블 정렬 기능 추가
+            $('th[data-column]').on('click', function () {
+                var column = $(this).data('column');
+                var order = $(this).data('order');
+                var rows = $('#Datatbody tr').get();
+
+                rows.sort(function (a, b) {
+                    var A = $(a).children('td').eq($(this).index() - 1).text().toUpperCase();
+                    var B = $(b).children('td').eq($(this).index() - 1).text().toUpperCase();
+
+                    if (order === 'asc') {
+                        return (A < B) ? -1 : (A > B) ? 1 : 0;
+                    } else {
+                        return (A > B) ? -1 : (A < B) ? 1 : 0;
+                    }
+                }.bind(this));
+
+                $.each(rows, function (index, row) {
+                    $('#Datatbody').append(row);
+                });
+
+                // 정렬 순서 토글
+                $(this).data('order', order === 'asc' ? 'desc' : 'asc');
+            });
+
+            // 더블 클릭 이벤트 추가
+
+
+            // 전체 선택 체크박스 기능
+            $('#selectAll').on('click', function () {
+                var isChecked = $(this).is(':checked');
+                $('#Datatbody input[type="checkbox"]').prop('checked', isChecked);
+            });
+
+            $(document).off('dblclick', '#Datatbody tr');
+
+            // Attach the double-click event handler
+            $(document).on('dblclick', '#Datatbody tr', function () {
+                var rowData = $(this).children('td').map(function () {
+                    return $(this).text();
+                }).get();
+                console.log(rowData);
+            });
+        });
+        $.ajax({
+            type: 'POST',
+            url: server + '/api/selectaccountvina',
+            dataType: 'json',
+            success: function (data) {
+                if (data.length === 0) {
+                    $('#Datatbody').append(
+                        '<tr><td colspan="5" style="text-align:center;">Không có dữ liệu(데이터가 없습니다)</td></tr>'
+                    );
+                } else {
+                    renderTable(data);
+                }
+            }
+        });
+
+        function renderTable(data) {
+            var str = "";
+
+            for (var i = 0; i < data.length; i++) {
+                var rowData = JSON.stringify(data[i]);
+
+
+
+                str += '<tr>';
+                str += '<td>' + (data[i].ordernumber || '') + '</td>'
+                str += '<td>' + (data[i].accountdate || '') + '</td>'
+                str += '<td>' + (data[i].customer || '') + '</td>'
+                str += '<td>' + (data[i].pono || '') + '</td>'
+                str += '<td>' + (data[i].bomno || '') + '</td>'
+                str += '<td>' + (data[i].modelname || '') + '</td>'
+                str += '<td>' + (data[i].itemname || '') + '</td>'
+                str += '<td>' + (data[i].itemcode || '') + '</td>'
+                str += '<td style="text-align:right;">' + (data[i].quantity.toLocaleString() || '') + '</td>'
+                str += '<td style="text-align:right;">' + (data[i].unit || '') + '</td>'
+                str += '<td style="text-align:right;">' + (data[i].itemprice.toLocaleString() || '') + '</td>'
+                str += '<td style="text-align:right;">' + ((data[i].unit === 'VND' ? data[i].quantity * data[i].itemprice : 0).toLocaleString() || '') + '</td>'
+                str += '<td style="text-align:right;">' + ((data[i].unit === 'USD' ? data[i].quantity * data[i].itemprice : 0).toLocaleString() || '') + '</td>'
+
+                str += '</tr>';
+            }
+            $("#Datatbody").html(str);
+        }
+
+        $('#excelButton').on('click', function () {
+            exportTableToExcel('dataTable', 'Customer_Info');
+        });
+
+        function exportTableToExcel(tableID, filename = '') {
+            var table = document.getElementById(tableID);
+            var wb = XLSX.utils.book_new(); // Create a new workbook
+            var ws = XLSX.utils.table_to_sheet(table); // Convert the table to a worksheet
+
+            // Style the header (you can customize this)
+            var range = XLSX.utils.decode_range(ws['!ref']);
+            for (var C = range.s.c; C <= range.e.c; ++C) {
+                var address = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[address]) continue;
+                ws[address].s = {
+                    font: { bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "4A90E2" } },
+                    alignment: { horizontal: "center" }
+                };
+            }
+
+            // Add the worksheet to the workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+            // Export the Excel file
+            XLSX.writeFile(wb, filename + '.xlsx');
+        }
+    </script>
+</body>
+
+</html>

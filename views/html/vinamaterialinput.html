@@ -162,7 +162,7 @@
 <body>
     <div class="info-container">
         <i class="fas fa-th-list"></i>
-        <h5>Thông tin khách hàng / 거래처 정보</h5>
+        <h5>Thông tin tiếp nhận vật liệu / 자재 입고 정보</h5>
     </div>
     <div class="button-container">
         <button id="excelButton" style="background-color: green; width:80px;">Excel</button>
@@ -178,13 +178,19 @@
                             <input type="checkbox" id="selectAll">
                         </div>
                     </th>
-                    <th data-column="customername" data-order="asc">Tên nhà cung cấp<br>거래처명
-                    </th>
-                    <th data-column="businessregistrationnumber" data-order="asc">Số đăng ký
-                        kinh doanh<br>사업자등록번호</th>
-                    <th data-column="representativename" data-order="asc">Tên người đại
-                        diện<br>대표자명</th>
-                    <th data-column="initial" data-order="asc">ENG<br></th>
+                    <th>Tên người mua<br>입고일자</th>
+                    <th>Tên người mua<br>구매처명</th>
+                    <th>Mã hàng<br>품목코드</th>
+                    <th>Tên nguyên liệu<br>자재명</th>
+                    <th>Chiều rộng nguyên liệu<br>자재폭(mm)</th>
+                    <th>LOTNO</th>
+                    <th>Chiều dài<br>길이(M)</th>
+                    <th>Chiều rộng hữu hiệu<br>유효폭(mm)</th>
+                    <th>Đơn giá SQM<br>SQM단가</th>
+                    <th>Đơn giá Roll<br>롤단가</th>
+                    <th>Đơn giá Roll<br>부가세</th>
+                    <th>Đơn giá Roll<br>합계</th>
+
                 </tr>
             </thead>
             <tbody id="Datatbody">
@@ -205,7 +211,7 @@
             $('#Datatbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectcustomerinfovina',
+                url: server + '/api/selectmaterialinformationvina',
                 dataType: 'json',
                 success: function (data) {
                     if (data.length === 0) {
@@ -271,10 +277,17 @@
                 var rowData = JSON.stringify(data[i]);
                 str += '<tr>';
                 str += '<td><div class="custom-checkbox"><input type="checkbox"></div></td>';
-                str += '<td>' + data[i].customername + '</td>';
-                str += '<td>' + data[i].businessregistrationnumber + '</td>';
-                str += '<td>' + data[i].representativename + '</td>';
-                str += '<td>' + data[i].initial + '</td>';
+                str += '<td>' + data[i].codenumber + '</td>';
+                str += '<td>' + data[i].materialname + '</td>';
+                str += '<td>' + data[i].width.toLocaleString() + '</td>';
+                str += '<td>' + data[i].length.toLocaleString() + '</td>';
+                str += '<td>' + data[i].usewidth.toLocaleString() + '</td>';
+                str += '<td>' + data[i].sqmprice.toLocaleString() + '</td>';
+                str += '<td>' + data[i].rollprice.toLocaleString() + '</td>';
+                str += '<td>' + data[i].unit + '</td>';
+                str += '<td>' + data[i].num + '</td>';
+                str += '<td>' + data[i].manufacterer + '</td>';
+                str += '<td>' + data[i].supplier + '</td>';
                 str += '<td id="data-id" style="display:none;">' + data[i].id + '</td>';
                 str += '</tr>';
             }

@@ -162,29 +162,31 @@
 <body>
     <div class="info-container">
         <i class="fas fa-th-list"></i>
-        <h5>Thông tin khách hàng / 거래처 정보</h5>
+        <h5>
+            Thông tin đơn giá / 단가 정보</h5>
     </div>
     <div class="button-container">
         <button id="excelButton" style="background-color: green; width:80px;">Excel</button>
-        <button id="addButton" style="width:80px;">Add</button>
-        <button id="deleteButton" style="background-color: red; width:80px;">Delete</button>
+
     </div>
     <div class="table-container">
         <table id="dataTable">
             <thead>
                 <tr>
-                    <th style="text-align:center; width:50px;">
-                        <div class="custom-checkbox">
-                            <input type="checkbox" id="selectAll">
-                        </div>
-                    </th>
-                    <th data-column="customername" data-order="asc">Tên nhà cung cấp<br>거래처명
-                    </th>
-                    <th data-column="businessregistrationnumber" data-order="asc">Số đăng ký
-                        kinh doanh<br>사업자등록번호</th>
-                    <th data-column="representativename" data-order="asc">Tên người đại
-                        diện<br>대표자명</th>
-                    <th data-column="initial" data-order="asc">ENG<br></th>
+                 
+                    <th style="width: 150px;">BOMNO</th>
+                    <th style="width: 150px;">Khách hàng<br>고객사</th>
+                    <th style="width: 350px;">Tên Model<br>모델명</th>
+                    <th>Tên sản phẩm<br>품목명</th>
+                    <th>Hình thức giao hàng<br>납품형태</th>
+                    <th>Phân loại hàng<br>제품군</th>
+                    <th>Tiêu chuẩn chốt tháng<br>마감기준</th>
+                    <th>Đơn giá bán <br>판매단가(VND)</th>
+                    <th>Đơn giá bán <br>판매단가(USD)</th>
+                    <th>Giá vốn<br>원가(VND)</th>
+                    <th>Giá vốn<br>원가(USD)</th>
+                    <th>Tỷ lệ nguyên liệu<br>재료비율(%)</th>
+                    <!-- <th>Tỷ lệ nguyên liệu<br>재료비율(USD)(%)</th> -->
                 </tr>
             </thead>
             <tbody id="Datatbody">
@@ -205,7 +207,7 @@
             $('#Datatbody').empty();
             $.ajax({
                 type: 'POST',
-                url: server + '/api/selectcustomerinfovina',
+                url: server + '/api/iteminfobomvina',
                 dataType: 'json',
                 success: function (data) {
                     if (data.length === 0) {
@@ -267,15 +269,34 @@
 
         function renderTable(data) {
             var str = "";
+
             for (var i = 0; i < data.length; i++) {
                 var rowData = JSON.stringify(data[i]);
+
+                // 값 계산
+                var vndToUsd = (data[i].cost / 25139.6);
+                var costToPriceVND = (data[i].cost / data[i].itemprice) * 100;
+                var costToPriceUSD = (vndToUsd / data[i].itempriceusd) * 100;
+
+                // Infinity 및 NaN 체크 후 값 대체
+                vndToUsd = isFinite(vndToUsd) ? vndToUsd.toFixed(4) : '0';
+                costToPriceVND = isFinite(costToPriceVND) ? costToPriceVND.toFixed(2) : '0';
+                costToPriceUSD = isFinite(costToPriceUSD) ? costToPriceUSD.toFixed(2) : '0';
+
                 str += '<tr>';
-                str += '<td><div class="custom-checkbox"><input type="checkbox"></div></td>';
-                str += '<td>' + data[i].customername + '</td>';
-                str += '<td>' + data[i].businessregistrationnumber + '</td>';
-                str += '<td>' + data[i].representativename + '</td>';
-                str += '<td>' + data[i].initial + '</td>';
-                str += '<td id="data-id" style="display:none;">' + data[i].id + '</td>';
+                str += '<td>' + data[i].bomno + '</td>';
+                str += '<td>' + data[i].customer + '</td>';
+                str += '<td>' + data[i].modelname + '</td>';
+                str += '<td>' + data[i].itemname + '</td>';
+                str += '<td>' + (data[i].nap || '') + '</td>';
+                str += '<td>' + (data[i].class || '') + '</td>';
+                str += '<td style="text-align:right;">' + (data[i].deadline || '') + '</td>';
+                str += '<td style="text-align:right;">' + data[i].itemprice.toLocaleString() + '</td>';
+                str += '<td style="text-align:right;">' + (data[i].itempriceusd ? data[i].itempriceusd.toFixed(4) : '') + '</td>';
+                str += '<td style="text-align:right;">' + (data[i].cost.toLocaleString() || '') + '</td>';
+                str += '<td style="text-align:right;">' + vndToUsd + '</td>';  // 수정된 부분
+                str += '<td style="text-align:right;">' + costToPriceVND + '</td>';  // 수정된 부분
+                // str += '<td style="text-align:right;">' + costToPriceUSD + '</td>';  // 수정된 부분
                 str += '</tr>';
             }
             $("#Datatbody").html(str);
