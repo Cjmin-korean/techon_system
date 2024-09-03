@@ -13420,6 +13420,117 @@ module.exports = function (app) {
         });
 
     });
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/accountorderingvina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+            return pool.request()
+
+                .query(
+
+                    "WITH cte AS (  " +
+                    "	SELECT  " +
+                    "		a.ad,  " +
+                    "		a.contentname,  " +
+                    "		a.deliverydate,  " +
+                    "		a.customer,   " +
+                    "		a.modelname,  " +
+                    "		a.itemname,  " +
+                    "		a.quantity, " +
+                    "		a.bomno,   " +
+                    "		a.itemcode,  " +
+                    "		a.orderid,a.part,  " +
+                    "		SUM(ISNULL(i.quantity, 0)) AS total_quantity,  " +
+                    "		ROW_NUMBER() OVER (PARTITION BY a.modelname, a.itemname ORDER BY a.deliverydate ASC) AS row_num   " +
+                    "	FROM accountinputvina a  " +
+                    "	LEFT JOIN iteminput i ON a.modelname = i.modelname AND a.itemname = i.itemname  WHERE a.status IS NULL " +
+                    "	GROUP BY  " +
+                    "		a.ad,  " +
+                    "		a.contentname,  " +
+                    "		a.modelname,  " +
+                    "		a.itemname,  " +
+                    "		a.quantity,  " +
+                    "		a.deliverydate,  " +
+                    "		a.customer,  " +
+                    "		a.bomno,  " +
+                    "		a.itemcode,  " +
+                    "		a.orderid,a.part  " +
+                    "), recursive_cte AS (  " +
+                    "   SELECT  " +
+                    "	   c.ad,  " +
+                    "	   c.bomno,  " +
+                    "	   c.contentname,  " +
+                    "	   c.deliverydate,  " +
+                    "	   c.customer,  " +
+                    "	   c.modelname,  " +
+                    "	   c.itemname,  " +
+                    "	   c.quantity,  " +
+                    "	   c.itemcode,  " +
+                    "	   c.orderid,c.part,  " +
+                    "	   c.total_quantity,  " +
+                    "	   total_quantity - quantity AS difference,  " +
+                    "	   row_num  " +
+                    "   FROM cte c  " +
+                    "   where row_num ='1' " +
+                    "   UNION ALL   " +
+                    " " +
+                    "   SELECT   " +
+                    "	   c.ad,   " +
+                    "	   c.bomno,   " +
+                    "	   c.contentname,   " +
+                    "	   c.deliverydate,   " +
+                    "	   c.customer,  " +
+                    "	   c.modelname,   " +
+                    "	   c.itemname,  " +
+                    "	   c.quantity,  " +
+                    "	   c.itemcode,  " +
+                    "	   c.orderid,c.part,  " +
+                    "	   c.total_quantity,  " +
+                    "	   rc.difference - c.quantity AS difference,  " +
+                    "	   c.row_num  " +
+                    "   FROM cte c  " +
+                    "   JOIN recursive_cte rc ON c.modelname = rc.modelname AND c.itemname = rc.itemname AND c.row_num = rc.row_num + 1 " +
+                    "), RecursiveResult AS ( " +
+                    "   SELECT " +
+                    "	   rc.contentname, " +
+                    "	   rc.bomno, " +
+                    "	   rc.deliverydate, " +
+                    "	   rc.customer, " +
+                    "	   rc.modelname, " +
+                    "	   rc.itemname, " +
+                    "	   rc.itemcode, " +
+                    "	   rc.orderid,rc.part, " +
+                    "	   FORMAT(rc.quantity, '#,0') AS quantity, " +
+                    "	   FORMAT(rc.difference, '#,0') AS difference, " +
+                    "	   FORMAT(rc.total_quantity, '#,0') AS total_quantity, " +
+                    "	   CASE WHEN (rc.difference) >= 0 THEN '가능' ELSE '부족' END AS possible, " +
+                    "	   rc.ad, " +
+                    "	   CASE WHEN EXISTS ( " +
+                    "			   SELECT 1 " +
+                    "			   FROM [Techon].[dbo].[orderlistvina] o " +
+                    "			   WHERE o.bomno = rc.bomno AND o.qrno = rc.orderid " +
+                    "	   ) THEN 'Y' ELSE 'N' END AS exists1, " +
+                    "	   ISNULL(ol_total.total_quantity, 0) AS a " +
+                    "   FROM recursive_cte rc " +
+                    "   LEFT JOIN ( " +
+                    "	   SELECT " +
+                    "		   qrno, " +
+                    "		   SUM(quantity) AS total_quantity " +
+                    "	   FROM orderlistvina " +
+                    "	   GROUP BY qrno " +
+                    "   ) ol_total ON rc.orderid = ol_total.qrno " +
+                    ") " +
+                    " " +
+                    "SELECT * FROM RecursiveResult;             ")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
     // **** finish
 
     // // **** start      재고 조회 쿼리 
