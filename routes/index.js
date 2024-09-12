@@ -1965,7 +1965,7 @@ module.exports = function (app) {
                     "         ROUND(COALESCE(i.itempriceusd, 0) * 1367, 2) AS itempricekor, " +
 
                     "     i.customer,  " +
-                    "     i.itemcode,  " +
+                    // "     i.itemcode,  " +
                     "     i.working,  " +
                     "     i.pcs,  " +
                     "     i.cavity,  " +
@@ -11874,6 +11874,26 @@ module.exports = function (app) {
 
                 .query(
                     "SELECT * FROM materialinfoinformation WHERE materialname LIKE '%' + @materialname + '%' order by materialname,num asc")
+                .then(result => {
+
+                    res.json(result.recordset);
+                    res.end();
+                });
+        });
+
+    });
+    // **** finish
+    // **** start       
+    sql.connect(config).then(pool => {
+        app.post('/api/searchingmaterialnamevina', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+            return pool.request()
+
+                .input('materialname', sql.NVarChar, '%' + req.body.materialname + '%')
+
+
+                .query(
+                    "SELECT * FROM materialinformationvina WHERE materialname LIKE @materialname order by materialname,num asc")
                 .then(result => {
 
                     res.json(result.recordset);
