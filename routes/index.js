@@ -3215,6 +3215,57 @@ module.exports = function (app) {
     // **** finish
     // **** start  생산설비창 띄우기  
     sql.connect(config).then(pool => {
+        app.post('/api/selectmaterialinformationvina1', function (req, res) {
+            res.header("Access-Control-Allow-Origin", "*");
+
+
+            return pool.request()
+                // .input('customerinitial', sql.NVarChar, req.body.customerinitial)
+
+                .query(
+                    "SELECT "+
+                    "     id,"+
+                    "     codenumber,"+
+                    "     materialname,"+
+                    "     width,"+
+                    "     length,"+
+                    "     sqmprice,"+
+                    "     unit,"+
+                    "     macustomer,"+
+                    "     supplier_kor,"+
+                    "     supplier_vina,"+
+                    "     CASE"+
+                    "         WHEN unit = 'USD' THEN FLOOR(sqmprice * width / length * 10 * 25208)"+
+                    "         WHEN unit = 'KRW' THEN FLOOR(sqmprice * width / length * 10 * 18.45)"+
+                    "         WHEN unit = 'VND' THEN FLOOR(sqmprice * width / length * 10 * 1)"+
+                    "     END AS materialpricevnd,"+
+                    "     CASE"+
+                    "         WHEN unit = 'USD' THEN FLOOR(sqmprice * width / length * 10 * 1370.91)"+
+                    "         WHEN unit = 'KRW' THEN FLOOR(sqmprice * width / length * 10 * 1)"+
+                    "         WHEN unit = 'VND' THEN FLOOR(sqmprice * width / length * 10 * 0.0541)"+
+                    "     END AS materialpricekor,"+
+                    "     CASE"+
+                    "         WHEN unit = 'USD' THEN ROUND(sqmprice * width / length * 10 * 1, 4)"+
+                    "         WHEN unit = 'KRW' THEN ROUND(sqmprice * width / length * 10 / 1370.91, 4)"+
+                    "         WHEN unit = 'VND' THEN ROUND(sqmprice * width / length * 10 / 25208, 4)"+
+                    "     END AS materialpriceusd"+
+                    " FROM"+
+                    "     materialinfovina;")
+
+                .then(result => {
+
+
+                    res.json(result.recordset);
+                    res.end();
+
+
+                });
+        });
+
+    });
+    // **** finish
+    // **** start  생산설비창 띄우기  
+    sql.connect(config).then(pool => {
         app.post('/api/selectmaterialinformation1', function (req, res) {
             res.header("Access-Control-Allow-Origin", "*");
 
